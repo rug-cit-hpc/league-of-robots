@@ -1,0 +1,17 @@
+---
+- name: generate figlet text
+  # shell: figlet -f {{ role_path }}/files/doh.flf -w 180 {{ ansible_hostname }}
+  shell: figlet {{ ansible_hostname }}
+  register: figlet
+  delegate_to: localhost
+
+
+# Should be conver
+- name: Insert figlet in /etc/motd
+  template:
+    src: templates/motd
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: 0644
+  become: true

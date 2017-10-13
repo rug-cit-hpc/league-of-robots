@@ -9,7 +9,19 @@
   hosts: all
   become: True
 
+  tasks:
+    - user:
+        name: remco
+        comment: "Remco Rohde"
+        group: admin
 
+    - authorized_key:
+        user: remco
+        key: 'ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAA+J5Kn81H0o8tr8W+m31E6OOmPpEqH5/48XRKy/qa6x1phGwobFAdLO8VtnsidjVEb1fpbHCArPQM3T2xjRBnCPAF7XNTm6S/nyrBk522yYOz1dTYUc7mTKACvKTqwEPwtA7sUZz61u+joFY4UajcVszJAuaLZCNRaSzLO1vx3ML571w== remco@tnt7'
+        state: present
+
+- hosts: sugarsnax
+  become: True
   tasks:
     - user:
         name: pieter
@@ -19,4 +31,39 @@
     - authorized_key:
         user: pieter
         key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCdOt9U8m3oa/ka8vRTOWxU9uh13hR9F5FoW7SRbrQMWX3XYCEF1mFSTU0WHqYlkOm5atbkqRnR2WUOuG2YjCDJ6KqvpYGjITqHilBCINkWuXozoT5HkGbMtcN1nYDh4b+lGhg3ttfTBKBPusLz0Mca68EL6MjmSsgbRSIceNqFrfbjcc/YhJo7Kn769RW6W/ToClVHNHqgC47ZGXDc5acUrcfiaPNFSlyUjqCMKyO7sGOm/o4TTLffznH4A4iNn+/IX+7dGZRlwcmPjsBlpMk8zjQQqDE6l/UykbwKgYBJRO02PeNg3bqDAwSGR5+e4raJ3/mN3tkQqC/cAD3h4eWaRTBJdnLltkOFFeXux4jvuMFCjLYslxHK/LH//GziarA0OQVqA+9LWkwtLx1rKtNW6OaZd45iandwUuDVzlbADxwXtqjjnoy1ZUsAR83YVyhN/fqgOe2i34Q48h27rdkwRwAINuqnoJLufaXyZdYi4QintKOScp3ps/lSXUJq+zn7yh54JCz2l/MhDNUBpBWvZevJTXxqQBszAp5gv0KE2VuPOyrmzo+QeBxKqglMSonguoVolfb9sEYT5Xhu1zR6thRtoBT813kzpeVSzMUAr/KOD+ILSjWKUNT0JuiCXsEDD7Zqx/kspTsHpi/+2irAdcXgAEA+fiJqxsNfV4cpQw== pneerincx'
+        state: present
+
+- hosts:
+    - talos
+    - imperator
+  become: True
+  tasks:
+    - user:
+        name: pieter
+        comment: "Pieter Neerincx"
+        group: admin
+
+    - authorized_key:
+        user: pieter
+        key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCdOt9U8m3oa/ka8vRTOWxU9uh13hR9F5FoW7SRbrQMWX3XYCEF1mFSTU0WHqYlkOm5atbkqRnR2WUOuG2YjCDJ6KqvpYGjITqHilBCINkWuXozoT5HkGbMtcN1nYDh4b+lGhg3ttfTBKBPusLz0Mca68EL6MjmSsgbRSIceNqFrfbjcc/YhJo7Kn769RW6W/ToClVHNHqgC47ZGXDc5acUrcfiaPNFSlyUjqCMKyO7sGOm/o4TTLffznH4A4iNn+/IX+7dGZRlwcmPjsBlpMk8zjQQqDE6l/UykbwKgYBJRO02PeNg3bqDAwSGR5+e4raJ3/mN3tkQqC/cAD3h4eWaRTBJdnLltkOFFeXux4jvuMFCjLYslxHK/LH//GziarA0OQVqA+9LWkwtLx1rKtNW6OaZd45iandwUuDVzlbADxwXtqjjnoy1ZUsAR83YVyhN/fqgOe2i34Q48h27rdkwRwAINuqnoJLufaXyZdYi4QintKOScp3ps/lSXUJq+zn7yh54JCz2l/MhDNUBpBWvZevJTXxqQBszAp5gv0KE2VuPOyrmzo+QeBxKqglMSonguoVolfb9sEYT5Xhu1zR6thRtoBT813kzpeVSzMUAr/KOD+ILSjWKUNT0JuiCXsEDD7Zqx/kspTsHpi/+2irAdcXgAEA+fiJqxsNfV4cpQw== pneerincx'
+        state: present
+
+    - user:
+        name: gerben
+        comment: "Gerben van der Vries"
+        group: admin
+
+    - authorized_key:
+        user: gerben
+        key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCUfwAhBD4vCDYgsr04Kxn1e+vIcx7EzOEJrwi4Bv1Fc329TAifMTLeXXjPlehNvDvxq1Eb6I0v0CA01OwtD2QH+jnKGK7/RXwOfKHZQDsfZ1qL725So8z2rLfTOiIBn01zwSZTPoMC0NoDEj1H7RUpuSTSWazRmZJAi4S9aWU7DK+aWp0vR4UzvxWNFuzhhSJPOrHBx0O6st67oVRyhhIFo67dIfgI/fDwuT7+hAfAzGtuWAW1SI33ucDtaSSs3CT6ndPIU1jzRwrK/Xoq2vzyso6ptj9N/qJfauVUtwhQs//9hGjIP7H2m4maUDR60qDveUy4QNbRoJQuT28FrZxdYjEWyU7E3/yuBSX5Lggk9GuolpGBTj3EDLth0LUsB/hjjGNSebNL/pF5wQR9Usu9omXf4f3dPfU/X0SaWjeY1ukU4saRefn9FIu1ZV3w6TQUybM/2ZcHzbS2JDieirMTZ2uGUVZyAX4TID40Pc84bcFbfQULkqBGPmp2X3rrfJgg8GmmX92qT/OEEPQ6tsA909dxvXGMYzb/7B5MjiAjdkhhIlRzjFz8zy0dkTAMopxwHPI4Fr1z/LhP8Or7pv31HfG/RIW8pOcanvvRRzqoSohDrfxobzczce42S/qrD0sE2gQdwbnAh0JlPmB7erSrqhxEjw0pHXd8CWx4yH3oJQ== gvdvries@local.macbook'
+        state: present
+
+    - user:
+        name: marieke
+        comment: "Marieke Bijlsma"
+        group: admin
+
+    - authorized_key:
+        user: marieke
+        key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDb8ulPLVGL78KJ8Egg7i2V9JLsge4m4+G6kdCuX7p7T7WRFH54DjaBl52UnkgbuTML/2r6c1gk3pXF2wlOtyHKqhD4AyvY1l/NyLSn1kkgY3XaWp64pFmmEydqOOrPX6L9cMGEyPjnfjr/GWbihzFn7E9Hc0kkp7CPbbdAlmwnKTk1m87CtKHVVV7rg7t7tI+pwoBhAGq1KpwxvNyKQT9Duwo+0eP/xZPZ/b12j7edxjjgpEtV+mCldsbXS+JyMVAScJXYV6TYcSyZhNhLnhzZIikjvV8/LcFxt4sURMeWLkiw3EqQOpDazJT6p6zo0KFfglvYG7ps8ijsnYuz4BkvMGx5bJQZVT4RdzQASisEUhJY1t0ZLGfs4bix2yMNmwCkypNZq72G2p/e2A9n1NhVSyOXfzHonQBFbL5xUX/1PNKXt027wTCbnl0OA/gLdez0NeanRzVjfDJGLOueC93rAJRIAWk+UOUBWAmHvL7XdnrgPq2puxk3sKCijUgxEkh1xqgMST5MTq3DMzese4jeuAQErhs5WnkOiythn4i4ydJ0oUwAjZhSFnGBSzol0Iar6chxfsp2U/pcl97QKXGLXkIvlZ7vMtYdbxopJ8uYQaOdkDycU1upR6pylZ6LnP8mF+iTqcHry4rmQ5rp46m2L5Cbp3eJZ7LFPXTVLUvWWw== mbijlsma'
         state: present

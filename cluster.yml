@@ -1,0 +1,54 @@
+---
+- name: Install roles needed for all virtual cluster components.
+  hosts: cluster
+  become: true
+  tasks:
+  roles:
+     - spacewalk_client
+     - ldap
+     - node_exporter
+     - cluster
+
+- name: Airlock needs ldap But no spacewalk and filesystems
+  hosts: airlock
+  become: true
+  roles:
+     - ldap
+     - cluster
+     - geerlingguy.security
+  tasks:
+     - cron:
+          name: Weekly reboot to load new kernel.
+          weekday: 1
+          minute: 45
+          hour: 13
+          user: root
+          job: '/sbin/shutdown -r -t +60m'
+
+- hosts: imperator
+  become: true
+  roles:
+     - prom_server
+     - cadvisor
+
+- name: Install virtual compute nodes
+  hosts: compute-vm
+  become: true
+  tasks:
+  roles:
+     - compute-vm
+     - isilon
+     - datahandling
+
+- name: Install user interface
+  hosts: interface
+  become: true
+  tasks:
+  roles:
+     - slurm_exporter
+     - user-interface
+     - datahandling
+     - isilon
+
+- import_playbook: users.yml
+- import_playbook: ssh-host-signer.yml

@@ -1,0 +1,35 @@
+---
+- name: Set /etc/hosts
+  template:
+    src: templates/hosts
+    dest: /etc/hosts
+    mode: 0644
+    owner: root
+    group: root
+    backup: yes
+  become: true
+
+- name: Set hostname to inventory_hostname
+  hostname:
+    name: '{{ inventory_hostname }}'
+
+- name: set selinux in permissive mode
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: install some standard software
+  yum: name={{ item }} state=latest update_cache=no
+  with_items:
+    - curl
+    - git
+    - git-core
+    - nano
+    - ncdu
+    - screen
+    - telnet
+    - tmux
+    - tree
+    - vim
+  tags:
+    - software

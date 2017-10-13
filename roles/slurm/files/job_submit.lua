@@ -3,7 +3,7 @@
  This lua script assigns the right QoS to each job, based on a predefined table and
  assuming that each partition will have a QoS for short jobs and one for long jobs.
  The correct QoS is chosen by comparing the time limit of the job to a given threshold.
- 
+
  The PARTITION_TO_QOS table contains these thresholds and QoS names for all partitions:
  for jobs having a time limit below the threshold, the given short QoS will be applied.
  Otherwise,  the specified long QoS will be applied.
