@@ -1,0 +1,3 @@
+*.retry
+*.swp
+.vault_pass.txt
