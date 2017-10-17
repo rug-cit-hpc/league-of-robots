@@ -38,13 +38,30 @@ gs-compute[01:11] storage_volume=/dev/sdb
 [nova-compute]
 gs-compute[01:11] physical_interface_mappings=provider:enp130s0f0
 
-[proxy]
-airlock.hpc.rug.nl
+[jumphost]
+airlock
 
-[interface]
+[slurm]
+imperator
+
+[buildserver]
+sugarsnax
+
+[administration]
+gearshift
+imperator
+sugarsnax
+
+[user-interface]
 gearshift
 
-[compute-vms]
-gs-vcompute01 ansible_ssh_user=centos
-gs-vcompute[03:11] ansible_ssh_user=centos
+[compute-vm]
+gs-vcompute[01:11]
 
+[cluster:children]
+compute-vm
+administration
+
+[metal]
+gs-openstack
+gs-compute[01:11]
