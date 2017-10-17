@@ -1,3 +1,4 @@
 *.retry
 *.swp
 .vault_pass.txt
+roles/hpc-cloud

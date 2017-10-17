@@ -1,0 +1,15 @@
+---
+- include: common.yml
+- include: rabbitmq.yml
+- include: memcached.yml
+- include: mariadb.yml
+- include: keystone.yml
+- include: glance-controller.yml
+- include: nova-controller.yml
+- include: neutron-controller.yml
+- include: cinder-controller.yml
+- include: cinder-storage.yml
+- include: nova-compute.yml
+- include: horizon.yml
+- include: heat.yml
+- include: post-install.yml
