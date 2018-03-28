@@ -33,11 +33,7 @@ gs-openstack
 gs-openstack
 
 [cinder-storage]
-gs-compute09 storage_volume=/dev/sdb
-gs-compute10 storage_volume=/dev/sdb
-gs-compute11 storage_volume=/dev/sdb
+gs-compute[01:11] storage_volume=/dev/sdb
 
 [nova-compute]
-gs-compute09 physical_interface_mappings=provider:enp130s0f0
-gs-compute10 physical_interface_mappings=provider:enp130s0f0
-gs-compute11 physical_interface_mappings=provider:enp130s0f0
+gs-compute[01:11] physical_interface_mappings=provider:enp130s0f0
