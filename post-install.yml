@@ -17,12 +17,12 @@
       with_items:
         - openstack network create --share --external --provider-physical-network provider --provider-network-type vlan --provider-segment 983 vlan983
         - >
-            openstack subnet create --subnet-range 172.23.40.0/24 --gateway 172.23.40.1
+            openstack subnet create --subnet-range 172.23.40.0/22 --gateway 172.23.40.1
             --network vlan983 --allocation-pool start=172.23.40.21,end=172.23.40.32
             --dns-nameserver 8.8.4.4 vlan983_subnet
         - openstack network create --share --external --provider-physical-network provider --provider-network-type vlan --provider-segment 985 vlan985
         - >
-            openstack subnet create --subnet-range 172.23.34.0/24 --gateway 172.23.34.1
+            openstack subnet create --subnet-range 172.23.34.0/22 --gateway 172.23.34.1
             --network vlan985 --allocation-pool start=172.23.34.21,end=172.23.34.32
             --dns-nameserver 8.8.4.4 vlan985_subnet
         - openstack network create --share --external --provider-physical-network provider --provider-network-type vlan --provider-segment 13 vlan13
