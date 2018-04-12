@@ -1,8 +1,37 @@
 heat_template_version: 2015-04-30
 
-description: Simple template to deploy a single compute instance
+description: Simple template to deploy The gearshift compute cluster.
+
+parameters:
+  image_name:
+    type: string
+    label: Image Name
+    description: Name of image to be used for compute instance
 
 resources:
+ sugarsnax_volume:
+   type: OS::Cinder::Volume
+   properties:
+     size: 2900
+
+ sugarsnax:
+   type: OS::Nova::Server
+   properties:
+     key_name: adminkey
+     image: { get_param: image_name }
+     flavor: Compute
+     networks:
+         - network: vlan983
+           fixed_ip: 172.23.40.35
+         - network: vlan985
+           fixed_ip: 172.23.34.35
+
+ volume_attachment:
+   type: OS::Cinder::VolumeAttachment
+   properties:
+     volume_id: { get_resource: sugarsnax_volume }
+     instance_uuid: { get_resource: sugarsnax }
+
  gs-vcompute01-volume:
     type: OS::Cinder::Volume
     properties:
@@ -12,7 +41,7 @@ resources:
    type: OS::Nova::Server
    properties:
      key_name: adminkey
-     image: 063e516e-3762-4e36-87b1-3ca40b5f06ed
+     image: { get_param: image_name }
      flavor: Compute
      networks:
          - network: vlan983
@@ -36,7 +65,7 @@ resources:
    type: OS::Nova::Server
    properties:
      key_name: adminkey
-     image: 063e516e-3762-4e36-87b1-3ca40b5f06ed
+     image: { get_param: image_name }
      flavor: Compute
      networks:
          - network: vlan983
@@ -60,7 +89,7 @@ resources:
    type: OS::Nova::Server
    properties:
      key_name: adminkey
-     image: 063e516e-3762-4e36-87b1-3ca40b5f06ed
+     image: { get_param: image_name }
      flavor: Compute
      networks:
          - network: vlan983
@@ -84,7 +113,7 @@ resources:
    type: OS::Nova::Server
    properties:
      key_name: adminkey
-     image: 063e516e-3762-4e36-87b1-3ca40b5f06ed
+     image: { get_param: image_name }
      flavor: Compute
      networks:
          - network: vlan983
@@ -107,7 +136,7 @@ resources:
    type: OS::Nova::Server
    properties:
      key_name: adminkey
-     image: 063e516e-3762-4e36-87b1-3ca40b5f06ed
+     image: { get_param: image_name }
      flavor: Compute
      networks:
          - network: vlan983
@@ -130,7 +159,7 @@ resources:
    type: OS::Nova::Server
    properties:
      key_name: adminkey
-     image: 063e516e-3762-4e36-87b1-3ca40b5f06ed
+     image: { get_param: image_name }
      flavor: Compute
      networks:
          - network: vlan983
@@ -154,7 +183,7 @@ resources:
    type: OS::Nova::Server
    properties:
      key_name: adminkey
-     image: 063e516e-3762-4e36-87b1-3ca40b5f06ed
+     image: { get_param: image_name }
      flavor: Compute
      networks:
          - network: vlan983
@@ -178,7 +207,7 @@ resources:
    type: OS::Nova::Server
    properties:
      key_name: adminkey
-     image: 063e516e-3762-4e36-87b1-3ca40b5f06ed
+     image: { get_param: image_name }
      flavor: Compute
      networks:
          - network: vlan983
@@ -202,7 +231,7 @@ resources:
    type: OS::Nova::Server
    properties:
      key_name: adminkey
-     image: 063e516e-3762-4e36-87b1-3ca40b5f06ed
+     image: { get_param: image_name }
      flavor: Compute
      networks:
          - network: vlan983
@@ -226,7 +255,7 @@ resources:
    type: OS::Nova::Server
    properties:
      key_name: adminkey
-     image: 063e516e-3762-4e36-87b1-3ca40b5f06ed
+     image: { get_param: image_name }
      flavor: Compute
      networks:
          - network: vlan983
@@ -250,7 +279,7 @@ resources:
    type: OS::Nova::Server
    properties:
      key_name: adminkey
-     image: 063e516e-3762-4e36-87b1-3ca40b5f06ed
+     image: { get_param: image_name }
      flavor: Compute
      networks:
          - network: vlan983
