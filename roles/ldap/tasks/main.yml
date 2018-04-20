@@ -1,0 +1,54 @@
+# Register a machine to our ldap
+---
+- name: Include secrets
+  include_vars: secrets.yml
+
+- debug:
+    var: vars
+
+- name: Install yum dependencies
+  yum: name={{ item }} state=latest update_cache=yes
+  with_items:
+    - openldap-clients
+    - nss-pam-ldapd
+    - openssh-ldap
+
+- name: install nslcd.conf
+  template:
+    src: nslcd.conf
+    dest: /etc/nslcd.conf
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: install ldap.conf
+  template:
+    src: ldap.conf
+    dest: /etc/ssh/ldap.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: install nsswitch.conf
+  copy:
+    src: nsswitch.conf
+    dest: /etc/nsswitch.conf
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: update sshd.conf
+  blockinfile:
+    path: /etc/ssh/sshd_config
+    block: |
+      AuthorizedKeysCommand /usr/libexec/openssh/ssh-ldap-wrapper
+      AuthorizedKeysCommandUser root
+      PubkeyAuthentication yes
+
+- name: restart daemons
+  service:
+    name: "{{item}}"
+    state: restarted
+  with_items:
+    - nslcd
+    - sshd
