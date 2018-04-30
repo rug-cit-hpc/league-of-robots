@@ -3,9 +3,6 @@
 - name: Include secrets
   include_vars: secrets.yml
 
-- debug:
-    var: vars
-
 - name: Install yum dependencies
   yum: name={{ item }} state=latest update_cache=yes
   with_items:
