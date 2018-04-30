@@ -1,3 +1,4 @@
+---
 heat_template_version: 2015-04-30
 
 description: Simple template to deploy The gearshift compute cluster.
@@ -9,287 +10,299 @@ parameters:
     description: Name of image to be used for compute instance
 
 resources:
- sugarsnax_volume:
-   type: OS::Cinder::Volume
-   properties:
-     size: 2900
+  airlock:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Molgenis
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.36
+        - network: vlan13
+          fixed_ip: 129.125.60.196
 
- sugarsnax:
-   type: OS::Nova::Server
-   properties:
-     key_name: adminkey
-     image: { get_param: image_name }
-     flavor: Compute
-     networks:
-         - network: vlan983
-           fixed_ip: 172.23.40.35
-         - network: vlan985
-           fixed_ip: 172.23.34.35
-
- volume_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-     volume_id: { get_resource: sugarsnax_volume }
-     instance_uuid: { get_resource: sugarsnax }
-
- gs-vcompute01-volume:
+  sugarsnax_volume:
     type: OS::Cinder::Volume
     properties:
       size: 2900
 
- gs-vcompute01:
-   type: OS::Nova::Server
-   properties:
-     key_name: adminkey
-     image: { get_param: image_name }
-     flavor: Compute
-     networks:
-         - network: vlan983
-           fixed_ip: 172.23.40.81
-         - network: vlan985
-           fixed_ip: 172.23.34.81
+  sugarsnax:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Compute
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.35
+        - network: vlan985
+          fixed_ip: 172.23.34.35
 
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: sugarsnax_volume}
+      instance_uuid: {get_resource: sugarsnax}
 
- volume_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-     volume_id: { get_resource: gs-vcompute01-volume }
-     instance_uuid: { get_resource: gs-vcompute01 }
-
- gs-vcompute02-volume:
+  gs-vcompute01-volume:
     type: OS::Cinder::Volume
     properties:
       size: 2900
 
- gs-vcompute02:
-   type: OS::Nova::Server
-   properties:
-     key_name: adminkey
-     image: { get_param: image_name }
-     flavor: Compute
-     networks:
-         - network: vlan983
-           fixed_ip: 172.23.40.82
-         - network: vlan985
-           fixed_ip: 172.23.34.82
+  gs-vcompute01:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Compute
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.81
+        - network: vlan985
+          fixed_ip: 172.23.34.81
 
 
- volume_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-     volume_id: { get_resource: gs-vcompute02-volume }
-     instance_uuid: { get_resource: gs-vcompute02 }
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: gs-vcompute01-volume}
+      instance_uuid: {get_resource: gs-vcompute01}
 
- gs-vcompute03-volume:
+  gs-vcompute02-volume:
     type: OS::Cinder::Volume
     properties:
       size: 2900
 
- gs-vcompute03:
-   type: OS::Nova::Server
-   properties:
-     key_name: adminkey
-     image: { get_param: image_name }
-     flavor: Compute
-     networks:
-         - network: vlan983
-           fixed_ip: 172.23.40.83
-         - network: vlan985
-           fixed_ip: 172.23.34.83
+  gs-vcompute02:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Compute
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.82
+        - network: vlan985
+          fixed_ip: 172.23.34.82
 
 
- volume_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-     volume_id: { get_resource: gs-vcompute03-volume }
-     instance_uuid: { get_resource: gs-vcompute03 }
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: gs-vcompute02-volume}
+      instance_uuid: {get_resource: gs-vcompute02}
 
- gs-vcompute04-volume:
+  gs-vcompute03-volume:
     type: OS::Cinder::Volume
     properties:
       size: 2900
 
- gs-vcompute04:
-   type: OS::Nova::Server
-   properties:
-     key_name: adminkey
-     image: { get_param: image_name }
-     flavor: Compute
-     networks:
-         - network: vlan983
-           fixed_ip: 172.23.40.84
-         - network: vlan985
-           fixed_ip: 172.23.34.84
+  gs-vcompute03:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Compute
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.83
+        - network: vlan985
+          fixed_ip: 172.23.34.83
 
- volume_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-     volume_id: { get_resource: gs-vcompute04-volume }
-     instance_uuid: { get_resource: gs-vcompute04 }
 
- gs-vcompute05-volume:
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: gs-vcompute03-volume}
+      instance_uuid: {get_resource: gs-vcompute03}
+
+  gs-vcompute04-volume:
     type: OS::Cinder::Volume
     properties:
       size: 2900
 
- gs-vcompute05:
-   type: OS::Nova::Server
-   properties:
-     key_name: adminkey
-     image: { get_param: image_name }
-     flavor: Compute
-     networks:
-         - network: vlan983
-           fixed_ip: 172.23.40.85
-         - network: vlan985
-           fixed_ip: 172.23.34.85
+  gs-vcompute04:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Compute
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.84
+        - network: vlan985
+          fixed_ip: 172.23.34.84
 
- volume_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-     volume_id: { get_resource: gs-vcompute05-volume }
-     instance_uuid: { get_resource: gs-vcompute05 }
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: gs-vcompute04-volume}
+      instance_uuid: {get_resource: gs-vcompute04}
 
- gs-vcompute06-volume:
+  gs-vcompute05-volume:
     type: OS::Cinder::Volume
     properties:
       size: 2900
 
- gs-vcompute06:
-   type: OS::Nova::Server
-   properties:
-     key_name: adminkey
-     image: { get_param: image_name }
-     flavor: Compute
-     networks:
-         - network: vlan983
-           fixed_ip: 172.23.40.86
-         - network: vlan985
-           fixed_ip: 172.23.34.86
+  gs-vcompute05:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Compute
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.85
+        - network: vlan985
+          fixed_ip: 172.23.34.85
 
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: gs-vcompute05-volume}
+      instance_uuid: {get_resource: gs-vcompute05}
 
- volume_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-     volume_id: { get_resource: gs-vcompute06-volume }
-     instance_uuid: { get_resource: gs-vcompute06 }
-
- gs-vcompute07-volume:
+  gs-vcompute06-volume:
     type: OS::Cinder::Volume
     properties:
       size: 2900
 
- gs-vcompute07:
-   type: OS::Nova::Server
-   properties:
-     key_name: adminkey
-     image: { get_param: image_name }
-     flavor: Compute
-     networks:
-         - network: vlan983
-           fixed_ip: 172.23.40.87
-         - network: vlan985
-           fixed_ip: 172.23.34.87
+  gs-vcompute06:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Compute
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.86
+        - network: vlan985
+          fixed_ip: 172.23.34.86
 
 
- volume_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-     volume_id: { get_resource: gs-vcompute07-volume }
-     instance_uuid: { get_resource: gs-vcompute07 }
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: gs-vcompute06-volume}
+      instance_uuid: {get_resource: gs-vcompute06}
 
- gs-vcompute08-volume:
+  gs-vcompute07-volume:
     type: OS::Cinder::Volume
     properties:
       size: 2900
 
- gs-vcompute08:
-   type: OS::Nova::Server
-   properties:
-     key_name: adminkey
-     image: { get_param: image_name }
-     flavor: Compute
-     networks:
-         - network: vlan983
-           fixed_ip: 172.23.40.88
-         - network: vlan985
-           fixed_ip: 172.23.34.88
+  gs-vcompute07:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Compute
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.87
+        - network: vlan985
+          fixed_ip: 172.23.34.87
 
 
- volume_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-     volume_id: { get_resource: gs-vcompute08-volume }
-     instance_uuid: { get_resource: gs-vcompute08 }
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: gs-vcompute07-volume}
+      instance_uuid: {get_resource: gs-vcompute07}
 
- gs-vcompute09-volume:
+  gs-vcompute08-volume:
     type: OS::Cinder::Volume
     properties:
       size: 2900
 
- gs-vcompute09:
-   type: OS::Nova::Server
-   properties:
-     key_name: adminkey
-     image: { get_param: image_name }
-     flavor: Compute
-     networks:
-         - network: vlan983
-           fixed_ip: 172.23.40.89
-         - network: vlan985
-           fixed_ip: 172.23.34.89
+  gs-vcompute08:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Compute
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.88
+        - network: vlan985
+          fixed_ip: 172.23.34.88
 
 
- volume_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-     volume_id: { get_resource: gs-vcompute09-volume }
-     instance_uuid: { get_resource: gs-vcompute09 }
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: gs-vcompute08-volume}
+      instance_uuid: {get_resource: gs-vcompute08}
 
- gs-vcompute10-volume:
+  gs-vcompute09-volume:
     type: OS::Cinder::Volume
     properties:
       size: 2900
 
- gs-vcompute10:
-   type: OS::Nova::Server
-   properties:
-     key_name: adminkey
-     image: { get_param: image_name }
-     flavor: Compute
-     networks:
-         - network: vlan983
-           fixed_ip: 172.23.40.90
-         - network: vlan985
-           fixed_ip: 172.23.34.90
+  gs-vcompute09:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Compute
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.89
+        - network: vlan985
+          fixed_ip: 172.23.34.89
 
 
- volume_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-     volume_id: { get_resource: gs-vcompute10-volume }
-     instance_uuid: { get_resource: gs-vcompute10 }
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: gs-vcompute09-volume}
+      instance_uuid: {get_resource: gs-vcompute09}
 
- gs-vcompute11-volume:
+  gs-vcompute10-volume:
     type: OS::Cinder::Volume
     properties:
       size: 2900
 
- gs-vcompute11:
-   type: OS::Nova::Server
-   properties:
-     key_name: adminkey
-     image: { get_param: image_name }
-     flavor: Compute
-     networks:
-         - network: vlan983
-           fixed_ip: 172.23.40.91
-         - network: vlan985
-           fixed_ip: 172.23.34.91
+  gs-vcompute10:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Compute
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.90
+        - network: vlan985
+          fixed_ip: 172.23.34.90
 
 
- volume_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-     volume_id: { get_resource: gs-vcompute11-volume }
-     instance_uuid: { get_resource: gs-vcompute11 }
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: gs-vcompute10-volume}
+      instance_uuid: {get_resource: gs-vcompute10}
+
+  gs-vcompute11-volume:
+    type: OS::Cinder::Volume
+    properties:
+      size: 2900
+
+  gs-vcompute11:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Compute
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.91
+        - network: vlan985
+          fixed_ip: 172.23.34.91
+
+
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: gs-vcompute11-volume}
+      instance_uuid: {get_resource: gs-vcompute11}
