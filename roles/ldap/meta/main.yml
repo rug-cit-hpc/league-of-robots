@@ -1,0 +1,6 @@
+---
+dependencies:
+  - role: geerlingguy.firewall
+    vars:
+      firewall_allowed_tcp_ports:
+        - "22"
