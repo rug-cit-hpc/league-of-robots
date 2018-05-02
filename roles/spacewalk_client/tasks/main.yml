@@ -1,0 +1,22 @@
+---
+- name: Include secrets
+  include_vars: secrets.yml
+
+- name: Install spacewalk client repo.
+  yum:
+   name: http://yum.spacewalkproject.org/2.4-client/RHEL/7/x86_64/spacewalk-client-repo-2.4-3.el7.noarch.rpm
+   state: present
+
+- name: install spacewalk client packages.
+  yum:
+   name: "{{item}}"
+  with_items:
+   - rhn-client-tools
+   - rhn-check
+   - rhn-setup
+   - rhnsd
+   - m2crypto
+   - yum-rhn-plugin
+
+- name: register at the spacewalk server
+  command: rhnreg_ks --force --serverUrl={{server_url}} --activationkey={{activation_key}}
