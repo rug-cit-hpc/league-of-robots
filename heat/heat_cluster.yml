@@ -10,6 +10,16 @@ parameters:
     description: Name of image to be used for compute instance
 
 resources:
+  gearshift:  # User-interface for cluster-operation
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: Molgenis
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.33
+
   airlock:
     type: OS::Nova::Server
     properties:
