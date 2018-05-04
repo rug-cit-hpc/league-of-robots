@@ -38,9 +38,13 @@ gs-compute[01:11] storage_volume=/dev/sdb
 [nova-compute]
 gs-compute[01:11] physical_interface_mappings=provider:enp130s0f0
 
+[proxy]
+airlock.hpc.rug.nl
+
+[scheduler]
+gearshift
+
 [compute-vms]
 gs-vcompute01 ansible_ssh_user=centos
 gs-vcompute[03:11] ansible_ssh_user=centos
 
-[proxy]
-centos@airlock.hpc.rug.nl
