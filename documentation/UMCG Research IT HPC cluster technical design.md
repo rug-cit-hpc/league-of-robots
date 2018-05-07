@@ -3,7 +3,7 @@
 
 Technical design HPC cluster *Gearshift*
 
-[]{#_ocka61iarkyo .anchor}2017-10-26 • hpc-3.0-beta
+2017-10-26 • hpc-3.0-beta
 
 **─**
 
@@ -46,7 +46,7 @@ a. Hardware inventory
 
  The cluster contains the following hardware-components:
 
- - 12 x Dell Poweredge R630, with 2 1TB SAS, and 1 3.2TB NVMe
+ - 12 x Dell Poweredge R630, with 2 1TB SAS, and 2 1.6TB SSD's
 
  - 4 x Dell/EMC Isilon X410 – 136T
 
@@ -210,7 +210,7 @@ a. Hardware inventory
  Prometheus server. Both Grafana and Prometheus server will run inside
  Docker containers on this vm.
 
- The virtual HPC cluster will be monitored using Ganglia. Ganglia will
+ The virtual HPC-cluster will also be monitored using Ganglia. Ganglia will
  run on an external virtual machine as well.
 
  The compute nodes of the virtual HPC cluster will be installed using
@@ -225,16 +225,60 @@ a. Hardware inventory
  DNS
 
  All DNS entries (both internal and external) that are needed for
- gearshift are placed in the rug.nl dns.
+ gearshift are placed in the rug.nl DNS. This DNS-server is based on
+ BIND, and provides DNS for both the internal and external networks
+ within the cluster.
 
+ 172.23.40.0		DNS-servers: 172.23.40.247 and 172.23.40.248
+ 172.23.34.0            DNS-servers: 172.23.32.247 and 172.23.32.248
 
  h\. Storage Design
 
- - to be discussed/determined
+ - Storage will be provide from three different sources:
 
- I\. Logging
+	1) Isilon
 
- - to be discussed/determined
+	Location: Datacenter Eemspoort
+	OneFS version 8.0.0.*
+	4 nodes
+	External networks: 
+		Storage		172.23.32.0/22 DNS 172.23.32.247/248
+	        Management	172.23.40.0/24 
+	Internal networks:
+				128.128.121.1 - 128.128.121.128 /24
+				128.128.122.2 - 128.128.122.128 /24
+				128.128.123.3 - 128.128.123.128 /24
+
+	Filesystems served over NFS to virtual computenodes:
+	
+	/APPS, /TMP, /HOME
+
+        2) Datahandling
+
+	Location: Datacenter DUO
+	Lustre version 2.10.*
+	
+	External networks:
+		Storage		172.23.32.0/22
+
+	Filesystems served as Lustre-mounts:
+
+	/PRM
+
+	3) Local on hypervisors
+
+	Each virtual compute-node will mount a local disk from SSD, via
+	Cinder Block-storage. Mountpoint:
+
+	/LOCAL
+
+     
+
+ i\. Logging
+
+ - All system-logs (cluster, virtual cluster, hardware) will be sent to a
+   central logging server, based on Logstash/Elastic search. This server
+   will be served outside the Gearshift-cluster within the CIT-infrastructure.
 
 4 Security
 ==========
