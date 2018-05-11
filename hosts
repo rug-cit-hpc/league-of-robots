@@ -41,7 +41,7 @@ gs-compute[01:11] physical_interface_mappings=provider:enp130s0f0
 [proxy]
 airlock.hpc.rug.nl
 
-[scheduler]
+[interface]
 gearshift
 
 [compute-vms]

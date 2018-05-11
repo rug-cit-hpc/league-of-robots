@@ -5,6 +5,12 @@
   version: umcg-0.1
   scm: git
 
-# From galaxy
+# Mostly user accounts of hpc playbooks.
+- src: ssh://git@git.webhosting.rug.nl:222/HPC/HPCplaybooks.git
+  name: HPCplaybooks
+  version: master
+  scm: git
+
+  # From galaxy
 #
 - src: geerlingguy.firewall
