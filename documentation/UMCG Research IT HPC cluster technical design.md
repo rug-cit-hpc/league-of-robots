@@ -1,11 +1,7 @@
- ![horizontal line](./media/media/image1.png)
-----------------------------------------------------------------------------------------------------------
-
 Technical design HPC cluster *Gearshift*
 
-2017-10-26 • hpc-3.0-beta
+2017-10-26 -  hpc-3.0-beta
 
-**─**
 
 1 Summary
 =========
@@ -68,7 +64,7 @@ a. Hardware inventory
  Figure 1. Global design Gearshift-cluster
 
  ![](./media/media/image2.jpeg)
- 
+
 
  c\. Openstack-design
 
@@ -117,17 +113,17 @@ a. Hardware inventory
  Figure 3. Network-design GS-openstack (controller-node)
 
  ![](./media/media/image4.jpeg)
- 
+
 
  Figure 4. Network-design GS-computenode
 
  ![](./media/media/image5.jpeg)
- 
+
 
  Figure 5. Network design clusternode (VM)
 
  ![](./media/media/image6.jpg)
- 
+
 
  e\. Compute-cluster-design
 
@@ -173,7 +169,7 @@ a. Hardware inventory
  Figure 7
 
  ![](./media/media/image8.jpeg)
- 
+
 
  g\. Tooling
 
@@ -188,17 +184,17 @@ a. Hardware inventory
  repository. Deployment commands are documented in the *README.md* of
  the gearshift repository.
 
- Ansible
+ ## Ansible
 
  The ansible playbooks in this repository use ansible roles from the
  hpc-cloud repository. The roles are imported here explicitely by
  ansible using ansible galaxy. The roles install various docker images
  built and hosted by RuG webhosting. The docker images are built by
  jenkins from separate git repositories on
- [*https://git.webhosting.rug.nl*](https://git.webhosting.rug.nl/) and
+ [ https://git.webhosting.rug.nl ](https://git.webhosting.rug.nl/) and
  uploaded to the docker repository.
 
- Monitoring
+ ## Monitoring
 
  Both the HPC cluster and the Openstack cluster on which the HPC
  cluster is installed will be monitored. Resource usage and performance
@@ -222,57 +218,69 @@ a. Hardware inventory
  playbook it is possible to build a new spacewalk server within 15
  minutes.
 
- DNS
+| What        | How           | Where    | Who |
+| ------------- |:-------------:| -----:|:-----: |
+| Openstack components </br> (Resource usage & health)| cadvisor & prometheus   | gs-openstack & gs-compute* | CIT |
+| Server stats      | node exporter  | all servers </br> ( Physical and virtual )  | CIT |
+| file integrity | Stealth check by nagios </br> https://github.com/fbb-git/stealth | All user and admin interfaces  | CIT |
+| Slurm node health | LBNL Node Health Check   </br> https://github.com/mej/nhc | compute vms | CIT |
+| Integrity of everything deployed with EasyBuild | depad-utils:check_integrity.bash | imperator | GCC |
+| filesystem Quota reporting | cluster-utils:quota | imperator | GCC |
+| cluster usage | clust-utils:slurm_report.bash | imperator | GCC |
+| Account expiration and group memberships | COmanage | Surf SCZ COmanage | GCC |
+| Job Profiling | slurm plugin & grafana | imperator | GCC |
 
- All DNS entries (both internal and external) that are needed for
  gearshift are placed in the rug.nl DNS. This DNS-server is based on
  BIND, and provides DNS for both the internal and external networks
  within the cluster.
 
- 172.23.40.0		DNS-servers: 172.23.40.247 and 172.23.40.248
- 172.23.34.0            DNS-servers: 172.23.32.247 and 172.23.32.248
+|         |        |
+| ------------- |:-------------:|
+| 172.23.40.0    |    DNS-servers: 172.23.40.247 and 172.23.40.248 |
+| 172.23.34.0    |    DNS-servers: 172.23.32.247 and 172.23.32.248 |
+
 
  h\. Storage Design
 
  - Storage will be provide from three different sources:
 
-	1) Isilon
+    1) Isilon
 
-	Location: Datacenter Eemspoort
-	OneFS version 8.0.0.*
-	4 nodes
-	External networks: 
-		Storage		172.23.32.0/22 DNS 172.23.32.247/248
-	        Management	172.23.40.0/24 
-	Internal networks:
-				128.128.121.1 - 128.128.121.128 /24
-				128.128.122.2 - 128.128.122.128 /24
-				128.128.123.3 - 128.128.123.128 /24
+    Location: Datacenter Eemspoort
+    OneFS version 8.0.0.*
+    4 nodes
+    External networks:
+        Storage     172.23.32.0/22 DNS 172.23.32.247/248
+            Management  172.23.40.0/24
+    Internal networks:
+                128.128.121.1 - 128.128.121.128 /24
+                128.128.122.2 - 128.128.122.128 /24
+                128.128.123.3 - 128.128.123.128 /24
 
-	Filesystems served over NFS to virtual computenodes:
-	
-	/APPS, /TMP, /HOME
+    Filesystems served over NFS to virtual computenodes:
+
+    /APPS, /TMP, /HOME
 
         2) Datahandling
 
-	Location: Datacenter DUO
-	Lustre version 2.10.*
-	
-	External networks:
-		Storage		172.23.32.0/22
+    Location: Datacenter DUO
+    Lustre version 2.10.*
 
-	Filesystems served as Lustre-mounts:
+    External networks:
+        Storage     172.23.32.0/22
 
-	/PRM
+    Filesystems served as Lustre-mounts:
 
-	3) Local on hypervisors
+    /PRM
 
-	Each virtual compute-node will mount a local disk from SSD, via
-	Cinder Block-storage. Mountpoint:
+    3) Local on hypervisors
 
-	/LOCAL
+    Each virtual compute-node will mount a local disk from SSD, via
+    Cinder Block-storage. Mountpoint:
 
-     
+    /LOCAL
+
+
 
  i\. Logging
 
