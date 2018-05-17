@@ -230,6 +230,8 @@ a. Hardware inventory
 | Account expiration and group memberships | COmanage | Surf SCZ COmanage | GCC |
 | Job Profiling | slurm plugin & grafana | imperator | GCC |
 
+ ## DNS
+
  gearshift are placed in the rug.nl DNS. This DNS-server is based on
  BIND, and provides DNS for both the internal and external networks
  within the cluster.
@@ -238,6 +240,18 @@ a. Hardware inventory
 | ------------- |:-------------:|
 | 172.23.40.0    |    DNS-servers: 172.23.40.247 and 172.23.40.248 |
 | 172.23.34.0    |    DNS-servers: 172.23.32.247 and 172.23.32.248 |
+
+ ## Spacewalk
+
+ The compute nodes of the virtual HPC cluster will be installed using
+ packages from the *spacewalk.hpc.rug.nl* server. Packages for the
+ cluster will be placed in a channel named *umcg-research.* Since this
+ server is only needed during instalation and upgrades of the compute
+ cluster, it is not redundant. An ansible playbook is available in the
+ *hpc/spacewalk* repository on *git.webhosting.rug.nl.* With this
+ playbook it is possible to build a new spacewalk server within 15
+ minutes.
+
 
 
  h\. Storage Design
