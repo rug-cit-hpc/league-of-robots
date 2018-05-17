@@ -209,18 +209,10 @@ a. Hardware inventory
  The virtual HPC-cluster will also be monitored using Ganglia. Ganglia will
  run on an external virtual machine as well.
 
- The compute nodes of the virtual HPC cluster will be installed using
- packages from the *spacewalk.hpc.rug.nl* server. Packages for the
- cluster will be placed in a channel named *umcg-research.* Since this
- server is only needed during instalation and upgrades of the compute
- cluster, it is not redundant. An ansible playbook is available in the
- *hpc/spacewalk* repository on *git.webhosting.rug.nl.* With this
- playbook it is possible to build a new spacewalk server within 15
- minutes.
 
 | What        | How           | Where    | Who |
 | ------------- |:-------------:| -----:|:-----: |
-| Openstack components </br> (Resource usage & health)| cadvisor & prometheus   | gs-openstack & gs-compute* | CIT |
+| Openstack components </br> (Resource usage & health)| cadvisor & prometheus   | gs-openstack & gs-compute | CIT |
 | Server stats      | node exporter  | all servers </br> ( Physical and virtual )  | CIT |
 | file integrity | Stealth check by nagios </br> https://github.com/fbb-git/stealth | All user and admin interfaces  | CIT |
 | Slurm node health | LBNL Node Health Check   </br> https://github.com/mej/nhc | compute vms | CIT |
@@ -232,7 +224,7 @@ a. Hardware inventory
 
  ## DNS
 
- gearshift are placed in the rug.nl DNS. This DNS-server is based on
+ All gearshift-nodes are placed in the rug.nl DNS. This DNS-server is based on
  BIND, and provides DNS for both the internal and external networks
  within the cluster.
 
