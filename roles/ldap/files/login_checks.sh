@@ -103,6 +103,30 @@ create_ssh_key() {
    fi
 }
 
+create_ssh_dir() {
+   # Check for and crate $SSHDIR
+   # make authorized_keys immutable (as we use ldap for pubkey auth)
+   echo "Checking for .ssh in $SSHDIR"
+   if [ ! -e $SSHDIR ]; then
+      echo "Creating $SSHDIR"
+      mkdir $SSHDIR
+      chmod 700 $SSHDIR
+      chown $PAM_USER:$GROUP $SSHDIR
+   else
+      echo ".ssh directory exists already, continuing"
+   fi
+
+   if [ ! -e $SSHDIR/authorized_keys ]; then
+      touch $SSHDIR/authorized_keys
+      chown root:root $SSHDIR/authorized_keys
+      chmod 444 $SSHDIR/authorized_keys
+   else
+      echo "authorized_keys exists, doing nothing"
+   fi
+   echo "Making sure authorized_keys is immutable"
+   chattr +i $SSHDIR/authorized_key
+}
+
 set_quota () {
    if [ $# -ne 5 ]; then
       echo "ERROR: set_quota expects 4 values for quota and a file system name"
@@ -160,7 +184,8 @@ login_actions () {
 
    create_dir $MOUNTPOINT1 $USERDIR1
 
-   create_ssh_key
+   # create ssh_dir with empty immutable authorized_keys
+   create_ssh_dir
 
    # Create account in SLURM accounting db
    add_user_to_slurm
