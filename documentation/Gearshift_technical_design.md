@@ -2,10 +2,10 @@
 
 Table of Contents:
 
-* [Summary](#Summary)
-* [Goals](#Goals)
-* [Technical Design](#Technical-Design)
-* [Security](#Security)
+* [Summary](#-summary)
+* [Goals](#-goals)
+* [Technical Design](#-technical-design)
+* [Security](#-security)
 
 ---
 
