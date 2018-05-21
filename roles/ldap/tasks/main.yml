@@ -1,0 +1,99 @@
+# Register a machine to our ldap
+---
+- name: Include secrets
+  include_vars: secrets.yml
+
+- name: Install yum dependencies
+  yum: name={{ item }} state=latest update_cache=yes
+  with_items:
+    - openldap-clients
+    - nss-pam-ldapd
+    - openssh-ldap
+    - pam_script.x86_64
+
+- name: install nslcd.conf
+  template:
+    src: nslcd.conf
+    dest: /etc/nslcd.conf
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: install ldap.conf
+  template:
+    src: ldap.conf
+    dest: /etc/ssh/ldap.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: install nsswitch.conf
+  copy:
+    src: nsswitch.conf
+    dest: /etc/nsswitch.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- file:
+    name: /etc/pam-script.d
+    state: directory
+
+- name: install login_checks.sh
+  copy:
+    src: login_checks.sh
+    dest: /etc/pam-script.d/login_checks.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: set symlinks to pam_script
+  file:
+    src: pam_script
+    dest: "/etc/{{ item }}"
+    owner: root
+    group: root
+    state: link
+  with_items:
+    - pam_script_acct
+    - pam_script_auth
+    - pam_script_passwd
+    - pam_script_ses_close
+    - pam_script_ses_open
+
+- name: set symlinks to login_checks.sh
+  file:
+    src: login_checks.sh
+    dest: "/etc/pam-script.d/{{ item }}"
+    owner: root
+    group: root
+    state: link
+  with_items:
+    - login_checks.sh_acct
+    - login_checks.sh_auth
+    - login_checks.sh_passwd
+    - login_checks.sh_ses_close
+    - login_checks.sh_ses_open
+
+- copy:
+    src: password-auth-ac
+    dest: /etc/pam.d/password-auth-ac
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: update sshd.conf
+  blockinfile:
+    path: /etc/ssh/sshd_config
+    block: |
+      AuthorizedKeysCommand /usr/libexec/openssh/ssh-ldap-wrapper
+      AuthorizedKeysCommandUser root
+      PubkeyAuthentication yes
+
+- name: restart daemons
+  service:
+    name: "{{item}}"
+    state: restarted
+  with_items:
+    - nslcd
+    - sshd

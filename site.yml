@@ -1,0 +1,15 @@
+---
+- import_tasks: common.yml
+- import_tasks: rabbitmq.yml
+- import_tasks: memcached.yml
+- import_tasks: mariadb.yml
+- import_tasks: keystone.yml
+- import_tasks: glance-controller.yml
+- import_tasks: nova-controller.yml
+- import_tasks: neutron-controller.yml
+- import_tasks: cinder-controller.yml
+- import_tasks: cinder-storage.yml
+- import_tasks: nova-compute.yml
+- import_tasks: horizon.yml
+- import_tasks: heat.yml
+- import_tasks: post-install.yml
