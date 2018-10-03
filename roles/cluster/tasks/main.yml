@@ -8,6 +8,7 @@
     group: root
     backup: yes
   become: true
+  tags: ['etc_hosts']
 
 - name: Set hostname to inventory_hostname
   hostname:
@@ -31,5 +32,13 @@
     - tmux
     - tree
     - vim
+    - unzip
+    - bzip2
   tags:
     - software
+
+- name: Create ssh_known_hosts file with CA used for signed host keys.
+  copy:
+    dest: /etc/ssh/ssh_known_hosts
+    src: files/known_hosts
+  tags: ['known_hosts']

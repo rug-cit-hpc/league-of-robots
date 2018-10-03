@@ -14,25 +14,25 @@
       yum:
         name: "{{ item }}"
       with_items:
-        - blcr
-        - blcr-devel
-        - hdf5-devel
-        - hwloc-devel
-        - lua-devel
-        - man2html
-        - mariadb-devel
-        - munge-devel
-        - munge-libs
-        - mysql-devel
-        - ncurses-devel
-        - nss-softokn-freebl
-        - numactl-devel
-        - openssl-devel
-        - pam-devel
-        - perl
-        - pkgconfig
         - readline-devel
-
+        - pkgconfig
+        - perl-ExtUtils-MakeMaker
+        - perl
+        - pam-devel
+        - openssl-devel
+        - numactl-devel
+        - nss-softokn-freebl
+        - ncurses-devel
+        - mysql-devel
+        - munge-libs
+        - munge-devel
+        - mariadb-devel
+        - man2html
+        - lua-devel
+        - hwloc-devel
+        - hdf5-devel
+        - blcr-devel
+        - blcr
 
     - name: Set lustre client source url.
       set_fact:

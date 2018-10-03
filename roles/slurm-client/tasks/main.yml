@@ -4,11 +4,22 @@
     name: slurm
     gid: 501
 
+- name: add munge group
+  group:
+    name: munge
+    gid: 994
+
 - name: Add slurm user
   user:
     name: slurm
     uid: 497
     group: slurm
+
+- name: Add munge user
+  user:
+    name: munge
+    uid: 496
+    group: munge
 
 - name: install the slurm client
   yum:
@@ -29,7 +40,7 @@
     - /var/spool/slurmd
 
 - name: set the slurm config file
-  copy:
+  template:
     src: roles/slurm/files/slurm.conf
     dest: /etc/slurm/slurm.conf
     mode: 0644
@@ -39,6 +50,15 @@
     src: roles/slurm/files/cgroup.conf
     dest: /etc/slurm/cgroup.conf
     mode: 0644
+
+- name: Add slurm template files
+  copy:
+    src: roles/slurm/files/{{ item }}
+    dest: /etc/slurm/
+  with_items:
+      - slurm.prolog
+      - slurm.epilog
+      - slurm.taskprolog
 
 - name: Install munge_keyfile
   copy:

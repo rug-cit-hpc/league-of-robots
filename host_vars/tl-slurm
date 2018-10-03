@@ -1,0 +1,4 @@
+---
+mailhub: 172.23.34.34
+rewrite_domain: tl-slurm.hpc.rug.nl
+motd: It's highly addictive
