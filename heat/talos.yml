@@ -37,7 +37,7 @@ resources:
         - network: vlan985
           fixed_ip: 172.23.34.93
 
-  volume_attachment:
+  tl-slurm_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: tl-slurm_volume}
@@ -60,7 +60,7 @@ resources:
         - network: vlan985
           fixed_ip: 172.23.34.94
 
-  volume_attachment:
+  tl-buildserver_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: tl-buildserver_volume}
@@ -83,7 +83,7 @@ resources:
         - network: vlan985
           fixed_ip: 172.23.34.95
 
-  volume_attachment:
+  tl-vcompute01_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: tl-vcompute01-volume}
@@ -109,7 +109,7 @@ resources:
           fixed_ip: 172.23.57.96
 
 
-  volume_attachment:
+  tl-vcompute02_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: tl-vcompute02-volume}
@@ -135,7 +135,7 @@ resources:
           fixed_ip: 172.23.57.97
 
 
-  volume_attachment:
+  tl-vcompute03_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: tl-vcompute03-volume}
