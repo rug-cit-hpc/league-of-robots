@@ -11,7 +11,7 @@
      - slurm-client
 
 - name: Install user interface
-  hosts: interface
+  hosts: user-interface
   become: true
   tasks:
   roles:
