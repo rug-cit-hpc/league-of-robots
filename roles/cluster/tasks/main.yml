@@ -32,8 +32,9 @@
     - tmux
     - tree
     - vim
-    - unzip
     - bzip2
+    - ncurses-static
+    - readline-static
   tags:
     - software
 
