@@ -33,6 +33,15 @@
         - hdf5-devel
         - blcr-devel
         - blcr
+        - python2-devel
+        - python-nose
+        - python-coverage
+        - python-mock
+        - python-boto3
+        - python-botocore
+        - python-passlib
+        - python2-sphinx-theme-alabaster
+        - pytest
 
     - name: Set lustre client source url.
       set_fact:
