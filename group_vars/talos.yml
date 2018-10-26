@@ -1,2 +1,7 @@
 ---
 slurm_cluster_name: talos
+sockets: 1
+CoresPerSocket: 9
+ThreadsPerCore: 1
+RealMemory: 20000
+Feature: centos7 
