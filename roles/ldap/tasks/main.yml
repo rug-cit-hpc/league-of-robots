@@ -9,7 +9,8 @@
     - openldap-clients
     - nss-pam-ldapd
     - openssh-ldap
-    - pam_script.x86_64
+    - pam_script
+    - oddjob-mkhomedir
 
 - name: install nslcd.conf
   template:
@@ -82,13 +83,18 @@
     group: root
     mode: '0600'
 
-- name: update sshd.conf
-  blockinfile:
-    path: /etc/ssh/sshd_config
-    block: |
-      AuthorizedKeysCommand /usr/libexec/openssh/ssh-ldap-wrapper
-      AuthorizedKeysCommandUser root
-      PubkeyAuthentication yes
+- name: set sshd config
+  template:
+    src: templates/sshd_config
+    dest: /etc/ssh/sshd_config
+
+- name: enable services
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+  with_items:
+    - nslcd
+    - oddjobd.service
 
 - name: restart daemons
   service:
@@ -97,3 +103,4 @@
   with_items:
     - nslcd
     - sshd
+    - oddjobd.service

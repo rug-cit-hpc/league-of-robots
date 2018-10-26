@@ -187,6 +187,7 @@ Both Grafana and Prometheus server will run inside Docker containers on this VM.
 
 | What                                                 | How                                                                | Where                                       | Who |
 | ---------------------------------------------------  | ------------------------------------------------------------------ | --------------------------------------------| --- |
+| Physical nodes                                       | cadvisor & node exporter, ipmistats                                | gs-openstack & gs-compute*                  | CIT |
 | OpenStack components <br/> (Resource usage & health) | cadvisor & prometheus                                              | gs-openstack & gs-compute*                  | CIT |
 | Server stats                                         | node exporter                                                      | all servers physical and virtual            | CIT |
 | File integrity & security                            | Stealth check by nagios <br/> https://github.com/fbb-git/stealth   | al UI, DAI, SAI & Proxy servers             | CIT |
@@ -286,6 +287,46 @@ ToDo: List of local log files that will be forwarded to the remote log server:
  * /var/log/slurmctld.log
  * /var/log/yum.log
 
+### User authentication and authorization-attributes
+
+User authentication and authorization will be done via the Comanage for the Science Collaboration Zone (SCZ). All authentication will be 2-factor, and the authorization workflow will be designed and maintained by GCC. 
+
+The following attributes will be part of the authorization process. The item marked with * will be provisioned by Comanage (All personalized attributes are examples in this scheme):
+
+User:
+
+* dn: uid=r.rohde@rug.nl,ou=users,ou=bbmri,o=co
+* objectClass: ndsLoginProperties
+* objectClass: inetOrgPerson
+* objectClass: ldapPublicKey
+* objectClass: Top
+* objectClass: organizationalPerson
+* objectClass: Person
+* objectClass: posixAccount
+* cn: Remco Rohde *
+* gidNumber: 10000001
+* homeDirectory: /home/10000001
+* sn: Rohde *
+* uid: r.rohde@rug.nl *
+* uidNumber: 10000001 
+* description: Me, Myself and I 
+* givenName: Remco *
+* loginDisabled: FALSE
+* loginShell: /bin/bash
+* mail: r.rohde@rug.nl *
+* mobile: +31 6123456 *
+* o: Rijksuniversiteit Groningen *
+
+Group:
+
+* dn: cn=TestRSGroup01:Members,ou=groups,ou=bbmri,o=co
+* objectClass: Top
+* objectClass: groupOfNames
+* cn: TestRSGroup01:Members *
+* description: TestRSGroup01:Members
+* member: uid=r.rohde@rug.nl,ou=users,ou=bbmri,o=co *
+
+
 ---
 
 # <a name="Security"/> Security
@@ -296,7 +337,12 @@ Several measures are in place to ensure security for hardware and software in th
    Access is only possible through an official procedure.
    There are several access codes / keys in place for both rooms & enclosures.
  * All SSH logins by regular (non-admin) users are handled by a proxy machine as stepping stone.
-   Proxy machines are secured with an *iptables* type firewall, limiting traffic to SSH over TCP ports 22 and 80.
+   Proxy machines are secured with an *iptables* type firewall, limiting traffic to SSH over TCP ports 22 and 80. The proxy is in a separate Openstack security-group,  where the    following security-rules concerning TCP/IP-connections are applied:
+   * TCP-port 22  - outgoing only to 172.23.40.33 - limiting ssh connections from the proxy to cluster headnode
+   * TCP-port 22  - incoming only from external - cluster-access in general.
+   * TCP-port 389 - outgoing only to 172.23.40.249 - connection to LDAP-server
+   * TCP-port 443 - outgoing only - software-updates from Centos-repos
+   * UDP-port 123 - incoming and outgoing - for clock-synchronisation with external NTP-servers
  * (Security) updates:
    * Proxy machines receive daily security updates and are rebooted automagically weekly to ensure updated kernels are used max 7 days after the update.
    * All other machines:

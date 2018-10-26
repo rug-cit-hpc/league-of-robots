@@ -12,7 +12,7 @@ ExecStartPre=-/usr/bin/docker rm %n
 ExecStart=/usr/bin/docker run --network host --rm --name %n \
           --volume /srv/slurm/volumes/etc/slurm:/etc/slurm \
           --volumes-from munge.service \
-          hpc/slurm /usr/sbin/slurmdbd -D
+          hpc/slurm /runslurmdbd.sh
 
 [Install]
 WantedBy=multi-user.target
