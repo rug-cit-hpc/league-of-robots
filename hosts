@@ -62,6 +62,9 @@ gs-vcompute[01:11]
 compute-vm
 administration
 
+[gearshift:children]
+cluster
+
 [metal]
 gs-openstack
 gs-compute[01:11]

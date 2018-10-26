@@ -173,12 +173,29 @@
     name: "{{item}}"
     state: restarted
   with_items:
-      - slurmdbd.service
       - postfix.service
       - munge.service
-      - slurm.service  #slurmctl
+      - slurmdbd.service
   tags:
       - start-service
+
+- name: Create cluster database.
+  shell: >
+    /usr/bin/docker run -i --hostname tl-slurm --rm --name slurm.service
+    --network host  --volume /srv/slurm/volumes/var/spool/slurm:/var/spool/slurm
+    --volume /srv/slurm/volumes/etc/slurm:/etc/slurm
+    --volumes-from munge.service
+    hpc/slurm bash -c "yes | sacctmgr add cluster {{ slurm_cluster_name }}"
+  tags:
+    - create_database
+  register: command_result
+  failed_when: command_result.rc != 0 and "already exists" not in command_result.stdout
+
+
+- name: Start slurm.service now that the cluster db is present.
+  systemd:
+    name: slurm.servcie
+    state: restarted
 
 - name: Make backup dir
   file:
