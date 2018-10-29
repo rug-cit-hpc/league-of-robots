@@ -62,7 +62,7 @@
   tasks:
      - name: install Ansible
        yum:
-          name: ansible
+          name: ansible-2.6.6-1.el7.umcg
 
 - import_playbook: users.yml
   #- import_playbook: ssh-host-signer.yml
