@@ -8,6 +8,8 @@ set -u
 ##
 #
 SLURM_ACCOUNT='users'
+# Set a tag for the log entries.
+LOGGER='logger --tag login_checks'
 
 #
 ##
@@ -46,7 +48,7 @@ login_actions () {
     if [ "$(sacctmgr -p list user "${PAM_USER}" format=User | grep -o "${PAM_USER}")" == "${PAM_USER}" ]; then
       if [ "${PAM_USER}" != 'root' ]; then
         # Only log for users other than root to prevend flooding the logs...
-        logger "User ${PAM_USER} already exists in SLURM DB."
+        $LOGGER "User ${PAM_USER} already exists in SLURM DB."
       fi
     else
         #
@@ -63,9 +65,9 @@ login_actions () {
             _log_message="${_log_message}"' done!'
         else
             _log_message="${_log_message}"' FAILED. You cannot submit jobs. Contact an admin!'
-            logger "${_status}"
+            $LOGGER "${_status}"
         fi
-        logger -s "${_log_message}"
+        $LOGGER -s "${_log_message}"
     fi
 }
 
@@ -82,7 +84,11 @@ login_actions () {
 # For SFTP connections as well as SLURM jobs the TERM type is dumb,
 # but in the first case there are no SLURM related environment variables defined.
 #
-if [ ${TERM} == 'dumb' ] && [ -z ${SOURCE_HPC_ENV} ]; then
+
+# SOURCE_HPC_ENV variable checking disabled (it is not set ) Egon 30-10-2018
+#if [ ${TERM} == 'dumb' ] && [ -z ${SOURCE_HPC_ENV} ]; then
+if [ ${TERM} == 'dumb' ]; then
+    $LOGGER "debug: exiting because of dumb terminal"
     exit 0
 fi
 

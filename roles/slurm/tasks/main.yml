@@ -191,6 +191,20 @@
   register: command_result
   failed_when: command_result.rc != 0 and "already exists" not in command_result.stdout
 
+- name: Create account and qos for the database
+  shell: >
+    /usr/bin/docker run -i --hostname tl-slurm --rm --name slurm.service
+    --network host  --volume /srv/slurm/volumes/var/spool/slurm:/var/spool/slurm
+    --volume /srv/slurm/volumes/etc/slurm:/etc/slurm
+    --volumes-from munge.service
+    hpc/slurm bash -c
+    "yes | sacct create account name=users fairshare=100 ;
+     yes | sacctmgr add qos regular ;
+     yes | sacctmgr modify cluster talos set QOS=regular"
+  tags:
+    - create_account
+  register: command_result
+  failed_when: command_result.rc != 0 and "already exists" not in command_result.stdout
 
 - name: Start slurm.service now that the cluster db is present.
   systemd:
