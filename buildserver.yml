@@ -2,18 +2,19 @@
 - hosts: buildserver
   become: true
   tasks:
-    - name: install the 'Development tools' package group
+    - name: Install OS depedencies (with yum).
       yum:
         name: "{{ item }}"
       with_items:
+        #
+        # 'Development tools' package group and other common deps.
+        #
         - "@Development tools"
         - libselinux-devel
         - kernel-devel
-
-    - name: install dependencies for slurm.
-      yum:
-        name: "{{ item }}"
-      with_items:
+        #
+        # Slurm dependencies.
+        #
         - readline-devel
         - pkgconfig
         - perl-ExtUtils-MakeMaker
@@ -33,6 +34,9 @@
         - hdf5-devel
         - blcr-devel
         - blcr
+        #
+        # Ansible dependencies.
+        #
         - python2-devel
         - python-nose
         - python-coverage
@@ -42,6 +46,10 @@
         - python-passlib
         - python2-sphinx-theme-alabaster
         - pytest
+        #
+        # Lua, Lmod, EasyBuild dependencies.
+        #
+        - rdma-core-devel
 
     - name: Set lustre client source url.
       set_fact:
