@@ -50,6 +50,7 @@
         # Lua, Lmod, EasyBuild dependencies.
         #
         - rdma-core-devel
+        - libxml2-devel
 
     - name: Set lustre client source url.
       set_fact:
