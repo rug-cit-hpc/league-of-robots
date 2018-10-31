@@ -55,6 +55,7 @@
   copy:
     src: roles/slurm/files/{{ item }}
     dest: /etc/slurm/
+    mode: 0755
   with_items:
       - slurm.prolog
       - slurm.epilog
