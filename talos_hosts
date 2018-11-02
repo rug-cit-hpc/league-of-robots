@@ -19,5 +19,5 @@ tl-vcompute[01:03]
 compute-vm
 administration
 
-[talos:children]
+[talos-cluster:children]
 cluster
