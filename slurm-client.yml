@@ -3,24 +3,6 @@
   name: Dummy to gather facts
   tasks: []
 
-- name: Make fake local mount for talos cluster.
-  hosts: talos
-  become: true
-  tasks:
-    - shell: |
-       cd /var/tmp
-       dd if=/dev/zero of=./image bs=1M count=10
-       mkfs.ext4 -F ./image
-    - file:
-        path: /local
-        state: directory
-        mode: 0755
-    - mount:
-        path: /var/tmp/image
-        src: /local
-        fstype: ext4
-        state: present
-
 - name: Install virtual compute nodes
   hosts: compute-vm
   become: true
