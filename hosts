@@ -62,7 +62,7 @@ gs-vcompute[01:11]
 compute-vm
 administration
 
-[gearshift:children]
+[gearshift-cluster:children]
 cluster
 
 [metal]
