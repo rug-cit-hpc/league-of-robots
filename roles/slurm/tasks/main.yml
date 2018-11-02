@@ -52,7 +52,6 @@
     name: secrets
   tags:
     - backup
-    - build
 
 - name: make sure the database user is present
   mysql_user:
@@ -103,6 +102,7 @@
       - /var/spool/slurm
       - /etc/munge
       - /etc/slurm
+      - /scripts
 
 - name: Install munge_keyfile
   copy:
@@ -179,36 +179,31 @@
   tags:
       - start-service
 
-- name: Create cluster database.
+- name: Copy QOS script to cluster.
+  template:
+    src: files/{{ slurm_cluster_name }}_qos_level.bash
+    dest: /srv/slurm/volumes/scripts/qos.bash
+    mode: 0700
+
+- name: Create QOS levels in Slurm database.
   shell: >
     /usr/bin/docker run -i --hostname tl-slurm --rm --name slurm.service
     --network host  --volume /srv/slurm/volumes/var/spool/slurm:/var/spool/slurm
     --volume /srv/slurm/volumes/etc/slurm:/etc/slurm
+    --volume /srv/slurm/volumes/scripts/:/scripts/
     --volumes-from munge.service
-    hpc/slurm bash -c "yes | sacctmgr add cluster {{ slurm_cluster_name }}"
+    hpc/slurm /scripts/qos.bash
   tags:
     - create_database
   register: command_result
-  failed_when: command_result.rc != 0 and "already exists" not in command_result.stdout
-
-- name: Create account and qos for the database
-  shell: >
-    /usr/bin/docker run -i --hostname tl-slurm --rm --name slurm.service
-    --network host  --volume /srv/slurm/volumes/var/spool/slurm:/var/spool/slurm
-    --volume /srv/slurm/volumes/etc/slurm:/etc/slurm
-    --volumes-from munge.service
-    hpc/slurm bash -c
-    "yes | sacct create account name=users fairshare=100 ;
-     yes | sacctmgr add qos regular ;
-     yes | sacctmgr modify cluster talos set QOS=regular"
-  tags:
-    - create_account
-  register: command_result
-  failed_when: command_result.rc != 0 and "already exists" not in command_result.stdout
+  failed_when: >
+    command_result.rc != 0
+    and "already exists" not in command_result.stdout
+    and "slurm.service\" is already in use by container" not in command_result.stderr
 
 - name: Start slurm.service now that the cluster db is present.
   systemd:
-    name: slurm.servcie
+    name: slurm.service
     state: restarted
 
 - name: Make backup dir
