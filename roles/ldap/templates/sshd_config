@@ -11,7 +11,10 @@ Protocol 2
 # Do not use (EC)DSA keys!
 #
 HostKey /etc/ssh/ssh_host_ed25519_key
+HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub
 HostKey /etc/ssh/ssh_host_rsa_key
+HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub
+HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub
 
 #
 # Supported KEX (Key Exchange) algorithms.
