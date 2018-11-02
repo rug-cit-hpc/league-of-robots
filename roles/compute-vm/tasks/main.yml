@@ -1,13 +1,13 @@
 ---
-- name: Make scratch mountpoint
+- name: Make local mountpoint
   file:
-    path: "/scratch"
+    path: "/local"
     mode: 0777
     state: directory
 
-- name: "check mount point /scratch"
-  command: mountpoint /scratch
-  register: mount_scratch
+- name: "check mount point /local"
+  command: mountpoint /local
+  register: mount_local
   failed_when: false
 
 - name: Create an ext4 filesystem on /dev/vdb
@@ -15,11 +15,11 @@
     fstype: ext4
     dev: /dev/vdb
   when:
-    mount_scratch.rc == 1
+    mount_local.rc == 1
 
-- name: Mount /dev/vdb on /scratch
+- name: Mount /dev/vdb on /local
   mount:
-    path: /scratch
+    path: /local
     src: /dev/vdb
     fstype: ext4
     opts: rw,relatime
@@ -30,4 +30,4 @@
   args:
     warn: false
   when:
-    mount_scratch.rc == 1
+    mount_local.rc == 1
