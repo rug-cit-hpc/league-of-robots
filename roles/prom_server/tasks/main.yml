@@ -1,4 +1,7 @@
 ---
+- name: Include secrets
+  include_vars: secrets.yml
+
 - file:
     path: "{{ item }}"
     state: directory
@@ -17,8 +20,15 @@
     group: root
   with_items:
     - alerting.rules
-    - prometheus.yml
     - targets.json
+
+- name: Install settings files.
+  template:
+    src: templates/etc/prometheus.yml
+    dest: /srv/prometheus/etc/prometheus/prometheus.yml
+    mode: 0644
+    owner: root
+    group: root
 
   tags:
     - service-files
