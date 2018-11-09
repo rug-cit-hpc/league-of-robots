@@ -37,6 +37,7 @@ RUN yum install -y slurm           \
                    slurm-sql       \
                    slurm-munge     \
                    munge-libs      \
+                   lua-posix       \
                    --nogpgcheck
 
 # Slurm needs /sbin/mail to work in order to send mail

@@ -70,10 +70,6 @@
     group: root
     state: link
   with_items:
-    - login_checks.sh_acct
-    - login_checks.sh_auth
-    - login_checks.sh_passwd
-    - login_checks.sh_ses_close
     - login_checks.sh_ses_open
 
 - copy:
