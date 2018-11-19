@@ -41,14 +41,12 @@ scrape_configs:
       - files:
           - targets.json
 
-  # peregrine slurm monitoring
   - job_name: 'slurm_exorter'
     scrape_interval: 60s
     static_configs:
       - targets:
           - 'gearshift:9102'
 
-  # peregrine
   - job_name: 'ipmi'
     scrape_interval: 120s
     static_configs:
