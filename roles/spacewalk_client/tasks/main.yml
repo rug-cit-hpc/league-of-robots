@@ -8,9 +8,6 @@
 # # http://yum.spacewalkproject.org/2.4-client/RHEL/7/x86_64/repodata/repomd.xml: [Errno -1] Error importing repomd.xml for spacewalk-client: Damaged repomd.xml file
 
 
-- name: load secrets
-  include_vars: secrets.yml
-
 - name: install spacewalk client packages.
   yum:
    name:
