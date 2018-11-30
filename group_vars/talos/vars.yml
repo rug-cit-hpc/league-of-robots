@@ -22,3 +22,5 @@ nodes: |
     NodeName=tl-vcompute01 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
     NodeName=tl-vcompute02 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
     NodeName=tl-vcompute03 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
+
+
