@@ -1,8 +1,5 @@
 # Register a machine to our ldap
 ---
-- name: Include secrets
-  include_vars: secrets.yml
-
 - name: Install yum dependencies
   yum:
     state: latest
