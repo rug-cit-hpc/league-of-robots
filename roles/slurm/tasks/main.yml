@@ -8,11 +8,13 @@
     - ../ldap/vars/secrets.yml
 
 - name: Install yum dependencies
-  yum: name={{ item }} state=latest update_cache=yes
-  with_items:
-    - ntp
-    - MySQL-python
-    - postfix
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - ntp
+      - MySQL-python
+      - postfix
 
 - name: Set postfix config file
   copy:

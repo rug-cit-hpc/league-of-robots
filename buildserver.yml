@@ -4,54 +4,55 @@
   tasks:
     - name: Install OS depedencies (with yum).
       yum:
-        name: "{{ item }}"
-      with_items:
-        #
-        # 'Development tools' package group and other common deps.
-        #
-        - "@Development tools"
-        - libselinux-devel
-        - kernel-devel
-        - gcc-c++
-        #
-        # Slurm dependencies.
-        #
-        - readline-devel
-        - pkgconfig
-        - perl-ExtUtils-MakeMaker
-        - perl
-        - pam-devel
-        - openssl-devel
-        - numactl-devel
-        - nss-softokn-freebl
-        - ncurses-devel
-        - mysql-devel
-        - munge-libs
-        - munge-devel
-        - mariadb-devel
-        - man2html
-        - lua-devel
-        - hwloc-devel
-        - hdf5-devel
-        - blcr-devel
-        - blcr
-        #
-        # Ansible dependencies.
-        #
-        - python2-devel
-        - python-nose
-        - python-coverage
-        - python-mock
-        - python-boto3
-        - python-botocore
-        - python-passlib
-        - python2-sphinx-theme-alabaster
-        - pytest
-        #
-        # Lua, Lmod, EasyBuild dependencies.
-        #
-        - rdma-core-devel
-        - libxml2-devel
+        state: latest
+        update_cache: yes
+        name:
+          #
+          # 'Development tools' package group and other common deps.
+          #
+          - "@Development tools"
+          - libselinux-devel
+          - kernel-devel
+          - gcc-c++
+          #
+          # Slurm dependencies.
+          #
+          - readline-devel
+          - pkgconfig
+          - perl-ExtUtils-MakeMaker
+          - perl
+          - pam-devel
+          - openssl-devel
+          - numactl-devel
+          - nss-softokn-freebl
+          - ncurses-devel
+          - mysql-devel
+          - munge-libs
+          - munge-devel
+          - mariadb-devel
+          - man2html
+          - lua-devel
+          - hwloc-devel
+          - hdf5-devel
+          - blcr-devel
+          - blcr
+          #
+          # Ansible dependencies.
+          #
+          - python2-devel
+          - python-nose
+          - python-coverage
+          - python-mock
+          - python-boto3
+          - python-botocore
+          - python-passlib
+          - python2-sphinx-theme-alabaster
+          - pytest
+          #
+          # Lua, Lmod, EasyBuild dependencies.
+          #
+          - rdma-core-devel
+          - libxml2-devel
 
     - name: Set lustre client source url.
       set_fact:
