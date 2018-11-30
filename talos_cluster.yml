@@ -1,0 +1,7 @@
+---
+- hosts: all
+  tasks:
+    - include_vars: group_vars/talos/secrets.yml
+    - include_vars: group_vars/talos/vars.yml
+
+- import_playbook: cluster.yml
