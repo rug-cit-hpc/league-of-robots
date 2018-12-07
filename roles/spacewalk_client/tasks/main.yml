@@ -1,12 +1,8 @@
 ---
-#- name: Install spacewalk client repo.
-#  yum:
-#    name: https://copr-be.cloud.fedoraproject.org/archive/spacewalk/2.4-client/RHEL/7/x86_64/spacewalk-client-repo-2.4-3.el7.noarch.rpm
-#    state: present
-
-# # Egon 18-10 2018 This is broken as of now.
-# # http://yum.spacewalkproject.org/2.4-client/RHEL/7/x86_64/repodata/repomd.xml: [Errno -1] Error importing repomd.xml for spacewalk-client: Damaged repomd.xml file
-
+- name: Install spacewalk client repo.
+  yum:
+    name: https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/spacewalk-2.8-client/epel-7-x86_64/00742644-spacewalk-repo/spacewalk-client-repo-2.8-11.el7.centos.noarch.rpm
+    state: present
 
 - name: install spacewalk client packages.
   yum:
