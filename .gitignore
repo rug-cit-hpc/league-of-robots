@@ -7,7 +7,6 @@
 *.retry
 *.swp
 .vault_pass.txt
-ansible.cfg
 documentation/.~lock.UMCG Research IT HPC cluster technical design.docx#
 promtools/results/*
 roles/hpc-cloud
