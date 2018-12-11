@@ -1,0 +1,40 @@
+---
+slurm_cluster_name: hyperchicken
+stack_prefix: hc
+key_name: Gerben
+image_cirros: cirros-0.3.4-x86_64-disk.img
+image_centos7: centos7
+cloud_user: centos
+flavor_nano: s1.nano
+flavor_tiny: s1.tiny
+public_net_id: ext-net-37
+private_net_id: Solve-RD_private
+private_subnet_id: Solve-RD_subnet
+private_storage_net_id: net_provider_vlan3126
+private_storage_subnet_id: subnet3126
+security_group_id: SSH-and-ping-2
+availability_zone: AZ_1
+local_volume_size: 1
+sockets: 1
+CoresPerSocket: 9
+ThreadsPerCore: 1
+RealMemory: 20000
+Feature: centos7
+nodes: |
+    #
+    # Partitions
+    #
+    EnforcePartLimits=YES
+    PartitionName=DEFAULT State=UP DefMemPerCPU=2000
+    PartitionName=hc-ds  Nodes=hc-headnode MaxTime=10-00:00:00 DefaultTime=00:30:00 DenyQos=regular,regularlong SelectTypeParameters=CR_Core_Memory  TRESBillingWeights="CPU=1.0,Mem=0.1875G" Default=NO
+    PartitionName=regular  Nodes=hc-vcompute01,hc-vcompute02,hc-vcompute03,hc-vcompute04 MaxTime=10-00:00:00 DefaultTime=00:30:00 AllowQOS=regular,regularlong SelectTypeParameters=CR_Core_Memory  TRESBillingWeights="CPU=1.0,Mem=0.1875G" Default=YES
+
+    #
+    # COMPUTE NODES
+    #
+    GresTypes=gpu
+    NodeName=hc-headnode   Sockets=1 CoresPerSocket=1 ThreadsPerCore=1 State=IDLE RealMemory=3000  Feature=centos7
+    NodeName=hc-vcompute01 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
+    NodeName=hc-vcompute02 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
+    NodeName=hc-vcompute03 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
+    NodeName=hc-vcompute04 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
