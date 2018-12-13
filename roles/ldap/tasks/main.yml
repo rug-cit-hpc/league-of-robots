@@ -4,13 +4,15 @@
   include_vars: secrets.yml
 
 - name: Install yum dependencies
-  yum: name={{ item }} state=latest update_cache=yes
-  with_items:
-    - openldap-clients
-    - nss-pam-ldapd
-    - openssh-ldap
-    - pam_script
-    - oddjob-mkhomedir
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - openldap-clients
+      - nss-pam-ldapd
+      - openssh-ldap
+      - pam_script
+      - oddjob-mkhomedir
 
 - name: install nslcd.conf
   template:

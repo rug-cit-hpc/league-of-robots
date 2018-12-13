@@ -13,14 +13,13 @@
 
 - name: install spacewalk client packages.
   yum:
-   name: "{{item}}"
-  with_items:
-   - rhn-client-tools
-   - rhn-check
-   - rhn-setup
-   - rhnsd
-   - m2crypto
-   - yum-rhn-plugin
+   name:
+     - rhn-client-tools
+     - rhn-check
+     - rhn-setup
+     - rhnsd
+     - m2crypto
+     - yum-rhn-plugin
 
 - name: hack to patch spacewalk client
   get_url:

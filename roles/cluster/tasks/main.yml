@@ -20,22 +20,24 @@
     state: permissive
 
 - name: install some standard software
-  yum: name={{ item }} state=latest update_cache=no
-  with_items:
-    - curl
-    - git
-    - git-core
-    - nano
-    - ncdu
-    - screen
-    - telnet
-    - tmux
-    - tree
-    - vim
-    - bzip2
-    - ncurses-static
-    - readline-static
-    - tcl-devel
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - curl
+      - git
+      - git-core
+      - nano
+      - ncdu
+      - screen
+      - telnet
+      - tmux
+      - tree
+      - vim
+      - bzip2
+      - ncurses-static
+      - readline-static
+      - tcl-devel
   tags:
     - software
 
