@@ -1,7 +1,4 @@
 ---
-- name: Include secrets
-  include_vars: secrets.yml
-
 - file:
     path: "{{ item }}"
     state: directory

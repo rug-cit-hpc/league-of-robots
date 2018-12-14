@@ -1,0 +1,7 @@
+---
+- hosts: all
+  tasks:
+    - include_vars: group_vars/gearshift/secrets.yml
+    - include_vars: group_vars/gearshift/vars.yml
+
+- import_playbook: cluster.yml
