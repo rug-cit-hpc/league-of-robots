@@ -1,0 +1,78 @@
+# Install a docker based mariadb.
+---
+- name: make mariadb settings volume
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0777
+  with_items:
+      - /srv/mariadb/lib/mysql
+      - /srv/mariadb/etc/mysql
+      - /srv/mariadb/etc/mysql/conf.d
+
+- name: place settings file
+  copy:
+    src: files/my.cnf
+    dest: /srv/mariadb/etc/mysql/conf.d/my.cnf
+    mode: 660
+
+- name: Set galara.cnf on node if we have at least three nodes.
+  template:
+    src: files/galera.cnf
+    dest: /srv/mariadb/etc/mysql/conf.d/galera.cnf
+    mode: 660
+  when: "'databases' in group_names and groups['databases'] | length >= 3"
+
+  # This mimics galera_new_cluster.sh
+- name: Initialize a new cluster.
+  block:
+    - set_fact:
+        mariadb_args: "--wsrep-new-cluster"
+
+    - template:
+        src: templates/mysql.service
+        dest: /etc/systemd/system/mysql.service
+        mode: 644
+        owner: root
+        group: root
+
+    - command: systemctl daemon-reload
+
+    - systemd:
+        name: mysql.service
+        state: started
+
+  when: "'databases' in group_names and groups['databases'] \
+         | length >= 3 and ansible_hostname == hostname_node0"
+
+- name: install service file.
+  block:
+    - set_fact:
+        mariadb_args: ""
+    - template:
+        src: templates/mysql.service
+        dest: /etc/systemd/system/mysql.service
+        mode: 644
+        owner: root
+        group: root
+
+- name: Give the master node some time to initialize the cluster.
+  command: bash -c "sleep 60"
+  when: "'databases' in group_names and groups['databases'] \
+         | length >= 3"
+
+- name: Daemon reload (the inplicit doesn't work)
+  command: bash -c "systemctl daemon-reload"
+
+- name: make sure service is started
+  systemd:
+    name: mysql.service
+    state: started
+    daemon_reload: yes
+
+- name: start service at boot.
+  command: systemctl reenable mysql.service
+
+- name: Give the cluster some time to initialize replication.
+  command: bash -c "sleep 60 && systemctl daemon-reload"
+  when: "'databases' in group_names and groups['databases'] | length >= 3"

@@ -13,6 +13,8 @@ private_subnet_id: Solve-RD_subnet
 private_storage_net_id: net_provider_vlan3126
 private_storage_subnet_id: subnet3126
 security_group_id: SSH-and-ping-2
+server_url: 'http://spacewalk.hpc.rug.nl/XMLRPC'
+slurm_ldap: false
 availability_zone: AZ_1
 local_volume_size: 1
 sockets: 1

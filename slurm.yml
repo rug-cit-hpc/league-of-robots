@@ -3,7 +3,7 @@
   become: True
   roles:
      - docker
-     - hpc-cloud/roles/mariadb
+     - mariadb
      - slurm
   vars:
      # These variables are needed by the mariadb role.
