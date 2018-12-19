@@ -1,0 +1,9 @@
+---
+- name: install nfs utils
+  yum:
+    name: nfs-utils
+
+- name: Add fstab entry
+  lineinfile:
+    path: /etc/exports
+    line: /home  {{network_range}}(rw,sync,no_root_squash,no_subtree_check)

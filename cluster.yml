@@ -64,5 +64,15 @@
        yum:
           name: ansible-2.6.6-1.el7.umcg
 
+- name: export /home
+  hosts: user-interface:&talos-cluster
+  roles:
+     - nfs_home_server
+
+- name: export /home
+  hosts: compute-vm&talos-cluster
+  roles:
+     - nfs_home_client
+
 - import_playbook: users.yml
   #- import_playbook: ssh-host-signer.yml
