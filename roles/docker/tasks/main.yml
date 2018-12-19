@@ -1,3 +1,6 @@
 ---
 - name: Install docker comunity edition.
-  yum: name="[docker-ce, docker-python]" state=latest update_cache=yes
+  yum:
+    name: docker-ce
+    state: latest
+    update_cache: yes
