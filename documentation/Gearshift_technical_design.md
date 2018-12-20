@@ -53,7 +53,7 @@ The cluster contains the following hardware components:
 
 The cluster consists of 12 servers and 4 storage units, connected to 2 network-switches, and 1 interconnect-switch for the storage-units.
 The base OS for the servers will be Ubuntu 16.04 LTS, with OpenStack Ocata as the platform of choice for running all full VMs.
-All VMs in the cluster will run Centos 7.3.
+All VMs in the cluster will run Centos 7.5.
 The OpenStack services will each run in a separate Docker container also based on Ubuntu 16.04 LTS.
 
 Figure 1. Global design Gearshift-cluster
@@ -127,7 +127,7 @@ Figure 6. Compute-cluster-design
 ### Administration/management design
 
 The cluster uses several VMs for administration/managment of the cluster hardware, software, jobs and users.
-These VMs are created on the OpenStack controller node (gs-openstack), and are based on Centos7.3 (figure 7).
+These VMs are created on the OpenStack controller node (gs-openstack), and are based on Centos7.5 (figure 7).
 
  - **airlock.hpc.rug.nl**
    - Proxy (stepping stone)
