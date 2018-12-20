@@ -107,7 +107,7 @@ Figure 5. Network design for gs-vcompute[0-9] virtual compute node
 
 ### Compute cluster design
 
-The compute cluster will contain 11 compute VMs, based on Centos 7.3,
+The compute cluster will contain 11 compute VMs, based on Centos 7.5,
 which will have access local storage, and 2 storage-arrays for shared storage (figure 6).
 The /apps, /groups/${group}/tmp01 and /home folders will be served by the Isilon-storage array in Data Centre Eemspoort (DCE).
 The /groups/${group}/prm01/ folders will be served by a Lustre FS from the *data handling* storage facilities in Data Centre DUO.
