@@ -1,19 +1,37 @@
-# gearshift
+# League of Robots
 
-This repository contains playbooks and documentation for the UMCG Research HPC cluster Gearshift.
+This repository contains playbooks and documentation to deploy virtual Linux HPC clusters.
+All clusters were named after robots that appear in the animated sitcom [Futurama](https://en.wikipedia.org/wiki/Futurama)
 
-## Git repository
-All site specific configuration for the Gearshift cluster will be placed in this git repository.
+The main ingredients for (deploying) these clusters:
+ * [Ansible playbooks](https://github.com/ansible/ansible) for system configuration management.
+ * [OpenStack](https://www.openstack.org/) for virtualization. (Note that deploying the OpenStack itself is not part of the configs/code in this repo.)
+ * [Spacewalk](https://spacewalkproject.github.io/index.html) to create freezes of Linux distros.
+ * [CentOS 7](https://www.centos.org/) as OS for the virtual machines.
+ * [Slurm](https://slurm.schedmd.com/) as workload/resource manager to orchestrate jobs.
 
-## protected master.
-The master branch is protected; updates will only be pushed to this branch after review.
+## Clusters
 
-## Ansible playbooks openstack cluster.
+This repo currently contains code and configs for the following clusters:
+ * Gearshift: [UMCG](https://www.umcg.nl) Research IT cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
+ * Talos: Development cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
+ * Hyperchicken: [Solve-RD](solve-rd.eu/) cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
+
+Deployment and functional administration of all clusters is a joined effort of the
+[Genomics Coordination Center (GCC)](http://wiki.gcc.rug.nl/)
+and the 
+[Center for Information Technology (CIT)](https://www.rug.nl/society-business/centre-for-information-technology/)
+from the [University Medical Center](https://www.umcg.nl) and [University](https://www.rug.nl) of Groningen.
+
+## Protected branches
+The master and develop branches are protected; updates can only be merged into these branches using reviewed pull requests.
+
+## Ansible playbooks openstack cluster
 The ansible playbooks in this repository use roles from the [hpc-cloud](https://git.webhosting.rug.nl/HPC/hpc-cloud) repository.
 The roles are imported here explicitely by ansible using ansible galaxy.
 These roles install various docker images built and hosted by RuG webhosting. They are built from separate git repositories on https://git.webhosting.rug.nl.
 
-## Deployment of openstack.
+## Deployment of openstack
 The steps below describe how to get from machines with a bare ubuntu 16.04 installed to a running openstack installation.
 
 =======
