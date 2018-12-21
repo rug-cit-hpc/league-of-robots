@@ -1,12 +1,5 @@
 # Build and install a docker image for slurm.
 ---
-- name: Include vars and secrets from the ldap role.
-  include_vars:
-    file: "{{ item }}"
-  with_items:
-    - ../ldap/vars/main.yml
-    - ../ldap/vars/secrets.yml
-
 - name: Install yum dependencies
   yum:
     state: latest
@@ -30,12 +23,12 @@
 - name: add munge group
   group:
     name: munge
-    gid: 994
+    gid: 10994
 
 - name: Add munge user
   user:
     name: munge
-    uid: 496
+    uid: 10496
     group: munge
 
 - user:
@@ -48,18 +41,11 @@
     policy: targeted
     state: permissive
 
-- name: include secrets
-  include_vars:
-    file: ../../hpc-cloud/secrets.yml
-    name: secrets
-  tags:
-    - backup
-
 - name: make sure the database user is present
   mysql_user:
       login_host: 127.0.0.1
       login_user: root
-      login_password: "{{ secrets['MYSQL_ROOT_PASSWORD'] }}"
+      login_password: "{{ MYSQL_ROOT_PASSWORD }}"
       name: "{{ slurm_storage_user }}"
       password: "{{ slurm_storage_pass }}"
       host: '%'
@@ -69,7 +55,7 @@
   mysql_db:
       login_host: 127.0.0.1
       login_user: root
-      login_password: "{{ secrets['MYSQL_ROOT_PASSWORD'] }}"
+      login_password: "{{ MYSQL_ROOT_PASSWORD }}"
       name: slurm_acct_db
       state: present
 
@@ -108,7 +94,7 @@
 
 - name: Install munge_keyfile
   copy:
-    src: files/munge.key
+    src: files/{{ slurm_cluster_name }}_munge.key
     owner: munge
     dest: /srv/slurm/volumes/etc/munge/munge.key
 
@@ -135,13 +121,20 @@
     dest: /srv/slurm/
   with_items:
       - Dockerfile
+      - runslurmctld.sh
+      - runslurmdbd.sh
+      - ssmtp.conf
+
+- name: install build files
+  template:
+    src: files/{{ item }}
+    dest: /srv/slurm/
+  with_items:
       - ldap.conf
       - nslcd.conf
       - pam_ldap.conf
-      - runslurmctld.sh
-      - runslurmdbd.sh
       - nsswitch.conf
-      - ssmtp.conf
+  when: slurm_ldap
 
 - name: force (re)build slurm image
   docker_image:
@@ -189,7 +182,7 @@
 
 - name: Create QOS levels in Slurm database.
   shell: >
-    /usr/bin/docker run -i --hostname tl-slurm --rm --name slurm.service
+    /usr/bin/docker run -i --hostname {{ ansible_hostname }} --rm --name slurm.service
     --network host  --volume /srv/slurm/volumes/var/spool/slurm:/var/spool/slurm
     --volume /srv/slurm/volumes/etc/slurm:/etc/slurm
     --volume /srv/slurm/volumes/scripts/:/scripts/
@@ -221,7 +214,7 @@
   shell: >
              /bin/docker run --network host --rm
              mariadb mysqldump --all-databases -uroot
-             -p{{ secrets['MYSQL_ROOT_PASSWORD'] }} -h 127.0.0.1
+             -p{{ MYSQL_ROOT_PASSWORD }} -h 127.0.0.1
              > /srv/slurm/backup/slurm.sql
   tags:
     - backup
@@ -236,7 +229,7 @@
            /srv/slurm/backup/slurm_bak.sql &&
            /bin/docker run --network host --rm
            mariadb mysqldump --all-databases -uroot
-           -p{{ secrets['MYSQL_ROOT_PASSWORD'] }} -h 127.0.0.1
+           -p{{ MYSQL_ROOT_PASSWORD }} -h 127.0.0.1
            > /srv/slurm/backup/slurm.sql &&
            /bin/find /srv/slurm/backup/slurm_bak.sql.* -mtime 7 -delete
   tags:

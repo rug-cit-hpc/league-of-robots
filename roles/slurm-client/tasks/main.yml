@@ -2,23 +2,23 @@
 - name: add slum group
   group:
     name: slurm
-    gid: 501
+    gid: 10501
 
 - name: add munge group
   group:
     name: munge
-    gid: 994
+    gid: 10994
 
 - name: Add slurm user
   user:
     name: slurm
-    uid: 497
+    uid: 10497
     group: slurm
 
 - name: Add munge user
   user:
     name: munge
-    uid: 496
+    uid: 10496
     group: munge
 
 - name: install the slurm client
@@ -63,7 +63,7 @@
 
 - name: Install munge_keyfile
   copy:
-    src: ../slurm/files/munge.key
+    src: ../slurm/files/{{ slurm_cluster_name }}_munge.key
     owner: munge
     dest: /etc/munge/munge.key
 

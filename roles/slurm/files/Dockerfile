@@ -7,6 +7,7 @@ FROM centos:7
 MAINTAINER Egon Rijpkema <e.m.a.rijpkema@rug.nl>
 
 # Openldap client, installing from spacewalk leads to conflicts.
+{% if slurm_ldap %}
 RUN yum install -y openldap-clients nss-pam-ldapd openssh-ldap wget
 
 # add openldap config
@@ -16,14 +17,14 @@ ADD pam_ldap.conf /etc/pam_ldap.conf
 ADD nsswitch.conf /etc/nsswitch.conf
 
 RUN chmod 600 /etc/nslcd.conf
+{% endif %}
 
-# Add umcg repo
-RUN yum-config-manager --add-repo http://repo.hpc.rug.nl/umcg-repo/
+# Install spacewalk client
+RUN rpm -Uvh https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/spacewalk-2.8-client/epel-7-x86_64/00742644-spacewalk-repo/spacewalk-client-repo-2.8-11.el7.centos.noarch.rpm
+RUN yum install rhn-client-tools rhn-check rhn-setup rhnsd m2crypto yum-rhn-plugin -y
+RUN rhnreg_ks --force --serverUrl={{ server_url }}  --activationkey={{ activation_key }}
 
-RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm  && \
-    rpm -ivh epel-release-latest-7.noarch.rpm
-
-RUN adduser -u 497 slurm
+RUN adduser -u 10497 slurm
 # Slurm and dependencies
 RUN yum install -y slurm           \
                    slurm-lua       \
@@ -38,10 +39,11 @@ RUN yum install -y slurm           \
                    slurm-munge     \
                    munge-libs      \
                    lua-posix       \
+                   mailx           \
+                   ssmtp           \
                    --nogpgcheck
 
 # Slurm needs /sbin/mail to work in order to send mail
-RUN yum install -y mailx ssmtp
 
 # Add ssmtp config
 ADD ssmtp.conf /etc/ssmtp/ssmtp.conf
