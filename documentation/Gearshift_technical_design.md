@@ -238,12 +238,13 @@ Storage will be provided from three different sources:
    * 128.128.123.3 - 128.128.123.128 /24
  * NFS mounts
 
-| Mount Source                              | Mount Destination            | Mode       | Clients |
-| ----------------------------------------- | ---------------------------- | ---------- | ------- |
-|```/ifs/umgcst10/apps/```                  |```/apps/```                  | read-only  | gs-vcompute* virtual compute nodes & UIs |
-|```/ifs/umgcst10/apps/```                  |```/.envsync/umcgst10/apps/```| read-write | DAIs    |
-|```/ifs/umgcst10/groups/${group}/tmp01/``` |```/groups/${group}/tmp01/``` | read-write | gs-vcompute* virtual compute nodes |
-|```/ifs/umgcst10/home/```                  |```/home/```                  | read-write | gs-vcompute* virtual compute nodes, UIs & DAIs |
+| Mount Source                                           | Mount Destination            | Mode       | Clients |
+| ------------------------------------------------------ | ---------------------------- | ---------- | ------- |
+|```/ifs/rekencluster/umgcst10/apps/```                  |```/apps/```                  | read-only  | gs-vcompute* virtual compute nodes & UIs |
+|```/ifs/rekencluster/umgcst10/apps/```                  |```/.envsync/umcgst10/apps/```| read-write | DAIs    |
+|```/ifs/rekencluster/umgcst10/groups/${group}/tmp01/``` |```/groups/${group}/tmp01/``` | read-write | gs-vcompute* virtual compute nodes |
+|```/ifs/rekencluster/umgcst10/home/```                  |```/home/```                  | read-write | gs-vcompute* virtual compute nodes, UIs & DAIs |
+|```/ifs/rekencluster/umgcst10/```                       |```/mnt/umcgst10/```          | read-write | SAIs |
 
 #### 2 Datahandling Lustre
 
@@ -253,9 +254,14 @@ Storage will be provided from three different sources:
      * Storage     172.23.32.0/22
  * Lustre mounts
 
-| Mount Source                              | Mount Destination            | Mode       | Clients |
-| ----------------------------------------- | ---------------------------- | ---------- | ------- |
-|```/???/groups/${group}/prm01/```          |```/groups/${group}/prm01/``` | read-write | UIs & SAIs |
+| Mount Source                                                             | Mount Destination            | Mode       | Clients |
+| ------------------------------------------------------------------------ | ---------------------------- | ---------- | ------- |
+|```172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1/groups/${group}/prm02/``` |```/groups/${group}/prm02/``` | read-write | UIs     |
+|```172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1/groups/```                |```/mnt/dh1/groups/```        | read-write | SAIs    |
+|```172.23.57.203@tcp11:172.23.57.204@tcp11:/dh2/groups/${group}/prm03/``` |```/groups/${group}/prm03/``` | read-write | UIs     |
+|```172.23.57.203@tcp11:172.23.57.204@tcp11:/dh2/groups/```                |```/mnt/dh2/groups/```        | read-write | SAIs    |
+|```172.23.57.205@tcp11:172.23.57.206@tcp11:/dh?/groups/${group}/prm01/``` |```/groups/${group}/prm01/``` | read-write | UIs     |
+|```172.23.57.205@tcp11:172.23.57.206@tcp11:/dh?/groups/```                |```/mnt/dh3/groups/```        | read-write | SAIs    |
 
 #### 3 Local storage on hypervisors.
 
