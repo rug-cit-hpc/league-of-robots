@@ -46,7 +46,7 @@ The clusters use the following types of storage systems / folders:
 | /home/${home}/              | Shared       | Yes     | UIs, DAIs, SAIs, CNs | Only for personal preferences: small data == tiny quota.|
 | /groups/${group}/prm[0-9]/  | Shared       | Yes     | UIs, DAIs            | **p**e**rm**anent storage folders: for rawdata or *final* results that need to be stored for the mid/long term. |
 | /groups/${group}/tmp[0-9]/  | Shared       | No      | UIs, DAIs, CNs       | **t**e**mp**orary storage folders: for staged rawdata and intermediate results on compute nodes that only need to be stored for the short term. |
-| /groups/${group}/scr[0-9]/  | Local        | No      | Some UIs             | **scr**atch storage folders: same as **tmp**, but local sotrage as opposed to shared storage. Optional and available on all UIs. |
+| /groups/${group}/scr[0-9]/  | Local        | No      | Some UIs             | **scr**atch storage folders: same as **tmp**, but local storage as opposed to shared storage. Optional and available on all UIs. |
 | /local/${slurm_job_id}      | Local        | No      | CNs                  | Local storage on compute nodes only available during job execution. Hence folders are automatically created when a job starts and deleted when it finishes. |
 | /mnt/${complete_filesystem} | Shared       | Mixed   | SAIs                 | Complete file systems, which may contain various `home`, `prm`, `tmp` or `scr` dirs. |
 
@@ -54,18 +54,18 @@ The clusters use the following types of storage systems / folders:
 
 Deploying a fully functional virtual cluster involves the following steps:
  1. Configure physical machines
- 2. Deploy OpenStack virtualization layer on phyical machines to create an OpenStack cluster
+ 2. Deploy OpenStack virtualization layer on physical machines to create an OpenStack cluster
  3. Create and configure virtual machines on the OpenStack cluster to create an HPC cluster on top of an OpenStack cluster
  4. Deploy bioinformatics software and reference datasets 
 
 ---
 
-### 2. Ansible playbooks openstack cluster
+### 2. Ansible playbooks OpenStack cluster
 The ansible playbooks in this repository use roles from the [hpc-cloud](https://git.webhosting.rug.nl/HPC/hpc-cloud) repository.
 The roles are imported here explicitely by ansible using ansible galaxy.
 These roles install various docker images built and hosted by RuG webhosting. They are built from separate git repositories on https://git.webhosting.rug.nl.
 
-#### Deployment of openstack
+#### Deployment of OpenStack
 The steps below describe how to get from machines with a bare ubuntu 16.04 installed to a running openstack installation.
 
 ---
