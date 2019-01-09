@@ -1,5 +1,5 @@
 ---
-- name: Install roles needed for all virtual cluster components.
+- name: Install roles needed for all virtual cluster components except jumphosts.
   hosts: cluster
   become: true
   tasks:
@@ -9,7 +9,7 @@
      - node_exporter
      - cluster
 
-- name: Jumphost needs ldap But no spacewalk and filesystems
+- name: Install roles needed for jumphosts.
   hosts: jumphost
   become: true
   roles:
@@ -55,7 +55,7 @@
     # - isilon
      - slurm-client
 
-#- name: Install ansible on imperator and sugarsnax
+#- name: Install ansible on admin interfaces (DAI & SAI).
 #  hosts:
 #     - imperator
 #     - sugarsnax
