@@ -10,7 +10,7 @@ parameters:
     description: Name of image to be used for compute instance
 
 resources:
-  tl-login:  # User-interface for cluster-operation
+  talos:  # User-interface for cluster-operation
     type: OS::Nova::Server
     properties:
       key_name: adminkey
@@ -43,12 +43,12 @@ resources:
       volume_id: {get_resource: tl-slurm_volume}
       instance_uuid: {get_resource: tl-slurm}
 
-  tl-buildserver_volume:
+  tl-dai_volume:
     type: OS::Cinder::Volume
     properties:
       size: 290
 
-  tl-buildserver:
+  tl-dai:
     type: OS::Nova::Server
     properties:
       key_name: adminkey
@@ -60,11 +60,11 @@ resources:
         - network: vlan985
           fixed_ip: 172.23.34.94
 
-  tl-buildserver_volume_attachment:
+  tl-dai_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
-      volume_id: {get_resource: tl-buildserver_volume}
-      instance_uuid: {get_resource: tl-buildserver}
+      volume_id: {get_resource: tl-dai_volume}
+      instance_uuid: {get_resource: tl-dai}
 
   tl-vcompute01-volume:
     type: OS::Cinder::Volume

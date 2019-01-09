@@ -72,9 +72,9 @@
 #
 # Talos (gearshift test cluster)
 #
-172.23.40.92            tl-login
+172.23.40.92            talos
 172.23.40.93            tl-slurm
-172.23.40.94            tl-buildserver
+172.23.40.94            tl-dai
 172.23.40.95            tl-vcompute01
 172.23.40.96            tl-vcompute02
 172.23.40.97            tl-vcompute03
