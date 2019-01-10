@@ -1,16 +1,16 @@
 [slurm]
 tl-slurm
 
-[buildserver]
-tl-buildserver
+[deploy-admin-interface]
+tl-dai
 
 [user-interface]
-tl-login
+talos
 
 [administration]
 tl-slurm
-tl-buildserver
-tl-login
+tl-dai
+talos
 
 [compute-vm]
 tl-vcompute[01:03]

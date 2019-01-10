@@ -1,5 +1,0 @@
----
-- hosts: login
-  become: True
-  roles:
-     - roles/ldap

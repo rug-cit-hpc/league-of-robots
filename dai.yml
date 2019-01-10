@@ -1,5 +1,5 @@
 ---
-- hosts: buildserver
+- hosts: deploy-admin-interface
   become: true
   tasks:
     - name: Install OS depedencies (with yum).

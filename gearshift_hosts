@@ -44,7 +44,7 @@ airlock
 [slurm]
 imperator
 
-[buildserver]
+[deploy-admin-interface]
 sugarsnax
 
 [administration]
