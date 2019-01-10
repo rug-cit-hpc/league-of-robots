@@ -1,26 +1,20 @@
 ---
-slurm_cluster_name: talos
-sockets: 1
-CoresPerSocket: 9
+slurm_cluster_name: Gearshift
+sockets: 2
+CoresPerSocket: 24
 ThreadsPerCore: 1
-RealMemory: 20000
-Feature: centos7 
+RealMemory: 240000
+Feature: centos7
 nodes: |
     #
     # Partitions
     #
     EnforcePartLimits=YES
     PartitionName=DEFAULT State=UP DefMemPerCPU=2000
-    PartitionName=tl-ds  Nodes=talos MaxTime=10-00:00:00 DefaultTime=00:30:00 DenyQos=regular,regularlong SelectTypeParameters=CR_Core_Memory  TRESBillingWeights="CPU=1.0,Mem=0.1875G" Default=NO
-    PartitionName=regular  Nodes=tl-vcompute01,tl-vcompute02,tl-vcompute03 MaxTime=10-00:00:00 DefaultTime=00:30:00 AllowQOS=regular,regularlong SelectTypeParameters=CR_Core_Memory  TRESBillingWeights="CPU=1.0,Mem=0.1875G" Default=YES
+    PartitionName=regular  Nodes=gs-vcompute[01-11] MaxTime=10-00:00:00 DefaultTime=00:30:00 AllowQOS=regular,regularlong SelectTypeParameters=CR_Core_Memory  TRESBillingWeights="CPU=1.0,Mem=0.1875G" Default=YES
 
     #
     # COMPUTE NODES
     #
     GresTypes=gpu
-    NodeName=talos      Sockets=1 CoresPerSocket=1 ThreadsPerCore=1 State=IDLE RealMemory=3000  Feature=centos7
-    NodeName=tl-vcompute01 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
-    NodeName=tl-vcompute02 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
-    NodeName=tl-vcompute03 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
-
-
+    NodeName=gs-vcompute[01-11]  Sockets=2 CoresPerSocket=24 ThreadsPerCore=1 State=UNKNOWN RealMemory=240000 Feature=48cores,centos7
