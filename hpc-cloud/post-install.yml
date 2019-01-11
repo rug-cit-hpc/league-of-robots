@@ -32,7 +32,8 @@
             --network vlan13 --allocation-pool start=129.125.60.195,end=129.125.60.196
             --no-dhcp --dns-nameserver 129.125.4.6 vlan13_subnet
 
-        - openstack flavor create --ram 4096 --disk 40 --vcpus 2  "auxiliary"
-        - openstack flavor create --ram 245760 --disk 40 --vcpus 48  "Compute"
+        - openstack flavor create --ram 4096   --disk 40 --vcpus 2  "auxiliary"
+        - openstack flavor create --ram 8192   --disk 40 --vcpus 4  "tl-vcompute"
+        - openstack flavor create --ram 245760 --disk 40 --vcpus 24 "gs-vcompute"
 
         - openstack keypair create --public-key /root/id_rsa.pub adminkey
