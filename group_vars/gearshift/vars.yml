@@ -4,6 +4,7 @@ sockets: 2
 CoresPerSocket: 14
 ThreadsPerCore: 1
 RealMemory: 240000
+LocalDisk: 2900
 Feature: centos7
 nodes: |
     #
