@@ -1,0 +1,5 @@
+---
+ansible_python_interpreter: /usr/bin/python2.7
+firewall_allowed_tcp_ports:
+  - "22"
+  - "6818"  # slurmd

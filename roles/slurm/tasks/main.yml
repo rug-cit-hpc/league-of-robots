@@ -1,16 +1,64 @@
 # Build and install a docker image for slurm.
 ---
 - name: Install yum dependencies
-  yum: name={{ item }} state=latest update_cache=yes
-  with_items:
-      - docker-ce
-      - docker-python
+  yum:
+    state: latest
+    update_cache: yes
+    name:
       - ntp
+      - MySQL-python
+      - postfix
+
+- name: Set postfix config file
+  copy:
+    src: files/main.cf
+    owner: root
+    dest: /etc/postfix/main.cf
+    mode: 0644
+
+- group:
+    name: slurm
+    state: present
+
+- name: add munge group
+  group:
+    name: munge
+    gid: 10994
+
+- name: Add munge user
+  user:
+    name: munge
+    uid: 10496
+    group: munge
+
+- user:
+    name: slurm
+    comment: "slurm user"
+    group: slurm
 
 - name: set selinux in permissive mode to allow docker volumes
   selinux:
     policy: targeted
     state: permissive
+
+- name: make sure the database user is present
+  mysql_user:
+      login_host: 127.0.0.1
+      login_user: root
+      login_password: "{{ MYSQL_ROOT_PASSWORD }}"
+      name: "{{ slurm_storage_user }}"
+      password: "{{ slurm_storage_pass }}"
+      host: '%'
+      priv: '*.*:ALL'
+
+- name: Create a database for slurm accounting
+  mysql_db:
+      login_host: 127.0.0.1
+      login_user: root
+      login_password: "{{ MYSQL_ROOT_PASSWORD }}"
+      name: slurm_acct_db
+      state: present
+
 
 - name: install docker config
   template:
@@ -42,40 +90,57 @@
       - /var/spool/slurm
       - /etc/munge
       - /etc/slurm
+      - /scripts
 
 - name: Install munge_keyfile
   copy:
-    src: files/munge.key
-    owner: slurm
+    src: files/{{ slurm_cluster_name }}_munge.key
+    owner: munge
     dest: /srv/slurm/volumes/etc/munge/munge.key
+
+- name: set permissions for munge key
+  file:
+    path: /srv/slurm/volumes/etc/munge/munge.key
+    mode: 0600
 
 - name: install slurm config files
   template:
     src: files/{{ item }}
-    dest: /srv/slurm/volumes/etc/slurm
+    dest: /srv/slurm/volumes/etc/slurm/
   with_items:
       - slurm.conf
       - slurmdbd.conf
       - job_submit.lua
+      - slurm.prolog
+      - slurm.epilog
+      - slurm.taskprolog
 
 - name: install build files
   template:
     src: files/{{ item }}
-    dest: /srv/slurm
+    dest: /srv/slurm/
   with_items:
       - Dockerfile
+      - runslurmctld.sh
+      - runslurmdbd.sh
+      - ssmtp.conf
+
+- name: install build files
+  template:
+    src: files/{{ item }}
+    dest: /srv/slurm/
+  with_items:
       - ldap.conf
       - nslcd.conf
       - pam_ldap.conf
-      - runslurmctld.sh
       - nsswitch.conf
-      - ssmtp.conf
+  when: slurm_ldap
 
 - name: force (re)build slurm image
   docker_image:
     state: present
     force: yes
-    path: /srv/slurm
+    path: /srv/slurm/
     name: hpc/slurm
     nocache: yes
   tags:
@@ -103,8 +168,69 @@
     name: "{{item}}"
     state: restarted
   with_items:
-      - slurmdbd.service
+      - postfix.service
       - munge.service
-      - slurm.service  #slurmctl
+      - slurmdbd.service
   tags:
       - start-service
+
+- name: Copy QOS script to cluster.
+  template:
+    src: files/{{ slurm_cluster_name }}_qos_level.bash
+    dest: /srv/slurm/volumes/scripts/qos.bash
+    mode: 0700
+
+- name: Create QOS levels in Slurm database.
+  shell: >
+    /usr/bin/docker run -i --hostname {{ ansible_hostname }} --rm --name slurm.service
+    --network host  --volume /srv/slurm/volumes/var/spool/slurm:/var/spool/slurm
+    --volume /srv/slurm/volumes/etc/slurm:/etc/slurm
+    --volume /srv/slurm/volumes/scripts/:/scripts/
+    --volumes-from munge.service
+    hpc/slurm /scripts/qos.bash
+  tags:
+    - create_database
+  register: command_result
+  failed_when: >
+    command_result.rc != 0
+    and "already exists" not in command_result.stdout
+    and "slurm.service\" is already in use by container" not in command_result.stderr
+
+- name: Start slurm.service now that the cluster db is present.
+  systemd:
+    name: slurm.service
+    state: restarted
+
+- name: Make backup dir
+  file:
+    path: /srv/slurm/backup
+    state: directory
+    owner: slurm
+    mode: 0755
+  tags:
+    - backup
+
+- name: run an initial backup
+  shell: >
+             /bin/docker run --network host --rm
+             mariadb mysqldump --all-databases -uroot
+             -p{{ MYSQL_ROOT_PASSWORD }} -h 127.0.0.1
+             > /srv/slurm/backup/slurm.sql
+  tags:
+    - backup
+
+- name: Dump the database every night. Keep 7 backups.
+  cron:
+    name: "Slurm database backup"
+    minute: "11"
+    hour: "3"
+    job: >
+           /bin/cp --backup=numbered /srv/slurm/backup/slurm.sql
+           /srv/slurm/backup/slurm_bak.sql &&
+           /bin/docker run --network host --rm
+           mariadb mysqldump --all-databases -uroot
+           -p{{ MYSQL_ROOT_PASSWORD }} -h 127.0.0.1
+           > /srv/slurm/backup/slurm.sql &&
+           /bin/find /srv/slurm/backup/slurm_bak.sql.* -mtime 7 -delete
+  tags:
+    - backup

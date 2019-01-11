@@ -1,0 +1,83 @@
+---
+# my global config
+global:
+  scrape_interval: 30s  # By default, scrape targets every 15 seconds.
+  evaluation_interval: 30s  # By default, scrape targets every 15 seconds.
+  # scrape_timeout is set to the global default (10s).
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'imperator'
+    env: 'gearshift'
+
+# alert
+alerting:
+  alertmanagers:
+  - scheme: http
+    static_configs:
+    - targets:
+      - "alertmanager.kube.hpc.rug.nl"
+    basic_auth:
+      username: hpc
+      password: {{ alertmanager_pass }}
+
+# Load and evaluate rules in this file every 'evaluation_interval' seconds.
+rule_files:
+  - '/etc/prometheus/alerting.rules'
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>`
+  # to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'node'
+    scrape_interval: 60s
+    file_sd_configs:
+      - files:
+          - targets.json
+
+  - job_name: 'slurm_exorter'
+    scrape_interval: 60s
+    static_configs:
+      - targets:
+          - 'gearshift:9102'
+
+  - job_name: 'ipmi'
+    scrape_interval: 120s
+    static_configs:
+      - targets:
+          - gs-compute01:9289
+          - gs-compute02:9289
+          - gs-compute03:9289
+          - gs-compute04:9289
+          - gs-compute05:9289
+          - gs-compute06:9289
+          - gs-compute07:9289
+          - gs-compute08:9289
+          - gs-compute09:9289
+          - gs-compute10:9289
+          - gs-compute11:9289
+
+
+  # Scrape the cadvisor container exporter
+  - job_name: 'cadvisor'
+    scrape_interval: 60s
+    static_configs:
+      - targets:
+          - localhost:8987
+          - gs-compute01:8987
+          - gs-compute02:8987
+          - gs-compute03:8987
+          - gs-compute04:8987
+          - gs-compute05:8987
+          - gs-compute06:8987
+          - gs-compute07:8987
+          - gs-compute08:8987
+          - gs-compute09:8987
+          - gs-compute10:8987
+          - gs-compute11:8987

@@ -53,7 +53,7 @@ The cluster contains the following hardware components:
 
 The cluster consists of 12 servers and 4 storage units, connected to 2 network-switches, and 1 interconnect-switch for the storage-units.
 The base OS for the servers will be Ubuntu 16.04 LTS, with OpenStack Ocata as the platform of choice for running all full VMs.
-All VMs in the cluster will run Centos 7.3.
+All VMs in the cluster will run Centos 7.5.
 The OpenStack services will each run in a separate Docker container also based on Ubuntu 16.04 LTS.
 
 Figure 1. Global design Gearshift-cluster
@@ -107,7 +107,7 @@ Figure 5. Network design for gs-vcompute[0-9] virtual compute node
 
 ### Compute cluster design
 
-The compute cluster will contain 11 compute VMs, based on Centos 7.3,
+The compute cluster will contain 11 compute VMs, based on Centos 7.5,
 which will have access local storage, and 2 storage-arrays for shared storage (figure 6).
 The /apps, /groups/${group}/tmp01 and /home folders will be served by the Isilon-storage array in Data Centre Eemspoort (DCE).
 The /groups/${group}/prm01/ folders will be served by a Lustre FS from the *data handling* storage facilities in Data Centre DUO.
@@ -127,7 +127,7 @@ Figure 6. Compute-cluster-design
 ### Administration/management design
 
 The cluster uses several VMs for administration/managment of the cluster hardware, software, jobs and users.
-These VMs are created on the OpenStack controller node (gs-openstack), and are based on Centos7.3 (figure 7).
+These VMs are created on the OpenStack controller node (gs-openstack), and are based on Centos7.5 (figure 7).
 
  - **airlock.hpc.rug.nl**
    - Proxy (stepping stone)
@@ -187,6 +187,7 @@ Both Grafana and Prometheus server will run inside Docker containers on this VM.
 
 | What                                                 | How                                                                | Where                                       | Who |
 | ---------------------------------------------------  | ------------------------------------------------------------------ | --------------------------------------------| --- |
+| Physical nodes                                       | cadvisor & node exporter, ipmistats                                | gs-openstack & gs-compute*                  | CIT |
 | OpenStack components <br/> (Resource usage & health) | cadvisor & prometheus                                              | gs-openstack & gs-compute*                  | CIT |
 | Server stats                                         | node exporter                                                      | all servers physical and virtual            | CIT |
 | File integrity & security                            | Stealth check by nagios <br/> https://github.com/fbb-git/stealth   | al UI, DAI, SAI & Proxy servers             | CIT |
@@ -237,12 +238,13 @@ Storage will be provided from three different sources:
    * 128.128.123.3 - 128.128.123.128 /24
  * NFS mounts
 
-| Mount Source                              | Mount Destination            | Mode       | Clients |
-| ----------------------------------------- | ---------------------------- | ---------- | ------- |
-|```/ifs/umgcst10/apps/```                  |```/apps/```                  | read-only  | gs-vcompute* virtual compute nodes & UIs |
-|```/ifs/umgcst10/apps/```                  |```/.envsync/umcgst10/apps/```| read-write | DAIs    |
-|```/ifs/umgcst10/groups/${group}/tmp01/``` |```/groups/${group}/tmp01/``` | read-write | gs-vcompute* virtual compute nodes |
-|```/ifs/umgcst10/home/```                  |```/home/```                  | read-write | gs-vcompute* virtual compute nodes, UIs & DAIs |
+| Mount Source                                           | Mount Destination            | Mode       | Clients |
+| ------------------------------------------------------ | ---------------------------- | ---------- | ------- |
+|```/ifs/rekencluster/umgcst10/apps/```                  |```/apps/```                  | read-only  | gs-vcompute* virtual compute nodes & UIs |
+|```/ifs/rekencluster/umgcst10/apps/```                  |```/.envsync/umcgst10/apps/```| read-write | DAIs    |
+|```/ifs/rekencluster/umgcst10/groups/${group}/tmp01/``` |```/groups/${group}/tmp01/``` | read-write | gs-vcompute* virtual compute nodes |
+|```/ifs/rekencluster/umgcst10/home/```                  |```/home/```                  | read-write | gs-vcompute* virtual compute nodes, UIs & DAIs |
+|```/ifs/rekencluster/umgcst10/```                       |```/mnt/umcgst10/```          | read-write | SAIs |
 
 #### 2 Datahandling Lustre
 
@@ -252,9 +254,14 @@ Storage will be provided from three different sources:
      * Storage     172.23.32.0/22
  * Lustre mounts
 
-| Mount Source                              | Mount Destination            | Mode       | Clients |
-| ----------------------------------------- | ---------------------------- | ---------- | ------- |
-|```/???/groups/${group}/prm01/```          |```/groups/${group}/prm01/``` | read-write | UIs & SAIs |
+| Mount Source                                                             | Mount Destination            | Mode       | Clients |
+| ------------------------------------------------------------------------ | ---------------------------- | ---------- | ------- |
+|```172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1/groups/${group}/prm02/``` |```/groups/${group}/prm02/``` | read-write | UIs     |
+|```172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1/groups/```                |```/mnt/dh1/groups/```        | read-write | SAIs    |
+|```172.23.57.203@tcp11:172.23.57.204@tcp11:/dh2/groups/${group}/prm03/``` |```/groups/${group}/prm03/``` | read-write | UIs     |
+|```172.23.57.203@tcp11:172.23.57.204@tcp11:/dh2/groups/```                |```/mnt/dh2/groups/```        | read-write | SAIs    |
+|```172.23.57.205@tcp11:172.23.57.206@tcp11:/dh?/groups/${group}/prm01/``` |```/groups/${group}/prm01/``` | read-write | UIs     |
+|```172.23.57.205@tcp11:172.23.57.206@tcp11:/dh?/groups/```                |```/mnt/dh3/groups/```        | read-write | SAIs    |
 
 #### 3 Local storage on hypervisors.
 
@@ -286,6 +293,46 @@ ToDo: List of local log files that will be forwarded to the remote log server:
  * /var/log/slurmctld.log
  * /var/log/yum.log
 
+### User authentication and authorization-attributes
+
+User authentication and authorization will be done via the Comanage for the Science Collaboration Zone (SCZ). All authentication will be 2-factor, and the authorization workflow will be designed and maintained by GCC. 
+
+The following attributes will be part of the authorization process. The item marked with * will be provisioned by Comanage (All personalized attributes are examples in this scheme):
+
+User:
+
+* dn: uid=r.rohde@rug.nl,ou=users,ou=bbmri,o=co
+* objectClass: ndsLoginProperties
+* objectClass: inetOrgPerson
+* objectClass: ldapPublicKey
+* objectClass: Top
+* objectClass: organizationalPerson
+* objectClass: Person
+* objectClass: posixAccount
+* cn: Remco Rohde *
+* gidNumber: 10000001
+* homeDirectory: /home/10000001
+* sn: Rohde *
+* uid: r.rohde@rug.nl *
+* uidNumber: 10000001 
+* description: Me, Myself and I 
+* givenName: Remco *
+* loginDisabled: FALSE
+* loginShell: /bin/bash
+* mail: r.rohde@rug.nl *
+* mobile: +31 6123456 *
+* o: Rijksuniversiteit Groningen *
+
+Group:
+
+* dn: cn=TestRSGroup01:Members,ou=groups,ou=bbmri,o=co
+* objectClass: Top
+* objectClass: groupOfNames
+* cn: TestRSGroup01:Members *
+* description: TestRSGroup01:Members
+* member: uid=r.rohde@rug.nl,ou=users,ou=bbmri,o=co *
+
+
 ---
 
 # <a name="Security"/> Security
@@ -296,7 +343,12 @@ Several measures are in place to ensure security for hardware and software in th
    Access is only possible through an official procedure.
    There are several access codes / keys in place for both rooms & enclosures.
  * All SSH logins by regular (non-admin) users are handled by a proxy machine as stepping stone.
-   Proxy machines are secured with an *iptables* type firewall, limiting traffic to SSH over TCP ports 22 and 80.
+   Proxy machines are secured with an *iptables* type firewall, limiting traffic to SSH over TCP ports 22 and 80. The proxy is in a separate Openstack security-group,  where the    following security-rules concerning TCP/IP-connections are applied:
+   * TCP-port 22  - outgoing only to 172.23.40.33 - limiting ssh connections from the proxy to cluster headnode
+   * TCP-port 22  - incoming only from external - cluster-access in general.
+   * TCP-port 389 - outgoing only to 172.23.40.249 - connection to LDAP-server
+   * TCP-port 443 - outgoing only - software-updates from Centos-repos
+   * UDP-port 123 - incoming and outgoing - for clock-synchronisation with external NTP-servers
  * (Security) updates:
    * Proxy machines receive daily security updates and are rebooted automagically weekly to ensure updated kernels are used max 7 days after the update.
    * All other machines:

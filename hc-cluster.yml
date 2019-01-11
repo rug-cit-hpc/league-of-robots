@@ -1,0 +1,69 @@
+---
+- name: Install roles needed for all virtual cluster components except jumphosts.
+  hosts: cluster
+  become: true
+  tasks:
+  roles:
+     - spacewalk_client
+#     - ldap
+     - node_exporter
+     - cluster
+
+- name: Install roles needed for jumphosts.
+  hosts: jumphost
+  become: true
+  roles:
+     - docker
+     - cluster
+     - node_exporter
+     - geerlingguy.security
+  tasks:
+     - cron:
+          name: Reboot to load new kernel.
+          weekday: 1
+          minute: 45
+          hour: 11
+          user: root
+          job: /bin/needs-restarting -r >/dev/null 2>&1 || /sbin/shutdown -r +60 "restarting to apply updates"
+          cron_file: reboot
+
+- hosts: slurm
+  become: true
+  roles:
+     - slurm
+     - prom_server
+     - cadvisor
+
+- name: Install virtual compute nodes
+  hosts: compute-vm
+  become: true
+  tasks:
+  roles:
+     - compute-vm
+   #  - isilon
+     - datahandling
+     - slurm-client
+
+- name: Install user interface
+  hosts: interface
+  become: true
+  tasks:
+  roles:
+     - slurm_exporter
+     - user-interface
+     - datahandling
+    # - isilon
+     - slurm-client
+
+#- name: Install ansible on admin interfaces (DAI & SAI).
+#  hosts:
+#     - imperator
+#     - sugarsnax
+#  become: True
+#  tasks:
+#     - name: install Ansible
+#       yum:
+#          name: ansible-2.6.6-1.el7.umcg
+
+- import_playbook: users.yml
+  #- import_playbook: ssh-host-signer.yml

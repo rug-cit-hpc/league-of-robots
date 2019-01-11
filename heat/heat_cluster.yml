@@ -15,7 +15,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: Molgenis
+      flavor: auxiliary
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.33
@@ -25,12 +25,35 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: Molgenis
+      flavor: auxiliary
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.36
         - network: vlan13
           fixed_ip: 129.125.60.196
+
+  imperator_volume:
+    type: OS::Cinder::Volume
+    properties:
+      size: 2900
+
+  imperator:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: auxiliary
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.34
+        - network: vlan985
+          fixed_ip: 172.23.34.34
+
+  imperator_volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: {get_resource: imperator_volume}
+      instance_uuid: {get_resource: imperator}
 
   sugarsnax_volume:
     type: OS::Cinder::Volume
@@ -42,14 +65,14 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: Compute
+      flavor: auxiliary
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.35
         - network: vlan985
           fixed_ip: 172.23.34.35
 
-  volume_attachment:
+  sugarsnax_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: sugarsnax_volume}
@@ -71,9 +94,11 @@ resources:
           fixed_ip: 172.23.40.81
         - network: vlan985
           fixed_ip: 172.23.34.81
+        - network: vlan985
+          fixed_ip: 172.23.57.41
 
 
-  volume_attachment:
+  gs-vcompute01_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: gs-vcompute01-volume}
@@ -95,9 +120,11 @@ resources:
           fixed_ip: 172.23.40.82
         - network: vlan985
           fixed_ip: 172.23.34.82
+        - network: vlan985
+          fixed_ip: 172.23.57.42
 
 
-  volume_attachment:
+  gs-vcompute02_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: gs-vcompute02-volume}
@@ -119,9 +146,11 @@ resources:
           fixed_ip: 172.23.40.83
         - network: vlan985
           fixed_ip: 172.23.34.83
+        - network: vlan985
+          fixed_ip: 172.23.57.43
 
 
-  volume_attachment:
+  gs-vcompute03_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: gs-vcompute03-volume}
@@ -143,8 +172,10 @@ resources:
           fixed_ip: 172.23.40.84
         - network: vlan985
           fixed_ip: 172.23.34.84
+        - network: vlan985
+          fixed_ip: 172.23.57.44
 
-  volume_attachment:
+  gs-vcompute04_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: gs-vcompute04-volume}
@@ -166,8 +197,10 @@ resources:
           fixed_ip: 172.23.40.85
         - network: vlan985
           fixed_ip: 172.23.34.85
+        - network: vlan985
+          fixed_ip: 172.23.57.45
 
-  volume_attachment:
+  vvcompute05_olume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: gs-vcompute05-volume}
@@ -189,9 +222,11 @@ resources:
           fixed_ip: 172.23.40.86
         - network: vlan985
           fixed_ip: 172.23.34.86
+        - network: vlan985
+          fixed_ip: 172.23.57.46
 
 
-  volume_attachment:
+  gs-vcompute06_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: gs-vcompute06-volume}
@@ -213,9 +248,11 @@ resources:
           fixed_ip: 172.23.40.87
         - network: vlan985
           fixed_ip: 172.23.34.87
+        - network: vlan985
+          fixed_ip: 172.23.57.47
 
 
-  volume_attachment:
+  gs-vcompute07_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: gs-vcompute07-volume}
@@ -237,9 +274,11 @@ resources:
           fixed_ip: 172.23.40.88
         - network: vlan985
           fixed_ip: 172.23.34.88
+        - network: vlan985
+          fixed_ip: 172.23.57.48
 
 
-  volume_attachment:
+  gs-vcompute08_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: gs-vcompute08-volume}
@@ -261,9 +300,11 @@ resources:
           fixed_ip: 172.23.40.89
         - network: vlan985
           fixed_ip: 172.23.34.89
+        - network: vlan985
+          fixed_ip: 172.23.57.49
 
 
-  volume_attachment:
+  gs-vcompute09_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: gs-vcompute09-volume}
@@ -285,9 +326,11 @@ resources:
           fixed_ip: 172.23.40.90
         - network: vlan985
           fixed_ip: 172.23.34.90
+        - network: vlan985
+          fixed_ip: 172.23.57.50
 
 
-  volume_attachment:
+  gs-vcompute10_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: gs-vcompute10-volume}
@@ -309,9 +352,11 @@ resources:
           fixed_ip: 172.23.40.91
         - network: vlan985
           fixed_ip: 172.23.34.91
+        - network: vlan985
+          fixed_ip: 172.23.57.51
 
 
-  volume_attachment:
+  gs-vcompute11_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
       volume_id: {get_resource: gs-vcompute11-volume}

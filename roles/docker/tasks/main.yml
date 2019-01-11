@@ -1,0 +1,11 @@
+---
+- name: Install docker comunity edition.
+  yum:
+    name:
+      - docker-ce
+      - python2-pip
+    state: latest
+    update_cache: yes
+- name: Install docker-py
+  pip:
+    name: docker

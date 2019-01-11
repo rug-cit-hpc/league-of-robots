@@ -1,5 +1,15 @@
+*.DS_Store
+*.project
+*.settings
+*.md.html
+*.vagrant
+*.pydevproject
 *.retry
 *.swp
-documentation/.~lock.UMCG Research IT HPC cluster technical design.docx#
 .vault_pass.txt
+documentation/.~lock.UMCG Research IT HPC cluster technical design.docx#
+promtools/results/*
 roles/hpc-cloud
+roles/HPCplaybooks
+roles/HPCplaybooks/*
+ssh-host-ca

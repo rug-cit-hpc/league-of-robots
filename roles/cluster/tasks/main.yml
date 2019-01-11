@@ -1,0 +1,48 @@
+---
+- name: Set /etc/hosts
+  template:
+    src: templates/hosts
+    dest: /etc/hosts
+    mode: 0644
+    owner: root
+    group: root
+    backup: yes
+  become: true
+  tags: ['etc_hosts']
+
+- name: Set hostname to inventory_hostname
+  hostname:
+    name: '{{ inventory_hostname }}'
+
+- name: set selinux in permissive mode
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: install some standard software
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - curl
+      - git
+      - git-core
+      - nano
+      - ncdu
+      - screen
+      - telnet
+      - tmux
+      - tree
+      - vim
+      - bzip2
+      - ncurses-static
+      - readline-static
+      - tcl-devel
+  tags:
+    - software
+
+- name: Create ssh_known_hosts file with CA used for signed host keys.
+  copy:
+    dest: /etc/ssh/ssh_known_hosts
+    src: files/known_hosts
+  tags: ['known_hosts']
