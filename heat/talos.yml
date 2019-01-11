@@ -15,7 +15,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: auxiliary
+      flavor: 4C-8GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.92
@@ -30,7 +30,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: auxiliary
+      flavor: 4C-8GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.93
@@ -53,7 +53,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: auxiliary
+      flavor: 4C-8GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.94
@@ -76,7 +76,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: tl-vcompute
+      flavor: 4C-8GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.95
@@ -99,7 +99,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: tl-vcompute
+      flavor: 4C-8GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.96
@@ -125,7 +125,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: tl-vcompute
+      flavor: 4C-8GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.97

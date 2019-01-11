@@ -1,28 +1,18 @@
 ---
-slurm_cluster_name: gearshift
-sockets: 2
-CoresPerSocket: 14
-ThreadsPerCore: 1
-RealMemory: 240000
-LocalDisk: 2900
-Feature: centos7
-nodes: |
-    #
-    # Partitions
-    #
-    #
-    # Configure maxnodes = 1 for all nodes of all partitions, 
-    # because we hardly use MPI and when we do never between nodes,
-    # but only with max the amount of cores on a single node.
-    # Therefore we don't have fast network interconnects between nodes.
-    # (We use the fast network interconnects only for nodes <-> large shared storage devices)
-    #
-    EnforcePartLimits=YES
-    PartitionName=DEFAULT State=UP DefMemPerCPU=2048 MaxNodes=1 MaxTime=7-00:00:01
-    PartitionName=regular Default=YES Nodes=gs-vcompute[01-11] MaxNodes=1 MaxCPUsPerNode=26 MaxMemPerNode=235520 TRESBillingWeights="CPU=1.0,Mem=0.125G" DenyQos=ds-short,ds-medium,ds-long
-    PartitionName=ds      Default=No  Nodes=gearshift          MaxNodes=1 MaxCPUsPerNode=1  MaxMemPerNode=1024   TRESBillingWeights="CPU=1.0,Mem=1.0G"   AllowQos=ds-short,ds-medium,ds-long
-    #
-    # COMPUTE NODES
-    #
-    NodeName=gs-vcompute[01-11] Sockets=2 CoresPerSocket=14 ThreadsPerCore=1 State=UNKNOWN RealMemory=240000 TmpDisk=1063742 Feature=tmp01
-    NodeName=gearshift          Sockets=2 CoresPerSocket=2  ThreadsPerCore=1 State=UNKNOWN RealMemory=387557 TmpDisk=0       Feature=tmp01,prm01
+slurm_cluster_name: 'gearshift'
+stack_prefix: 'gs'
+vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-11]"
+vcompute_sockets: '2'
+vcompute_cores_per_socket: '14'
+vcompute_real_memory: '245760'
+vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
+vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
+vcompute_local_disk: '2900'
+vcompute_features: 'tmp01'
+ui_hostnames: "{{ slurm_cluster_name }}"
+ui_sockets: '2'
+ui_cores_per_socket: '2'
+ui_real_memory: '8192'
+ui_local_disk: '0'
+ui_features: 'prm01,tmp01'
+...
