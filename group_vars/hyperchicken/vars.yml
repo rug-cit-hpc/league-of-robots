@@ -1,6 +1,19 @@
 ---
-slurm_cluster_name: hyperchicken
-stack_prefix: hc
+slurm_cluster_name: 'hyperchicken'
+vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-04]"
+vcompute_sockets: '1'
+vcompute_cores_per_socket: '9'
+vcompute_real_memory: '20000'
+vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
+vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
+vcompute_local_disk: '0'
+vcompute_features: 'tmp07'
+ui_hostnames: "{{ slurm_cluster_name }}"
+ui_sockets: '1'
+ui_cores_per_socket: '1'
+ui_real_memory: '3000'
+ui_local_disk: '0'
+ui_features: 'prm07,tmp07'
 key_name: Gerben
 image_cirros: cirros-0.3.4-x86_64-disk.img
 image_centos7: centos7
@@ -13,30 +26,7 @@ private_subnet_id: Solve-RD_subnet
 private_storage_net_id: net_provider_vlan3126
 private_storage_subnet_id: subnet3126
 security_group_id: SSH-and-ping-2
-server_url: 'http://spacewalk.hpc.rug.nl/XMLRPC'
 slurm_ldap: false
 availability_zone: AZ_1
 local_volume_size: 1
-sockets: 1
-CoresPerSocket: 9
-ThreadsPerCore: 1
-RealMemory: 20000
-Feature: centos7
-nodes: |
-    #
-    # Partitions
-    #
-    EnforcePartLimits=YES
-    PartitionName=DEFAULT State=UP DefMemPerCPU=2000
-    PartitionName=hc-ds  Nodes=hc-headnode MaxTime=10-00:00:00 DefaultTime=00:30:00 DenyQos=regular,regularlong SelectTypeParameters=CR_Core_Memory  TRESBillingWeights="CPU=1.0,Mem=0.1875G" Default=NO
-    PartitionName=regular  Nodes=hc-vcompute01,hc-vcompute02,hc-vcompute03,hc-vcompute04 MaxTime=10-00:00:00 DefaultTime=00:30:00 AllowQOS=regular,regularlong SelectTypeParameters=CR_Core_Memory  TRESBillingWeights="CPU=1.0,Mem=0.1875G" Default=YES
-
-    #
-    # COMPUTE NODES
-    #
-    GresTypes=gpu
-    NodeName=hc-headnode   Sockets=1 CoresPerSocket=1 ThreadsPerCore=1 State=IDLE RealMemory=3000  Feature=centos7
-    NodeName=hc-vcompute01 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
-    NodeName=hc-vcompute02 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
-    NodeName=hc-vcompute03 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
-    NodeName=hc-vcompute04 Sockets=1 CoresPerSocket=9 ThreadsPerCore=1 State=IDLE RealMemory=20000 Feature=centos7
+...

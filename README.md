@@ -17,6 +17,10 @@ The main ingredients for (deploying) these clusters:
 #### Protected branches
 The master and develop branches of this repo are protected; updates can only be merged into these branches using reviewed pull requests.
 
+#### Code style and naming conventions
+
+We follow the [Python PEP8 naming conventions](https://www.python.org/dev/peps/pep-0008/#naming-conventions) for variable names, function names, etc.
+
 ## Clusters
 
 This repo currently contains code and configs for the following clusters:
