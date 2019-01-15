@@ -15,7 +15,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: auxiliary
+      flavor: 4C-8GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.33
@@ -25,7 +25,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: auxiliary
+      flavor: 2C-4GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.36
@@ -42,7 +42,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: auxiliary
+      flavor: 4C-8GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.34
@@ -65,7 +65,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: auxiliary
+      flavor: 4C-8GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.35
@@ -88,7 +88,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: gs-vcompute
+      flavor: 24C-240GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.81
@@ -114,7 +114,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: gs-vcompute
+      flavor: 24C-240GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.82
@@ -140,7 +140,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: gs-vcompute
+      flavor: 24C-240GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.83
@@ -166,7 +166,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: gs-vcompute
+      flavor: 24C-240GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.84
@@ -191,7 +191,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: gs-vcompute
+      flavor: 24C-240GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.85
@@ -216,7 +216,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: gs-vcompute
+      flavor: 24C-240GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.86
@@ -242,7 +242,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: gs-vcompute
+      flavor: 24C-240GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.87
@@ -268,7 +268,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: gs-vcompute
+      flavor: 24C-240GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.88
@@ -294,7 +294,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: gs-vcompute
+      flavor: 24C-240GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.89
@@ -320,7 +320,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: gs-vcompute
+      flavor: 24C-240GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.90
@@ -346,7 +346,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: gs-vcompute
+      flavor: 24C-240GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.91

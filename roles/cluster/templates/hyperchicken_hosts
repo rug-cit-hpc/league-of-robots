@@ -1,0 +1,37 @@
+#
+##
+### /etc/hosts file for Solve-RD research clusters.
+##
+#
+
+#
+# localhost
+#
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+#
+# Jumphost servers.
+#
+
+#
+# Admin / Management machines.
+#
+
+#
+# Cluster User Interfaces (UIs).
+#
+
+#
+# Shared network storage servers.
+#
+
+#
+# Hyperchicken (Solve-RD cluster)
+#
+192.168.0.12            hc-headnode
+192.168.0.5             hc-slurm
+192.168.0.11            hc-vcompute01
+192.168.0.19            hc-vcompute02
+192.168.0.14            hc-vcompute03
+192.168.0.8             hc-vcompute04
