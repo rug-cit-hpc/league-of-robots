@@ -46,21 +46,6 @@
 172.23.40.214      umcg-metadata04
 
 #
-# Cluster nodes.
-#
-172.23.40.81       gs-vcompute01        gs-vcompute01.hpc.local
-172.23.40.82       gs-vcompute02        gs-vcompute02.hpc.local
-172.23.40.83       gs-vcompute03        gs-vcompute03.hpc.local
-172.23.40.84       gs-vcompute04        gs-vcompute04.hpc.local
-172.23.40.85       gs-vcompute05        gs-vcompute05.hpc.local
-172.23.40.86       gs-vcompute06        gs-vcompute06.hpc.local
-172.23.40.87       gs-vcompute07        gs-vcompute07.hpc.local
-172.23.40.88       gs-vcompute08        gs-vcompute08.hpc.local
-172.23.40.89       gs-vcompute09        gs-vcompute09.hpc.local
-172.23.40.90       gs-vcompute10        gs-vcompute10.hpc.local
-172.23.40.91       gs-vcompute11        gs-vcompute11.hpc.local
-
-#
 # To prevent excessive dns lookups:
 #
 129.125.60.195          gearshift.hpc.rug.nl
