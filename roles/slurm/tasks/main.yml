@@ -16,25 +16,27 @@
     dest: /etc/postfix/main.cf
     mode: 0644
 
-- group:
+- name: Add slurm group
+  group:
     name: slurm
-    state: present
+    gid: "{{ slurm['slurm_gid'] }}"
 
-- name: add munge group
+- name: Add munge group
   group:
     name: munge
-    gid: 10994
+    gid: "{{ slurm['munge_gid'] }}"
+
+- name: Add slurm user
+  user:
+    name: slurm
+    uid: "{{ slurm['slurm_uid'] }}"
+    group: slurm
 
 - name: Add munge user
   user:
     name: munge
-    uid: 10496
+    uid: "{{ slurm['munge_uid'] }}"
     group: munge
-
-- user:
-    name: slurm
-    comment: "slurm user"
-    group: slurm
 
 - name: set selinux in permissive mode to allow docker volumes
   selinux:
@@ -58,7 +60,6 @@
       login_password: "{{ MYSQL_ROOT_PASSWORD }}"
       name: slurm_acct_db
       state: present
-
 
 - name: install docker config
   template:
@@ -234,3 +235,4 @@
            /bin/find /srv/slurm/backup/slurm_bak.sql.* -mtime 7 -delete
   tags:
     - backup
+...
