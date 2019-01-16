@@ -13,10 +13,12 @@
 #
 # Jumphost servers.
 #
+192.168.0.18            portal
 
 #
 # Admin / Management machines.
 #
+192.168.0.9             hc-dai
 
 #
 # Cluster User Interfaces (UIs).
@@ -29,9 +31,10 @@
 #
 # Hyperchicken (Solve-RD cluster)
 #
-192.168.0.12            hc-headnode
+192.168.0.12            hyperchicken
 192.168.0.5             hc-slurm
 192.168.0.11            hc-vcompute01
 192.168.0.19            hc-vcompute02
 192.168.0.14            hc-vcompute03
 192.168.0.8             hc-vcompute04
+192.168.0.9             hc-dai

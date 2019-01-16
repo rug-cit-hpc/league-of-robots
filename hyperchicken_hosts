@@ -14,7 +14,7 @@ hc-dai
 hc-slurm
 
 [compute-vm]
-hc-vcompute[01:04]
+hc-vcompute[01:05]
 
 [cluster:children]
 compute-vm
