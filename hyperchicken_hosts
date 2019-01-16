@@ -12,6 +12,8 @@ hc-dai
 
 [administration]
 hc-slurm
+hc-dai
+hyperchicken
 
 [compute-vm]
 hc-vcompute[01:05]
