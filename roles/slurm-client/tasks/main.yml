@@ -1,24 +1,29 @@
 ---
-- name: add slum group
+- name: Include SLURM vars.
+  include_vars:
+    file: ../../slurm/defaults/main.yml
+    name: slurm
+
+- name: Add slurm group
   group:
     name: slurm
-    gid: 10501
+    gid: "{{ slurm['slurm_gid'] }}"
 
-- name: add munge group
+- name: Add munge group
   group:
     name: munge
-    gid: 10994
+    gid: "{{ slurm['munge_gid'] }}"
 
 - name: Add slurm user
   user:
     name: slurm
-    uid: 10497
+    uid: "{{ slurm['slurm_uid'] }}"
     group: slurm
 
 - name: Add munge user
   user:
     name: munge
-    uid: 10496
+    uid: "{{ slurm['munge_uid'] }}"
     group: munge
 
 - name: install the slurm client
