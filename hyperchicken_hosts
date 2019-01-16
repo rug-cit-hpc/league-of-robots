@@ -2,10 +2,13 @@
 hc-slurm
 
 [jumphost]
-hc-headnode
+portal
 
 [user-interface]
-hc-headnode
+hyperchicken
+
+[deploy-admin-interface]
+hc-dai
 
 [administration]
 hc-slurm
