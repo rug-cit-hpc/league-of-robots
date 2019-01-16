@@ -1,18 +1,19 @@
 ---
 slurm_cluster_name: 'hyperchicken'
+stack_prefix: 'hc'
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-04]"
-vcompute_sockets: '1'
-vcompute_cores_per_socket: '9'
-vcompute_real_memory: '20000'
+vcompute_sockets: 1
+vcompute_cores_per_socket: 9
+vcompute_real_memory: 20000
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
-vcompute_local_disk: '0'
+vcompute_local_disk: 0
 vcompute_features: 'tmp07'
 ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: '1'
-ui_cores_per_socket: '1'
-ui_real_memory: '3000'
-ui_local_disk: '0'
+ui_sockets: 1
+ui_cores_per_socket: 1
+ui_real_memory: 3000
+ui_local_disk: 0
 ui_features: 'prm07,tmp07'
 key_name: Gerben
 image_cirros: cirros-0.3.4-x86_64-disk.img
