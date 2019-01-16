@@ -14,8 +14,15 @@ The main ingredients for (deploying) these clusters:
  * [CentOS 7](https://www.centos.org/) as OS for the virtual machines.
  * [Slurm](https://slurm.schedmd.com/) as workload/resource manager to orchestrate jobs.
 
-#### Protected branches
+#### Branches and Releases
 The master and develop branches of this repo are protected; updates can only be merged into these branches using reviewed pull requests.
+Once a while we create releases, which are versioned using the format ```YY.MM.v``` where:
+
+ * ```YY``` is the year of release
+ * ```MM``` is the month of release
+ * ```v``` is the first release in that month and year. Hence it is not the day of the month.
+
+E.g. ```19.01.1``` is the first release in January 2019.
 
 #### Code style and naming conventions
 
