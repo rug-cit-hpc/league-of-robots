@@ -19,23 +19,23 @@
 - name: Add slurm group
   group:
     name: slurm
-    gid: "{{ slurm['slurm_gid'] }}"
+    gid: "{{ slurm_gid }}"
 
 - name: Add munge group
   group:
     name: munge
-    gid: "{{ slurm['munge_gid'] }}"
+    gid: "{{ munge_gid }}"
 
 - name: Add slurm user
   user:
     name: slurm
-    uid: "{{ slurm['slurm_uid'] }}"
+    uid: "{{ slurm_uid }}"
     group: slurm
 
 - name: Add munge user
   user:
     name: munge
-    uid: "{{ slurm['munge_uid'] }}"
+    uid: "{{ munge_uid }}"
     group: munge
 
 - name: set selinux in permissive mode to allow docker volumes
