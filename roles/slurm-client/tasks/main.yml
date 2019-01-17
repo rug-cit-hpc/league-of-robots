@@ -1,32 +1,32 @@
 ---
-- name: Include SLURM vars.
+- name: Include Slurm vars.
   include_vars:
     file: ../../slurm/defaults/main.yml
     name: slurm
 
-- name: Add slurm group
+- name: Add Slurm group
   group:
     name: slurm
     gid: "{{ slurm['slurm_gid'] }}"
 
-- name: Add munge group
+- name: Add Munge group
   group:
     name: munge
     gid: "{{ slurm['munge_gid'] }}"
 
-- name: Add slurm user
+- name: Add Slurm user
   user:
     name: slurm
     uid: "{{ slurm['slurm_uid'] }}"
     group: slurm
 
-- name: Add munge user
+- name: Add Munge user
   user:
     name: munge
     uid: "{{ slurm['munge_uid'] }}"
     group: munge
 
-- name: install the slurm client
+- name: Install the Slurm client and NHC
   yum:
     name: "{{ item }}"
     state: latest
@@ -36,27 +36,48 @@
     - slurm-slurmd
     - warewulf-nhc
 
-- file:
-    name: "{{ item }}"
+- name: Create folders for Slurm and NHC
+  file:
+    name: "{{ item.name }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
     state: directory
   with_items:
-    - /etc/slurm
-    - /var/log/slurm
-    - /var/spool/slurmd
+    - name: /etc/slurm
+      owner: root
+      group: root
+      mode: 0755
+    - name: /etc/nhc
+      owner: root
+      group: root
+      mode: 0755
+    - name: /var/log/slurm
+      owner: root
+      group: root
+      mode: 0750
+    - name: /var/spool/slurm
+      owner: slurm
+      group: root
+      mode: 0750
+    - name: /var/spool/slurmd
+      owner: slurm
+      group: root
+      mode: 0750
 
-- name: set the slurm config file
+- name: Deploy slurm.conf
   template:
     src: roles/slurm/files/slurm.conf
     dest: /etc/slurm/slurm.conf
     mode: 0644
 
-- name: Set cgroup.conf
+- name: Configure cgroups
   copy:
     src: roles/slurm/files/cgroup.conf
     dest: /etc/slurm/cgroup.conf
     mode: 0644
 
-- name: Add slurm template files
+- name: Deploy slurm prolog/epilog scripts.
   copy:
     src: roles/slurm/files/{{ item }}
     dest: /etc/slurm/
@@ -70,16 +91,21 @@
   copy:
     src: ../slurm/files/{{ slurm_cluster_name }}_munge.key
     owner: munge
+    group: munge
+    mode: 0600
     dest: /etc/munge/munge.key
 
-- name: set permissions for munge key
-  file:
-    path: /etc/munge/munge.key
-    mode: 0600
+- name: Deploy nhc.conf
+  template:
+    src: template/nhc.conf
+    dest: /etc/nhc/nhc.conf
+    owner: root
+    group: root
+    mode: 0644
 
-- name: start slurm and munge service
+- name: Start slurm and munge services
   systemd:
-    name: "{{ item}}"
+    name: "{{ item }}"
     state: started
   with_items:
     - slurmd
