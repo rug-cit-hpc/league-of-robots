@@ -13,6 +13,7 @@
   hosts: jumphost
   become: true
   roles:
+     - geerlingguy.repo-epel
      - ldap
      - cluster
      - geerlingguy.security
