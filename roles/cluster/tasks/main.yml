@@ -38,6 +38,7 @@
       - ncurses-static
       - readline-static
       - tcl-devel
+      - figlet
   tags:
     - software
 
