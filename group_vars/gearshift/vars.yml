@@ -15,4 +15,10 @@ ui_cores_per_socket: 2
 ui_real_memory: 8192
 ui_local_disk: 0
 ui_features: 'prm01,tmp01'
+uri_ldap: 172.23.40.249
+uri_ldaps: comanage-in.id.rug.nl
+ldap_port: 389
+ldaps_port: 636
+ldap_base: ou=umcg,o=asds
+ldap_binddn: cn=clusteradminumcg,o=asds
 ...
