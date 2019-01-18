@@ -9,6 +9,16 @@
      - node_exporter
      - cluster
 
+- name: Install ansible on admin interfaces (DAI & SAI).
+  hosts:
+     - imperator
+     - sugarsnax
+  become: True
+  tasks:
+     - name: install Ansible
+       yum:
+          name: ansible-2.6.6-1.el7.umcg
+
 - name: Install roles needed for jumphosts.
   hosts: jumphost
   become: true
@@ -55,15 +65,6 @@
      - isilon
      - slurm-client
 
-- name: Install ansible on admin interfaces (DAI & SAI).
-  hosts:
-     - imperator
-     - sugarsnax
-  become: True
-  tasks:
-     - name: install Ansible
-       yum:
-          name: ansible-2.6.6-1.el7.umcg
 
 - name: export /home
   hosts: user-interface:&talos-cluster
