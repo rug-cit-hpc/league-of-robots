@@ -1,7 +1,7 @@
 ---
 heat_template_version: 2015-04-30
 
-description: Simple template to deploy The talos test cluster.
+description: Simple template to deploy The Talos test cluster.
 
 parameters:
   image_name:
@@ -20,12 +20,12 @@ resources:
         - network: vlan983
           fixed_ip: 172.23.40.92
 
-  tl-slurm_volume:
+  tl-sai_volume:
     type: OS::Cinder::Volume
     properties:
       size: 290
 
-  tl-slurm:
+  tl-sai:
     type: OS::Nova::Server
     properties:
       key_name: adminkey
@@ -37,11 +37,11 @@ resources:
         - network: vlan985
           fixed_ip: 172.23.34.93
 
-  tl-slurm_volume_attachment:
+  tl-sai_volume_attachment:
     type: OS::Cinder::VolumeAttachment
     properties:
-      volume_id: {get_resource: tl-slurm_volume}
-      instance_uuid: {get_resource: tl-slurm}
+      volume_id: {get_resource: tl-sai_volume}
+      instance_uuid: {get_resource: tl-sai}
 
   tl-dai_volume:
     type: OS::Cinder::Volume

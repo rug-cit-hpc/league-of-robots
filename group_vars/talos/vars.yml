@@ -2,17 +2,17 @@
 slurm_cluster_name: 'talos'
 stack_prefix: 'tl'
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
-vcompute_sockets: '2'
-vcompute_cores_per_socket: '2'
-vcompute_real_memory: '8192'
+vcompute_sockets: 2
+vcompute_cores_per_socket: 2
+vcompute_real_memory: 8192
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
-vcompute_local_disk: '0'
+vcompute_local_disk: 0
 vcompute_features: 'tmp08'
 ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: '2'
-ui_cores_per_socket: '2'
-ui_real_memory: '8192'
-ui_local_disk: '0'
+ui_sockets: 2
+ui_cores_per_socket: 2
+ui_real_memory: 8192
+ui_local_disk: 0
 ui_features: 'prm08,tmp08'
 ...
