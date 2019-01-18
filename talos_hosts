@@ -1,5 +1,5 @@
 [slurm]
-tl-slurm
+tl-sai
 
 [deploy-admin-interface]
 tl-dai
@@ -8,7 +8,7 @@ tl-dai
 talos
 
 [administration]
-tl-slurm
+tl-sai
 tl-dai
 talos
 
