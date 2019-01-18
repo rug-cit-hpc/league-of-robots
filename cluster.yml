@@ -44,8 +44,8 @@
      - datahandling
      - slurm-client
 
-- name: Install user interface
-  hosts: interface
+- name: Install User Interface (UI)
+  hosts: user-interface
   become: true
   tasks:
   roles:
