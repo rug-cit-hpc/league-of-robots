@@ -1,5 +1,6 @@
 ---
 slurm_cluster_name: 'hyperchicken'
+#slurm_cluster_domain: ''
 stack_prefix: 'hc'
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-05]"
 vcompute_sockets: 1

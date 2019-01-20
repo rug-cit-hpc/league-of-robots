@@ -1,5 +1,6 @@
 ---
 slurm_cluster_name: 'gearshift'
+slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'gs'
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-11]"
 vcompute_sockets: 2

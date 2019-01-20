@@ -1,5 +1,6 @@
 ---
 slurm_cluster_name: 'talos'
+slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'tl'
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
 vcompute_sockets: 2
