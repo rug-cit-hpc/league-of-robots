@@ -1,5 +1,5 @@
 [slurm]
-hc-slurm
+hc-sai
 
 [jumphost]
 portal
@@ -11,7 +11,7 @@ hyperchicken
 hc-dai
 
 [administration]
-hc-slurm
+hc-sai
 hc-dai
 hyperchicken
 
