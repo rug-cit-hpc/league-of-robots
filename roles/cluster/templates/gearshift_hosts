@@ -18,6 +18,7 @@
 # Proxy servers.
 #
 172.23.40.36       airlock
+#172.23.40.???     reception
 
 #
 # Admin / Management machines.
