@@ -34,7 +34,7 @@
         state: present
 
 - hosts:
-    - talos
+    - talos-cluster
     - imperator
   become: True
   tasks:
