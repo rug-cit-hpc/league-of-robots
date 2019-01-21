@@ -1,5 +1,6 @@
 ---
 admin_ranges: "129.125.249.0/24,172.23.40.1/24"
+ssh_host_signer_ca_key: 'ssh-host-ca/hpc-ca'
 ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }}{% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}"
 spacewalk_server_url: 'http://spacewalk.hpc.rug.nl/XMLRPC'
 ...

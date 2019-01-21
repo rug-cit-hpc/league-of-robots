@@ -7,9 +7,6 @@
   roles:
      - chrisgavin.ansible-ssh-host-signer
 
-  vars:
-     ssh_host_signer_ca_key: 'ssh-host-ca/hpc-ca'
-
   tasks:
      - name: Remove wronlgly placed HostCertificate line
        lineinfile:
