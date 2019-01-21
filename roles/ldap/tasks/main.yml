@@ -102,4 +102,3 @@
     - nslcd
     - oddjobd
     - sshd
-    - oddjobd.service
