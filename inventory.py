@@ -75,7 +75,7 @@ class ProxiedInventory(object):
             print '       You may need to export the AI_INVENTORY environment variable to point to a static inventory file in the same dir as where '
             print '           ' + os.path.realpath(__file__)
             print '       is located.'
-            sys.exit()
+            sys.exit(1)
 
         # Read settings and parse CLI arguments.
         self.read_inventory_template()
@@ -85,14 +85,13 @@ class ProxiedInventory(object):
         data_to_print += self.dict_to_json(self.inventory, True)
         print(data_to_print)
 
-    #
-    # Read the inventory details from an Ansible inventory file
-    # * named 'inventory',
-    # * in *.ini format and
-    # located in the same place as this script.
-    #
     def read_inventory_template(self):
-
+        """
+        Read the inventory details from an Ansible inventory file
+         * named 'inventory',
+         * in *.ini format and
+         located in the same place as this script.
+        """
         _config = ConfigParser.SafeConfigParser(allow_no_value=True)
         _config.optionxform = self.prepend_proxy
         
@@ -102,36 +101,34 @@ class ProxiedInventory(object):
             for (_key, _value) in _config.items(_section):
                 self.push(self.inventory, _section, _key)
 
-    #
-    # Prepends proxy before host.
-    #
     def prepend_proxy(self, _string):
-        #return re.sub('AI_PROXY\+', self.proxy, _string)
+        """
+        Prepends proxy before host.
+        """
         return re.sub('^', self.proxy, _string)
 
-
-    #
-    # Process command line arguments.
-    #
     def parse_cli_args(self):
+        """
+        Process command line arguments.
+        """
         parser = argparse.ArgumentParser(description='Produce an Ansible Inventory file.')
         parser.add_argument('--list', action='store_true', default=True,
                             help='List instances (default: True)')
         self.args = parser.parse_args()
 
-    #
-    # Push an element into an array that may or may not have been defined already in the dict.
-    #
     def push(self, _dict, _key, _element):
+        """
+        Push an element into an array that may or may not have been defined already in the dict.
+        """
         if _key in _dict:
             _dict[_key].append(_element)
         else:
             _dict[_key] = [_element]
 
-    #
-    # Convert a dict into a string in JSON format.
-    #
     def dict_to_json(self, _data, _pretty=False):
+        """
+        Convert a dict into a string in JSON format.
+        """
         if _pretty:
             return json.dumps(_data, sort_keys=True, indent=2)
         else:
@@ -140,4 +137,5 @@ class ProxiedInventory(object):
 #
 # Main
 #
-ProxiedInventory()
+if __name__ == "__main__":
+    ProxiedInventory()
