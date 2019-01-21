@@ -28,9 +28,9 @@ resources:
       flavor: 2C-4GB
       networks:
         - network: vlan983
-          fixed_ip: 172.23.40.???
+          fixed_ip: 172.23.40.100
         - network: vlan13
-          fixed_ip: 129.125.60.???
+          fixed_ip: 129.125.60.18
 
   tl-sai_volume:
     type: OS::Cinder::Volume
