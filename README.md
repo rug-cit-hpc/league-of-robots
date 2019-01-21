@@ -81,6 +81,13 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
 
 ---
 
+0. Clone this repo.
+   ```bash
+   mkdir -p ${HOME}/git/
+   cd ${HOME}/git/
+   git clone https://github.com/rug-cit-hpc/league-of-robots.git
+   ```
+
 1. First import the required roles into this playbook:
    
    ```bash
@@ -88,10 +95,15 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
    ansible-galaxy install -r galaxy-requirements.yml
    ```
 
-2. Generate an ansible vault password and put it in `.vault_pass.txt`. This could be done by running the following oneliner:
-
+2. Create `.vault_pass.txt`.
+   * To generate a new Ansible vault password and put it in `.vault_pass.txt`, use the following oneliner:
    ```bash
    tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1 > .vault_pass.txt
+   ```
+   * Or to use an existing Ansible vault password create `.vault_pass.txt` and use a text editor to add the password.
+   Make sure the `.vault_pass.txt` is private:
+   ```bash
+   chmod go-rwx .vault_pass.txt
    ```
 
 3. Configure Ansible settings including the vault.
@@ -114,7 +126,21 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      remote_user = your_local_account_not_from_the_LDAP
      ```
 
-4. Running playbooks. Some examples:
+4. Build Prometheus Node Exporter
+   * Make sure you are a member of the `docker` group.
+     Otherwise you will get this error:
+     ```ERRO[0000] failed to dial gRPC: cannot connect to the Docker daemon.
+        Is 'docker daemon' running on this host?: dial unix /var/run/docker.sock: connect:
+        permission denied
+        context canceled
+     ```
+   * Execute:
+     ```bash
+     cd promtools
+     ./build.sh
+     ```
+
+5. Running playbooks. Some examples:
    * Install the OpenStack cluster.
      ```bash
      ansible-playbook site.yml
@@ -124,7 +150,7 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      ansible-playbook site.yml -i talos_hosts slurm.yml
      ```
 
-5. verify operation.
+6. verify operation.
 
 #### Steps to upgrade openstack cluster.
 
