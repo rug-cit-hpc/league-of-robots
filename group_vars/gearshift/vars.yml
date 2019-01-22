@@ -1,18 +1,25 @@
 ---
 slurm_cluster_name: 'gearshift'
+slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'gs'
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-11]"
-vcompute_sockets: '2'
-vcompute_cores_per_socket: '14'
-vcompute_real_memory: '245760'
+vcompute_sockets: 2
+vcompute_cores_per_socket: 14
+vcompute_real_memory: 245760
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
-vcompute_local_disk: '2900'
+vcompute_local_disk: 2900
 vcompute_features: 'tmp01'
 ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: '2'
-ui_cores_per_socket: '2'
-ui_real_memory: '8192'
-ui_local_disk: '0'
+ui_sockets: 2
+ui_cores_per_socket: 2
+ui_real_memory: 8192
+ui_local_disk: 0
 ui_features: 'prm01,tmp01'
+uri_ldap: 172.23.40.249
+uri_ldaps: comanage-in.id.rug.nl
+ldap_port: 389
+ldaps_port: 636
+ldap_base: ou=umcg,o=asds
+ldap_binddn: cn=clusteradminumcg,o=asds
 ...

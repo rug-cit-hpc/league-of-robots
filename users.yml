@@ -14,6 +14,7 @@
         name: remco
         comment: "Remco Rohde"
         group: admin
+        groups: admin,docker
 
     - authorized_key:
         user: remco
@@ -27,6 +28,7 @@
         name: pieter
         comment: "Pieter Neerincx"
         group: admin
+        groups: admin,docker
 
     - authorized_key:
         user: pieter
@@ -34,7 +36,7 @@
         state: present
 
 - hosts:
-    - talos
+    - talos-cluster
     - imperator
   become: True
   tasks:
@@ -42,6 +44,7 @@
         name: pieter
         comment: "Pieter Neerincx"
         group: admin
+        groups: admin,docker
 
     - authorized_key:
         user: pieter
@@ -52,6 +55,7 @@
         name: gerben
         comment: "Gerben van der Vries"
         group: admin
+        groups: admin,docker
 
     - authorized_key:
         user: gerben
@@ -62,6 +66,7 @@
         name: marieke
         comment: "Marieke Bijlsma"
         group: admin
+        groups: admin,docker
 
     - authorized_key:
         user: marieke

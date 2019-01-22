@@ -24,8 +24,8 @@ RUN rpm -Uvh https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/s
 RUN yum install rhn-client-tools rhn-check rhn-setup rhnsd m2crypto yum-rhn-plugin -y
 RUN rhnreg_ks --force --serverUrl={{ spacewalk_server_url }}  --activationkey={{ activation_key }}
 
-RUN groupadd -g {{ slurm['slurm_gid'] }} slurm
-RUN useradd  -g {{ slurm['slurm_gid'] }} -u {{ slurm['slurm_uid'] }} slurm
+RUN groupadd -g {{ slurm_gid }} slurm
+RUN useradd  -g {{ slurm_gid }} -u {{ slurm_uid }} slurm
 # Slurm and dependencies
 RUN yum install -y slurm           \
                    slurm-lua       \

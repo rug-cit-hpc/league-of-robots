@@ -91,11 +91,14 @@
     - nslcd
     - oddjobd.service
 
+- name: authconfig magic
+  shell: "authconfig --enablemkhomedir --update"
+
 - name: restart daemons
   service:
     name: "{{item}}"
     state: restarted
   with_items:
     - nslcd
+    - oddjobd
     - sshd
-    - oddjobd.service

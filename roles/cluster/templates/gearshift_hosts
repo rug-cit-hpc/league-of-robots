@@ -18,17 +18,23 @@
 # Proxy servers.
 #
 172.23.40.36       airlock
+172.23.40.100      reception
 
 #
 # Admin / Management machines.
+# DAI = Deploy Admin Interface
+# SAI = Sys Admin Interface
 #
 172.23.40.35       sugarsnax
 172.23.40.34       imperator
+172.23.40.94       tl-dai
+172.23.40.93       tl-sai
 
 #
 # Cluster User Interfaces (UIs).
 #
 172.23.40.33       gearshift
+172.23.40.92       talos
 
 #
 # Shared network storage servers.
@@ -59,6 +65,9 @@
 172.23.40.89       gs-vcompute09        gs-vcompute09.hpc.local
 172.23.40.90       gs-vcompute10        gs-vcompute10.hpc.local
 172.23.40.91       gs-vcompute11        gs-vcompute11.hpc.local
+172.23.40.95       tl-vcompute01        tl-vcompute01.hpc.local
+172.23.40.96       tl-vcompute02        tl-vcompute02.hpc.local
+172.23.40.97       tl-vcompute03        tl-vcompute03.hpc.local
 
 #
 # To prevent excessive dns lookups:
@@ -68,4 +77,3 @@
 195.169.22.247          calculon.gcc.rug.nl
 195.169.22.95           leucine-zipper.gcc.rug.nl
 195.169.22.8            zinc-finger.gcc.rug.nl
-

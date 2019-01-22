@@ -1,5 +1,11 @@
 # Build and install a docker image for slurm.
 ---
+- name: Determine cluster size (number of vcompute nodes, cores per node, mem per node, etc.)
+  set_fact:
+    vcompute_host_count: "{{ groups['compute-vm'] | length }}"
+    cluster_cores_total: "{{ vcompute_host_count * vcompute_max_cpus_per_node }}"
+    cluster_mem_total: "{{ vcompute_host_count * vcompute_max_mem_per_node }}"
+
 - name: Install yum dependencies
   yum:
     state: latest
@@ -19,23 +25,23 @@
 - name: Add slurm group
   group:
     name: slurm
-    gid: "{{ slurm['slurm_gid'] }}"
+    gid: "{{ slurm_gid }}"
 
 - name: Add munge group
   group:
     name: munge
-    gid: "{{ slurm['munge_gid'] }}"
+    gid: "{{ munge_gid }}"
 
 - name: Add slurm user
   user:
     name: slurm
-    uid: "{{ slurm['slurm_uid'] }}"
+    uid: "{{ slurm_uid }}"
     group: slurm
 
 - name: Add munge user
   user:
     name: munge
-    uid: "{{ slurm['munge_uid'] }}"
+    uid: "{{ munge_uid }}"
     group: munge
 
 - name: set selinux in permissive mode to allow docker volumes
@@ -177,8 +183,8 @@
 
 - name: Copy QOS script to cluster.
   template:
-    src: files/{{ slurm_cluster_name }}_qos_level.bash
-    dest: /srv/slurm/volumes/scripts/qos.bash
+    src: files/configure_slurm_accounting_db.bash
+    dest: /srv/slurm/volumes/scripts/configure_slurm_accounting_db.bash
     mode: 0700
 
 - name: Create QOS levels in Slurm database.
@@ -188,7 +194,7 @@
     --volume /srv/slurm/volumes/etc/slurm:/etc/slurm
     --volume /srv/slurm/volumes/scripts/:/scripts/
     --volumes-from munge.service
-    hpc/slurm /scripts/qos.bash
+    hpc/slurm /scripts/configure_slurm_accounting_db.bash
   tags:
     - create_database
   register: command_result
