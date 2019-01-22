@@ -52,6 +52,7 @@
 - hosts:
     - talos-cluster
     - imperator
+    - reception
   become: True
   tasks:
     - user:
