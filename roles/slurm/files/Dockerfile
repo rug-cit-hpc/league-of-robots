@@ -22,9 +22,10 @@ RUN chmod 600 /etc/nslcd.conf
 # Install spacewalk client
 RUN rpm -Uvh https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/spacewalk-2.8-client/epel-7-x86_64/00742644-spacewalk-repo/spacewalk-client-repo-2.8-11.el7.centos.noarch.rpm
 RUN yum install rhn-client-tools rhn-check rhn-setup rhnsd m2crypto yum-rhn-plugin -y
-RUN rhnreg_ks --force --serverUrl={{ server_url }}  --activationkey={{ activation_key }}
+RUN rhnreg_ks --force --serverUrl={{ spacewalk_server_url }}  --activationkey={{ activation_key }}
 
-RUN adduser -u 10497 slurm
+RUN groupadd -g {{ slurm_gid }} slurm
+RUN useradd  -g {{ slurm_gid }} -u {{ slurm_uid }} slurm
 # Slurm and dependencies
 RUN yum install -y slurm           \
                    slurm-lua       \

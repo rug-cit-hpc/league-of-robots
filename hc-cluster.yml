@@ -16,7 +16,7 @@
      - docker
      - cluster
      - node_exporter
-     - geerlingguy.security
+#     - geerlingguy.security
   tasks:
      - cron:
           name: Reboot to load new kernel.
@@ -41,17 +41,17 @@
   roles:
      - compute-vm
    #  - isilon
-     - datahandling
+   #  - datahandling
      - slurm-client
 
-- name: Install user interface
-  hosts: interface
+- name: Install User Interface (UI)
+  hosts: user-interface
   become: true
   tasks:
   roles:
      - slurm_exporter
      - user-interface
-     - datahandling
+    # - datahandling
     # - isilon
      - slurm-client
 
@@ -65,5 +65,5 @@
 #       yum:
 #          name: ansible-2.6.6-1.el7.umcg
 
-- import_playbook: users.yml
+- import_playbook: hc-users.yml
   #- import_playbook: ssh-host-signer.yml

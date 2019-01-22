@@ -23,7 +23,7 @@
   rhn_register:
    state: present
    activationkey: "{{activation_key}}"
-   server_url: "{{server_url}}"
+   server_url: "{{spacewalk_server_url}}"
    channels: "{{rhn_channels}}"
   register: result
   until: result is succeeded

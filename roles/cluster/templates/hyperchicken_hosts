@@ -1,0 +1,42 @@
+#
+##
+### /etc/hosts file for Solve-RD research clusters.
+##
+#
+
+#
+# localhost
+#
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+#
+# Jumphost servers.
+#
+192.168.0.18            portal
+
+#
+# Admin / Management machines.
+# DAI = Deploy Admin Interface
+# SAI = Sys Admin Interface
+#
+192.168.0.5             hc-sai
+192.168.0.9             hc-dai
+
+#
+# Cluster User Interfaces (UIs).
+#
+192.168.0.12            hyperchicken
+
+#
+# Shared network storage servers.
+#
+
+#
+# Cluster nodes.
+#
+192.168.0.11            hc-vcompute01
+192.168.0.19            hc-vcompute02
+192.168.0.14            hc-vcompute03
+192.168.0.8             hc-vcompute04
+

@@ -10,10 +10,20 @@
   become: True
 
   tasks:
+    - name: Determine available groups
+      getent:
+        database: group
+
     - user:
         name: remco
         comment: "Remco Rohde"
         group: admin
+        groups: "{{ item }}"
+        append: yes
+      when: item in ansible_facts.getent_group
+      with_items:
+        - admin
+        - docker
 
     - authorized_key:
         user: remco
@@ -27,6 +37,12 @@
         name: pieter
         comment: "Pieter Neerincx"
         group: admin
+        groups: "{{ item }}"
+        append: yes
+      when: item in ansible_facts.getent_group
+      with_items:
+        - admin
+        - docker
 
     - authorized_key:
         user: pieter
@@ -34,7 +50,7 @@
         state: present
 
 - hosts:
-    - talos
+    - talos-cluster
     - imperator
   become: True
   tasks:
@@ -42,6 +58,12 @@
         name: pieter
         comment: "Pieter Neerincx"
         group: admin
+        groups: "{{ item }}"
+        append: yes
+      when: item in ansible_facts.getent_group
+      with_items:
+        - admin
+        - docker
 
     - authorized_key:
         user: pieter
@@ -52,6 +74,12 @@
         name: gerben
         comment: "Gerben van der Vries"
         group: admin
+        groups: "{{ item }}"
+        append: yes
+      when: item in ansible_facts.getent_group
+      with_items:
+        - admin
+        - docker
 
     - authorized_key:
         user: gerben
@@ -62,6 +90,12 @@
         name: marieke
         comment: "Marieke Bijlsma"
         group: admin
+        groups: "{{ item }}"
+        append: yes
+      when: item in ansible_facts.getent_group
+      with_items:
+        - admin
+        - docker
 
     - authorized_key:
         user: marieke

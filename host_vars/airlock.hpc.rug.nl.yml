@@ -1,7 +1,0 @@
----
-firewall_allowed_tcp_ports:
-  - "22"
-  - "80"
-firewall_additional_rules:
-  - "iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 80 -j REDIRECT --to-port 22"
-ssh_host_signer_hostnames: "airlock.hpc.rug.nl,{{ ansible_hostname }}"
