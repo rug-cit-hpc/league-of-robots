@@ -5,6 +5,8 @@
   tasks:
   roles:
      - spacewalk_client
+     - ssh_host_signer
+     - ssh_known_hosts
      - ldap
      - node_exporter
      - cluster
@@ -24,6 +26,8 @@
   become: true
   roles:
      - geerlingguy.repo-epel
+     - ssh_host_signer
+     - ssh_known_hosts
      - ldap
      - cluster
      - geerlingguy.security
@@ -77,4 +81,3 @@
      - nfs_home_client
 
 - import_playbook: users.yml
-  #- import_playbook: ssh-host-signer.yml

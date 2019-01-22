@@ -16,7 +16,7 @@ ui_cores_per_socket: 1
 ui_real_memory: 3000
 ui_local_disk: 0
 ui_features: 'prm07,tmp07'
-ssh_host_signer_ca_key: 'ssh-host-ca/umcg-hpc-ca'
+ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-ca"
 key_name: Gerben
 image_cirros: cirros-0.3.4-x86_64-disk.img
 image_centos7: centos7
