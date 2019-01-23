@@ -17,8 +17,8 @@
 
 - name: Install ansible on admin interfaces (DAI & SAI).
   hosts:
-     - imperator
-     - sugarsnax
+     - sys-admin-interface
+     - deploy-admin-interface
   become: True
   tasks:
      - name: install Ansible
