@@ -14,12 +14,12 @@
   hostname:
     name: '{{ inventory_hostname }}'
 
-- name: set selinux in permissive mode
+- name: Set selinux in permissive mode
   selinux:
     policy: targeted
     state: permissive
 
-- name: install some standard software
+- name: Install some standard software
   yum:
     state: latest
     update_cache: yes
