@@ -1,12 +1,16 @@
 ---
+- name: Sign host keys of all cluster hosts.
+  hosts: all
+  roles:
+    - ssh_host_signer
+    - ssh_known_hosts
+
 - name: Install roles needed for all virtual cluster components except jumphosts.
   hosts: cluster
   become: true
   tasks:
   roles:
      - spacewalk_client
-     - ssh_host_signer
-     - ssh_known_hosts
      - ldap
      - node_exporter
      - cluster
@@ -26,8 +30,6 @@
   become: true
   roles:
      - geerlingguy.repo-epel
-     - ssh_host_signer
-     - ssh_known_hosts
      - ldap
      - cluster
      - geerlingguy.security
@@ -68,7 +70,6 @@
      - datahandling
      - isilon
      - slurm-client
-
 
 - name: export /home
   hosts: user-interface:&talos-cluster

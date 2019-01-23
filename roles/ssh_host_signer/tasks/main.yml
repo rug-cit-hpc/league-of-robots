@@ -10,7 +10,7 @@
 - name: Create local temporary directory.
   local_action:
     module: tempfile
-    suffix: ansible-ssh-host-signer
+    suffix: ssh_host_signer
     state: directory
   changed_when: false
   register: temporary_directory
