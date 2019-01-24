@@ -39,7 +39,7 @@ Deployment and functional administration of all clusters is a joined effort of t
 [Genomics Coordination Center (GCC)](http://wiki.gcc.rug.nl/)
 and the 
 [Center for Information Technology (CIT)](https://www.rug.nl/society-business/centre-for-information-technology/)
-from the [University Medical Center](https://www.umcg.nl) and [University](https://www.rug.nl) of Groningen.
+from the [University Medical Center](https://www.umcg.nl) and [University](https://www.rug.nl) of Groningen, in collaboration with [ELIXIR compute platform](https://www.elixir-europe.org/platforms/compute), [EXCELERATE](https://www.elixir-europe.org/about-us/how-funded/eu-projects/excelerate), [EU-Solve-RD](http://solve-rd.eu/), European Joint Project for Rare disease and [CORBEL](https://www.corbel-project.eu/home.html) projects.
 
 #### Cluster components
 
