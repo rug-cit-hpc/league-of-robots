@@ -30,6 +30,12 @@
   with_items: "{{ private_keys.files }}"
   changed_when: false
 
+- name: Check if we have a CA private key with correct permissions.
+  file:
+    path: "{{ ssh_host_signer_ca_private_key }}"
+    mode: 0600
+  delegate_to: localhost
+
 - name: Sign SSH keys.
   local_action: command ssh-keygen -s "{{ ssh_host_signer_ca_private_key | quote }}" -I {{ ssh_host_signer_id | quote }} -h -n {{ ssh_host_signer_hostnames | quote }} "{{ temporary_directory.path }}/public_keys/{{ inventory_hostname | quote }}{{ item.path | quote }}.pub"
   with_items: "{{ private_keys.files }}"
