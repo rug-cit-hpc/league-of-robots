@@ -71,12 +71,12 @@
      - isilon
      - slurm-client
 
-- name: export /home
+- name: NFS server: export /home
   hosts: user-interface:&talos-cluster
   roles:
      - nfs_home_server
 
-- name: export /home
+- name: NFS client: mount /home
   hosts: compute-vm&talos-cluster
   roles:
      - nfs_home_client
