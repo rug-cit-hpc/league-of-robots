@@ -59,22 +59,22 @@ sacctmgr -i create qos set \
         Name='regular-short' \
         Priority=10 \
         Description='regular-short' \
-        GrpSubmit=30000 MaxSubmitJobsPU=5000  MaxWall=06:00:00 
+        GrpSubmit=30000 MaxSubmitJobsPU=5000  MaxWall=06:00:00
 
 sacctmgr -i create qos set \
         Name='regular-medium' \
         Priority=10 \
         Description='regular-medium' \
         GrpSubmit=30000 MaxSubmitJobsPU=5000  MaxWall=1-00:00:00 \
-        MaxTRESPU=cpu={{ (cluster_cores_total * 0.4) | int }},mem={{ (cluster_mem_total * 0.4) | int }}
+        MaxTRESPU=cpu={{ (cluster_cores_total | float * 0.4) | int }},mem={{ (cluster_mem_total | float * 0.4) | int }}
 
 sacctmgr -i create qos set \
         Name='regular-long' \
         Priority=10 \
         Description='regular-long' \
         GrpSubmit=3000 MaxSubmitJobsPU=1000  MaxWall=7-00:00:00 \
-        GrpTRES=cpu={{ (cluster_cores_total * 0.3) | int }},mem={{ (cluster_mem_total * 0.3) | int }} \
-        MaxTRESPU=cpu={{ (cluster_cores_total * 0.15) | int }},mem={{ (cluster_mem_total * 0.15) | int }}
+        GrpTRES=cpu={{ (cluster_cores_total | float * 0.3) | int }},mem={{ (cluster_mem_total | float * 0.3) | int }} \
+        MaxTRESPU=cpu={{ (cluster_cores_total | float * 0.15) | int }},mem={{ (cluster_mem_total | float * 0.15) | int }}
 
 #
 # QoS priority
@@ -93,7 +93,7 @@ sacctmgr -i create qos set \
         UsageFactor=2 \
         Description='priority-short' \
         GrpSubmit=5000  MaxSubmitJobsPU=1000   MaxWall=06:00:00 \
-        MaxTRESPU=cpu={{ (cluster_cores_total * 0.25) | int }},mem={{ (cluster_mem_total * 0.25) | int }}
+        MaxTRESPU=cpu={{ (cluster_cores_total | float * 0.25) | int }},mem={{ (cluster_mem_total | float * 0.25) | int }}
 
 sacctmgr -i create qos set \
         Name='priority-medium' \
@@ -101,8 +101,8 @@ sacctmgr -i create qos set \
         UsageFactor=2 \
         Description='priority-medium' \
         GrpSubmit=2500  MaxSubmitJobsPU=500   MaxWall=1-00:00:00 \
-        GrpTRES=cpu={{ (cluster_cores_total * 0.5) | int }},mem={{ (cluster_mem_total * 0.5) | int }} \
-        MaxTRESPU=cpu={{ (cluster_cores_total * 0.2) | int }},mem={{ (cluster_mem_total * 0.2) | int }}
+        GrpTRES=cpu={{ (cluster_cores_total | float * 0.5) | int }},mem={{ (cluster_mem_total | float * 0.5) | int }} \
+        MaxTRESPU=cpu={{ (cluster_cores_total | float * 0.2) | int }},mem={{ (cluster_mem_total | float * 0.2) | int }}
 
 sacctmgr -i create qos set \
         Name='priority-long' \
@@ -110,8 +110,8 @@ sacctmgr -i create qos set \
         UsageFactor=2 \
         Description='priority-long' \
         GrpSubmit=250   MaxSubmitJobsPU=50   MaxWall=7-00:00:00 \
-        GrpTRES=cpu={{ (cluster_cores_total * 0.2) | int }},mem={{ (cluster_mem_total * 0.2) | int }} \
-        MaxTRESPU=cpu={{ (cluster_cores_total * 0.1) | int }},mem={{ (cluster_mem_total * 0.1) | int }}
+        GrpTRES=cpu={{ (cluster_cores_total | float * 0.2) | int }},mem={{ (cluster_mem_total | float * 0.2) | int }} \
+        MaxTRESPU=cpu={{ (cluster_cores_total | float * 0.1) | int }},mem={{ (cluster_mem_total | float * 0.1) | int }}
 
 #
 # QoS ds
