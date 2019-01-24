@@ -47,23 +47,23 @@
     - name: /etc/slurm
       owner: root
       group: root
-      mode: 0755
+      mode: '0755'
     - name: /etc/nhc
       owner: root
       group: root
-      mode: 0755
+      mode: '0755'
     - name: /var/log/slurm
       owner: root
       group: root
-      mode: 0750
+      mode: '0750'
     - name: /var/spool/slurm
       owner: slurm
       group: root
-      mode: 0750
+      mode: '0750'
     - name: /var/spool/slurmd
       owner: slurm
       group: root
-      mode: 0750
+      mode: '0750'
 
 - name: Deploy slurm.conf
   template:
@@ -97,7 +97,7 @@
 
 - name: Deploy nhc.conf
   template:
-    src: template/nhc.conf
+    src: templates/nhc.conf
     dest: /etc/nhc/nhc.conf
     owner: root
     group: root
