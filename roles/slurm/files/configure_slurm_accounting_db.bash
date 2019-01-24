@@ -59,7 +59,7 @@ sacctmgr -i create qos set \
         Name='regular-short' \
         Priority=10 \
         Description='regular-short' \
-        GrpSubmit=30000 MaxSubmitJobsPU=5000  MaxWall=06:00:00 
+        GrpSubmit=30000 MaxSubmitJobsPU=5000  MaxWall=06:00:00
 
 sacctmgr -i create qos set \
         Name='regular-medium' \
