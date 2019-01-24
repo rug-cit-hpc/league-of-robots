@@ -9,7 +9,7 @@ munge_gid: 498
 #  * number of vcompute nodes in inventory and
 #  * cores per node, mem per node, etc. as specified in group_vars for cluster.
 #
-vcompute_host_count: "{{ groups['compute-vm']|length }}"
+vcompute_host_count: "{{ groups['compute-vm']|list|length }}"
 cluster_cores_total: "{{ vcompute_host_count|int * vcompute_max_cpus_per_node|int }}"
 cluster_mem_total: "{{ vcompute_host_count|int * vcompute_max_mem_per_node|int }}"
 ...
