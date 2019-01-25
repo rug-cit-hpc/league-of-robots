@@ -7,3 +7,4 @@
 vcompute_host_count: "{{ groups['compute-vm']|list|length }}"
 cluster_cores_total: "{{ vcompute_host_count|int * vcompute_max_cpus_per_node|int }}"
 cluster_mem_total: "{{ vcompute_host_count|int * vcompute_max_mem_per_node|int }}"
+...
