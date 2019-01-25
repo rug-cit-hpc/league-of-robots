@@ -1,3 +1,10 @@
 ---
 firewall_allowed_tcp_ports:
   - "22"
+ldap_port: 389
+ldaps_port: 636
+uri_ldap: ''
+uri_ldaps: ''
+ldap_base: ''
+ldap_binddn: ''
+...
