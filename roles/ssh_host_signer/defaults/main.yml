@@ -1,0 +1,9 @@
+---
+ssh_host_signer_ca_keypair_dir: '/etc/ssh'
+ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/ca-key"
+ssh_host_signer_id: "{{ ansible_fqdn }}"
+ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }}"
+ssh_host_signer_key_directory: '/etc/ssh/'
+ssh_host_signer_key_types: '.*'
+ssh_host_signer_ssh_config: '/etc/ssh/sshd_config'
+...

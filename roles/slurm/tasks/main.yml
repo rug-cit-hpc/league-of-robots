@@ -1,12 +1,6 @@
 # Build and install a docker image for slurm.
 ---
-- name: Determine cluster size (number of vcompute nodes, cores per node, mem per node, etc.)
-  set_fact:
-    vcompute_host_count: "{{ groups['compute-vm'] | length }}"
-    cluster_cores_total: "{{ vcompute_host_count * vcompute_max_cpus_per_node }}"
-    cluster_mem_total: "{{ vcompute_host_count * vcompute_max_mem_per_node }}"
-
-- name: Install yum dependencies
+- name: Install yum dependencies.
   yum:
     state: latest
     update_cache: yes
@@ -15,64 +9,66 @@
       - MySQL-python
       - postfix
 
-- name: Set postfix config file
+- name: Set postfix config file.
   copy:
     src: files/main.cf
     owner: root
     dest: /etc/postfix/main.cf
     mode: 0644
 
-- name: Add slurm group
+- name: Add slurm group.
   group:
     name: slurm
     gid: "{{ slurm_gid }}"
 
-- name: Add munge group
+- name: Add munge group.
   group:
     name: munge
     gid: "{{ munge_gid }}"
 
-- name: Add slurm user
+- name: Add slurm user.
   user:
     name: slurm
     uid: "{{ slurm_uid }}"
     group: slurm
 
-- name: Add munge user
+- name: Add munge user.
   user:
     name: munge
     uid: "{{ munge_uid }}"
     group: munge
 
-- name: set selinux in permissive mode to allow docker volumes
+- name: Set selinux in permissive mode to allow Docker volumes.
   selinux:
     policy: targeted
     state: permissive
 
-- name: make sure the database user is present
+- name: Make sure the database user is present.
   mysql_user:
-      login_host: 127.0.0.1
-      login_user: root
-      login_password: "{{ MYSQL_ROOT_PASSWORD }}"
-      name: "{{ slurm_storage_user }}"
-      password: "{{ slurm_storage_pass }}"
-      host: '%'
-      priv: '*.*:ALL'
-
-- name: Create a database for slurm accounting
+    login_host: 127.0.0.1
+    login_user: root
+    login_password: "{{ MYSQL_ROOT_PASSWORD }}"
+    name: "{{ slurm_storage_user }}"
+    password: "{{ slurm_storage_pass }}"
+    host: '%'
+    priv: '*.*:ALL'
+  no_log: True
+  
+- name: Create a database for Slurm accounting.
   mysql_db:
-      login_host: 127.0.0.1
-      login_user: root
-      login_password: "{{ MYSQL_ROOT_PASSWORD }}"
-      name: slurm_acct_db
-      state: present
+    login_host: 127.0.0.1
+    login_user: root
+    login_password: "{{ MYSQL_ROOT_PASSWORD }}"
+    name: slurm_acct_db
+    state: present
+  no_log: True
 
-- name: install docker config
+- name: Install Docker config.
   template:
     src: files/daemon.json
     dest: /etc/docker/daemon.json
 
-- name: make sure service is started
+- name: Start services and make sure they will start on (re)boot.
   systemd:
     name: "{{item}}"
     state: started
@@ -80,14 +76,14 @@
       - docker
       - ntpd
 
-- name: Make docker build dir
+- name: Make docker build dir.
   file:
     path: /srv/slurm
     state: directory
     owner: slurm
     mode: 0755
 
-- name: Make dirs to be used as a volumes
+- name: Make dirs to be used as a volumes.
   file:
     path: "/srv/slurm/volumes{{item}}"
     state: directory
@@ -99,18 +95,14 @@
       - /etc/slurm
       - /scripts
 
-- name: Install munge_keyfile
+- name: Install munge.key file.
   copy:
     src: files/{{ slurm_cluster_name }}_munge.key
     owner: munge
+    mode: 0600
     dest: /srv/slurm/volumes/etc/munge/munge.key
 
-- name: set permissions for munge key
-  file:
-    path: /srv/slurm/volumes/etc/munge/munge.key
-    mode: 0600
-
-- name: install slurm config files
+- name: Install Slurm config files.
   template:
     src: files/{{ item }}
     dest: /srv/slurm/volumes/etc/slurm/
@@ -122,7 +114,7 @@
       - slurm.epilog
       - slurm.taskprolog
 
-- name: install build files
+- name: Install build files.
   template:
     src: files/{{ item }}
     dest: /srv/slurm/
@@ -132,7 +124,7 @@
       - runslurmdbd.sh
       - ssmtp.conf
 
-- name: install build files
+- name: Install build files for LDAP.
   template:
     src: files/{{ item }}
     dest: /srv/slurm/
@@ -143,7 +135,7 @@
       - nsswitch.conf
   when: slurm_ldap
 
-- name: force (re)build slurm image
+- name: Force (re)build Slurm image.
   docker_image:
     state: present
     force: yes
@@ -167,10 +159,10 @@
   tags:
       - service-files
 
-- name: install service files
+- name: Make services reload their configs.
   command: systemctl daemon-reload
 
-- name: make sure servcies are started.
+- name: Make sure servcies are started.
   systemd:
     name: "{{item}}"
     state: restarted
@@ -203,12 +195,12 @@
     and "already exists" not in command_result.stdout
     and "slurm.service\" is already in use by container" not in command_result.stderr
 
-- name: Start slurm.service now that the cluster db is present.
+- name: Start slurm.service now that the cluster DB is present.
   systemd:
     name: slurm.service
     state: restarted
 
-- name: Make backup dir
+- name: Make backup dir.
   file:
     path: /srv/slurm/backup
     state: directory
@@ -217,7 +209,7 @@
   tags:
     - backup
 
-- name: run an initial backup
+- name: Run an initial backup.
   shell: >
              /bin/docker run --network host --rm
              mariadb mysqldump --all-databases -uroot
@@ -225,6 +217,7 @@
              > /srv/slurm/backup/slurm.sql
   tags:
     - backup
+  no_log: True
 
 - name: Dump the database every night. Keep 7 backups.
   cron:
@@ -241,4 +234,5 @@
            /bin/find /srv/slurm/backup/slurm_bak.sql.* -mtime 7 -delete
   tags:
     - backup
+  no_log: True
 ...

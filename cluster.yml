@@ -1,4 +1,10 @@
 ---
+- name: Sign host keys of all cluster hosts.
+  hosts: all
+  roles:
+    - ssh_host_signer
+    - ssh_known_hosts
+
 - name: Install roles needed for all virtual cluster components except jumphosts.
   hosts: cluster
   become: true
@@ -11,8 +17,8 @@
 
 - name: Install ansible on admin interfaces (DAI & SAI).
   hosts:
-     - imperator
-     - sugarsnax
+     - sys-admin-interface
+     - deploy-admin-interface
   become: True
   tasks:
      - name: install Ansible
@@ -65,16 +71,14 @@
      - isilon
      - slurm-client
 
-
-- name: export /home
+- name: Export /home on NFS server.
   hosts: user-interface:&talos-cluster
   roles:
      - nfs_home_server
 
-- name: export /home
+- name: Mount /home on NFS clients.
   hosts: compute-vm&talos-cluster
   roles:
      - nfs_home_client
 
 - import_playbook: users.yml
-  #- import_playbook: ssh-host-signer.yml

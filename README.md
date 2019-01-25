@@ -79,6 +79,9 @@ These roles install various docker images built and hosted by RuG webhosting. Th
 #### Deployment of OpenStack
 The steps below describe how to get from machines with a bare ubuntu 16.04 installed to a running openstack installation.
 
+#### Steps to upgrade the OpenStack cluster
+
+### 3. Steps to deploy HPC compute cluster on top of OpenStack cluster
 ---
 
 0. Clone this repo.
@@ -108,13 +111,13 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
 
 3. Configure Ansible settings including the vault.
    * To create (a new) secrets.yml:
-     Generate and encrypt the passwords for the various openstack components.
+     Generate and encrypt the passwords for the various OpenStack components.
      ```bash
      ./generate_secrets.py
      ansible-vault --vault-password-file=.vault_pass.txt encrypt secrets.yml
      ```
-     The encrypted secrets.yml can now safely be comitted.
-     The `.vault_pass.txt` file is in the .gitignore and needs to be tranfered in a secure way.
+     The encrypted secrets.yml can now safely be committed.
+     The `.vault_pass.txt` file is in the .gitignore and needs to be transfered in a secure way.
 
    * To use use an existing encrypted secrets.yml add .vault_pass.txt to the root folder of this repo
      and create in the same location ansible.cfg using the following template:
@@ -126,10 +129,37 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      remote_user = your_local_account_not_from_the_LDAP
      ```
 
-4. Build Prometheus Node Exporter
+4. Configure the Certificate Authority (CA).
+   We use an SSH public-private key pair to sign the host keys of all the machines in a cluster.
+   This way users only need the public key of the CA in their ```~.ssh/known_hosts``` file
+   and will not get bothered by messages like this:
+   ```
+      The authenticity of host '....' can't be established.
+      ECDSA key fingerprint is ....
+      Are you sure you want to continue connecting (yes/no)?
+   ```
+   * The filename of the CA private key is specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/*/vars.yml```
+   * The filename of the corresponding CA public key must be the same as the one of the private key suffixed with ```.pub```
+   * The password required to decrypt the CA private key must be specified using the ```ssh_host_signer_ca_private_key_pass``` variable defined in ```group_vars/*/secrets.yml```,
+     which must be encrypted with ```ansible-vault```.
+   * Each user must add the content of the CA public key to their ```~.ssh/known_hosts``` like this:
+     ```
+     @cert-authority [names of the hosts for which the cert is valid] [content of the CA public key]
+     ```
+     E.g.:
+     ```
+     @cert-authority reception*,*talos,*tl-* ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDWNAF....VMZpZ5b9+5GA3O8w== UMCG HPC Development CA
+     ```
+   * Example to create a new CA key pair with the ```rsa``` algorithm:
+     ```bash
+     ssh-keygen -t ed25519 -a 101 -f ssh-host-ca/ca-key-file-name -C "CA key for ..."
+     ```
+
+5. Build Prometheus Node Exporter
    * Make sure you are a member of the `docker` group.
      Otherwise you will get this error:
-     ```ERRO[0000] failed to dial gRPC: cannot connect to the Docker daemon.
+     ```
+        ERRO[0000] failed to dial gRPC: cannot connect to the Docker daemon.
         Is 'docker daemon' running on this host?: dial unix /var/run/docker.sock: connect:
         permission denied
         context canceled
@@ -140,7 +170,7 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      ./build.sh
      ```
 
-5. Running playbooks. Some examples:
+6. Running playbooks. Some examples:
    * Install the OpenStack cluster.
      ```bash
      ansible-playbook site.yml
@@ -150,8 +180,4 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      ansible-playbook site.yml -i talos_hosts slurm.yml
      ```
 
-6. verify operation.
-
-#### Steps to upgrade openstack cluster.
-
-### 3. Steps to install Compute cluster on top of openstack cluster.
+7. verify operation.

@@ -11,7 +11,7 @@
       - pam_script
       - oddjob-mkhomedir
 
-- name: install nslcd.conf
+- name: Deploy nslcd.conf
   template:
     src: nslcd.conf
     dest: /etc/nslcd.conf
@@ -19,7 +19,7 @@
     group: root
     mode: '0600'
 
-- name: install ldap.conf
+- name: Deploy ldap.conf
   template:
     src: ldap.conf
     dest: /etc/ssh/ldap.conf
@@ -27,7 +27,7 @@
     group: root
     mode: '0644'
 
-- name: install nsswitch.conf
+- name: Deploy nsswitch.conf
   copy:
     src: nsswitch.conf
     dest: /etc/nsswitch.conf
@@ -35,11 +35,12 @@
     group: root
     mode: '0644'
 
-- file:
+- name: Create /etc/pam-script.d/ dir.
+  file:
     name: /etc/pam-script.d
     state: directory
 
-- name: install login_checks.sh
+- name: Install login_checks.sh script.
   copy:
     src: login_checks.sh
     dest: /etc/pam-script.d/login_checks.sh
@@ -47,7 +48,7 @@
     group: root
     mode: '0755'
 
-- name: set symlinks to pam_script
+- name: Enable pam_script.
   file:
     src: pam_script
     dest: "/etc/{{ item }}"
@@ -61,7 +62,7 @@
     - pam_script_ses_close
     - pam_script_ses_open
 
-- name: set symlinks to login_checks.sh
+- name: Enable login_checks.sh script for ses_open.
   file:
     src: login_checks.sh
     dest: "/etc/pam-script.d/{{ item }}"
@@ -71,34 +72,38 @@
   with_items:
     - login_checks.sh_ses_open
 
-- copy:
+- name: Deploy password-auth-ac for PAM.
+  copy:
     src: password-auth-ac
     dest: /etc/pam.d/password-auth-ac
     owner: root
     group: root
     mode: '0600'
 
-- name: set sshd config
+- name: Deploy sshd config.
   template:
     src: templates/sshd_config
     dest: /etc/ssh/sshd_config
 
-- name: enable services
+- name: Enable services.
   systemd:
     name: "{{ item }}"
     enabled: yes
   with_items:
     - nslcd
+    - dbus.service
     - oddjobd.service
 
-- name: authconfig magic
+- name: Run authconfig update.
   shell: "authconfig --enablemkhomedir --update"
 
-- name: restart daemons
+- name: Reload services.
   service:
     name: "{{item}}"
-    state: restarted
+    state: reloaded
   with_items:
     - nslcd
+    - dbus
     - oddjobd
     - sshd
+...
