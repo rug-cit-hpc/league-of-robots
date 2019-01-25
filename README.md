@@ -79,6 +79,9 @@ These roles install various docker images built and hosted by RuG webhosting. Th
 #### Deployment of OpenStack
 The steps below describe how to get from machines with a bare ubuntu 16.04 installed to a running openstack installation.
 
+#### Steps to upgrade the OpenStack cluster
+
+### 3. Steps to deploy HPC compute cluster on top of OpenStack cluster
 ---
 
 0. Clone this repo.
@@ -178,7 +181,3 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      ```
 
 7. verify operation.
-
-#### Steps to upgrade openstack cluster.
-
-### 3. Steps to install Compute cluster on top of openstack cluster.
