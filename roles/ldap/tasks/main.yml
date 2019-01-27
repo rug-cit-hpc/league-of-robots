@@ -85,6 +85,18 @@
     src: templates/sshd_config
     dest: /etc/ssh/sshd_config
 
+#
+# ToDo: patch /etc/ssh/moduli
+#
+
+- name: Deploy custom ssh-ldap-wrapper.
+  copy:
+    src: ssh-ldap-wrapper
+    dest: /usr/libexec/openssh/ssh-ldap-wrapper
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Enable services.
   systemd:
     name: "{{ item }}"
