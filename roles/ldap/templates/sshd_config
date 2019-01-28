@@ -70,7 +70,7 @@ PermitRootLogin no
 PasswordAuthentication no
 PermitEmptyPasswords no
 ChallengeResponseAuthentication no
-GSSAPIAuthentication yes
+GSSAPIAuthentication no
 GSSAPICleanupCredentials no
 PubkeyAuthentication yes
 AuthorizedKeysCommand /usr/libexec/openssh/ssh-ldap-wrapper
@@ -78,11 +78,12 @@ AuthorizedKeysCommandUser root
 AuthorizedKeysFile /dev/null
 Match Group admin
     AuthorizedKeysFile .ssh/authorized_keys
+Match all
 
 #
 # Connection settings.
 #
-X11Forwarding yes
+X11Forwarding no
 ClientAliveInterval 300
 
 #
