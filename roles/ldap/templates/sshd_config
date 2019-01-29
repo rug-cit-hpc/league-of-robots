@@ -7,22 +7,25 @@ UseDNS no
 Protocol 2
 
 #
-# Supported HostKey algorithms by order of preference.
+# Supported (Host)Key algorithms by order of preference.
 # Do not use (EC)DSA keys!
 #
 HostKey /etc/ssh/ssh_host_ed25519_key
 HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub
 HostKey /etc/ssh/ssh_host_rsa_key
 HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub
+HostKeyAlgorithms      ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,ssh-rsa,ssh-rsa-cert-v01@openssh.com
+PubkeyAcceptedKeyTypes ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,ssh-rsa,ssh-rsa-cert-v01@openssh.com
 
 #
 # Supported KEX (Key Exchange) algorithms.
 #
 KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256
 
+#
 # ToDo: All Diffie-Hellman moduli used for diffie-hellman-group-exchange-sha256 should be at least 3072-bit-long
 #       See also man moduli. Moduli are stored in file: /etc/ssh/moduli
-#       The 5th column od this file contains the length of the moduli.
+#       The 5th column of this file contains the length of the moduli.
 #       To remove short moduli:
 # if [[ ! -e /etc/ssh/moduli.original ]]; then
 #     cp /etc/ssh/moduli > /etc/ssh/moduli.original
@@ -41,7 +44,7 @@ Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.
 # Ciphers and MACs can be combined in multiple ways,
 # but only Encrypt-then-MAC (EtM) should be used.
 #
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com
 
 #
 # Logging
@@ -52,27 +55,35 @@ MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@op
 SyslogFacility AUTHPRIV
 LogLevel VERBOSE
 
-# Authentication:
 #
-# Never allow this. We have admin users who can sudo
-# (see users.yml in the gearshift repo)
+# Authentication methods.
+#
+#  * Never allow direct root login: We have admin users who can sudo.
+#    (see users.yml in the league-of-robots repo)
+#  * Disable password based auth.
+#  * Enable key pair based auth.
+#    * Fetch public keys from LDAP
+#    * Disable local keys stored in ~/.ssh/ folders except for local admin accounts.
+#
+UsePAM yes
 PermitRootLogin no
-
-# The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2,
-# but we disable this by default as public keys for regular users come from LDAP.
-AuthorizedKeysFile /dev/null
-
 PasswordAuthentication no
 PermitEmptyPasswords no
-
 ChallengeResponseAuthentication no
-
-GSSAPIAuthentication yes
+GSSAPIAuthentication no
 GSSAPICleanupCredentials no
+PubkeyAuthentication yes
+AuthorizedKeysCommand /usr/libexec/openssh/ssh-ldap-wrapper
+AuthorizedKeysCommandUser root
+AuthorizedKeysFile /dev/null
+Match Group admin
+    AuthorizedKeysFile .ssh/authorized_keys
+Match all
 
-UsePAM yes
-
-X11Forwarding yes
+#
+# Connection settings.
+#
+X11Forwarding no
 ClientAliveInterval 300
 
 #
@@ -81,13 +92,4 @@ ClientAliveInterval 300
 #
 Subsystem sftp /usr/libexec/openssh/sftp-server -f AUTHPRIV -l INFO
 
-PubkeyAuthentication yes
 
-AuthorizedKeysCommand /usr/libexec/openssh/ssh-ldap-wrapper
-AuthorizedKeysCommandUser root
-#
-# 129.125.249.0/24   # RUG BeheersWerkPlek
-# 172.23.40.1/24     # Management VLAN 983
-#
-Match Group admin
-    AuthorizedKeysFile .ssh/authorized_keys

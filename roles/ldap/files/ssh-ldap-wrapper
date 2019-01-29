@@ -1,0 +1,34 @@
+#!/bin/bash
+
+#
+# Custom ssh-ldap-wrapper script.
+#  * Fetches public keys from LDAP using default ssh-ldap-helper and
+#  * Filters the public keys by dropping unsupported key types or short key sizes considered weak.
+#    We accept fixed size ed25519 keys and >= 4096 bits rsa keys.
+#
+declare user="${1}"
+declare regex='^([0-9][0-9]*) .* \((.*)\)$'
+declare ssh_ldap_helper='/usr/libexec/openssh/ssh-ldap-helper'
+declare ssh_keygen='/usr/bin/ssh-keygen'
+declare rsa_key_size='4096'
+
+while read -r authorized_keys_line; do
+    declare fingerprint="$("${ssh_keygen}" -l -f /dev/stdin <<< "${authorized_keys_line}")"
+    if [[ "${fingerprint}" =~ ${regex} ]]; then
+        declare key_size="${BASH_REMATCH[1]}"
+        declare key_type="${BASH_REMATCH[2]}"
+        if [[ "${key_type}" == 'ED25519' ]]; then
+            printf '%s\n' "${authorized_keys_line}"
+        elif [[ "${key_type}" == 'RSA' ]]; then
+            if [[ "${key_size}" -ge ${rsa_key_size} ]]; then
+                printf '%s\n' "${authorized_keys_line}"
+            else
+                echo "WARN: Skipping key with unsupported key size ${key_size}. "${key_type}" key size must be >= ${rsa_key_size}." 1>&2
+            fi
+        else
+            echo "WARN: Skipping unsupported key type ${key_type}." 1>&2
+        fi
+    else
+        echo "ERROR: Failed to parse key fingerprint ${fingerprint}." 1>&2
+    fi
+done <<< "$("${ssh_ldap_helper}" -s "${user}")"
