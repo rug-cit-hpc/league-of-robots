@@ -11,17 +11,19 @@ declare regex='^([0-9][0-9]*) .* \((.*)\)$'
 declare ssh_ldap_helper='/usr/libexec/openssh/ssh-ldap-helper'
 declare ssh_keygen='/usr/bin/ssh-keygen'
 declare rsa_key_size='4096'
+declare -a authorized_keys=()
 
-while read -r authorized_keys_line; do
-    declare fingerprint="$("${ssh_keygen}" -l -f /dev/stdin <<< "${authorized_keys_line}")"
+while read -r public_keys_line; do
+    test -z "${public_keys_line:-}" && continue
+    declare fingerprint="$("${ssh_keygen}" -l -f /dev/stdin <<< "${public_keys_line}")"
     if [[ "${fingerprint}" =~ ${regex} ]]; then
         declare key_size="${BASH_REMATCH[1]}"
         declare key_type="${BASH_REMATCH[2]}"
         if [[ "${key_type}" == 'ED25519' ]]; then
-            printf '%s\n' "${authorized_keys_line}"
+            authorized_keys=("${authorized_keys[@]}" "${public_keys_line}")
         elif [[ "${key_type}" == 'RSA' ]]; then
             if [[ "${key_size}" -ge ${rsa_key_size} ]]; then
-                printf '%s\n' "${authorized_keys_line}"
+                authorized_keys=("${authorized_keys[@]}" "${public_keys_line}")
             else
                 echo "WARN: Skipping key with unsupported key size ${key_size}. "${key_type}" key size must be >= ${rsa_key_size}." 1>&2
             fi
@@ -29,6 +31,10 @@ while read -r authorized_keys_line; do
             echo "WARN: Skipping unsupported key type ${key_type}." 1>&2
         fi
     else
-        echo "ERROR: Failed to parse key fingerprint ${fingerprint}." 1>&2
+        echo "ERROR: Failed to parse key fingerprint ${fingerprint:-}." 1>&2
     fi
-done <<< "$("${ssh_ldap_helper}" -s "${user}")"
+done < <("${ssh_ldap_helper}" -s "${user}")
+
+for authorized_key in "${authorized_keys[@]}"; do
+    printf '%s\n' "${authorized_key}"
+done
