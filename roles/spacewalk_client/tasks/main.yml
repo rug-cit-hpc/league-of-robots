@@ -40,18 +40,13 @@
   ignore_errors: yes
   no_log: True
 
-#- name: Disable gpgcheck.
-#  command: sed -i 's/gpgcheck = 1/gpgcheck = 0/g' /etc/yum/pluginconf.d/rhnplugin.conf
-#  args:
-#    warn: false
-
 - name: Disable gpgcheck for spacewalk repo.
   lineinfile:
     path: '/etc/yum/pluginconf.d/rhnplugin.conf'
     regexp: '^gpgcheck = [0-9].*'
     line: 'gpgcheck = 0'
 
-- name: Remove all current repo config files.
+- name: Remove all (non-spacewalk) repo config files from /etc/yum.repos.d/.
   shell: "rm -rf /etc/yum.repos.d/*"
   args:
     warn: false
