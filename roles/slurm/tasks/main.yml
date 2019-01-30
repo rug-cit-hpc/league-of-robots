@@ -45,21 +45,23 @@
 
 - name: Make sure the database user is present.
   mysql_user:
-      login_host: 127.0.0.1
-      login_user: root
-      login_password: "{{ MYSQL_ROOT_PASSWORD }}"
-      name: "{{ slurm_storage_user }}"
-      password: "{{ slurm_storage_pass }}"
-      host: '%'
-      priv: '*.*:ALL'
-
+    login_host: 127.0.0.1
+    login_user: root
+    login_password: "{{ MYSQL_ROOT_PASSWORD }}"
+    name: "{{ slurm_storage_user }}"
+    password: "{{ slurm_storage_pass }}"
+    host: '%'
+    priv: '*.*:ALL'
+  no_log: True
+  
 - name: Create a database for Slurm accounting.
   mysql_db:
-      login_host: 127.0.0.1
-      login_user: root
-      login_password: "{{ MYSQL_ROOT_PASSWORD }}"
-      name: slurm_acct_db
-      state: present
+    login_host: 127.0.0.1
+    login_user: root
+    login_password: "{{ MYSQL_ROOT_PASSWORD }}"
+    name: slurm_acct_db
+    state: present
+  no_log: True
 
 - name: Install Docker config.
   template:
@@ -215,6 +217,7 @@
              > /srv/slurm/backup/slurm.sql
   tags:
     - backup
+  no_log: True
 
 - name: Dump the database every night. Keep 7 backups.
   cron:
@@ -231,4 +234,5 @@
            /bin/find /srv/slurm/backup/slurm_bak.sql.* -mtime 7 -delete
   tags:
     - backup
+  no_log: True
 ...

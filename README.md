@@ -79,6 +79,9 @@ These roles install various docker images built and hosted by RuG webhosting. Th
 #### Deployment of OpenStack
 The steps below describe how to get from machines with a bare ubuntu 16.04 installed to a running openstack installation.
 
+#### Steps to upgrade the OpenStack cluster
+
+### 3. Steps to deploy HPC compute cluster on top of OpenStack cluster
 ---
 
 0. Clone this repo.
@@ -135,19 +138,21 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
       ECDSA key fingerprint is ....
       Are you sure you want to continue connecting (yes/no)?
    ```
-   * The filename of the private key is specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/*/vars.yml```
-   * The filename of the corresponding public key must be the same as the one of the private key suffixed with ```.pub```
+   * The filename of the CA private key is specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/*/vars.yml```
+   * The filename of the corresponding CA public key must be the same as the one of the private key suffixed with ```.pub```
+   * The password required to decrypt the CA private key must be specified using the ```ssh_host_signer_ca_private_key_pass``` variable defined in ```group_vars/*/secrets.yml```,
+     which must be encrypted with ```ansible-vault```.
    * Each user must add the content of the CA public key to their ```~.ssh/known_hosts``` like this:
      ```
-     @cert-authority [names of the hosts for which the cert is valid] [content of the CA pulbic key]
+     @cert-authority [names of the hosts for which the cert is valid] [content of the CA public key]
      ```
      E.g.:
      ```
      @cert-authority reception*,*talos,*tl-* ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDWNAF....VMZpZ5b9+5GA3O8w== UMCG HPC Development CA
      ```
-   * Example to create a new 4096 bitsize CA key pair with the ```rsa``` algorithm:
+   * Example to create a new CA key pair with the ```rsa``` algorithm:
      ```bash
-     ssh-keygen -b 4096 -t rsa -f ssh-host-ca/ca-key-file-name -C "CA key for ..."
+     ssh-keygen -t ed25519 -a 101 -f ssh-host-ca/ca-key-file-name -C "CA key for ..."
      ```
 
 5. Build Prometheus Node Exporter
@@ -176,7 +181,3 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      ```
 
 7. verify operation.
-
-#### Steps to upgrade openstack cluster.
-
-### 3. Steps to install Compute cluster on top of openstack cluster.

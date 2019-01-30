@@ -12,4 +12,4 @@ promtools/results/*
 roles/hpc-cloud
 roles/HPCplaybooks
 roles/HPCplaybooks/*
-ssh-host-ca
+ssh-host-ca/umcg-hpc-ca
