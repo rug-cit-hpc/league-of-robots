@@ -5,7 +5,7 @@
 ### Create Slurm DB for the accounting info of this cluster.
 ##
 #
-sacctmgr add cluster {{ slurm_cluster_name }}
+sacctmgr -i add cluster {{ slurm_cluster_name }}
 
 #
 ##
