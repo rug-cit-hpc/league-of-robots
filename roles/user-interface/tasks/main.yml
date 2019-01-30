@@ -1,1 +1,58 @@
 ---
+- name: Install login_checks.sh script.
+  copy:
+    src: login_checks.sh
+    dest: /etc/pam-script.d/login_checks.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy password-auth-ac for PAM.
+  copy:
+    src: password-auth-ac
+    dest: /etc/pam.d/password-auth-ac
+    owner: root
+    group: root
+    mode: '0600'
+  notify:
+    - restart_oddjobd
+
+- name: Enable pam_script.
+  file:
+    src: pam_script
+    dest: "/etc/{{ item }}"
+    owner: root
+    group: root
+    state: link
+  with_items:
+    - pam_script_acct
+    - pam_script_auth
+    - pam_script_passwd
+    - pam_script_ses_close
+    - pam_script_ses_open
+
+- name: Create /etc/pam-script.d/ dir.
+  file:
+    name: /etc/pam-script.d
+    state: directory
+
+- name: Enable login_checks.sh script for ses_open.
+  file:
+    src: login_checks.sh
+    dest: "/etc/pam-script.d/{{ item }}"
+    owner: root
+    group: root
+    state: link
+  with_items:
+    - login_checks.sh_ses_open
+
+- name: Enable services.
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+  with_items:
+    - dbus.service
+    - oddjobd.service
+  notify:
+    - restart_nslcd
+    - restart_oddjobd
