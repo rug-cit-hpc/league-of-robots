@@ -8,18 +8,7 @@
 - name: Create local sysadmin accounts on all hosts.
   hosts: all
   become: True
-
   tasks:
-#
-# getent group is not usefull as it may fail with:
-#   The conditional check 'item in ansible_facts.getent_group' failed. 
-#   The error was: error while evaluating conditional (item in ansible_facts.getent_group): 'ansible_facts' is undefined
-# and the required groups are not created if they are missing...
-#
-#    - name: Determine available groups.
-#      getent:
-#        database: group
-
     - name: Check if required groups are present.
       group:
         name: "{{ item.name }}"
@@ -27,7 +16,6 @@
       with_items:
         - name: admin
         - name: docker
-
     - name: Create local sys admin users and append them to relevant groups.
       user:
         name: "{{ item.name }}"
@@ -38,7 +26,6 @@
       with_items:
         - name: 'remco'
           comment: 'Remco Rohde'
-
     - name: Deploy authorized keys for admins.
       authorized_key:
         user: "{{ item.user }}"
@@ -70,7 +57,6 @@
           comment: 'Marieke Bijlsma'
         - name: 'pieter'
           comment: 'Pieter Neerincx'
-
     - name: Deploy authorized keys for admins.
       authorized_key:
         user: "{{ item.user }}"
