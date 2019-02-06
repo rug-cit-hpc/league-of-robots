@@ -24,21 +24,22 @@
     state: latest
     update_cache: yes
     name:
+      - bzip2
       - curl
+      - figlet
       - git
       - git-core
+      - lsof
       - nano
       - ncdu
+      - ncurses-static
+      - readline-static
       - screen
+      - tcl-devel
       - telnet
       - tmux
       - tree
       - vim
-      - bzip2
-      - ncurses-static
-      - readline-static
-      - tcl-devel
-      - figlet
   tags:
     - software
 ...

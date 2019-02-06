@@ -1,23 +1,25 @@
 ---
-- name: Make local mountpoint
+- name: Make /local mount point.
   file:
     path: "/local"
-    mode: 0777
+    mode: 0755
     state: directory
+    owner: root
+    group: root
 
-- name: "check mount point /local"
+- name: Check /local mount point.
   command: mountpoint /local
   register: mount_local
   failed_when: false
 
-- name: Create an ext4 filesystem on /dev/vdb
+- name: Create an ext4 filesystem on /dev/vdb.
   filesystem:
     fstype: ext4
     dev: /dev/vdb
   when:
     mount_local.rc == 1
 
-- name: Mount /dev/vdb on /local
+- name: Mount /dev/vdb on /local.
   mount:
     path: /local
     src: /dev/vdb
@@ -25,9 +27,10 @@
     opts: rw,relatime
     state: present
 
-- name: mount all mountpoints in fstab
+- name: Mount all mountpoints from fstab.
   command: mount -a
   args:
     warn: false
   when:
     mount_local.rc == 1
+...
