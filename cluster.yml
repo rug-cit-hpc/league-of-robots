@@ -19,6 +19,7 @@
      - ldap
      - node_exporter
      - cluster
+     - resolver
 
 - name: Install ansible on admin interfaces (DAI & SAI).
   hosts:

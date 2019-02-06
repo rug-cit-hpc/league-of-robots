@@ -32,4 +32,9 @@ security_group_id: SSH-and-ping-2
 slurm_ldap: false
 availability_zone: AZ_1
 local_volume_size: 1
+nameservers: [
+  '/em-isi-3126.ebi.ac.uk/10.35.126.201', # Local DNS lookups for shared storage.
+  '8.8.4.4',  # Google DNS.
+  '8.8.8.8',  # Google DNS.
+]
 ...
