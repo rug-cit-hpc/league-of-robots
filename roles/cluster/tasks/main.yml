@@ -39,6 +39,7 @@
       - readline-static
       - tcl-devel
       - figlet
+      - wget
   tags:
     - software
 ...
