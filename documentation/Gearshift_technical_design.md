@@ -103,7 +103,7 @@ Figure 4. Network design for gs-compute[0-9] node
 
 Figure 5. Network design for gs-vcompute[0-9] virtual compute node
 
- ![](./media/media/image6.jpg)
+ ![](./media/media/image6a.jpg)
 
 ### Compute cluster design
 
