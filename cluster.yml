@@ -55,6 +55,12 @@
      - prom_server
      - cadvisor
      - slurm
+  vars:
+     # These variables are needed by the mariadb role.
+     # Which is a depencency of the slurm role.
+     # See roles/slurm/meta/main.yml
+     hostname_node0: "{{ ansible_hostname }}"
+     ip_node0: "{{ ansible_default_ipv4['address'] }}"
 
 - name: Install virtual compute nodes
   hosts: compute-vm
