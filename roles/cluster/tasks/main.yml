@@ -42,4 +42,12 @@
       - vim
   tags:
     - software
+
+- name: Deploy sshd config.
+  template:
+    src: templates/sshd_config
+    dest: /etc/ssh/sshd_config
+    validate: '/usr/sbin/sshd -T -f %s'
+  notify: restart_sshd
+
 ...

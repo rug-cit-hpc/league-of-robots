@@ -45,6 +45,10 @@
   notify:
     - restart_nslcd
 
+- name: Signal that sshd should use ldap.
+  set_fact:
+    ssh_use_ldap: true
+
 - name: Deploy sshd config.
   template:
     src: templates/sshd_config
