@@ -40,6 +40,7 @@
       - tmux
       - tree
       - vim
+      - wget
   tags:
     - software
 ...
