@@ -1,6 +1,11 @@
 ---
 - name: Sign host keys of all cluster hosts.
   hosts: all
+  pre_tasks:
+    - name: Verify Ansible version meets requirements.
+      assert:
+        that: "ansible_version.full | version_compare('2.4', '>=')"
+        msg: 'You must update Ansible to at least 2.4.x to use this playbook.'
   roles:
     - ssh_host_signer
     - ssh_known_hosts
@@ -14,6 +19,7 @@
      - ldap
      - node_exporter
      - cluster
+     - resolver
 
 - name: Install ansible on admin interfaces (DAI & SAI).
   hosts:
@@ -49,6 +55,12 @@
      - prom_server
      - cadvisor
      - slurm
+  vars:
+     # These variables are needed by the mariadb role.
+     # Which is a depencency of the slurm role.
+     # See roles/slurm/meta/main.yml
+     hostname_node0: "{{ ansible_hostname }}"
+     ip_node0: "{{ ansible_default_ipv4['address'] }}"
 
 - name: Install virtual compute nodes
   hosts: compute-vm
@@ -82,3 +94,4 @@
      - nfs_home_client
 
 - import_playbook: users.yml
+...
