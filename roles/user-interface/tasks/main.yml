@@ -23,7 +23,7 @@
     group: root
     mode: '0600'
   notify:
-     # Todo add authconfig --enablemkhomedir --update
+    - authconfig_update
 
 - name: Enable pam_script.
   file:
@@ -62,5 +62,5 @@
     - dbus.service
     - oddjobd.service
   notify:
-    - restart_nslcd
+    - authconfig_update
     - restart_oddjobd

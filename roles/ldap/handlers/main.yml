@@ -16,6 +16,7 @@
   shell: "authconfig --enablemkhomedir --update"
   become: yes
   listen: restart_oddjobd
+
 - name: Restart dbusd and oddjobd services.
   service:
     name: "{{item}}"

@@ -1,0 +1,16 @@
+---
+# OddJob has a dependency on DBus.
+- name: Run authconfig update.
+  shell: "authconfig --enablemkhomedir --update"
+  become: yes
+  listen: authconfig_update
+
+- name: Restart dbusd and oddjobd services.
+  service:
+    name: "{{item}}"
+    state: restarted
+  with_items:
+    - dbus
+    - oddjobd
+  become: yes
+  listen: restart_oddjobd
