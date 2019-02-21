@@ -1,0 +1,31 @@
+---
+- name: 'Create local admin groups & users and allow admin group to use sudo on all hosts.'
+  hosts: all
+  become: True
+  tasks:
+    - name: Check if required groups are present.
+      group:
+        name: "{{ item }}"
+        gid: "{{ groups[item].gid }}"
+        state: present
+      with_items: "{{ local_admin_groups }}"
+    - name: 'Allow passwordless sudo for local admin users.'
+      lineinfile: dest=/etc/sudoers line="%admin  ALL=(ALL:ALL) NOPASSWD:ALL"
+    - name: Create local admin users and append them to relevant groups.
+      user:
+        name: "{{ item }}"
+        uid: "{{ users[item].uid }}"
+        comment: "{{ users[item].comment }}"
+        group: 'admin'
+        groups: "{{ local_admin_groups }}"
+        home: "/admin/{{ item }}"
+        append: no
+      with_items: "{{ local_admin_users }}"
+    - name: 'Deploy authorized keys for admins.'
+      authorized_key:
+        user: "{{ item }}"
+        key: "{{ users[item].pub_keys }}"
+        state: present
+        exclusive: yes
+      with_items: "{{ local_admin_users }}"
+...

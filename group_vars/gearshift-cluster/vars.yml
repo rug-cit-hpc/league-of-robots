@@ -28,4 +28,10 @@ nameservers: [
   '8.8.4.4',       # Google DNS.
   '8.8.8.8',       # Google DNS.
 ]
+local_admin_groups:
+  - 'admin'
+  - 'docker'
+local_admin_users:
+  - 'egon'
+  - 'wim'
 ...
