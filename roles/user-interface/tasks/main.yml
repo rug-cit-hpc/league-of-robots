@@ -1,4 +1,12 @@
 ---
+- name: Install yum dependencies
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - pam_script
+      - oddjob-mkhomedir
+
 - name: Install login_checks.sh script.
   copy:
     src: login_checks.sh
@@ -15,7 +23,7 @@
     group: root
     mode: '0600'
   notify:
-    - restart_oddjobd
+     # Todo add authconfig --enablemkhomedir --update
 
 - name: Enable pam_script.
   file:
