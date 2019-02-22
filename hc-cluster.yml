@@ -65,5 +65,6 @@
 #       yum:
 #          name: ansible-2.6.6-1.el7.umcg
 
-- import_playbook: hc-users.yml
+- import_playbook: local_admin_users.yml
+- import_playbook: local_regular_users.yml
   #- import_playbook: ssh-host-signer.yml
