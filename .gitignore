@@ -4,6 +4,7 @@
 *.md.html
 *.vagrant
 *.pydevproject
+*.pyc
 *.retry
 *.swp
 .vault_pass.txt
