@@ -1,0 +1,6 @@
+#
+# Enable scrolling using mouse or shift-PgUp and shift-PgDn.
+#
+termcapinfo xterm*|vt* ti@:te@
+
+altscreen on
