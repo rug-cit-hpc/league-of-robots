@@ -53,6 +53,8 @@
           #
           - rdma-core-devel
           - libxml2-devel
+          - libXext-devel
+          - libX11-devel
 
     - name: Set lustre client source url.
       set_fact:

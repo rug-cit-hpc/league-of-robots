@@ -10,6 +10,19 @@
   become: true
   tags: ['etc_hosts']
 
+- name: Set /etc/skel/.bashrc .screenrc
+  template:
+    src: templates/{{ item }}
+    dest: /etc/skel/
+    mode: 0644
+    owner: root
+    group: root
+    backup: yes
+  become: true
+  with_items:
+    - '.bashrc'
+    - '.screenrc'
+
 - name: Set hostname to inventory_hostname
   hostname:
     name: '{{ inventory_hostname }}'
