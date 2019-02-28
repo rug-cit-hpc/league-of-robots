@@ -33,8 +33,32 @@ slurm_ldap: false
 availability_zone: AZ_1
 local_volume_size: 1
 nameservers: [
-  '/em-isi-3126.ebi.ac.uk/10.35.126.201', # Local DNS lookups for shared storage.
+  '/em-isi-3126.ebi.ac.uk/10.35.126.201',  # Local DNS lookups for shared storage.
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
+local_admin_groups:
+  - 'admin'
+  - 'docker'
+local_admin_users:
+  - 'egon'
+  - 'gerben'
+  - 'henkjan'
+  - 'marieke'
+  - 'morris'
+  - 'pieter'
+  - 'wim'
+local_regular_groups:
+  - users
+local_regular_users:
+  - 'gvdvries'
+    groups: ['users']
+  - 'mbijlsma'
+    groups: ['users']
+  - 'mswerts'
+    groups: ['users']
+  - 'pneerincx'
+    groups: ['users']
+  - 'rkanninga'
+    groups: ['users']
 ...
