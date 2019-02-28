@@ -1,3 +1,10 @@
+'''
+callback: homsaplog
+type: stdout
+short_description: Homo sapiens friendly formatted output.
+description: Use this callback to sort though extensive debug output.
+'''
+
 from __future__ import (absolute_import, division, print_function)
 from ansible.plugins.callback.default import CallbackModule as CallbackModule_default
 from ansible.plugins.callback import CallbackBase
@@ -17,13 +24,6 @@ except ImportError:
     import json
 import sys
 reload(sys).setdefaultencoding('utf-8')
-
-'''
-callback: homsaplog
-type: stdout
-short_description: Homo sapiens friendly formatted output.
-description: Use this callback to sort though extensive debug output.
-'''
 
 __metaclass__ = type
 
