@@ -90,6 +90,11 @@ auth_users:
     uid: 1015
     pub_keys: |
               # Revoked: key format not compliant with requirements.
+  henkjan:
+    comment: 'Henk-Jan Zilverberg'
+    uid: 1016
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKOKgVel0GbF67zZaVR0TFo82e5XeZOP1e3Ld3gIdaER h.j.zilverberg
 #
 # Local group specs.
 # Note:

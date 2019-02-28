@@ -43,6 +43,7 @@ local_admin_groups:
 local_admin_users:
   - 'egon'
   - 'gerben'
+  - 'henkjan'
   - 'marieke'
   - 'morris'
   - 'pieter'
