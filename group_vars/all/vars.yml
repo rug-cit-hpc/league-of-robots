@@ -48,7 +48,7 @@ auth_users:
     comment: 'Wim Nap'
     uid: 1007
     pub_keys: |
-              # Revoked: key format not compliant with requirements.
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEY6mVTXsbXOfN5FSYvTMgK8JnODeR7NB50Ilvz3eDd9 w.k.nap
   ger:
     comment: 'Ger Strikwerda'
     uid: 1008
