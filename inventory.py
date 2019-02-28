@@ -5,14 +5,15 @@
 External inventory script for Ansible
 =============================================================
 
-Generates Ansible inventory with hostnames from a static inventory file located in the same dir as this script.
-By default this script looks for an inventory named 
+Generates Ansible inventory with hostnames from a static inventory file located
+in the same dir as this script. By default this script looks for an inventory named
     inventory.ini
 or alternatively for an inventory file name as defined in
-    export AI_INVENTORY='some_inventory.ini
+    export AI_INVENTORY='some_inventory.ini'
 
-The hostnames parsed from the static inventory file can be prefixed with the hostname of one of our proxy/jumphost servers.
-Note we only use hostnames and not FQDN nor IP addresses as those are managed 
+The hostnames parsed from the static inventory file can be prefixed
+with the hostname of one of our proxy/jumphost servers.
+Note we only use hostnames and not FQDN nor IP addresses as those are managed
 together with usernames and other connection settings in
 our ~/.ssh/config files like this:
 
@@ -33,27 +34,27 @@ Host lobby+* foyer+* airlock+*
 
 When the environment variable AI_PROXY is set like this:
     export AI_PROXY='lobby'
-then the hostname 'calculon' from inventory.ini will be prefixed with 'lobby' and a '+'
-resulting in:
+then the hostname 'calculon' from inventory.ini will be prefixed
+with 'lobby' and a '+' resulting in:
     lobby+calculon
 which will match the 'Host lobby+*' rule from the ~/.ssh/config file.
 =============================================================
 '''
-import os
 import argparse
-import re
-import sys
-from test.test_sax import start
-try:
-    import json
-except ImportError:
-    import simplejson as json
 try:
     # For Python >= 3.x
     import configparser
 except:
     # For Python 2.x
     import ConfigParser as configparser
+try:
+    import json
+except ImportError:
+    import simplejson as json
+import os
+import re
+import sys
+from test.test_sax import start
 
 """
 Modified ConfigParser that allows ':' in keys and only uses '=' as separator.
@@ -96,10 +97,13 @@ class ProxiedInventory(object):
         else:
             self.inventory_path = os.path.dirname(os.path.realpath(__file__)) + '/inventory.ini'
         if not (os.path.isfile(self.inventory_path) and os.access(self.inventory_path, os.R_OK)):
-            print 'FATAL: The static inventory file ' + self.inventory_path + ' is either missing or not readable: Check path and permissions.'
-            print '       If your static inventory file has a different name, you need to export the AI_INVENTORY environment variable to point to a static inventory file in the same dir as where '
-            print '           ' + os.path.realpath(__file__)
-            print '       is located.'
+            print('FATAL: The static inventory file ' + self.inventory_path + "\n"
+                  '       is either missing or not readable: Check path and permissions.\n' +
+                  '       If your static inventory file has a different name,\n' +
+                  '       you need to export the AI_INVENTORY environment variable\n' +
+                  '       to point to a static inventory file in the same dir as where\n' +
+                  '           ' + os.path.realpath(__file__) + "\n" +
+                  '       is located.')
             sys.exit(1)
 
         # Read settings and parse CLI arguments.
