@@ -20,7 +20,7 @@
   when: inventory_hostname in groups['sys-admin-interface']
   become: True
 
-- name: 'Create "home" Logical File System (LFS)  on Physical File Systems (PFSs) mounted on SAIs.'
+- name: 'Create "home" Logical File System (LFS) on Physical File Systems (PFSs) mounted on SAIs.'
   file:
     path: "/mnt/{{ item.pfs }}/{{ item.lfs }}"
     owner: root
@@ -31,29 +31,58 @@
   when: inventory_hostname in groups['sys-admin-interface']
   become: True
 
+- name: 'Create "tmp" Logical File System (LFS) for each group on Physical File Systems (PFSs) mounted on SAIs.'
+  debug:
+    msg:
+      - "path: /mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+      - "group: {{ item.1 }}"
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'match', 'tmp[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in groups['sys-admin-interface']
+
+#      - "owner: root"
+#      - "group: {{ item.1 }}"
+#      - "mode: 0755"
+#      - "state: directory"
+
+###
+##
+#
+- meta: end_play
+#
+##
+###
+
 - name: 'Debug: show mount spec for home.'
   debug:
     msg:
       - "lfs: {{ item.lfs }}"
-      - "source: {{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') }}/{{ item.lfs }}"
+      - "src: {{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.lfs }}"
       - "path: /{{ item.lfs }}"
-      - "type: {{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') }}"
-      - "options: {{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') }}"
+      - "fstype: {{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
+      - "opts: {{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') | first }}"
   with_items: "{{ lfs_mounts | selectattr('lfs', 'match', '^home$') | list }}"
   become: True
 
+- name: 'Mount home dirs from shared storage.'
+  mount:
+    path: "/{{ item.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') | first }}"
+    state: mounted
+  with_items: "{{ lfs_mounts | selectattr('lfs', 'match', '^home$') | list}}"
+  when: inventory_hostname in groups['cluster']
+  become: True
+
+###
+##
+#
 - meta: end_play
-
-
-#- name: 'Mount home dirs from shared storage.'
-#  mount:
-#    path: "/{{ item.lfs }}"
-#    src: "{{ item.source }}/{{ item.lfs }}"
-#    fstype: "{{ item.type }}"
-#    opts: "{{ item.options }}"
-#    state: present
-#  with_items: "{{ lfs_mounts | selectattr('lfs', 'match', '^home$') | list}}"
-#  become: True
+#
+##
+###
 
 - name: 'Debug: show mount spec for complete tmp LFS.'
   debug:
