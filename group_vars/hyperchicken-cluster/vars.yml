@@ -3,20 +3,20 @@ slurm_cluster_name: 'hyperchicken'
 #slurm_cluster_domain: ''
 stack_prefix: 'hc'
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-05]"
-vcompute_sockets: 1
-vcompute_cores_per_socket: 9
-vcompute_real_memory: 20000
+vcompute_sockets: 16
+vcompute_cores_per_socket: 1
+vcompute_real_memory: 645120
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 0
 vcompute_features: 'tmp07'
 ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: 1
+ui_sockets: 4
 ui_cores_per_socket: 1
-ui_real_memory: 3000
+ui_real_memory: 7800
 ui_local_disk: 0
 ui_features: 'prm07,tmp07'
-ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-ca"
+ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 key_name: Gerben
 image_cirros: cirros-0.3.4-x86_64-disk.img
 image_centos7: centos7
