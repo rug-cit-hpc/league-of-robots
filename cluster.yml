@@ -93,5 +93,5 @@
   roles:
      - nfs_home_client
 
-- import_playbook: users.yml
+- import_playbook: local_admin_users.yml
 ...

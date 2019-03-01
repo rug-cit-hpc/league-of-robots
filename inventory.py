@@ -5,13 +5,15 @@
 External inventory script for Ansible
 =============================================================
 
-Generates Ansible inventory with hostnames from a static inventory file located in the same dir as this script.
-By default this script looks for an inventory named 
+Generates Ansible inventory with hostnames from a static inventory file located
+in the same dir as this script. By default this script looks for an inventory named
     inventory.ini
- (default) or alternatively from a file defined in
+or alternatively for an inventory file name as defined in
     export AI_INVENTORY='some_inventory.ini'
-Optionally the hostnames can be prefixed with one of our proxy/jumphost servers.
-Note we only use hostnames and not FQDN nor IP addresses as those are managed 
+
+The hostnames parsed from the static inventory file can be prefixed
+with the hostname of one of our proxy/jumphost servers.
+Note we only use hostnames and not FQDN nor IP addresses as those are managed
 together with usernames and other connection settings in
 our ~/.ssh/config files like this:
 
@@ -30,25 +32,52 @@ Host lobby+* foyer+* airlock+*
     ProxyCommand ssh -X -q prefix-youraccount@$(echo %h | sed 's/+[^+]*$//').hpc.rug.nl -W $(echo %h | sed 's/^[^+]*+//'):%p
 ########################################################################################################
 
-
 When the environment variable AI_PROXY is set like this:
     export AI_PROXY='lobby'
-then the hostname 'calculon' from inventory.ini will be prefixed with 'lobby' and a '+'
-resulting in:
+then the hostname 'calculon' from inventory.ini will be prefixed
+with 'lobby' and a '+' resulting in:
     lobby+calculon
 which will match the 'Host lobby+*' rule from the ~/.ssh/config file.
 =============================================================
 '''
-import os
 import argparse
-import ConfigParser
-import re
-import sys
+try:
+    # For Python >= 3.x
+    import configparser
+except:
+    # For Python 2.x
+    import ConfigParser as configparser
 try:
     import json
 except ImportError:
     import simplejson as json
+import os
+import re
+import sys
+from test.test_sax import start
 
+"""
+Modified ConfigParser that allows ':' in keys and only uses '=' as separator.
+We need the : to be able to specify groups of Ansible hosts like this: compute_nodes[01:16]
+"""
+class MyConfigParser(configparser.SafeConfigParser):
+    OPTCRE = re.compile(
+        r'(?P<option>[^=\s][^=]*)'      # very permissive!
+        r'\s*(?P<vi>[=])\s*'            # any number of space/tab,
+                                        # followed by separator
+                                        # (either : or =), followed
+                                        # by any # space/tab
+        r'(?P<value>.*)$'               # everything up to eol
+        )
+    OPTCRE_NV = re.compile(
+        r'(?P<option>[^=\s][^=]*)'      # very permissive!
+        r'\s*(?:'                       # any number of space/tab,
+        r'(?P<vi>[=])\s*'               # optionally followed by
+                                        # separator (only =)
+                                        # followed by any #
+                                        # space/tab
+        r'(?P<value>.*))?$'             # everything up to eol
+)
 
 class ProxiedInventory(object):
 
@@ -58,12 +87,9 @@ class ProxiedInventory(object):
         self.inventory = dict()
 
         # Get proxy from ENV VAR.
+        self.proxy = '' # default when not specified.
         self.proxy = os.getenv('AI_PROXY')
-        if self.proxy:
-            self.proxy += '+'
-        else:
-            self.proxy = ''
-            
+
         # Get inventory file name from ENV VAR.
         self.inventory_file = os.getenv('AI_INVENTORY')
         if self.inventory_file:
@@ -71,10 +97,13 @@ class ProxiedInventory(object):
         else:
             self.inventory_path = os.path.dirname(os.path.realpath(__file__)) + '/inventory.ini'
         if not (os.path.isfile(self.inventory_path) and os.access(self.inventory_path, os.R_OK)):
-            print 'FATAL: The static inventory file ' + self.inventory_path + ' is either missing or not readable: Check path and permissions.'
-            print '       You may need to export the AI_INVENTORY environment variable to point to a static inventory file in the same dir as where '
-            print '           ' + os.path.realpath(__file__)
-            print '       is located.'
+            print('FATAL: The static inventory file ' + self.inventory_path + "\n"
+                  '       is either missing or not readable: Check path and permissions.\n' +
+                  '       If your static inventory file has a different name,\n' +
+                  '       you need to export the AI_INVENTORY environment variable\n' +
+                  '       to point to a static inventory file in the same dir as where\n' +
+                  '           ' + os.path.realpath(__file__) + "\n" +
+                  '       is located.')
             sys.exit(1)
 
         # Read settings and parse CLI arguments.
@@ -92,20 +121,64 @@ class ProxiedInventory(object):
          * in *.ini format and
          located in the same place as this script.
         """
-        _config = ConfigParser.SafeConfigParser(allow_no_value=True)
-        _config.optionxform = self.prepend_proxy
-        
+        #_config = ConfigParser.SafeConfigParser(allow_no_value=True)
+        #_config.optionxform = self.prepend_proxy
+        _config = MyConfigParser(allow_no_value=True)
         _config.read(os.path.dirname(os.path.realpath(__file__)) + '/' + self.inventory_file)
-
+        
         for _section in _config.sections():
-            for (_key, _value) in _config.items(_section):
-                self.push(self.inventory, _section, _key)
+            if re.search(':children', _section):
+                #
+                # We've got groups of machines instead of hostnames:
+                #  * Do not prefix values with name of proxy/jumphost
+                #  * and add them to a "children" section
+                #
+                #self.push(self.inventory, _section, _key)
+                _children = dict()
+                for (_key, _value) in _config.items(_section):
+                    self.push(_children, 'children', _key)
+                _section = _section.replace(':children', '')
+                self.add(self.inventory, _section, _children)
+            else:
+                #
+                # We've got actual machine hostnames:
+                #  * Prefix with name of proxy/jumphost unless it is the proxy/jumphost itself
+                #  * and add them to a 'hosts' section.
+                #
+                _hosts = dict()
+                for (_key, _value) in _config.items(_section):
+                    if _key != self.proxy:
+                        _key = self.prepend_proxy(_key)
+                    #
+                    # Check if we are dealing with a range or a single hostname.
+                    #
+                    _range_match = re.search('(.*)\[([0-9]+):([0-9]+)\](.*)', _key)
+                    if _range_match:
+                        #
+                        # It's a range -> expand the range into individual hostnames
+                        # and add them to the hosts section.
+                        #
+                        _pre_range = _range_match.group(1)
+                        _range_start = _range_match.group(2)
+                        _range_stop = _range_match.group(3)
+                        _post_range = _range_match.group(4)
+                        _range_start_length = len(_range_start)
+                        _format = '{:0' + str(_range_start_length) + 'd}'
+                        _range_items = [_format.format(i) for i in range(int(_range_start),int(_range_stop) + 1)]
+                        for _range_item in _range_items:
+                            self.push(_hosts, 'hosts', _pre_range + _range_item + _post_range)
+                    else:
+                        #
+                        # Add the single hostname to the hosts section.
+                        #
+                        self.push(_hosts, 'hosts', _key)
+                self.add(self.inventory, _section, _hosts)
 
     def prepend_proxy(self, _string):
         """
         Prepends proxy before host.
         """
-        return re.sub('^', self.proxy, _string)
+        return re.sub('^', self.proxy + '+', _string)
 
     def parse_cli_args(self):
         """
@@ -124,6 +197,12 @@ class ProxiedInventory(object):
             _dict[_key].append(_element)
         else:
             _dict[_key] = [_element]
+
+    def add(self, _dict, _key, _element):
+        """
+        Add a key to a dict.
+        """
+        _dict[_key] = _element
 
     def dict_to_json(self, _data, _pretty=False):
         """
