@@ -15,7 +15,7 @@ ui_sockets: 2
 ui_cores_per_socket: 2
 ui_real_memory: 8192
 ui_local_disk: 0
-ui_features: 'prm08,tmp02'
+ui_features: 'prm08,tmp08'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 uri_ldap: 172.23.40.249
 uri_ldaps: comanage-in.id.rug.nl
@@ -39,12 +39,9 @@ local_admin_users:
   - 'morris'
   - 'pieter'
   - 'wim'
+envsync_user: 'umcg-envsync'
+envsync_group: 'umcg-depad'
 pfs_mounts: [
-  { pfs: 'umcgst10',
-    source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst10',
-    type: 'nfs4',
-    rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
-    ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro' },
   { pfs: 'umcgst11',
     source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst11',
     type: 'nfs4',
@@ -54,44 +51,14 @@ pfs_mounts: [
 lfs_mounts: [
   { lfs: 'home',
     pfs: 'umcgst11' },
-  { lfs: 'groups/GROUP/tmp01',
+  { lfs: 'groups/GROUP/tmp08',
     pfs: 'umcgst11',
     groups: ['umcg-atd', 'umcg-gcc'] },
-  { lfs: 'groups/GROUP/tmp02',
+  { lfs: 'groups/GROUP/prm08',
     pfs: 'umcgst11',
-    groups: ['umcg-aad', 'umcg-gccole'] },
-  { lfs: '.env01/apps',
+    groups: ['umcg-atd', 'umcg-gcc'] },
+  { lfs: 'env08',
     pfs: 'umcgst11',
-    machines: "groups['compute-vm'] or groups['user-interface']" },
-  { lfs: '.env02/apps',
-    pfs: 'umcgst11',
-    machines: "groups['compute-vm'] or groups['user-interface']" },
+    machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
 ]
-
-#lfs_mounts: [
-#  { lfs: 'home',
-#    source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst11',
-#    type: 'nfs',
-#    options: 'defaults,_netdev,vers=4.0,noatime,nodiratime' },
-#  { lfs: 'groups/GROUP/tmp01',
-#    source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst11',
-#    type: 'nfs',
-#    options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
-#    groups: ['umcg-atd', 'umcg-gcc'] },
-#  { lfs: 'groups/GROUP/tmp02',
-#    source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst11',
-#    type: 'nfs',
-#    options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
-#    groups: ['umcg-aad', 'umcg-gccole'] },
-#  { lfs: '.env01/apps',
-#    source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst11',
-#    type: 'nfs',
-#    options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
-#    machines: "groups['compute-vm'] or groups['user-interface']" },
-#  { lfs: '.env02/apps',
-#    source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst11',
-#    type: 'nfs',
-#    options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
-#    machines: "groups['compute-vm'] or groups['user-interface']" },
-#]
 ...
