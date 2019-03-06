@@ -19,6 +19,8 @@ resources:
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.92
+        - network: vlan985
+          fixed_ip: 172.23.34.92
 
   reception:
     type: OS::Nova::Server
