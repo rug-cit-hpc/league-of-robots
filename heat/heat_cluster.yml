@@ -19,6 +19,10 @@ resources:
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.33
+        - network: vlan985
+          fixed_ip: 172.23.34.33
+        - network: vlan985
+          fixed_ip: 172.23.57.33
 
   airlock:
     type: OS::Nova::Server
