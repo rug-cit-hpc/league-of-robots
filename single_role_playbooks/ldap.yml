@@ -1,0 +1,8 @@
+---
+
+- name: Install ldap role.
+  hosts: cluster
+  become: true
+  tasks:
+  roles:
+     - ldap
