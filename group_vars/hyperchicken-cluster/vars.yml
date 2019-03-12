@@ -1,7 +1,10 @@
 ---
 slurm_cluster_name: 'hyperchicken'
-#slurm_cluster_domain: ''
+slurm_cluster_domain: 'gcc.rug.nl'
 stack_prefix: 'hc'
+mailhub: '192.168.0.5'
+rewrite_domain: "{{ stack_prefix }}-sai.{{ slurm_cluster_domain }}"
+motd: "To solve or not to solve, that's the question."
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-05]"
 vcompute_sockets: 1
 vcompute_cores_per_socket: 9

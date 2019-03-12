@@ -1,5 +1,0 @@
----
-mailhub: 172.23.34.34
-rewrite_domain: tl-sai.hpc.rug.nl
-motd: It's highly addictive
-...
