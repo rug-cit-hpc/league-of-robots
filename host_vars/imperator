@@ -2,3 +2,15 @@
 mailhub: 172.23.34.34
 rewrite_domain: imperator.hpc.rug.nl
 motd: Vare, Vare, redde legiones!
+additional_etc_hosts: |
+  172.23.40.21       gs-compute01        gs-compute01.hpc.local
+  172.23.40.22       gs-compute02        gs-compute02.hpc.local
+  172.23.40.23       gs-compute03        gs-compute03.hpc.local
+  172.23.40.24       gs-compute04        gs-compute04.hpc.local
+  172.23.40.25       gs-compute05        gs-compute05.hpc.local
+  172.23.40.26       gs-compute06        gs-compute06.hpc.local
+  172.23.40.27       gs-compute07        gs-compute07.hpc.local
+  172.23.40.28       gs-compute08        gs-compute08.hpc.local
+  172.23.40.29       gs-compute09        gs-compute09.hpc.local
+  172.23.40.30       gs-compute10        gs-compute10.hpc.local
+  172.23.40.31       gs-compute11        gs-compute11.hpc.local
