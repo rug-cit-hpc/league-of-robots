@@ -77,3 +77,7 @@
 195.169.22.247          calculon.gcc.rug.nl
 195.169.22.95           leucine-zipper.gcc.rug.nl
 195.169.22.8            zinc-finger.gcc.rug.nl
+
+{% if additional_etc_hosts is defined %}
+{{ additional_etc_hosts }}
+{% endif %}
