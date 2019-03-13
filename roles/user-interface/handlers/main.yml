@@ -1,16 +1,25 @@
 ---
-# OddJob has a dependency on DBus.
 - name: Run authconfig update.
   shell: "authconfig --enablemkhomedir --update"
   become: yes
   listen: authconfig_update
 
+#
+# Notes:
+# * OddJob has a dependency on DBus.
+# * Due to a bug systemd-logind may enter a broken state when DBus is restarted
+#   making logins via SSH and or sudo commands very slow.
+#   https://bugzilla.redhat.com/show_bug.cgi?id=1532105
+#   Workaround for now is to always restart systemd-logind after DBus is restarted.
+#
 - name: Restart dbusd and oddjobd services.
   service:
     name: "{{item}}"
     state: restarted
   with_items:
     - dbus
+    - systemd-logind
     - oddjobd
   become: yes
   listen: restart_oddjobd
+...
