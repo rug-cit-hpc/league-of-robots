@@ -80,15 +80,5 @@
      - user-interface
      - slurm-client
 
-- name: Export /home on NFS server.
-  hosts: user-interface:&talos-cluster
-  roles:
-     - nfs_home_server
-
-- name: Mount /home on NFS clients.
-  hosts: compute-vm&talos-cluster
-  roles:
-     - nfs_home_client
-
 - import_playbook: local_admin_users.yml
 ...
