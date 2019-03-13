@@ -57,16 +57,16 @@ local_regular_groups:
   - 'users'
   - 'depad'
 local_regular_users:
-  - 'envsync'
+  - user: 'envsync'
     groups: ['depad']
-  - 'gvdvries'
+  - user: 'gvdvries'
     groups: ['users', 'depad']
-  - 'mbijlsma'
+  - user: 'mbijlsma'
     groups: ['users', 'depad']
-  - 'mswerts'
+  - user: 'mswertz'
     groups: ['users', 'depad']
-  - 'pneerincx'
+  - user: 'pneerincx'
     groups: ['users', 'depad']
-  - 'rkanninga'
+  - user: 'rkanninga'
     groups: ['users', 'depad']
 ...
