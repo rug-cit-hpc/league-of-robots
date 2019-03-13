@@ -48,17 +48,22 @@ local_admin_users:
   - 'morris'
   - 'pieter'
   - 'wim'
+envsync_user: 'envsync'
+envsync_group: 'depad'
 local_regular_groups:
-  - users
+  - 'users'
+  - 'depad'
 local_regular_users:
+  - 'envsync'
+    groups: ['depad']
   - 'gvdvries'
-    groups: ['users']
+    groups: ['users', 'depad']
   - 'mbijlsma'
-    groups: ['users']
+    groups: ['users', 'depad']
   - 'mswerts'
-    groups: ['users']
+    groups: ['users', 'depad']
   - 'pneerincx'
-    groups: ['users']
+    groups: ['users', 'depad']
   - 'rkanninga'
-    groups: ['users']
+    groups: ['users', 'depad']
 ...
