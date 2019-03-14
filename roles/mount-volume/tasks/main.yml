@@ -1,14 +1,14 @@
 ---
-- name: Make /local mount point.
+- name: Make mount point for the cinder volume.
   file:
-    path: "/local"
+    path: "{{volume_mount_point}}"
     mode: 0755
     state: directory
     owner: root
     group: root
 
-- name: Check /local mount point.
-  command: mountpoint /local
+- name: Check the local mount point.
+  command: mountpoint {{volume_mount_point}}
   register: mount_local
   failed_when: false
 
@@ -19,9 +19,9 @@
   when:
     mount_local.rc == 1
 
-- name: Mount /dev/vdb on /local.
+- name: Mount the volume.
   mount:
-    path: /local
+    path: "{{volume_mount_point}}"
     src: /dev/vdb
     fstype: ext4
     opts: rw,relatime
