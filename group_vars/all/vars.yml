@@ -53,7 +53,8 @@ auth_users:
     comment: 'Ger Strikwerda'
     uid: 1008
     pub_keys: |
-              # Revoked: key format not compliant with requirements.
+              ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDvx1ebTndL/HitD30uNpvESXWUAxT3j0e0CzrBUZ8fHDv+vZTbWBRtWbnLgCnVDPa3GclA1lpnvJD9JBjBhUa8= ger@ger-pc
+
   robin:
     comment: 'Robin Teeninga'
     uid: 1009
