@@ -95,6 +95,11 @@ auth_users:
     uid: 1016
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKOKgVel0GbF67zZaVR0TFo82e5XeZOP1e3Ld3gIdaER h.j.zilverberg
+  envsync:
+    comment: 'Environment Synchronizer'
+    uid: 1017
+    pub_keys: |
+              # No direct logins required: sudo only.
 #
 # Local group specs.
 # Note:
@@ -109,4 +114,6 @@ auth_groups:
     gid: 20001
   users:
     gid: 20002
+  depad:
+    gid: 20003
 ...
