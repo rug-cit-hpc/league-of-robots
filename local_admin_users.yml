@@ -3,12 +3,6 @@
   hosts: all
   become: True
   tasks:
-    - name: "List contents of local_admin_groups var."
-      debug:
-        msg: "{{ local_admin_groups }}"
-    - name: "List contents of groups var."
-      debug:
-        msg: "{{ auth_groups }}"
     - name: Check if required groups are present.
       group:
         name: "{{ item }}"
