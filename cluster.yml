@@ -20,6 +20,7 @@
      - node_exporter
      - cluster
      - resolver
+     - shared_storage
 
 - name: Install ansible on admin interfaces (DAI & SAI).
   hosts:
@@ -52,9 +53,9 @@
 - hosts: slurm
   become: true
   roles:
+     - slurm
      - prom_server
      - cadvisor
-     - slurm
   vars:
      # These variables are needed by the mariadb role.
      # Which is a depencency of the slurm role.
@@ -68,8 +69,6 @@
   tasks:
   roles:
      - compute-vm
-     - isilon
-     - datahandling
      - slurm-client
 
 - name: Install User Interface (UI)
@@ -79,19 +78,7 @@
   roles:
      - slurm_exporter
      - user-interface
-     - datahandling
-     - isilon
      - slurm-client
-
-- name: Export /home on NFS server.
-  hosts: user-interface:&talos-cluster
-  roles:
-     - nfs_home_server
-
-- name: Mount /home on NFS clients.
-  hosts: compute-vm&talos-cluster
-  roles:
-     - nfs_home_client
 
 - import_playbook: local_admin_users.yml
 ...

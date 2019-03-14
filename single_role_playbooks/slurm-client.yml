@@ -16,3 +16,4 @@
   tasks:
   roles:
     - slurm-client
+...

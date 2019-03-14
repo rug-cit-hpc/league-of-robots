@@ -1,0 +1,16 @@
+#
+# Example to use NFS based home dirs exported from the UI and mounted on the compute nodes.
+#
+---
+- name: Export /home on NFS server.
+  hosts: user-interface
+  become: true
+  roles:
+     - nfs_home_server
+
+- name: Mount /home on NFS clients.
+  hosts: compute-vm
+  become: true
+  roles:
+     - nfs_home_client
+...
