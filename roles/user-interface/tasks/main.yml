@@ -6,6 +6,9 @@
     name:
       - pam_script
       - oddjob-mkhomedir
+  notify:
+    - authconfig_update
+    - restart_oddjobd
 
 - name: Install login_checks.sh script.
   copy:
@@ -24,6 +27,7 @@
     mode: '0600'
   notify:
     - authconfig_update
+    - restart_oddjobd
 
 - name: Enable pam_script.
   file:
@@ -58,6 +62,7 @@
   systemd:
     name: "{{ item }}"
     enabled: yes
+    state: started
   with_items:
     - dbus.service
     - oddjobd.service

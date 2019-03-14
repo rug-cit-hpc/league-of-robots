@@ -80,6 +80,7 @@
   systemd:
     name: "{{ item }}"
     enabled: yes
+    state: started
   with_items:
     - nslcd
     - dbus.service
