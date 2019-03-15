@@ -95,13 +95,23 @@
     mode: 0600
     dest: /etc/munge/munge.key
 
-- name: Deploy nhc.conf
+- name: Deploy UI nhc.conf
   template:
-    src: templates/nhc.conf
+    src: templates/user-interface_nhc.conf
     dest: /etc/nhc/nhc.conf
     owner: root
     group: root
     mode: 0644
+  when: inventory_hostname in groups['user-interface']
+
+- name: Deploy compute-vm nhc.conf
+  template:
+    src: templates/compute-vm_nhc.conf
+    dest: /etc/nhc/nhc.conf
+    owner: root
+    group: root
+    mode: 0644
+  when: inventory_hostname in groups['compute-vm']
 
 - name: Start slurm and munge services
   systemd:
