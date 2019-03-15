@@ -28,6 +28,15 @@
         cron_file: restart_logind
       become: true
 
+- name: Mount the ceph volume
+  hosts:
+     - compute-vm
+     - sys-admin-interface
+     - deploy-admin-interface
+  become: True
+  roles:
+     - mount-volume
+
 - name: Install roles needed for all virtual cluster components except jumphosts.
   hosts: cluster
   become: true
@@ -86,7 +95,6 @@
   become: true
   tasks:
   roles:
-     - compute-vm
      - slurm-client
 
 - name: Install User Interface (UI)
