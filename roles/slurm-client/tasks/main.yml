@@ -1,4 +1,10 @@
 ---
+- name: 'Gather facts from servers in "slurm" group.'
+  setup:
+  delegate_to: "{{ item }}"
+  delegate_facts: True
+  with_items: "{{ groups['slurm'] }}"
+
 - name: Include Slurm vars.
   include_vars:
     file: ../../slurm/defaults/main.yml
@@ -116,7 +122,9 @@
 - name: Start slurm and munge services
   systemd:
     name: "{{ item }}"
+    enabled: yes
     state: started
   with_items:
     - slurmd
     - munge
+...
