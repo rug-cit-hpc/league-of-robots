@@ -8,11 +8,8 @@
       - openldap-clients
       - nss-pam-ldapd
       - openssh-ldap
-      - pam_script
-      - oddjob-mkhomedir
   notify:
     - restart_nslcd
-    - restart_oddjobd
     - restart_sshd
 
 - name: Deploy nslcd.conf
@@ -80,13 +77,11 @@
   systemd:
     name: "{{ item }}"
     enabled: yes
+    state: started
   with_items:
     - nslcd
-    - dbus.service
-    - oddjobd.service
   notify:
     - restart_nslcd
-    - restart_oddjobd
 
 - meta: flush_handlers
 ...
