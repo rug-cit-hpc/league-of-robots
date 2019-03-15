@@ -1,4 +1,9 @@
 ---
+#
+# Important: maintain correct handler order.
+# Handlers are executed in the order in which they are defined 
+# and not in the order in whch they are listed in a "notify: handler_name" statement!
+#
 - name: Run authconfig update.
   shell: "authconfig --enablemkhomedir --update"
   become: yes
@@ -12,7 +17,7 @@
 #   https://bugzilla.redhat.com/show_bug.cgi?id=1532105
 #   Workaround for now is to always restart systemd-logind after DBus is restarted.
 #
-- name: Restart dbusd and oddjobd services.
+- name: Restart oddjobd service and its dependencies.
   service:
     name: "{{item}}"
     state: restarted

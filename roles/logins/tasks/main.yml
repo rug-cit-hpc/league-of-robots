@@ -10,14 +10,6 @@
     - authconfig_update
     - restart_oddjobd
 
-- name: Install login_checks.sh script.
-  copy:
-    src: login_checks.sh
-    dest: /etc/pam-script.d/login_checks.sh
-    owner: root
-    group: root
-    mode: '0755'
-
 - name: Deploy password-auth-ac for PAM.
   copy:
     src: password-auth-ac
@@ -48,6 +40,15 @@
     name: /etc/pam-script.d
     state: directory
 
+- name: Install login_checks.sh script.
+  copy:
+    src: login_checks.sh
+    dest: /etc/pam-script.d/login_checks.sh
+    owner: root
+    group: root
+    mode: '0755'
+  when: inventory_hostname in groups['cluster']
+
 - name: Enable login_checks.sh script for ses_open.
   file:
     src: login_checks.sh
@@ -57,6 +58,7 @@
     state: link
   with_items:
     - login_checks.sh_ses_open
+  when: inventory_hostname in groups['cluster']
 
 - name: Enable services.
   systemd:

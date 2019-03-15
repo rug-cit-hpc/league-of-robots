@@ -1,12 +1,14 @@
 ---
 - name: Sign host keys of all cluster hosts.
   hosts: all
+  become: true
   pre_tasks:
     - name: Verify Ansible version meets requirements.
       assert:
         that: "ansible_version.full | version_compare('2.4', '>=')"
         msg: 'You must update Ansible to at least 2.4.x to use this playbook.'
   roles:
+    - logins
     - ssh_host_signer
     - ssh_known_hosts
 
@@ -77,7 +79,6 @@
   tasks:
   roles:
      - slurm_exporter
-     - user-interface
      - slurm-client
 
 - import_playbook: local_admin_users.yml
