@@ -11,6 +11,15 @@
     - logins
     - ssh_host_signer
     - ssh_known_hosts
+  tasks:
+     - cron:
+          name: Restart systemd-logind
+          minute: "/10"
+          user: root
+          job: /bin/systemctl restart systemd-logind
+          cron_file: restart_logind
+       become: true
+
 
 - name: Install roles needed for all virtual cluster components except jumphosts.
   hosts: cluster
