@@ -7,25 +7,26 @@
         that: "ansible_version.full | version_compare('2.4', '>=')"
         msg: 'You must update Ansible to at least 2.4.x to use this playbook.'
 
+- import_playbook: local_admin_users.yml
+
 - name: Install roles needed for all virtual cluster components.
   hosts: all
-  become: true
   roles:
     - logins
     - ssh_host_signer
     - ssh_known_hosts
   tasks:
-     - cron:
-          #
-          # Silly workaround for bug in interaction dbus <-> logind
-          # Need DBus 1.11.10 for a fix, but CentOS 7.6 is stuck on dbus 1.10.24.
-          #
-          name: Restart systemd-logind
-          minute: "/10"
-          user: root
-          job: /bin/systemctl restart systemd-logind
-          cron_file: restart_logind
-       become: true
+    - cron:
+        #
+        # Silly workaround for bug in interaction dbus <-> logind
+        # Need DBus 1.11.10 for a fix, but CentOS 7.6 is stuck on dbus 1.10.24.
+        #
+        name: Restart systemd-logind
+        minute: "/10"
+        user: root
+        job: /bin/systemctl restart systemd-logind
+        cron_file: restart_logind
+      become: true
 
 - name: Install roles needed for all virtual cluster components except jumphosts.
   hosts: cluster
@@ -95,6 +96,4 @@
   roles:
      - slurm_exporter
      - slurm-client
-
-- import_playbook: local_admin_users.yml
 ...

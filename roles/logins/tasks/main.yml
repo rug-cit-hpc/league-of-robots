@@ -9,6 +9,7 @@
   notify:
     - authconfig_update
     - restart_oddjobd
+  become: true
 
 - name: Deploy password-auth-ac for PAM.
   copy:
@@ -20,6 +21,7 @@
   notify:
     - authconfig_update
     - restart_oddjobd
+  become: true
 
 - name: Enable pam_script.
   file:
@@ -34,11 +36,16 @@
     - pam_script_passwd
     - pam_script_ses_close
     - pam_script_ses_open
+  become: true
 
 - name: Create /etc/pam-script.d/ dir.
   file:
     name: /etc/pam-script.d
     state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
 
 - name: Install login_checks.sh script.
   copy:
@@ -48,6 +55,7 @@
     group: root
     mode: '0755'
   when: inventory_hostname in groups['cluster']
+  become: true
 
 - name: Enable login_checks.sh script for ses_open.
   file:
@@ -59,6 +67,7 @@
   with_items:
     - login_checks.sh_ses_open
   when: inventory_hostname in groups['cluster']
+  become: true
 
 - name: Enable services.
   systemd:
@@ -71,3 +80,5 @@
   notify:
     - authconfig_update
     - restart_oddjobd
+  become: true
+...
