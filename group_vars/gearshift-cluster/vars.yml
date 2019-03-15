@@ -25,12 +25,20 @@ vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 2900
 vcompute_features: 'tmp01'
+vcompute_ethernet_interfaces:
+  - 'eth0'
+  - 'eth1'
+  - 'eth2'
 ui_hostnames: "{{ slurm_cluster_name }}"
 ui_sockets: 2
 ui_cores_per_socket: 2
 ui_real_memory: 8192
 ui_local_disk: 0
 ui_features: 'prm01,tmp01'
+ui_ethernet_interfaces:
+  - 'eth0'
+  - 'eth1'
+  - 'eth2'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-ca"
 uri_ldap: 172.23.40.249
 uri_ldaps: comanage-in.id.rug.nl

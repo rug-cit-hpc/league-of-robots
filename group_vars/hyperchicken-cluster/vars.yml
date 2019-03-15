@@ -13,12 +13,18 @@ vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 0
 vcompute_features: 'tmp07'
+vcompute_ethernet_interfaces:
+  - 'eth0'
+  - 'eth1'
 ui_hostnames: "{{ slurm_cluster_name }}"
 ui_sockets: 4
 ui_cores_per_socket: 1
 ui_real_memory: 7800
 ui_local_disk: 0
 ui_features: 'prm07,tmp07'
+ui_ethernet_interfaces:
+  - 'eth0'
+  - 'eth1'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 key_name: Gerben
 image_cirros: cirros-0.3.4-x86_64-disk.img

@@ -22,6 +22,9 @@ ui_cores_per_socket: 1
 ui_real_memory: 7822
 ui_local_disk: 0
 ui_features: 'prm08,tmp08'
+ui_ethernet_interfaces:
+  - 'eth0'
+  - 'eth1'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 uri_ldap: 172.23.40.249
 uri_ldaps: comanage-in.id.rug.nl
