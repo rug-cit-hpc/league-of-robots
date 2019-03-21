@@ -51,11 +51,111 @@ QOS_TIME_LIMITS = {
 --
 --DEFAULT_WALLTIME = '1'
 
+--
+-- Check if the user submitting the job is associated to a Slurm account in the Slurm accounting database and
+-- create the relevant Slurm account and/or Slurm user and/or association if it does not already exist.
+--
+function ensure_user_has_slurm_association(uid, user, group)
+    --
+    -- Skip root user.
+    --
+    if uid == 0 then
+        return true
+    end
+    
+    slurm.log_debug("Checking assoc for user %s (uid=%u) in account for group %s...", user, uid, group)
+    if association_exists(user, group) then
+        slurm.log_debug("Association of user %s to account %s already exists.", user, group)
+        return true
+    else
+        if account_exists(group) then
+            slurm.log_debug("Account %s already exists.", group)
+        else
+            slurm.log_info("Account %s does not exist; creating one...", group)
+            if not create_account(group) then
+                return false
+            end
+        end
+        slurm.log_info("Association of user %s to account %s does not exist; creating one...", user, group)
+        if not create_association(user,group) then
+            return false
+        end
+    end
+    return true
+end
+
+function account_exists(group)
+    --
+    -- Unfortunately, filehandles returned by io.popen() don't have a way to return their exitstatuses in <= lua 5.2.
+    -- Should be reasonably safe here, since if we erroneously conclude the association doesn't exist,
+    -- then we'll just try to add it.
+    -- http://lua-users.org/lists/lua-l/2012-01/msg00364.html
+    --
+    local query = io.popen(string.format(
+        "sacctmgr --parsable2 --noheader list accounts format=account account='%s'", group))
+    for line in query:lines() do
+        if line == group then
+            return true
+        end
+    end
+    return false
+end
+
+function create_account(group)
+    local retval = os.execute(string.format(
+        "sacctmgr -i create account '%s' descr=scientists org=various parent=users fairshare=parent", group))
+    if retval ~= 0 then
+        slurm.log_error("Failed to create account %s (exit status = %d).", group, retval)
+        slurm.log_user("Failed to create account %s (exit status = %d). Contact an admin.", group, retval)
+        return false
+    else
+        slurm.log_info("Created account for group %s.", group)
+        return true
+    end
+end
+
+function association_exists(user, group)
+    --
+    -- Unfortunately, filehandles returned by io.popen() don't have a way to return their exitstatuses in <= lua 5.2.
+    -- Should be reasonably safe here, since if we erroneously conclude the association doesn't exist,
+    -- then we'll just try to add it.
+    -- http://lua-users.org/lists/lua-l/2012-01/msg00364.html
+    --
+    local query = io.popen(string.format(
+        "sacctmgr --parsable2 --noheader list associations format=user,account user='%s' account='%s'", user, group))
+    for line in query:lines() do
+        if line == user .. '|' .. group then
+            return true
+        end
+    end
+    return false
+end
+
+function create_association(user,group)
+    local retval = os.execute(string.format(
+        "sacctmgr -i create user name='%s' account='%s' fairshare=parent", user, group))
+    if retval ~= 0 then
+        slurm.log_error("Failed to create association of user %s to account %s (exit status = %d).", user, group, retval)
+        slurm.log_user("Failed to create association of user %s to account %s (exit status = %d). Contact an admin.", user, group, retval)
+        return false
+    else
+        slurm.log_info("Created association of user %s to account %s.", user, group)
+        return true
+    end
+end
+
 function slurm_job_submit(job_desc, part_list, submit_uid)
     -- 
     -- Get details for the user who is trying to submit a job.
     --
     submit_user = posix.getpasswd(submit_uid)
+    
+    --
+    -- Force jobs to share nodes when they don't consume all resources on a node.
+    --
+    if job_desc.shared == 0 then
+        job_desc.shared = 1
+    end
     
     --
     -- Check if the job does have a time limit specified.
@@ -87,6 +187,8 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
     --slurm.log_debug("Path to job *.err  = %s.", tostring(job_desc.std_err))
     --slurm.log_debug("Job's working dir  = %s.", tostring(job_desc.work_dir))
     local job_metadata = {job_desc.std_out, job_desc.std_err, job_desc.work_dir}
+    local group = nil
+    local lfs = nil
     for inx,job_metadata_value in ipairs(job_metadata) do
         if string.match(tostring(job_metadata_value), '^/home/') then
             slurm.log_error(
@@ -99,23 +201,13 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
                 "Rejecting job named %s from user %s (uid=%u).", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
             return slurm.ERROR
         end
-        local entitlement, group, lfs = string.match(tostring(job_metadata_value), '^/groups/([^/-]+)-([^/]+)/(tmp%d%d)/?')
-        if lfs == nil then
-            -- Temporary workaround for tmp02, which uses a symlink in /groups/..., that is resolved to the physical path by SLURM.
-            entitlement, group, lfs = string.match(tostring(job_metadata_value), '^/target/gpfs2/groups/([^/-]+)-([^/]+)/(tmp%d%d)/?')
-        end
-        if entitlement ~= nil and group ~= nill and lfs ~= nil then
-            slurm.log_debug("Found entitlement '%s' and LFS '%s' in job's metadata.", tostring(entitlement), tostring(lfs))
+        group, lfs = string.match(tostring(job_metadata_value), '^/groups/([^/]+)/(tmp%d%d)/?')
+        if group ~= nil and lfs ~= nil then
+            slurm.log_debug("Found group '%s' and LFS '%s' in job's metadata.", tostring(group), tostring(lfs))
             if job_desc.features == nil or job_desc.features == '' then
-                job_desc.features = entitlement .. '&' .. lfs
-                slurm.log_debug("Job had no features yet; Assigned entitlement and LFS as first features: %s.", tostring(job_desc.features))
+                job_desc.features = lfs
+                slurm.log_debug("Job had no features yet; Assigned LFS as first feature: %s.", tostring(job_desc.features))
             else
-                if not string.match(tostring(job_desc.features), entitlement) then
-                    job_desc.features = job_desc.features .. '&' .. entitlement
-                    slurm.log_debug("Appended entitlement %s to job's features.", tostring(entitlement))
-                else
-                    slurm.log_debug("Job's features already contained entitlement %s.", tostring(entitlement))
-                end
                 if not string.match(tostring(job_desc.features), lfs) then
                     job_desc.features = job_desc.features .. '&' .. lfs
                     slurm.log_debug("Appended LFS %s to job's features.", tostring(lfs))
@@ -123,7 +215,6 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
                     slurm.log_debug("Job's features already contained LFS %s.", tostring(lfs))
                 end
             end
-            slurm.log_info("Job's features now contains: %s.", tostring(job_desc.features))
         else
             slurm.log_error(
                  "Job's working dir, *.err file or *.out file is not located in /groups/${group}/tmp*/...\n" ..
@@ -137,6 +228,20 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
                  "Rejecting job named %s from user %s (uid=%u).", tostring(job_metadata_value), tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
             return slurm.ERROR
         end
+    end
+    slurm.log_debug("Job's features contains: %s.", tostring(job_desc.features))
+    --
+    -- Check if the user submitting the job is associated to a Slurm account in the Slurm accounting database and
+    -- create the relevant Slurm account and/or Slurm user and/or association if it does not already exist.
+    -- Note: as slurm account we use the group that was found last while parsing job_metadata above.
+    --
+    if not ensure_user_has_slurm_association(submit_uid, tostring(submit_user.name), tostring(group)) then
+        slurm.log_error("Failed to create association in the Slurm accounting database for user %s in account/group %s", tostring(submit_user.name), tostring(group))
+        slurm.log_error("Rejecting job named %s from user %s (uid=%u).", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
+        slurm.log_user(
+                 "Failed to create association in the Slurm accounting database. Contact an admin.\n" ..
+                 "Rejecting job named %s from user %s (uid=%u).", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
+        return slurm.ERROR
     end
     
     --
@@ -161,7 +266,7 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
             job_desc.qos = 'ds'
         end
     end
-      
+    
     --
     -- Make sure we have a sanity checked base-QoS.
     --
@@ -216,16 +321,6 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
         return slurm.ERROR
     else
         slurm.log_info("Assigned QoS %s to job named %s from user %s (uid=%u).", new_qos, job_desc.name, tostring(submit_user.name), job_desc.user_id)
-    end
-    
-    --
-    -- Check if the user submitting the job is associated to a Slurm account in the Slurm accounting database and
-    -- create the relevant Slurm account and/or Slurm user and/or association if it does not already exist.
-    -- Skip this check for the root user.
-    --
-    if job_desc.user_id ~= 0 then
-        --submit_user_primary_group = posix.getgroup(submit_user.gid).name
-        --ensure_assoc_exists(submit_user.name, entitlement .. '-' .. group)
     end
     
     return slurm.SUCCESS

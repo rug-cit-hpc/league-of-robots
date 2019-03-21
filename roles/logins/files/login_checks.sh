@@ -85,9 +85,12 @@ login_actions () {
 # but in the first case there are no SLURM related environment variables defined.
 #
 
-# SOURCE_HPC_ENV variable checking disabled (it is not set ) Egon 30-10-2018
-#if [ ${TERM} == 'dumb' ] && [ -z ${SOURCE_HPC_ENV} ]; then
-if [ ${TERM} == 'dumb' ]; then
+#
+# ToDo: fix this. As of CentOS 7.x interactive session that eventually report ${TERM} == 'bash'
+# report ${TERM} == 'dumb' at the point where this script is executed in the PAM stack :(.
+# Makes it impossible to determine the difference between an SFTP session versus a Bash session.
+#
+if [ ${TERM} == 'dumb' ] && [ -z "${SOURCE_HPC_ENV:-}" ]; then
     $LOGGER "debug: exiting because of dumb terminal"
     exit 0
 fi
