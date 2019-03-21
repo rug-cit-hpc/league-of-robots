@@ -67,7 +67,7 @@
       group: root
       mode: '0750'
     - name: /var/spool/slurmd
-      owner: slurm
+      owner: root
       group: root
       mode: '0750'
 
