@@ -69,7 +69,7 @@
     - name: /var/spool/slurmd
       owner: root
       group: root
-      mode: '0750'
+      mode: '0755'
 
 - name: Deploy slurm.conf
   template:
