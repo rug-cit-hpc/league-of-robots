@@ -8,7 +8,7 @@ motd: "To solve or not to solve, that's the question."
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-05]"
 vcompute_sockets: 16
 vcompute_cores_per_socket: 1
-vcompute_real_memory: 64000
+vcompute_real_memory: 64264
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 0
@@ -19,7 +19,7 @@ vcompute_ethernet_interfaces:
 ui_hostnames: "{{ slurm_cluster_name }}"
 ui_sockets: 4
 ui_cores_per_socket: 1
-ui_real_memory: 7800
+ui_real_memory: 7821
 ui_local_disk: 0
 ui_features: 'prm07,tmp07'
 ui_ethernet_interfaces:
@@ -57,41 +57,45 @@ local_admin_users:
   - 'morris'
   - 'pieter'
   - 'wim'
+  - 'umcg-atd-dm'
+  - 'solve-rd-dm'
 envsync_user: 'envsync'
 envsync_group: 'depad'
 local_regular_groups:
   - 'users'
   - 'depad'
+  - 'solve-rd'
+  - 'umcg-atd'
 local_regular_users:
   - user: 'envsync'
     groups: ['depad']
   - user: 'gvdvries'
-    groups: ['users', 'depad']
+    groups: ['users', 'depad','umcg-atd', 'solve-rd']
   - user: 'mbijlsma'
-    groups: ['users', 'depad']
+    groups: ['users', 'depad','umcg-atd', 'solve-rd']
   - user: 'mswertz'
-    groups: ['users', 'depad']
+    groups: ['users', 'depad','umcg-atd', 'solve-rd']
   - user: 'pneerincx'
-    groups: ['users', 'depad']
+    groups: ['users', 'depad','umcg-atd', 'solve-rd']
   - user: 'rkanninga'
-    groups: ['users', 'depad']
+    groups: ['users', 'depad','umcg-atd', 'solve-rd']
 pfs_mounts: [
   { pfs: 'Solve-RD',
     source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD',
-    type: 'nfs4',
-    rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
-    ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro' },
+    type: 'nfs',
+    rw_options: 'defaults,_netdev,noatime,nodiratime',
+    ro_options: 'defaults,_netdev,noatime,nodiratime,ro' },
 ]
 lfs_mounts: [
   { lfs: 'home',
     pfs: 'Solve-RD' },
-  { lfs: 'groups/GROUP/tmp01',
+  { lfs: 'groups/GROUP/tmp09',
     pfs: 'Solve-RD',
-    groups: ['umcg-atd', 'Solve-RD'] },
-  { lfs: 'groups/GROUP/prm01',
+    groups: ['umcg-atd', 'solve-rd'] },
+  { lfs: 'groups/GROUP/prm09',
     pfs: 'Solve-RD',
-    groups: ['umcg-atd', 'Solve-RD'] },
-  { lfs: 'env08',
+    groups: ['umcg-atd', 'solve-rd'] },
+  { lfs: 'env09',
     pfs: 'Solve-RD',
     machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
 ]
