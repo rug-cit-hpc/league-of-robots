@@ -65,11 +65,13 @@ auth_users:
     uid: 1009
     pub_keys: |
               # Revoked: key format not compliant with requirements.
+
   kees:
     comment: 'Kees Visser'
     uid: 1010
     pub_keys: |
-              # Revoked: key format not compliant with requirements.
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGbGIEjuURXEI2rPUzLzQSsH/OvZJQwCPFO7w0Uls9Xy stealth@operator
+
   gvdvries:
     comment: 'Gerben van der Vries'
     uid: 1011
