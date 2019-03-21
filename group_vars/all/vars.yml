@@ -103,6 +103,14 @@ auth_users:
     uid: 1016
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKOKgVel0GbF67zZaVR0TFo82e5XeZOP1e3Ld3gIdaER h.j.zilverberg
+  solve-rd-dm:
+    comment: 'Datamanager user of solve-rd group'
+    uid: 1018
+    pub_keys:
+  umcg-atd-dm:
+    comment: 'Datamanager user of umcg-atd group'
+    uid: 1019
+    pub_keys:
   envsync:
     comment: 'Environment Synchronizer'
     uid: 1017
@@ -124,4 +132,8 @@ auth_groups:
     gid: 20002
   depad:
     gid: 20003
+  solve-rd:
+    gid: 20004
+  umcg-atd:
+    gid: 20005
 ...
