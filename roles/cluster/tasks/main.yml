@@ -10,9 +10,22 @@
   become: true
   tags: ['etc_hosts']
 
+- name: Set /etc/skel/.bashrc .screenrc
+  template:
+    src: templates/{{ item }}
+    dest: /etc/skel/
+    mode: 0644
+    owner: root
+    group: root
+    backup: yes
+  become: true
+  with_items:
+    - '.bashrc'
+    - '.screenrc'
+
 - name: Set hostname to inventory_hostname
   hostname:
-    name: '{{ inventory_hostname }}'
+    name: "{{ inventory_hostname | regex_replace('^' + groups['jumphost'] | first + '\\+','') }}"
 
 - name: Set selinux in permissive mode
   selinux:
@@ -24,21 +37,31 @@
     state: latest
     update_cache: yes
     name:
+      - bzip2
       - curl
+      - figlet
       - git
       - git-core
+      - lsof
       - nano
       - ncdu
+      - ncurses-static
+      - readline-static
       - screen
+      - tcl-devel
       - telnet
       - tmux
       - tree
       - vim
-      - bzip2
-      - ncurses-static
-      - readline-static
-      - tcl-devel
-      - figlet
+      - wget
   tags:
     - software
+
+- name: Deploy sshd config.
+  template:
+    src: templates/sshd_config
+    dest: /etc/ssh/sshd_config
+    validate: '/usr/sbin/sshd -T -f %s'
+  notify: restart_sshd
+
 ...

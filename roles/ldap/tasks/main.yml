@@ -8,8 +8,9 @@
       - openldap-clients
       - nss-pam-ldapd
       - openssh-ldap
-      - pam_script
-      - oddjob-mkhomedir
+  notify:
+    - restart_nslcd
+    - restart_sshd
 
 - name: Deploy nslcd.conf
   template:
@@ -18,6 +19,8 @@
     owner: root
     group: root
     mode: '0600'
+  notify:
+    - restart_nslcd
 
 - name: Deploy ldap.conf
   template:
@@ -26,6 +29,8 @@
     owner: root
     group: root
     mode: '0644'
+  notify:
+    - restart_nslcd
 
 - name: Deploy nsswitch.conf
   copy:
@@ -34,76 +39,49 @@
     owner: root
     group: root
     mode: '0644'
+  notify:
+    - restart_nslcd
 
-- name: Create /etc/pam-script.d/ dir.
-  file:
-    name: /etc/pam-script.d
-    state: directory
-
-- name: Install login_checks.sh script.
-  copy:
-    src: login_checks.sh
-    dest: /etc/pam-script.d/login_checks.sh
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Enable pam_script.
-  file:
-    src: pam_script
-    dest: "/etc/{{ item }}"
-    owner: root
-    group: root
-    state: link
-  with_items:
-    - pam_script_acct
-    - pam_script_auth
-    - pam_script_passwd
-    - pam_script_ses_close
-    - pam_script_ses_open
-
-- name: Enable login_checks.sh script for ses_open.
-  file:
-    src: login_checks.sh
-    dest: "/etc/pam-script.d/{{ item }}"
-    owner: root
-    group: root
-    state: link
-  with_items:
-    - login_checks.sh_ses_open
-
-- name: Deploy password-auth-ac for PAM.
-  copy:
-    src: password-auth-ac
-    dest: /etc/pam.d/password-auth-ac
-    owner: root
-    group: root
-    mode: '0600'
+- name: Signal that sshd should use ldap.
+  set_fact:
+    ssh_use_ldap: true
 
 - name: Deploy sshd config.
   template:
     src: templates/sshd_config
     dest: /etc/ssh/sshd_config
+    validate: '/usr/sbin/sshd -T -f %s'
+  notify: restart_sshd
+
+- name: Check if /etc/ssh/moduli contains weak (small) values.
+  shell: awk '$5 < {{ sshd_moduli_minimum }}' /etc/ssh/moduli
+  register: sshd_register_moduli
+  changed_when: false
+  check_mode: no
+
+- name: Remove weak (small) values from /etc/ssh/moduli.
+  shell: awk '$5 >= {{ sshd_moduli_minimum }}' /etc/ssh/moduli > /etc/ssh/moduli.new ;
+         [ -r /etc/ssh/moduli.new -a -s /etc/ssh/moduli.new ] && mv /etc/ssh/moduli.new /etc/ssh/moduli || true
+  when: sshd_register_moduli.stdout
+  notify: restart_sshd
+
+- name: Deploy custom ssh-ldap-wrapper.
+  copy:
+    src: ssh-ldap-wrapper
+    dest: /usr/libexec/openssh/ssh-ldap-wrapper
+    owner: root
+    group: root
+    mode: '0755'
 
 - name: Enable services.
   systemd:
     name: "{{ item }}"
     enabled: yes
+    state: started
   with_items:
     - nslcd
-    - dbus.service
-    - oddjobd.service
+  notify:
+    - restart_nslcd
 
-- name: Run authconfig update.
-  shell: "authconfig --enablemkhomedir --update"
-
-- name: Reload services.
-  service:
-    name: "{{item}}"
-    state: reloaded
-  with_items:
-    - nslcd
-    - dbus
-    - oddjobd
-    - sshd
+- meta: flush_handlers
 ...

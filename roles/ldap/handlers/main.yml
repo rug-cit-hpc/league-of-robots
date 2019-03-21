@@ -1,0 +1,20 @@
+---
+#
+# Important: maintain correct handler order.
+# Handlers are executed in the order in which they are defined 
+# and not in the order in whch they are listed in a "notify: handler_name" statement!
+#
+- name: Restart nslcd service.
+  service:
+    name: nslcd
+    state: restarted
+  become: yes
+  listen: restart_nslcd
+
+- name: Restart sshd service.
+  service:
+    name: sshd
+    state: restarted
+  become: yes
+  listen: restart_sshd
+...

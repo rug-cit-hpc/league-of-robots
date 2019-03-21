@@ -1,0 +1,44 @@
+---
+- name: 'Create local admin groups & users and allow admin group to use sudo on all hosts.'
+  hosts: all
+  become: True
+  tasks:
+    - name: Check if required groups are present.
+      group:
+        name: "{{ item }}"
+        gid: "{{ auth_groups[item].gid }}"
+        state: present
+      with_items: "{{ local_admin_groups }}"
+    - name: 'Allow passwordless sudo for local admin users.'
+      lineinfile: dest=/etc/sudoers line="%admin  ALL=(ALL:ALL) NOPASSWD:ALL"
+    - name: "Check if required private groups for user's home dir are present."
+      group:
+        name: "{{ item }}"                 # Use same name as user's account name for user's private group.
+        gid: "{{ auth_users[item].uid }}"  # Use same GID as user's UID for user's private group.
+        state: present
+      with_items: "{{ local_admin_users }}"
+    - name: 'Create /admin root dir for the home dirs of admin users.'
+      file:
+        path: '/admin'
+        owner: 'root'
+        group: 'root'
+        mode: 0755
+        state: 'directory'
+    - name: Create local admin users and append them to relevant groups.
+      user:
+        name: "{{ item }}"
+        uid: "{{ auth_users[item].uid }}"
+        comment: "{{ auth_users[item].comment }}"
+        group: 'admin'
+        groups: "{{ local_admin_groups }}"
+        home: "/admin/{{ item }}"
+        append: no
+      with_items: "{{ local_admin_users }}"
+    - name: 'Deploy authorized keys for admins.'
+      authorized_key:
+        user: "{{ item }}"
+        key: "{{ auth_users[item].pub_keys }}"
+        state: present
+        exclusive: yes
+      with_items: "{{ local_admin_users }}"
+...

@@ -1,0 +1,7 @@
+---
+- name: Install the common role from the hpc-cloud repo.
+  hosts: all
+  become: true
+  roles:
+#  - firewall
+  - geerlingguy.firewall

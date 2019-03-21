@@ -2,6 +2,21 @@
 slurm_cluster_name: 'gearshift'
 slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'gs'
+mailhub: '172.23.34.34'
+rewrite_domain: "imperator.{{ slurm_cluster_domain }}"
+motd: Vare, Vare, redde legiones!
+additional_etc_hosts: |
+  172.23.40.21       gs-compute01        gs-compute01.hpc.local
+  172.23.40.22       gs-compute02        gs-compute02.hpc.local
+  172.23.40.23       gs-compute03        gs-compute03.hpc.local
+  172.23.40.24       gs-compute04        gs-compute04.hpc.local
+  172.23.40.25       gs-compute05        gs-compute05.hpc.local
+  172.23.40.26       gs-compute06        gs-compute06.hpc.local
+  172.23.40.27       gs-compute07        gs-compute07.hpc.local
+  172.23.40.28       gs-compute08        gs-compute08.hpc.local
+  172.23.40.29       gs-compute09        gs-compute09.hpc.local
+  172.23.40.30       gs-compute10        gs-compute10.hpc.local
+  172.23.40.31       gs-compute11        gs-compute11.hpc.local
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-11]"
 vcompute_sockets: 2
 vcompute_cores_per_socket: 14
@@ -10,17 +25,62 @@ vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 2900
 vcompute_features: 'tmp01'
+vcompute_ethernet_interfaces:
+  - 'eth0'
+  - 'eth1'
+  - 'eth2'
 ui_hostnames: "{{ slurm_cluster_name }}"
 ui_sockets: 2
 ui_cores_per_socket: 2
 ui_real_memory: 8192
 ui_local_disk: 0
 ui_features: 'prm01,tmp01'
+ui_ethernet_interfaces:
+  - 'eth0'
+  - 'eth1'
+  - 'eth2'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-ca"
 uri_ldap: 172.23.40.249
 uri_ldaps: comanage-in.id.rug.nl
 ldap_port: 389
 ldaps_port: 636
-ldap_base: ou=umcg,o=asds
+ldap_base: ou=research,o=asds
 ldap_binddn: cn=clusteradminumcg,o=asds
+filter_passwd: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
+filter_shadow: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
+pam_authz_search: '(|(&(objectClass=posixGroup)(cn=co_bbmri_g-GRP_Gearshift)(memberUid=$username))(&(cn=$username)(rugpersonentitlementvalue=umcg)))'
+nameservers: [
+  '172.23.40.244', # Order is important: local DNS for Isilon storage first!
+  '8.8.4.4',       # Google DNS.
+  '8.8.8.8',       # Google DNS.
+]
+local_admin_groups:
+  - 'admin'
+  - 'docker'
+local_admin_users:
+  - 'egon'
+  - 'henkjan'
+  - 'wim'
+envsync_user: 'umcg-envsync'
+envsync_group: 'umcg-depad'
+pfs_mounts: [
+  { pfs: 'umcgst10',
+    source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst10',
+    type: 'nfs4',
+    rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
+    ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro' },
+]
+lfs_mounts: [
+  { lfs: 'home',
+    pfs: 'umcgst10' },
+  { lfs: 'groups/GROUP/tmp01',
+    pfs: 'umcgst10',
+    groups: ['umcg-atd', 'umcg-gcc'] },
+  { lfs: 'groups/GROUP/prm01',
+    pfs: 'umcgst10',
+    groups: ['umcg-atd', 'umcg-gcc'] },
+  { lfs: 'env01',
+    pfs: 'umcgst10',
+    machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
+]
 ...

@@ -1,0 +1,36 @@
+---
+- name: Make mount point for the cinder volume.
+  file:
+    path: "{{volume_mount_point}}"
+    mode: 0755
+    state: directory
+    owner: root
+    group: root
+
+- name: Check the local mount point.
+  command: mountpoint {{volume_mount_point}}
+  register: mount_local
+  failed_when: false
+
+- name: Create an ext4 filesystem on /dev/vdb.
+  filesystem:
+    fstype: ext4
+    dev: /dev/vdb
+  when:
+    mount_local.rc == 1
+
+- name: Mount the volume.
+  mount:
+    path: "{{volume_mount_point}}"
+    src: /dev/vdb
+    fstype: ext4
+    opts: rw,relatime
+    state: present
+
+- name: Mount all mountpoints from fstab.
+  command: mount -a
+  args:
+    warn: false
+  when:
+    mount_local.rc == 1
+...

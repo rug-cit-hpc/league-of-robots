@@ -1,0 +1,156 @@
+---
+- name: 'Show the content of the group_vars/[cluster]/vars.yml lfs_mounts variable for debugging purposes.'
+  debug:
+    msg: "{{ lfs_mounts }}"
+
+- name: 'Show the content of the group_vars/[cluster]/vars.yml pfs_mounts variable for debugging purposes.'
+  debug:
+    msg: "pfs: {{ item.pfs }} | source: {{ item.source }} | type: {{ item.type }} | rw_options: {{ item.rw_options }}."
+  with_items: "{{ pfs_mounts }}"
+  when: inventory_hostname in groups['sys-admin-interface']
+
+- name: 'Mount complete Physical File Systems (PFS-ses) on SAIs.'
+  mount:
+    path: "/mnt/{{ item.pfs }}"
+    src: "{{ item.source }}"
+    fstype: "{{ item.type }}"
+    opts: "{{ item.rw_options }}"
+    state: 'mounted'
+  with_items: "{{ pfs_mounts }}"
+  when: inventory_hostname in groups['sys-admin-interface']
+  become: True
+
+- name: 'Create "home" Logical File System (LFS) on Physical File Systems (PFSs) mounted on SAIs.'
+  file:
+    path: "/mnt/{{ item.pfs }}/{{ item.lfs }}"
+    owner: 'root'
+    group: 'root'
+    mode: 0755
+    state: 'directory'
+  with_items: "{{ lfs_mounts | selectattr('lfs', 'match', '^home$') | list }}"
+  when: inventory_hostname in groups['sys-admin-interface']
+  become: True
+
+- name: 'Create root groups folder for "tmp" and "prm" Logical File Systems (LFSs) on Physical File Systems (PFSs) mounted on SAIs.'
+  file:
+    path: "/mnt/{{ item.pfs }}/{{ item.lfs | regex_replace('GROUP.*', '') }}"
+    owner: 'root'
+    group: 'root'
+    mode: 0755
+    state: 'directory'
+  with_items:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', '(tmp)|(prm)[0-9]+$') | list }}"
+  when: inventory_hostname in groups['sys-admin-interface']
+  become: True
+
+- name: 'Create folder for each group on Physical File Systems (PFSs) mounted on SAIs.'
+  file:
+    path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) | regex_replace('((tmp)|(prm))[0-9]+$', '') }}"
+    owner: 'root'
+    group: "{{ item.1 }}"
+    mode: 0750
+    state: 'directory'
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(prm))[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in groups['sys-admin-interface']
+  become: True
+
+- name: 'Create "tmp" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs) mounted on SAIs.'
+  file:
+    path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+    owner: 'root'
+    group: "{{ item.1 }}"
+    mode: 0770
+    state: 'directory'
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in groups['sys-admin-interface']
+  become: True
+
+- name: 'Create "prm" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs) mounted on SAIs.'
+  file:
+    path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+    owner: "{{ item.1 }}-dm"
+    group: "{{ item.1 }}"
+    mode: 0750
+    state: 'directory'
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in groups['sys-admin-interface']
+  become: True
+
+- name: 'Create "apps" Logical File Systems (LFSs) on Physical File Systems (PFSs) mounted on SAIs.'
+  file:
+    path: "/mnt/{{ item.pfs }}/{{ item.lfs }}/apps"
+    owner: "{{ envsync_user }}"
+    group: "{{ envsync_group }}"
+    mode: 0755
+    state: 'directory'
+  with_items:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
+  when: inventory_hostname in groups['sys-admin-interface']
+  become: True
+
+- name: 'Mount "home" Logical File System (LFS) from shared storage.'
+  mount:
+    path: "/{{ item.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') | first }}"
+    state: 'mounted'
+  with_items: "{{ lfs_mounts | selectattr('lfs', 'match', '^home$') | list }}"
+  when: inventory_hostname in groups['cluster']
+  become: True
+
+- name: 'Mount "tmp" Logical File Systems (LFSs) per group from shared storage.'
+  mount:
+    path: "/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='rw_options') | first }}"
+    state: 'mounted'
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in groups['compute-vm'] or inventory_hostname in groups['user-interface'] or inventory_hostname in groups['deploy-admin-interface']
+  become: True
+
+- name: 'Mount "prm" Logical File Systems (LFSs) per group from shared storage.'
+  mount:
+    path: "/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='rw_options') | first }}"
+    state: 'mounted'
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in groups['user-interface']
+  become: True
+
+- name: 'Mount "env" Logical File Systems (LFSs) from shared storage read-write on DAIs.'
+  mount:
+    path: "/mnt/{{ item.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') | first }}"
+    state: 'mounted'
+  with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list}}"
+  when: inventory_hostname in groups['deploy-admin-interface']
+  become: True
+
+- name: 'Mount "apps" from one "env" Logical File System (LFS) from shared storage read-only as /apps on UIs and vcompute nodes.'
+  mount:
+   path: '/apps'
+   src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.lfs }}/apps"
+   fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
+   opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='ro_options') | first }}"
+   state: 'mounted'
+  with_items:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
+  when: inventory_hostname in item.machines
+  become: True
+...

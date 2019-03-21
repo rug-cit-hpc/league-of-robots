@@ -13,11 +13,20 @@
      - rhnsd
      - m2crypto
      - yum-rhn-plugin
+  notify:
+    - restart_rhnsd
 
-- name: Restart spacewalk daemon.
+- name: Enable spacewalk service.
   systemd:
-   name: rhnsd.service
-   state: restarted
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+    - rhnsd.service
+  notify:
+    - restart_rhnsd
+
+- meta: flush_handlers
 
 - name: Register client at the spacewalk server.
   rhn_register:
@@ -32,12 +41,13 @@
   ignore_errors: yes
   no_log: True
 
-- name: Disable gpgcheck.
-  command: sed -i 's/gpgcheck = 1/gpgcheck = 0/g' /etc/yum/pluginconf.d/rhnplugin.conf
-  args:
-    warn: false
+- name: Disable gpgcheck for spacewalk repo.
+  lineinfile:
+    path: '/etc/yum/pluginconf.d/rhnplugin.conf'
+    regexp: '^gpgcheck = [0-9].*'
+    line: 'gpgcheck = 0'
 
-- name: Remove all current repo config files.
+- name: Remove all (non-spacewalk) repo config files from /etc/yum.repos.d/.
   shell: "rm -rf /etc/yum.repos.d/*"
   args:
     warn: false
@@ -52,3 +62,4 @@
   yum:
    name: '*'
    state: latest
+...
