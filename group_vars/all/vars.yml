@@ -60,7 +60,6 @@ auth_users:
     uid: 1008
     pub_keys: |
               ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDvx1ebTndL/HitD30uNpvESXWUAxT3j0e0CzrBUZ8fHDv+vZTbWBRtWbnLgCnVDPa3GclA1lpnvJD9JBjBhUa8= ger@ger-pc
-
   robin:
     comment: 'Robin Teeninga'
     uid: 1009

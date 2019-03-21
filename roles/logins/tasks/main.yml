@@ -63,7 +63,17 @@
     dest: "/etc/pam-script.d/{{ item }}"
     owner: root
     group: root
-    state: link
+    #
+    # Login checks currently disabled,
+    # because error handling/reporting no longer works on CentOS >= 7.x,
+    # due to changes in the PAM stack.
+    # Login checks were only used to create Slurm accounts in the Slurm accounting DB.
+    # This functionality has been relocated to the Slurm job_submit.lua plugin,
+    # which will now automatically create account, users and associations of slurm users to slurm accounts
+    # upon job submission when they do not already exist.
+    #
+    # state: link
+    state: absent
   with_items:
     - login_checks.sh_ses_open
   when: inventory_hostname in groups['cluster']

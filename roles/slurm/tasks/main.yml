@@ -162,7 +162,7 @@
 - name: Make services reload their configs.
   command: systemctl daemon-reload
 
-- name: Make sure servcies are started.
+- name: Make sure services are started.
   systemd:
     name: "{{item}}"
     state: restarted
