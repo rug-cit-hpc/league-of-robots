@@ -63,25 +63,15 @@ The clusters use the following types of storage systems / folders:
 
 ## Deployment phases
 
-Deploying a fully functional virtual cluster involves the following steps:
- 1. Configure physical machines
- 2. Deploy OpenStack virtualization layer on physical machines to create an OpenStack cluster
- 3. Create and configure virtual machines on the OpenStack cluster to create an HPC cluster on top of an OpenStack cluster
- 4. Deploy bioinformatics software and reference datasets 
+Deploying a biomedical virtual cluster on top of an Openstack cluster involves the following steps:
+ 1. Start and configure virtual machines on the OpenStack cluster to create a virtual HPC cluster.
+ 2. Deploy bioinformatics software and reference datasets
+
+
 
 ---
 
-### 2. Ansible playbooks OpenStack cluster
-The ansible playbooks in this repository use roles from the [hpc-cloud](https://git.webhosting.rug.nl/HPC/hpc-cloud) repository.
-The roles are imported here explicitely by ansible using ansible galaxy.
-These roles install various docker images built and hosted by RuG webhosting. They are built from separate git repositories on https://git.webhosting.rug.nl.
-
-#### Deployment of OpenStack
-The steps below describe how to get from machines with a bare ubuntu 16.04 installed to a running openstack installation.
-
-#### Steps to upgrade the OpenStack cluster
-
-### 3. Steps to deploy HPC compute cluster on top of OpenStack cluster
+### 1. Steps to deploy a virtual HPC compute cluster on top of an OpenStack cluster.
 ---
 
 0. Clone this repo.
@@ -94,7 +84,6 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
 1. First import the required roles into this playbook:
    
    ```bash
-   ansible-galaxy install -r requirements.yml --force -p roles
    ansible-galaxy install -r galaxy-requirements.yml
    ```
 
@@ -110,19 +99,10 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
    ```
 
 3. Configure Ansible settings including the vault.
-   * To create (a new) secrets.yml:
-     Generate and encrypt the passwords for the various OpenStack components.
-     ```bash
-     ./generate_secrets.py
-     ansible-vault --vault-password-file=.vault_pass.txt encrypt secrets.yml
-     ```
-     The encrypted secrets.yml can now safely be committed.
-     The `.vault_pass.txt` file is in the .gitignore and needs to be transfered in a secure way.
 
-   * To use use an existing encrypted secrets.yml add .vault_pass.txt to the root folder of this repo
-     and create in the same location ansible.cfg using the following template:
+   * It is recommended to use an ansible.cfg similar to the one below.
      ```[defaults]
-     inventory = hosts
+     inventory = <my_cluster>_hosts.ini
      stdout_callback = debug
      forks = 20
      vault_password_file = .vault_pass.txt
