@@ -60,6 +60,7 @@ local_admin_users:
   - 'egon'
   - 'henkjan'
   - 'wim'
+  - 'kees'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 pfs_mounts: [
