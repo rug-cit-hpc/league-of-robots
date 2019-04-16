@@ -1,0 +1,6 @@
+---
+#- hosts: docs
+- hosts: deploy-admin-interface
+  roles:
+    - online_docs
+...
