@@ -1,0 +1,57 @@
+#
+# Install webserver and deploy cluster specific documentation on that web server.
+#
+---
+- name: Install webserver.
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - httpd
+  notify:
+    - restart_httpd
+  become: true
+
+- name: Enable webserver.
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+    - httpd.service
+  become: true
+
+- name: Install MkDocs and deps.
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - mkdocs
+  become: true
+
+- name: Create directory structure for MarkDown files on webserver.
+  file:
+    path: '/root/mkdocs/{{ item.path }}'
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+  with_filetree: 'templates/mkdocs'
+  when: item.state == 'directory'
+  notify:
+    - build_mkdocs
+  become: true
+
+- name: Create MarkDown files on webserver.
+  template:
+    src: '{{ item.src }}'
+    dest: '/root/mkdocs/{{ item.path }}'
+    owner: root
+    group: root
+    mode: '0600'
+  with_filetree: 'templates/mkdocs'
+  when: item.state == 'file'
+  notify:
+    - build_mkdocs
+  become: true
+...

@@ -34,6 +34,18 @@ resources:
         - network: vlan13
           fixed_ip: 129.125.60.18
 
+  tl-docs:
+    type: OS::Nova::Server
+    properties:
+      key_name: adminkey
+      image: {get_param: image_name}
+      flavor: 2C-4GB
+      networks:
+        - network: vlan983
+          fixed_ip: 172.23.40.xxx
+        - network: vlan13
+          fixed_ip: 129.125.60.xxx
+
   tl-sai_volume:
     type: OS::Cinder::Volume
     properties:
