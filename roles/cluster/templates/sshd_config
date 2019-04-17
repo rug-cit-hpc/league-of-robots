@@ -73,7 +73,7 @@ ChallengeResponseAuthentication no
 GSSAPIAuthentication no
 GSSAPICleanupCredentials no
 PubkeyAuthentication yes
-{% if hostvars.ssh_use_ldap %}
+{% if use_ldap %}
 AuthorizedKeysCommand /usr/libexec/openssh/ssh-ldap-wrapper
 AuthorizedKeysCommandUser root
 
