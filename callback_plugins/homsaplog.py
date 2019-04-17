@@ -23,7 +23,8 @@ try:
 except ImportError:
     import json
 import sys
-reload(sys).setdefaultencoding('utf-8')
+if sys.version_info < (3,0,0):
+    reload(sys).setdefaultencoding('utf-8')
 
 __metaclass__ = type
 
