@@ -38,8 +38,8 @@ ui_features: 'prm01,tmp01'
 ui_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
-use_ldap: yes
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-ca"
+use_ldap: yes
 uri_ldap: 172.23.40.249
 uri_ldaps: comanage-in.id.rug.nl
 ldap_port: 389
