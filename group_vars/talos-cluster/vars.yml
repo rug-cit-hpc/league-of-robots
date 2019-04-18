@@ -4,7 +4,21 @@ slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'tl'
 mailhub: '172.23.34.34'
 rewrite_domain: "{{ stack_prefix }}-sai.{{ slurm_cluster_domain }}"
-motd: "It's highly addictive"
+motd: |
+      !!! WARNING: This cluster is in beta testing
+          and may be redeployed from scratch, which
+          may result in complete data loss starting
+          on 09:00 on the following EOS Fridays:
+          ###################################
+          # Date                 EOS        #
+          ###################################
+          # Friday 2019-05-03    Sprint 136 #
+          # Friday 2019-06-14    Sprint 138 #
+          # Friday 2019-07-26    Sprint 140 #
+          # Friday 2019-09-06    Sprint 142 #
+          # Friday 2019-10-18    Sprint 144 #
+          ###################################
+          You have been warned!!!
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
 vcompute_sockets: 4
 vcompute_cores_per_socket: 1
