@@ -5,6 +5,8 @@
   tasks:
 ##############################################################################
 # Configure headnode from inventory using Openstack API.
+# NOTE: Openstack RC file must be sourced to be able to use Openstack API.
+# RUN: ansible-playbook deploy-os_server.yaml -c local -i {your}_hosts -v
 ##############################################################################
 
   - set_fact:
