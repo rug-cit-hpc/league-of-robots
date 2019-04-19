@@ -5,14 +5,14 @@ stack_prefix: 'hc'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai.{{ slurm_cluster_domain }}"
 motd: "To solve or not to solve, that's the question."
-vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-05]"
+vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-02]"
 vcompute_sockets: 16
 vcompute_cores_per_socket: 1
 vcompute_real_memory: 64264
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 0
-vcompute_features: 'tmp07'
+vcompute_features: 'tmp09'
 vcompute_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
@@ -21,7 +21,7 @@ ui_sockets: 4
 ui_cores_per_socket: 1
 ui_real_memory: 7821
 ui_local_disk: 0
-ui_features: 'prm07,tmp07'
+ui_features: 'prm09,tmp09'
 ui_ethernet_interfaces:
   - 'eth0'
   - 'eth1'

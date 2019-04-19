@@ -89,13 +89,13 @@ pfs_mounts: [
 lfs_mounts: [
   { lfs: 'home',
     pfs: 'Solve-RD' },
-  { lfs: 'groups/GROUP/tmp09',
+  { lfs: 'groups/GROUP/tmp07',
     pfs: 'Solve-RD',
     groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'groups/GROUP/prm09',
+  { lfs: 'groups/GROUP/prm07',
     pfs: 'Solve-RD',
     groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'env09',
+  { lfs: 'env07',
     pfs: 'Solve-RD',
     machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
 ]
