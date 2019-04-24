@@ -85,15 +85,19 @@ pfs_mounts: [
     rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
     ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro' },
 ]
+#
+# During public beta phase we only use tmp* folders/mounts for 'production' groups.
+# Only anlysis team development (umcg-atd) group, which is exclusively used for testing has prm* folder/mount for now.
+#
 lfs_mounts: [
   { lfs: 'home',
     pfs: 'umcgst10' },
   { lfs: 'groups/GROUP/tmp01',
     pfs: 'umcgst10',
-    groups: ['umcg-atd', 'umcg-gcc'] },
+    groups: ['umcg-atd', 'umcg-gcc', 'umcg-lld', 'umcg-wijmenga' ] },
   { lfs: 'groups/GROUP/prm01',
     pfs: 'umcgst10',
-    groups: ['umcg-atd', 'umcg-gcc'] },
+    groups: ['umcg-atd'] },
   { lfs: 'env01',
     pfs: 'umcgst10',
     machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
