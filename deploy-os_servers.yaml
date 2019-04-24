@@ -6,6 +6,7 @@
 ##############################################################################
 # Configure headnode from inventory using Openstack API.
 # NOTE: Openstack RC file must be sourced to be able to use Openstack API.
+# RUN: ansible-playbook deploy-os_server.yaml -c local -i {your}_hosts -v
 ##############################################################################
 
   - set_fact:
@@ -19,14 +20,14 @@
       display_name: "{{ headnode_name }}-volume"
       size: 20
       state: present
-      availability_zone: nova
+      availability_zone: '{{ availability_zone }}'
 
   - name: Create headnode instance
     os_server:
       state: present
       name: "{{ headnode_name }}"
       image: '{{ image_centos7 }}'
-      flavor: '{{ flavor_tiny }}'
+      flavor: '{{ flavor }}'
       security_groups: '{{ security_group_id }}'
       key_name: '{{ key_name }}'
       auto_floating_ip: no
@@ -91,7 +92,7 @@
       state: present
       name: '{{ item }}'
       image: '{{ image_centos7 }}'
-      flavor: '{{ flavor_tiny }}'
+      flavor: '{{ flavor }}'
       security_groups: '{{ security_group_id }}'
       key_name: '{{ key_name }}'
       auto_floating_ip: no

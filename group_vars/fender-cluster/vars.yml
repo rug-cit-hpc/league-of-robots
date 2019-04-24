@@ -1,18 +1,18 @@
 ---
-slurm_cluster_name: 'hyperchicken'
+slurm_cluster_name: 'fender'
 slurm_cluster_domain: 'gcc.rug.nl'
-stack_prefix: 'hc'
+stack_prefix: 'fd'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai.{{ slurm_cluster_domain }}"
 motd: "To solve or not to solve, that's the question."
-vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-02]"
+vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
 vcompute_sockets: 16
 vcompute_cores_per_socket: 1
 vcompute_real_memory: 64264
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 0
-vcompute_features: 'tmp09'
+vcompute_features: 'tmp07'
 vcompute_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
@@ -21,17 +21,17 @@ ui_sockets: 4
 ui_cores_per_socket: 1
 ui_real_memory: 7821
 ui_local_disk: 0
-ui_features: 'prm09,tmp09'
+ui_features: 'prm07,tmp07'
 ui_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
-ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
+ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/ca-key-production-ebi"
 key_name: Gerben
 image_cirros: cirros-0.3.4-x86_64-disk.img
 image_centos7: centos7
 cloud_user: centos
-flavor_nano: s1.nano
-flavor_tiny: s1.tiny
+flavor_nano: s1.large
+flavor_tiny: s1.gargantuan
 public_net_id: ext-net-37
 private_net_id: Solve-RD_private
 private_subnet_id: Solve-RD_subnet
@@ -89,13 +89,13 @@ pfs_mounts: [
 lfs_mounts: [
   { lfs: 'home',
     pfs: 'Solve-RD' },
-  { lfs: 'groups/GROUP/tmp09',
+  { lfs: 'groups/GROUP/tmp07',
     pfs: 'Solve-RD',
     groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'groups/GROUP/prm09',
+  { lfs: 'groups/GROUP/prm07',
     pfs: 'Solve-RD',
     groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'env09',
+  { lfs: 'env07',
     pfs: 'Solve-RD',
     machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
 ]
