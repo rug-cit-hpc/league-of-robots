@@ -27,13 +27,23 @@
     mode: 0644
   become: true
   notify: restart_dnsmasq
-  
+
 - name: Enable dnsmasq service.
   systemd:
     name: 'dnsmasq.service'
     enabled: yes
   become: true
   notify: restart_dnsmasq
+
+- cron:
+    # dnsmasq sometimes stops resolving.
+    # See issue #100
+    name: Restart dnsmasq service.
+    minute: "/10"
+    user: root
+    job: /bin/systemctl restart dnsmasq
+    cron_file: restart_dnsmasq
+  become: true
 
 - meta: flush_handlers
 ...
