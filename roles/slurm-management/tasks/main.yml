@@ -153,9 +153,6 @@
     - 'slurmdbd.service'
   become: true
 
-#
-# ToDo: makebash script idempotent.
-#
 - name: Copy Slurm DB initialization script to host running slurmdbd.
   template:
     src: 'templates/configure_slurm_accounting_db.bash'
@@ -170,16 +167,17 @@
 #
 - meta: flush_handlers
 
-- name: Execute Slurm DB initialization script on SAI.
+- name: Execute Slurm DB initialization script on host running slurmdbd.
   shell: |
          /etc/slurm/configure_slurm_accounting_db.bash
   tags:
     - create_database
   register: command_result
-#  failed_when: >
-#    command_result.rc != 0
-#    and "already exists" not in command_result.stdout
-#    and "slurm.service\" is already in use by container" not in command_result.stderr
+  # NOTE: cannot use command_result.rc to check for the exit value of script in failed_when or changed_when
+  #       as the sacctmgr commands used in the script may return exit code 1 when trying to create/modify
+  #       something that already exists. This results in "Nothing new added." on STDOUT, but no message on STDERR.
+  #       In case something is really wrong there will be messags printed to STDERR.
+  failed_when: "command_result.stderr != ''"
 
 - name: Make sure slurmctld service is enabled and started now that the cluster DB is present.
   systemd:
