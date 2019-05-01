@@ -1,0 +1,22 @@
+[Unit]
+Description=Openldap container
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker kill %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=/usr/bin/docker pull osixia/openldap:1.2.4
+ExecStart=/usr/bin/docker run --rm -i --name %n --network host  \
+       -v /srv/openldap/slapd.d:/etc/ldap/slapd.d  \
+       -v /srv/openldap/ldap:/var/lib/ldap \
+       --env LDAP_DOMAIN=hpc.rug.nl \
+       --env LDAP_ADMIN_PASSWORD={{ bindpw }}  \
+       --env LDAP_BASE_DN=dc=hpc,dc=rug,dc=nl \
+       --hostname hc-dai osixia/openldap:1.2.4  \
+       --loglevel debug
+
+[Install]
+WantedBy=multi-user.target

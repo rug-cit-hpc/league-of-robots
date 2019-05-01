@@ -1,0 +1,17 @@
+[Unit]
+Description=openldap web interface
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker kill %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=/usr/bin/docker pull osixia/phpldapadmin:0.7.2
+ExecStart=/usr/bin/docker run -i --name %n --network host \
+    --env PHPLDAPADMIN_LDAP_HOSTS=hc-dai \
+    osixia/phpldapadmin:0.7.2
+
+[Install]
+WantedBy=multi-user.target
