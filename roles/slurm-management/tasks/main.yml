@@ -156,7 +156,7 @@
 #
 # ToDo: makebash script idempotent.
 #
-- name: Copy Slurm DB initialization script to SAI.
+- name: Copy Slurm DB initialization script to host running slurmdbd.
   template:
     src: 'templates/configure_slurm_accounting_db.bash'
     dest: '/etc/slurm/configure_slurm_accounting_db.bash'
