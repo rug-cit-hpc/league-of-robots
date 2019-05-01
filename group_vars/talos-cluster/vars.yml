@@ -22,7 +22,7 @@ motd: |
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
 vcompute_sockets: 4
 vcompute_cores_per_socket: 1
-vcompute_real_memory: 7822
+vcompute_real_memory: 7821
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 0
@@ -33,7 +33,7 @@ vcompute_ethernet_interfaces:
 ui_hostnames: "{{ slurm_cluster_name }}"
 ui_sockets: 4
 ui_cores_per_socket: 1
-ui_real_memory: 7822
+ui_real_memory: 7821
 ui_local_disk: 0
 ui_features: 'prm08,tmp08'
 ui_ethernet_interfaces:
