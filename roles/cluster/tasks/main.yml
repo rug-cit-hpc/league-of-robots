@@ -10,27 +10,55 @@
   become: true
   tags: ['etc_hosts']
 
-- name: Set /etc/skel/.bashrc .screenrc
-  template:
-    src: templates/{{ item }}
-    dest: /etc/skel/
-    mode: 0644
-    owner: root
-    group: root
-    backup: yes
-  become: true
+- name: Add custom config files to /etc/skel/.
+  synchronize:
+    src: "{{ playbook_dir }}/roles/cluster/files/skel/./{{ item.src }}"
+    dest: '/etc/skel/'
+    owner: 'no'
+    group: 'no'
+    use_ssh_args: 'yes'
+    rsync_opts:
+      # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
+      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
+      # --omit-link-times Is required to prevent "sync error: some files/attrs were not transferred"
+      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
+      #                   Requires rsync >= 3.1.2 (default on Enterprise Linux >= 7.x).
+      # --chmod           Is required to prevent errors when the perms on the source are not what is required/expected on the destination.
+      #                   Fixing perms on the source would be good, but that may be out of our control.
+      #                   In that case --chmod ensures we get what we want on the destination.
+      #                   Works only when combined with --perms.
+      # --force           Is required when symlinks have changed into dirs/files or vice versa.
+      #                   In that case the wrong outdated stuff has to be deleted on the destination first before the new stuff can be created.
+      #                   Deleting the outdated stuff may fail without --force.
+      # --relative        In combination with a "source_server:some/path/not/created/on/destination/./path/created/on/destination/some_file" (dot dir)
+      #                   recreates a partial dir structure on the destination relative to the /./ dir, when it does not already exist.
+      #                   Without this combination of --relative and dot dir rsync will error when the path does not exist on the destination.
+      #                   IMPORTANT: src and dest paths must be absolute paths. Otherwise Ansible will expand the path itself which will remove the /./ dir.
+      - '--relative'
+      - '--omit-dir-times'
+      - '--omit-link-times'
+      - "--chmod={{ item.mode }}"
+      - '--perms'
+      - '--force'
   with_items:
-    - '.bashrc'
-    - '.screenrc'
+    - src: '.bashrc'
+      mode: 'Du=rwx,Dgo=rx,Fu=rw,Fgo=r'
+    - src: '.screenrc'
+      mode: 'Du=rwx,Dgo=rx,Fu=rw,Fgo=r'
+    - src: '.ssh'
+      mode: 'Du=rwx,Dgo-rwx,Fu=rw,Fgo-rwx'
+  become: true
 
 - name: Set hostname to inventory_hostname
   hostname:
     name: "{{ inventory_hostname | regex_replace('^' + groups['jumphost'] | first + '\\+','') }}"
+  become: true
 
 - name: Set selinux in permissive mode
   selinux:
     policy: targeted
     state: permissive
+  become: true
 
 - name: Install some standard software
   yum:
@@ -56,6 +84,7 @@
       - wget
   tags:
     - software
+  become: true
 
 - name: Deploy sshd config.
   template:
@@ -63,5 +92,19 @@
     dest: /etc/ssh/sshd_config
     validate: '/usr/sbin/sshd -T -f %s'
   notify: restart_sshd
+  become: true
+
+- name: Check if /etc/ssh/moduli contains weak (small) values.
+  shell: awk '$5 < {{ sshd_moduli_minimum }}' /etc/ssh/moduli
+  register: sshd_register_moduli
+  changed_when: false
+  check_mode: no
+
+- name: Remove weak (small) values from /etc/ssh/moduli.
+  shell: awk '$5 >= {{ sshd_moduli_minimum }}' /etc/ssh/moduli > /etc/ssh/moduli.new ;
+         [ -r /etc/ssh/moduli.new -a -s /etc/ssh/moduli.new ] && mv /etc/ssh/moduli.new /etc/ssh/moduli || true
+  when: sshd_register_moduli.stdout
+  notify: restart_sshd
+  become: true
 
 ...

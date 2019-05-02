@@ -4,7 +4,7 @@
   pre_tasks:
     - name: Verify Ansible version meets requirements.
       assert:
-        that: "ansible_version.full | version_compare('2.4', '>=')"
+        that: "ansible_version.full is version_compare('2.4', '>=')"
         msg: 'You must update Ansible to at least 2.4.x to use this playbook.'
 
 - import_playbook: local_admin_users.yml
@@ -77,10 +77,10 @@
           job: /bin/needs-restarting -r >/dev/null 2>&1 || /sbin/shutdown -r +60 "restarting to apply updates"
           cron_file: reboot
 
-- hosts: slurm
+- hosts: slurm-management
   become: true
   roles:
-     - slurm
+     - slurm-management
      - prom_server
      - cadvisor
   vars:
