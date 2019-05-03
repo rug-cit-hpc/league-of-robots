@@ -2,36 +2,125 @@
 # Install webserver and deploy cluster specific documentation on that web server.
 #
 ---
-- name: Install webserver.
-  yum:
-    state: latest
-    update_cache: yes
-    name:
-      - httpd
-  notify:
-    - restart_httpd
-  become: true
+- name: Check if rsync >= 3.1.2 is installed on the control host.
+  shell: |
+         rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+  args:
+    warn: no
+  changed_when: false
+  failed_when: false
+  check_mode: no
+  register: rsync_version
+  delegate_to: localhost
+- name: Abort when modern rsync >= 3.1.2 is missing on control host.
+  debug:
+    msg: 'Will install Lua from source as it is either missing or present in a different version. (Detected {{ lua_installed_version.stdout }} and need {{ easybuild_lua_version }}.)'
+  when:         'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
+  failed_when: 'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
+  delegate_to: localhost
 
-- name: Enable webserver.
-  systemd:
-    name: "{{ item }}"
-    enabled: yes
-    state: started
+#- name: 'Gather facts from all hosts, so we can use them in the generated docs.'
+#  setup:
+#  delegate_to: "{{ item }}"
+#  delegate_facts: true
+#  with_items:
+#    - "{{ groups['jumphost'] }}"
+#    - "{{ groups['cluster'] }}"
+
+#- name: Install webserver.
+#  yum:
+#    state: latest
+#    update_cache: yes
+#    name:
+#      - httpd
+#  notify:
+#    - restart_httpd
+#  become: true
+#
+#- name: Enable webserver.
+#  systemd:
+#    name: "{{ item }}"
+#    enabled: yes
+#    state: started
+#  with_items:
+#    - httpd.service
+#  become: true
+#
+#- name: Install MkDocs and deps.
+#  yum:
+#    state: latest
+#    update_cache: yes
+#    name:
+#      - mkdocs
+#  become: true
+
+#
+# For debugging only:
+#
+- name: Create directory structure for MarkDown files on webserver.
+  file:
+    path: "{{ ansible_env.HOME }}/mkdocs/{{ item.path }}"
+    state: directory
+    #owner: "{{ ansible_user }}"
+    #group: "{{ ansible_user }}"
+    mode: '0700'
+  with_filetree: 'templates/mkdocs'
+  when: item.state == 'directory'
+
+#
+# For debugging only:
+#
+- name: Create static files for MarkDown on webserver.
+  synchronize:
+    src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/docs/./{{ item.src }}"
+    dest: "{{ ansible_env.HOME }}/mkdocs/docs/"
+    owner: 'no'
+    group: 'no'
+    use_ssh_args: 'yes'
+    rsync_opts:
+      # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
+      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
+      # --omit-link-times Is required to prevent "sync error: some files/attrs were not transferred"
+      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
+      #                   Requires rsync >= 3.1.2 (default on Enterprise Linux >= 7.x).
+      # --chmod           Is required to prevent errors when the perms on the source are not what is required/expected on the destination.
+      #                   Fixing perms on the source would be good, but that may be out of our control.
+      #                   In that case --chmod ensures we get what we want on the destination.
+      #                   Works only when combined with --perms.
+      # --force           Is required when symlinks have changed into dirs/files or vice versa.
+      #                   In that case the wrong outdated stuff has to be deleted on the destination first before the new stuff can be created.
+      #                   Deleting the outdated stuff may fail without --force.
+      # --relative        In combination with a "source_server:some/path/not/created/on/destination/./path/created/on/destination/some_file" (dot dir)
+      #                   recreates a partial dir structure on the destination relative to the /./ dir, when it does not already exist.
+      #                   Without this combination of --relative and dot dir rsync will error when the path does not exist on the destination.
+      #                   IMPORTANT: src and dest paths must be absolute paths. Otherwise Ansible will expand the path itself which will remove the /./ dir.
+      - '--relative'
+      - '--omit-dir-times'
+      - '--omit-link-times'
+      - '--chmod=Du=rwx,Dgo-rwx,Fu=rw,Fgo-rwx'
+      - '--perms'
+      - '--force'
   with_items:
-    - httpd.service
-  become: true
+    - src: 'img'
 
-- name: Install MkDocs and deps.
-  yum:
-    state: latest
-    update_cache: yes
-    name:
-      - mkdocs
-  become: true
+#
+# For debugging only:
+#
+- name: Create MarkDown files based on templates on webserver.
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ ansible_env.HOME }}/mkdocs/{{ item.path }}"
+    #owner: "{{ ansible_user }}"
+    #group: "{{ ansible_user }}"
+    mode: '0600'
+  with_filetree: 'templates/mkdocs'
+  when: item.state == 'file'
+
+- meta: end_play
 
 - name: Create directory structure for MarkDown files on webserver.
   file:
-    path: '/root/mkdocs/{{ item.path }}'
+    path: "/root/mkdocs/{{ item.path }}"
     state: directory
     owner: root
     group: root
@@ -42,10 +131,44 @@
     - build_mkdocs
   become: true
 
-- name: Create MarkDown files on webserver.
+- name: Create static files for MarkDown on webserver.
+  synchronize:
+    src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/./{{ item.src }}"
+    dest: '/root/mkdocs/'
+    owner: 'no'
+    group: 'no'
+    use_ssh_args: 'yes'
+    rsync_opts:
+      # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
+      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
+      # --omit-link-times Is required to prevent "sync error: some files/attrs were not transferred"
+      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
+      #                   Requires rsync >= 3.1.2 (default on Enterprise Linux >= 7.x).
+      # --chmod           Is required to prevent errors when the perms on the source are not what is required/expected on the destination.
+      #                   Fixing perms on the source would be good, but that may be out of our control.
+      #                   In that case --chmod ensures we get what we want on the destination.
+      #                   Works only when combined with --perms.
+      # --force           Is required when symlinks have changed into dirs/files or vice versa.
+      #                   In that case the wrong outdated stuff has to be deleted on the destination first before the new stuff can be created.
+      #                   Deleting the outdated stuff may fail without --force.
+      # --relative        In combination with a "source_server:some/path/not/created/on/destination/./path/created/on/destination/some_file" (dot dir)
+      #                   recreates a partial dir structure on the destination relative to the /./ dir, when it does not already exist.
+      #                   Without this combination of --relative and dot dir rsync will error when the path does not exist on the destination.
+      #                   IMPORTANT: src and dest paths must be absolute paths. Otherwise Ansible will expand the path itself which will remove the /./ dir.
+      - '--relative'
+      - '--omit-dir-times'
+      - '--omit-link-times'
+      - '--chmod=Du=rwx,Dgo-rwx,Fu=rw,Fgo-rwx'
+      - '--perms'
+      - '--force'
+  with_items:
+    - src: 'img'
+  become: true
+
+- name: Create MarkDown files based on templates on webserver.
   template:
-    src: '{{ item.src }}'
-    dest: '/root/mkdocs/{{ item.path }}'
+    src: "{{ item.src }}"
+    dest: "/root/mkdocs/{{ item.path }}"
     owner: root
     group: root
     mode: '0600'
