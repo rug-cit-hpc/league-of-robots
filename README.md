@@ -175,9 +175,9 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      ```bash
      ansible-playbook site.yml
      ```
-   * Deploying only the SLURM part on test cluster *Talos*
+   * Deploying only a specific role - *slurm-management* on test cluster *Talos*
      ```bash
-     ansible-playbook site.yml -i talos_hosts slurm.yml
+     ansible-playbook site.yml -i talos_hosts single_role_playbooks/slurm-management.yml
      ```
 
 7. verify operation.
