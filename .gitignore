@@ -14,3 +14,4 @@ roles/hpc-cloud
 roles/HPCplaybooks
 roles/HPCplaybooks/*
 ssh-host-ca/umcg-hpc-ca
+ssh-host-ca/*production*
