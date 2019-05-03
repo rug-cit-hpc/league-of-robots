@@ -169,8 +169,17 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      cd promtools
      ./build.sh
      ```
+     
+6. Generate munge key and encrypt using the ansible-vault.
+   * Execute:
+   ```
+   dd if=/dev/urandom bs=1 count=1024 > roles/slurm-management/files/{clustername}_munge.key
+   ansible-vault --vault-password-file=.vault_pass.txt encrypt roles/slurm-management/files/{clustername}_munge.key
+   ```   
+   The encrypted {clustername}_munge.key can now safely be committed.
+   
 
-6. Running playbooks. Some examples:
+7. Running playbooks. Some examples:
    * Install the OpenStack cluster.
      ```bash
      ansible-playbook site.yml
@@ -180,4 +189,4 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      ansible-playbook site.yml -i talos_hosts slurm.yml
      ```
 
-7. verify operation.
+8. verify operation.
