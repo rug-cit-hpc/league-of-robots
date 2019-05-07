@@ -10,7 +10,7 @@ ExecStartPre=-/usr/bin/docker kill %n
 ExecStartPre=-/usr/bin/docker rm %n
 ExecStartPre=/usr/bin/docker pull osixia/phpldapadmin:0.7.2
 ExecStart=/usr/bin/docker run -i --name %n --network host \
-    --env PHPLDAPADMIN_LDAP_HOSTS=hc-dai \
+    --env PHPLDAPADMIN_LDAP_HOSTS={{ inventory_hostname }} \
     osixia/phpldapadmin:0.7.2
 
 [Install]
