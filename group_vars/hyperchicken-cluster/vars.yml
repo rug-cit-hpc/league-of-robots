@@ -26,6 +26,14 @@ ui_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
+use_ldap: yes
+uri_ldap: hc-dai
+uri_ldaps: hc-dai
+ldap_port: 389
+ldaps_port: 636
+ldap_base: ou=hpc,dc=rug,dc=nl
+ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
+ldap_domain: hpc.rug.nl
 key_name: Gerben
 image_cirros: cirros-0.3.4-x86_64-disk.img
 image_centos7: centos7
@@ -38,7 +46,7 @@ private_subnet_id: Solve-RD_subnet
 private_storage_net_id: net_provider_vlan3126
 private_storage_subnet_id: subnet3126
 security_group_id: SSH-and-ping-2
-slurm_ldap: false
+slurm_ldap: true
 availability_zone: AZ_1
 local_volume_size: 1
 nameservers: [
