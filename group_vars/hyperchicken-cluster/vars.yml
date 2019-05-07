@@ -32,7 +32,7 @@ uri_ldaps: hc-dai
 ldap_port: 389
 ldaps_port: 636
 ldap_base: ou=hpc,dc=rug,dc=nl
-ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
+ldap_binddn: cn=admin,ou=hpc,dc=rug,dc=nl
 ldap_domain: hpc.rug.nl
 key_name: Gerben
 image_cirros: cirros-0.3.4-x86_64-disk.img
