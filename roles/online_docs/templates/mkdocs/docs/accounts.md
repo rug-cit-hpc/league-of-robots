@@ -37,11 +37,13 @@ Hence we do not have a copy/record/backup of your private key on the server side
 
 ## 2. Generate a public/private key pair
 
-#### 2.A On Linux / Unix / Mac OS X
+#### 2.A On Linux / Unix / macOS
 
 ###### Open a terminal/shell
 
-On Mac OS X you can find the Terminal in *Applications* -> *Utilities* -> *Terminal.app*
+ * On **macOS**: A terminal app is already part of the OS by default. Optionally you may want to install the [XQuartz X server](http://xquartz.macosforge.org/) for graphical apps.  
+   Open the Terminal application, which is located in _**Applications**_ -> _**Utilities**_ -> _**Terminal.app**_.
+ * On **Linux / Unix**: A terminal app is already part of the OS by default and usually you also already have an X window server installed for graphical apps. Consult your distro documentation for details.
 
 ###### Generate key pair
 
@@ -89,26 +91,26 @@ ssh-keygen -p -f ~/.ssh/id_ed25519
 
 ###### Get PuTTYgen
 
-You can use the ```PuTTYgen``` application, which is distributed as part of the *PuTTY* suite and also bundled with *WinSCP*, to generate a key pair.
+You can use the ```PuTTYgen``` application, which is distributed as part of the **PuTTY** suite and also bundled with **WinSCP**, to generate a key pair.
 
  * Install [WinSCP](http://winscp.net/eng/download.php) if you only want to transfer data to/from the cluster via a graphical user interface.
  * Install [PuTTY](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) if you want to login via SSH to process data or if you want to transfer data via the commandline.
 
-Launch PuTTYgen as shown in the screenshot below.
+1. Launch PuTTYgen as shown in the screenshot below.
 ![launch PuTTYgen](img/puttygen1.png)
 
 ###### Configure
 
 ![Select key type](img/puttygen2.png)
 
-From the *parameters* section at the bottom of the window choose: ```Type of key to generate:``` **ED25519**
+ * 2: From the **parameters** section at the bottom of the window choose: ```Type of key to generate:``` **ED25519**
+ * 3: Click the **Generate** button...
 
 ###### Generate key pair
 
 ![Generate randomness and subsequently key pair](img/puttygen3.png)
 
-Click the **Generate** button...  
-Yes you really have to move the mouse now: computers are pretty bad at generating random numbers and PuTTYgen uses the coordinates of your mouse movement as a seed to generate a random number.
+ * 4: Yes you really have to move the mouse now: computers are pretty bad at generating random numbers and PuTTYgen uses the coordinates of your mouse movement as a seed to generate a random number.
 
 ###### Secure private key and save pair to disk
 
@@ -118,14 +120,15 @@ Your key pair was generated.
 
 Now make sure you:
 
- * Replace the comment in *Key comment* with  
-   **your first initial followed by (optionally your middle name followed by) your family name** all in lowercase and without any separators like spaces, dots or underscores.  
-   So if your name is _**Jack the Hippo**_, please use _**jthehippo**_ as comment, so we can easily identify the key as yours.
- * Secure your private key with a good password **before** saving the private key. DO NOT choose a simple password or even worse an empty one!
- * Click the **Save public key** button.
- * Click the **Save private key** button.
- * Select and copy all the text in the text box at the top of the window underneath *Public key for pasting into OpenSSH authorized_keys file*.
-   You can paste it in the email you'll send in the next step.
+ * 5:  Replace the comment in **Key comment** with  
+       **your first initial followed by (optionally your middle name followed by) your family name** all in lowercase and without any separators like spaces, dots or underscores.  
+       So if your name is _**Jack the Hippo**_, please use _**jthehippo**_ as comment, so we can easily identify the key as yours.
+ * 6:  Secure your private key with a good password **before** saving the private key. DO NOT choose a simple password or even worse an empty one!
+ * 7:  Confirm the password
+ * 8:  Click the **Save public key** button.
+ * 9:  Click the **Save private key** button.
+ * 10: Select and copy all the text in the text box at the top of the window underneath **Public key for pasting into OpenSSH authorized_keys file**.
+       You can paste it in the email you'll send in the next step.
 
 <a name="request-account"></a>
 
@@ -133,11 +136,11 @@ Now make sure you:
 
 To request an account, [contact the helpdesk via email](../contact/) and
 
- * 3.A If on Linux / Unix / MacOS:  
+ * 3.A If on Linux / Unix / macOS:  
    Attach the id_rsa.pub public key file generated with ssh-keygen.  
    If you cannot see / find the key file, you most likely stored the file in a folder starting with a ```.```; e.g. in your ```~/.ssh``` folder which is the default.
    Folders and files that start with a ```.``` are *hidden* files and not displayed by default.
-   On Mac OS X you can press ```<Shift>+<Cmd>+<.>``` to toggle the visibility of hidden files in *Open...* and *Save...* dialog windows.
+   On macOS you can press ```<Shift>+<Cmd>+<.>``` to toggle the visibility of hidden files in *Open...* and *Save...* dialog windows.
    Please use a search engine for a solution to display hidden files in other situations like Finder windows or on other platforms.
  * 3.B If on Windows:  
    Paste the contents of the public key as displayed in PuTTYgen's *Public key for pasting into OpenSSH authorized_keys file* field in the email.

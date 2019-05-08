@@ -19,8 +19,7 @@ The _**jumphost**_ for the {{ slurm_cluster_name | capitalize }} HPC cluster is 
 
 First make sure you have an account. If you are new, please [follow these instructions to request an account](../accounts/).
 
-## SSH config and login to UI via jumphost
-## For users on Mac OS X, Linux or Unix
+## SSH config and login to UI via jumphost for users on macOS, Linux or Unix
 
 The following assumes
 * you have a ```${HOME}/.ssh``` folder with SSH keys (as generated using the instructions for requesting accounts) 
@@ -66,7 +65,7 @@ The following assumes
  * Add to your ```${HOME}/.ssh/config``` something like the following:
 
         #
-        # Generic stuff: only for MacOS clients.
+        # Generic stuff: only for macOS clients.
         #
         IgnoreUnknown UseKeychain
             UseKeychain yes
@@ -155,7 +154,7 @@ The following assumes
             ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//').hpc.rug.nl -W $(echo %h | sed 's/^[^+]*+//'):%p -p 80
     Replace all occurences of _**youraccount**_ with the account name you received from the helpdesk.  
     If you are **not on a Mac or on a very old Mac** your OpenSSH client may not understand the ```IgnoreUnknown``` configuration option and you may have to comment/disable the  
-    ```# Generic stuff: only for MacOS clients``` section listed at the top of the example ```${HOME}/.ssh```.
+    ```# Generic stuff: only for macOS clients``` section listed at the top of the example ```${HOME}/.ssh/config```.
 
  * Make sure you are the only one who can access your ```${HOME}/.ssh``` folder. Type the following command in a terminal:
 
@@ -163,18 +162,28 @@ The following assumes
 
 ##### 3. Login via jumphost
 
- * You can now login to the _UI_ named ```{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` with the account as specified in your ```~/.ssh/config```. 
+ * You can now login to the _UI_ named ```{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` with the account as specified in your ```${HOME}/.ssh/config```. 
    via the _jumphost_ named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}.{{ slurm_cluster_domain }}``` 
    using the alias ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```. 
    Type the following command in a terminal:
 
         ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
- * In order to override the account name specified in your ```~/.ssh/config``` you can use:
+ * In order to override the account name specified in your ```${HOME}/.ssh/config``` you can use:
 
         ssh some_other_account@{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
- * You can also transfer data with ```rsync``` over _SSH_ to copy files to for example your home dir on the cluster with something like the command below.  
+ * If you also added the ```Host *+*+*``` code block from the example ```${HOME}/.ssh/config``` you can do tripple hops starting with a jumphost like this:
+
+        ssh jumphost+intermediate_server+destination_server
+
+ * In case you are on a network where the default port for _SSH_ (22) is blocked by a firewall you can try to setup _SSH_ over port 80, which is the default for HTTP and almost always allowed, using an alias like this:
+
+        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}80+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+
+##### 4. Transfer data to/from cluster via jumphost
+
+ * You can transfer data with ```rsync``` over _SSH_ to copy files to for example your home dir on the cluster with something like the command below.  
    _**Note the colon**_ at the end of the ```rsync``` command:
     1. Without the colon you would copy to a local file named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` instead.
     1. If you do not specify a path after the colon you'll transfer data to the default location, which is your home dir.
@@ -185,24 +194,39 @@ The following assumes
 
         rsync -av some_directory {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}:/path/to/somewhere/else/
 
- * If you also added the ```Host *+*+*``` code block from the example ```~/.ssh/config``` you can do tripple hops starting with a jumphost like this:
+##### 5. Transfer data from one server to another server
 
-        ssh jumphost+intermediate_server+destination_server
+When you login from your local computer (optionally via a jumphost) to a server of the {{ slurm_cluster_name | capitalize }} HPC cluster 
+and next need to transfer data from {{ slurm_cluster_name | capitalize }} to another server or vice versa, 
+you will need to temporarily forward your private key to the server from the {{ slurm_cluster_name | capitalize }} HPC cluster.
+This is known as _SSH agent forwarding_ and can be accomplished with the ```-A``` argument on the commandline.
 
- * In case you are on a network where the default port for _SSH_ (22) is blocked by a firewall you can try to setup _SSH_ over port 80, which is the default for HTTP and almost always allowed, using an alias like this:
+ * _**Note**_: You **cannot** accomplish this by configuring a ```ProxyCommand``` directive in the ```${HOME}/.ssh/config``` file on your local computer.
+ * _**Note**_: Do **not** use SSH with _agent forwarding_ by default for all your sessions as it is less secure.
+ * If you do need _agent forwarding_, then login with ```-A``` like this:
 
-        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}80+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+        ssh -A {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
-#### Frequent Asked Questions
+ * Execute the following command to verify that _agent forwarding_ worked and to list the identities (private keys) available to the SSH agent:
+
+        ssh-add -l
+
+    * You should get a response with at least one key fingerprint, which means you can now transfer data with ```rsync``` to/from the other server 
+      assuming you are allowed to access the other server, are allowed to transfer the data and that no firewalls are blocking the connection.
+    * If you get ```The agent has no identities.``` instead then the key forwarding failed.  
+      This may happen when you were already logged in to the same server without the ```-A``` option in another active SSH session;
+      make sure you logout from the server of the {{ slurm_cluster_name | capitalize }} HPC cluster in all terminals and try login with ```-A``` again.
+
+#### Frequent Asked Questions (FAQs) and trouble shooting
 
 * Q: Why do I get the error ```muxserver_listen bind(): No such file or directory.```?  
   A: You may have failed to create the ```${HOME}/.ssh/tmp``` folder or the permissions on this folder are wrong.
 * Q: Why do I get the error ```ControlPath too long```?  
-  A: The ```ControlPath ~/.ssh/tmp/%C``` line in your ```${HOME}/.ssh``` file expands to a path that is too long.
+  A: The ```ControlPath ~/.ssh/tmp/%C``` line in your ```${HOME}/.ssh/config``` file expands to a path that is too long.
      Change the ```ControlPath``` line in your ```${HOME}/.ssh/config``` file to create a shorter path for the automagically created sockets.
 * Q: Why do I get the error ```nc: getaddrinfo: Name or service not known. ssh_exchange_identification: Connection closed by remote host```?  
   A: Either this server does not exist (anymore) or you have a typo in the name of the server you are trying to connect to.
-     Check both the command you typed as well as your ```${HOME}/.ssh``` for typos in server names.
+     Check both the command you typed as well as your ```${HOME}/.ssh/config``` for typos in server names.
 * Q: Why do I get the error ```Permission denied (publickey).```?  
   A: This error can be caused by various configuration issues:  
       * Either you are using the wrong account name  
@@ -216,8 +240,37 @@ The following assumes
      If that does not help to figure out what is wrong please [contact the helpdesk](../contact/) and include:  
       1. The command you used for your failed login attempt  
       2. The output of that failed login attempt with ```-vvv``` debugging enabled  
-      3. A copy of your ```${HOME}/.ssh``` file.  
+      3. A copy of your ```${HOME}/.ssh/config``` file.  
      **Never ever send us your private key**; It does not help to debug your connection problems, but will render the key useless as it is no longer private.
 
-## SSH config and login to UI via jumphost
-## For users on Windows
+## SSH config and login to UI via jumphost for users on Windows
+
+##### 1. Install PuTTY and Pageant
+
+ * Download and install _**[PuTTY](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html)**_  
+   If you downloaded the standalone _PuTTY_ app as opposed to the whole _PuTTY_ suite, then make sure to also download the key manager _Pageant_.
+
+##### 2. Load your private key in Pageant
+
+ * Start _**Pageant**_
+ * Load your private key into _**Pageant**_
+
+##### 3. Configure PuTTY for transparent multi-hop SSH for logins via the jumphost
+
+ * Start _**Putty**_
+ * Go to _**Connection**_ -> _**SSH**_ -> _**Auth**_ and select _**Allow agent forwarding**_
+ * Go to _**Connection**_ -> _**SSH**_ -> _**Auth**_ -> _**Private key file for authentication**_ and add your private key.
+ * Go to _**Connection**_ -> _**Data**_ and fill in your accountname in the _**auto-login username**_ option
+
+##### 4. Login via jumphost
+
+You can now connect to for example UI {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} 
+via jumphost {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} using a double hop like this:
+
+ * In a _**Putty**_ configuration window supply the _hostname_ _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_, your **accountname** and
+ * Click the _**Connect**_ button...
+ * Once the connection is established type the following command in a terminal:
+
+        ssh youraccount@{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+
+Please have a look at [these instructions to automate such a double hop on Windows](http://mikelococo.com/2008/01/multihop-ssh/)
