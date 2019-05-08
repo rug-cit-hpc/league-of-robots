@@ -47,9 +47,9 @@
       - slurm-slurmdbd
       - slurm-perlapi
   notify:
-    - reload_munge
-    - reload_slurmdbd
-    - reload_slurmctld
+    - restart_munge
+    - restart_slurmdbd
+    - restart_slurmctld
   become: true
 
 - name: Make sure the database root user is present and grant privileges.
@@ -62,6 +62,13 @@
     host: '%'
     priv: '*.*:ALL'
   no_log: True
+  register: result
+  until: result is succeeded
+  # sometimes the initial connect fails.
+  # Retry until it succeeds.
+  retries: 7
+  delay: 3
+  ignore_errors: yes
 
 - name: Create a database for Slurm accounting.
   mysql_db:
@@ -149,12 +156,23 @@
 #
 - meta: flush_handlers
 
+- name: Restart without handlers for fixed order of execution
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - slurmdbd
+    - slurmctld
+
 - name: Execute Slurm DB initialization script on host running slurmdbd.
   shell: |
          /etc/slurm/configure_slurm_accounting_db.bash
   tags:
     - create_database
   register: command_result
+  retries: 2
+  delay: 1
+  until: command_result == ''
   # NOTE: cannot use command_result.rc to check for the exit value of script in failed_when or changed_when
   #       as the sacctmgr commands used in the script may return exit code 1 when trying to create/modify
   #       something that already exists. This results in "Nothing new added." on STDOUT, but no message on STDERR.
