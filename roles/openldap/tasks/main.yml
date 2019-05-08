@@ -1,0 +1,31 @@
+---
+- name: install service file.
+  template:
+    src: templates/{{ item }}
+    dest: /etc/systemd/system/{{ item }}
+    mode: 644
+    owner: root
+    group: root
+  with_items:
+      - openldap.service
+      - phpldapadmin.service
+
+- name: Daemon reload (the inplicit doesn't work)
+  command: bash -c "systemctl daemon-reload"
+
+- name: make sure service is started
+  systemd:
+    name: "{{ item }}"
+    state: started
+    daemon_reload: yes
+  with_items:
+      - openldap.service
+      - phpldapadmin.service
+
+- name: start service at boot.
+  command: systemctl reenable "{{ item }}"
+  with_items:
+      - openldap.service
+      - phpldapadmin.service
+
+
