@@ -10,19 +10,6 @@
     file: ../../slurm-management/defaults/main.yml
     name: slurm
 
-- name: Install the Slurm client and NHC with yum.
-  yum:
-    state: latest
-    update_cache: yes
-    name:
-      - slurm
-      - slurm-slurmd
-      - warewulf-nhc
-  notify:
-    - restart_munge
-    - restart_slurmd
-  become: true
-
 - name: Add Slurm group
   group:
     name: slurm
@@ -54,6 +41,19 @@
     name: munge
     uid: "{{ slurm['munge_uid'] }}"
     group: munge
+  notify:
+    - restart_munge
+    - restart_slurmd
+  become: true
+
+- name: Install the Slurm client and NHC with yum.
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - slurm
+      - slurm-slurmd
+      - warewulf-nhc
   notify:
     - restart_munge
     - restart_slurmd
