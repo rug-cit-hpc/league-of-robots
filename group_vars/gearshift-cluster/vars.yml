@@ -94,7 +94,7 @@ lfs_mounts: [
     pfs: 'umcgst10' },
   { lfs: 'groups/GROUP/tmp01',
     pfs: 'umcgst10',
-    groups: ['umcg-atd', 'umcg-bios', 'umcg-gcc', 'umcg-lld', 'umcg-wijmenga' ] },
+    groups: ['umcg-atd', 'umcg-biogen', 'umcg-bios', 'umcg-gcc', 'umcg-lld', 'umcg-wijmenga' ] },
   { lfs: 'groups/GROUP/prm01',
     pfs: 'umcgst10',
     groups: ['umcg-atd'] },
