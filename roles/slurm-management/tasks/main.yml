@@ -1,5 +1,40 @@
 # Deploy Slurm control host.
 ---
+- name: Add Slurm group.
+  group:
+    name: slurm
+    gid: "{{ slurm_gid }}"
+  become: true
+
+- name: Add Munge group.
+  group:
+    name: munge
+    gid: "{{ munge_gid }}"
+  become: true
+
+- name: Add Slurm user.
+  user:
+    name: slurm
+    uid: "{{ slurm_uid }}"
+    group: slurm
+  become: true
+
+- name: Add Munge user.
+  user:
+    name: munge
+    uid: "{{ munge_uid }}"
+    group: munge
+  become: true
+
+- name: Install munge.key file.
+  copy:
+    src: "files/{{ slurm_cluster_name }}_munge.key"
+    owner: 'munge'
+    group: 'munge'
+    mode: '0600'
+    dest: '/etc/munge/munge.key'
+  become: true
+
 - name: Install Slurm management deamons and their dependencies with yum.
   yum:
     state: latest
@@ -12,62 +47,9 @@
       - slurm-slurmdbd
       - slurm-perlapi
   notify:
-   - reload_munge
-   - reload_slurmdbd
-   - reload_slurmctld
-  become: true
-
-- name: Add Slurm group.
-  group:
-    name: slurm
-    gid: "{{ slurm_gid }}"
-  notify:
-    - restart_slurmdbd
-    - restart_slurmctld
-  become: true
-
-- name: Add Munge group.
-  group:
-    name: munge
-    gid: "{{ munge_gid }}"
-  notify:
-    - restart_munge
-    - restart_slurmdbd
-    - restart_slurmctld
-  become: true
-
-- name: Add Slurm user.
-  user:
-    name: slurm
-    uid: "{{ slurm_uid }}"
-    group: slurm
-  notify:
-    - restart_slurmdbd
-    - restart_slurmctld
-  become: true
-
-- name: Add Munge user.
-  user:
-    name: munge
-    uid: "{{ munge_uid }}"
-    group: munge
-  notify:
-    - restart_munge
-    - restart_slurmdbd
-    - restart_slurmctld
-  become: true
-
-- name: Install munge.key file.
-  copy:
-    src: "files/{{ slurm_cluster_name }}_munge.key"
-    owner: 'munge'
-    group: 'munge'
-    mode: '0600'
-    dest: '/etc/munge/munge.key'
-  notify:
-    - restart_munge
-    - restart_slurmdbd
-    - restart_slurmctld
+    - reload_munge
+    - reload_slurmdbd
+    - reload_slurmctld
   become: true
 
 - name: Make sure the database root user is present and grant privileges.
