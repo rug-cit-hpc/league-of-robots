@@ -12,7 +12,7 @@ vcompute_real_memory: 64264
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 0
-vcompute_features: 'tmp07'
+vcompute_features: 'tmp09'
 vcompute_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
@@ -21,11 +21,19 @@ ui_sockets: 4
 ui_cores_per_socket: 1
 ui_real_memory: 7821
 ui_local_disk: 0
-ui_features: 'prm07,tmp07'
+ui_features: 'prm09,tmp09'
 ui_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/ca-key-production-ebi"
+use_ldap: yes
+uri_ldap: fd-dai
+uri_ldaps: fd-dai
+ldap_port: 389
+ldaps_port: 636
+ldap_base: ou=hpc,dc=rug,dc=nl
+ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
+ldap_domain: hpc.rug.nl
 key_name: Gerben
 image_cirros: cirros-0.3.4-x86_64-disk.img
 image_centos7: centos7
@@ -90,13 +98,13 @@ pfs_mounts: [
 lfs_mounts: [
   { lfs: 'home',
     pfs: 'Solve-RD' },
-  { lfs: 'groups/GROUP/tmp07',
+  { lfs: 'groups/GROUP/tmp09',
     pfs: 'Solve-RD',
     groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'groups/GROUP/prm07',
+  { lfs: 'groups/GROUP/prm09',
     pfs: 'Solve-RD',
     groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'env07',
+  { lfs: 'env09',
     pfs: 'Solve-RD',
     machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
 ]
