@@ -10,6 +10,21 @@
       - openldap.service
       - phpldapadmin.service
 
+- name: make directory for the openldap ldif volume.
+  file:
+    path: /srv/openldap/custom
+    state: directory
+    owner: root
+    group: root
+
+- name: install ldif file for "member of"
+  copy:
+    src: files/01-overlay-memberof
+    dest: /srv/openldap/custom/01-overlay-memberof
+    mode: 644
+    owner: root
+    group: root
+
 - name: Daemon reload (the inplicit doesn't work)
   command: bash -c "systemctl daemon-reload"
 
