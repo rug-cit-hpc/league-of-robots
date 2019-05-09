@@ -16,7 +16,7 @@ ExecStart=/usr/bin/docker run --rm -i --name %n --network host  \
        --env LDAP_DOMAIN={{ ldap_domain }} \
        --env LDAP_ADMIN_PASSWORD={{ bindpw }} \
        --env LDAP_BASE_DN={{ ldap_base }} \
-       --hostname {{ inventory_hostname }} osixia/openldap:1.2.4  \
+       --hostname {{ ansible_hostname }} osixia/openldap:1.2.4  \
        --loglevel debug  --copy-service
 
 [Install]
