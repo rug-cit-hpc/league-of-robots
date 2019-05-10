@@ -1,10 +1,10 @@
 site_name: "{{ slurm_cluster_name | capitalize }} HPC cluster"
 theme:
   name: readthedocs
-  highlightjs: true
+  highlightjs: false
   hljs_languages:
     - yaml
-#site_dir: /var/www/html/
+site_dir: "/var/www/html/{{ slurm_cluster_name }}/"
 nav:
   - About: 
     - 'Cluster': 'index.md'

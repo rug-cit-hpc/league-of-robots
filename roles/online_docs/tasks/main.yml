@@ -19,108 +19,108 @@
   failed_when: 'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
   delegate_to: localhost
 
-#- name: 'Gather facts from all hosts, so we can use them in the generated docs.'
-#  setup:
-#  delegate_to: "{{ item }}"
-#  delegate_facts: true
-#  with_items:
-#    - "{{ groups['jumphost'] }}"
-#    - "{{ groups['cluster'] }}"
-
-#- name: Install webserver.
-#  yum:
-#    state: latest
-#    update_cache: yes
-#    name:
-#      - httpd
-#  notify:
-#    - restart_httpd
-#  become: true
 #
-#- name: Enable webserver.
-#  systemd:
-#    name: "{{ item }}"
-#    enabled: yes
-#    state: started
-#  with_items:
-#    - httpd.service
-#  become: true
+# This is currently problematic when
+# * the default user used to login to the cluster is different from 
+# * the default user used to login on the webserver where the docs are hosted
+# as you van specify only one account name with -u on the commandline when running ansible-playbook.
 #
-#- name: Install MkDocs and deps.
-#  yum:
-#    state: latest
-#    update_cache: yes
-#    name:
-#      - mkdocs
-#  become: true
-
-#
-# For debugging only:
-#
-- name: Create directory structure for MarkDown files on webserver.
-  file:
-    path: "{{ ansible_env.HOME }}/mkdocs/{{ item.path }}"
-    state: directory
-    #owner: "{{ ansible_user }}"
-    #group: "{{ ansible_user }}"
-    mode: '0700'
-  with_filetree: 'templates/mkdocs'
-  when: item.state == 'directory'
-
-#
-# For debugging only:
-#
-- name: Create static files for MarkDown on webserver.
-  synchronize:
-    src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/docs/./{{ item.src }}"
-    dest: "{{ ansible_env.HOME }}/mkdocs/docs/"
-    owner: 'no'
-    group: 'no'
-    use_ssh_args: 'yes'
-    rsync_opts:
-      # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
-      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
-      # --omit-link-times Is required to prevent "sync error: some files/attrs were not transferred"
-      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
-      #                   Requires rsync >= 3.1.2 (default on Enterprise Linux >= 7.x).
-      # --chmod           Is required to prevent errors when the perms on the source are not what is required/expected on the destination.
-      #                   Fixing perms on the source would be good, but that may be out of our control.
-      #                   In that case --chmod ensures we get what we want on the destination.
-      #                   Works only when combined with --perms.
-      # --force           Is required when symlinks have changed into dirs/files or vice versa.
-      #                   In that case the wrong outdated stuff has to be deleted on the destination first before the new stuff can be created.
-      #                   Deleting the outdated stuff may fail without --force.
-      # --relative        In combination with a "source_server:some/path/not/created/on/destination/./path/created/on/destination/some_file" (dot dir)
-      #                   recreates a partial dir structure on the destination relative to the /./ dir, when it does not already exist.
-      #                   Without this combination of --relative and dot dir rsync will error when the path does not exist on the destination.
-      #                   IMPORTANT: src and dest paths must be absolute paths. Otherwise Ansible will expand the path itself which will remove the /./ dir.
-      - '--relative'
-      - '--omit-dir-times'
-      - '--omit-link-times'
-      - '--chmod=Du=rwx,Dgo-rwx,Fu=rw,Fgo-rwx'
-      - '--perms'
-      - '--force'
+- name: 'Gather facts from all hosts, so we can use them in the generated docs.'
+  setup:
+  delegate_to: "{{ item }}"
+  delegate_facts: true
   with_items:
-    - src: 'img'
+    - "{{ groups['jumphost'] }}"
+    - "{{ groups['cluster'] }}"
 
-#
-# For debugging only:
-#
-- name: Create MarkDown files based on templates on webserver.
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ ansible_env.HOME }}/mkdocs/{{ item.path }}"
-    #owner: "{{ ansible_user }}"
-    #group: "{{ ansible_user }}"
-    mode: '0600'
-  with_filetree: 'templates/mkdocs'
-  when: item.state == 'file'
+- name: Install libselinux-python
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - libselinux-python
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
+  become: true
 
-- meta: end_play
+- name: Set selinux in permissive mode
+  selinux:
+    policy: targeted
+    state: permissive
+  become: true
 
-- name: Create directory structure for MarkDown files on webserver.
+- name: Install EPEL repo and rsync.
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - epel-release
+      - rsync
+  become: true
+
+- name: Install webserver.
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - httpd
+  notify:
+    - restart_httpd
+  become: true
+
+- name: Enable webserver.
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+    - httpd
+  become: true
+
+- name: Install Python 3 for CentOS 6.
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - python34
+      - python34-setuptools
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
+  become: true
+
+- name: Download get-pip.py for CentOS 6.
+  get_url:
+    url: https://bootstrap.pypa.io/get-pip.py
+    dest: /root/get-pip.py
+    mode: 0744
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
+  become: true
+
+- name: Execute get-pip.py for Python 3 on CentOS 6.
+  shell: |
+         python3 /root/get-pip.py --no-setuptools --no-wheel
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
+  become: true
+
+- name: Install MkDocs and deps using pip.
+  shell: |
+         python3 -m pip install mkdocs
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
+  become: true
+
+- name: Create base directories for MarkDown and HTML files on webserver.
   file:
-    path: "/root/mkdocs/{{ item.path }}"
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  with_items:
+    - "/srv/mkdocs/{{ slurm_cluster_name }}/"
+    - "/var/www/html/{{ slurm_cluster_name }}/"
+  become: true
+
+- name: Create sub directory structure for MarkDown files on webserver.
+  file:
+    path: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"
     state: directory
     owner: root
     group: root
@@ -133,8 +133,43 @@
 
 - name: Create static files for MarkDown on webserver.
   synchronize:
-    src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/./{{ item.src }}"
-    dest: '/root/mkdocs/'
+    src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/docs/./{{ item.src }}"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
+    owner: 'no'
+    group: 'no'
+    use_ssh_args: 'yes'
+    rsync_opts:
+      # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
+      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
+      # --omit-link-times Is required to prevent "sync error: some files/attrs were not transferred"
+      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
+      #                   Requires rsync >= 3.1.2 (default on Enterprise Linux >= 7.x).
+      # --chmod           Is required to prevent errors when the perms on the source are not what is required/expected on the destination.
+      #                   Fixing perms on the source would be good, but that may be out of our control.
+      #                   In that case --chmod ensures we get what we want on the destination.
+      #                   Works only when combined with --perms.
+      # --force           Is required when symlinks have changed into dirs/files or vice versa.
+      #                   In that case the wrong outdated stuff has to be deleted on the destination first before the new stuff can be created.
+      #                   Deleting the outdated stuff may fail without --force.
+      # --relative        In combination with a "source_server:some/path/not/created/on/destination/./path/created/on/destination/some_file" (dot dir)
+      #                   recreates a partial dir structure on the destination relative to the /./ dir, when it does not already exist.
+      #                   Without this combination of --relative and dot dir rsync will error when the path does not exist on the destination.
+      #                   IMPORTANT: src and dest paths must be absolute paths. Otherwise Ansible will expand the path itself which will remove the /./ dir.
+      - '--relative'
+      - '--omit-dir-times'
+      #- '--omit-link-times'
+      - '--chmod=Du=rwx,Dgo-rwx,Fu=rw,Fgo-rwx'
+      - '--perms'
+      - '--force'
+  with_items:
+    - src: 'img'
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] < "7"
+  become: true
+
+- name: Create static files for MarkDown on webserver.
+  synchronize:
+    src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/docs/./{{ item.src }}"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
     owner: 'no'
     group: 'no'
     use_ssh_args: 'yes'
@@ -163,12 +198,13 @@
       - '--force'
   with_items:
     - src: 'img'
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "7"
   become: true
 
 - name: Create MarkDown files based on templates on webserver.
   template:
     src: "{{ item.src }}"
-    dest: "/root/mkdocs/{{ item.path }}"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"
     owner: root
     group: root
     mode: '0600'
