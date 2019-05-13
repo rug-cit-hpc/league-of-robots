@@ -17,14 +17,14 @@
 - name: Restart slurmdbd service.
   systemd:
     name: 'slurmdbd.service'
-    state: reloaded
+    state: restarted
   become: true
   listen: restart_slurmdbd
 
 - name: Restart slurmctld service.
   systemd:
     name: 'slurmctld.service'
-    state: reloaded
+    state: restarted
   become: true
   listen: restart_slurmctld
 #

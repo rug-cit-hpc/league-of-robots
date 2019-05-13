@@ -4,12 +4,19 @@
   group:
     name: slurm
     gid: "{{ slurm_gid }}"
+  notify:
+    - restart_slurmdbd
+    - restart_slurmctld
   become: true
 
 - name: Add Munge group.
   group:
     name: munge
     gid: "{{ munge_gid }}"
+  notify:
+    - restart_munge
+    - restart_slurmdbd
+    - restart_slurmctld
   become: true
 
 - name: Add Slurm user.
@@ -17,6 +24,9 @@
     name: slurm
     uid: "{{ slurm_uid }}"
     group: slurm
+  notify:
+    - restart_slurmdbd
+    - restart_slurmctld
   become: true
 
 - name: Add Munge user.
@@ -24,6 +34,10 @@
     name: munge
     uid: "{{ munge_uid }}"
     group: munge
+  notify:
+    - restart_munge
+    - restart_slurmdbd
+    - restart_slurmctld
   become: true
 
 - name: Install munge.key file.
@@ -33,6 +47,10 @@
     group: 'munge'
     mode: '0600'
     dest: '/etc/munge/munge.key'
+  notify:
+    - restart_munge
+    - restart_slurmdbd
+    - restart_slurmctld
   become: true
 
 - name: Install Slurm management deamons and their dependencies with yum.
@@ -69,6 +87,8 @@
   retries: 7
   delay: 3
   ignore_errors: yes
+  notify:
+    - restart_slurmdbd
 
 - name: Create a database for Slurm accounting.
   mysql_db:
@@ -78,6 +98,8 @@
     name: 'slurm_acct_db'
     state: 'present'
   no_log: True
+  notify:
+    - restart_slurmdbd
 
 - name: Create folders for Slurm.
   file:
@@ -155,14 +177,6 @@
 # Flush handlers to make sure Slurm DB is present and connection settings have been updated.
 #
 - meta: flush_handlers
-
-- name: Restart without handlers for fixed order of execution
-  systemd:
-    name: "{{ item }}"
-    state: restarted
-  with_items:
-    - slurmdbd
-    - slurmctld
 
 - name: Execute Slurm DB initialization script on host running slurmdbd.
   shell: |

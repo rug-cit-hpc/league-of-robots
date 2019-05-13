@@ -1,19 +1,19 @@
-site_name: User documentation for the {{slurm_cluster_name }} HPC cluster
-#theme:
-#  name: readthedocs
-#  highlightjs: true
-#  hljs_languages:
-#    - yaml
-site_dir: /var/www/html/
+site_name: "{{ slurm_cluster_name | capitalize }} HPC cluster"
+theme:
+  name: readthedocs
+  highlightjs: false
+  hljs_languages:
+    - yaml
+site_dir: "/var/www/html/{{ slurm_cluster_name }}/"
 nav:
-  - Home: 'index.md'
+  - About: 
+    - 'Cluster': 'index.md'
+    - 'License': 'license.md'
+    - 'Contact': 'contact.md'
   - User Guide:
     - 'Overview - Description of the {{slurm_cluster_name }} HPC environment': 'overview.md'
     - 'Requesting accounts for {{slurm_cluster_name }}': 'accounts.md'
     - 'Login - How to start a session': 'logins.md'
     - 'Crunch - How to manage jobs on {{slurm_cluster_name }}': 'analysis.md'
     - 'Keep - What is stored where on {{slurm_cluster_name }}': 'storage.md'
-    - 'Support - FAQs, mailinglists, courses and contact info': 'support.md'
-  - About:
-    - 'License': 'license.md'
-    - 'Contact': 'contact.md'
+    - 'Support - FAQs, mailinglists & courses': 'support.md'
