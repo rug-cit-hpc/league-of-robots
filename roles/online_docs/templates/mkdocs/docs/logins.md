@@ -123,17 +123,17 @@ The following assumes
         # 
         # The syntax in all the ProxyCommand rules below assumes your private key is in the default location.
         # The default location is:
-        #  ~/.ssh/id_rsa     for keys generated with the RSA algorithm.
-        #  ~/.ssh/id_ed25519 for keys generated with the ed25519 algorithm.
+        #     ${HOME}/.ssh/id_ed25519
+        # for keys generated with the ed25519 algorithm.
         # In case your private key file is NOT in the default location you must:
         #  1. Specify the path to your private key file on the command line when logging in with SSH.
         #     For example:
-        #         $> ssh -i ~/.ssh/some_other_private_key_file youraccount@jumphost_server+destination_server
+        #         $> ssh -i ${HOME}/.ssh/some_other_private_key_file youraccount@jumphost_server+destination_server
         #  2. Add the path to your private key file in the ProxyCommand rules below.
         #     For example:
         #         Host jumphost_server+*
         #             PasswordAuthentication No
-        #             ProxyCommand ssh -X -q -i ~/.ssh/some_other_private_key_file youraccount@$(echo %h | sed 's/+[^+]*$//').some.sub.domain -W $(echo %h | sed 's/^[^+]*+//'):%p
+        #             ProxyCommand ssh -X -q -i ${HOME}/.ssh/some_other_private_key_file youraccount@$(echo %h | sed 's/+[^+]*$//').some.sub.domain -W $(echo %h | sed 's/^[^+]*+//'):%p
         #
         # Universal jumphost settings for triple-hop SSH.
         #
@@ -142,16 +142,16 @@ The following assumes
         #
         # Double-hop proxy settings for jumphosts in {{ slurm_cluster_domain }} domain.
         #
-        Host lobby+* foyer+* airlock+* reception+*
+        Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}+* {% endfor %}{% raw %}{% endraw %}
             PasswordAuthentication No
-            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//').hpc.rug.nl -W $(echo %h | sed 's/^[^+]*+//'):%p
+            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//').{{ slurm_cluster_domain }} -W $(echo %h | sed 's/^[^+]*+//'):%p
         #
         # Sometimes port 22 for the SSH protocol is blocked by firewalls; in that case you can try to use SSH on port 80 as fall-back.
         # Do not use port 80 by default for SSH as it officially assigned to HTTP traffic and some firewalls will cause problems when trying to route SSH over port 80.
         #
-        Host lobby80+* foyer80+* airlock80+* reception80+*
+        Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}80+* {% endfor %}{% raw %}{% endraw %}
             PasswordAuthentication No
-            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//').hpc.rug.nl -W $(echo %h | sed 's/^[^+]*+//'):%p -p 80
+            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//').{{ slurm_cluster_domain }} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 80
     Replace all occurences of _**youraccount**_ with the account name you received from the helpdesk.  
     If you are **not on a Mac or on a very old Mac** your OpenSSH client may not understand the ```IgnoreUnknown``` configuration option and you may have to comment/disable the  
     ```# Generic stuff: only for macOS clients``` section listed at the top of the example ```${HOME}/.ssh/config```.
@@ -224,7 +224,7 @@ This is known as _SSH agent forwarding_ and can be accomplished with the ```-A``
 * Q: Why do I get the error ```ControlPath too long```?  
   A: The ```ControlPath ~/.ssh/tmp/%C``` line in your ```${HOME}/.ssh/config``` file expands to a path that is too long.
      Change the ```ControlPath``` line in your ```${HOME}/.ssh/config``` file to create a shorter path for the automagically created sockets.
-* Q: Why do I get the error ```nc: getaddrinfo: Name or service not known. ssh_exchange_identification: Connection closed by remote host```?  
+* Q: Why do I get the error ```ssh_exchange_identification: Connection closed by remote host```?  
   A: Either this server does not exist (anymore) or you have a typo in the name of the server you are trying to connect to.
      Check both the command you typed as well as your ```${HOME}/.ssh/config``` for typos in server names.
 * Q: Why do I get the error ```Permission denied (publickey).```?  
@@ -233,7 +233,30 @@ This is known as _SSH agent forwarding_ and can be accomplished with the ```-A``
       * or you are using the wrong private key file  
       * or the permissions on your ```${HOME}/.ssh/``` dir and/or on its content are wrong  
       * or your account is misconfigured on our account server.  
-     Check your account name, private key and permissions. If that did not resolve the issue, then increase the verbosity to debug connection problems (see below).
+     Firstly, check your account name, private key and permissions.  
+     Secondly, check if you can login to the jumphost with a single hop  
+
+        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+
+     If you can login to the jumphost, but cannot use double hop SSH to login to the UI via the jumphost,
+     you may have to add your private key to the SSH agent on you local machine. 
+     To check which private key(s) are available to your SSH agent you can list them with on your local computer with:
+
+        ssh-add -l
+
+     If you get:
+
+        The agent has no identities.
+
+     then you have to add your private key with the ```ssh-add``` command, which should return output like this:
+
+        Identity added: /path/to/your/home/dir/.ssh/id_ed25519 (key_comment)
+
+     Your private key should now be listed when you check with ```ssh-add -l```, which should look like this:
+
+        256 SHA256:j/ZNnUvHYW3U$wgIapHw73SnhojjxlWkAcGZ6qDX6Lw key_comment (ED25519)
+
+     If that did not resolve the issue, then increase the verbosity to debug connection problems (see below).
 * Q: Can I increase the verbosity to debug connection problems?  
   A: Yes try adding ```-vvv``` like this:  
      ```ssh -vvv youraccount@{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```  

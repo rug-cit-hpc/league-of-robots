@@ -1,6 +1,6 @@
 # The {{ slurm_cluster_name | capitalize }} HPC cluster
 
-The {{ slurm_cluster_name | capitalize }} HPC cluster is part of the league of robots - a collection of HPC clusters, 
+The {{ slurm_cluster_name | capitalize }} High Performance Compute (HPC) cluster is part of the league of robots - a collection of HPC clusters, 
 which are named after robots from the the animated sitcom [Futurama](https://en.wikipedia.org/wiki/Futurama).
 Deployment and functional administration of all clusters is a joined effort of the
 [Genomics Coordination Center (GCC)](http://wiki.gcc.rug.nl/)
@@ -16,13 +16,17 @@ in collaboration with and as part of several research projects including
 
 ![RUG-UMCG](img/RUGUMCGduobrand.png)
 
-The key features of the HPC environment for this cluster are:
+The key features of the the {{ slurm_cluster_name | capitalize }} cluster:
 
- * Linux OS: CentOS 7.x
- * Job scheduling: ​Slurm
- * Account management: LDAP potentially provisioned using info from federated AAIM
- * Completely virtualised on an OpenStack cloud
- * Deployed and maintained using Ansible playbooks from the [league-of-robots GitHub repo](https://github.com/rug-cit-hpc/league-of-robots).
+ * Linux OS: [CentOS](https://www.centos.org/) 7.x with [Spacewalk](https://spacewalkproject.github.io/) for package distribution/management.
+ * Completely virtualised on an [OpenStack](https://www.openstack.org/) cloud
+ * Deployment of HPC cluster with [Ansible playbooks](https://docs.ansible.com/ansible/latest/index.html) under version control in a Git repo: [league-of-robots](https://github.com/rug-cit-hpc/league-of-robots)
+ * Job scheduling: [Slurm Workload Manager](https://slurm.schedmd.com/)
+ * Account management:
+    * Local admin users+groups provisioned using Ansible.
+    * Regular users+groups in a dedicated LDAP for this cluster and provisioned either with Ansible playbook too or using info from federated AAIM.
+ * Module system: [Lmod](https://github.com/TACC/Lmod)
+ * Deployment of (Bioinformatics) software using [EasyBuild](https://github.com/easybuilders/easybuild)
 
 ## Cluster components
 

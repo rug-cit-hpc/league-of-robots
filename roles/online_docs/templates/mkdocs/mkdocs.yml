@@ -11,9 +11,9 @@ nav:
     - 'License': 'license.md'
     - 'Contact': 'contact.md'
   - User Guide:
-    - 'Overview - Description of the {{slurm_cluster_name }} HPC environment': 'overview.md'
     - 'Requesting accounts for {{slurm_cluster_name }}': 'accounts.md'
     - 'Login - How to start a session': 'logins.md'
     - 'Crunch - How to manage jobs on {{slurm_cluster_name }}': 'analysis.md'
     - 'Keep - What is stored where on {{slurm_cluster_name }}': 'storage.md'
+    - 'Technical specifications - Details of the {{slurm_cluster_name }} HPC environment': 'specifications.md'
     - 'Support - FAQs, mailinglists & courses': 'support.md'

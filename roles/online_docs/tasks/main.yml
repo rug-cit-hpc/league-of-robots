@@ -33,6 +33,41 @@
     - "{{ groups['jumphost'] }}"
     - "{{ groups['cluster'] }}"
 
+- name: 'Get Slurm version from scontrol on UI.'
+  shell: |
+         scontrol version | head -n 1 | sed 's|^slurm *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+  args:
+    executable: /bin/bash
+    warn: no
+  environment:
+    SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
+  delegate_to: "{{ groups['user-interface'] | first }}"
+  changed_when: false
+  failed_when: false
+  check_mode: no
+  register: slurm_version
+
+- name: Get Lmod version from UI.
+  #
+  # Example output:
+  # Modules based on Lua: Version 6.5.8  2016-09-03 13:41 -05:00 (CDT)
+  #    by Robert McLay mclay@tacc.utexas.edu
+  #
+  shell: |
+         unset MODULEPATH
+         source ~/.modulesrc >/dev/null 2>&1
+         lmod -v | sed '/^$/d' | sed 's|^.*Version \([0-9\.]*\).*$|\1|' | head -1
+  args:
+    executable: /bin/bash
+    warn: no
+  environment:
+    SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
+  delegate_to: "{{ groups['user-interface'] | first }}"
+  changed_when: false
+  failed_when: false
+  check_mode: no
+  register: lmod_version
+
 - name: Install libselinux-python
   yum:
     state: latest
