@@ -32,6 +32,8 @@ The key features of the the {{ slurm_cluster_name | capitalize }} cluster:
 
 The HPC cluster consists of various types of server. Some of these can be accessed directly by users, whereas others cannot be accessed directly.
 
+![cluster](img/cluster-small.svg)
+
  * Jumphost:
      * For all users
      * Security hardened machine for multi-hop SSH access to UI, DAI & SAI.

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns:xl="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="http://www.w3.org/2000/svg" viewBox="69.429136 22.157481 715.7677 497.68504" width="715.7677" height="497.68504">
+  <defs>
+    <font-face font-family="Monaco" font-size="16" units-per-em="1000" underline-position="-37.597656" underline-thickness="75.68359" slope="0" x-height="545.41016" cap-height="757.8125" ascent="1e3" descent="-250" font-weight="400">
+      <font-face-src>
+        <font-face-name name="Monaco"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Verdana" font-size="11" panose-1="2 11 8 4 3 5 4 4 2 4" units-per-em="1000" underline-position="-67.87109" underline-thickness="103.02734" slope="0" x-height="548.33984" cap-height="727.0508" ascent="1005.3711" descent="-209.96094" font-weight="700">
+      <font-face-src>
+        <font-face-name name="Verdana-Bold"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Verdana" font-size="20" panose-1="2 11 8 4 3 5 4 4 2 4" units-per-em="1000" underline-position="-67.87109" underline-thickness="103.02734" slope="0" x-height="548.33984" cap-height="727.0508" ascent="1005.3711" descent="-209.96094" font-weight="700">
+      <font-face-src>
+        <font-face-name name="Verdana-Bold"/>
+      </font-face-src>
+    </font-face>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M 8 0 L 0 -3 L 0 3 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledBall_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-7 -4 8 8" markerWidth="8" markerHeight="8" color="black">
+      <g>
+        <circle cx="-2.9999986" cy="0" r="2.99999734868332" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+    <font-face font-family="Verdana" font-size="12" panose-1="2 11 8 4 3 5 4 4 2 4" units-per-em="1000" underline-position="-67.87109" underline-thickness="103.02734" slope="0" x-height="548.33984" cap-height="727.0508" ascent="1005.3711" descent="-209.96094" font-weight="700">
+      <font-face-src>
+        <font-face-name name="Verdana-Bold"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Verdana" font-size="12" panose-1="2 11 8 4 3 5 4 11 2 4" units-per-em="1000" underline-position="-67.87109" underline-thickness="103.02734" slope="-1083.3333" x-height="548.33984" cap-height="727.0508" ascent="1005.3711" descent="-209.96094" font-style="italic" font-weight="700">
+      <font-face-src>
+        <font-face-name name="Verdana-BoldItalic"/>
+      </font-face-src>
+    </font-face>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.10.2 
+    <dc:date>2016-06-29 17:00:54 +0000</dc:date>
+  </metadata>
+  <g id="Canvas_1" fill-opacity="1" stroke="none" stroke-opacity="1" stroke-dasharray="none" fill="none">
+    <title>Canvas 1</title>
+    <g id="Canvas_1: Layer 1">
+      <title>Layer 1</title>
+      <g id="Graphic_3652">
+        <path d="M 485.28346 246.4252 L 683.5512 246.4252 C 689.074 246.4252 693.5512 250.90235 693.5512 256.4252 L 693.5512 261.937 C 693.5512 267.45986 689.074 271.937 683.5512 271.937 L 485.28346 271.937 C 479.7606 271.937 475.28346 267.45986 475.28346 261.937 L 475.28346 256.4252 C 475.28346 250.90235 479.7606 246.4252 485.28346 246.4252 Z" fill="#78c545"/>
+        <path d="M 485.28346 246.4252 L 683.5512 246.4252 C 689.074 246.4252 693.5512 250.90235 693.5512 256.4252 L 693.5512 261.937 C 693.5512 267.45986 689.074 271.937 683.5512 271.937 L 485.28346 271.937 C 479.7606 271.937 475.28346 267.45986 475.28346 261.937 L 475.28346 256.4252 C 475.28346 250.90235 479.7606 246.4252 485.28346 246.4252 Z" stroke="#344463" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(480.28346 248.51313)" fill="black">
+          <tspan font-family="Monaco" font-size="16" font-weight="400" fill="black" x="0" y="16">Job 06 --qos=regular</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3651">
+        <path d="M 485.28346 84.85039 L 683.5512 84.85039 C 689.074 84.85039 693.5512 89.32755 693.5512 94.8504 L 693.5512 100.3622 C 693.5512 105.88505 689.074 110.3622 683.5512 110.3622 L 485.28346 110.3622 C 479.7606 110.3622 475.28346 105.88505 475.28346 100.3622 L 475.28346 94.8504 C 475.28346 89.32755 479.7606 84.85039 485.28346 84.85039 Z" fill="#47a2f1"/>
+        <path d="M 485.28346 84.85039 L 683.5512 84.85039 C 689.074 84.85039 693.5512 89.32755 693.5512 94.8504 L 693.5512 100.3622 C 693.5512 105.88505 689.074 110.3622 683.5512 110.3622 L 485.28346 110.3622 C 479.7606 110.3622 475.28346 105.88505 475.28346 100.3622 L 475.28346 94.8504 C 475.28346 89.32755 479.7606 84.85039 485.28346 84.85039 Z" stroke="#344463" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(480.28346 86.93833)" fill="black">
+          <tspan font-family="Monaco" font-size="16" font-weight="400" fill="black" x="0" y="16">Job 05 --qos=priority</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3650">
+        <path d="M 108.27559 84.85039 L 306.5433 84.85039 C 312.06616 84.85039 316.5433 89.32755 316.5433 94.8504 L 316.5433 100.3622 C 316.5433 105.88505 312.06616 110.3622 306.5433 110.3622 L 108.27559 110.3622 C 102.75274 110.3622 98.27559 105.88505 98.27559 100.3622 L 98.27559 94.8504 C 98.27559 89.32755 102.75274 84.85039 108.27559 84.85039 Z" fill="#e6ba31"/>
+        <path d="M 108.27559 84.85039 L 306.5433 84.85039 C 312.06616 84.85039 316.5433 89.32755 316.5433 94.8504 L 316.5433 100.3622 C 316.5433 105.88505 312.06616 110.3622 306.5433 110.3622 L 108.27559 110.3622 C 102.75274 110.3622 98.27559 105.88505 98.27559 100.3622 L 98.27559 94.8504 C 98.27559 89.32755 102.75274 84.85039 108.27559 84.85039 Z" stroke="#344463" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(103.27559 86.93833)" fill="black">
+          <tspan font-family="Monaco" font-size="16" font-weight="400" fill="black" x="0" y="16">Job 01 --qos=leftover</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3649">
+        <path d="M 108.27559 138.70866 L 306.5433 138.70866 C 312.06616 138.70866 316.5433 143.18581 316.5433 148.70866 L 316.5433 154.22047 C 316.5433 159.74332 312.06616 164.22047 306.5433 164.22047 L 108.27559 164.22047 C 102.75274 164.22047 98.27559 159.74332 98.27559 154.22047 L 98.27559 148.70866 C 98.27559 143.18581 102.75274 138.70866 108.27559 138.70866 Z" fill="#e6ba31"/>
+        <path d="M 108.27559 138.70866 L 306.5433 138.70866 C 312.06616 138.70866 316.5433 143.18581 316.5433 148.70866 L 316.5433 154.22047 C 316.5433 159.74332 312.06616 164.22047 306.5433 164.22047 L 108.27559 164.22047 C 102.75274 164.22047 98.27559 159.74332 98.27559 154.22047 L 98.27559 148.70866 C 98.27559 143.18581 102.75274 138.70866 108.27559 138.70866 Z" stroke="#344463" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(103.27559 140.7966)" fill="black">
+          <tspan font-family="Monaco" font-size="16" font-weight="400" fill="black" x="0" y="16">Job 02 --qos=leftover</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3648">
+        <path d="M 108.27559 192.56693 L 306.5433 192.56693 C 312.06616 192.56693 316.5433 197.04408 316.5433 202.56693 L 316.5433 208.07874 C 316.5433 213.6016 312.06616 218.07874 306.5433 218.07874 L 108.27559 218.07874 C 102.75274 218.07874 98.27559 213.6016 98.27559 208.07874 L 98.27559 202.56693 C 98.27559 197.04408 102.75274 192.56693 108.27559 192.56693 Z" fill="#78c545"/>
+        <path d="M 108.27559 192.56693 L 306.5433 192.56693 C 312.06616 192.56693 316.5433 197.04408 316.5433 202.56693 L 316.5433 208.07874 C 316.5433 213.6016 312.06616 218.07874 306.5433 218.07874 L 108.27559 218.07874 C 102.75274 218.07874 98.27559 213.6016 98.27559 208.07874 L 98.27559 202.56693 C 98.27559 197.04408 102.75274 192.56693 108.27559 192.56693 Z" stroke="#344463" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(103.27559 194.65487)" fill="black">
+          <tspan font-family="Monaco" font-size="16" font-weight="400" fill="black" x="0" y="16">Job 03 --qos=regular</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3647">
+        <path d="M 108.27559 246.4252 L 306.5433 246.4252 C 312.06616 246.4252 316.5433 250.90235 316.5433 256.4252 L 316.5433 261.937 C 316.5433 267.45986 312.06616 271.937 306.5433 271.937 L 108.27559 271.937 C 102.75274 271.937 98.27559 267.45986 98.27559 261.937 L 98.27559 256.4252 C 98.27559 250.90235 102.75274 246.4252 108.27559 246.4252 Z" fill="#78c545"/>
+        <path d="M 108.27559 246.4252 L 306.5433 246.4252 C 312.06616 246.4252 316.5433 250.90235 316.5433 256.4252 L 316.5433 261.937 C 316.5433 267.45986 312.06616 271.937 306.5433 271.937 L 108.27559 271.937 C 102.75274 271.937 98.27559 267.45986 98.27559 261.937 L 98.27559 256.4252 C 98.27559 250.90235 102.75274 246.4252 108.27559 246.4252 Z" stroke="#344463" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(103.27559 248.51313)" fill="black">
+          <tspan font-family="Monaco" font-size="16" font-weight="400" fill="black" x="0" y="16">Job 04 --qos=regular</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3646">
+        <path d="M 108.27559 300.28346 L 306.5433 300.28346 C 312.06616 300.28346 316.5433 304.7606 316.5433 310.28346 L 316.5433 315.79528 C 316.5433 321.31812 312.06616 325.79528 306.5433 325.79528 L 108.27559 325.79528 C 102.75274 325.79528 98.27559 321.31812 98.27559 315.79528 L 98.27559 310.28346 C 98.27559 304.7606 102.75274 300.28346 108.27559 300.28346 Z" fill="#47a2f1"/>
+        <path d="M 108.27559 300.28346 L 306.5433 300.28346 C 312.06616 300.28346 316.5433 304.7606 316.5433 310.28346 L 316.5433 315.79528 C 316.5433 321.31812 312.06616 325.79528 306.5433 325.79528 L 108.27559 325.79528 C 102.75274 325.79528 98.27559 321.31812 98.27559 315.79528 L 98.27559 310.28346 C 98.27559 304.7606 102.75274 300.28346 108.27559 300.28346 Z" stroke="#344463" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(103.27559 302.3714)" fill="black">
+          <tspan font-family="Monaco" font-size="16" font-weight="400" fill="black" x="0" y="16">Job 05 --qos=priority</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3645">
+        <path d="M 108.27559 354.14173 L 306.5433 354.14173 C 312.06616 354.14173 316.5433 358.6189 316.5433 364.14173 L 316.5433 369.65354 C 316.5433 375.1764 312.06616 379.65354 306.5433 379.65354 L 108.27559 379.65354 C 102.75274 379.65354 98.27559 375.1764 98.27559 369.65354 L 98.27559 364.14173 C 98.27559 358.6189 102.75274 354.14173 108.27559 354.14173 Z" fill="#78c545"/>
+        <path d="M 108.27559 354.14173 L 306.5433 354.14173 C 312.06616 354.14173 316.5433 358.6189 316.5433 364.14173 L 316.5433 369.65354 C 316.5433 375.1764 312.06616 379.65354 306.5433 379.65354 L 108.27559 379.65354 C 102.75274 379.65354 98.27559 375.1764 98.27559 369.65354 L 98.27559 364.14173 C 98.27559 358.6189 102.75274 354.14173 108.27559 354.14173 Z" stroke="#344463" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(103.27559 356.22967)" fill="black">
+          <tspan font-family="Monaco" font-size="16" font-weight="400" fill="black" x="0" y="16">Job 06 --qos=regular</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3644">
+        <text transform="translate(102.11024 400.49606)" fill="black">
+          <tspan font-family="Verdana" font-size="11" font-weight="700" fill="black" x="0" y="11">Job IDs in job submission order.</tspan>
+          <tspan font-family="Verdana" font-size="11" font-weight="700" fill="black" x="0" y="37">Default job execution order based on:</tspan>
+          <tspan font-family="Verdana" font-size="11" font-weight="700" fill="black" x="0" y="50">    1. FIFO (First In First Out) only</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3643">
+        <text transform="translate(99.27559 51.50394)" fill="black">
+          <tspan font-family="Verdana" font-size="20" font-weight="700" fill="black" x="72.10358" y="20">Queue</tspan>
+        </text>
+      </g>
+      <g id="Line_3642">
+        <line x1="207.40945" y1="116.8622" x2="207.40945" y2="128.80866" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledBall_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_3641">
+        <line x1="207.40945" y1="170.72047" x2="207.40945" y2="182.66693" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledBall_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_3640">
+        <line x1="207.40945" y1="224.57874" x2="207.40945" y2="236.5252" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledBall_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_3639">
+        <line x1="207.40945" y1="278.437" x2="207.40945" y2="290.38346" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledBall_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_3638">
+        <line x1="207.40945" y1="332.29528" x2="207.40945" y2="344.24173" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledBall_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_3637">
+        <path d="M 485.28346 300.28346 L 683.5512 300.28346 C 689.074 300.28346 693.5512 304.7606 693.5512 310.28346 L 693.5512 315.79528 C 693.5512 321.31812 689.074 325.79528 683.5512 325.79528 L 485.28346 325.79528 C 479.7606 325.79528 475.28346 321.31812 475.28346 315.79528 L 475.28346 310.28346 C 475.28346 304.7606 479.7606 300.28346 485.28346 300.28346 Z" fill="#e6ba31"/>
+        <path d="M 485.28346 300.28346 L 683.5512 300.28346 C 689.074 300.28346 693.5512 304.7606 693.5512 310.28346 L 693.5512 315.79528 C 693.5512 321.31812 689.074 325.79528 683.5512 325.79528 L 485.28346 325.79528 C 479.7606 325.79528 475.28346 321.31812 475.28346 315.79528 L 475.28346 310.28346 C 475.28346 304.7606 479.7606 300.28346 485.28346 300.28346 Z" stroke="#344463" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(480.28346 302.3714)" fill="black">
+          <tspan font-family="Monaco" font-size="16" font-weight="400" fill="black" x="0" y="16">Job 01 --qos=leftover</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3636">
+        <path d="M 485.28346 354.14173 L 683.5512 354.14173 C 689.074 354.14173 693.5512 358.6189 693.5512 364.14173 L 693.5512 369.65354 C 693.5512 375.1764 689.074 379.65354 683.5512 379.65354 L 485.28346 379.65354 C 479.7606 379.65354 475.28346 375.1764 475.28346 369.65354 L 475.28346 364.14173 C 475.28346 358.6189 479.7606 354.14173 485.28346 354.14173 Z" fill="#e6ba31"/>
+        <path d="M 485.28346 354.14173 L 683.5512 354.14173 C 689.074 354.14173 693.5512 358.6189 693.5512 364.14173 L 693.5512 369.65354 C 693.5512 375.1764 689.074 379.65354 683.5512 379.65354 L 485.28346 379.65354 C 479.7606 379.65354 475.28346 375.1764 475.28346 369.65354 L 475.28346 364.14173 C 475.28346 358.6189 479.7606 354.14173 485.28346 354.14173 Z" stroke="#344463" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(480.28346 356.22967)" fill="black">
+          <tspan font-family="Monaco" font-size="16" font-weight="400" fill="black" x="0" y="16">Job 02 --qos=leftover</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3635">
+        <path d="M 485.28346 138.70866 L 683.5512 138.70866 C 689.074 138.70866 693.5512 143.18581 693.5512 148.70866 L 693.5512 154.22047 C 693.5512 159.74332 689.074 164.22047 683.5512 164.22047 L 485.28346 164.22047 C 479.7606 164.22047 475.28346 159.74332 475.28346 154.22047 L 475.28346 148.70866 C 475.28346 143.18581 479.7606 138.70866 485.28346 138.70866 Z" fill="#78c545"/>
+        <path d="M 485.28346 138.70866 L 683.5512 138.70866 C 689.074 138.70866 693.5512 143.18581 693.5512 148.70866 L 693.5512 154.22047 C 693.5512 159.74332 689.074 164.22047 683.5512 164.22047 L 485.28346 164.22047 C 479.7606 164.22047 475.28346 159.74332 475.28346 154.22047 L 475.28346 148.70866 C 475.28346 143.18581 479.7606 138.70866 485.28346 138.70866 Z" stroke="#344463" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(480.28346 140.7966)" fill="black">
+          <tspan font-family="Monaco" font-size="16" font-weight="400" fill="black" x="0" y="16">Job 03 --qos=regular</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3634">
+        <path d="M 485.28346 192.56693 L 683.5512 192.56693 C 689.074 192.56693 693.5512 197.04408 693.5512 202.56693 L 693.5512 208.07874 C 693.5512 213.6016 689.074 218.07874 683.5512 218.07874 L 485.28346 218.07874 C 479.7606 218.07874 475.28346 213.6016 475.28346 208.07874 L 475.28346 202.56693 C 475.28346 197.04408 479.7606 192.56693 485.28346 192.56693 Z" fill="#78c545"/>
+        <path d="M 485.28346 192.56693 L 683.5512 192.56693 C 689.074 192.56693 693.5512 197.04408 693.5512 202.56693 L 693.5512 208.07874 C 693.5512 213.6016 689.074 218.07874 683.5512 218.07874 L 485.28346 218.07874 C 479.7606 218.07874 475.28346 213.6016 475.28346 208.07874 L 475.28346 202.56693 C 475.28346 197.04408 479.7606 192.56693 485.28346 192.56693 Z" stroke="#344463" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(480.28346 194.65487)" fill="black">
+          <tspan font-family="Monaco" font-size="16" font-weight="400" fill="black" x="0" y="16">Job 04 --qos=regular</tspan>
+        </text>
+      </g>
+      <g id="Line_3633">
+        <line x1="584.4173" y1="332.29528" x2="584.4173" y2="344.24173" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledBall_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_3632">
+        <line x1="584.4173" y1="278.437" x2="584.4173" y2="290.38346" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledBall_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_3631">
+        <line x1="584.4173" y1="224.57874" x2="584.4173" y2="236.5252" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledBall_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_3630">
+        <line x1="584.4173" y1="170.72047" x2="584.4173" y2="182.66693" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledBall_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_3629">
+        <line x1="584.4173" y1="116.8622" x2="584.4173" y2="128.80866" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledBall_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_3628">
+        <text transform="translate(479.1181 400.49606)" fill="black">
+          <tspan font-family="Verdana" font-size="12" font-weight="700" fill="black" x="0" y="12">Jobs re-arranged based on</tspan>
+          <tspan font-family="Verdana" font-size="12" font-style="italic" font-weight="700" fill="black" x="0" y="27">Quality of Service (QoS)</tspan>
+          <tspan font-family="Verdana" font-size="12" font-weight="700" fill="black" x="0" y="57">Job execution order based on:</tspan>
+          <tspan font-family="Verdana" font-size="12" font-weight="700" fill="black" x="0" y="72">    1. QoS first</tspan>
+          <tspan font-family="Verdana" font-size="12" font-weight="700" fill="black" x="0" y="87">    2. FIFO for jobs in the same QoS level</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3627">
+        <text transform="translate(476.28346 51.50394)" fill="black">
+          <tspan font-family="Verdana" font-size="20" font-weight="700" fill="black" x="72.10358" y="20">Queue</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3626">
+        <path d="M 441.5684 236.24367 C 442.35305 236.73595 442.72423 237.37254 442.68177 238.16183 C 442.68177 238.8918 442.3107 239.4944 441.5684 239.98666 L 424.61416 251.31756 C 423.4373 252.1069 422.4299 252.38698 421.59233 252.15784 C 420.7653 251.92865 420.35176 251.25812 420.35176 250.14625 L 420.35176 243.32225 L 410.04563 243.32225 C 407.7553 243.32225 405.5923 243.04218 403.60957 242.48202 C 401.6056 241.9303 399.73946 241.16646 398.00055 240.19036 C 396.26166 239.2143 394.597 238.07695 393.04893 236.7784 C 391.4903 235.47133 390.02707 234.07933 388.63806 232.5855 C 389.61354 231.48214 390.56783 230.32784 391.4903 229.1311 C 392.42335 227.94286 393.38823 226.77156 394.3637 225.60028 C 394.50155 225.33717 394.6712 225.0995 394.87266 224.88733 C 395.0741 224.6921 395.24376 224.44597 395.3922 224.17437 C 397.7461 226.9413 400.11056 229.24992 402.46444 231.1087 C 404.8077 232.95896 407.34185 233.89263 410.04563 233.89263 L 420.35176 233.89263 L 420.35176 226.16894 C 420.35176 225.06556 420.7653 224.39505 421.59233 224.17437 C 422.4299 223.96218 423.4373 224.23378 424.61416 224.98918 Z M 351.12448 208.61672 C 350.5837 208.61672 350.1172 208.4809 349.7249 208.19232 C 349.33256 207.90375 349.14173 207.5473 349.14173 207.1144 L 349.14173 200.8506 C 349.14173 199.79812 349.79915 199.28885 351.12448 199.30585 L 362.2365 199.30585 C 364.53737 199.30585 366.67914 199.58592 368.6831 200.12064 C 370.67652 200.67235 372.56385 201.42776 374.3452 202.4038 C 376.1159 203.3714 377.75934 204.51721 379.2968 205.81577 C 380.82363 207.1144 382.2974 208.52334 383.7607 210.0341 C 381.7037 212.47852 379.7103 214.889 377.8124 217.274 C 377.68516 217.49467 377.5367 217.6729 377.35645 217.84266 C 377.19743 218.0124 377.0383 218.20763 376.9005 218.44527 C 374.53603 215.68682 372.17153 213.36125 369.8177 211.46003 C 367.47435 209.56732 364.94026 208.61672 362.2365 208.61672 Z M 410.04563 208.7016 C 408.2537 208.7016 406.5678 209.12593 404.97736 209.97472 C 403.3763 210.83194 401.80704 211.97775 400.259 213.39519 C 398.70036 214.8126 397.1523 216.43373 395.61487 218.26703 C 394.07743 220.10034 392.54 221.98458 391.01315 223.93672 C 389.1576 226.32172 387.23847 228.67276 385.2557 231.00687 C 383.27297 233.33242 381.1417 235.4289 378.86203 237.28766 C 376.5718 239.14643 374.06953 240.6402 371.3233 241.76905 C 368.57713 242.90642 365.5552 243.48357 362.2365 243.48357 L 351.12448 243.48357 C 350.5837 243.48357 350.1172 243.32225 349.7249 243.00824 C 349.33256 242.70266 349.14173 242.32927 349.14173 241.89637 L 349.14173 235.64102 C 349.14173 235.1997 349.33256 234.83473 349.7249 234.53766 C 350.1172 234.24908 350.5837 234.08783 351.12448 234.08783 L 362.2365 234.08783 C 363.9648 234.08783 365.65063 233.67193 367.2835 232.83164 C 368.927 231.99992 370.50684 230.87105 372.03374 229.4621 C 373.56056 228.05317 375.0768 226.43206 376.6036 224.60723 C 378.13043 222.7824 379.64667 220.8897 381.1735 218.93755 C 383.029 216.55255 384.9694 214.17603 386.984 211.825 C 388.99857 209.47394 391.1404 207.36053 393.43064 205.49326 C 395.7103 203.61755 398.202 202.12373 400.9164 201.00337 C 403.62017 199.8745 406.6632 199.30585 410.04563 199.30585 L 420.35176 199.30585 L 420.35176 191.80288 C 420.35176 190.69102 420.7653 190.02898 421.59233 189.79979 C 422.4299 189.5876 423.4373 189.87617 424.61416 190.65701 L 441.5684 201.95397 C 442.35305 202.44624 442.72423 203.05733 442.68177 203.7873 C 442.68177 204.56815 442.3107 205.20468 441.5684 205.68852 L 424.61416 216.95147 C 423.4373 217.73232 422.4299 218.0124 421.59233 217.77476 C 420.7653 217.55408 420.35176 216.88356 420.35176 215.7717 L 420.35176 208.7016 Z" fill="#424242"/>
+      </g>
+      <g id="Graphic_3625">
+        <text transform="translate(335.9685 261.59843)" fill="black">
+          <tspan font-family="Verdana" font-size="12" font-weight="700" fill="black" x="1.7202722" y="12">SLURM scheduler</tspan>
+          <tspan font-family="Verdana" font-size="12" font-weight="700" fill="black" x="2.0513268" y="27">Re-arranges jobs</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+</svg>

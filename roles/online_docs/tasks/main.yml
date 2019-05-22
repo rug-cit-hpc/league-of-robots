@@ -31,7 +31,8 @@
   delegate_facts: true
   with_items:
     - "{{ groups['jumphost'] }}"
-    - "{{ groups['cluster'] }}"
+    - "{{ groups['user-interface'] }}"
+#    - "{{ groups['cluster'] }}"
 
 - name: 'Get Slurm version from scontrol on UI.'
   shell: |
