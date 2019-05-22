@@ -181,42 +181,6 @@ The following assumes
 
         ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}80+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
-##### 4. Transfer data to/from cluster via jumphost
-
- * You can transfer data with ```rsync``` over _SSH_ to copy files to for example your home dir on the cluster with something like the command below.  
-   _**Note the colon**_ at the end of the ```rsync``` command:
-    1. Without the colon you would copy to a local file named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` instead.
-    1. If you do not specify a path after the colon you'll transfer data to the default location, which is your home dir.
-
-                rsync -av some_directory {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}:
-
- * If you want the data to go elsewhere you'll have to specify where. E.g.:
-
-        rsync -av some_directory {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}:/path/to/somewhere/else/
-
-##### 5. Transfer data from one server to another server
-
-When you login from your local computer (optionally via a jumphost) to a server of the {{ slurm_cluster_name | capitalize }} HPC cluster 
-and next need to transfer data from {{ slurm_cluster_name | capitalize }} to another server or vice versa, 
-you will need to temporarily forward your private key to the server from the {{ slurm_cluster_name | capitalize }} HPC cluster.
-This is known as _SSH agent forwarding_ and can be accomplished with the ```-A``` argument on the commandline.
-
- * _**Note**_: You **cannot** accomplish this by configuring a ```ProxyCommand``` directive in the ```${HOME}/.ssh/config``` file on your local computer.
- * _**Note**_: Do **not** use SSH with _agent forwarding_ by default for all your sessions as it is less secure.
- * If you do need _agent forwarding_, then login with ```-A``` like this:
-
-        ssh -A {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
-
- * Execute the following command to verify that _agent forwarding_ worked and to list the identities (private keys) available to the SSH agent:
-
-        ssh-add -l
-
-    * You should get a response with at least one key fingerprint, which means you can now transfer data with ```rsync``` to/from the other server 
-      assuming you are allowed to access the other server, are allowed to transfer the data and that no firewalls are blocking the connection.
-    * If you get ```The agent has no identities.``` instead then the key forwarding failed.  
-      This may happen when you were already logged in to the same server without the ```-A``` option in another active SSH session;
-      make sure you logout from the server of the {{ slurm_cluster_name | capitalize }} HPC cluster in all terminals and try login with ```-A``` again.
-
 #### Frequent Asked Questions (FAQs) and trouble shooting
 
 * Q: Why do I get the error ```muxserver_listen bind(): No such file or directory.```?  

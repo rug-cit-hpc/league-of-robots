@@ -3,73 +3,113 @@
 Firstly and independent of technical options: make sure you are familiar with the _code of conduct_ / _terms and conditions_ / _license_ or whatever it is called and that you are allowed to upload/download a data set!
 When in doubt contact your supervisor / principal investigator and the group/institute that created the data set.
 
+![data-transfers](img/data-transfers.svg)
+
 Your options to move data to/from the {{ slurm_cluster_name | capitalize }} HPC cluster depend on the protocol you want to use for the upload/download: 
 
-1. For downloads on {{ slurm_cluster_name | capitalize }} over _**http(s)**_:  
-   You can use the commandline tools ```curl``` or ```wget```.
-1. For uploads to {{ slurm_cluster_name | capitalize }} or downloads from {{ slurm_cluster_name | capitalize }} we only support _**rsync**_ tunnelled over ssh.
-{# jinja2 comment: firewall requires improvements for ssh/rsync/aspera.
-1. For downloads on {{ slurm_cluster_name | capitalize }} or uploads from over _**sftp**_ (ftp tunnelled over ssh), _**rsync**_ tunnelled over ssh or **aspera**:  
-    * This is already configured in the firewalls for a limited list of bioinformatics institutes (EBI, Sanger, NCBI, Broad, etc.).
-    * We can configure this for servers of other institutes too. 
-      If you hit a firewall when trying to use _sftp_, _rsync_ or _aspera_ [contact the helpdesk via email](../contact/) to request an update of the firewall config
-      and mention the protocol used, the name / address of the server and any non-standard ports used by that server if relevant.
+1. Push data from an external machine to the cluster UI via the jumphost or  
+   Pull data on an external machine from the cluster UI via the jumphost.  
+   Supported protocols:
+    * rsync over ssh
+2. Push data from the cluster UI to an external server or  
+   Pull data on the cluster UI from an external server.  
+   Supported protocols:
+    * rsync over ssh
+    * http(s)
+{# jinja2 comment: firewall requires improvements for aspera.
+    * aspera
 #}
-1. For downloads on {{ slurm_cluster_name | capitalize }} over _**ftp**_:  
-   You are mostly out of luck as we don't support ftp, not even only for outgoing connections (except to/from a very limited list of bioinformatics institutes).
-   The ftp protocol is very messy requiring various open ports on firewalls; 
-   it was simply never designed for anything else than public data and is a serious security risk.
 
-## Data transfers with rsync over ssh
+## 1. Push to or pull from cluster UI via jumphost
 
-Login on the cluster UI using SSH with key forwarding enabled (-A) and then use rsync:
+#### Using rsync over ssh
 
-* Login on for example the ''calculon'' fat UI.
-  ```
-  $your_client> ssh -A your-account@calculon.hpc.rug.nl
-  ```
-  In case you are outside the UMCG/RUG network you have to [wiki:TransparentMultiHopSSH login via the proxy using Transparent Multi-Hop SSH]. Assuming you created an alias named ''lobby+calculon'' you would login like this:
-  ```
-  $your_client> ssh -A your-account@lobby+calculon
-  ```
-* You can check if key forwarding worked by issuing the command:
-   ```
-   $remote_server> ssh-add -l
-   ```
-   You should get at least one entry. If you get instead the message "Could not open a connection to your authentication agent.", 
-   the key forwarding failed and your private key is not temporarily available/cached on the remote server. This is essential to login from one of our servers to another one: See [#DebuggingKeyForwarding debugging key forwarding] for help.
-* Use rsync to pull data from the other cluster.
-  ```
-  $remote_server> rsync -av your-account@other-cluster.hpc.rug.nl:/groups/${your_group}/source_folder   /groups/${your_group}/destination_folder/
-  ```
+* You can transfer data with ```rsync``` over _SSH_ to copy files to for example your home dir on the cluster with something like the command below.
+
+        $your_client> rsync -av some_directory {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}:
+
+    _**Note the colon**_ at the end of the ```rsync``` command:
+
+      1. Without the colon you would copy to a local file named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` instead.
+      1. If you do not specify a path after the colon you'll transfer data to the default location, which is your home dir.
+
+* If you want the data to go elsewhere you'll have to specify where. E.g.:
+
+        $your_client> rsync -av some_directory {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}:/path/to/somewhere/else/
+
+* Swap source and destination to pull data from the cluster as opposed to pushing data to the cluster.
+
+## 2. Push to or pull from another server
+
+#### Using rsync over ssh
+
+When you login from your local computer (optionally via a jumphost) to a server of the {{ slurm_cluster_name | capitalize }} HPC cluster 
+and next need to transfer data from {{ slurm_cluster_name | capitalize }} to another server or vice versa, 
+you will need to temporarily forward your private key to the server from the {{ slurm_cluster_name | capitalize }} HPC cluster.
+This is known as _SSH agent forwarding_ and can be accomplished with the ```-A``` argument on the commandline.
+
+* _**Note**_: You **cannot** accomplish this by configuring a ```ProxyCommand``` directive in the ```${HOME}/.ssh/config``` file on your local computer.
+* _**Note**_: Do **not** use SSH with _agent forwarding_ by default for all your sessions as it is less secure.
+* If you do need _agent forwarding_, then login with ```-A``` like this:
+
+        $your_client> ssh -A {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+
+* Execute the following command to verify that _agent forwarding_ worked and to list the identities (private keys) available to the SSH agent:
+
+        ${{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}> ssh-add -l
+
+    * You should get a response with at least one key fingerprint, which means you can now transfer data with ```rsync``` to/from the other server 
+      assuming you are allowed to access the other server, are allowed to transfer the data and that no firewalls are blocking the connection.
+    * If you get ```The agent has no identities.```  or ```Could not open a connection to your authentication agent.``` instead then the key forwarding failed.  
+      This may happen when you were already logged in to the same server without the ```-A``` option in another active SSH session;
+      make sure you logout from the server of the {{ slurm_cluster_name | capitalize }} HPC cluster in all terminals and try login with ```-A``` again.
+      If that did not help, then the next step depends on the OS of the machine where you are running your SSH client and/or the SSH client itself.
+       * MacOS/Linux/Unix (and !MobaXterm on Windows): Use the ```ssh-add -l``` command on your _**client**_
+         When you also get the message ```The agent has no identities.``` or ''Could not open a connection to your authentication agent'' on your SSH client, 
+         you need to add your private key. If your private key is located in the default path (~/.ssh/id_ed25519) you can use the following command:
+
+             $your_client> ssh-add
+
+         If your key is not located in the default path, you will have to specify which private key file to add:
+
+             $your_client> ssh-add /path/to/my/private.key
+
+       * PuTTY on Windows: Check if _**Pageant**_ (part of the PuTTY Suite) is running and if your private key was loaded in _Pageant_. 
+         When _Pageant_ is running, the app will have an icon in the system tray on the bottom right corner of your screen. 
+         Double click the _Pageant_ icon in the system try to open a window with the list of loaded keys; 
+         load your private key when it is not yet in the list.
+
+* Use rsync to pull data from the other cluster:
+
+        ${{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}> rsync -av your-account@other-server.some.domain:/path/to/source_folder   /path/to/destination_folder/
+
+* Swap source and destination to push data to the other server as opposed to pulling data from the other sever.
+
+#### Using http(s)
+
+For downloads on / uploads from {{ slurm_cluster_name | capitalize }} over _http(s)_ you can use the commandline tools ```curl``` or ```wget```. 
+In case you want to pull from / push to a git repository you can use https URLs with the ```git``` command.
+
+{# jinja2 comment: firewall requires improvements for sftp/aspera.
+
+#### Using aspera
+
+For downloads on {{ slurm_cluster_name | capitalize }} or uploads from over _**sftp**_ (ftp tunnelled over ssh) or **aspera**:
+
+* This is already configured in the firewalls for a limited list of bioinformatics institutes (EBI, Sanger, NCBI, Broad, etc.).
+* We can configure this for servers of other institutes too. 
+  If you hit a firewall when trying to use _sftp_, _rsync_ or _aspera_ [contact the helpdesk via email](../contact/) to request an update of the firewall config
+  and mention the protocol used, the name / address of the server and any non-standard ports used by that server if relevant.
+
+#### Using ftp
+
+For downloads on {{ slurm_cluster_name | capitalize }} over _ftp_ you are mostly out of luck as we don't support ftp, not even only for outgoing connections (except to/from a very limited list of bioinformatics institutes). 
+The _ftp_ protocol is very messy requiring various open ports on firewalls; it was simply never designed for anything else than public data and is a serious security risk.
+
+#}
+{# jinja2 comment: we don't have dedicated sftp servers for the new clusters yet.
 
 ## Debugging and Frequent Asked Question (FAQs)
-
-#### Q: How can I debug key forwarding when it fails?
-
-A: There are multiple scenarios that can lead to failure to forward a key. To debug:  
-
-* login on the remote server with
-  ```
-  $your_client> ssh -A youraccount@someserver
-  ```
-* Now use the ''ssh-add'' command with the list option to list all available keys:
-  ```
-  $remote_server> ssh-add -l
-  ```
-  You should get at least one entry. If instead you get the message ''Could not open a connection to your authentication agent'', the key forwarding failed and your private key is not temporarily available/cached on this server.
-    1. Check if you have any other terminal sessions open where you are logged in on the same server. Any previously started sessions (without key forwarding) on the same server may cause key forwarding to fail silently: hence the login will work, but without forwarded key. Note this includes any screen/tmux sessions running in the background. Try to logout and stop all sessions, start over with a clean environment and check again with ```ssh-add -l``` if key forwarding worked.[[BR]][[BR]]
-    1. If that did not help,  The next step depends on the OS of the machine where you are running your SSH client and/or the SSH client itself.
-       * MacOS/Linux/Unix (and !MobaXterm on Windows): Use the ```ssh-add -l``` command on your ''**client**''
-         When you also get the message ''Could not open a connection to your authentication agent'' on your SSH client, you need to add your private key. If your private key is located in the default path (~/.ssh/id_rsa) you can use the following command:
-         ```
-         $your_client> ssh-add
-         ```
-         If your key is not located in the default path, you will have to specify which private key file to add:
-         ```
-         $your_client> ssh-add /path/to/my/private.key
-         ```
-       * PuTTY on Windows: Check if ''Pageant'' (part of the PuTTY Suite) is running and if your private key was loaded in ''Pageant''. When ''Pageant'' is running, the app will have an icon in the system tray on the bottom right corner of your screen. Double click the ''Pageant'' icon in the system try to open a window with the list of loaded keys; load your private key when it is not yet in the list.
 
 #### Q: How do I share large data sets stored on a cluster with an external collaborator?
 
@@ -112,3 +152,5 @@ A: We don't expose our large shared file systems to the outside world directly v
     * local_server  = cluster UI like for example ''calculon.hpc.rug.nl''
 1. You notify your collaborator he/she can download the data via SFTP from our server using the guest account...
 1. By default guest accounts expire after one month.
+
+#}

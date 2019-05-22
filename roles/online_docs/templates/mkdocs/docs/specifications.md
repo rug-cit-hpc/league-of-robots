@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 # Technical specifications of the High Performance Computing (HPC) environment on {{ slurm_cluster_name | capitalize }}
 
 ## Software
@@ -17,8 +18,17 @@ Key ingredients of the High Performance Computing (HPC) environment of the {{ sl
  * Sys Admin Interfaces (SAIs): _{% for server in groups['sys-admin-interface'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
  * Compute Nodes: _{% for server in groups['compute-vm'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
 
-## Resources available to Slurm jobs
+## Shared Storage
 
+A Logical File System (LFS) is usually a piece of a larger Physical File System (PFS) that serves a specific need for a specific user group. 
+In case it as a network file system you could call it a _share_. 
+In addition to LFS-ses for _home dirs_ and the centrally deployed _software_  and _reference data_ the {{ slurm_cluster_name | capitalize }} HPC cluster has access to the following LFS-ses:
+
+ * Available _tmp_ LFS-ses: {% if lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list | length %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list %}/{{ mount.lfs }} {% if not loop.last %}, {% endif %}{% endfor %}{% else %}None{% endif %}
+ * Available _prm_ LFS-ses: {% if lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list | length %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list %}/{{ mount.lfs }} {% if not loop.last %}, {% endif %}{% endfor %}{% else %}None{% endif %}
+ * Available _arc_ LFS-ses: {% if lfs_mounts | selectattr('lfs', 'search', 'arc[0-9]+$') | list | length %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'arc[0-9]+$') | list %}/{{ mount.lfs }} {% if not loop.last %}, {% endif %}{% endfor %}{% else %}None{% endif %}
+
+## Resources available to Slurm jobs
 
 | Resource            | Amount/value/name                      |
 |:------------------- | --------------------------------------:|
