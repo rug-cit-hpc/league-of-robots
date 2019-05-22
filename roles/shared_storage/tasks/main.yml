@@ -48,7 +48,7 @@
     path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) | regex_replace('((tmp)|(prm))[0-9]+$', '') }}"
     owner: 'root'
     group: "{{ item.1 }}"
-    mode: 0750
+    mode: 2750
     state: 'directory'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(prm))[0-9]+$') | list }}"
@@ -61,7 +61,7 @@
     path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
     owner: 'root'
     group: "{{ item.1 }}"
-    mode: 0770
+    mode: 2770
     state: 'directory'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
@@ -74,7 +74,7 @@
     path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
     owner: "{{ item.1 }}-dm"
     group: "{{ item.1 }}"
-    mode: 0750
+    mode: 2750
     state: 'directory'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
@@ -87,7 +87,7 @@
     path: "/mnt/{{ item.pfs }}/{{ item.lfs }}/apps"
     owner: "{{ envsync_user }}"
     group: "{{ envsync_group }}"
-    mode: 0755
+    mode: 2755
     state: 'directory'
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
