@@ -1,22 +1,14 @@
+#jinja2: trim_blocks:False
 # The {{ slurm_cluster_name | capitalize }} HPC cluster
 
-The {{ slurm_cluster_name | capitalize }} High Performance Compute (HPC) cluster is part of the league of robots - a collection of HPC clusters, 
-which are named after robots from the the animated sitcom [Futurama](https://en.wikipedia.org/wiki/Futurama).
-Deployment and functional administration of all clusters is a joined effort of the
-[Genomics Coordination Center (GCC)](http://wiki.gcc.rug.nl/)
-and the 
-[Center for Information Technology (CIT)](https://www.rug.nl/society-business/centre-for-information-technology/)
-from the [University Medical Center](https://www.umcg.nl) and [University](https://www.rug.nl) of Groningen, 
-in collaboration with and as part of several research projects including
+The {{ slurm_cluster_name | capitalize }} High Performance Compute (HPC) cluster is a typical [computer cluster](https://en.wikipedia.org/wiki/Computer_cluster),
+that uses _poor man's parallellization_ using relatively cheap _commodity hardware_: 
+the total workload is split in many small jobs (a.k.a. tasks) that process a chunk of data each. 
+The jobs are submitted to a workload manager, which distributes them efficiently over the compute nodes.
 
-* [ELIXIR compute platform](https://www.elixir-europe.org/platforms/compute)
-* [EXCELERATE](https://www.elixir-europe.org/about-us/how-funded/eu-projects/excelerate)
-* [EU-Solve-RD](http://solve-rd.eu/), the European Joint Project for Rare disease
-* [CORBEL](https://www.corbel-project.eu/home.html)
+## Key Features
 
-![RUG-UMCG](img/RUGUMCGduobrand.png)
-
-The key features of the the {{ slurm_cluster_name | capitalize }} cluster:
+The key features of the {{ slurm_cluster_name | capitalize }} cluster include:
 
  * Linux OS: [CentOS](https://www.centos.org/) 7.x with [Spacewalk](https://spacewalkproject.github.io/) for package distribution/management.
  * Completely virtualised on an [OpenStack](https://www.openstack.org/) cloud
@@ -28,9 +20,10 @@ The key features of the the {{ slurm_cluster_name | capitalize }} cluster:
  * Module system: [Lmod](https://github.com/TACC/Lmod)
  * Deployment of (Bioinformatics) software using [EasyBuild](https://github.com/easybuilders/easybuild)
 
-## Cluster components
+## Cluster Components
 
-The HPC cluster consists of various types of server. Some of these can be accessed directly by users, whereas others cannot be accessed directly.
+{{ slurm_cluster_name | capitalize }} consists of various types of servers and storage systems. 
+Some of these can be accessed directly by users, whereas others cannot be accessed directly.
 
 ![cluster](img/cluster-small.svg)
 
@@ -41,32 +34,32 @@ The HPC cluster consists of various types of server. Some of these can be access
  * User Interface (UI):
      * Logins for all users (via the jumphost).
      * Slurm tools/commands installed job management: submitting batch jobs, canceling batch jobs, interactive jobs, job profiling, etc.
-     * Read-only access to software, modules and reference data deployed with EasyBuild+Lmod in /apps/…
+     * Read-only access to software, modules and reference data deployed with EasyBuild + Lmod in /apps/…
      * Both tmp and prm folders from large, shared, parallel file systems mounted (with root squash) for data transfers/staging.
  * Deploy Admin Interface (DAI):
-     * Only for deploy admins (via the jumphost).
+     * Logins only for deploy admins (via the jumphost).
      * For deployment of centrally managed software or reference data sets using:
        Ansible playbooks + Lmod + EasyBuild
-     * No slurm tools/commands installed, so no accidental job management.
+     * No Slurm tools/commands installed, so no accidental job management.
      * Read-write access to software, modules and reference data deployed with EasyBuild+Lmod in /apps/...
      * No access to large, shared, parallel file systems.
  * Sys Admin Interface (SAI):
-     * Only for sys admins (via the jumphost).
-     * Used to manage and monitor the cluster components: generate quota and slurm usage reports, run cron jobs, etc.
-     * Runs SLURM scheduling daemon that determines when jobs will be executed on which nodes.
+     * Loging only for sys admins (via the jumphost).
+     * Used to manage and monitor the cluster components: generate quota and Slurm usage reports, run cron jobs, etc.
+     * Runs Slurm scheduling daemon that determines when jobs will be executed on which nodes.
      * Access to (complete) large shared parallel file systems (without root squash).
  * Compute Nodes:
      * No direct logins.
-     * Crunch batch jobs submitted to SLURM scheduler.
+     * Crunch batch jobs submitted to Slurm workload manager.
 
-#### Themes:
+## Naming Themes
 
-The {{ slurm_cluster_name | capitalize }} HPC cluster is part of a family of clusters that use the same themes for naming various components:
+{{ slurm_cluster_name | capitalize }} is part of the _League of Robots_ - a collection of HPC clusters - that use the same themes for naming various components:
 
  * Cluster itself and UIs are named after robots from the [Futurama scifi sitcom](https://futurama.fandom.com/wiki/Category:Robots)  
    E.g.: {{ slurm_cluster_name | capitalize }} UI = _{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_
  * Jumphosts are named after rooms preceding other rooms.  
-   E.g.: {{ slurm_cluster_name | capitalize }} Jumphost = _{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}.{{ slurm_cluster_domain }}_
+   E.g.: {{ slurm_cluster_name | capitalize }} Jumphost = _{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}_
  * Other machines that are part of the cluster and only accessible using internal network interfaces (schedulers, compute nodes, account servers, etc.)  
    will use a two character prefix _{{ stack_prefix }}_ followed by a dash and the function of the machine.  
    E.g. {{ slurm_cluster_name | capitalize }} compute node = _{{ groups['compute-vm'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_

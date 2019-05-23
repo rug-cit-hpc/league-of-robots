@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 # Keep - What is stored where on {{ slurm_cluster_name | capitalize }}
 
 ## Introduction
@@ -198,7 +199,7 @@ Important:
     * Don't run anything that causes massive random IO on your home dir.  
       E.g. don't store job scripts submitted to cluster nodes in homes.
     * Don't store experimental data in your home.  
-      our home is for personal preferences; not for experiments. 
+      Your home is for personal preferences; not for experiments. 
       Use a group dir for the latter (see below).
 
 ### Group dirs @ /groups/${group}/...

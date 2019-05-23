@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 # Data transfers - How to move data to / from {{ slurm_cluster_name | capitalize }}
 
 Firstly and independent of technical options: make sure you are familiar with the _code of conduct_ / _terms and conditions_ / _license_ or whatever it is called and that you are allowed to upload/download a data set!

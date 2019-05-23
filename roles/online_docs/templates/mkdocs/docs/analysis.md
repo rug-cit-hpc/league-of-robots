@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 # Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}
 
 {{ slurm_cluster_name | capitalize }} uses the [Slurm Workload Manager](https://Slurm.schedmd.com/)

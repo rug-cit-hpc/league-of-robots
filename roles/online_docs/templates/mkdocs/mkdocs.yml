@@ -6,6 +6,7 @@ theme:
     - yaml
 site_dir: "/var/www/html/{{ slurm_cluster_name }}/"
 nav:
+  - Home: 'index.md'
   - About: 
     - 'Cluster': 'cluster.md'
     - 'License': 'license.md'

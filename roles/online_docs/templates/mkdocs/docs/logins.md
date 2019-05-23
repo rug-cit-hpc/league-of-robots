@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 # How to start a session and connect to a User Interface server
 
 ## User Interface (UI) and jumphost servers
@@ -13,7 +14,7 @@ In order to access the UI you will need to hop via a _**jumphost**_,
 which is a security hardened machine that is not in any way involved in the processing of jobs nor in storing data and does receive daily (security) updates.
 In order to apply/activate security patches the jumphost may be temporarily unavailable, which means you cannot login to the _UI_ and hence cannot manage jobs nor create new ones, 
 but existing jobs (running or queued) won't be affected and the cluster will continue to process those.
-The _**jumphost**_ for the {{ slurm_cluster_name | capitalize }} HPC cluster is named _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}.{{ slurm_cluster_domain }}**_
+The _**jumphost**_ for the {{ slurm_cluster_name | capitalize }} HPC cluster is named _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}**_
 
 ## Request an account
 
@@ -107,8 +108,8 @@ The following assumes
         #
         #  A. With DNS entry.
         #
-        Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}} {% endfor %}!*.{{ slurm_cluster_domain }}
-            HostName %h.{{ slurm_cluster_domain }}
+        Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}} {% endfor %}{% if slurm_cluster_domain | length %}!*.{{ slurm_cluster_domain }}{% endif %}
+            HostName %h{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}
             User youraccount
         #
         #  B. Without DNS entry.
@@ -140,18 +141,18 @@ The following assumes
         Host *+*+*
             ProxyCommand ssh -X -q $(echo %h | sed 's/+[^+]*$//') -W $(echo %h | sed 's/^[^+]*+[^+]*+//'):%p
         #
-        # Double-hop proxy settings for jumphosts in {{ slurm_cluster_domain }} domain.
+        # Double-hop proxy settings for jumphosts{% if slurm_cluster_domain | length %} in {{ slurm_cluster_domain }} domain{% endif %}.
         #
         Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}+* {% endfor %}{% raw %}{% endraw %}
             PasswordAuthentication No
-            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//').{{ slurm_cluster_domain }} -W $(echo %h | sed 's/^[^+]*+//'):%p
+            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p
         #
         # Sometimes port 22 for the SSH protocol is blocked by firewalls; in that case you can try to use SSH on port 80 as fall-back.
         # Do not use port 80 by default for SSH as it officially assigned to HTTP traffic and some firewalls will cause problems when trying to route SSH over port 80.
         #
         Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}80+* {% endfor %}{% raw %}{% endraw %}
             PasswordAuthentication No
-            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//').{{ slurm_cluster_domain }} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 80
+            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 80
     Replace all occurences of _**youraccount**_ with the account name you received from the helpdesk.  
     If you are **not on a Mac or on a very old Mac** your OpenSSH client may not understand the ```IgnoreUnknown``` configuration option and you may have to comment/disable the  
     ```# Generic stuff: only for macOS clients``` section listed at the top of the example ```${HOME}/.ssh/config```.
@@ -163,7 +164,7 @@ The following assumes
 ##### 3. Login via jumphost
 
  * You can now login to the _UI_ named ```{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` with the account as specified in your ```${HOME}/.ssh/config```. 
-   via the _jumphost_ named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}.{{ slurm_cluster_domain }}``` 
+   via the _jumphost_ named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}``` 
    using the alias ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```. 
    Type the following command in a terminal:
 

@@ -25,7 +25,7 @@
 # * the default user used to login on the webserver where the docs are hosted
 # as you van specify only one account name with -u on the commandline when running ansible-playbook.
 #
-- name: 'Gather facts from all hosts, so we can use them in the generated docs.'
+- name: 'Gather facts from hosts, so we can use them in the generated docs.'
   setup:
   delegate_to: "{{ item }}"
   delegate_facts: true
