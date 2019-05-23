@@ -3,7 +3,7 @@ slurm_cluster_name: 'talos'
 slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'tl'
 mailhub: '172.23.34.34'
-rewrite_domain: "{{ stack_prefix }}-sai.{{ slurm_cluster_domain }}"
+rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 motd: |
       !!! WARNING: This cluster is in beta testing
           and may be redeployed from scratch, which
