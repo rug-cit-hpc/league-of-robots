@@ -2,7 +2,7 @@
 # The {{ slurm_cluster_name | capitalize }} HPC cluster
 
 The {{ slurm_cluster_name | capitalize }} High Performance Compute (HPC) cluster is part of the league of robots - a collection of HPC clusters, 
-which are named after robots from the the animated sitcom [Futurama](https://en.wikipedia.org/wiki/Futurama).
+which are named after robots.
 Deployment and functional administration of all clusters is a joined effort of the
 [Genomics Coordination Center (GCC)](http://wiki.gcc.rug.nl/)
 and the 
@@ -12,9 +12,10 @@ in collaboration with and as part of several research projects including
 
 * [ELIXIR compute platform](https://www.elixir-europe.org/platforms/compute)
 * [EXCELERATE](https://www.elixir-europe.org/about-us/how-funded/eu-projects/excelerate)
-* [EU-Solve-RD](http://solve-rd.eu/), the European Joint Project for Rare disease
+* [Solve-RD - solving the unsolved rare diseases](http://solve-rd.eu/)
+* [EJP RD - European Joint Programme on Rare Diseases](http://www.ejprarediseases.org/)
 * [CORBEL](https://www.corbel-project.eu/home.html)
 
-See [cluster](../cluster/) for an overview of cluster components and features.
+See [cluster](cluster/) for an overview of cluster components and features.
 
 ![RUG-UMCG](img/RUGUMCGduobrand.png)

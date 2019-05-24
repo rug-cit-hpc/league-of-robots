@@ -56,7 +56,9 @@ Some of these can be accessed directly by users, whereas others cannot be access
 
 {{ slurm_cluster_name | capitalize }} is part of the _League of Robots_ - a collection of HPC clusters - that use the same themes for naming various components:
 
- * Cluster itself and UIs are named after robots from the [Futurama scifi sitcom](https://futurama.fandom.com/wiki/Category:Robots)  
+ * Cluster itself and UIs are named after robots.  
+   Production cluster are named after robots from the [Futurama scifi sitcom](https://futurama.fandom.com/wiki/Category:Robots).
+   Test/development clusters are named after other robots.  
    E.g.: {{ slurm_cluster_name | capitalize }} UI = _{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_
  * Jumphosts are named after rooms preceding other rooms.  
    E.g.: {{ slurm_cluster_name | capitalize }} Jumphost = _{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}_

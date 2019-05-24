@@ -26,7 +26,8 @@ Hence we do not have a copy/record/backup of your private key on the server side
 
 #### Security & Privacy 
 
-* When you request an account you're email address will be added automatically to a low volume mailinglist, which is used for information regarding the clusters like maintenance announcements.
+* When you request an account your email address will be added automatically to a low volume mailinglist, 
+  which is used for information regarding the clusters like maintenance announcements.
 * When you use the cluster and are logged in:
   * You can secure the content of files/folders, so only you or only members of a specific group can access the content either with read-only or with read-write permissions.  
     This requires setting the desired permissions for files or folders, which is your own responsibility. When you specify wrong permissions, data may be accessible for others.

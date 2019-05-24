@@ -22,8 +22,9 @@ First make sure you have an account. If you are new, please [follow these instru
 
 ## SSH config and login to UI via jumphost for users on macOS, Linux or Unix
 
-The following assumes
-* you have a ```${HOME}/.ssh``` folder with SSH keys (as generated using the instructions for requesting accounts) 
+The following assumes:
+
+* you have a ```${HOME}/.ssh``` folder with SSH keys (as generated using the instructions for requesting accounts)
 * and that you received a notification that your account has been activated
 * and that you are on the machine from which you want to connect to the cluster.
 
@@ -37,18 +38,15 @@ The following assumes
         # Create new known_hosts file and append the UMCG HPC CA's public key.
         #
         printf '%s\n' \
-            "@cert-authority airlock*,*gearshift,*imperator,*sugarsnax,*gs-*,*talos,*tl-* ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDN8m3uPzwVJxsW3gvXTwc7f2WRwHFQ9aBXTGRRgdW/qVZydDC+rBTR1ZdapGtOqnOJ6VNzI7c2ziYWfx7kfYhFjhDZ3dv9XuOn1827Ktw5M0w8Y47bHfX+E/D9xMX1htdHGgja/yh0mTbs7Ponn3zOne8e8oUTUd7q/w/kO4KVsXaBsUz1ZG9wXjOA8TacwdoqMhzdhhQkhhKKGLArYeQ4gsa6N2MnXqd3glkhITQGOUQvFHxKP8nArfYeOK15UgzhkitcBsi4lkx1THuOu+u/oGskmacSaBWSUObP7LHKdw4v15/5S8qjD6NSm6ezfEtw1ltO3eVA6ZD5NbhHMZ3IkCeMlRKmVqQUmNqkcMSPwi91K5rcfduL4EYLT5nq+Z0Kv2UO8QXH9zBCb0K8zSdwtpoABfk0rbbdxtZXZD1y20DkRlbC3WMS79O9HsWAkugnwJ8LANGS3odY6spDAF6Rt7By/bcS+TobBLCUA6eQ+W1oml5hCCLPSsa0BPvIR1YxYxWbD6Gb/PDsTwZJ7ZDgEHd67ylrdL+aQvnJXVC3V0uEjyQbLN2txjgO3okFpzcOz9ERWEvz6fQgi387Idyy8fsmFOJ4RjEPlnUs/T4PfThZgo2hZYlYWMmRFxUK1PzC0zHcTnaTS9qoHogRZYJUn1kiiF6dB7atu1julDJzTw== UMCG HPC CA" \
+            "@cert-authority {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}*,{% if public_ip_addresses is defined and public_ip_addresses[jumphost] | length %}{{ public_ip_addresses[jumphost] }},{% endif %}{% endfor %}{% for adminhost in groups['administration'] %}*{{ adminhost | regex_replace('^' + ai_jumphost + '\\+','')}},{% endfor %}*{{ stack_prefix }}-* {{ lookup('file', ssh_host_signer_ca_private_key+'.pub') }} for {{ slurm_cluster_name }}" \
             > "${HOME}/.ssh/known_hosts.new"
-        printf '%s\n' \
-            "@cert-authority reception*,*talos,*tl-* ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ2R24oebG0oGQxJQvxzCVjd7lAVFzlOB9ygg5N+WUDp UMCG HPC Development CA" \
-            >> "${HOME}/.ssh/known_hosts.new"
         if [[ -e "${HOME}/.ssh/known_hosts" ]]; then
             #
             # When user already had a known_hosts file, then 
-            # remove a potentially outdated UMCG HPC CA public key and
-            # append all other lines to the new known_hosts file. 
+            # remove a potentially outdated CA public key for the same machines based on the slurm_cluster_name: {{ slurm_cluster_name }}
+            # and append all other lines to the new known_hosts file. 
             #
-            sed '/^\@cert-authority .* UMCG HPC .*CA$/d' "${HOME}/.ssh/known_hosts" \
+            sed '/^\@cert-authority .* for {{ slurm_cluster_name }}$/d' "${HOME}/.ssh/known_hosts" \
                 | sort >> "${HOME}/.ssh/known_hosts.new"
         fi
         #
@@ -107,15 +105,18 @@ The following assumes
         ##
         #
         #  A. With DNS entry.
-        #
-        Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}} {% endfor %}{% if slurm_cluster_domain | length %}!*.{{ slurm_cluster_domain }}{% endif %}
+        #{% if public_ip_addresses is defined and public_ip_addresses | length %}{% for jumphost in groups['jumphost'] %}
+        Host {{ jumphost | regex_replace('^' + ai_jumphost + '\\+','') }}
+            HostName {{ public_ip_addresses[jumphost | regex_replace('^' + ai_jumphost + '\\+','')] }}
+            User youraccount{% endfor %}{% else %}
+        Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','') }} {% endfor %}{% if slurm_cluster_domain | length %}!*.{{ slurm_cluster_domain }}{% endif %}
             HostName %h{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}
-            User youraccount
+            User youraccount{% endif %}
         #
         #  B. Without DNS entry.
         #     These can only be resolved when already logged in on one of the machines with DNS entry listed above.
         #
-        Host {% for adminhost in groups['administration'] %}*{{ adminhost | regex_replace('^' + ai_jumphost + '\\+','')}} {% endfor %}*{{ stack_prefix }}-*
+        Host {% for adminhost in groups['administration'] %}*{{ adminhost | regex_replace('^' + ai_jumphost + '\\+','') }} {% endfor %}*{{ stack_prefix }}-*
             User youraccount
         #
         ##

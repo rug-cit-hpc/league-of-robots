@@ -41,6 +41,8 @@ cloud_user: centos
 flavor_nano: s1.nano
 flavor_tiny: s1.tiny
 public_net_id: ext-net-37
+public_ip_addresses:
+  portal: '193.62.55.164'
 private_net_id: Solve-RD_private
 private_subnet_id: Solve-RD_subnet
 private_storage_net_id: net_provider_vlan3126

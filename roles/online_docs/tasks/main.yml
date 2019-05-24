@@ -32,7 +32,6 @@
   with_items:
     - "{{ groups['jumphost'] }}"
     - "{{ groups['user-interface'] }}"
-#    - "{{ groups['cluster'] }}"
 
 - name: 'Get Slurm version from scontrol on UI.'
   shell: |
