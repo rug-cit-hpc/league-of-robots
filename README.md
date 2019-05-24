@@ -3,7 +3,8 @@
 ## About this repo
 
 This repository contains playbooks and documentation to deploy virtual Linux HPC clusters, which can be used as *collaborative, analytical sandboxes*.
-All clusters were named after robots that appear in the animated sitcom [Futurama](https://en.wikipedia.org/wiki/Futurama)
+All production clusters were named after robots that appear in the animated sitcom [Futurama](https://en.wikipedia.org/wiki/Futurama).
+Test/development clusters were named after other robots.
 
 #### Software/framework ingredients
 
