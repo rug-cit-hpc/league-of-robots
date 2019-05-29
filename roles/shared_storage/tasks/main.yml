@@ -15,6 +15,7 @@
     src: "{{ item.source }}"
     fstype: "{{ item.type }}"
     opts: "{{ item.rw_options }}"
+#    state: 'absent'
     state: 'mounted'
   with_items: "{{ pfs_mounts }}"
   when: inventory_hostname in groups['sys-admin-interface']
@@ -25,7 +26,7 @@
     path: "/mnt/{{ item.pfs }}/{{ item.lfs }}"
     owner: 'root'
     group: 'root'
-    mode: 0755
+    mode: '0755'
     state: 'directory'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'match', '^home$') | list }}"
   when: inventory_hostname in groups['sys-admin-interface']
@@ -36,7 +37,7 @@
     path: "/mnt/{{ item.pfs }}/{{ item.lfs | regex_replace('GROUP.*', '') }}"
     owner: 'root'
     group: 'root'
-    mode: 0755
+    mode: '0755'
     state: 'directory'
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', '(tmp)|(prm)[0-9]+$') | list }}"
@@ -61,7 +62,7 @@
     path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
     owner: 'root'
     group: "{{ item.1 }}"
-    mode: 2770
+    mode: '2770'
     state: 'directory'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
@@ -74,7 +75,7 @@
     path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
     owner: "{{ item.1 }}-dm"
     group: "{{ item.1 }}"
-    mode: 2750
+    mode: '2750'
     state: 'directory'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
@@ -87,7 +88,7 @@
     path: "/mnt/{{ item.pfs }}/{{ item.lfs }}/apps"
     owner: "{{ envsync_user }}"
     group: "{{ envsync_group }}"
-    mode: 2755
+    mode: '2755'
     state: 'directory'
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
