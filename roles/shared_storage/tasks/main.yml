@@ -15,7 +15,6 @@
     src: "{{ item.source }}"
     fstype: "{{ item.type }}"
     opts: "{{ item.rw_options }}"
-#    state: 'absent'
     state: 'mounted'
   with_items: "{{ pfs_mounts }}"
   when: inventory_hostname in groups['sys-admin-interface']
