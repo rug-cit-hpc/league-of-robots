@@ -6,5 +6,4 @@ uri_ldap: ''
 uri_ldaps: ''
 ldap_base: ''
 ldap_binddn: ''
-sshd_moduli_minimum: 3072
 ...
