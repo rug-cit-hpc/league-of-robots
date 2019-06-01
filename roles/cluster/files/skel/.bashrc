@@ -4,15 +4,14 @@
 # Source global definitions. (DO NOT EDIT!)
 #
 if [ -f /etc/bashrc ]; then
-  . /etc/bashrc
+  source /etc/bashrc
 fi
 
-#
-# Shared HPC environment. (DO NOT EDIT!)
-#
-if [ -f /apps/modules/modules.bashrc ]; then
-  . /apps/modules/modules.bashrc
+# BEGIN ANSIBLE MANAGED BLOCK - Setup environment for Lua, Lmod & EasyBuild.
+if [ -f "/apps/modules//modules.bashrc" ]; then
+  source "/apps/modules//modules.bashrc"
 fi
+# END ANSIBLE MANAGED BLOCK - Setup environment for Lua, Lmod & EasyBuild.
 
 #
 # User specific personal settings, aliases and functions below this comment.
