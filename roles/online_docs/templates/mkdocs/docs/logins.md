@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 # How to start a session and connect to a User Interface server
 
 ## User Interface (UI) and jumphost servers
@@ -13,7 +14,7 @@ In order to access the UI you will need to hop via a _**jumphost**_,
 which is a security hardened machine that is not in any way involved in the processing of jobs nor in storing data and does receive daily (security) updates.
 In order to apply/activate security patches the jumphost may be temporarily unavailable, which means you cannot login to the _UI_ and hence cannot manage jobs nor create new ones, 
 but existing jobs (running or queued) won't be affected and the cluster will continue to process those.
-The _**jumphost**_ for the {{ slurm_cluster_name | capitalize }} HPC cluster is named _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}.{{ slurm_cluster_domain }}**_
+The _**jumphost**_ for the {{ slurm_cluster_name | capitalize }} HPC cluster is named _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}**_
 
 ## Request an account
 
@@ -21,8 +22,9 @@ First make sure you have an account. If you are new, please [follow these instru
 
 ## SSH config and login to UI via jumphost for users on macOS, Linux or Unix
 
-The following assumes
-* you have a ```${HOME}/.ssh``` folder with SSH keys (as generated using the instructions for requesting accounts) 
+The following assumes:
+
+* you have a ```${HOME}/.ssh``` folder with SSH keys (as generated using the instructions for requesting accounts)
 * and that you received a notification that your account has been activated
 * and that you are on the machine from which you want to connect to the cluster.
 
@@ -36,18 +38,15 @@ The following assumes
         # Create new known_hosts file and append the UMCG HPC CA's public key.
         #
         printf '%s\n' \
-            "@cert-authority airlock*,*gearshift,*imperator,*sugarsnax,*gs-*,*talos,*tl-* ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDN8m3uPzwVJxsW3gvXTwc7f2WRwHFQ9aBXTGRRgdW/qVZydDC+rBTR1ZdapGtOqnOJ6VNzI7c2ziYWfx7kfYhFjhDZ3dv9XuOn1827Ktw5M0w8Y47bHfX+E/D9xMX1htdHGgja/yh0mTbs7Ponn3zOne8e8oUTUd7q/w/kO4KVsXaBsUz1ZG9wXjOA8TacwdoqMhzdhhQkhhKKGLArYeQ4gsa6N2MnXqd3glkhITQGOUQvFHxKP8nArfYeOK15UgzhkitcBsi4lkx1THuOu+u/oGskmacSaBWSUObP7LHKdw4v15/5S8qjD6NSm6ezfEtw1ltO3eVA6ZD5NbhHMZ3IkCeMlRKmVqQUmNqkcMSPwi91K5rcfduL4EYLT5nq+Z0Kv2UO8QXH9zBCb0K8zSdwtpoABfk0rbbdxtZXZD1y20DkRlbC3WMS79O9HsWAkugnwJ8LANGS3odY6spDAF6Rt7By/bcS+TobBLCUA6eQ+W1oml5hCCLPSsa0BPvIR1YxYxWbD6Gb/PDsTwZJ7ZDgEHd67ylrdL+aQvnJXVC3V0uEjyQbLN2txjgO3okFpzcOz9ERWEvz6fQgi387Idyy8fsmFOJ4RjEPlnUs/T4PfThZgo2hZYlYWMmRFxUK1PzC0zHcTnaTS9qoHogRZYJUn1kiiF6dB7atu1julDJzTw== UMCG HPC CA" \
+            "@cert-authority {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}*,{% if public_ip_addresses is defined and public_ip_addresses[jumphost] | length %}{{ public_ip_addresses[jumphost] }},{% endif %}{% endfor %}{% for adminhost in groups['administration'] %}*{{ adminhost | regex_replace('^' + ai_jumphost + '\\+','')}},{% endfor %}*{{ stack_prefix }}-* {{ lookup('file', ssh_host_signer_ca_private_key+'.pub') }} for {{ slurm_cluster_name }}" \
             > "${HOME}/.ssh/known_hosts.new"
-        printf '%s\n' \
-            "@cert-authority reception*,*talos,*tl-* ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ2R24oebG0oGQxJQvxzCVjd7lAVFzlOB9ygg5N+WUDp UMCG HPC Development CA" \
-            >> "${HOME}/.ssh/known_hosts.new"
         if [[ -e "${HOME}/.ssh/known_hosts" ]]; then
             #
             # When user already had a known_hosts file, then 
-            # remove a potentially outdated UMCG HPC CA public key and
-            # append all other lines to the new known_hosts file. 
+            # remove a potentially outdated CA public key for the same machines based on the slurm_cluster_name: {{ slurm_cluster_name }}
+            # and append all other lines to the new known_hosts file. 
             #
-            sed '/^\@cert-authority .* UMCG HPC .*CA$/d' "${HOME}/.ssh/known_hosts" \
+            sed '/^\@cert-authority .* for {{ slurm_cluster_name }}$/d' "${HOME}/.ssh/known_hosts" \
                 | sort >> "${HOME}/.ssh/known_hosts.new"
         fi
         #
@@ -106,15 +105,18 @@ The following assumes
         ##
         #
         #  A. With DNS entry.
-        #
-        Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}} {% endfor %}!*.{{ slurm_cluster_domain }}
-            HostName %h.{{ slurm_cluster_domain }}
-            User youraccount
+        #{% if public_ip_addresses is defined and public_ip_addresses | length %}{% for jumphost in groups['jumphost'] %}
+        Host {{ jumphost | regex_replace('^' + ai_jumphost + '\\+','') }}
+            HostName {{ public_ip_addresses[jumphost | regex_replace('^' + ai_jumphost + '\\+','')] }}
+            User youraccount{% endfor %}{% else %}
+        Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','') }} {% endfor %}{% if slurm_cluster_domain | length %}!*.{{ slurm_cluster_domain }}{% endif %}
+            HostName %h{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}
+            User youraccount{% endif %}
         #
         #  B. Without DNS entry.
         #     These can only be resolved when already logged in on one of the machines with DNS entry listed above.
         #
-        Host {% for adminhost in groups['administration'] %}*{{ adminhost | regex_replace('^' + ai_jumphost + '\\+','')}} {% endfor %}*{{ stack_prefix }}-*
+        Host {% for adminhost in groups['administration'] %}*{{ adminhost | regex_replace('^' + ai_jumphost + '\\+','') }} {% endfor %}*{{ stack_prefix }}-*
             User youraccount
         #
         ##
@@ -123,35 +125,35 @@ The following assumes
         # 
         # The syntax in all the ProxyCommand rules below assumes your private key is in the default location.
         # The default location is:
-        #  ~/.ssh/id_rsa     for keys generated with the RSA algorithm.
-        #  ~/.ssh/id_ed25519 for keys generated with the ed25519 algorithm.
+        #     ${HOME}/.ssh/id_ed25519
+        # for keys generated with the ed25519 algorithm.
         # In case your private key file is NOT in the default location you must:
         #  1. Specify the path to your private key file on the command line when logging in with SSH.
         #     For example:
-        #         $> ssh -i ~/.ssh/some_other_private_key_file youraccount@jumphost_server+destination_server
+        #         $> ssh -i ${HOME}/.ssh/some_other_private_key_file youraccount@jumphost_server+destination_server
         #  2. Add the path to your private key file in the ProxyCommand rules below.
         #     For example:
         #         Host jumphost_server+*
         #             PasswordAuthentication No
-        #             ProxyCommand ssh -X -q -i ~/.ssh/some_other_private_key_file youraccount@$(echo %h | sed 's/+[^+]*$//').some.sub.domain -W $(echo %h | sed 's/^[^+]*+//'):%p
+        #             ProxyCommand ssh -X -q -i ${HOME}/.ssh/some_other_private_key_file youraccount@$(echo %h | sed 's/+[^+]*$//').some.sub.domain -W $(echo %h | sed 's/^[^+]*+//'):%p
         #
         # Universal jumphost settings for triple-hop SSH.
         #
         Host *+*+*
             ProxyCommand ssh -X -q $(echo %h | sed 's/+[^+]*$//') -W $(echo %h | sed 's/^[^+]*+[^+]*+//'):%p
         #
-        # Double-hop proxy settings for jumphosts in {{ slurm_cluster_domain }} domain.
+        # Double-hop proxy settings for jumphosts{% if slurm_cluster_domain | length %} in {{ slurm_cluster_domain }} domain{% endif %}.
         #
-        Host lobby+* foyer+* airlock+* reception+*
+        Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}+* {% endfor %}{% raw %}{% endraw %}
             PasswordAuthentication No
-            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//').hpc.rug.nl -W $(echo %h | sed 's/^[^+]*+//'):%p
+            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p
         #
         # Sometimes port 22 for the SSH protocol is blocked by firewalls; in that case you can try to use SSH on port 80 as fall-back.
         # Do not use port 80 by default for SSH as it officially assigned to HTTP traffic and some firewalls will cause problems when trying to route SSH over port 80.
         #
-        Host lobby80+* foyer80+* airlock80+* reception80+*
+        Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}80+* {% endfor %}{% raw %}{% endraw %}
             PasswordAuthentication No
-            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//').hpc.rug.nl -W $(echo %h | sed 's/^[^+]*+//'):%p -p 80
+            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 80
     Replace all occurences of _**youraccount**_ with the account name you received from the helpdesk.  
     If you are **not on a Mac or on a very old Mac** your OpenSSH client may not understand the ```IgnoreUnknown``` configuration option and you may have to comment/disable the  
     ```# Generic stuff: only for macOS clients``` section listed at the top of the example ```${HOME}/.ssh/config```.
@@ -163,7 +165,7 @@ The following assumes
 ##### 3. Login via jumphost
 
  * You can now login to the _UI_ named ```{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` with the account as specified in your ```${HOME}/.ssh/config```. 
-   via the _jumphost_ named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}.{{ slurm_cluster_domain }}``` 
+   via the _jumphost_ named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}``` 
    using the alias ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```. 
    Type the following command in a terminal:
 
@@ -181,42 +183,6 @@ The following assumes
 
         ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}80+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
-##### 4. Transfer data to/from cluster via jumphost
-
- * You can transfer data with ```rsync``` over _SSH_ to copy files to for example your home dir on the cluster with something like the command below.  
-   _**Note the colon**_ at the end of the ```rsync``` command:
-    1. Without the colon you would copy to a local file named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` instead.
-    1. If you do not specify a path after the colon you'll transfer data to the default location, which is your home dir.
-
-                rsync -av some_directory {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}:
-
- * If you want the data to go elsewhere you'll have to specify where. E.g.:
-
-        rsync -av some_directory {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}:/path/to/somewhere/else/
-
-##### 5. Transfer data from one server to another server
-
-When you login from your local computer (optionally via a jumphost) to a server of the {{ slurm_cluster_name | capitalize }} HPC cluster 
-and next need to transfer data from {{ slurm_cluster_name | capitalize }} to another server or vice versa, 
-you will need to temporarily forward your private key to the server from the {{ slurm_cluster_name | capitalize }} HPC cluster.
-This is known as _SSH agent forwarding_ and can be accomplished with the ```-A``` argument on the commandline.
-
- * _**Note**_: You **cannot** accomplish this by configuring a ```ProxyCommand``` directive in the ```${HOME}/.ssh/config``` file on your local computer.
- * _**Note**_: Do **not** use SSH with _agent forwarding_ by default for all your sessions as it is less secure.
- * If you do need _agent forwarding_, then login with ```-A``` like this:
-
-        ssh -A {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
-
- * Execute the following command to verify that _agent forwarding_ worked and to list the identities (private keys) available to the SSH agent:
-
-        ssh-add -l
-
-    * You should get a response with at least one key fingerprint, which means you can now transfer data with ```rsync``` to/from the other server 
-      assuming you are allowed to access the other server, are allowed to transfer the data and that no firewalls are blocking the connection.
-    * If you get ```The agent has no identities.``` instead then the key forwarding failed.  
-      This may happen when you were already logged in to the same server without the ```-A``` option in another active SSH session;
-      make sure you logout from the server of the {{ slurm_cluster_name | capitalize }} HPC cluster in all terminals and try login with ```-A``` again.
-
 #### Frequent Asked Questions (FAQs) and trouble shooting
 
 * Q: Why do I get the error ```muxserver_listen bind(): No such file or directory.```?  
@@ -224,7 +190,7 @@ This is known as _SSH agent forwarding_ and can be accomplished with the ```-A``
 * Q: Why do I get the error ```ControlPath too long```?  
   A: The ```ControlPath ~/.ssh/tmp/%C``` line in your ```${HOME}/.ssh/config``` file expands to a path that is too long.
      Change the ```ControlPath``` line in your ```${HOME}/.ssh/config``` file to create a shorter path for the automagically created sockets.
-* Q: Why do I get the error ```nc: getaddrinfo: Name or service not known. ssh_exchange_identification: Connection closed by remote host```?  
+* Q: Why do I get the error ```ssh_exchange_identification: Connection closed by remote host```?  
   A: Either this server does not exist (anymore) or you have a typo in the name of the server you are trying to connect to.
      Check both the command you typed as well as your ```${HOME}/.ssh/config``` for typos in server names.
 * Q: Why do I get the error ```Permission denied (publickey).```?  
@@ -233,7 +199,30 @@ This is known as _SSH agent forwarding_ and can be accomplished with the ```-A``
       * or you are using the wrong private key file  
       * or the permissions on your ```${HOME}/.ssh/``` dir and/or on its content are wrong  
       * or your account is misconfigured on our account server.  
-     Check your account name, private key and permissions. If that did not resolve the issue, then increase the verbosity to debug connection problems (see below).
+     Firstly, check your account name, private key and permissions.  
+     Secondly, check if you can login to the jumphost with a single hop  
+
+        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+
+     If you can login to the jumphost, but cannot use double hop SSH to login to the UI via the jumphost,
+     you may have to add your private key to the SSH agent on you local machine. 
+     To check which private key(s) are available to your SSH agent you can list them with on your local computer with:
+
+        ssh-add -l
+
+     If you get:
+
+        The agent has no identities.
+
+     then you have to add your private key with the ```ssh-add``` command, which should return output like this:
+
+        Identity added: /path/to/your/home/dir/.ssh/id_ed25519 (key_comment)
+
+     Your private key should now be listed when you check with ```ssh-add -l```, which should look like this:
+
+        256 SHA256:j/ZNnUvHYW3U$wgIapHw73SnhojjxlWkAcGZ6qDX6Lw key_comment (ED25519)
+
+     If that did not resolve the issue, then increase the verbosity to debug connection problems (see below).
 * Q: Can I increase the verbosity to debug connection problems?  
   A: Yes try adding ```-vvv``` like this:  
      ```ssh -vvv youraccount@{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```  

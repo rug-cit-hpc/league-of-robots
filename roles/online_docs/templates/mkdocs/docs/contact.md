@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 # Contact the helpdesk
 
 For questions regarding the {{ slurm_cluster_name | capitalize }} HPC cluster contact the UMCG HPC helpdesk powered by the Genomics Coordination Center.
