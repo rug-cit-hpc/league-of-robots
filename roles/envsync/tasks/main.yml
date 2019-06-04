@@ -4,33 +4,39 @@
 # Depending on wether this account comes from an LDAP or is a local account,
 # it must have been created earlier on in the play.
 #
-- name: 'Check if envsync group is present.'
+- name: 'Check if envsync group is present (without creating one if not existing yet).'
   group:
     name: "{{ envsync_group }}"
     state: present
-  check_mode: true
   become: false
 
-- name: 'Check if envsync user is present.'
+- name: 'Check if envsync user is present (without creating one if not existing yet).'
   user:
     name: "{{ envsync_user }}"
     group: "{{ envsync_user }}"
     groups: "{{ envsync_group }}"
     home: "/home/{{ envsync_user }}"
+    create_home: no
     append: no
-  check_mode: true
   become: false
 
 #
 # Configure environment synchronization account.
 #
+- name: 'Initialize envsync account creating home dir if it did not exist yet.'
+  command: "su - {{ envsync_user }}"
+  register: envsync_login
+  failed_when: envsync_login.rc != 0
+  changed_when: "'Creating home directory for umcg-envsync' in envsync_login.stdout"
+  become: true
+
 - name: 'Allow passwordless sudo to the environment synchronization account for deploy admin users.'
   lineinfile:
     dest: '/etc/sudoers'
     line: "%{{ envsync_group }}    ALL=(envsync_user)    NOPASSWD:ALL"
   become: true
 
-- name: Insert/update block into ~/.bashrc to ensure we use the correct environment for syncing.
+- name: 'Insert/update block into ~/.bashrc to ensure we use the correct environment for syncing.'
   blockinfile:
     dest: "/home/{{ envsync_user }}/.bashrc"
     block: |
