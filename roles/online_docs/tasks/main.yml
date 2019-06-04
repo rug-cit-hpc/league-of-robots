@@ -14,7 +14,7 @@
   delegate_to: localhost
 - name: Abort when modern rsync >= 3.1.2 is missing on control host.
   debug:
-    msg: 'Will install Lua from source as it is either missing or present in a different version. (Detected {{ lua_installed_version.stdout }} and need {{ easybuild_lua_version }}.)'
+    msg: "FATAL: Need rsync >= 3.1.2 on the control host, but detected {{ rsync_version.stdout }}."
   when:         'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
   failed_when: 'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
   delegate_to: localhost
