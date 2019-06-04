@@ -27,7 +27,7 @@
   command: "su - {{ envsync_user }}"
   register: envsync_login
   failed_when: envsync_login.rc != 0
-  changed_when: "'Creating home directory for umcg-envsync' in envsync_login.stdout"
+  changed_when: "'Creating home directory' in envsync_login.stdout"
   become: true
 
 - name: 'Allow passwordless sudo to the environment synchronization account for deploy admin users.'
