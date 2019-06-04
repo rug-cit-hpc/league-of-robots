@@ -1,0 +1,46 @@
+---
+#
+# We only check if the envsync account for deploy admins exists; Hence we DO NOT create it here!
+# Depending on wether this account comes from an LDAP or is a local account,
+# it must have been created earlier on in the play.
+#
+- name: 'Check if envsync group is present.'
+  group:
+    name: "{{ envsync_group }}"
+    state: present
+  check_mode: true
+  become: false
+
+- name: 'Check if envsync user is present.'
+  user:
+    name: "{{ envsync_user }}"
+    group: "{{ envsync_user }}"
+    groups: "{{ envsync_group }}"
+    home: "/home/{{ envsync_user }}"
+    append: no
+  check_mode: true
+  become: false
+
+#
+# Configure environment synchronization account.
+#
+- name: 'Allow passwordless sudo to the environment synchronization account for deploy admin users.'
+  lineinfile:
+    dest: '/etc/sudoers'
+    line: "%{{ envsync_group }}    ALL=(envsync_user)    NOPASSWD:ALL"
+  become: true
+
+- name: Insert/update block into ~/.bashrc to ensure we use the correct environment for syncing.
+  blockinfile:
+    dest: "/home/{{ envsync_user }}/.bashrc"
+    block: |
+      [ $(id -gn) = {{ envsync_group }} ] || exec newgrp {{ envsync_group }}
+      cd
+      umask 0002
+      module load depad-utils
+      module list
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Setup environment for environment synchronization account."
+    insertafter: EOF
+    create: no
+  become: true
+...

@@ -59,6 +59,12 @@
        yum:
           name: ansible-2.6.6-1.el7.umcg
 
+- name: Install roles needed for DAIs.
+  hosts:
+     - deploy-admin-interface
+  roles:
+     - envsync
+
 - name: Install roles needed for jumphosts.
   hosts: jumphost
   become: true
