@@ -109,6 +109,11 @@ auth_users:
     uid: 1016
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKOKgVel0GbF67zZaVR0TFo82e5XeZOP1e3Ld3gIdaER h.j.zilverberg
+  envsync:
+    comment: 'Environment Synchronizer'
+    uid: 1017
+    pub_keys: |
+              # No direct logins required: sudo only.
   solve-rd-dm:
     comment: 'Datamanager user of solve-rd group'
     uid: 1018
@@ -117,11 +122,12 @@ auth_users:
     comment: 'Datamanager user of umcg-atd group'
     uid: 1019
     pub_keys:
-  envsync:
-    comment: 'Environment Synchronizer'
-    uid: 1017
+  ljohansson:
+    comment: 'Lennart Johansson'
+    uid: 1020
     pub_keys: |
-              # No direct logins required: sudo only.
+              ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDWqyiEypRvLN6SzmETPpZc4sAeCZO3KFZJCAEXjTgehukD5t7785YBteTq9EF6UmE+5vTNMPVpGDS71YSoI6HmZBao2zqI/rwp6DK+TtK9qCwKXF0ye67WjSFqWgEgDj+RY2C3Hk7Kwb4lzrcWbw+pl6aj4Jzdbe4Yg0UaSvkEiiWifEbjkYNitUmZcVvYcskuUgCTvuCsKDNFtkRXh4CZ6PMC8ovQWbE1zZgDjRGXjZMPURLBQHz2pQhUGndILPoRNBot4CREUnfNUxOGiGI2RwoADSfVeHXKgFlV8r0eK4VZIJWGwwwJzmtnV4SrHMRiAe+xabCXKtppRHW73ujpjrNhuuBrEkILVE38cwbkVHGdVOfb2fS3bMsbEBDRYvR/UNvqyvMdnYp3qM5Hf8chGEcd0E37/Z/1iOeuqXYOs5fx83tVHm7f6RK1BvcUMMk4g71c72fGG6jVswrEOTmhgbOVNTJRUJJMrUPoEs3PKRg0QbQ59WcQ1ZJeMD5/JRWCssEZJbBZBrdBLdlRg4KKCcKzpcMRKFBJXy770p2GGjtAba/TmcD34H2LETVc46NJoLXDMSV8olM1z9wp0tgxJWRJUKMXzCnly2hfjtvrgu5XAnCnvDGYwI6Z58Ekzcjr0EgEmATN4NsyHEWqpYqNbAO1Z8IaAG6vLH4MxGlYbQ== ljohansson
+
 #
 # Local group specs.
 # Note:

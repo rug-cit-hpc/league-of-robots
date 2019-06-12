@@ -5,7 +5,7 @@ stack_prefix: 'fd'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 motd: "To solve or not to solve, that's the question."
-vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
+vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-12]"
 vcompute_sockets: 16
 vcompute_cores_per_socket: 1
 vcompute_real_memory: 64264
@@ -21,7 +21,7 @@ ui_sockets: 4
 ui_cores_per_socket: 1
 ui_real_memory: 7821
 ui_local_disk: 0
-ui_features: 'prm09,tmp09'
+ui_features: 'prm10,tmp10'
 ui_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
@@ -38,16 +38,19 @@ key_name: Gerben
 image_cirros: cirros-0.3.4-x86_64-disk.img
 image_centos7: centos7
 cloud_user: centos
-flavor_nano: s1.large
-flavor_tiny: s1.gargantuan
+flavor_nano: s1.nano
+flavor_tiny: s1.tiny
+flavor_ui: s1.large
+flavor_vcompute: s1.gargantuan
 public_net_id: ext-net-37
 private_net_id: Solve-RD_private
 private_subnet_id: Solve-RD_subnet
 private_storage_net_id: net_provider_vlan3126
 private_storage_subnet_id: subnet3126
 security_group_id: SSH-and-ping-2
-slurm_ldap: false
+slurm_ldap: true
 availability_zone: AZ_1
+storage_availability_zone: nova
 local_volume_size: 1
 nameservers: [
   '/em-isi-3126.ebi.ac.uk/10.35.126.201',  # Local DNS lookups for shared storage.
@@ -87,6 +90,8 @@ local_regular_users:
   - user: 'pneerincx'
     groups: ['users', 'depad','umcg-atd', 'solve-rd']
   - user: 'rkanninga'
+    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+  - user: 'ljohansson'
     groups: ['users', 'depad','umcg-atd', 'solve-rd']
 pfs_mounts: [
   { pfs: 'Solve-RD',
