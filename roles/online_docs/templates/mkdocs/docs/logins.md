@@ -191,8 +191,11 @@ The following assumes:
   A: The ```ControlPath ~/.ssh/tmp/%C``` line in your ```${HOME}/.ssh/config``` file expands to a path that is too long.
      Change the ```ControlPath``` line in your ```${HOME}/.ssh/config``` file to create a shorter path for the automagically created sockets.
 * Q: Why do I get the error ```ssh_exchange_identification: Connection closed by remote host```?  
-  A: Either this server does not exist (anymore) or you have a typo in the name of the server you are trying to connect to.
-     Check both the command you typed as well as your ```${HOME}/.ssh/config``` for typos in server names.
+  A: Either this server does not exist (anymore). You may have a typo in the name of the server you are trying to connect to.
+     Check both the command you typed as well as your ```${HOME}/.ssh/config``` for typos in server names.  
+     Or you are using the wrong private key. If your private key is not saved with the default name in the default location,
+     check if you specified the correct private file both for the ```ProxyCommand``` in your ```${HOME}/.ssh/config``` 
+     as well as with the ```-i``` option for the ```ssh``` command.
 * Q: Why do I get the error ```Permission denied (publickey).```?  
   A: This error can be caused by various configuration issues:  
       * Either you are using the wrong account name  
