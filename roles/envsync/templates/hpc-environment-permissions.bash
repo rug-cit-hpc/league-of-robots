@@ -9,7 +9,7 @@
 #
 # Executed overnight by cron.
 #
-# Note make sure that the server on which this script runs has read-write access 
+# Note make sure that the server on which this script runs has read-write access as root
 # and not read-only mounts or (NFS) shares mounted that were exported with root_squash.
 #
 
@@ -23,10 +23,10 @@ umask 0027
 #
 # Global variables.
 #
-ORIGINAL_HPC_ENV_PREFIX='/apps/'
-declare -a COPIED_HPC_ENV_MOUNT_POINT_PARENTS=('/.envsync')
-SYS_USER='umcg-envsync'
-SYS_GROUP='umcg-depad'
+ORIGINAL_HPC_ENV_PREFIX='{{ hpc_env_prefix }}'
+declare -a COPIED_HPC_ENV_MOUNT_POINT_PARENTS=('/mnt')
+SYS_USER='{{ envsync_user }}'
+SYS_GROUP='{{ envsync_group }}'
 
 #
 ##
@@ -49,7 +49,7 @@ function verifyAndFixOriginals() {
   for (( i = 0 ; i < ${#_HPC_ENV_FOLDERS[@]:-0} ; i++ ))
   do
     find "${_HPC_ENV_FOLDERS[${i}]}" \! -group "${SYS_GROUP}" -exec chgrp "${SYS_GROUP}" '{}' \;
-    verifyFolder "${_HPC_ENV_FOLDERS[${i}]}" '0775' '0664' 'ug+rwX,o+rX,o-w' '2775'
+    verifyPermissions "${_HPC_ENV_FOLDERS[${i}]}" '0775' '0664' 'ug+rwX,o+rX,o-w' '2775'
   done
 }
 
@@ -67,7 +67,7 @@ function verifyAndFixCopies() {
   do
     find "${_HPC_ENV_FOLDERS[${i}]}" \! -user  "${SYS_USER}"  -exec chown "${SYS_USER}" '{}' \;
     find "${_HPC_ENV_FOLDERS[${i}]}" \! -group "${SYS_GROUP}" -exec chgrp "${SYS_GROUP}" '{}' \;
-    verifyFolder "${_HPC_ENV_FOLDERS[${i}]}" '0755' '0644' 'u+rwX,go+rX,go-w' '2755'
+    verifyPermissions "${_HPC_ENV_FOLDERS[${i}]}" '0755' '0644' 'u+rwX,go+rX,go-w' '2755'
   done
 }
 
@@ -76,21 +76,13 @@ function verifyAndFixCopies() {
 # We change perms only if they are wrong, so last modification time stamps do not get changed 
 # unless there really was something to change. Mostly used for "group" folders.
 #
-function verifyFolder() {
+function verifyPermissions() {
   local _FOLDER="$1"
   local _FIND_FILE_PERMS_EXECUTABLE="$2"
   local _FIND_FILE_PERMS_REGULAR="$3"
   local _CHMOD_FILE_PERMS="$4"
   local _FOLDER_PERMS="$5"
   echo "INFO:     Verify and fix permissions with file perms ${_CHMOD_FILE_PERMS} and folder perms ${_FOLDER_PERMS} for for folder ${_FOLDER}... "
-  #
-  # For debugging only: list where perms were found to be wrong.
-  #
-  # find "${_FOLDER}" \! -type d -a \! \( -perm ${_FIND_FILE_PERMS_EXECUTABLE} -o -perm ${_FIND_FILE_PERMS_REGULAR} \) -exec echo '{}' \;
-  # find "${_FOLDER}"    -type d -a \! -perm "${_FOLDER_PERMS}" -exec echo '{}' \;
-  #
-  # The real thing modifying perms if they were found to be wrong.
-  #
   find "${_FOLDER}"  -type f -a \! \( -perm ${_FIND_FILE_PERMS_EXECUTABLE} -o -perm ${_FIND_FILE_PERMS_REGULAR} \) -exec chmod "${_CHMOD_FILE_PERMS}" '{}' \;
   find "${_FOLDER}"  -type d -a \!    -perm ${_FOLDER_PERMS}                                                       -exec chmod "${_FOLDER_PERMS}" '{}' \;
 }

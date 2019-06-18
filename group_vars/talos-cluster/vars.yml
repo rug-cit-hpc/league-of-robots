@@ -65,6 +65,7 @@ local_admin_users:
   - 'wim'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
+hpc_env_prefix: '/apps'
 pfs_mounts: [
   { pfs: 'umcgst11',
     source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst11',
