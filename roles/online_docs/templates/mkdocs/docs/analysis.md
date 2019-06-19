@@ -1,7 +1,7 @@
 #jinja2: trim_blocks:False
 # Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}
 
-{{ slurm_cluster_name | capitalize }} uses the [Slurm Workload Manager](https://Slurm.schedmd.com/)
+{{ slurm_cluster_name | capitalize }} uses the [Slurm Workload Manager](https://slurm.schedmd.com/)
 
 * If you are completely new to computing on Linux clusters, we recommend
     * The online, free course designed by The Linux Foundation and promoted by Linus Torvalds himself:
@@ -10,8 +10,8 @@
     * The interactive _**[Linux Survival](https://linuxsurvival.com/) **_ website.
 * If you are new to Slurm: 
     * Continue reading below for examples specific to how Slurm was configured for the {{ slurm_cluster_name | capitalize }} cluster.
-    * Visit the SchedMD website for the [full Slurm documentation](https://Slurm.schedmd.com/documentation.html) and the [Slurm tutorials](https://Slurm.schedmd.com/tutorials.html).
-    * If you have worked with other cluster managers like PBS, LSF or SGE before you can use the [Slurm cheat sheet](http://www.schedmd.com/Slurmdocs/rosetta.pdf) 
+    * Visit the SchedMD website for the [full Slurm documentation](https://slurm.schedmd.com/documentation.html) and the [Slurm tutorials](https://slurm.schedmd.com/tutorials.html).
+    * If you have worked with other cluster managers like PBS, LSF or SGE before you can use the [Slurm cheat sheet](http://www.schedmd.com/slurmdocs/rosetta.pdf) 
       with comparison of Slurm commands to commands from those other cluster managers.
 
 ## Getting an account and starting a session on a User Interface (UI) server
