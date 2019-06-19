@@ -33,7 +33,7 @@
 - name: 'Allow passwordless sudo to the environment synchronization account for deploy admin users.'
   lineinfile:
     dest: '/etc/sudoers'
-    line: "%{{ envsync_group }}    ALL=(envsync_user)    NOPASSWD:ALL"
+    line: "%{{ envsync_group }}    ALL=({{ envsync_user }})    NOPASSWD:ALL"
   become: true
 
 - name: 'Insert/update block into ~/.bashrc to ensure we use the correct environment for syncing.'
@@ -48,5 +48,37 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK - Setup environment for environment synchronization account."
     insertafter: EOF
     create: no
+  become: true
+
+- name: 'Deploy script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
+  template:
+    src: 'templates/hpc-environment-permissions.bash'
+    dest: '/root/hpc-environment-permissions.bash'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  become: true
+
+- name: 'Create cron job to execute script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
+  cron:
+    name: Verify and fix permissions for HPC environment.
+    weekday: '*'
+    hour: '04'
+    minute: '04'
+    user: 'root'
+    job: '/bin/bash /root/hpc-environment-permissions.bash'
+    cron_file: 'hpc-environment-permissions'
+  become: true
+
+- name: 'Create cron job to synchronise the environment managed by the envsync account.'
+  cron:
+    name: Synchronise HPC environment.
+    weekday: '*'
+    hour: '05'
+    minute: '05'
+    user: "{{ envsync_user }}"
+    job: |
+         /usr/bin/sg {{ envsync_group }} -c '/bin/bash -c "export SOURCE_HPC_ENV="True"; . ~/.bashrc; hpc-environment-sync.bash -a"'
+    cron_file: 'hpc-environment-sync'
   become: true
 ...

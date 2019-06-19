@@ -70,6 +70,7 @@ local_admin_users:
   - 'wim'
 envsync_user: 'envsync'
 envsync_group: 'depad'
+hpc_env_prefix: '/apps'
 local_regular_groups:
   - 'users'
   - 'depad'
