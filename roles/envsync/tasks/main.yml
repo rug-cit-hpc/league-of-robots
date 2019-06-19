@@ -68,6 +68,7 @@
     user: 'root'
     job: '/bin/bash /root/hpc-environment-permissions.bash'
     cron_file: 'hpc-environment-permissions'
+  become: true
 
 - name: 'Create cron job to synchronise the environment managed by the envsync account.'
   cron:
@@ -76,6 +77,8 @@
     hour: '05'
     minute: '05'
     user: "{{ envsync_user }}"
-    job: '/usr/bin/sg {{ envsync_group }} -c '/bin/bash -c "export SOURCE_HPC_ENV="True"; . ~/.bashrc; hpc-environment-sync.bash -a"''
+    job: |
+         /usr/bin/sg {{ envsync_group }} -c '/bin/bash -c "export SOURCE_HPC_ENV="True"; . ~/.bashrc; hpc-environment-sync.bash -a"'
     cron_file: 'hpc-environment-sync'
+  become: true
 ...
