@@ -38,4 +38,13 @@
 192.168.0.13           fd-vcompute01
 192.168.0.11           fd-vcompute02
 192.168.0.5            fd-vcompute03
+192.168.0.24           fd-vcompute04
+192.168.0.26           fd-vcompute05
+192.168.0.28           fd-vcompute06
+192.168.0.29           fd-vcompute07
+192.168.0.15           fd-vcompute08
+192.168.0.23           fd-vcompute09
+192.168.0.14           fd-vcompute10
+192.168.0.30           fd-vcompute11
+192.168.0.17           fd-vcompute12
 

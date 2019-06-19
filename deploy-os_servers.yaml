@@ -20,14 +20,14 @@
       display_name: "{{ headnode_name }}-volume"
       size: 20
       state: present
-      availability_zone: '{{ availability_zone }}'
+      availability_zone: '{{ storage_availability_zone }}'
 
   - name: Create headnode instance
     os_server:
       state: present
       name: "{{ headnode_name }}"
       image: '{{ image_centos7 }}'
-      flavor: '{{ flavor }}'
+      flavor: '{{ flavor_ui }}'
       security_groups: '{{ security_group_id }}'
       key_name: '{{ key_name }}'
       auto_floating_ip: no
@@ -49,13 +49,6 @@
       reuse: yes
     register: floating_ip
     
-  - set_fact:
-      name: Show and get floating IP
-      headnode_floating_ip: "{{ floating_ip.floating_ip.floating_ip_address }}"
-      retries: 2
-      delay: 2
-      debug: var={{ floating_ip.floating_ip.floating_ip_address }}
-      
   - name: add headnode to inventory
     add_host:
       name: "{{ headnode_name }}"
@@ -80,7 +73,7 @@
       display_name: "{{ inventory_hostname }}-volume"
       size: "{{ local_volume_size }}"
       state: present
-      availability_zone: nova
+      availability_zone: "{{ storage_availability_zone }}"
 
 - name: Create vcompute instance
   hosts: 
@@ -92,7 +85,7 @@
       state: present
       name: '{{ item }}'
       image: '{{ image_centos7 }}'
-      flavor: '{{ flavor }}'
+      flavor: '{{ flavor_vcompute }}'
       security_groups: '{{ security_group_id }}'
       key_name: '{{ key_name }}'
       auto_floating_ip: no
@@ -129,14 +122,13 @@
 
 - name: Configure nodes
   hosts: 
-    - headnode
-  become: yes
+    - all
+  become: True
   gather_facts: false
   tasks:
-     - name: add entries to /etc/hosts for all cluster members
-       lineinfile:
-         state: present
-         dest: /etc/hosts
-         line: "{{ hostvars[item]['private_ip'] }}           {{ item }}"
-       with_items: 
-         - "{{ groups['all'] }}"
+    - name: add entries to /etc/hosts for all cluster members
+      lineinfile:
+        state: present
+        dest: /etc/hosts
+        line: "{{ hostvars[item]['private_ip'] }}           {{ item }}"
+      with_items: "{{ groups['all'] }}"
