@@ -12,6 +12,7 @@ ai_jumphost: "{{ lookup('env','AI_PROXY') }}"
 #
 firewall_allowed_tcp_ports:
   - '22'   # SSH
+  - '9100'   # Node Exporter
 #
 # Local user account specs.
 # Note:
