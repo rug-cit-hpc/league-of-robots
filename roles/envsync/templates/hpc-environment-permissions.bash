@@ -30,6 +30,8 @@ SYS_GROUP='{{ envsync_group }}'
 ROLE_USER="$(whoami)"
 REAL_USER="$(logname 2>/dev/null || echo 'no login name')"
 
+{% raw %}
+
 #
 ##
 ### Functions.
@@ -152,3 +154,5 @@ else
     echo 'INFO: Done!'
   done
 fi
+
+{% endraw %}
