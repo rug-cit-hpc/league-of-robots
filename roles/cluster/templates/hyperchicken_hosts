@@ -20,8 +20,8 @@
 # DAI = Deploy Admin Interface
 # SAI = Sys Admin Interface
 #
-192.168.0.5             hc-sai
-192.168.0.9             hc-dai
+192.168.0.7             hc-sai
+192.168.0.6             hc-dai
 
 #
 # Cluster User Interfaces (UIs).
@@ -35,8 +35,4 @@
 #
 # Cluster nodes.
 #
-192.168.0.11            hc-vcompute01
-192.168.0.19            hc-vcompute02
-192.168.0.14            hc-vcompute03
-192.168.0.8             hc-vcompute04
-
+192.168.0.10            hc-vcompute01
