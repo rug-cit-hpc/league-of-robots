@@ -33,7 +33,7 @@
 - name: 'Allow passwordless sudo to the environment synchronization account for deploy admin users.'
   lineinfile:
     dest: '/etc/sudoers'
-    line: "%{{ envsync_group }}    ALL=(envsync_user)    NOPASSWD:ALL"
+    line: "%{{ envsync_group }}    ALL=({{ envsync_user }})    NOPASSWD:ALL"
   become: true
 
 - name: 'Insert/update block into ~/.bashrc to ensure we use the correct environment for syncing.'
