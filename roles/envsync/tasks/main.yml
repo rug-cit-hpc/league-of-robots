@@ -62,7 +62,7 @@
 - name: 'Create cron job to execute script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
   cron:
     name: Verify and fix permissions for HPC environment.
-    weekday: *
+    weekday: '*'
     hour: '04'
     minute: '04'
     user: 'root'
