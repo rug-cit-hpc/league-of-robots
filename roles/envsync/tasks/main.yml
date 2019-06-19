@@ -50,24 +50,24 @@
     create: no
   become: true
 
-#- name: 'Deploy script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
-#  template:
-#    src: 'templates/hpc-environment-permissions.bash'
-#    dest: '/root/hpc-environment-permissions.bash'
-#    owner: 'root'
-#    group: 'root'
-#    mode: '0644'
-#  become: true
-#
-#- name: 'Create cron job to execute script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
-#  cron:
-#    name: Verify and fix permissions for HPC environment.
-#    weekday: *
-#    hour: '04'
-#    minute: '04'
-#    user: 'root'
-#    job: '/bin/bash /root/hpc-environment-permissions.bash'
-#    cron_file: 'hpc-environment-permissions'
+- name: 'Deploy script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
+  template:
+    src: 'templates/hpc-environment-permissions.bash'
+    dest: '/root/hpc-environment-permissions.bash'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  become: true
+
+- name: 'Create cron job to execute script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
+  cron:
+    name: Verify and fix permissions for HPC environment.
+    weekday: *
+    hour: '04'
+    minute: '04'
+    user: 'root'
+    job: '/bin/bash /root/hpc-environment-permissions.bash'
+    cron_file: 'hpc-environment-permissions'
 
 - name: 'Create cron job to synchronise the environment managed by the envsync account.'
   cron:

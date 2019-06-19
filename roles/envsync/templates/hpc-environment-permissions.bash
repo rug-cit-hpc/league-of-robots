@@ -27,6 +27,8 @@ ORIGINAL_HPC_ENV_PREFIX='{{ hpc_env_prefix }}'
 declare -a COPIED_HPC_ENV_MOUNT_POINT_PARENTS=('/mnt')
 SYS_USER='{{ envsync_user }}'
 SYS_GROUP='{{ envsync_group }}'
+ROLE_USER="$(whoami)"
+REAL_USER="$(logname 2>/dev/null || echo 'no login name')"
 
 #
 ##
@@ -92,6 +94,10 @@ function verifyPermissions() {
 ### Main.
 ##
 #
+
+if [[ "${ROLE_USER}" != 'root' ]]; then
+  echo "FATAL: This script must be executed by the root user, but you are ${ROLE_USER} (${REAL_USER})."
+fi
 
 #
 # Check (and fix if necessary) our original shared HPC environment.
