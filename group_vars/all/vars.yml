@@ -128,6 +128,21 @@ auth_users:
     uid: 1020
     pub_keys: |
               ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDWqyiEypRvLN6SzmETPpZc4sAeCZO3KFZJCAEXjTgehukD5t7785YBteTq9EF6UmE+5vTNMPVpGDS71YSoI6HmZBao2zqI/rwp6DK+TtK9qCwKXF0ye67WjSFqWgEgDj+RY2C3Hk7Kwb4lzrcWbw+pl6aj4Jzdbe4Yg0UaSvkEiiWifEbjkYNitUmZcVvYcskuUgCTvuCsKDNFtkRXh4CZ6PMC8ovQWbE1zZgDjRGXjZMPURLBQHz2pQhUGndILPoRNBot4CREUnfNUxOGiGI2RwoADSfVeHXKgFlV8r0eK4VZIJWGwwwJzmtnV4SrHMRiAe+xabCXKtppRHW73ujpjrNhuuBrEkILVE38cwbkVHGdVOfb2fS3bMsbEBDRYvR/UNvqyvMdnYp3qM5Hf8chGEcd0E37/Z/1iOeuqXYOs5fx83tVHm7f6RK1BvcUMMk4g71c72fGG6jVswrEOTmhgbOVNTJRUJJMrUPoEs3PKRg0QbQ59WcQ1ZJeMD5/JRWCssEZJbBZBrdBLdlRg4KKCcKzpcMRKFBJXy770p2GGjtAba/TmcD34H2LETVc46NJoLXDMSV8olM1z9wp0tgxJWRJUKMXzCnly2hfjtvrgu5XAnCnvDGYwI6Z58Ekzcjr0EgEmATN4NsyHEWqpYqNbAO1Z8IaAG6vLH4MxGlYbQ== ljohansson
+  ddanis:
+    comment: 'Daniel Danis'
+    uid: 1021
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICKam1PSlpKh2lP/UuY0rDwYMXiPEXJwUoqdwmmEMKih ddanis
+  ksablauskas:
+    comment: 'Karolis Sablauskas'
+    uid: 1022
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMuctiQfcAsVDbcDv7rt7jMxlTKe8eOoLwJdEmdSR4I4 ksablauskas
+  wsteyaert:
+    comment: 'Wouter steyaert'
+    uid: 1023
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHvtYVqBzyLk0gRL0Teq5UnIPjrkJGvbmzjHzPq2D5gw wsteyaert
 
 #
 # Local group specs.
