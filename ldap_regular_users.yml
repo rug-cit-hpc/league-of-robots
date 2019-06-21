@@ -1,31 +1,31 @@
 ---
-- name: 'Create ldap regular users & groups.'
+- name: 'Create regular users & groups in cluster LDAP.'
   hosts: ldap-server
   become: True
 #  roles:
 #    - openldap
   tasks:
 
-  - name: Make sure we have a parent entry for users
+  - name: 'Make sure we have a parent entry for users.'
     ldap_entry:
-      dn: ou=users,{{ ldap_base }}
-      objectClass: organizationalUnit
+      dn: "ou=users,{{ ldap_base }}"
+      objectClass: 'organizationalUnit'
       bind_dn: "{{ ldap_binddn }}"
       bind_pw: "{{ bindpw }}"
       server_uri: 'ldap:///'
 
-  - name: Make sure we have a parent entry for groups
+  - name: 'Make sure we have a parent entry for groups.'
     ldap_entry:
-      dn: ou=groups,{{ ldap_base }}
-      objectClass: organizationalUnit
+      dn: "ou=groups,{{ ldap_base }}"
+      objectClass: 'organizationalUnit'
       bind_dn: "{{ ldap_binddn }}"
       bind_pw: "{{ bindpw }}"
-      server_uri: 'ldap:///' 
+      server_uri: 'ldap:///'
 
-  - name: add groups to groups ou.
+  - name: 'Add groups to parent entry for groups.'
     ldap_entry:
       dn: "cn={{ item }},ou=groups,{{ ldap_base }}"
-      objectClass: posixGroup
+      objectClass: 'posixGroup'
       state: present
       server_uri: 'ldap:///'
       bind_dn: "{{ ldap_binddn }}"
@@ -34,16 +34,16 @@
        gidNumber: "{{ auth_groups[item].gid }}"
     with_items: "{{ local_regular_groups }}"
 
-  - name: add regular user to users ou.
+  - name: 'Add users to parent entry for users.'
     ldap_entry:
       dn: "cn={{ item.user }},ou=users,{{ ldap_base }}"
       state: present
       server_uri: 'ldap:///'
       objectClass:
-        - inetOrgPerson
-        - posixAccount
-        - top
-        - ldapPublicKey
+        - 'inetOrgPerson'
+        - 'posixAccount'
+        - 'top'
+        - 'ldapPublicKey'
       bind_dn: "{{ ldap_binddn }}"
       bind_pw: "{{ bindpw }}"
       attributes:
@@ -54,18 +54,18 @@
         uidNumber: "{{ auth_users[item.user].uid }}"
         gidNumber: "{{ auth_groups['users'].gid }}"
         homeDirectory: "/home/{{ item.user }}"
-        loginShell: /bin/bash
+        loginShell: '/bin/bash'
         sshPublicKey: "{{ auth_users[item.user].pub_keys }}"
     with_items: "{{ local_regular_users }}"
 
-  - name: 'Add user to groups'
+  - name: 'Add users to groups.'
     ldap_attr:
       dn: "cn={{ item.1 }},ou=groups,{{ ldap_base }}"
       state: present
       server_uri: 'ldap:///'
       bind_dn: "{{ ldap_binddn }}"
       bind_pw: "{{ bindpw }}"
-      name: memberUid
+      name: 'memberUid'
       values: "{{ item.0.user }}"
     with_subelements:
       - "{{ local_regular_users }}"
