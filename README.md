@@ -9,6 +9,7 @@ Test/development clusters were named after other robots.
 #### Software/framework ingredients
 
 The main ingredients for (deploying) these clusters:
+
  * [Ansible playbooks](https://github.com/ansible/ansible) for system configuration management.
  * [OpenStack](https://www.openstack.org/) for virtualization. (Note that deploying the OpenStack itself is not part of the configs/code in this repo.)
  * [Spacewalk](https://spacewalkproject.github.io/index.html) to create freezes of Linux distros.
@@ -32,6 +33,7 @@ We follow the [Python PEP8 naming conventions](https://www.python.org/dev/peps/p
 ## Clusters
 
 This repo currently contains code and configs for the following clusters:
+
  * Gearshift: [UMCG](https://www.umcg.nl) Research IT cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
  * Talos: Development cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
  * Hyperchicken: [Solve-RD](solve-rd.eu/) cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
@@ -45,6 +47,7 @@ from the [University Medical Center](https://www.umcg.nl) and [University](https
 #### Cluster components
 
 The clusters are composed of the following type of machines:
+
  * **Jumphost**: security-hardened machines for SSH access.
  * **User Interface (UI)**: machines for job management by regular users.
  * **Deploy Admin Interface (DAI)**: machines for deployment of bioinformatics software and reference datasets without root access.
@@ -64,26 +67,26 @@ The clusters use the following types of storage systems / folders:
 
 ## Deployment phases
 
-Deploying a fully functional virtual cluster involves the following steps:
+Deploying a fully functional virtual cluster from scratch involves the following steps:
+
  1. Configure physical machines
- 2. Deploy OpenStack virtualization layer on physical machines to create an OpenStack cluster
- 3. Create and configure virtual machines on the OpenStack cluster to create an HPC cluster on top of an OpenStack cluster
- 4. Deploy bioinformatics software and reference datasets 
+    * Off topic for this repo.
+ 2. Deploy OpenStack virtualization layer on physical machines to create an OpenStack cluster.
+    * Off topic for this repo.
+    * For the _Shikra_ cloud, which hosts the _Talos_ and _Gearshift_ HPC clusters
+      we use the ansible playbooks from the [hpc-cloud](https://git.webhosting.rug.nl/HPC/hpc-cloud) repository
+      to create the OpenStack cluster.
+    * For other HPC clusters we use OpenStack clouds from other service providers as is.
+ 3. Create, start and configure virtual machines on an OpenStack cluster to create a Slurm HPC cluster.
+    * This repo.
+ 4. Deploy bioinformatics software and reference datasets.
+    * Off topic for this repo.
+    * We use the ansible playbook from the [ansible-pipelines](https://github.com/molgenis/ansible-pipelines) repository
+      to deploy Lua + Lmod + EasyBuild. The latter is then used to install bioinformatics tools.
 
 ---
 
-### 2. Ansible playbooks OpenStack cluster
-The ansible playbooks in this repository use roles from the [hpc-cloud](https://git.webhosting.rug.nl/HPC/hpc-cloud) repository.
-The roles are imported here explicitely by ansible using ansible galaxy.
-These roles install various docker images built and hosted by RuG webhosting. They are built from separate git repositories on https://git.webhosting.rug.nl.
-
-#### Deployment of OpenStack
-The steps below describe how to get from machines with a bare ubuntu 16.04 installed to a running openstack installation.
-
-#### Steps to upgrade the OpenStack cluster
-
-### 3. Steps to deploy HPC compute cluster on top of OpenStack cluster
----
+### 3. Create, start and configure virtual machines on an OpenStack cluster to create a Slurm HPC cluster.
 
 0. Clone this repo.
    ```bash
@@ -93,13 +96,13 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
    ```
 
 1. First import the required roles into this playbook:
-   
+
    ```bash
-   ansible-galaxy install -r requirements.yml --force -p roles
    ansible-galaxy install -r galaxy-requirements.yml
    ```
 
 2. Create `.vault_pass.txt`.
+
    * To generate a new Ansible vault password and put it in `.vault_pass.txt`, use the following oneliner:
    ```bash
    tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1 > .vault_pass.txt
@@ -111,26 +114,35 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
    ```
 
 3. Configure Ansible settings including the vault.
-   * To create (a new) secrets.yml:
-     Generate and encrypt the passwords for the various OpenStack components.
+
+   * To create a new ```secrets.yml``` (encrypted variables) and ```vars.yml``` (unencrypted variables):
+     Create a ```group_vars/[name-of-the-cluster]/``` folder with a ```vars.yml```.
+     You'll find and example ```vars.yml``` file in ```group_vars/template/```.
+     To generate a new ```secrets.yml``` with new random passwords for the passwords for the various daemons/components
+     and encrypt this new ```secrets.yml``` file:
      ```bash
-     ./generate_secrets.py
-     ansible-vault --vault-password-file=.vault_pass.txt encrypt secrets.yml
+     ./generate_secrets.py group_vars/template/secrets.yml group_vars/[name-of-the-cluster]/secrets.yml
+     ansible-vault --vault-password-file=.vault_pass.txt encrypt group_vars/[name-of-the-cluster]/secrets.yml
      ```
      The encrypted secrets.yml can now safely be committed.
-     The `.vault_pass.txt` file is in the .gitignore and needs to be transfered in a secure way.
-
-   * To use use an existing encrypted secrets.yml add .vault_pass.txt to the root folder of this repo
-     and create in the same location ansible.cfg using the following template:
+     The ```.vault_pass.txt``` file is listed in ```.gitignore``` and needs to be transfered in a secure way.  
+     You must also create an inventory file. See the ```*_hosts.ini``` files for existing clusters for examples.  
+     Next, follow the step below to use the new config files...
+   * To use use an existing encrypted ```secrets.yml``` add a ```.vault_pass.txt``` file to the root folder of this repo
+     and create also in the root folder of this repo an ```ansible.cfg``` using the following template:
      ```[defaults]
-     inventory = hosts
      stdout_callback = debug
      forks = 20
      vault_password_file = .vault_pass.txt
      remote_user = your_local_account_not_from_the_LDAP
+     
+     [ssh_connection]
+     pipelining = True
+     ssh_args = -C -o ControlMaster=auto -o ControlPersist=60s -o ForwardAgent=yes
      ```
 
 4. Configure the Certificate Authority (CA).
+
    We use an SSH public-private key pair to sign the host keys of all the machines in a cluster.
    This way users only need the public key of the CA in their ```~.ssh/known_hosts``` file
    and will not get bothered by messages like this:
@@ -172,14 +184,16 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      ```
 6. Generate munge key and encrypt using the ansible-vault.
 
-   * Execute:
+   Execute:
    ```
    dd if=/dev/urandom bs=1 count=1024 > roles/slurm-management/files/{clustername}_munge.key
    ansible-vault --vault-password-file=.vault_pass.txt encrypt roles/slurm-management/files/{clustername}_munge.key
    ```
    The encrypted {clustername}_munge.key can now safely be committed.
 
-7. Running playbooks. Some examples:
+7. Running playbooks.
+
+   Some examples:
    * Install the OpenStack cluster.
      ```bash
      ansible-playbook site.yml
@@ -189,4 +203,6 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      ansible-playbook site.yml -i talos_hosts single_role_playbooks/slurm-management.yml
      ```
 
-8. verify operation.
+8. Verify operation.
+
+   See the end user documentation, that was generated with the ```online_docs``` role for instructions how to submit a job to test the cluster.

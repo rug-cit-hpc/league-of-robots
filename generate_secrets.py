@@ -17,11 +17,11 @@ except ImportError:
     from yaml import Loader, Dumper
 
 # length of generated passwords.
-pass_length = 20
+pass_length = 30
 
 
-def write_secrets(topology_file, secrets_file):
-    with open(topology_file, 'r') as f:
+def write_secrets(template_file, secrets_file):
+    with open(template_file, 'r') as f:
         data = load(f, Loader=Loader)
 
     for key, value in data.iteritems():
@@ -42,7 +42,7 @@ def write_secrets(topology_file, secrets_file):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('topology_file', nargs='?', default='secrets.yml.topol')
+    parser.add_argument('template_file', nargs='?', default='group_vars/template/secrets.yml')
     parser.add_argument('secrets_file', nargs='?', default='secrets.yml')
     args = parser.parse_args()
-    write_secrets(args.topology_file, args.secrets_file)
+    write_secrets(args.template_file, args.secrets_file)
