@@ -3,8 +3,22 @@ slurm_cluster_name: 'gearshift'
 slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'gs'
 mailhub: '172.23.34.34'
-rewrite_domain: "imperator.{{ slurm_cluster_domain }}"
-motd: Vare, Vare, redde legiones!
+rewrite_domain: "imperator{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
+motd: |
+      !!! WARNING: This cluster is in beta testing
+          and may be redeployed from scratch, which
+          may result in complete data loss starting
+          on 09:00 on the following EOS Fridays:
+          ###################################
+          # Date                 EOS        #
+          ###################################
+          # Friday 2019-05-03    Sprint 136 #
+          # Friday 2019-06-14    Sprint 138 #
+          # Friday 2019-07-26    Sprint 140 #
+          # Friday 2019-09-06    Sprint 142 #
+          # Friday 2019-10-18    Sprint 144 #
+          ###################################
+          You have been warned!!!
 additional_etc_hosts: |
   172.23.40.21       gs-compute01        gs-compute01.hpc.local
   172.23.40.22       gs-compute02        gs-compute02.hpc.local
@@ -18,9 +32,9 @@ additional_etc_hosts: |
   172.23.40.30       gs-compute10        gs-compute10.hpc.local
   172.23.40.31       gs-compute11        gs-compute11.hpc.local
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-11]"
-vcompute_sockets: 2
-vcompute_cores_per_socket: 14
-vcompute_real_memory: 245760
+vcompute_sockets: 24
+vcompute_cores_per_socket: 1
+vcompute_real_memory: 241660
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 2900
@@ -31,15 +45,15 @@ vcompute_ethernet_interfaces:
   - 'eth2'
 ui_hostnames: "{{ slurm_cluster_name }}"
 ui_sockets: 2
-ui_cores_per_socket: 2
-ui_real_memory: 8192
+ui_cores_per_socket: 1
+ui_real_memory: 3789
 ui_local_disk: 0
 ui_features: 'prm01,tmp01'
 ui_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
-  - 'eth2'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-ca"
+use_ldap: yes
 uri_ldap: 172.23.40.249
 uri_ldaps: comanage-in.id.rug.nl
 ldap_port: 389
@@ -61,8 +75,10 @@ local_admin_users:
   - 'egon'
   - 'henkjan'
   - 'wim'
+  - 'kees'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
+hpc_env_prefix: '/apps'
 pfs_mounts: [
   { pfs: 'umcgst10',
     source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst10',
@@ -70,15 +86,19 @@ pfs_mounts: [
     rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
     ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro' },
 ]
+#
+# During public beta phase we only use tmp* folders/mounts for 'production' groups.
+# Only anlysis team development (umcg-atd) group, which is exclusively used for testing has prm* folder/mount for now.
+#
 lfs_mounts: [
   { lfs: 'home',
     pfs: 'umcgst10' },
   { lfs: 'groups/GROUP/tmp01',
     pfs: 'umcgst10',
-    groups: ['umcg-atd', 'umcg-gcc'] },
+    groups: ['umcg-atd', 'umcg-biogen', 'umcg-bios', 'umcg-dag3', 'umcg-gastrocol', 'umcg-gcc', 'umcg-lld', 'umcg-tifn', 'umcg-weersma', 'umcg-wijmenga' ] },
   { lfs: 'groups/GROUP/prm01',
     pfs: 'umcgst10',
-    groups: ['umcg-atd', 'umcg-gcc'] },
+    groups: ['umcg-atd'] },
   { lfs: 'env01',
     pfs: 'umcgst10',
     machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },

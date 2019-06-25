@@ -1,0 +1,25 @@
+---
+#
+# Important: maintain correct handler order.
+# Handlers are executed in the order in which they are defined 
+# and not in the order in whch they are listed in a "notify: handler_name" statement!
+#
+- name: Restart services and their dependencies.
+  service:
+    name: "{{item}}"
+    state: restarted
+  with_items:
+    - httpd
+  become: yes
+  listen: restart_httpd
+
+- name: (Re)build webpages.
+  shell: |
+         cd /srv/mkdocs/{{ slurm_cluster_name }}/
+         umask 0022
+         export LC_ALL=en_US.utf8
+         export LANG=en_US.utf8
+         mkdocs build
+  become: yes
+  listen: build_mkdocs
+...

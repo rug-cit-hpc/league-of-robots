@@ -1,46 +1,75 @@
 ---
-- name: 'Gather facts from servers in "slurm" group.'
+- name: 'Gather facts from servers in "slurm-management" group.'
   setup:
   delegate_to: "{{ item }}"
-  delegate_facts: True
-  with_items: "{{ groups['slurm'] }}"
+  delegate_facts: true
+  with_items: "{{ groups['slurm-management'] }}"
 
 - name: Include Slurm vars.
   include_vars:
-    file: ../../slurm/defaults/main.yml
+    file: ../../slurm-management/defaults/main.yml
     name: slurm
 
 - name: Add Slurm group
   group:
     name: slurm
     gid: "{{ slurm['slurm_gid'] }}"
+  notify:
+    - restart_slurmd
+  become: true
 
 - name: Add Munge group
   group:
     name: munge
     gid: "{{ slurm['munge_gid'] }}"
+  notify:
+    - restart_munge
+    - restart_slurmd
+  become: true
 
 - name: Add Slurm user
   user:
     name: slurm
     uid: "{{ slurm['slurm_uid'] }}"
     group: slurm
+  notify:
+    - restart_slurmd
+  become: true
 
 - name: Add Munge user
   user:
     name: munge
     uid: "{{ slurm['munge_uid'] }}"
     group: munge
+  notify:
+    - restart_munge
+    - restart_slurmd
+  become: true
 
-- name: Install the Slurm client and NHC
+- name: Install the Slurm client and NHC with yum.
   yum:
-    name: "{{ item }}"
     state: latest
     update_cache: yes
-  with_items:
-    - slurm
-    - slurm-slurmd
-    - warewulf-nhc
+    name:
+      - slurm
+      - slurm-slurmd
+      - warewulf-nhc
+  notify:
+    - restart_munge
+    - restart_slurmd
+  become: true
+
+- name: Install munge_keyfile
+  copy:
+    src: roles/slurm-management/files/{{ slurm_cluster_name }}_munge.key
+    owner: munge
+    group: munge
+    mode: 0600
+    dest: /etc/munge/munge.key
+  notify:
+    - restart_munge
+    - restart_slurmd
+  become: true
 
 - name: Create folders for Slurm and NHC
   file:
@@ -59,7 +88,7 @@
       group: root
       mode: '0755'
     - name: /var/log/slurm
-      owner: root
+      owner: slurm
       group: root
       mode: '0750'
     - name: /var/spool/slurm
@@ -70,36 +99,42 @@
       owner: root
       group: root
       mode: '0755'
-
-- name: Deploy slurm.conf
-  template:
-    src: roles/slurm/files/slurm.conf
-    dest: /etc/slurm/slurm.conf
-    mode: 0644
-
-- name: Configure cgroups
-  copy:
-    src: roles/slurm/files/cgroup.conf
-    dest: /etc/slurm/cgroup.conf
-    mode: 0644
+  become: true
 
 - name: Deploy slurm prolog/epilog scripts.
   copy:
-    src: roles/slurm/files/{{ item }}
+    src: roles/slurm-management/files/{{ item }}
     dest: /etc/slurm/
+    owner: root
+    group: root
     mode: 0755
   with_items:
-      - slurm.prolog
-      - slurm.epilog
-      - slurm.taskprolog
+    - slurm.prolog
+    - slurm.epilog
+    - slurm.taskprolog
+  become: true
 
-- name: Install munge_keyfile
+- name: Deploy slurm.conf
+  template:
+    src: roles/slurm-management/templates/slurm.conf
+    dest: /etc/slurm/slurm.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - reload_slurmd
+  become: true
+
+- name: Configure cgroups
   copy:
-    src: ../slurm/files/{{ slurm_cluster_name }}_munge.key
-    owner: munge
-    group: munge
-    mode: 0600
-    dest: /etc/munge/munge.key
+    src: roles/slurm-management/files/cgroup.conf
+    dest: /etc/slurm/cgroup.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - reload_slurmd
+  become: true
 
 - name: Deploy UI nhc.conf
   template:
@@ -109,6 +144,7 @@
     group: root
     mode: 0644
   when: inventory_hostname in groups['user-interface']
+  become: true
 
 - name: Deploy compute-vm nhc.conf
   template:
@@ -118,6 +154,7 @@
     group: root
     mode: 0644
   when: inventory_hostname in groups['compute-vm']
+  become: true
 
 - name: Start slurm and munge services
   systemd:
@@ -125,6 +162,7 @@
     enabled: yes
     state: started
   with_items:
-    - slurmd
-    - munge
+    - munge.service
+    - slurmd.service
+  become: true
 ...

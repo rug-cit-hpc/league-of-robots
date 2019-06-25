@@ -1,4 +1,6 @@
 ---
+# Slurm database user
+slurm_storage_user:
 slurm_cluster_name: talos
 sockets: 1
 CoresPerSocket: 9

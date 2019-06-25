@@ -1,0 +1,23 @@
+[Unit]
+Description=Openldap container
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker kill %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=/usr/bin/docker pull osixia/openldap:1.2.4
+ExecStart=/usr/bin/docker run --rm -i --name %n --network host  \
+       -v /srv/openldap/slapd.d:/etc/ldap/slapd.d  \
+       -v /srv/openldap/ldap:/var/lib/ldap \
+       -v /srv/openldap/custom:/container/service/slapd/assets/config/bootstrap/ldif/custom \
+       --env LDAP_DOMAIN={{ ldap_domain }} \
+       --env LDAP_ADMIN_PASSWORD={{ bindpw }} \
+       --env LDAP_BASE_DN={{ ldap_base }} \
+       --hostname {{ ansible_hostname }} osixia/openldap:1.2.4  \
+       --loglevel debug  --copy-service
+
+[Install]
+WantedBy=multi-user.target

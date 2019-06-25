@@ -45,6 +45,7 @@
           - python-mock
           - python-boto3
           - python-botocore
+          - python-ldap
           - python-passlib
           - python2-sphinx-theme-alabaster
           - pytest

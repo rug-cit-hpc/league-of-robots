@@ -45,7 +45,7 @@
   when: "'databases' in group_names and groups['databases'] \
          | length >= 3 and ansible_hostname == hostname_node0"
 
-- name: install service file.
+- name: Install service file.
   block:
     - set_fact:
         mariadb_args: ""
@@ -64,13 +64,13 @@
 - name: Daemon reload (the inplicit doesn't work)
   command: bash -c "systemctl daemon-reload"
 
-- name: make sure service is started
+- name: Make sure service is started.
   systemd:
     name: mysql.service
     state: started
     daemon_reload: yes
 
-- name: start service at boot.
+- name: Enable service to start at boot.
   command: systemctl reenable mysql.service
 
 - name: Give the cluster some time to initialize replication.

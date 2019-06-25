@@ -1,5 +1,0 @@
----
-- hosts: proxy
-  become: True
-  roles:
-     - ldap

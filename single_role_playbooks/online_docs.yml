@@ -1,0 +1,5 @@
+---
+- hosts: docs
+  roles:
+    - online_docs
+...

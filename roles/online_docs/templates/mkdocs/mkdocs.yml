@@ -1,0 +1,21 @@
+site_name: "{{ slurm_cluster_name | capitalize }} HPC cluster"
+theme:
+  name: readthedocs
+  highlightjs: false
+  hljs_languages:
+    - yaml
+site_dir: "/var/www/html/{{ slurm_cluster_name }}/"
+nav:
+  - Home: 'index.md'
+  - About: 
+    - 'Cluster': 'cluster.md'
+    - 'License': 'license.md'
+    - 'Contact': 'contact.md'
+  - User Guide:
+    - 'Requesting accounts for {{ slurm_cluster_name | capitalize }}': 'accounts.md'
+    - 'Login - How to start a session': 'logins.md'
+    - 'Keep - What is stored where on {{ slurm_cluster_name | capitalize }}': 'storage.md'
+    - 'Data transfers - How to move data to / from {{ slurm_cluster_name | capitalize }}': 'datatransfers.md'
+    - 'Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}': 'analysis.md'
+    - 'Technical specifications - Details of the {{ slurm_cluster_name | capitalize }} HPC environment': 'specifications.md'
+#    - 'Support - FAQs, mailinglists & courses': 'support.md'

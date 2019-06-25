@@ -41,12 +41,12 @@ which will match the 'Host lobby+*' rule from the ~/.ssh/config file.
 =============================================================
 '''
 import argparse
-try:
-    # For Python >= 3.x
-    import configparser
-except:
-    # For Python 2.x
-    import ConfigParser as configparser
+#try:
+#    # For Python >= 3.x
+#    import configparser
+#except:
+#    # For Python 2.x
+#    import ConfigParser as configparser
 try:
     import json
 except ImportError:
@@ -55,12 +55,24 @@ import os
 import re
 import sys
 from test.test_sax import start
+if sys.version_info >= (3,2,0):
+    from configparser import ConfigParser
+elif sys.version_info >= (3,0,0):
+    from configparser import SafeConfigParser as ConfigParser
+else:
+    # For Python 2.x
+    from ConfigParser import SafeConfigParser as ConfigParser
 
 """
 Modified ConfigParser that allows ':' in keys and only uses '=' as separator.
 We need the : to be able to specify groups of Ansible hosts like this: compute_nodes[01:16]
 """
-class MyConfigParser(configparser.SafeConfigParser):
+cp_classname = 'SafeConfigParser'
+if sys.version_info >= (3,2,0):
+    cp_classname = 'ConfigParser'
+
+#class MyConfigParser(configparser.SafeConfigParser):
+class MyConfigParser(ConfigParser):
     OPTCRE = re.compile(
         r'(?P<option>[^=\s][^=]*)'      # very permissive!
         r'\s*(?P<vi>[=])\s*'            # any number of space/tab,
@@ -92,10 +104,9 @@ class ProxiedInventory(object):
 
         # Get inventory file name from ENV VAR.
         self.inventory_file = os.getenv('AI_INVENTORY')
-        if self.inventory_file:
-            self.inventory_path = os.path.dirname(os.path.realpath(__file__)) + '/' + self.inventory_file
-        else:
-            self.inventory_path = os.path.dirname(os.path.realpath(__file__)) + '/inventory.ini'
+        if not self.inventory_file:
+            self.inventory_file = 'inventory.ini'
+        self.inventory_path = os.path.dirname(os.path.realpath(__file__)) + '/' + self.inventory_file
         if not (os.path.isfile(self.inventory_path) and os.access(self.inventory_path, os.R_OK)):
             print('FATAL: The static inventory file ' + self.inventory_path + "\n"
                   '       is either missing or not readable: Check path and permissions.\n' +
@@ -125,6 +136,16 @@ class ProxiedInventory(object):
         #_config.optionxform = self.prepend_proxy
         _config = MyConfigParser(allow_no_value=True)
         _config.read(os.path.dirname(os.path.realpath(__file__)) + '/' + self.inventory_file)
+        
+        #
+        # This dynamic inventory script does not (yet) support execution with a --host argument to get the hostvars for an inventory item.
+        # From: https://docs.ansible.com/ansible/latest/dev_guide/developing_inventory.html#script-conventions
+        # To satisfy the requirements of using _meta, to prevent ansible from calling your inventory with --host you must at least populate _meta with an empty hostvars dictionary.
+        #
+        _meta = dict()
+        _hostvars = dict()
+        self.add(_meta, 'hostvars', _hostvars)
+        self.add(self.inventory, '_meta', _meta)
         
         for _section in _config.sections():
             if re.search(':children', _section):

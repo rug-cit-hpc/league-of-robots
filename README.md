@@ -3,11 +3,13 @@
 ## About this repo
 
 This repository contains playbooks and documentation to deploy virtual Linux HPC clusters, which can be used as *collaborative, analytical sandboxes*.
-All clusters were named after robots that appear in the animated sitcom [Futurama](https://en.wikipedia.org/wiki/Futurama)
+All production clusters were named after robots that appear in the animated sitcom [Futurama](https://en.wikipedia.org/wiki/Futurama).
+Test/development clusters were named after other robots.
 
 #### Software/framework ingredients
 
 The main ingredients for (deploying) these clusters:
+
  * [Ansible playbooks](https://github.com/ansible/ansible) for system configuration management.
  * [OpenStack](https://www.openstack.org/) for virtualization. (Note that deploying the OpenStack itself is not part of the configs/code in this repo.)
  * [Spacewalk](https://spacewalkproject.github.io/index.html) to create freezes of Linux distros.
@@ -31,9 +33,11 @@ We follow the [Python PEP8 naming conventions](https://www.python.org/dev/peps/p
 ## Clusters
 
 This repo currently contains code and configs for the following clusters:
- * Gearshift: [UMCG](https://www.umcg.nl) Research IT cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
+
  * Talos: Development cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
- * Hyperchicken: [Solve-RD](solve-rd.eu/) cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
+ * Gearshift: [UMCG](https://www.umcg.nl) Research IT production cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
+ * Hyperchicken: Development cluster cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
+ * Fender: [Solve-RD](solve-rd.eu/) production cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
 
 Deployment and functional administration of all clusters is a joined effort of the
 [Genomics Coordination Center (GCC)](http://wiki.gcc.rug.nl/)
@@ -44,6 +48,7 @@ from the [University Medical Center](https://www.umcg.nl) and [University](https
 #### Cluster components
 
 The clusters are composed of the following type of machines:
+
  * **Jumphost**: security-hardened machines for SSH access.
  * **User Interface (UI)**: machines for job management by regular users.
  * **Deploy Admin Interface (DAI)**: machines for deployment of bioinformatics software and reference datasets without root access.
@@ -63,26 +68,26 @@ The clusters use the following types of storage systems / folders:
 
 ## Deployment phases
 
-Deploying a fully functional virtual cluster involves the following steps:
+Deploying a fully functional virtual cluster from scratch involves the following steps:
+
  1. Configure physical machines
- 2. Deploy OpenStack virtualization layer on physical machines to create an OpenStack cluster
- 3. Create and configure virtual machines on the OpenStack cluster to create an HPC cluster on top of an OpenStack cluster
- 4. Deploy bioinformatics software and reference datasets 
+    * Off topic for this repo.
+ 2. Deploy OpenStack virtualization layer on physical machines to create an OpenStack cluster.
+    * Off topic for this repo.
+    * For the _Shikra_ cloud, which hosts the _Talos_ and _Gearshift_ HPC clusters
+      we use the ansible playbooks from the [hpc-cloud](https://git.webhosting.rug.nl/HPC/hpc-cloud) repository
+      to create the OpenStack cluster.
+    * For other HPC clusters we use OpenStack clouds from other service providers as is.
+ 3. Create, start and configure virtual machines on an OpenStack cluster to create a Slurm HPC cluster.
+    * This repo.
+ 4. Deploy bioinformatics software and reference datasets.
+    * Off topic for this repo.
+    * We use the ansible playbook from the [ansible-pipelines](https://github.com/molgenis/ansible-pipelines) repository
+      to deploy Lua + Lmod + EasyBuild. The latter is then used to install bioinformatics tools.
 
 ---
 
-### 2. Ansible playbooks OpenStack cluster
-The ansible playbooks in this repository use roles from the [hpc-cloud](https://git.webhosting.rug.nl/HPC/hpc-cloud) repository.
-The roles are imported here explicitely by ansible using ansible galaxy.
-These roles install various docker images built and hosted by RuG webhosting. They are built from separate git repositories on https://git.webhosting.rug.nl.
-
-#### Deployment of OpenStack
-The steps below describe how to get from machines with a bare ubuntu 16.04 installed to a running openstack installation.
-
-#### Steps to upgrade the OpenStack cluster
-
-### 3. Steps to deploy HPC compute cluster on top of OpenStack cluster
----
+### 3. Create, start and configure virtual machines on an OpenStack cluster to create a Slurm HPC cluster.
 
 0. Clone this repo.
    ```bash
@@ -92,44 +97,50 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
    ```
 
 1. First import the required roles into this playbook:
-   
+
    ```bash
-   ansible-galaxy install -r requirements.yml --force -p roles
    ansible-galaxy install -r galaxy-requirements.yml
    ```
 
 2. Create `.vault_pass.txt`.
-   * To generate a new Ansible vault password and put it in `.vault_pass.txt`, use the following oneliner:
-   ```bash
-   tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1 > .vault_pass.txt
-   ```
-   * Or to use an existing Ansible vault password create `.vault_pass.txt` and use a text editor to add the password.
-   Make sure the `.vault_pass.txt` is private:
-   ```bash
-   chmod go-rwx .vault_pass.txt
-   ```
+
+   The vault passwd is used to encrypt/decrypt the ```secrets.yml``` file per cluster, 
+   which will be created in the next step if you do not already have one.
+   If you have multiple HPC clusters with their own vault passwd you can have multiple vault password files. 
+   The pattern ```.vault_pass.txt*``` is part of ```.gitignore```, so if you use ```.vault_pass.txt.[name-of-the-cluster]```
+   for your vault password files they will not accidentally get committed to the repo.
+ 
+   * To generate a new Ansible vault password and put it in ```.vault_pass.txt.[name-of-the-cluster]```, use the following oneliner:
+     ```bash
+     tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1 > .vault_pass.txt.[name-of-the-cluster]
+     ```
+   * Or to use an existing Ansible vault password create ```.vault_pass.txt.[name-of-the-cluster]``` and use a text editor to add the password.
+   * Make sure the ```.vault_pass.txt.[name-of-the-cluster]``` is private:
+     ```bash
+     chmod go-rwx .vault_pass.txt.[name-of-the-cluster]
+     ```
 
 3. Configure Ansible settings including the vault.
-   * To create (a new) secrets.yml:
-     Generate and encrypt the passwords for the various OpenStack components.
-     ```bash
-     ./generate_secrets.py
-     ansible-vault --vault-password-file=.vault_pass.txt encrypt secrets.yml
-     ```
-     The encrypted secrets.yml can now safely be committed.
-     The `.vault_pass.txt` file is in the .gitignore and needs to be transfered in a secure way.
 
-   * To use use an existing encrypted secrets.yml add .vault_pass.txt to the root folder of this repo
-     and create in the same location ansible.cfg using the following template:
-     ```[defaults]
-     inventory = hosts
-     stdout_callback = debug
-     forks = 20
-     vault_password_file = .vault_pass.txt
-     remote_user = your_local_account_not_from_the_LDAP
+   To create a new virtual cluster you will need ```group_vars``` and an inventory for that HPC cluster:
+   
+   * See the ```*_hosts.ini``` files for existing clusters for examples to create a new ```[name-of-the-cluster]*_hosts.ini```.
+   * Create a ```group_vars/[name-of-the-cluster]/``` folder with a ```vars.yml```.  
+     You'll find and example ```vars.yml``` file in ```group_vars/template/```.  
+     To generate a new ```secrets.yml``` with new random passwords for the various daemons/components and encrypt this new ```secrets.yml``` file:
+     ```bash
+     ./generate_secrets.py group_vars/template/secrets.yml group_vars/[name-of-the-cluster]/secrets.yml
+     ansible-vault --vault-password-file=.vault_pass.txt.[name-of-the-cluster] encrypt group_vars/[name-of-the-cluster]/secrets.yml
      ```
+     The encrypted ```secrets.yml``` can now safely be committed.  
+     The ```.vault_pass.txt.[name-of-the-cluster]``` file is excluded from the repo using the ```.vault_pass.txt*``` pattern in ```.gitignore```.
+   
+   To use use an existing encrypted ```group_vars/[name-of-the-cluster]/secrets.yml```:
+   
+   * Add a ```.vault_pass.txt.[name-of-the-cluster]``` file to the root folder of this repo and use a text editor to add the vault password to this file.
 
 4. Configure the Certificate Authority (CA).
+
    We use an SSH public-private key pair to sign the host keys of all the machines in a cluster.
    This way users only need the public key of the CA in their ```~.ssh/known_hosts``` file
    and will not get bothered by messages like this:
@@ -138,9 +149,9 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
       ECDSA key fingerprint is ....
       Are you sure you want to continue connecting (yes/no)?
    ```
-   * The filename of the CA private key is specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/*/vars.yml```
+   * The filename of the CA private key is specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/[name-of-the-cluster] /vars.yml```
    * The filename of the corresponding CA public key must be the same as the one of the private key suffixed with ```.pub```
-   * The password required to decrypt the CA private key must be specified using the ```ssh_host_signer_ca_private_key_pass``` variable defined in ```group_vars/*/secrets.yml```,
+   * The password required to decrypt the CA private key must be specified using the ```ssh_host_signer_ca_private_key_pass``` variable defined in ```group_vars/[name-of-the-cluster] /secrets.yml```,
      which must be encrypted with ```ansible-vault```.
    * Each user must add the content of the CA public key to their ```~.ssh/known_hosts``` like this:
      ```
@@ -150,7 +161,7 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      ```
      @cert-authority reception*,*talos,*tl-* ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDWNAF....VMZpZ5b9+5GA3O8w== UMCG HPC Development CA
      ```
-   * Example to create a new CA key pair with the ```rsa``` algorithm:
+   * Example to create a new CA key pair with the ```ed25519``` algorithm:
      ```bash
      ssh-keygen -t ed25519 -a 101 -f ssh-host-ca/ca-key-file-name -C "CA key for ..."
      ```
@@ -169,15 +180,45 @@ The steps below describe how to get from machines with a bare ubuntu 16.04 insta
      cd promtools
      ./build.sh
      ```
+6. Generate munge key and encrypt using the ansible-vault.
 
-6. Running playbooks. Some examples:
-   * Install the OpenStack cluster.
-     ```bash
-     ansible-playbook site.yml
-     ```
-   * Deploying only the SLURM part on test cluster *Talos*
-     ```bash
-     ansible-playbook site.yml -i talos_hosts slurm.yml
-     ```
+   Execute:
+   ```
+   dd if=/dev/urandom bs=1 count=1024 > roles/slurm-management/files/[name-of-the-cluster] _munge.key
+   ansible-vault --vault-password-file=.vault_pass.txt.[name-of-the-cluster] encrypt roles/slurm-management/files/[name-of-the-cluster] _munge.key
+   ```
+   The encrypted ```[name-of-the-cluster] _munge.key``` can now safely be committed.
 
-7. verify operation.
+7. Running playbooks.
+   
+   Some examples for the *Talos* development cluster:
+   * Configure the dynamic inventory and jumphost for the *Talos* test cluster:
+     ```bash
+     export AI_INVENTORY='talos_hosts.ini'
+     export AI_PROXY='reception'
+     export ANSIBLE_VAULT_PASSWORD_FILE='.vault_pass.txt.talos'
+     ```
+   * Firstly
+      * Create local admin accounts, which can then be used to deploy the rest of the playbook.
+      * Deploy the signed hosts keys.
+     Without local admin accounts we'll need to use either a ```root``` account for direct login or the default user account of the image used to create the VMs.
+     In our case the CentOS cloud image comes with a default ```centos``` user.
+     ```bash
+     export ANSIBLE_HOST_KEY_CHECKING=False
+     ansible-playbook -i inventory.py -u centos local_admin_users.yml
+     ansible-playbook -i inventory.py -u [local_admin_account] single_role_playbooks/ssh_host_signer.yml
+     export ANSIBLE_HOST_KEY_CHECKING=True
+     ```
+   * Secondly, deploy the rest of the playbooks/configs:
+     * Deploying a complete HPC cluster.
+       ```bash
+       ansible-playbook -i inventory.py -u [local_admin_account] cluster.yml
+       ```
+     * Deploying only a specific role - e.g. *slurm-management* - on test cluster *Talos*
+       ```bash
+       ansible-playbook site.yml -i inventory.py  -u [local_admin_account] single_role_playbooks/slurm-management.yml
+       ```
+
+8. Verify operation.
+
+   See the end user documentation, that was generated with the ```online_docs``` role for instructions how to submit a job to test the cluster.

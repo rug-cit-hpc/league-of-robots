@@ -47,36 +47,44 @@
     mode: '0755'
   become: true
 
-- name: Install login_checks.sh script.
-  copy:
-    src: login_checks.sh
-    dest: /etc/pam-script.d/login_checks.sh
-    owner: root
-    group: root
-    mode: '0755'
-  when: inventory_hostname in groups['cluster']
-  become: true
-
-- name: Enable login_checks.sh script for ses_open.
+#
+# Login checks currently disabled,
+# because error handling/reporting no longer works on CentOS >= 7.x,
+# due to changes in the PAM stack.
+# Login checks were only used to create Slurm accounts in the Slurm accounting DB.
+# This functionality has been relocated to the Slurm job_submit.lua plugin,
+# which will now automatically create account, users and associations of slurm users to slurm accounts
+# upon job submission when they do not already exist.
+#
+#- name: Install login_checks.sh script.
+#  copy:
+#    src: login_checks.sh
+#    dest: /etc/pam-script.d/login_checks.sh
+#    owner: root
+#    group: root
+#    mode: '0755'
+#  when: inventory_hostname in groups['cluster']
+#  become: true
+#
+#- name: Enable login_checks.sh script for ses_open.
+#  file:
+#    src: login_checks.sh
+#    dest: "/etc/pam-script.d/{{ item }}"
+#    owner: root
+#    group: root
+#    state: link
+#  with_items:
+#    - login_checks.sh_ses_open
+#  when: inventory_hostname in groups['cluster']
+#  become: true
+#
+- name: Disable login_checks.sh script as we use the Slurm job_submit.lua plugin now.
   file:
-    src: login_checks.sh
-    dest: "/etc/pam-script.d/{{ item }}"
-    owner: root
-    group: root
-    #
-    # Login checks currently disabled,
-    # because error handling/reporting no longer works on CentOS >= 7.x,
-    # due to changes in the PAM stack.
-    # Login checks were only used to create Slurm accounts in the Slurm accounting DB.
-    # This functionality has been relocated to the Slurm job_submit.lua plugin,
-    # which will now automatically create account, users and associations of slurm users to slurm accounts
-    # upon job submission when they do not already exist.
-    #
-    # state: link
+    path: "{{ item }}"
     state: absent
   with_items:
     - login_checks.sh_ses_open
-  when: inventory_hostname in groups['cluster']
+    - login_checks.sh
   become: true
 
 - name: Enable services.

@@ -69,10 +69,10 @@
           job: /bin/needs-restarting -r >/dev/null 2>&1 || /sbin/shutdown -r +60 "restarting to apply updates"
           cron_file: reboot
 
-- hosts: slurm
+- hosts: slurm-management
   become: true
   roles:
-     - slurm
+     - slurm-management
      - prom_server
      - cadvisor
 

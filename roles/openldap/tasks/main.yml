@@ -1,0 +1,46 @@
+---
+- name: install service file.
+  template:
+    src: templates/{{ item }}
+    dest: /etc/systemd/system/{{ item }}
+    mode: 644
+    owner: root
+    group: root
+  with_items:
+      - openldap.service
+      - phpldapadmin.service
+
+- name: make directory for the openldap ldif volume.
+  file:
+    path: /srv/openldap/custom
+    state: directory
+    owner: root
+    group: root
+
+- name: install ldif file for "member of"
+  copy:
+    src: files/01-overlay-memberof
+    dest: /srv/openldap/custom/01-overlay-memberof
+    mode: 644
+    owner: root
+    group: root
+
+- name: Daemon reload (the inplicit doesn't work)
+  command: bash -c "systemctl daemon-reload"
+
+- name: make sure service is started
+  systemd:
+    name: "{{ item }}"
+    state: started
+    daemon_reload: yes
+  with_items:
+      - openldap.service
+      - phpldapadmin.service
+
+- name: start service at boot.
+  command: systemctl reenable "{{ item }}"
+  with_items:
+      - openldap.service
+      - phpldapadmin.service
+
+

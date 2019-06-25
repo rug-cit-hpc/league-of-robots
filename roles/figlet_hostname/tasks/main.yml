@@ -1,12 +1,18 @@
 ---
-- name: generate figlet text
+- name: Install figlet.
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - figlet
+  become: true
+
+- name: Generate figlet ascii art.
   # shell: figlet -f {{ role_path }}/files/doh.flf -w 180 {{ ansible_hostname }}
-  shell: figlet {{ ansible_hostname }}
+  shell: |
+         figlet {{ ansible_hostname }}
   register: figlet
-  delegate_to: localhost
 
-
-# Should be conver
 - name: Insert figlet in /etc/motd
   template:
     src: templates/motd
@@ -15,3 +21,4 @@
     group: root
     mode: 0644
   become: true
+...
