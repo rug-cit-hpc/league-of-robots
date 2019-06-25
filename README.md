@@ -103,43 +103,40 @@ Deploying a fully functional virtual cluster from scratch involves the following
 
 2. Create `.vault_pass.txt`.
 
-   * To generate a new Ansible vault password and put it in `.vault_pass.txt`, use the following oneliner:
-   ```bash
-   tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1 > .vault_pass.txt
-   ```
-   * Or to use an existing Ansible vault password create `.vault_pass.txt` and use a text editor to add the password.
-   Make sure the `.vault_pass.txt` is private:
-   ```bash
-   chmod go-rwx .vault_pass.txt
-   ```
+   The vault passwd is used to encrypt/decrypt the ```secrets.yml``` file per cluster, 
+   which will be created in the next step if you do not already have one.
+   If you have multiple HPC clusters with their own vault passwd you can have multiple vault password files. 
+   The pattern ```.vault_pass.txt*``` is part of ```.gitignore```, so if you use ```.vault_pass.txt.[name-of-the-cluster]```
+   for your vault password files they will not accidentally get committed to the repo.
+ 
+   * To generate a new Ansible vault password and put it in ```.vault_pass.txt.[name-of-the-cluster]```, use the following oneliner:
+     ```bash
+     tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1 > .vault_pass.txt.[name-of-the-cluster]
+     ```
+   * Or to use an existing Ansible vault password create ```.vault_pass.txt.[name-of-the-cluster]``` and use a text editor to add the password.
+   * Make sure the ```.vault_pass.txt.[name-of-the-cluster]``` is private:
+     ```bash
+     chmod go-rwx .vault_pass.txt.[name-of-the-cluster]
+     ```
 
 3. Configure Ansible settings including the vault.
 
-   * To create a new ```secrets.yml``` (encrypted variables) and ```vars.yml``` (unencrypted variables):
-     Create a ```group_vars/[name-of-the-cluster]/``` folder with a ```vars.yml```.
-     You'll find and example ```vars.yml``` file in ```group_vars/template/```.
-     To generate a new ```secrets.yml``` with new random passwords for the passwords for the various daemons/components
-     and encrypt this new ```secrets.yml``` file:
+   To create a new virtual cluster you will need ```group_vars``` and an inventory for that HPC cluster:
+   
+   * See the ```*_hosts.ini``` files for existing clusters for examples to create a new ```[name-of-the-cluster]*_hosts.ini```.
+   * Create a ```group_vars/[name-of-the-cluster]/``` folder with a ```vars.yml```.  
+     You'll find and example ```vars.yml``` file in ```group_vars/template/```.  
+     To generate a new ```secrets.yml``` with new random passwords for the various daemons/components and encrypt this new ```secrets.yml``` file:
      ```bash
      ./generate_secrets.py group_vars/template/secrets.yml group_vars/[name-of-the-cluster]/secrets.yml
-     ansible-vault --vault-password-file=.vault_pass.txt encrypt group_vars/[name-of-the-cluster]/secrets.yml
+     ansible-vault --vault-password-file=.vault_pass.txt.[name-of-the-cluster] encrypt group_vars/[name-of-the-cluster]/secrets.yml
      ```
-     The encrypted secrets.yml can now safely be committed.
-     The ```.vault_pass.txt``` file is listed in ```.gitignore``` and needs to be transfered in a secure way.  
-     You must also create an inventory file. See the ```*_hosts.ini``` files for existing clusters for examples.  
-     Next, follow the step below to use the new config files...
-   * To use use an existing encrypted ```secrets.yml``` add a ```.vault_pass.txt``` file to the root folder of this repo
-     and create also in the root folder of this repo an ```ansible.cfg``` using the following template:
-     ```[defaults]
-     stdout_callback = debug
-     forks = 20
-     vault_password_file = .vault_pass.txt
-     remote_user = your_local_account_not_from_the_LDAP
-     
-     [ssh_connection]
-     pipelining = True
-     ssh_args = -C -o ControlMaster=auto -o ControlPersist=60s -o ForwardAgent=yes
-     ```
+     The encrypted ```secrets.yml``` can now safely be committed.  
+     The ```.vault_pass.txt.[name-of-the-cluster]``` file is excluded from the repo using the ``````.vault_pass.txt*``` pattern in ```.gitignore```.
+   
+   To use use an existing encrypted ```group_vars/[name-of-the-cluster]/secrets.yml```:
+   
+   * Add a ```.vault_pass.txt.[name-of-the-cluster]``` file to the root folder of this repo and use a text editor to add the vault password to this file.
 
 4. Configure the Certificate Authority (CA).
 
@@ -151,9 +148,9 @@ Deploying a fully functional virtual cluster from scratch involves the following
       ECDSA key fingerprint is ....
       Are you sure you want to continue connecting (yes/no)?
    ```
-   * The filename of the CA private key is specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/*/vars.yml```
+   * The filename of the CA private key is specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/[name-of-the-cluster] /vars.yml```
    * The filename of the corresponding CA public key must be the same as the one of the private key suffixed with ```.pub```
-   * The password required to decrypt the CA private key must be specified using the ```ssh_host_signer_ca_private_key_pass``` variable defined in ```group_vars/*/secrets.yml```,
+   * The password required to decrypt the CA private key must be specified using the ```ssh_host_signer_ca_private_key_pass``` variable defined in ```group_vars/[name-of-the-cluster] /secrets.yml```,
      which must be encrypted with ```ansible-vault```.
    * Each user must add the content of the CA public key to their ```~.ssh/known_hosts``` like this:
      ```
@@ -186,22 +183,40 @@ Deploying a fully functional virtual cluster from scratch involves the following
 
    Execute:
    ```
-   dd if=/dev/urandom bs=1 count=1024 > roles/slurm-management/files/{clustername}_munge.key
-   ansible-vault --vault-password-file=.vault_pass.txt encrypt roles/slurm-management/files/{clustername}_munge.key
+   dd if=/dev/urandom bs=1 count=1024 > roles/slurm-management/files/[name-of-the-cluster] _munge.key
+   ansible-vault --vault-password-file=.vault_pass.txt.[name-of-the-cluster] encrypt roles/slurm-management/files/[name-of-the-cluster] _munge.key
    ```
-   The encrypted {clustername}_munge.key can now safely be committed.
+   The encrypted ```[name-of-the-cluster] _munge.key``` can now safely be committed.
 
 7. Running playbooks.
-
+   
    Some examples:
-   * Install the OpenStack cluster.
+   * Configure the dynamic inventory and jumphost for the *Talos* test cluster:
      ```bash
-     ansible-playbook site.yml
+     export AI_INVENTORY='talos_hosts.ini'
+     export AI_PROXY='reception'
+     export ANSIBLE_VAULT_PASSWORD_FILE='.vault_pass.txt.talos'
      ```
-   * Deploying only a specific role - *slurm-management* on test cluster *Talos*
+   * Firstly
+      * Create local admin accounts, which can then be used to deploy the rest of the playbook.
+      * Deploy the signed hosts keys.
+     Without local admin accounts we'll need to use either a ```root``` account for direct login or the default user account of the image used to create the VMs.
+     In our case the CentOS cloud image comes with a default ```centos``` user.
      ```bash
-     ansible-playbook site.yml -i talos_hosts single_role_playbooks/slurm-management.yml
+     export ANSIBLE_HOST_KEY_CHECKING=False
+     ansible-playbook -i inventory.py -u centos local_admin_users.yml
+     ansible-playbook -i inventory.py -u [local_admin_account] single_role_playbooks/ssh_host_signer.yml
+     export ANSIBLE_HOST_KEY_CHECKING=True
      ```
+   * Secondly, deploy the rest of the playbooks/configs:
+     * Deploying a complete HPC cluster.
+       ```bash
+       ansible-playbook -i inventory.py -u [local_admin_account] cluster.yml
+       ```
+     * Deploying only a specific role - e.g. *slurm-management* - on test cluster *Talos*
+       ```bash
+       ansible-playbook site.yml -i inventory.py  -u [local_admin_account] single_role_playbooks/slurm-management.yml
+       ```
 
 8. Verify operation.
 
