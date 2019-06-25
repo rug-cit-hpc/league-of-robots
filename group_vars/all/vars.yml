@@ -143,6 +143,7 @@ auth_users:
     uid: 1023
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHvtYVqBzyLk0gRL0Teq5UnIPjrkJGvbmzjHzPq2D5gw wsteyaert
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA1cD51nNVkZLmVpgnlecprPCNdf6W9IQ/O7KVE5DG3b wsteyaert
 
 #
 # Local group specs.

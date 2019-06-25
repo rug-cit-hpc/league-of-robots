@@ -95,11 +95,11 @@ local_regular_users:
   - user: 'ljohansson'
     groups: ['users', 'depad','umcg-atd', 'solve-rd']
   - user: 'ddanis'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', 'solve-rd']
   - user: 'ksablauskas'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', 'solve-rd']
   - user: 'wsteyaert'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', 'solve-rd']
 pfs_mounts: [
   { pfs: 'ecst02',
     source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD/ecst02',
