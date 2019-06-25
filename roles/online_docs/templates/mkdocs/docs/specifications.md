@@ -32,7 +32,7 @@ In addition to LFS-ses for _home dirs_ and the centrally deployed _software_  an
 
 | Resource            | Amount/value/name                      |
 |:------------------- | --------------------------------------:|
-| Compute nodes       | {{ stack_prefix }}-vcompute\[01-03\]   |
+| Compute nodes       | {{ vcompute_hostnames }}               |
 | Cores/node          | {{ vcompute_max_cpus_per_node }}       |
 | RAM/node \(MB\)     | {{ vcompute_max_mem_per_node }}        |
 | Storage/node \(GB\) | {{ vcompute_local_disk }}              |
