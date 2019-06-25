@@ -34,9 +34,10 @@ We follow the [Python PEP8 naming conventions](https://www.python.org/dev/peps/p
 
 This repo currently contains code and configs for the following clusters:
 
- * Gearshift: [UMCG](https://www.umcg.nl) Research IT cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
  * Talos: Development cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
- * Hyperchicken: [Solve-RD](solve-rd.eu/) cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
+ * Gearshift: [UMCG](https://www.umcg.nl) Research IT production cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
+ * Hyperchicken: Development cluster cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
+ * Fender: [Solve-RD](solve-rd.eu/) production cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
 
 Deployment and functional administration of all clusters is a joined effort of the
 [Genomics Coordination Center (GCC)](http://wiki.gcc.rug.nl/)
@@ -132,7 +133,7 @@ Deploying a fully functional virtual cluster from scratch involves the following
      ansible-vault --vault-password-file=.vault_pass.txt.[name-of-the-cluster] encrypt group_vars/[name-of-the-cluster]/secrets.yml
      ```
      The encrypted ```secrets.yml``` can now safely be committed.  
-     The ```.vault_pass.txt.[name-of-the-cluster]``` file is excluded from the repo using the ``````.vault_pass.txt*``` pattern in ```.gitignore```.
+     The ```.vault_pass.txt.[name-of-the-cluster]``` file is excluded from the repo using the ```.vault_pass.txt*``` pattern in ```.gitignore```.
    
    To use use an existing encrypted ```group_vars/[name-of-the-cluster]/secrets.yml```:
    
@@ -190,7 +191,7 @@ Deploying a fully functional virtual cluster from scratch involves the following
 
 7. Running playbooks.
    
-   Some examples:
+   Some examples for the *Talos* development cluster:
    * Configure the dynamic inventory and jumphost for the *Talos* test cluster:
      ```bash
      export AI_INVENTORY='talos_hosts.ini'
