@@ -63,7 +63,14 @@
   hosts:
      - deploy-admin-interface
   roles:
+     - figlet_hostname
      - envsync
+
+- name: Install roles needed for SAIs.
+  hosts:
+     - sys-admin-interface
+  roles:
+     - figlet_hostname
 
 - name: Install roles needed for jumphosts.
   hosts: jumphost
@@ -108,6 +115,7 @@
   become: true
   tasks:
   roles:
+     - figlet_hostname
      - slurm_exporter
      - slurm-client
 ...
