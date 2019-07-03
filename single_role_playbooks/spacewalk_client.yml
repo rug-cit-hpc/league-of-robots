@@ -1,0 +1,6 @@
+---
+- hosts: cluster
+  become: true
+  roles:
+    - spacewalk_client
+...
