@@ -1,0 +1,6 @@
+---
+- hosts: cluster
+  become: true
+  roles:
+    - logins
+...

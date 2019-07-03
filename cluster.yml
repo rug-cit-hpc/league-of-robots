@@ -110,4 +110,5 @@
   roles:
      - slurm_exporter
      - slurm-client
+     - sudoers
 ...
