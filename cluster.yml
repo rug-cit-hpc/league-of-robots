@@ -9,6 +9,19 @@
 
 - import_playbook: local_admin_users.yml
 
+- name: Install spacewalk client needed for all virtual cluster components except jumphosts.
+  hosts: cluster
+  become: true
+  tasks:
+  roles:
+    - spacewalk_client
+
+- name: Install EPEL repo needed for jumphosts
+  hosts: jumphost
+  become: true
+  roles:
+     - geerlingguy.repo-epel
+
 - name: Install roles needed for all virtual cluster components.
   hosts: all
   roles:
@@ -42,7 +55,6 @@
   become: true
   tasks:
   roles:
-     - spacewalk_client
      - ldap
      - node_exporter
      - cluster
@@ -69,7 +81,6 @@
   hosts: jumphost
   become: true
   roles:
-     - geerlingguy.repo-epel
      - ldap
      - cluster
      - geerlingguy.security
