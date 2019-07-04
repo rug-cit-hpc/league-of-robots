@@ -102,7 +102,7 @@
     opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'match', '^home$') | list }}"
-  when: inventory_hostname in groups['cluster']
+  when: inventory_hostname in groups['cluster'] and not inventory_hostname in groups['nfs-server']
   become: True
 
 - name: 'Mount "tmp" Logical File Systems (LFSs) per group from shared storage.'
