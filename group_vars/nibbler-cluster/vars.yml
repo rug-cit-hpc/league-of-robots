@@ -24,7 +24,7 @@ ui_local_disk: 0
 ui_features: 'prm09,tmp09'
 ui_ethernet_interfaces:
   - 'eth0'
-ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/nibbler-testcluster-ca"
+ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 uri_ldap: ldap.pilot.scz.lab.surf.nl
 uri_ldaps: ldap.pilot.scz.lab.surf.nl
