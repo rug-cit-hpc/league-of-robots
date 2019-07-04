@@ -40,6 +40,14 @@
     - restart_slurmctld
   become: true
 
+- name: Install munge
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - munge
+  become: true
+
 - name: Install munge.key file.
   copy:
     src: "files/{{ slurm_cluster_name }}_munge.key"
