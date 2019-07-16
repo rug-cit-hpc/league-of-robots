@@ -2,7 +2,7 @@
 # Install webserver and deploy cluster specific documentation on that web server.
 #
 ---
-- name: Check if rsync >= 3.1.2 is installed on the control host.
+- name: 'Check if rsync >= 3.1.2 is installed on the control host.'
   shell: |
          rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
   args:
@@ -12,7 +12,7 @@
   check_mode: no
   register: rsync_version
   delegate_to: localhost
-- name: Abort when modern rsync >= 3.1.2 is missing on control host.
+- name: 'Abort when modern rsync >= 3.1.2 is missing on control host.'
   debug:
     msg: "FATAL: Need rsync >= 3.1.2 on the control host, but detected {{ rsync_version.stdout }}."
   when:         'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
@@ -47,7 +47,7 @@
   check_mode: no
   register: slurm_version
 
-- name: Get Lmod version from UI.
+- name: 'Get Lmod version from UI.'
   #
   # Example output:
   # Modules based on Lua: Version 6.5.8  2016-09-03 13:41 -05:00 (CDT)
@@ -68,7 +68,7 @@
   check_mode: no
   register: lmod_version
 
-- name: Install libselinux-python
+- name: 'Install libselinux-python.'
   yum:
     state: latest
     update_cache: yes
@@ -77,13 +77,13 @@
   when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
   become: true
 
-- name: Set selinux in permissive mode
+- name: 'Set selinux in permissive mode.'
   selinux:
     policy: targeted
     state: permissive
   become: true
 
-- name: Install EPEL repo and rsync.
+- name: 'Install EPEL repo and rsync.'
   yum:
     state: latest
     update_cache: yes
@@ -92,17 +92,18 @@
       - rsync
   become: true
 
-- name: Install webserver.
+- name: 'Install webserver and php.'
   yum:
     state: latest
     update_cache: yes
     name:
+      - php
       - httpd
   notify:
     - restart_httpd
   become: true
 
-- name: Enable webserver.
+- name: 'Enable webserver.'
   service:
     name: "{{ item }}"
     enabled: yes
@@ -111,37 +112,15 @@
     - httpd
   become: true
 
-- name: Install Python 3 for CentOS 6.
-  yum:
-    state: latest
-    update_cache: yes
-    name:
-      - python34
-      - python34-setuptools
+- name: 'Install MkDocs on RedHat 6.x.'
+  import_tasks: mkdocs-for-redhat6.yml
   when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
-  become: true
 
-- name: Download get-pip.py for CentOS 6.
-  get_url:
-    url: https://bootstrap.pypa.io/get-pip.py
-    dest: /root/get-pip.py
-    mode: 0744
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
-  become: true
+- name: 'Install MkDocs on RedHat 7.x.'
+  import_tasks: mkdocs-for-redhat7.yml
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "7"
 
-- name: Execute get-pip.py for Python 3 on CentOS 6.
-  shell: |
-         python3 /root/get-pip.py --no-setuptools --no-wheel
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
-  become: true
-
-- name: Install MkDocs and deps using pip.
-  shell: |
-         python3 -m pip install mkdocs
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
-  become: true
-
-- name: Create base directories for MarkDown and HTML files on webserver.
+- name: 'Create base directories for MarkDown and HTML files on webserver.'
   file:
     path: "{{ item }}"
     state: directory
@@ -153,7 +132,38 @@
     - "/var/www/html/{{ slurm_cluster_name }}/"
   become: true
 
-- name: Create sub directory structure for MarkDown files on webserver.
+- name: 'Create static files for MarkDown on webserver.'
+  synchronize:
+    src: "{{ playbook_dir }}/roles/online_docs/files/index//./{{ item.src }}"
+    dest: "/var/www/html/"
+    owner: 'no'
+    group: 'no'
+    use_ssh_args: 'yes'
+    rsync_opts:
+      # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
+      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
+      # --chmod           Is required to prevent errors when the perms on the source are not what is required/expected on the destination.
+      #                   Fixing perms on the source would be good, but that may be out of our control.
+      #                   In that case --chmod ensures we get what we want on the destination.
+      #                   Works only when combined with --perms.
+      # --force           Is required when symlinks have changed into dirs/files or vice versa.
+      #                   In that case the wrong outdated stuff has to be deleted on the destination first before the new stuff can be created.
+      #                   Deleting the outdated stuff may fail without --force.
+      # --relative        In combination with a "source_server:some/path/not/created/on/destination/./path/created/on/destination/some_file" (dot dir)
+      #                   recreates a partial dir structure on the destination relative to the /./ dir, when it does not already exist.
+      #                   Without this combination of --relative and dot dir rsync will error when the path does not exist on the destination.
+      #                   IMPORTANT: src and dest paths must be absolute paths. Otherwise Ansible will expand the path itself which will remove the /./ dir.
+      - '--relative'
+      - '--omit-dir-times'
+      - '--chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r'
+      - '--perms'
+      - '--force'
+  with_items:
+    - src: 'index.php'
+    - src: 'sitemap.php'
+  become: true
+
+- name: 'Create sub directory structure for MarkDown files on webserver.'
   file:
     path: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"
     state: directory
@@ -166,7 +176,7 @@
     - build_mkdocs
   become: true
 
-- name: Create static files for MarkDown on webserver.
+- name: 'Create static files for MarkDown on webserver.'
   synchronize:
     src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/docs/./{{ item.src }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
@@ -201,7 +211,7 @@
   when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] < "7"
   become: true
 
-- name: Create static files for MarkDown on webserver.
+- name: 'Create static files for MarkDown on webserver.'
   synchronize:
     src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/docs/./{{ item.src }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
@@ -236,7 +246,7 @@
   when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "7"
   become: true
 
-- name: Create MarkDown files based on templates on webserver.
+- name: 'Create MarkDown files based on templates on webserver.'
   template:
     src: "{{ item.src }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"

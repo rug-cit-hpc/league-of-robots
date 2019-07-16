@@ -1,0 +1,27 @@
+---
+- name: Install Python 3 for CentOS 6.
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - python34
+      - python34-setuptools
+  become: true
+
+- name: Download get-pip.py for CentOS 6.
+  get_url:
+    url: https://bootstrap.pypa.io/get-pip.py
+    dest: /root/get-pip.py
+    mode: 0744
+  become: true
+
+- name: Execute get-pip.py for Python 3 on CentOS 6.
+  shell: |
+         python3 /root/get-pip.py --no-setuptools --no-wheel
+  become: true
+
+- name: Install MkDocs and deps using pip on CentOS 6.
+  shell: |
+         python3 -m pip install mkdocs
+  become: true
+...
