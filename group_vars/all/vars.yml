@@ -144,6 +144,11 @@ auth_users:
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHvtYVqBzyLk0gRL0Teq5UnIPjrkJGvbmzjHzPq2D5gw wsteyaert
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA1cD51nNVkZLmVpgnlecprPCNdf6W9IQ/O7KVE5DG3b wsteyaert
+  fokke:
+    comment: 'Fokke Dijkstra'
+    uid: 1024
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDRVddVL5RVcv2ubRTNdPQ1Z7L+llPe3jxPgLYKvl6Uo fokke@laptop-cit
 
 #
 # Local group specs.

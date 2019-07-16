@@ -26,7 +26,6 @@
 #		E. Compute nodes
 #		F. Documentation server
 #
----
 - name: 'Sanity checks before we start.'
   hosts: all
   pre_tasks:
@@ -122,6 +121,7 @@
     - shared_storage
     - slurm_exporter
     - slurm-client
+    - sudoers
 
 - name: 'E. Roles for compute nodes.'
   hosts: compute-vm
