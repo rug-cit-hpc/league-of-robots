@@ -18,7 +18,7 @@
     state: 'mounted'
   with_items: "{{ pfs_mounts }}"
   when: inventory_hostname in groups['sys-admin-interface']
-  become: True
+  become: true
 
 - name: 'Create "home" Logical File System (LFS) on Physical File Systems (PFSs) mounted on SAIs.'
   file:
@@ -29,7 +29,7 @@
     state: 'directory'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'match', '^home$') | list }}"
   when: inventory_hostname in groups['sys-admin-interface']
-  become: True
+  become: true
 
 - name: 'Create root groups folder for "tmp" and "prm" Logical File Systems (LFSs) on Physical File Systems (PFSs) mounted on SAIs.'
   file:
@@ -41,7 +41,7 @@
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', '(tmp)|(prm)[0-9]+$') | list }}"
   when: inventory_hostname in groups['sys-admin-interface']
-  become: True
+  become: true
 
 - name: 'Create folder for each group on Physical File Systems (PFSs) mounted on SAIs.'
   file:
@@ -54,7 +54,7 @@
     - "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(prm))[0-9]+$') | list }}"
     - 'groups'
   when: inventory_hostname in groups['sys-admin-interface']
-  become: True
+  become: true
 
 - name: 'Create "tmp" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs) mounted on SAIs.'
   file:
@@ -67,7 +67,7 @@
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
     - 'groups'
   when: inventory_hostname in groups['sys-admin-interface']
-  become: True
+  become: true
 
 - name: 'Create "prm" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs) mounted on SAIs.'
   file:
@@ -80,7 +80,7 @@
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
     - 'groups'
   when: inventory_hostname in groups['sys-admin-interface']
-  become: True
+  become: true
 
 - name: 'Create "apps" Logical File Systems (LFSs) on Physical File Systems (PFSs) mounted on SAIs.'
   file:
@@ -92,7 +92,7 @@
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
   when: inventory_hostname in groups['sys-admin-interface']
-  become: True
+  become: true
 
 - name: 'Mount "home" Logical File System (LFS) from shared storage.'
   mount:
@@ -103,7 +103,7 @@
     state: 'mounted'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'match', '^home$') | list }}"
   when: inventory_hostname in groups['cluster']
-  become: True
+  become: true
 
 - name: 'Mount "tmp" Logical File Systems (LFSs) per group from shared storage.'
   mount:
@@ -116,7 +116,7 @@
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
     - 'groups'
   when: inventory_hostname in groups['compute-vm'] or inventory_hostname in groups['user-interface'] or inventory_hostname in groups['deploy-admin-interface']
-  become: True
+  become: true
 
 - name: 'Mount "prm" Logical File Systems (LFSs) per group from shared storage.'
   mount:
@@ -129,7 +129,7 @@
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
     - 'groups'
   when: inventory_hostname in groups['user-interface']
-  become: True
+  become: true
 
 - name: 'Mount "env" Logical File Systems (LFSs) from shared storage read-write on DAIs.'
   mount:
@@ -140,7 +140,7 @@
     state: 'mounted'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list}}"
   when: inventory_hostname in groups['deploy-admin-interface']
-  become: True
+  become: true
 
 - name: 'Mount "apps" from one "env" Logical File System (LFS) from shared storage read-only as /apps on UIs and vcompute nodes.'
   mount:
@@ -152,5 +152,5 @@
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
   when: inventory_hostname in item.machines
-  become: True
+  become: true
 ...

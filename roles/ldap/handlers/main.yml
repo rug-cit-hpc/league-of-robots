@@ -8,13 +8,13 @@
   service:
     name: nslcd
     state: restarted
-  become: yes
+  become: true
   listen: restart_nslcd
 
 - name: Restart sshd service.
   service:
     name: sshd
     state: restarted
-  become: yes
+  become: true
   listen: restart_sshd
 ...

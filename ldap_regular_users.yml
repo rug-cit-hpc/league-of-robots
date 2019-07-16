@@ -1,7 +1,7 @@
 ---
 - name: 'Create regular users & groups in cluster LDAP.'
   hosts: ldap-server
-  become: True
+  become: true
 #  roles:
 #    - openldap
   tasks:

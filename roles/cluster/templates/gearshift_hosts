@@ -70,13 +70,18 @@
 172.23.40.97       tl-vcompute03        tl-vcompute03.hpc.local
 
 #
+# Documentation webserver.
+#
+195.169.22.76      docs
+
+#
 # To prevent excessive dns lookups:
 #
-129.125.60.195          gearshift.hpc.rug.nl
-129.125.60.86           boxy.hpc.rug.nl
-195.169.22.247          calculon.gcc.rug.nl
-195.169.22.95           leucine-zipper.gcc.rug.nl
-195.169.22.8            zinc-finger.gcc.rug.nl
+129.125.60.195     gearshift.hpc.rug.nl
+129.125.60.86      boxy.hpc.rug.nl
+195.169.22.247     calculon.gcc.rug.nl
+195.169.22.95      leucine-zipper.gcc.rug.nl
+195.169.22.8       zinc-finger.gcc.rug.nl
 
 {% if additional_etc_hosts is defined %}
 {{ additional_etc_hosts }}
