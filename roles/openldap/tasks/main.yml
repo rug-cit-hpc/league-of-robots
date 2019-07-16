@@ -9,6 +9,7 @@
   with_items:
       - openldap.service
       - phpldapadmin.service
+  become: true
 
 - name: make directory for the openldap ldif volume.
   file:
@@ -16,6 +17,7 @@
     state: directory
     owner: root
     group: root
+  become: true
 
 - name: install ldif file for "member of"
   copy:
@@ -24,9 +26,11 @@
     mode: 644
     owner: root
     group: root
+  become: true
 
 - name: Daemon reload (the inplicit doesn't work)
   command: bash -c "systemctl daemon-reload"
+  become: true
 
 - name: make sure service is started
   systemd:
@@ -36,11 +40,12 @@
   with_items:
       - openldap.service
       - phpldapadmin.service
+  become: true
 
 - name: start service at boot.
   command: systemctl reenable "{{ item }}"
   with_items:
       - openldap.service
       - phpldapadmin.service
-
-
+  become: true
+...

@@ -5,14 +5,12 @@
 
 - name: Install virtual compute nodes
   hosts: compute-vm
-  become: true
   tasks:
   roles:
     - slurm-client
 
 - name: Install user interface
   hosts: user-interface
-  become: true
   tasks:
   roles:
     - slurm-client

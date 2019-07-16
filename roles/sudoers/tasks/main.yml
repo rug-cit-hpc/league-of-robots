@@ -3,7 +3,6 @@
 # Allow passwordless sudo to the datamanager users for indivual users or %groups.
 # This can be specified in the groupvars local_regular_users.
 #
-
 - name: 'Allow passwordless sudo to the datamanager users.'
   lineinfile:
     dest: '/etc/sudoers'
@@ -12,3 +11,4 @@
   with_subelements:
     - "{{ local_regular_users | selectattr('sudoers', 'defined')  | list }}"
     - 'sudoers'
+...

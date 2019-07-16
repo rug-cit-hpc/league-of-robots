@@ -1,6 +1,5 @@
 ---
 - hosts: slurm-management
-  become: true
   roles:
      - docker
      - mariadb
