@@ -79,8 +79,8 @@
   become: true
   roles:
      - slurm-management
-     - prom_server
-     - cadvisor
+     - { role: prom_server, become: true }
+     - { role: cadvisor, become: true }
   vars:
      # These variables are needed by the mariadb role.
      # Which is a depencency of the slurm-management role.
