@@ -48,7 +48,7 @@
 
 - name: Redeploy sshd config.
   template:
-    src: "{{ playbook_dir }}/roles/cluster/templates/sshd_config"
+    src: "{{ playbook_dir }}/roles/sshd/templates/sshd_config"
     dest: /etc/ssh/sshd_config
     validate: '/usr/sbin/sshd -T -f %s'
   notify: restart_sshd

@@ -43,7 +43,8 @@
     - logins
     - { role: geerlingguy.repo-epel, become: true }
     - ldap
-    - cluster
+    - static-hostname-lookup
+    - sshd
     - node_exporter
     - { role: geerlingguy.security, become: true }
   tasks:
@@ -71,7 +72,9 @@
     - mount-volume
     - ldap
     - node_exporter
+    - static-hostname-lookup
     - cluster
+    - sshd
     - resolver
     - shared_storage
 
@@ -101,7 +104,9 @@
     - build-environment
     - ldap
     - node_exporter
+    - static-hostname-lookup
     - cluster
+    - sshd
     - resolver
     - shared_storage
     - envsync
@@ -116,7 +121,9 @@
     - logins
     - ldap
     - node_exporter
+    - static-hostname-lookup
     - cluster
+    - sshd
     - resolver
     - shared_storage
     - slurm_exporter
@@ -136,7 +143,9 @@
     - build-environment
     - ldap
     - node_exporter
+    - static-hostname-lookup
     - cluster
+    - sshd
     - resolver
     - shared_storage
     - slurm-client
