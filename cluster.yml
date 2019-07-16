@@ -65,10 +65,10 @@
     - admin-users 
     - ssh_host_signer
     - ssh_known_hosts
+    - spacewalk_client
     - logins
     - figlet_hostname
     - mount-volume
-    - spacewalk_client
     - ldap
     - node_exporter
     - cluster
@@ -94,11 +94,11 @@
     - admin-users 
     - ssh_host_signer
     - ssh_known_hosts
+    - spacewalk_client
     - logins
     - figlet_hostname
     - mount-volume
     - build-environment
-    - spacewalk_client
     - ldap
     - node_exporter
     - cluster
@@ -112,8 +112,8 @@
     - admin-users 
     - ssh_host_signer
     - ssh_known_hosts
-    - logins
     - spacewalk_client
+    - logins
     - ldap
     - node_exporter
     - cluster
@@ -129,11 +129,11 @@
     - admin-users 
     - ssh_host_signer
     - ssh_known_hosts
+    - spacewalk_client
     - logins
     - figlet_hostname
     - mount-volume
     - build-environment
-    - spacewalk_client
     - ldap
     - node_exporter
     - cluster
@@ -148,17 +148,4 @@
     - admin-users 
     - ssh_host_signer
     - online_docs
-
-#
-# I think we no longer need this as we deploy from laptops outside cluster and via jumphosts...
-#
-#- name: Install ansible on admin interfaces (DAI & SAI).
-#  hosts:
-#     - sys-admin-interface
-#     - deploy-admin-interface
-#  become: true
-#  tasks:
-#     - name: install Ansible
-#       yum:
-#          name: ansible-2.6.6-1.el7.umcg
 ...
