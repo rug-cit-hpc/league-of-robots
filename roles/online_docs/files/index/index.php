@@ -41,7 +41,8 @@
          left:0px; top:0px;
          text-align:center;
          padding-left:0px; padding-right:0px; padding-top:5px; padding-bottom:5px;
-         font-family:"Roboto Slab","ff-tisa-web-pro","Georgia",Arial,sans-serif;}
+         font-family:"Lato","Verdana","Georgia",Arial,sans-serif;
+         font-weight: 700;}
     code {color:#838383; background:#404040;}
     span {color:#838383; background:#343131;}
     ul {color:#404040; background:#FCFCFC;
