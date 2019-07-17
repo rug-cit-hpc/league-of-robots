@@ -7,9 +7,8 @@
 #
 #  1. Use standard CentOS cloud image user 'centos' or 'root' user and without host key checking:
 #		export ANSIBLE_HOST_KEY_CHECKING=False
-#		ansible-playbook -i inventory.py -u centos -l jumphost  single_role_playbooks/admin-users.yml
-#		ansible-playbook -i inventory.py -u centos -l cluster   single_role_playbooks/admin-users.yml
-#		ansible-playbook -i inventory.py -u root   -l docs      single_role_playbooks/admin-users.yml
+#		ansible-playbook -i inventory.py -u centos -l 'jumphost,cluster'  single_role_playbooks/admin-users.yml
+#		ansible-playbook -i inventory.py -u root   -l 'docs'              single_role_playbooks/admin-users.yml
 #  2. Use local admin user's account and without host key checking:
 #		export ANSIBLE_HOST_KEY_CHECKING=False
 #		ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/ssh_host_signer.yml

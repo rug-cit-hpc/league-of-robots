@@ -205,7 +205,8 @@ Deploying a fully functional virtual cluster from scratch involves the following
      In our case the CentOS cloud image comes with a default ```centos``` user.
      ```bash
      export ANSIBLE_HOST_KEY_CHECKING=False
-     ansible-playbook -i inventory.py -u centos local_admin_users.yml
+     ansible-playbook -i inventory.py -u centos -l 'jumphost,cluster' local_admin_users.yml
+     ansible-playbook -i inventory.py -u root   -l 'docs' local_admin_users.yml
      ansible-playbook -i inventory.py -u [local_admin_account] single_role_playbooks/ssh_host_signer.yml
      export ANSIBLE_HOST_KEY_CHECKING=True
      ```
@@ -216,7 +217,7 @@ Deploying a fully functional virtual cluster from scratch involves the following
        ```
      * Deploying only a specific role - e.g. *slurm-management* - on test cluster *Talos*
        ```bash
-       ansible-playbook site.yml -i inventory.py  -u [local_admin_account] single_role_playbooks/slurm-management.yml
+       ansible-playbook site.yml -i inventory.py -u [local_admin_account] single_role_playbooks/slurm-management.yml
        ```
 
 8. Verify operation.
