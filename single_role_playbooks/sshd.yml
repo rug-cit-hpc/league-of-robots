@@ -1,0 +1,9 @@
+---
+- hosts: jumphost
+  roles:
+    - sshd
+
+- hosts: cluster
+  roles:
+    - sshd
+...

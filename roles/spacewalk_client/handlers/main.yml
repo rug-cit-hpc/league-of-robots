@@ -8,6 +8,6 @@
   service:
     name: rhnsd
     state: restarted
-  become: yes
+  become: true
   listen: restart_rhnsd
 ...

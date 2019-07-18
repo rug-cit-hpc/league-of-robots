@@ -3,6 +3,7 @@
   yum:
     name: https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/spacewalk-2.8-client/epel-7-x86_64/00742644-spacewalk-repo/spacewalk-client-repo-2.8-11.el7.centos.noarch.rpm
     state: present
+  become: true
 
 - name: Install spacewalk client packages.
   yum:
@@ -15,6 +16,7 @@
      - yum-rhn-plugin
   notify:
     - restart_rhnsd
+  become: true
 
 - name: Enable spacewalk service.
   systemd:
@@ -25,6 +27,7 @@
     - rhnsd.service
   notify:
     - restart_rhnsd
+  become: true
 
 - meta: flush_handlers
 
@@ -40,26 +43,31 @@
   delay: 3
   ignore_errors: yes
   no_log: True
+  become: true
 
 - name: Disable gpgcheck for spacewalk repo.
   lineinfile:
     path: '/etc/yum/pluginconf.d/rhnplugin.conf'
     regexp: '^gpgcheck = [0-9].*'
     line: 'gpgcheck = 0'
+  become: true
 
 - name: Remove all (non-spacewalk) repo config files from /etc/yum.repos.d/.
   shell: "rm -rf /etc/yum.repos.d/*"
   args:
     warn: false
+  become: true
 
 - name: Clear the yum cache.
   command: "yum clean all"
   args:
     warn: false
   ignore_errors: yes
-
+  become: true
+  
 - name: Upgrade all packages to version specified in spacewalk channel.
   yum:
    name: '*'
    state: latest
+  become: true
 ...

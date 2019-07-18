@@ -1,6 +1,5 @@
 ---
 - hosts: user-interface
-  become: true
   roles:
     - sudoers
 ...

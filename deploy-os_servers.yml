@@ -123,7 +123,7 @@
 - name: Configure nodes
   hosts: 
     - all
-  become: True
+  become: true
   gather_facts: false
   tasks:
     - name: add entries to /etc/hosts for all cluster members

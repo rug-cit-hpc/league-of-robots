@@ -1,7 +1,7 @@
 ---
 - name: 'Create local regular users & groups.'
   hosts: all
-  become: True
+  become: true
   tasks:
     - name: 'Check if required groups are present.'
       group:

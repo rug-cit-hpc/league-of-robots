@@ -1,0 +1,14 @@
+---
+- name: Install generic build depedencies.
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - "@development"
+      - libselinux-devel
+      - kernel-devel
+      - glibc-common
+      - glibc-devel
+      - glibc-headers
+  become: true
+...
