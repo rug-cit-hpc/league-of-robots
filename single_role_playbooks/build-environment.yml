@@ -1,0 +1,7 @@
+---
+- hosts:
+    - deploy-admin-interface
+    - user-interface
+  roles:
+    - build-environment
+...
