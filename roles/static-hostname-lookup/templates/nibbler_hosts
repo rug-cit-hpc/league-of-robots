@@ -13,7 +13,7 @@
 #
 # Jumphost servers.
 #
-10.0.42.3    portal
+10.0.42.3    drawbridge
 
 #
 # Admin / Management machines.
@@ -41,3 +41,8 @@
 10.0.42.11    nb-vcompute1
 10.0.42.17    nb-vcompute2
 10.0.42.18    nb-vcompute3
+
+#
+# Documentation webserver.
+#
+195.169.22.76      docs

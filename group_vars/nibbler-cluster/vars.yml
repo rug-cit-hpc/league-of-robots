@@ -4,16 +4,16 @@ slurm_cluster_domain: 'hpc.rug.nl'
 spacewalk_server_url: 'http://spacewalk02.hpc.rug.nl/XMLRPC'
 stack_prefix: 'nb'
 mailhub: '192.168.0.5'
-rewrite_domain: "{{ stack_prefix }}-sai.{{ slurm_cluster_domain }}"
+rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 motd: "Besides, the determined Real Programmer can write FORTRAN programs in any language. -- Ed Post"
-vcompute_hostnames: "{{ stack_prefix }}-vcompute[0-20]"
+vcompute_hostnames: "{{ stack_prefix }}-vcompute[0-3]"
 vcompute_sockets: 4
 vcompute_cores_per_socket: 1
 vcompute_real_memory: 3790
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 0
-vcompute_features: 'tmp09'
+vcompute_features: 'tmp11'
 vcompute_ethernet_interfaces:
   - 'eth0'
 ui_hostnames: "{{ slurm_cluster_name }}"
@@ -21,7 +21,7 @@ ui_sockets: 4
 ui_cores_per_socket: 1
 ui_real_memory: 3790
 ui_local_disk: 0
-ui_features: 'prm09,tmp09'
+ui_features: 'prm11,tmp11'
 ui_ethernet_interfaces:
   - 'eth0'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
@@ -39,7 +39,9 @@ cloud_user: centos
 flavor_nano: s1.nano
 flavor_tiny: s1.tiny
 public_net_id: ext-net-37
-private_net_id: internal_net
+public_ip_addresses:
+  drawbridge: '???.???.???.???'
+private_net_id: Solve-RD_private
 private_subnet_id: Solve-RD_subnet
 private_storage_net_id: net_provider_vlan3126
 private_storage_subnet_id: subnet3126
@@ -57,6 +59,7 @@ local_admin_groups:
   - 'admin'
   - 'docker'
 local_admin_users:
+  - 'centos'
   - 'egon'
   - 'gerben'
   - 'henkjan'
@@ -89,10 +92,12 @@ local_regular_users:
     groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
   - user: 'rkanninga'
     groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
-  - user: 'umcg-atd-dm'
-    groups: ['users', 'umcg-atd']
   - user: 'solve-rd-dm'
     groups: ['users', 'solve-rd']
+    sudoers: ['%solve-rd']
+  - user: 'umcg-atd-dm'
+    groups: ['users', 'umcg-atd']
+    sudoers: ['%umcg-atd']
 pfs_mounts: [
   { pfs: 'Local-NFS',
     source: 'nb-nfs:/nfs',
@@ -103,13 +108,13 @@ pfs_mounts: [
 lfs_mounts: [
   { lfs: 'home',
     pfs: 'Local-NFS' },
-  { lfs: 'groups/GROUP/tmp09',
+  { lfs: 'groups/GROUP/tmp11',
     pfs: 'Local-NFS',
     groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'groups/GROUP/prm09',
+  { lfs: 'groups/GROUP/prm11',
     pfs: 'Local-NFS',
     groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'env09',
+  { lfs: 'env11',
     pfs: 'Local-NFS',
     machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
 ]
