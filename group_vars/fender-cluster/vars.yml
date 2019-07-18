@@ -43,6 +43,8 @@ flavor_tiny: s1.tiny
 flavor_ui: s1.large
 flavor_vcompute: s1.gargantuan
 public_net_id: ext-net-37
+public_ip_addresses:
+  corridor: '193.62.55.161'
 private_net_id: Solve-RD_private
 private_subnet_id: Solve-RD_subnet
 private_storage_net_id: net_provider_vlan3126
