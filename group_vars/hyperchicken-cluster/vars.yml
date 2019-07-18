@@ -89,12 +89,12 @@ local_regular_users:
     groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
   - user: 'rkanninga'
     groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
-  - user: 'umcg-atd-dm'
-    groups: ['users', 'umcg-atd']
-    sudoers: ['pieter','gerben']
   - user: 'solve-rd-dm'
     groups: ['users', 'solve-rd']
     sudoers: ['%solve-rd']
+  - user: 'umcg-atd-dm'
+    groups: ['users', 'umcg-atd']
+    sudoers: ['%umcg-atd']
 pfs_mounts: [
   { pfs: 'ecst01',
     source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD/ecst01',

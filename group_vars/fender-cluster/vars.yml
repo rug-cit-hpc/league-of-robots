@@ -71,8 +71,6 @@ local_admin_users:
   - 'morris'
   - 'pieter'
   - 'wim'
-  - 'umcg-atd-dm'
-  - 'solve-rd-dm'
 envsync_user: 'envsync'
 envsync_group: 'depad'
 hpc_env_prefix: '/apps'
@@ -82,30 +80,30 @@ local_regular_groups:
   - 'solve-rd'
   - 'umcg-atd'
 local_regular_users:
-  - user: 'envsync'
-    groups: ['depad']
-  - user: 'solve-rd-dm'
-    groups: ['solve-rd']
-    sudoers: ['%solve-rd']
-  - user: 'umcg-atd-dm'
-    groups: ['umcg-atd']
-    sudoers: ['%umcg-atd']
-  - user: 'gvdvries'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
-  - user: 'mbijlsma'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
-  - user: 'mswertz'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
-  - user: 'pneerincx'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
-  - user: 'rkanninga'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
-  - user: 'ljohansson'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
   - user: 'ddanis'
     groups: ['users', 'solve-rd']
+  - user: 'envsync'
+    groups: ['depad']
+  - user: 'gvdvries'
+    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+  - user: 'mbijlsma'
+    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+  - user: 'mswertz'
+    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+  - user: 'pneerincx'
+    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+  - user: 'rkanninga'
+    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
   - user: 'ksablauskas'
     groups: ['users', 'solve-rd']
+  - user: 'ljohansson'
+    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+  - user: 'solve-rd-dm'
+    groups: ['users', 'solve-rd']
+    sudoers: ['%solve-rd']
+  - user: 'umcg-atd-dm'
+    groups: ['users', 'umcg-atd']
+    sudoers: ['%umcg-atd']
   - user: 'wsteyaert'
     groups: ['users', 'solve-rd']
 pfs_mounts: [
