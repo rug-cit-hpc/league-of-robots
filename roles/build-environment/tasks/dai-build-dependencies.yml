@@ -46,4 +46,5 @@
       - libxml2-devel
       - libXext-devel
       - libX11-devel
+  become: true
 ...

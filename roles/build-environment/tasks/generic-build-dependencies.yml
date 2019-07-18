@@ -10,4 +10,5 @@
       - glibc-common
       - glibc-devel
       - glibc-headers
+  become: true
 ...
