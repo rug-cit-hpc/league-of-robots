@@ -118,6 +118,7 @@
     - ssh_known_hosts
     - spacewalk_client
     - logins
+    - figlet_hostname
     - ldap
     - node_exporter
     - static-hostname-lookup

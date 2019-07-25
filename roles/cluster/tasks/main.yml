@@ -69,6 +69,7 @@
       - telnet
       - tmux
       - tree
+      - unzip
       - vim
       - wget
   tags:
