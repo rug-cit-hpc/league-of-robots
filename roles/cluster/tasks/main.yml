@@ -59,10 +59,12 @@
       - figlet
       - git
       - git-core
+      - gnutls
       - lsof
       - nano
       - ncdu
       - ncurses-static
+      - openssl
       - readline-static
       - screen
       - tcl-devel
