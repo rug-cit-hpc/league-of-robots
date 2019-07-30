@@ -184,10 +184,10 @@ Deploying a fully functional virtual cluster from scratch involves the following
 
    Execute:
    ```
-   dd if=/dev/urandom bs=1 count=1024 > roles/slurm-management/files/[name-of-the-cluster] _munge.key
-   ansible-vault --vault-password-file=.vault_pass.txt.[name-of-the-cluster] encrypt roles/slurm-management/files/[name-of-the-cluster] _munge.key
+   dd if=/dev/urandom bs=1 count=1024 > roles/slurm-management/files/[name-of-the-cluster]_munge.key
+   ansible-vault --vault-password-file=.vault_pass.txt.[name-of-the-cluster] encrypt roles/slurm-management/files/[name-of-the-cluster]_munge.key
    ```
-   The encrypted ```[name-of-the-cluster] _munge.key``` can now safely be committed.
+   The encrypted ```[name-of-the-cluster]_munge.key``` can now safely be committed.
 
 7. Running playbooks.
    
@@ -217,7 +217,7 @@ Deploying a fully functional virtual cluster from scratch involves the following
        ```
      * Deploying only a specific role - e.g. *slurm-management* - on test cluster *Talos*
        ```bash
-       ansible-playbook site.yml -i inventory.py -u [local_admin_account] single_role_playbooks/slurm-management.yml
+       ansible-playbook -i inventory.py -u [local_admin_account] single_role_playbooks/slurm-management.yml
        ```
 
 8. Verify operation.
