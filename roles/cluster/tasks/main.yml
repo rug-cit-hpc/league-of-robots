@@ -1,4 +1,21 @@
 ---
+- name: Check if rsync >= 3.1.2 is installed on the control host.
+  shell: |
+         rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+  args:
+    warn: no
+  changed_when: false
+  failed_when: false
+  check_mode: no
+  register: rsync_version
+
+- name: Abort when modern rsync >= 3.1.2 is missing on control host.
+  debug:
+    msg: "FATAL: Need rsync >= 3.1.2 on {{ inventory_hostname }}, but detected {{ rsync_version.stdout }}."
+  when:         'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
+  failed_when: 'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
+  delegate_to: localhost
+
 - name: Add custom config files to /etc/skel/.
   synchronize:
     src: "{{ playbook_dir }}/roles/cluster/files/skel/./{{ item.src }}"
