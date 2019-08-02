@@ -92,6 +92,7 @@
       - vim
       - wget
       - fuse
+      - fuse-libs
   tags:
     - software
   become: true
