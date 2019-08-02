@@ -46,5 +46,6 @@
       - libxml2-devel
       - libXext-devel
       - libX11-devel
+      - python-pep8
   become: true
 ...
