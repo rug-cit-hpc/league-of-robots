@@ -1,0 +1,65 @@
+#!/bin/bash
+#
+# Bash code to initialize the environment / repo settings for deploying a specific HPC cluster,
+# for which the config is stored in the repo containing this script.
+#
+# This script assumes there is for each CLUSTERNAME a corresponding:
+#  1. ./group_vars/CLUSTERNAME-cluster/   Ansible group variables and secrets encrypted with Ansible vault.
+#  2. ./CLUSTERNAME_hosts.ini             Ansible inventory file in the root of this repo.
+#  3. ./.vault_pass.txt.CLUSTERNAME       Ansible vault password file in the root of this repo.
+#
+# Once this code was sourced (not executed!) like this:
+#     $> . .lorrc
+# You can call the lor-config function for a specific cluster. E.g.:
+#     $> lor-config talos
+#
+
+#
+##
+### Environment and bash sanity.
+##
+#
+export LOR_DIR="$( cd -P "$( dirname "${BASH_SOURCE}" )" && pwd )"
+
+#
+##
+### Main.
+##
+#
+
+function lor-config() {
+	#
+	# Get and check input.
+	#
+	local cluster="${1-}"
+	if [[ -z "${cluster:-}" ]]; then
+		printf '%s\n' 'ERROR: must specify an HPC cluster name.'
+		return
+	fi
+	declare -a required_paths=(
+		"${LOR_DIR}/group_vars/${cluster}-cluster/"
+		"${LOR_DIR}/${cluster}_hosts.ini"
+		"${LOR_DIR}/.vault_pass.txt.${cluster}"
+	)
+	for required_path in "${required_paths[@]}"; do
+		if [[ ! -e "${required_path}" ]]; then
+			printf '%s\n' "ERROR: ${required_path} does not exist for HPC cluster ${cluster}."
+			return
+		fi
+	done
+	#
+	# Get jumphost from inventory file.
+	#
+	local jumphost=$(fgrep -A1 '[jumphost]' "${LOR_DIR}/${cluster}_hosts.ini" | tail -1)
+	#
+	# Init and report current setup.
+	#
+	cd ${LOR_DIR}
+	export AI_INVENTORY="${cluster}_hosts.ini"
+	export AI_PROXY="${jumphost}"
+	export ANSIBLE_VAULT_PASSWORD_FILE=".vault_pass.txt.${cluster}"
+	printf '%s\n' "Current working directory is $(pwd)"
+	printf '%s\n' "Using AI_PROXY:                    ${AI_PROXY}"
+	printf '%s\n' "Using AI_INVENTORY:                ${AI_INVENTORY}"
+	printf '%s\n' "Using ANSIBLE_VAULT_PASSWORD_FILE: ${ANSIBLE_VAULT_PASSWORD_FILE}"
+}
