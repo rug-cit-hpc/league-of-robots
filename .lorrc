@@ -58,6 +58,7 @@ function lor-config() {
 	export AI_INVENTORY="${cluster}_hosts.ini"
 	export AI_PROXY="${jumphost}"
 	export ANSIBLE_VAULT_PASSWORD_FILE=".vault_pass.txt.${cluster}"
+	export ANSIBLE_TRANSFORM_INVALID_GROUP_CHARS=ignore
 	printf '%s\n' "Current working directory is $(pwd)"
 	printf '%s\n' "Using AI_PROXY:                    ${AI_PROXY}"
 	printf '%s\n' "Using AI_INVENTORY:                ${AI_INVENTORY}"
