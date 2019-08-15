@@ -149,6 +149,11 @@ auth_users:
     uid: 1024
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDRVddVL5RVcv2ubRTNdPQ1Z7L+llPe3jxPgLYKvl6Uo fokke@laptop-cit
+  mpauper:
+    comment: 'Marc Pauper'
+    uid: 1025
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKX6eNqh9P3BNH96VDXxu/LimWGcJGfSYIpKowvoWxmm mpauper
 
 #
 # Local group specs.
