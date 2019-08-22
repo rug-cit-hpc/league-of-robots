@@ -13,6 +13,18 @@ declare ssh_keygen='/usr/bin/ssh-keygen'
 declare rsa_key_size='4096'
 declare -a authorized_keys=()
 
+# If this is a member of the admin group, we use local keys and exit.
+# The machine needs to be administrable in case of ldap failure
+if [ $(id -g $user) = 20000 ]; then
+    key_file=$(eval echo "~$user/.ssh/authorized_keys")
+    while read authorized_key; do
+        printf '%s\n' "${authorized_key}"
+    done <$key_file
+    exit 0
+fi
+
+
+
 while read -r public_keys_line; do
     test -z "${public_keys_line:-}" && continue
     declare fingerprint="$("${ssh_keygen}" -l -f /dev/stdin <<< "${public_keys_line}")"
@@ -38,3 +50,4 @@ done < <("${ssh_ldap_helper}" -s "${user}")
 for authorized_key in "${authorized_keys[@]}"; do
     printf '%s\n' "${authorized_key}"
 done
+
