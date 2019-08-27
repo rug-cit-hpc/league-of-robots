@@ -24,7 +24,7 @@ class UserKeys(object):
     Class holding information about a user and her/his keys.
     """
     # The gid of the admin group.
-    admin_gid = 2000
+    admin_gid = 20000
 
     rsa_key_size = 4096
     ssh_ldap_helper = '/usr/libexec/openssh/ssh-ldap-helper'
@@ -41,10 +41,16 @@ class UserKeys(object):
         Returns:
             bool: whether the user is an admin.
         """
-        gid = subprocess.run(
-            ['id', '-g', self.user],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE).stdout
+        try:
+            gid = subprocess.run(
+                ['id', '-g', self.user],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True).stdout
+        except subprocess.CalledProcessError as err:
+            logging.error(err)
+            return False
+
         return int(gid) == self.admin_gid
 
     def is_ok(self, key: str):
@@ -54,6 +60,9 @@ class UserKeys(object):
         Returns:
             bool: is the key ok or not.
         """
+        if key == '':
+            return False
+
         ssh_key = sshpubkeys.SSHKey(key)
         try:
             ssh_key.parse()
@@ -64,13 +73,15 @@ class UserKeys(object):
             logging.error("Invalid key type: {}".format(err))
             return False
         if ssh_key.key_type == b'ssh-rsa' and ssh_key.bits < self.rsa_key_size:
-            logging.error("Invalid key: minimum keysize for rsa is {} bits".format(
-                self.rsa_key_size))
+            logging.error(
+                "Invalid key: minimum keysize for rsa is {} bits".format(
+                    self.rsa_key_size))
             return False
         elif ssh_key.key_type in (b'ssh-ed25519', b'ssh-rsa'):
             return True
         else:
-            logging.error("Skipping unsupported key type {}".format(ssh_key.key_type))
+            logging.error("Skipping unsupported key type {}".format(
+                ssh_key.key_type))
             return False
 
     @property
@@ -102,12 +113,18 @@ class UserKeys(object):
         Returns:
             str: The keys of a user.
         """
-        result = subprocess.check_call(
-            [self.ssh_ldap_helper, '-s', self.user],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+        try:
+            result = subprocess.run(
+                [self.ssh_ldap_helper, '-s', self.user],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True)
 
-        return result.stdout
+        except subprocess.CalledProcessError as err:
+            logging.error(err)
+            return ''
+
+        return result.stdout.decode('utf-8')
 
 
 if __name__ == '__main__':
