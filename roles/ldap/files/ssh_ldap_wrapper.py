@@ -12,6 +12,7 @@ Admin users will be sourced from local credentials. This ensures the system will
 Refactored from a original in bash, which became too obfustcated.
 """
 
+import logging
 import os.path
 import subprocess
 import sys
@@ -24,7 +25,6 @@ class UserKeys(object):
     """
     # The gid of the admin group.
     admin_gid = 2000
-    admin_gid = 1001
 
     rsa_key_size = 4096
     ssh_ldap_helper = '/usr/libexec/openssh/ssh-ldap-helper'
@@ -38,8 +38,6 @@ class UserKeys(object):
 
     def is_admin(self):
         """
-        Args:
-            user (str): The user to check.
         Returns:
             bool: whether the user is an admin.
         """
@@ -52,7 +50,7 @@ class UserKeys(object):
     def is_ok(self, key: str):
         """
         Args:
-            key (str): the ssh key of the user.
+            key (str): the ssh key to check.
         Returns:
             bool: is the key ok or not.
         """
@@ -60,19 +58,19 @@ class UserKeys(object):
         try:
             ssh_key.parse()
         except sshpubkeys.InvalidKeyError as err:
-            print("Invalid key:", err)
+            logging.error("Invalid key: {}".format(err))
             return False
         except NotImplementedError as err:
-            print("Invalid key type:", err)
+            logging.error("Invalid key type: {}".format(err))
             return False
         if ssh_key.key_type == b'ssh-rsa' and ssh_key.bits < self.rsa_key_size:
-            print("Invalid key: minimum keysize for rsa is {} bits".format(
+            logging.error("Invalid key: minimum keysize for rsa is {} bits".format(
                 self.rsa_key_size))
             return False
         elif ssh_key.key_type in (b'ssh-ed25519', b'ssh-rsa'):
             return True
         else:
-            print("Skipping unsupported key type {}".format(ssh_key.key_type))
+            logging.error("Skipping unsupported key type {}".format(ssh_key.key_type))
             return False
 
     @property
@@ -89,8 +87,6 @@ class UserKeys(object):
     def local_keys(self):
         """
         Return the local keys of a user.
-        Args:
-            user (str): The user to retreive keys of.
         Returns:
             str: The keys of a user.
         """
@@ -101,9 +97,8 @@ class UserKeys(object):
     @property
     def ldap_keys(self):
         """
-        Retreive the keys from the standard ldap wrapper
-        Args:
-            user (str): The user to retreive keys of.
+        Retreive the keys from the standard ldap wrapper.
+
         Returns:
             str: The keys of a user.
         """
@@ -116,5 +111,8 @@ class UserKeys(object):
 
 
 if __name__ == '__main__':
+    # Log messages will go to sys.stderr.
+    logging.basicConfig(level=logging.INFO)
+
     user_keys = UserKeys(sys.argv[1])
     print(user_keys.filtered_keys)
