@@ -140,6 +140,8 @@
     mode: '0644'
   notify: reload_slurmctld
   become: true
+  tags:
+    - slurm.conf
 
 - name: Install Slurm DBD config file.
   template:
