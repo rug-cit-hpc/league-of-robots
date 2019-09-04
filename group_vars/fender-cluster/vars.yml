@@ -112,6 +112,8 @@ local_regular_users:
     groups: ['users', 'solve-rd']
   - user: 'mpauper'
     groups: ['users', 'solve-rd']
+  - user: 'jvdvelde'
+    groups: ['users', 'solve-rd']
 pfs_mounts: [
   { pfs: 'ecst02',
     source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD/ecst02',

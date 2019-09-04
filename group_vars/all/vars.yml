@@ -165,6 +165,11 @@ auth_users:
     uid: 1027
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKX6eNqh9P3BNH96VDXxu/LimWGcJGfSYIpKowvoWxmm mpauper
+  jvdvelde:
+    comment: 'Joeri van der Velde'
+    uid: 1028
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHR3d0L9yW9LwjaqodEAWs3frNEjyj0M+fq/+jY+I9rh jvdvelde
 
 #
 # Local group specs.
