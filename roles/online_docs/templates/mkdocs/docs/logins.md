@@ -265,9 +265,9 @@ via jumphost {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '
 
         ssh youraccount@{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
-#### 5. Connecting to sandbox {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} via jumphost {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} using MobaXterm.
+#### 5. Connecting to {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} via jumphost {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} using MobaXterm.
 
-MobaXterm for windows is a great toolbox for remote computing. has It has a user friendly interface for supporting drag and drop file transfers directly into the sandbox, 
+MobaXterm for windows is a great toolbox for remote computing. has It has a user friendly interface for supporting drag and drop file transfers directly into the virtual hpc cluster, 
 but also a UNIX terminal functionality to support basic commands (bash, grep, awk, sed, rsync, etc etc ) or SFTP support.
 MobaXterm makes it easy to connect to _**{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_ via a jumphost. 
 

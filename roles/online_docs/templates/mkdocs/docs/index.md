@@ -20,7 +20,7 @@ See [cluster](cluster/) for an overview of cluster components and features.
 
 Quickstart for new users:
 
-* To request access to the {{ slurm_cluster_name | capitalize }} sandbox click [here](accounts/#request-an-account) 
+* To request access to {{ slurm_cluster_name | capitalize }} click [here](accounts/#request-an-account) 
 * To login on {{ slurm_cluster_name | capitalize }} for Mac or Unix users click [here](logins/#how-to-start-a-session-and-connect-to-a-user-interface-server)
 * To login on {{ slurm_cluster_name | capitalize }} for Windows users click [here](logins/#ssh-config-and-login-to-ui-via-jumphost-for-users-on-windows)
 * For a user tutorial for computing on {{ slurm_cluster_name | capitalize }} click [here](analysis/)
