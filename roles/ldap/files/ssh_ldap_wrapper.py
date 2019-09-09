@@ -14,23 +14,23 @@ Refactored from a original in bash, which became too obfustcated.
 
 import logging
 import os.path
+import sshpubkeys
 import subprocess
 import sys
-import sshpubkeys
-
+import yaml
 
 class UserKeys(object):
     """
     Class holding information about a user and her/his keys.
     """
     # The gid of the admin group.
-    admin_gid = 20000
 
     rsa_key_size = 4096
     ssh_ldap_helper = '/usr/libexec/openssh/ssh-ldap-helper'
 
-    def __init__(self, user: str):
+    def __init__(self, user: str, admin_gid: int):
         self.user = user
+        self.admin_gid = admin_gid
         if self.is_admin():
             self.keys = self.local_keys
         else:
@@ -130,6 +130,8 @@ class UserKeys(object):
 if __name__ == '__main__':
     # Log messages will go to sys.stderr.
     logging.basicConfig(level=logging.INFO)
-
-    user_keys = UserKeys(sys.argv[1])
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(dirname, 'ssh_ldap_wrapper.yml'), 'r') as f:
+        config = yaml.load(f.read(), Loader=yaml.BaseLoader)
+    user_keys = UserKeys(sys.argv[1], int(config['admin_gid']))
     print(user_keys.filtered_keys)
