@@ -49,6 +49,7 @@ class UserKeys(object):
                 check=True).stdout
         except subprocess.CalledProcessError as err:
             logging.error(err)
+            logging.error(err.stderr)
             return False
 
         return int(gid) == self.admin_gid
