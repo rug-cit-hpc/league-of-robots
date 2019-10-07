@@ -74,13 +74,9 @@ GSSAPIAuthentication no
 GSSAPICleanupCredentials no
 PubkeyAuthentication yes
 {% if use_ldap %}
-AuthorizedKeysCommand /usr/libexec/openssh/ssh-ldap-wrapper
+AuthorizedKeysCommand /usr/libexec/openssh/ssh_ldap_wrapper.py
 AuthorizedKeysCommandUser root
-
 AuthorizedKeysFile /dev/null
-Match Group admin
-    AuthorizedKeysFile .ssh/authorized_keys
-Match all
 {% else %}
 AuthorizedKeysFile .ssh/authorized_keys
 {% endif %}

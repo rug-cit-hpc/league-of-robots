@@ -8,6 +8,12 @@
       - openldap-clients
       - nss-pam-ldapd
       - openssh-ldap
+      - python36
+      - python36-devel
+      - python36-PyYAML
+      - openssl-devel
+      - python36-sshpubkeys
+
   notify:
     - restart_nslcd
     - restart_sshd
@@ -56,11 +62,20 @@
 
 - name: Deploy custom ssh-ldap-wrapper.
   copy:
-    src: ssh-ldap-wrapper
-    dest: /usr/libexec/openssh/ssh-ldap-wrapper
+    src: ssh_ldap_wrapper.py
+    dest: /usr/libexec/openssh/ssh_ldap_wrapper.py
     owner: root
     group: root
     mode: '0755'
+  become: true
+
+- name: PLace settings file of ldap wrapper.
+  template:
+    src: templates/ssh_ldap_wrapper.yml
+    dest: /usr/libexec/openssh/ssh_ldap_wrapper.yml
+    owner: root
+    group: root
+    mode: '0644'
   become: true
 
 - name: Enable services.
