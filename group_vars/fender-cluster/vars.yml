@@ -114,6 +114,8 @@ local_regular_users:
     groups: ['users', 'solve-rd']
   - user: 'jvdvelde'
     groups: ['users', 'solve-rd']
+  - user: 'fmusacchia'
+    groups: ['users', 'solve-rd']
   - user: 'dspalding'
     groups: ['users', 'solve-rd']
 
