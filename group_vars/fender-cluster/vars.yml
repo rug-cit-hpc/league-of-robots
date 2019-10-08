@@ -72,7 +72,7 @@ local_admin_users:
   - 'wim'
   - 'umcg-atd-dm'
   - 'solve-rd-dm'
-#  - 'gerben'
+  - 'gerben'
 envsync_user: 'envsync'
 envsync_group: 'depad'
 hpc_env_prefix: '/apps'
