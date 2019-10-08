@@ -63,9 +63,8 @@ local_admin_groups:
   - 'admin'
   - 'docker'
 local_admin_users:
-  - 'centos'
   - 'egon'
-  - 'gerben'
+  - 'centos'
   - 'henkjan'
   - 'marieke'
   - 'morris'
@@ -73,6 +72,7 @@ local_admin_users:
   - 'wim'
   - 'umcg-atd-dm'
   - 'solve-rd-dm'
+#  - 'gerben'
 envsync_user: 'envsync'
 envsync_group: 'depad'
 hpc_env_prefix: '/apps'
@@ -114,6 +114,9 @@ local_regular_users:
     groups: ['users', 'solve-rd']
   - user: 'jvdvelde'
     groups: ['users', 'solve-rd']
+  - user: 'dspalding'
+    groups: ['users', 'solve-rd']
+
 pfs_mounts: [
   { pfs: 'ecst02',
     source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD/ecst02',
