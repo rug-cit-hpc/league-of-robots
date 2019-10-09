@@ -44,4 +44,10 @@
     exclusive: yes
   with_items: "{{ local_admin_users }}"
   become: true
+- name: Set selinux in permissive mode
+  selinux:
+    policy: targeted
+    state: permissive
+  become: true
+
 ...
