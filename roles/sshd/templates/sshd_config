@@ -73,13 +73,6 @@ ChallengeResponseAuthentication no
 GSSAPIAuthentication no
 GSSAPICleanupCredentials no
 PubkeyAuthentication yes
-{% if use_ldap %}
-AuthorizedKeysCommand /usr/libexec/openssh/ssh_ldap_wrapper.py
-AuthorizedKeysCommandUser root
-AuthorizedKeysFile /dev/null
-{% else %}
-AuthorizedKeysFile .ssh/authorized_keys
-{% endif %}
 
 #
 # Connection settings.
@@ -93,4 +86,14 @@ ClientAliveInterval 300
 #
 Subsystem sftp /usr/libexec/openssh/sftp-server -f AUTHPRIV -l INFO
 
+{% if use_ldap %}
+AuthorizedKeysCommand /usr/libexec/openssh/ssh_ldap_wrapper.py
+AuthorizedKeysCommandUser root
+AuthorizedKeysFile /dev/null
 
+Match Group admin
+    AuthorizedKeysFile .ssh/authorized_keys
+
+{% else %}
+AuthorizedKeysFile .ssh/authorized_keys
+{% endif %}
