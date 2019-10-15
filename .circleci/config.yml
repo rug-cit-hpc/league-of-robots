@@ -31,3 +31,4 @@ jobs:
             ansible-lint cluster.yml > lint_results 2>&1 || true
             errors=$(grep -c "\:" lint_results)
             if (( errors > 224 )); then /bin/false; fi
+            cat lint_results
