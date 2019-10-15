@@ -35,17 +35,6 @@
 
 - name: 'A. Roles for jumphosts.'
   hosts: jumphost
-  roles:
-    - admin-users 
-    - ssh_host_signer
-    - ssh_known_hosts
-    - logins
-    - { role: geerlingguy.repo-epel, become: true }
-    - ldap
-    - static-hostname-lookup
-    - sshd
-    - node_exporter
-    - { role: geerlingguy.security, become: true }
   tasks:
     - name: 'Install cron job to reboot jumphost regularly to activate kernel updates.'
       cron:
@@ -58,12 +47,23 @@
         cron_file: reboot
       become: true
 
-    - name: Add
+    - name: Add umcg centos repo
       yum_repository:
         name: umcg-centos7
         description: EPEL YUM repo
         baseurl: http://spacewalk02.hpc.rug.nl/umcg-centos7
       become: true
+  roles:
+    - admin-users
+    - ssh_host_signer
+    - ssh_known_hosts
+    - logins
+    - { role: geerlingguy.repo-epel, become: true }
+    - ldap
+    - static-hostname-lookup
+    - sshd
+    - node_exporter
+    - { role: geerlingguy.security, become: true }
 
 - name: 'B. Roles for SAIs.'
   hosts:
