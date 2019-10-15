@@ -1,7 +1,6 @@
 ---
 slurm_cluster_name: 'nibbler'
 slurm_cluster_domain: 'hpc.rug.nl'
-spacewalk_server_url: 'http://spacewalk02.hpc.rug.nl/XMLRPC'
 stack_prefix: 'nb'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai.{{ slurm_cluster_domain }}"
