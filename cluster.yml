@@ -58,6 +58,13 @@
         cron_file: reboot
       become: true
 
+    - name: Add
+      yum_repository:
+        name: umcg-centos7
+        description: EPEL YUM repo
+        baseurl: http://spacewalk02.hpc.rug.nl/umcg-centos7
+      become: true
+
 - name: 'B. Roles for SAIs.'
   hosts:
      - sys-admin-interface
