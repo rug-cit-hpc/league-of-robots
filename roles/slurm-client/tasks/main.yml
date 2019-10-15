@@ -53,7 +53,7 @@
     name:
       - slurm
       - slurm-slurmd
-      - warewulf-nhc
+      - lbnl-nhc
   notify:
     - restart_munge
     - restart_slurmd
