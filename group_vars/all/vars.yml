@@ -145,7 +145,6 @@ auth_users:
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHvtYVqBzyLk0gRL0Teq5UnIPjrkJGvbmzjHzPq2D5gw wsteyaert
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA1cD51nNVkZLmVpgnlecprPCNdf6W9IQ/O7KVE5DG3b wsteyaert
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKcTDLafk1hTH5whx4aJyFwG6fPVz9H7EjOrXHaN8ssQ wsteyaert
-
   fokke:
     comment: 'Fokke Dijkstra'
     uid: 1024
@@ -172,13 +171,11 @@ auth_users:
     uid: 1028
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHR3d0L9yW9LwjaqodEAWs3frNEjyj0M+fq/+jY+I9rh jvdvelde
-
   fmusacchia:
     comment: 'Francesco Musacchia'
     uid: 1029  
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJjTuMz1RGEWYDvBr1f9gMc71T5Gwx0txPEAsyKVcFXW fmusacchia
-
   dspalding:
     comment: 'dspalding'
     uid: 1030
@@ -205,4 +202,11 @@ auth_groups:
     gid: 20004
   umcg-atd:
     gid: 20005
+#
+# Custom/extra yum repos
+#
+yum_repos:
+  umcg-centos7:
+    description: 'UMCG YUM repo for CentOS 7.'
+    baseurl: http://spacewalk02.hpc.rug.nl/umcg-centos7
 ...
