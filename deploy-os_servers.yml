@@ -54,20 +54,18 @@
       name: "{{ headnode_name }}"
       groups: headnode
       ansible_ssh_host: "{{ headnode_vm.openstack.accessIPv4 }}"
-      private_ip: "{{ headnode_vm.openstack.private_v4 }}"
+      private_ip: "{{ headnode_vm.server.addresses['Solve-RD_private'] | map(attribute='addr') | list | first }}"
       ansible_ssh_user: "{{ cloud_user }}"
       public_ip: "{{ headnode_vm.openstack.accessIPv4 }}"
       
+##############################################################################
+# Configure vnode from inventory group 'compute-vm' using Openstack API.
+##############################################################################
 - name: Deploying vcompute nodes.
   hosts: 
     - compute-vm
   connection: local
   tasks:
-
-##############################################################################
-# Configure vnode from inventory group 'compute-vm' using Openstack API.
-##############################################################################
-              
   - name: create persistent data volume for vcompute nodes.
     os_volume:
       display_name: "{{ inventory_hostname }}-volume"
@@ -116,19 +114,69 @@
       server: "{{ inventory_hostname }}"
       volume: "{{ inventory_hostname }}-volume"
 
+#############################################################################
+# Configure DAI, SAI and jumphost from inventory using Openstack API.
+#############################################################################
+
+  - name: create persistent data volume for headnode
+    os_volume:
+      display_name: "{{ item }}-volume"
+      size: 20
+      state: present
+      availability_zone: '{{ storage_availability_zone }}'
+    with_items:
+      - "{{ groups['deploy-admin-interface'] }}"
+      - "{{ groups['sys-admin-interface'] }}"
+      - "{{ groups['jumphost'] }}"
+
+  - name: Create managment instance
+    os_server:
+      state: present
+      name: "{{ item }}"
+      image: '{{ image_centos7 }}'
+      flavor: '{{ flavor_management }}'
+      security_groups: '{{ security_group_id }}'
+      key_name: '{{ key_name }}'
+      auto_floating_ip: no
+      nics:
+        - net-name: '{{ private_net_id }}'
+        - net-name: '{{ private_storage_net_id }}'
+      availability_zone: '{{ availability_zone }}'
+    register: managment_vm
+    with_items:
+      - "{{ groups['deploy-admin-interface'] }}"
+      - "{{ groups['sys-admin-interface'] }}"
+      - "{{ groups['jumphost'] }}"
+
+  - name: attach managment data volume
+    os_server_volume:
+      server: "{{ item }}"
+      volume: "{{ item }}-volume"
+    with_items:
+      - "{{ groups['deploy-admin-interface'] }}"
+      - "{{ groups['sys-admin-interface'] }}"
+      - "{{ groups['jumphost'] }}"
+
+  - name: add node to inventory
+    add_host:
+      name: "{{item.openstack.name}}"
+      groups: nodes
+      ansible_ssh_host: "{{ item.server.addresses['Solve-RD_private'] }}"
+      private_ip: "{{ item.server.addresses['Solve-RD_private'] | map(attribute='addr') | list | first }}"
+      ansible_ssh_user: "{{ cloud_user }}"
+    with_items: "{{ managment_vm.results }}"
+
 ##############################################################################
-# Configure /etc/hosts from in-memory inventory
+# List IPs addresses for/etc/hosts from in-memory inventory
 ##############################################################################
 
-- name: Configure nodes
+- name: List private ip addresses for roles/static-hostname-lookup/templates/{cluster}_hosts
   hosts: 
-    - all
+    - user-interface
   become: true
   gather_facts: false
   tasks:
-    - name: add entries to /etc/hosts for all cluster members
-      lineinfile:
-        state: present
-        dest: /etc/hosts
-        line: "{{ hostvars[item]['private_ip'] }}           {{ item }}"
-      with_items: "{{ groups['all'] }}"
+    - debug:  msg="{{ hostvars[item]['private_ip'] }}           {{ item }}"
+      with_items:
+        - "{{ groups['cluster'] }}"
+        - "{{ groups['jumphost'] }}"

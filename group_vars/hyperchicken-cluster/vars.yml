@@ -38,8 +38,9 @@ key_name: Gerben
 image_cirros: cirros-0.3.4-x86_64-disk.img
 image_centos7: centos7
 cloud_user: centos
-flavor_nano: s1.nano
-flavor_tiny: s1.tiny
+flavor_ui: s1.large
+flavor_vcompute: s1.gargantuan
+flavor_management: s1.small
 public_net_id: ext-net-37
 public_ip_addresses:
   portal: '193.62.55.164'
@@ -50,6 +51,7 @@ private_storage_subnet_id: subnet3126
 security_group_id: SSH-and-ping-2
 slurm_ldap: true
 availability_zone: AZ_1
+storage_availability_zone: nova
 local_volume_size: 1
 nameservers: [
   '/em-isi-3126.ebi.ac.uk/10.35.126.201',  # Local DNS lookups for shared storage.
@@ -59,6 +61,9 @@ nameservers: [
 local_admin_groups:
   - 'admin'
   - 'docker'
+  - 'solve-rd'
+  - 'umcg-atd'
+  - 'depad'
 local_admin_users:
   - 'centos'
   - 'egon'
@@ -68,6 +73,9 @@ local_admin_users:
   - 'morris'
   - 'pieter'
   - 'wim'
+  - 'umcg-atd-dm'
+  - 'solve-rd-dm'
+  - 'envsync'
 envsync_user: 'envsync'
 envsync_group: 'depad'
 hpc_env_prefix: '/apps'
@@ -79,6 +87,12 @@ local_regular_groups:
 local_regular_users:
   - user: 'envsync'
     groups: ['depad']
+  - user: 'solve-rd-dm'
+    groups: ['solve-rd']
+    sudoers: ['%solve-rd']
+  - user: 'umcg-atd-dm'
+    groups: ['umcg-atd']
+    sudoers: ['%umcg-atd']
   - user: 'gvdvries'
     groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
   - user: 'mbijlsma'
