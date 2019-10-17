@@ -177,7 +177,7 @@ auth_users:
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJjTuMz1RGEWYDvBr1f9gMc71T5Gwx0txPEAsyKVcFXW fmusacchia
   dspalding:
-    comment: 'dspalding'
+    comment: 'Dylan Spalding'
     uid: 1030
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINazVx99YGc98wZBtlJcP8KqtJ2LZ1K+JfVWx5wtSNjN jdylanspalding
