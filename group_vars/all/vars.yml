@@ -181,6 +181,12 @@ auth_users:
     uid: 1030
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINazVx99YGc98wZBtlJcP8KqtJ2LZ1K+JfVWx5wtSNjN jdylanspalding
+  psivakumar:
+    comment: 'Prasanth Sivakumar'
+    uid: 1031
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK2c7bI3+hjALAfsytm6rQ+VU3hPRVGgrU5fUSrVHMMY psivakumar
+
 
 #
 # Local group specs.
