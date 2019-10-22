@@ -80,10 +80,9 @@
     - shared_storage
 
 - hosts: slurm-management
-  become: true
   roles:
      - slurm-management
-     - { role: prom_server, become: true }
+     - prom_server
      - { role: cadvisor, become: true }
   vars:
      # These variables are needed by the mariadb role.
