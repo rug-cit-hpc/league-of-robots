@@ -64,10 +64,11 @@
     warn: false
   ignore_errors: yes
   become: true
-  
+
 - name: Upgrade all packages to version specified in spacewalk channel.
   yum:
    name: '*'
    state: latest
+   exclude: slurm* # Specific Slurm versions configured in slurm-* roles, because we use a custom patched version.
   become: true
 ...
