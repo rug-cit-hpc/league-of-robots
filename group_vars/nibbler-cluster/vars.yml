@@ -25,6 +25,7 @@ ui_ethernet_interfaces:
   - 'eth0'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
+create_ldap: no
 uri_ldap: ldap.pilot.scz.lab.surf.nl
 uri_ldaps: ldap.pilot.scz.lab.surf.nl
 ldap_port: 636
@@ -70,12 +71,12 @@ local_admin_users:
 envsync_user: 'envsync'
 envsync_group: 'depad'
 hpc_env_prefix: '/apps'
-local_regular_groups:
+regular_groups:
   - 'users'
   - 'depad'
   - 'solve-rd'
   - 'umcg-atd'
-local_regular_users:
+regular_users:
   - user: 'envsync'
     groups: ['depad']
   - user: 'gvdvries'
