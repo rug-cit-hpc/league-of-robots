@@ -6,6 +6,8 @@
       - python2-pip
     state: latest
     update_cache: yes
+  become: true
 - name: Install docker-py
   pip:
     name: docker
+  become: true
