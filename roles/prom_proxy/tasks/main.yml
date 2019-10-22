@@ -3,7 +3,7 @@
   yum: name=nginx state=latest update_cache=yes
 
 - name: nginx.conf
-  copy:
+  template:
     src: templates/nginx.conf
     dest: /etc/nginx/nginx.conf
     mode: 0644
