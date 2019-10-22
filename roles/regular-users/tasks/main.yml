@@ -1,0 +1,14 @@
+---
+- name: 'Create regular users & groups in cluster LDAP.'
+  import_tasks: ldap-regular-users.yml
+  when:
+   - use_ldap == 'yes'
+   - create_ldap == 'yes'
+   - inventory_hostname in groups['ldap-server']
+
+- name: 'Create local regular users & groups.'
+  import_tasks: local-regular-users.yml
+  when:
+   - use_ldap == 'no'
+   - inventory_hostname in groups['cluster'] or inventory_hostname in groups['jumphost']
+...
