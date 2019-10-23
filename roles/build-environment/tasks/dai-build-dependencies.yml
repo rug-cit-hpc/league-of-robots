@@ -7,45 +7,45 @@
       #
       # Slurm dependencies.
       #
-      - readline-devel
-      - pkgconfig
-      - perl-ExtUtils-MakeMaker
-      - perl
-      - pam-devel
-      - openssl-devel
-      - numactl-devel
-      - nss-softokn-freebl
-      - ncurses-devel
-      - mysql-devel
-      - munge-libs
-      - munge-devel
-      - mariadb-devel
-      - man2html
-      - lua-devel
-      - hwloc-devel
-      - hdf5-devel
-      - blcr-devel
-      - blcr
+      - 'readline-devel'
+      - 'pkgconfig'
+      - 'perl-ExtUtils-MakeMaker'
+      - 'perl'
+      - 'pam-devel'
+      - 'openssl-devel'
+      - 'numactl-devel'
+      - 'nss-softokn-freebl'
+      - 'ncurses-devel'
+      - 'mysql-devel'
+      - 'munge-libs'
+      - 'munge-devel'
+      - 'mariadb-devel'
+      - 'man2html'
+      - 'lua-devel'
+      - 'hwloc-devel'
+      - 'hdf5-devel'
+      - 'blcr-devel'
+      - 'blcr'
       #
       # Ansible dependencies.
       #
-      - python2-devel
-      - python-nose
-      - python-coverage
-      - python-mock
-      - python-boto3
-      - python-botocore
-      - python-ldap
-      - python-passlib
-      - python2-sphinx-theme-alabaster
-      - pytest
+      - 'python-devel' # Previously python2-devel
+      - 'python-nose'
+      - 'python-coverage'
+      - 'python-mock'
+      - 'python-boto3'
+      - 'python-botocore'
+      - 'python-ldap'
+      - 'python-passlib'
+      - 'python2-sphinx-theme-alabaster'
+      - 'pytest'
       #
       # Lua, Lmod, EasyBuild dependencies.
       #
-      - rdma-core-devel
-      - libxml2-devel
-      - libXext-devel
-      - libX11-devel
-      - python-pep8
+      - 'mlnx-ofa_kernel-devel' # Previously rdma-core-devel
+      - 'libxml2-devel'
+      - 'libXext-devel'
+      - 'libX11-devel'
+      - 'python-pep8'
   become: true
 ...
