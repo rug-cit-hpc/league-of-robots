@@ -66,12 +66,12 @@
     state: latest
     update_cache: yes
     name:
-      - MySQL-python
-      - lua-posix
-      - slurm
-      - slurm-slurmctld
-      - slurm-slurmdbd
-      - slurm-perlapi
+      - 'MySQL-python'
+      - 'lua-posix'
+      - 'slurm*.el7.umcg'
+      - 'slurm-slurmctld*.el7.umcg'
+      - 'slurm-slurmdbd*.el7.umcg'
+      - 'slurm-perlapi*.el7.umcg'
   notify:
     - restart_munge
     - restart_slurmdbd

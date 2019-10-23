@@ -51,9 +51,9 @@
     state: latest
     update_cache: yes
     name:
-      - slurm
-      - slurm-slurmd
-      - lbnl-nhc
+      - 'slurm*.el7.umcg'
+      - 'slurm-slurmd*.el7.umcg'
+      - 'lbnl-nhc'
   notify:
     - restart_munge
     - restart_slurmd

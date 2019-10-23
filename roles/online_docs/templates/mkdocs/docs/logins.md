@@ -259,7 +259,11 @@ The following assumes:
 You can now connect to for example UI {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} 
 via jumphost {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} using a double hop like this:
 
+{% if public_ip_addresses is defined and public_ip_addresses | length %}{% for jumphost in groups['jumphost'] %}
+ * In a _**Putty**_ configuration window supply the _hostname_ _**{{ public_ip_addresses[jumphost] }}**_, your **accountname** and
+{% endfor %}{% else %}
  * In a _**Putty**_ configuration window supply the _hostname_ _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_, your **accountname** and
+{% endif %}
  * Click the _**Connect**_ button...
  * Once the connection is established type the following command in a terminal:
 

@@ -7,7 +7,9 @@
     state: latest
     update_cache: yes
   become: true
-- name: Install docker-py
+
+- name: Install docker-py.
   pip:
     name: docker
   become: true
+...

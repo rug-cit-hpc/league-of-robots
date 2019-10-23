@@ -47,6 +47,7 @@
     - sshd
     - node_exporter
     - { role: geerlingguy.security, become: true }
+    - prom_proxy
   tasks:
     - name: 'Install cron job to reboot jumphost regularly to activate kernel updates.'
       cron:
@@ -79,10 +80,9 @@
     - shared_storage
 
 - hosts: slurm-management
-  become: true
   roles:
      - slurm-management
-     - { role: prom_server, become: true }
+     - prom_server
      - { role: cadvisor, become: true }
   vars:
      # These variables are needed by the mariadb role.
