@@ -5,12 +5,12 @@
     update_cache: yes
     name:
       - "@development"
-      - glibc-common
-      - glibc-devel
-      - glibc-headers
-      - gnutls-devel
-      - kernel-devel
-      - libselinux-devel
-      - openssl-devel
+      - 'glibc-common'
+      - 'glibc-devel'
+      - 'glibc-headers'
+      - 'gnutls-devel'
+      - 'kernel-devel'
+      - 'libselinux-devel'
+      - 'openssl-devel'
   become: true
 ...
