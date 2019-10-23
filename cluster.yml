@@ -48,6 +48,7 @@
     - node_exporter
     - { role: geerlingguy.security, become: true }
     - prom_proxy
+    - regular-users
   tasks:
     - name: 'Install cron job to reboot jumphost regularly to activate kernel updates.'
       cron:
@@ -78,6 +79,7 @@
     - sshd
     - resolver
     - shared_storage
+    - regular-users
 
 - hosts: slurm-management
   roles:
@@ -109,6 +111,7 @@
     - sshd
     - resolver
     - shared_storage
+    - regular-users
     - envsync
 
 - name: 'D. Roles for UIs.'
@@ -129,6 +132,7 @@
     - shared_storage
     - slurm_exporter
     - slurm-client
+    - regular-users
     - sudoers
 
 - name: 'E. Roles for compute nodes.'
@@ -150,6 +154,7 @@
     - resolver
     - shared_storage
     - slurm-client
+    - regular-users
 
 - name: 'F. Roles for documentation servers.'
   hosts:
