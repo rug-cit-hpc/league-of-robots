@@ -159,8 +159,9 @@
 - name: Start slurm and munge services
   systemd:
     name: "{{ item }}"
-    enabled: yes
-    state: started
+    enabled: 'yes'
+    state: 'started'
+    daemon_reload: 'yes'
   with_items:
     - munge.service
     - slurmd.service
