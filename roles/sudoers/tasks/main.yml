@@ -9,6 +9,6 @@
     line: "{{ item.1 }}    ALL=({{ item.0.user }})    NOPASSWD:ALL"
   become: true
   with_subelements:
-    - "{{ regular_users | selectattr('sudoers', 'defined')  | list }}"
+    - "{{ regular_users | default([]) | selectattr('sudoers', 'defined')  | list }}"
     - 'sudoers'
 ...
