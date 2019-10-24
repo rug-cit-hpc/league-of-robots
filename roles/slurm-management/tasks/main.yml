@@ -201,7 +201,8 @@
   #       as the sacctmgr commands used in the script may return exit code 1 when trying to create/modify
   #       something that already exists. This results in "Nothing new added." on STDOUT, but no message on STDERR.
   #       In case something is really wrong there will be messags printed to STDERR.
-  failed_when: "command_result.stderr != ''"
+  failed_when: command_result.stderr != ''
+  become: true
 
 - name: Make sure slurmctld service is enabled and started now that the cluster DB is present.
   systemd:
