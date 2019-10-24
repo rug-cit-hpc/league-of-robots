@@ -1,78 +1,93 @@
-# Install a docker based mariadb.
+# Install a docker based MariaDB.
 ---
-- name: make mariadb settings volume
+- name: Make MariaDB/MySQL settings volume.
   file:
     path: "{{ item }}"
     state: directory
-    mode: 0777
+    mode: '0777' # This is broken, insecure, oops. 
+    owner: root
+    group: root
   with_items:
-      - /srv/mariadb/lib/mysql
-      - /srv/mariadb/etc/mysql
-      - /srv/mariadb/etc/mysql/conf.d
+      - '/srv/mariadb/lib/mysql'
+      - '/srv/mariadb/etc/mysql'
+      - '/srv/mariadb/etc/mysql/conf.d'
+  notify:
+    - restart_mysql
+  become: true
 
-- name: place settings file
+- name: Deploy MariaDB/MySQL config file.
   copy:
-    src: files/my.cnf
-    dest: /srv/mariadb/etc/mysql/conf.d/my.cnf
-    mode: 660
+    src: 'files/my.cnf'
+    dest: '/srv/mariadb/etc/mysql/conf.d/my.cnf'
+    mode: '0660'
+    owner: root
+    group: root
+  notify:
+    - restart_mysql
+  become: true
 
-- name: Set galara.cnf on node if we have at least three nodes.
+- name: Deploy MariaDB/MySQL galara.cnf on node if we have at least three nodes.
   template:
     src: files/galera.cnf
     dest: /srv/mariadb/etc/mysql/conf.d/galera.cnf
-    mode: 660
+    mode: '0660'
+    owner: root
+    group: root
+  notify:
+    - restart_mysql
   when: "'databases' in group_names and groups['databases'] | length >= 3"
+  become: true
 
   # This mimics galera_new_cluster.sh
-- name: Initialize a new cluster.
+- name: Initialize a new MariaDB/MySQL cluster.
   block:
     - set_fact:
         mariadb_args: "--wsrep-new-cluster"
-
     - template:
-        src: templates/mysql.service
-        dest: /etc/systemd/system/mysql.service
-        mode: 644
+        src: 'templates/mysql.service'
+        dest: '/etc/systemd/system/mysql.service'
+        mode: '0644'
         owner: root
         group: root
-
-    - command: systemctl daemon-reload
-
+      notify:
+       - restart_mysql
     - systemd:
         name: mysql.service
         state: started
-
+        enabled: yes
+        daemon_reload: yes
   when: "'databases' in group_names and groups['databases'] \
          | length >= 3 and ansible_hostname == hostname_node0"
+  become: true
 
-- name: Install service file.
+- name: Install MariaDB/MySQL service file.
   block:
     - set_fact:
         mariadb_args: ""
     - template:
-        src: templates/mysql.service
-        dest: /etc/systemd/system/mysql.service
-        mode: 644
+        src: 'templates/mysql.service'
+        dest: '/etc/systemd/system/mysql.service'
+        mode: '0644'
         owner: root
         group: root
+      notify:
+       - restart_mysql
+  become: true
 
-- name: Give the master node some time to initialize the cluster.
+- name: Give the master node some time to initialize the MariaDB/MySQL cluster.
   command: bash -c "sleep 60"
   when: "'databases' in group_names and groups['databases'] \
          | length >= 3"
 
-- name: Daemon reload (the inplicit doesn't work)
-  command: bash -c "systemctl daemon-reload"
-
-- name: Make sure service is started.
+- name: Make sure MariaDB/MySQL service is started.
   systemd:
     name: mysql.service
     state: started
+    enabled: yes
     daemon_reload: yes
+  become: true
 
-- name: Enable service to start at boot.
-  command: systemctl reenable mysql.service
-
-- name: Give the cluster some time to initialize replication.
+- name: Give the MariaDB/MySQL cluster some time to initialize replication.
   command: bash -c "sleep 60 && systemctl daemon-reload"
   when: "'databases' in group_names and groups['databases'] | length >= 3"
+  become: true
