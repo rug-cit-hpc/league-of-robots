@@ -169,6 +169,7 @@
     name: "{{item}}"
     state: 'started'
     enabled: 'yes'
+    daemon_reload: 'yes'
   with_items:
     - 'munge.service'
     - 'slurmdbd.service'
@@ -209,6 +210,7 @@
     name: 'slurmctld.service'
     state: 'started'
     enabled: 'yes'
+    daemon_reload: yes
   become: true
 
 - name: Make backup dir.

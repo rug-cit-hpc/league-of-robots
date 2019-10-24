@@ -10,21 +10,24 @@
 - name: Restart munge service.
   systemd:
     name: 'munge.service'
-    state: restarted
+    state: 'restarted'
+    daemon_reload: 'yes'
   become: true
   listen: restart_munge
 
 - name: Restart slurmdbd service.
   systemd:
     name: 'slurmdbd.service'
-    state: restarted
+    state: 'restarted'
+    daemon_reload: 'yes'
   become: true
   listen: restart_slurmdbd
 
 - name: Restart slurmctld service.
   systemd:
     name: 'slurmctld.service'
-    state: restarted
+    state: 'restarted'
+    daemon_reload: 'yes'
   become: true
   listen: restart_slurmctld
 #
