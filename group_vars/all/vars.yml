@@ -186,7 +186,11 @@ auth_users:
     uid: 1031
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK2c7bI3+hjALAfsytm6rQ+VU3hPRVGgrU5fUSrVHMMY psivakumar
-
+  fandrade:
+    comment: 'Fernanda de Andrade'
+    uid: 1032
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKvNTAsJVVZrWgfuLO7Vj35vdKusWwmcWJGovGIR+S88 fdeandrade
 
 #
 # Local group specs.
