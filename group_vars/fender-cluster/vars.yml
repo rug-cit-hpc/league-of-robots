@@ -121,6 +121,8 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'psivakumar'
     groups: ['users', 'solve-rd']
+  - user: 'fandrade'
+    groups: ['users', 'solve-rd']
 
 pfs_mounts: [
   { pfs: 'ecst02',
