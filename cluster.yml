@@ -1,29 +1,29 @@
 #
 # Order of deployment required to prevent chicken versus the egg issues:
 #  0. For all deployment phases:
-#		export AI_PROXY="${jumphost_name}"
-#		export AI_INVENTORY="${cluster_name}_hosts.ini"
-#		ANSIBLE_VAULT_PASSWORD_FILE=".vault_pass.txt.${cluster_name}"
+#       export AI_PROXY="${jumphost_name}"
+#       export AI_INVENTORY="${cluster_name}_hosts.ini"
+#       ANSIBLE_VAULT_PASSWORD_FILE=".vault_pass.txt.${cluster_name}"
 #
 #  1. Use standard CentOS cloud image user 'centos' or 'root' user and without host key checking:
-#		export ANSIBLE_HOST_KEY_CHECKING=False
-#		ansible-playbook -i inventory.py -u centos -l 'jumphost,cluster'  single_role_playbooks/admin-users.yml
-#		ansible-playbook -i inventory.py -u root   -l 'docs'              single_role_playbooks/admin-users.yml
+#       export ANSIBLE_HOST_KEY_CHECKING=False
+#       ansible-playbook -i inventory.py -u centos -l 'jumphost,cluster'  single_role_playbooks/admin-users.yml
+#       ansible-playbook -i inventory.py -u root   -l 'docs'              single_role_playbooks/admin-users.yml
 #  2. Use local admin user's account and without host key checking:
-#		export ANSIBLE_HOST_KEY_CHECKING=False
-#		ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/ssh_host_signer.yml
+#       export ANSIBLE_HOST_KEY_CHECKING=False
+#       ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/ssh_host_signer.yml
 #  3. Use local admin user's account and with strict host key checking to deploy everything else:
-#		export ANSIBLE_HOST_KEY_CHECKING=True
-#		ansible-playbook -i inventory.py -u [admin_account] cluster.yml
+#       export ANSIBLE_HOST_KEY_CHECKING=True
+#       ansible-playbook -i inventory.py -u [admin_account] cluster.yml
 #     This will configure:
-#		A. Jumphost first as it is required to access the other machines.
-#		B. SAI as it is required to 
-#			* configure layout on shared storage devices used by other machines.
-#			* configure Slurm control and Slurm database.
-#		C. DAI
-#		D. UI
-#		E. Compute nodes
-#		F. Documentation server
+#       A. Jumphost first as it is required to access the other machines.
+#       B. SAI as it is required to 
+#           * configure layout on shared storage devices used by other machines.
+#           * configure Slurm control and Slurm database.
+#       C. DAI
+#       D. UI
+#       E. Compute nodes
+#       F. Documentation server
 #
 - name: 'Sanity checks before we start.'
   hosts: all
@@ -41,12 +41,12 @@
     - ssh_known_hosts
     - yum-repos
     - logins
-    - { role: geerlingguy.repo-epel, become: true }
+    - {role: geerlingguy.repo-epel, become: true}
     - ldap
     - static-hostname-lookup
     - sshd
     - node_exporter
-    - { role: geerlingguy.security, become: true }
+    - {role: geerlingguy.security, become: true}
     - prom_proxy
     - regular-users
   tasks:
@@ -63,9 +63,9 @@
 
 - name: 'B. Roles for SAIs.'
   hosts:
-     - sys-admin-interface
+    - sys-admin-interface
   roles:
-    - admin-users 
+    - admin-users
     - ssh_host_signer
     - ssh_known_hosts
     - spacewalk_client
@@ -83,20 +83,20 @@
 
 - hosts: slurm-management
   roles:
-     - slurm-management
-     - prom_server
-     - { role: cadvisor, become: true }
+    - slurm-management
+    - prom_server
+    - {role: cadvisor, become: true}
   vars:
-     # These variables are needed by the mariadb role.
-     # Which is a depencency of the slurm-management role.
-     # See roles/slurm/meta/main.yml
-     hostname_node0: "{{ ansible_hostname }}"
-     ip_node0: "{{ ansible_default_ipv4['address'] }}"
+    # These variables are needed by the mariadb role.
+    # Which is a depencency of the slurm-management role.
+    # See roles/slurm/meta/main.yml
+    hostname_node0: "{{ ansible_hostname }}"
+    ip_node0: "{{ ansible_default_ipv4['address'] }}"
 
 - name: 'C. Roles for DAIs.'
   hosts: deploy-admin-interface
   roles:
-    - admin-users 
+    - admin-users
     - ssh_host_signer
     - ssh_known_hosts
     - spacewalk_client
@@ -117,7 +117,7 @@
 - name: 'D. Roles for UIs.'
   hosts: user-interface
   roles:
-    - admin-users 
+    - admin-users
     - ssh_host_signer
     - ssh_known_hosts
     - spacewalk_client
@@ -138,7 +138,7 @@
 - name: 'E. Roles for compute nodes.'
   hosts: compute-vm
   roles:
-    - admin-users 
+    - admin-users
     - ssh_host_signer
     - ssh_known_hosts
     - spacewalk_client
@@ -158,9 +158,9 @@
 
 - name: 'F. Roles for documentation servers.'
   hosts:
-     - docs
+    - docs
   roles:
-    - admin-users 
+    - admin-users
     - ssh_host_signer
     - online_docs
 ...
