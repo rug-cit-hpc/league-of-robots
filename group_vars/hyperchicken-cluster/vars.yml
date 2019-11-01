@@ -131,4 +131,9 @@ lfs_mounts: [
     pfs: 'ecst01',
     machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
 ]
+interfaces:
+  - device: 'eth0'
+    bootproto: 'dhcp'
+  - device: 'eth1' 
+    bootproto: 'dhcp'
 ...
