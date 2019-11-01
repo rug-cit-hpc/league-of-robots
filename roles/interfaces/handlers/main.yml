@@ -1,0 +1,6 @@
+- name: restart_ifaces
+  systemd:
+    name: 'network.service'
+    state: restarted
+  become: true
+  listen: restart_ifaces
