@@ -10,7 +10,7 @@
     file: ../../slurm-management/defaults/main.yml
     name: slurm
 
-- name: Add Slurm group
+- name: Add Slurm group.
   group:
     name: slurm
     gid: "{{ slurm['slurm_gid'] }}"
@@ -18,7 +18,7 @@
     - restart_slurmd
   become: true
 
-- name: Add Munge group
+- name: Add Munge group.
   group:
     name: munge
     gid: "{{ slurm['munge_gid'] }}"
@@ -27,7 +27,7 @@
     - restart_slurmd
   become: true
 
-- name: Add Slurm user
+- name: Add Slurm user.
   user:
     name: slurm
     uid: "{{ slurm['slurm_uid'] }}"
@@ -36,7 +36,7 @@
     - restart_slurmd
   become: true
 
-- name: Add Munge user
+- name: Add Munge user.
   user:
     name: munge
     uid: "{{ slurm['munge_uid'] }}"
@@ -46,20 +46,41 @@
     - restart_slurmd
   become: true
 
-- name: Install the Slurm client and NHC with yum.
+- name: Install the Slurm client with yum.
   yum:
-    state: latest
+    state: installed
     update_cache: yes
+    allow_downgrade: yes
     name:
-      - 'slurm*.el7.umcg'
-      - 'slurm-slurmd*.el7.umcg'
-      - 'lbnl-nhc'
+      - "slurm*{{ slurm_version }}"
+      - "slurm-slurmd*{{ slurm_version }}"
   notify:
     - restart_munge
     - restart_slurmd
   become: true
 
-- name: Install munge_keyfile
+- name: Patch slurm daemon systemd service files to use custom sub dir for PID files.
+  lineinfile:
+    path: "/usr/lib/systemd/system/{{ item }}.service"
+    regexp: '^PIDFile='
+    line: "PIDFile=/var/run/slurm/{{ item }}.pid"
+  with_items:
+    - 'slurmd'
+  notify:
+    - restart_slurmd
+  become: true
+
+- name: Install NHC with yum.
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - 'lbnl-nhc'
+  notify:
+    - restart_slurmd
+  become: true
+
+- name: Install munge_keyfile.
   copy:
     src: roles/slurm-management/files/{{ slurm_cluster_name }}_munge.key
     owner: munge
@@ -71,7 +92,7 @@
     - restart_slurmd
   become: true
 
-- name: Create folders for Slurm and NHC
+- name: Create folders for Slurm and NHC.
   file:
     name: "{{ item.name }}"
     owner: "{{ item.owner }}"
@@ -99,6 +120,10 @@
       owner: root
       group: root
       mode: '0755'
+    - name: '/var/run/slurm'
+      owner: 'slurm'
+      group: 'root'
+      mode: '0775'
   become: true
 
 - name: Deploy slurm prolog/epilog scripts.
@@ -114,7 +139,7 @@
     - slurm.taskprolog
   become: true
 
-- name: Deploy slurm.conf
+- name: Deploy slurm.conf.
   template:
     src: roles/slurm-management/templates/slurm.conf
     dest: /etc/slurm/slurm.conf
@@ -125,7 +150,7 @@
     - reload_slurmd
   become: true
 
-- name: Configure cgroups
+- name: Configure cgroups.
   copy:
     src: roles/slurm-management/files/cgroup.conf
     dest: /etc/slurm/cgroup.conf
@@ -136,7 +161,7 @@
     - reload_slurmd
   become: true
 
-- name: Deploy UI nhc.conf
+- name: Deploy UI nhc.conf.
   template:
     src: templates/user-interface_nhc.conf
     dest: /etc/nhc/nhc.conf
@@ -146,7 +171,7 @@
   when: inventory_hostname in groups['user-interface']
   become: true
 
-- name: Deploy compute-vm nhc.conf
+- name: Deploy compute-vm nhc.conf.
   template:
     src: templates/compute-vm_nhc.conf
     dest: /etc/nhc/nhc.conf
@@ -156,7 +181,7 @@
   when: inventory_hostname in groups['compute-vm']
   become: true
 
-- name: Start slurm and munge services
+- name: Start slurm and munge services.
   systemd:
     name: "{{ item }}"
     enabled: 'yes'

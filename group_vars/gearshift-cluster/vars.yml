@@ -2,6 +2,7 @@
 slurm_cluster_name: 'gearshift'
 slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'gs'
+slurm_version: '18.08.8-1.el7.umcg'
 mailhub: '172.23.34.34'
 rewrite_domain: "imperator{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 motd: |
