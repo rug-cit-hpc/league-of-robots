@@ -61,24 +61,60 @@
     - restart_slurmctld
   become: true
 
-- name: Install Slurm management deamons and their dependencies with yum.
+- name: Install Slurm management dependencies with yum.
   yum:
     state: latest
     update_cache: yes
     name:
       - 'MySQL-python'
       - 'lua-posix'
-      - 'slurm*.el7.umcg'
-      - 'slurm-slurmctld*.el7.umcg'
-      - 'slurm-slurmdbd*.el7.umcg'
-      - 'slurm-perlapi*.el7.umcg'
   notify:
     - restart_munge
     - restart_slurmdbd
     - restart_slurmctld
   become: true
 
-- name: Make sure the database root user is present and grant privileges.
+- name: Install Slurm management deamons with yum.
+  yum:
+    state: installed
+    update_cache: yes
+    allow_downgrade: yes
+    name:
+      - "slurm*{{ slurm_version }}"
+      - "slurm-slurmctld*{{ slurm_version }}"
+      - "slurm-slurmdbd*{{ slurm_version }}"
+      - "slurm-perlapi*{{ slurm_version }}"
+  notify:
+    - restart_munge
+    - restart_slurmdbd
+    - restart_slurmctld
+  become: true
+
+- name: Patch slurm daemon systemd service files to use custom sub dir for PID files.
+  lineinfile:
+    path: "/usr/lib/systemd/system/{{ item }}.service"
+    regexp: '^PIDFile='
+    line: "PIDFile=/var/run/slurm/{{ item }}.pid"
+  with_items:
+    - 'slurmctld'
+    - 'slurmdbd'
+  notify:
+    - restart_slurmdbd
+    - restart_slurmctld
+  become: true
+
+- name: Create a database for Slurm accounting.
+  mysql_db:
+    login_host: 127.0.0.1
+    login_user: 'root'
+    login_password: "{{ MYSQL_ROOT_PASSWORD }}"
+    name: "{{ slurm_database_name }}"
+    state: 'present'
+  no_log: True
+  notify:
+    - restart_slurmdbd
+
+- name: Make sure the slurm database user is present and grant privileges on the Slurm accounting DB.
   mysql_user:
     login_host: 127.0.0.1
     login_user: 'root'
@@ -86,25 +122,8 @@
     name: "{{ slurm_storage_user }}"
     password: "{{ slurm_storage_pass }}"
     host: '%'
-    priv: '*.*:ALL'
-  no_log: True
-  register: result
-  until: result is succeeded
-  # sometimes the initial connect fails.
-  # Retry until it succeeds.
-  retries: 7
-  delay: 3
-  ignore_errors: yes
-  notify:
-    - restart_slurmdbd
-
-- name: Create a database for Slurm accounting.
-  mysql_db:
-    login_host: 127.0.0.1
-    login_user: 'root'
-    login_password: "{{ MYSQL_ROOT_PASSWORD }}"
-    name: 'slurm_acct_db'
-    state: 'present'
+    priv: "{{ slurm_database_name }}.*:ALL"
+    connect_timeout: 120
   no_log: True
   notify:
     - restart_slurmdbd
@@ -129,6 +148,10 @@
       owner: 'slurm'
       group: 'root'
       mode: '0750'
+    - name: '/var/run/slurm'
+      owner: 'slurm'
+      group: 'root'
+      mode: '0775'
   become: true
 
 - name: Install Slurm config file.
@@ -195,9 +218,11 @@
   tags:
     - create_database
   register: command_result
-  retries: 2
-  delay: 1
-  until: command_result == ''
+  retries: 3
+  delay: 5
+  until:
+    - command_result.stderr == ''
+    - command_result.stdout != ''
   # NOTE: cannot use command_result.rc to check for the exit value of script in failed_when or changed_when
   #       as the sacctmgr commands used in the script may return exit code 1 when trying to create/modify
   #       something that already exists. This results in "Nothing new added." on STDOUT, but no message on STDERR.

@@ -5,7 +5,7 @@ ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/hpc-ca"
 ssh_host_signer_key_types: '.*(rsa|ed25519).*'
 ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }}{% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}"
 spacewalk_server_url: 'http://spacewalk02.hpc.rug.nl/XMLRPC'
-slurm_table_name: "{{ stack_prefix }}_slurm_accounting"
+slurm_database_name: "{{ stack_prefix }}_slurm_accounting"
 ai_jumphost: "{{ lookup('env','AI_PROXY') }}"
 #
 # Configure allowed network ports for geerlingguy.firewall role

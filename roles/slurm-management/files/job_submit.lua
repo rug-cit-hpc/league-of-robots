@@ -276,9 +276,8 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
         --
         slurm.log_debug("No QoS level specified for job named %s from user %s (uid=%u). Will try to lookup default QoS...", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
         if job_desc.default_qos == nil then
-            slurm.log_error("Failed to assign a default QoS for job named %s from user %s (uid=%u).", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
-            slurm.log_user("Failed to assign a default QoS for job named %s from user %s (uid=%u).", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
-            return slurm.ERROR
+            slurm.log_warn("Failed to fetch a default QoS for job named %s from user %s (uid=%u); will use QoS 'regular'.", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
+            job_desc.qos = 'regular'
         else
             job_desc.qos = job_desc.default_qos
             slurm.log_debug("Found QoS %s for job named %s from user %s (uid=%u).", tostring(job_desc.qos), tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)

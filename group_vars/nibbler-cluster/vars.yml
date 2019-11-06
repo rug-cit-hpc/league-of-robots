@@ -2,6 +2,7 @@
 slurm_cluster_name: 'nibbler'
 slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'nb'
+slurm_version: '18.08.8-1.el7.umcg'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai.{{ slurm_cluster_domain }}"
 motd: "Besides, the determined Real Programmer can write FORTRAN programs in any language. -- Ed Post"
