@@ -1,4 +1,4 @@
 ---
-spacewalk_server_url: 'http://spacewalk.hpc.rug.nl/XMLRPC'
+spacewalk_server_url: 'http://spacewalk02.hpc.rug.nl/XMLRPC'
 rhn_channels:
-    - centos7_gearshift
+    - centos7_umcg

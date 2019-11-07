@@ -1,0 +1,2 @@
+---
+admin_gid: "{{ auth_groups['admin'].gid }}"

@@ -1,5 +1,18 @@
 ---
-- name: Install yum dependencies
+- name: Create cron job to restart systemd-logind regularly as workaround for known DBus bug.
+  cron:
+    #
+    # Silly workaround for bug in interaction dbus <-> logind
+    # Need DBus 1.11.10 for a fix, but CentOS 7.6 is stuck on dbus 1.10.24.
+    #
+    name: Restart systemd-logind
+    minute: "/10"
+    user: root
+    job: /bin/systemctl restart systemd-logind
+    cron_file: restart_logind
+  become: true
+
+- name: Install yum dependencies.
   yum:
     state: latest
     update_cache: yes

@@ -4,8 +4,8 @@ ssh_host_signer_ca_keypair_dir: "{{ inventory_dir }}/ssh-host-ca"
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/hpc-ca"
 ssh_host_signer_key_types: '.*(rsa|ed25519).*'
 ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }}{% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}"
-spacewalk_server_url: 'http://spacewalk.hpc.rug.nl/XMLRPC'
-slurm_table_name: "{{ stack_prefix }}_slurm_accounting"
+spacewalk_server_url: 'http://spacewalk02.hpc.rug.nl/XMLRPC'
+slurm_database_name: "{{ stack_prefix }}_slurm_accounting"
 ai_jumphost: "{{ lookup('env','AI_PROXY') }}"
 #
 # Configure allowed network ports for geerlingguy.firewall role
@@ -144,6 +144,58 @@ auth_users:
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHvtYVqBzyLk0gRL0Teq5UnIPjrkJGvbmzjHzPq2D5gw wsteyaert
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA1cD51nNVkZLmVpgnlecprPCNdf6W9IQ/O7KVE5DG3b wsteyaert
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKcTDLafk1hTH5whx4aJyFwG6fPVz9H7EjOrXHaN8ssQ wsteyaert
+  fokke:
+    comment: 'Fokke Dijkstra'
+    uid: 1024
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDRVddVL5RVcv2ubRTNdPQ1Z7L+llPe3jxPgLYKvl6Uo fokke@laptop-cit
+  slaurie:
+    comment: 'Steve Laurie'
+    uid: 1025
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILVkUC6qXGL933sVdlH2dmsTY49s9/Lb9mpP1jpQo1ca slaurie
+              ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAgEAxnQzwIjJEBVcHe9ezfi0YP3tvTvmbwfhfExm/lABIkurwt5Fe4uYnci1h1cN7c+sL1XFZPgNS4fsQHYhfhZF0FI5+gDZQ5ve2ltDqcMvcQ+M8ykZb4mca1pqnaKpG/qTq8cvBI84TmsfZ/99ppVhvJtBX3fs5EOEIo6Kb7aTzTOtsUULDTRvX4PQk7kNCUfAvqP5xHgzxQbEnq4VvUrTcNnrtIH3dvAoLWSAO5f6eTF1KgMXMTdgqQgafKk25cVuhug8hduPQ0k44E8Bx3/qOOU8CavSJF+0gqX+BsjryG3oy2bujfTno8kddAbwfLQgdBZcg+EN8uDrSxF2jHtJMIqvRfit8RzWjKX/W8rtTcXKvq1pfxD25K+aUE5kZeci4UQL2GSVCTbxJHaDURVpLA0YM6Bm2ewHbbQsmDR8RwH6IGocq70ukj3HfDrae8DOV93xyEsKvnupTy9eR1lvzhDrzfTA4P1m2PZxxq/ud4g15lBNOOrlOvofNIi3X+klJ9oO09EvvvJRpHXrEVWFpU5w2ceVnze6E6jcmoPX/mj+L0984lJf3TS0Zx2aLU93IM6qlQ5kHsnMHbMLry4QN6fD1V/PRcjKuuxL1+ZNTVimMXW/Tl0cOleGsXslLxwzOGXaLeOcdvekjE2OSC+V+vvt9rquGqcCqwoDWarpCjk= slaurie
+  sido:
+    comment: 'Sido Haakma'
+    uid: 1026
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDo/zQab61JMdNlZH1A9bKNqhmemvqimh0tNiaXc45UA shaakma
+  mpauper:
+    comment: 'Marc Pauper'
+    uid: 1027
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKX6eNqh9P3BNH96VDXxu/LimWGcJGfSYIpKowvoWxmm mpauper
+  jvdvelde:
+    comment: 'Joeri van der Velde'
+    uid: 1028
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHR3d0L9yW9LwjaqodEAWs3frNEjyj0M+fq/+jY+I9rh jvdvelde
+  fmusacchia:
+    comment: 'Francesco Musacchia'
+    uid: 1029  
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJjTuMz1RGEWYDvBr1f9gMc71T5Gwx0txPEAsyKVcFXW fmusacchia
+  dspalding:
+    comment: 'Dylan Spalding'
+    uid: 1030
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINazVx99YGc98wZBtlJcP8KqtJ2LZ1K+JfVWx5wtSNjN jdylanspalding
+  psivakumar:
+    comment: 'Prasanth Sivakumar'
+    uid: 1031
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK2c7bI3+hjALAfsytm6rQ+VU3hPRVGgrU5fUSrVHMMY psivakumar
+  fandrade:
+    comment: 'Fernanda de Andrade'
+    uid: 1032
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKvNTAsJVVZrWgfuLO7Vj35vdKusWwmcWJGovGIR+S88 fdeandrade
+  gdemidov:
+    comment: 'German Demidov'
+    uid: 1033
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOeknUxTyEeYoTGyDTsRV8WnLMS7tbhy/9FamgmUj5V3 gmdemidov
 
 #
 # Local group specs.
@@ -165,4 +217,11 @@ auth_groups:
     gid: 20004
   umcg-atd:
     gid: 20005
+#
+# Custom/extra yum repos
+#
+yum_repos:
+  umcg-centos7:
+    description: 'UMCG YUM repo for CentOS 7.'
+    baseurl: http://spacewalk02.hpc.rug.nl/umcg-centos7
 ...

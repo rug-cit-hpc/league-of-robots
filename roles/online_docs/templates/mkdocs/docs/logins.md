@@ -259,10 +259,39 @@ The following assumes:
 You can now connect to for example UI {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} 
 via jumphost {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} using a double hop like this:
 
+{% if public_ip_addresses is defined and public_ip_addresses | length %}{% for jumphost in groups['jumphost'] %}
+ * In a _**Putty**_ configuration window supply the _hostname_ _**{{ public_ip_addresses[jumphost] }}**_, your **accountname** and
+{% endfor %}{% else %}
  * In a _**Putty**_ configuration window supply the _hostname_ _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_, your **accountname** and
+{% endif %}
  * Click the _**Connect**_ button...
  * Once the connection is established type the following command in a terminal:
 
         ssh youraccount@{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
-Please have a look at [these instructions to automate such a double hop on Windows](http://mikelococo.com/2008/01/multihop-ssh/)
+#### 5. Connecting to {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} via jumphost {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} using MobaXterm.
+
+MobaXterm for windows is a great toolbox for remote computing. has It has a user friendly interface for supporting drag and drop file transfers directly into the virtual hpc cluster, 
+but also a UNIX terminal functionality to support basic commands (bash, grep, awk, sed, rsync, etc etc ) or SFTP support.
+MobaXterm makes it easy to connect to _**{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_ via a jumphost. 
+
+To set up a connection to {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}  in MobaXterm you do the following:
+
+ * Download and install [MobaXterm](https://mobaxterm.mobatek.net/download.html)
+ * create a new SSH, session
+ * put _**{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_ in the "remote host" field
+ * open the "advanced SSH settings" section and import your private key.
+ * open the "Network settings" section
+ * check "Connect through SSH gateway \(jump host\)"
+{% if public_ip_addresses is defined and public_ip_addresses | length %}{% for jumphost in groups['jumphost'] %}
+* fill-in _**{{ public_ip_addresses[jumphost] }}**_ in order to connect to _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_
+{% endfor %}{% else %}
+ * fill-in _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_ in order to connect to _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_
+{% endif %}
+ * This will silently create an encrypted SSH tunnel to _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_ and then use this tunnel in order to connect to _**{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_.
+ * Use the 'browser or sftp' tab for the more windows drag and drop interface, or the 'Shell' tab to make se of a terminal interface.
+ 
+
+
+
+Fore more advanced information about MobaXterm please have a look at [these instructions to automate such a double hop on Windows](https://mobaxterm.mobatek.net/documentation.html#2_1_5)

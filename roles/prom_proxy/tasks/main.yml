@@ -1,24 +1,33 @@
 ---
-- name: Install nginx
-  yum: name=nginx state=latest update_cache=yes
+- name: Install nginx.
+  yum:
+    name: nginx
+    state: latest
+    update_cache: yes
+  become: true
 
-- name: nginx.conf
-  copy:
+- name: Deploy nginx.conf.
+  template:
     src: templates/nginx.conf
     dest: /etc/nginx/nginx.conf
     mode: 0644
     owner: root
     group: root
+  become: true
 
-- name: .htpasswd
+- name: Add .htpasswd
   copy:
-    src: templates/.htpasswd
+    content: "{{ prom_proxy_htpasswd }}"
     dest: /etc/nginx/.htpasswd
     mode: 0600
     owner: nginx
     group: nginx
+  become: true
 
-- name: make sure nginx is restarted
+- name: Make sure nginx is enabled and restarted.
   systemd:
     name: nginx.service
-    state: restarted
+    state: 'restarted'
+    enabled: 'yes'
+  become: true
+...

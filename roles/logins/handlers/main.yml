@@ -6,7 +6,7 @@
 #
 - name: Run authconfig update.
   shell: "authconfig --enablemkhomedir --update"
-  become: yes
+  become: true
   listen: authconfig_update
 
 #
@@ -25,6 +25,6 @@
     - dbus
     - systemd-logind
     - oddjobd
-  become: yes
+  become: true
   listen: restart_oddjobd
 ...

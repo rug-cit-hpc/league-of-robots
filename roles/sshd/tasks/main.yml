@@ -1,0 +1,22 @@
+---
+- name: Deploy sshd config.
+  template:
+    src: templates/sshd_config
+    dest: /etc/ssh/sshd_config
+    validate: '/usr/sbin/sshd -T -f %s'
+  notify: restart_sshd
+  become: true
+
+- name: Check if /etc/ssh/moduli contains weak (small) values.
+  shell: awk '$5 < {{ sshd_moduli_minimum }}' /etc/ssh/moduli
+  register: sshd_register_moduli
+  changed_when: false
+  check_mode: no
+
+- name: Remove weak (small) values from /etc/ssh/moduli.
+  shell: awk '$5 >= {{ sshd_moduli_minimum }}' /etc/ssh/moduli > /etc/ssh/moduli.new ;
+         [ -r /etc/ssh/moduli.new -a -s /etc/ssh/moduli.new ] && mv /etc/ssh/moduli.new /etc/ssh/moduli || true
+  when: sshd_register_moduli.stdout
+  notify: restart_sshd
+  become: true
+...

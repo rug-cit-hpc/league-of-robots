@@ -2,6 +2,7 @@
 slurm_cluster_name: 'fender'
 slurm_cluster_domain: ''
 stack_prefix: 'fd'
+slurm_version: '17.11.9-2.umcg.el7'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 motd: "To solve or not to solve, that's the question."
@@ -27,6 +28,7 @@ ui_ethernet_interfaces:
   - 'eth1'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/ca-key-production-ebi"
 use_ldap: yes
+create_ldap: yes
 uri_ldap: fd-dai
 uri_ldaps: fd-dai
 ldap_port: 389
@@ -43,6 +45,8 @@ flavor_tiny: s1.tiny
 flavor_ui: s1.large
 flavor_vcompute: s1.gargantuan
 public_net_id: ext-net-37
+public_ip_addresses:
+  corridor: '193.62.55.161'
 private_net_id: Solve-RD_private
 private_subnet_id: Solve-RD_subnet
 private_storage_net_id: net_provider_vlan3126
@@ -61,9 +65,8 @@ local_admin_groups:
   - 'admin'
   - 'docker'
 local_admin_users:
-  - 'centos'
   - 'egon'
-  - 'gerben'
+  - 'centos'
   - 'henkjan'
   - 'marieke'
   - 'morris'
@@ -71,17 +74,24 @@ local_admin_users:
   - 'wim'
   - 'umcg-atd-dm'
   - 'solve-rd-dm'
+  - 'gerben'
 envsync_user: 'envsync'
 envsync_group: 'depad'
 hpc_env_prefix: '/apps'
-local_regular_groups:
+regular_groups:
   - 'users'
   - 'depad'
   - 'solve-rd'
   - 'umcg-atd'
-local_regular_users:
+regular_users:
   - user: 'envsync'
     groups: ['depad']
+  - user: 'solve-rd-dm'
+    groups: ['solve-rd']
+    sudoers: ['%solve-rd']
+  - user: 'umcg-atd-dm'
+    groups: ['umcg-atd']
+    sudoers: ['%umcg-atd']
   - user: 'gvdvries'
     groups: ['users', 'depad','umcg-atd', 'solve-rd']
   - user: 'mbijlsma'
@@ -100,6 +110,23 @@ local_regular_users:
     groups: ['users', 'solve-rd']
   - user: 'wsteyaert'
     groups: ['users', 'solve-rd']
+  - user: 'slaurie'
+    groups: ['users', 'solve-rd']
+  - user: 'mpauper'
+    groups: ['users', 'solve-rd']
+  - user: 'jvdvelde'
+    groups: ['users', 'solve-rd']
+  - user: 'fmusacchia'
+    groups: ['users', 'solve-rd']
+  - user: 'dspalding'
+    groups: ['users', 'solve-rd']
+  - user: 'psivakumar'
+    groups: ['users', 'solve-rd']
+  - user: 'fandrade'
+    groups: ['users', 'solve-rd']
+  - user: 'gdemidov'
+    groups: ['users', 'solve-rd']
+
 pfs_mounts: [
   { pfs: 'ecst02',
     source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD/ecst02',

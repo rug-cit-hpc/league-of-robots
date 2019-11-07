@@ -1,0 +1,16 @@
+---
+- name: Install generic build depedencies.
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - "@development"
+      - 'glibc-common'
+      - 'glibc-devel'
+      - 'glibc-headers'
+      - 'gnutls-devel'
+      - 'kernel-devel'
+      - 'libselinux-devel'
+      - 'openssl-devel'
+  become: true
+...

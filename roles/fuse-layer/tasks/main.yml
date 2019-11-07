@@ -1,0 +1,53 @@
+---
+- file:
+    path: /usr/local/fuse-layer
+    state: directory
+    mode: 0755
+  become: true
+
+- name: Install service files.
+  template:
+    src: templates/fuse-layer.service
+    dest: /etc/systemd/system/fuse-layer.service
+    mode: 644
+    owner: root
+    group: root
+  tags:
+      - service-files
+  become: true
+
+- name: Install fuse files.
+  template:
+    src: templates/fuse.sh
+    dest: /usr/local/fuse-layer/fuse.sh
+    mode: 644
+    owner: root
+    group: root
+  become: true
+
+- name: Install config.ini  files.
+  template:
+    src: templates/config.ini
+    dest: /usr/local/fuse-layer/config.ini
+    mode: 644
+    owner: root
+    group: root
+  become: true
+
+- name: install service files
+  command: systemctl daemon-reload
+  become: true
+
+- name: enable service at boot
+  systemd:
+    name: fuse-layer
+    enabled: yes
+  become: true
+
+- name: make sure servcies are started.
+  systemd:
+    name: fuse-layer.service
+    state: restarted
+  tags:
+      - start-service
+  become: true

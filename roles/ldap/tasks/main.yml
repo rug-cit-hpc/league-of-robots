@@ -8,9 +8,15 @@
       - openldap-clients
       - nss-pam-ldapd
       - openssh-ldap
+      - python36
+      - python36-devel
+      - python36-PyYAML
+      - openssl-devel
+      - python36-sshpubkeys
   notify:
     - restart_nslcd
     - restart_sshd
+  become: true
 
 - name: Deploy nslcd.conf
   template:
@@ -21,6 +27,7 @@
     mode: '0600'
   notify:
     - restart_nslcd
+  become: true
 
 - name: Deploy ldap.conf
   template:
@@ -31,6 +38,7 @@
     mode: '0644'
   notify:
     - restart_nslcd
+  become: true
 
 - name: Deploy nsswitch.conf
   copy:
@@ -41,21 +49,25 @@
     mode: '0644'
   notify:
     - restart_nslcd
-
-- name: Redeploy sshd config.
-  template:
-    src: "{{ playbook_dir }}/roles/cluster/templates/sshd_config"
-    dest: /etc/ssh/sshd_config
-    validate: '/usr/sbin/sshd -T -f %s'
-  notify: restart_sshd
+  become: true
 
 - name: Deploy custom ssh-ldap-wrapper.
   copy:
-    src: ssh-ldap-wrapper
-    dest: /usr/libexec/openssh/ssh-ldap-wrapper
+    src: ssh_ldap_wrapper.py
+    dest: /usr/libexec/openssh/ssh_ldap_wrapper.py
     owner: root
     group: root
     mode: '0755'
+  become: true
+
+- name: Deploy config file for custom ssh-ldap-wrapper.
+  template:
+    src: templates/ssh_ldap_wrapper.yml
+    dest: /usr/libexec/openssh/ssh_ldap_wrapper.yml
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
 
 - name: Enable services.
   systemd:
@@ -66,6 +78,15 @@
     - nslcd
   notify:
     - restart_nslcd
+  become: true
+
+- name: Redeploy sshd config.
+  template:
+    src: "{{ playbook_dir }}/roles/sshd/templates/sshd_config"
+    dest: /etc/ssh/sshd_config
+    validate: '/usr/sbin/sshd -T -f %s'
+  notify: restart_sshd
+  become: true
 
 - meta: flush_handlers
 ...

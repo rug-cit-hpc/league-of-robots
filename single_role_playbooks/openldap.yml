@@ -1,8 +1,7 @@
 ---
-
 - name: Install ldap role.
   hosts: ldap-server
-  become: true
   tasks:
   roles:
      - openldap
+...

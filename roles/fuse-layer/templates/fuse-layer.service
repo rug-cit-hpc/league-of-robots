@@ -1,0 +1,10 @@
+[Unit]
+Description=EGA Fuse Layer
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStart=/bin/bash /usr/local/fuse-layer/fuse.sh
+
+[Install]
+WantedBy=multi-user.target

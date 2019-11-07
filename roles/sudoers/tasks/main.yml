@@ -1,0 +1,14 @@
+---
+#
+# Allow passwordless sudo to the datamanager users for indivual users or %groups.
+# This can be specified in the groupvars regular_users.
+#
+- name: 'Allow passwordless sudo to the datamanager users.'
+  lineinfile:
+    dest: '/etc/sudoers'
+    line: "{{ item.1 }}    ALL=({{ item.0.user }})    NOPASSWD:ALL"
+  become: true
+  with_subelements:
+    - "{{ regular_users | default([]) | selectattr('sudoers', 'defined')  | list }}"
+    - 'sudoers'
+...

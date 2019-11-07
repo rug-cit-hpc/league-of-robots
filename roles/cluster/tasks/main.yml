@@ -1,14 +1,20 @@
 ---
-- name: Set /etc/hosts
-  template:
-    src: templates/{{ slurm_cluster_name }}_hosts
-    dest: /etc/hosts
-    mode: 0644
-    owner: root
-    group: root
-    backup: yes
-  become: true
-  tags: ['etc_hosts']
+- name: Check if rsync >= 3.1.2 is installed on the control host.
+  shell: |
+         rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+  args:
+    warn: no
+  changed_when: false
+  failed_when: false
+  check_mode: no
+  register: rsync_version
+
+- name: Abort when modern rsync >= 3.1.2 is missing on control host.
+  debug:
+    msg: "FATAL: Need rsync >= 3.1.2 on {{ inventory_hostname }}, but detected {{ rsync_version.stdout }}."
+  when:         'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
+  failed_when: 'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
+  delegate_to: localhost
 
 - name: Add custom config files to /etc/skel/.
   synchronize:
@@ -65,46 +71,31 @@
     state: latest
     update_cache: yes
     name:
+      - bc
       - bzip2
       - curl
+      - dos2unix
       - figlet
       - git
       - git-core
+      - gnutls
       - lsof
       - nano
       - ncdu
       - ncurses-static
+      - openssl
       - readline-static
       - screen
       - tcl-devel
       - telnet
       - tmux
       - tree
+      - unzip
       - vim
       - wget
+      - fuse
+      - fuse-libs
   tags:
     - software
   become: true
-
-- name: Deploy sshd config.
-  template:
-    src: templates/sshd_config
-    dest: /etc/ssh/sshd_config
-    validate: '/usr/sbin/sshd -T -f %s'
-  notify: restart_sshd
-  become: true
-
-- name: Check if /etc/ssh/moduli contains weak (small) values.
-  shell: awk '$5 < {{ sshd_moduli_minimum }}' /etc/ssh/moduli
-  register: sshd_register_moduli
-  changed_when: false
-  check_mode: no
-
-- name: Remove weak (small) values from /etc/ssh/moduli.
-  shell: awk '$5 >= {{ sshd_moduli_minimum }}' /etc/ssh/moduli > /etc/ssh/moduli.new ;
-         [ -r /etc/ssh/moduli.new -a -s /etc/ssh/moduli.new ] && mv /etc/ssh/moduli.new /etc/ssh/moduli || true
-  when: sshd_register_moduli.stdout
-  notify: restart_sshd
-  become: true
-
 ...

@@ -10,16 +10,17 @@
     state: restarted
   with_items:
     - httpd
-  become: yes
+  become: true
   listen: restart_httpd
 
 - name: (Re)build webpages.
   shell: |
          cd /srv/mkdocs/{{ slurm_cluster_name }}/
          umask 0022
-         export LC_ALL=en_US.utf8
-         export LANG=en_US.utf8
+         export LC_ALL='en_US.utf8'
+         export LANG='en_US.utf8'
+         export PATH="${PATH}:/usr/local/bin/"
          mkdocs build
-  become: yes
+  become: true
   listen: build_mkdocs
 ...

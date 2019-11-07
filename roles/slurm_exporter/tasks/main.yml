@@ -5,12 +5,18 @@
     path: /usr/local/prometheus
     state: directory
     mode: 0755
+    owner: root
+    group: root
+  become: true
 
 - name: Install binary
   copy:
     src: "{{ playbook_dir }}/promtools/results/{{ service_name }}"
     dest: "/usr/local/prometheus/{{ service_name }}"
     mode: 0755
+    owner: root
+    group: root
+  become: true
 
 - name: Install service files.
   template:
@@ -21,14 +27,17 @@
     group: root
   tags:
     - service-files
+  become: true
 
 - name: install service files
   command: systemctl daemon-reload
+  become: true
 
 - name: enable service at boot
   systemd:
     name: "{{ service_name }}.service"
     enabled: yes
+  become: true
 
 - name: make sure servcies are started.
   systemd:
@@ -36,3 +45,5 @@
     state: restarted
   tags:
     - start-service
+  become: true
+...

@@ -1,10 +1,31 @@
 ---
+- import_tasks: mount.yml 
+
 - name: 'Install NFS utils.'
   yum:
     name: nfs-utils
+  become: true
+
+- name: 'Enable nfs service'
+  systemd:
+    name: nfs
+    enabled: yes
+  become: true
 
 - name: 'Add share entry to NFS exports.'
   lineinfile:
     path: /etc/exports
-    line: /home  {{network_range}}(rw,sync,no_root_squash,no_subtree_check)
+    line: "{{nfs_mountpoint}} {{nfs_network_range}}(rw,sync,no_root_squash,no_subtree_check)"
+  register: etc_exports
+  become: true
+
+- name: 'Activate exports'
+  command: 'exportfs -a'
+  when: etc_exports.changed
+
+- name: 'Make sure nfs service is started'
+  systemd:
+    state: started
+    name: nfs
+  become: true
 ...

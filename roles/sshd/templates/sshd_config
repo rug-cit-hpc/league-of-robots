@@ -1,0 +1,99 @@
+Port 22
+UseDNS no
+
+#
+# Disable protocol version 1
+#
+Protocol 2
+
+#
+# Supported (Host)Key algorithms by order of preference.
+# Do not use (EC)DSA keys!
+#
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub
+HostKey /etc/ssh/ssh_host_rsa_key
+HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub
+HostKeyAlgorithms      ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,ssh-rsa,ssh-rsa-cert-v01@openssh.com
+PubkeyAcceptedKeyTypes ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,ssh-rsa,ssh-rsa-cert-v01@openssh.com
+
+#
+# Supported KEX (Key Exchange) algorithms.
+#
+KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256
+
+#
+# ToDo: All Diffie-Hellman moduli used for diffie-hellman-group-exchange-sha256 should be at least 3072-bit-long
+#       See also man moduli. Moduli are stored in file: /etc/ssh/moduli
+#       The 5th column of this file contains the length of the moduli.
+#       To remove short moduli:
+# if [[ ! -e /etc/ssh/moduli.original ]]; then
+#     cp /etc/ssh/moduli > /etc/ssh/moduli.original
+# fi
+# awk '$5 >= 3071' /etc/ssh/moduli.original > /etc/ssh/moduli
+#
+
+#
+# Supported ciphers.
+#
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+#RekeyLimit default none
+
+#
+# Supported MAC (message authentication code) algorithms.
+# Ciphers and MACs can be combined in multiple ways,
+# but only Encrypt-then-MAC (EtM) should be used.
+#
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com
+
+#
+# Logging
+#
+# LogLevel VERBOSE logs user's key fingerprint on login.
+# Required to have a clear audit trail of which key was used to log in.
+#
+SyslogFacility AUTHPRIV
+LogLevel VERBOSE
+
+#
+# Authentication methods.
+#
+#  * Never allow direct root login: We have admin users who can sudo.
+#    (see users.yml in the league-of-robots repo)
+#  * Disable password based auth.
+#  * Enable key pair based auth.
+#    * Fetch public keys from LDAP
+#    * Disable local keys stored in ~/.ssh/ folders except for local admin accounts.
+#
+UsePAM yes
+PermitRootLogin no
+PasswordAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+GSSAPIAuthentication no
+GSSAPICleanupCredentials no
+PubkeyAuthentication yes
+
+#
+# Connection settings.
+#
+X11Forwarding no
+ClientAliveInterval 300
+
+#
+# Override default of no subsystems
+# and log sftp level file access that would not be easily logged otherwise.
+#
+Subsystem sftp /usr/libexec/openssh/sftp-server -f AUTHPRIV -l INFO
+
+{% if use_ldap %}
+AuthorizedKeysCommand /usr/libexec/openssh/ssh_ldap_wrapper.py
+AuthorizedKeysCommandUser root
+AuthorizedKeysFile /dev/null
+
+Match Group admin
+    AuthorizedKeysFile .ssh/authorized_keys
+
+{% else %}
+AuthorizedKeysFile .ssh/authorized_keys
+{% endif %}
