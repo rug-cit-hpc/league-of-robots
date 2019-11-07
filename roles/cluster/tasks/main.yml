@@ -74,6 +74,7 @@
       - bc
       - bzip2
       - curl
+      - dos2unix
       - figlet
       - git
       - git-core
