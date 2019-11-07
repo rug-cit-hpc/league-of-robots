@@ -71,8 +71,10 @@
     state: latest
     update_cache: yes
     name:
+      - bc
       - bzip2
       - curl
+      - dos2unix
       - figlet
       - git
       - git-core
