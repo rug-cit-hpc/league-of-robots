@@ -17,7 +17,7 @@
 
 - name: Add .htpasswd
   copy:
-    src: templates/.htpasswd
+    content: "{{ prom_proxy_htpasswd }}"
     dest: /etc/nginx/.htpasswd
     mode: 0600
     owner: nginx
