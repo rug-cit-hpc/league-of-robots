@@ -292,6 +292,28 @@ To set up a connection to {{ groups['user-interface'] | first | regex_replace('^
  * Use the 'browser or sftp' tab for the more windows drag and drop interface, or the 'Shell' tab to make se of a terminal interface.
  
 
-
-
 Fore more advanced information about MobaXterm please have a look at [these instructions to automate such a double hop on Windows](https://mobaxterm.mobatek.net/documentation.html#2_1_5)
+
+## Customize your environment
+
+Once logged in you can customize your environment by editing your ```${HOME}/.bashrc``` file.
+The first few lines that are already present should not be changed unless you want to break your environment,
+so please append your custom stuff at the bottom of this file. In case you did corrupt your ```${HOME}/.bashrc```, 
+you can get a fresh copy from the template located in ```/etc/skel/.bashrc```.
+
+#### Time Zone
+
+The cluster runs in the Coordinated Universal Time (or UTC) time zone, which is not adjusted for daylight saving time. 
+The latter could confuse software when switching from winter to summer time or back resulting in newer files having older time stamps.
+If you prefer to see time stamps in your local time zone, you add your preferred time zone to your ```${HOME}/.bashrc``` 
+by configuring the TZ environment variable. E.g. for the Netherlands:
+```
+export TZ=Europe/Amsterdam
+```
+See the [list of time zones on WikiPedia](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for other countries.
+
+
+
+
+
+
