@@ -201,7 +201,7 @@ regular_users:
     sudoers: 'umcg-akurilshchikov,umcg-jfu'
   - user: 'umcg-ugli-dm'
     groups: ['umcg-ugli']
-    sudoers: 'umcg-pdeelen umcg-mbenjamins umcg-pneerincx'
+    sudoers: 'umcg-pdeelen,umcg-mbenjamins,umcg-pneerincx'
   - user: 'umcg-verbeek-dm'
     groups: ['umcg-verbeek']
     sudoers: '%umcg-verbeek'
