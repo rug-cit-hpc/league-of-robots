@@ -1,0 +1,9 @@
+#
+# This file is deployed with the sudoers role from the Ansible playbook of the league-of-robots repo.
+# DO NOT EDIT MANUALLY; update source and re-deploy instead!
+#
+# {{ ansible_managed }}
+#
+# Allow specific users or group to become the {{ item.user }} user.
+#
+{{ item.sudoers }}    ALL=({{ item.user }})    NOPASSWD:ALL

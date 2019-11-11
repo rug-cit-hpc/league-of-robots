@@ -13,11 +13,11 @@ motd: |
           ###################################
           # Date                 EOS        #
           ###################################
-          # Friday 2019-05-03    Sprint 136 #
-          # Friday 2019-06-14    Sprint 138 #
-          # Friday 2019-07-26    Sprint 140 #
           # Friday 2019-09-06    Sprint 142 #
           # Friday 2019-10-18    Sprint 144 #
+          # Friday 2019-11-08    Sprint 146 #
+          # Friday 2019-11-29    Sprint 148 #
+          # Friday 2019-12-20    Sprint 150 #
           ###################################
           You have been warned!!!
 additional_etc_hosts: |
@@ -81,6 +81,136 @@ local_admin_users:
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 hpc_env_prefix: '/apps'
+regular_groups:
+  - 'umcg-aad'
+  - 'umcg-as'
+  - 'umcg-atd'
+  - 'umcg-biogen'
+  - 'umcg-bionic-mdd-gwama'
+  - 'umcg-bios'
+  - 'umcg-dag3'
+  - 'umcg-datateam'
+  - 'umcg-depad'
+  - 'umcg-franke-scrna'
+  - 'umcg-gaf'
+  - 'umcg-gap'
+  - 'umcg-gastrocol'
+  - 'umcg-gcc'
+  - 'umcg-gdio'
+  - 'umcg-gonl'
+  - 'umcg-griac'
+  - 'umcg-gsad'
+  - 'umcg-hofker'
+  - 'umcg-lifelines'
+  - 'umcg-lld'
+  - 'umcg-llnext'
+  - 'umcg-micompany'
+  - 'umcg-msb'
+  - 'umcg-oncogenetics'
+  - 'umcg-pub'
+  - 'umcg-radicon'
+  - 'umcg-tifn'
+  - 'umcg-ugli'
+  - 'umcg-verbeek'
+  - 'umcg-weersma'
+  - 'umcg-wijmenga'
+regular_users:
+  - user: 'umcg-aad-dm'
+    groups: ['umcg-aad']
+    sudoers: '%umcg-aad'
+  - user: 'umcg-capicebot'
+    groups: ['umcg-as']
+    sudoers: '%umcg-as'
+  - user: 'umcg-atd-ateambot'
+    groups: ['umcg-atd']
+    sudoers: '%umcg-atd'
+  - user: 'umcg-atd-dm'
+    groups: ['umcg-atd']
+    sudoers: '%umcg-atd'
+  - user: 'umcg-biogen-dm'
+    groups: ['umcg-biogen']
+    sudoers: 'umcg-hwestra,umcg-ndeklein'
+  - user: 'umcg-bionic-mdd-gwama-dm'
+    groups: ['umcg-bionic-mdd-gwama']
+    sudoers: 'umcg-fhuider,umcg-ifedko'
+  - user: 'umcg-bios-dm'
+    groups: ['umcg-bios']
+    sudoers: '%umcg-bios'
+  - user: 'umcg-dag3-dm'
+    groups: ['umcg-dag3']
+    sudoers: 'umcg-avich,umcg-akurilshchikov,umcg-rgacesa'
+  - user: 'umcg-datateam-dm'
+    groups: ['umcg-datateam']
+    sudoers: 'umcg-mbijlsma'
+  - user: 'umcg-franke-scrna-dm'
+    groups: ['umcg-franke-scrna']
+    sudoers: 'umcg-ddevries,umcg-hbrugge,umcg-mvdwijst'
+  - user: 'umcg-gaf-dm'
+    groups: ['umcg-gaf']
+    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-gap-dm'
+    groups: ['umcg-gap']
+    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-gastrocol-dm'
+    groups: ['umcg-gastrocol']
+    sudoers: 'umcg-avich,umcg-hushixian'
+  - user: 'umcg-gcc-dm'
+    groups: ['umcg-gcc']
+    sudoers: '%umcg-gcc'
+  - user: 'umcg-gdio-dm'
+    groups: ['umcg-gdio']
+    sudoers: 'umcg-cvandiemen'
+  - user: 'umcg-gonl-dm'
+    groups: ['umcg-gonl']
+    sudoers: 'umcg-pneerincx'
+  - user: 'umcg-griac-dm'
+    groups: ['umcg-griac']
+    sudoers: 'umcg-cvermeulen,umcg-cxu,umcg-ndijk,umcg-mdevries,umcg-mberg'
+  - user: 'umcg-gsad-dm'
+    groups: ['umcg-gsad']
+    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-hofker-dm'
+    groups: ['umcg-hofker']
+    sudoers: '%umcg-hofker'
+  - user: 'umcg-lifelines-dm'
+    groups: ['umcg-lifelines']
+    sudoers: '%umcg-lifelines-dms'
+  - user: 'umcg-lld-dm'
+    groups: ['umcg-lld']
+    sudoers: 'umcg-hwestra,umcg-hbrugge'
+  - user: 'umcg-llnext-dm'
+    groups: ['umcg-llnext']
+    sudoers: 'umcg-tsinha,umcg-sgarmaeva'
+  - user: 'umcg-micompany-dm'
+    groups: ['umcg-micompany']
+    sudoers: 'umcg-cxu,umcg-cvermeulen'
+  - user: 'umcg-msb-dm'
+    groups: ['umcg-msb']
+    sudoers: '%umcg-msb'
+  - user: 'umcg-oncogenetics-dm'
+    groups: ['umcg-oncogenetics']
+    sudoers: '%umcg-mterpstra'
+  - user: 'umcg-pub-dm'
+    groups: ['umcg-pub']
+    sudoers: 'umcg-pneerincx'
+  - user: 'umcg-radicon-dm'
+    groups: ['umcg-radicon']
+    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-tifn-dm'
+    groups: ['umcg-tifn']
+    sudoers: 'umcg-akurilshchikov,umcg-jfu'
+  - user: 'umcg-ugli-dm'
+    groups: ['umcg-ugli']
+    sudoers: 'umcg-pdeelen umcg-mbenjamins umcg-pneerincx'
+  - user: 'umcg-verbeek-dm'
+    groups: ['umcg-verbeek']
+    sudoers: '%umcg-verbeek'
+  - user: 'umcg-weersma-dm'
+    groups: ['umcg-weersma']
+    sudoers: 'umcg-avich,umcg-hushixian'
+  - user: 'umcg-wijmenga-dm'
+    groups: ['umcg-wijmenga']
+    sudoers: 'umcg-jgelderloos,umcg-aclaringbould,umcg-rmodderman,umcg-hwestra,umcg-avich,umcg-obakker,umcg-ddevries'
 pfs_mounts: [
   { pfs: 'umcgst10',
     source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst10',
@@ -97,10 +227,20 @@ lfs_mounts: [
     pfs: 'umcgst10' },
   { lfs: 'groups/GROUP/tmp01',
     pfs: 'umcgst10',
-    groups: ['umcg-atd', 'umcg-biogen', 'umcg-bios', 'umcg-dag3', 'umcg-gastrocol', 'umcg-gcc', 'umcg-lld', 'umcg-tifn', 'umcg-weersma', 'umcg-wijmenga' ] },
+    groups: [
+        'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama', 
+        'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-franke-scrna', 
+        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl', 
+        'umcg-griac', 'umcg-gsad', 'umcg-hofker', 'umcg-lifelines', 'umcg-lld', 
+        'umcg-llnext', 'umcg-micompany', 'umcg-msb', 'umcg-oncogenetics', 
+        'umcg-pub', 'umcg-radicon', 'umcg-tifn', 'umcg-ugli', 
+        'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
+      ]},
   { lfs: 'groups/GROUP/prm01',
     pfs: 'umcgst10',
-    groups: ['umcg-atd'] },
+    groups: [
+        'umcg-atd'
+      ]},
   { lfs: 'env01',
     pfs: 'umcgst10',
     machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },

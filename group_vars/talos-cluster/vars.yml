@@ -13,11 +13,11 @@ motd: |
           ###################################
           # Date                 EOS        #
           ###################################
-          # Friday 2019-05-03    Sprint 136 #
-          # Friday 2019-06-14    Sprint 138 #
-          # Friday 2019-07-26    Sprint 140 #
           # Friday 2019-09-06    Sprint 142 #
           # Friday 2019-10-18    Sprint 144 #
+          # Friday 2019-11-08    Sprint 146 #
+          # Friday 2019-11-29    Sprint 148 #
+          # Friday 2019-12-20    Sprint 150 #
           ###################################
           You have been warned!!!
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
@@ -68,6 +68,20 @@ local_admin_users:
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 hpc_env_prefix: '/apps'
+regular_groups:
+  - 'umcg-atd'
+  - 'umcg-depad'
+  - 'umcg-gcc'
+regular_users:
+  - user: 'umcg-atd-ateambot'
+    groups: ['umcg-atd']
+    sudoers: '%umcg-atd'
+  - user: 'umcg-atd-dm'
+    groups: ['umcg-atd']
+    sudoers: '%umcg-atd'
+  - user: 'umcg-gcc-dm'
+    groups: ['umcg-gcc']
+    sudoers: '%umcg-gcc'
 pfs_mounts: [
   { pfs: 'umcgst11',
     source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst11',
