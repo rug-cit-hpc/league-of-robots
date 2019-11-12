@@ -88,10 +88,10 @@ regular_users:
     groups: ['depad']
   - user: 'solve-rd-dm'
     groups: ['solve-rd']
-    sudoers: ['%solve-rd']
+    sudoers: '%solve-rd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
-    sudoers: ['%umcg-atd']
+    sudoers: '%umcg-atd'
   - user: 'gvdvries'
     groups: ['users', 'depad','umcg-atd', 'solve-rd']
   - user: 'mbijlsma'

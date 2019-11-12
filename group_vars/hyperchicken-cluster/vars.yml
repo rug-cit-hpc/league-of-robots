@@ -92,10 +92,10 @@ regular_users:
     groups: ['depad']
   - user: 'solve-rd-dm'
     groups: ['solve-rd']
-    sudoers: ['%solve-rd']
+    sudoers: '%solve-rd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
-    sudoers: ['%umcg-atd']
+    sudoers: '%umcg-atd'
   - user: 'gvdvries'
     groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
   - user: 'mbijlsma'
@@ -108,10 +108,10 @@ regular_users:
     groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
   - user: 'umcg-atd-dm'
     groups: ['users', 'umcg-atd']
-    sudoers: ['pieter','gerben']
+    sudoers: 'pieter,gerben'
   - user: 'solve-rd-dm'
     groups: ['users', 'solve-rd']
-    sudoers: ['%solve-rd']
+    sudoers: '%solve-rd'
 pfs_mounts: [
   { pfs: 'ecst01',
     source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD/ecst01',
