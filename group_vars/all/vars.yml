@@ -196,6 +196,11 @@ auth_users:
     uid: 1033
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOeknUxTyEeYoTGyDTsRV8WnLMS7tbhy/9FamgmUj5V3 gmdemidov
+  amohan:
+    comment: 'Anand Mohan'
+    uid: 1034
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ695kAPGOCMN5lcvJ/VweC4ivM/g/g/0M+7buo0+pxB amohan
 
 #
 # Local group specs.
