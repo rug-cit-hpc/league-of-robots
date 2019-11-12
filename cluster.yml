@@ -123,6 +123,7 @@
     - spacewalk_client
     - logins
     - figlet_hostname
+    - build-environment
     - ldap
     - node_exporter
     - static-hostname-lookup
@@ -145,7 +146,6 @@
     - logins
     - figlet_hostname
     - mount-volume
-    - build-environment
     - ldap
     - node_exporter
     - static-hostname-lookup
