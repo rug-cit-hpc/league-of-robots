@@ -94,7 +94,7 @@ ssh-keygen -p -f ~/.ssh/id_ed25519
 ###### Get a terminal and key generator application
 
 Your OS does not come with a default terminal and key generator application, so you will need to download and install one. 
-There are many options all of which have their own pros and cons; we suggest you give [MobaXterm](https://mobaxterm.mobatek.net) a try 
+There are many options all of which have their own pros and cons; we suggest you give [MobaXterm](https://mobaxterm.mobatek.net) version >= 12.3 a try 
 as it features a key generator, terminal and graphical user interface for data transfers all-in-one.
 The following steps use the *portable* version of *MobaXterm Home Edition*, which is free and does not need to be installed with an installer;
 just download, unpack and execute.
