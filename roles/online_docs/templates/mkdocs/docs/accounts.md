@@ -91,34 +91,37 @@ ssh-keygen -p -f ~/.ssh/id_ed25519
 
 #### 2.B On Windows
 
-###### Get PuTTYgen
+###### Get a terminal and key generator application
 
-You can use the ```PuTTYgen``` application, which is distributed as part of the **PuTTY** suite and also bundled with **WinSCP**, to generate a key pair.
+Your OS does not come with a default terminal and key generator application, so you will need to download and install one. 
+There are many options all of which have their own pros and cons; we suggest you give [MobaXterm](https://mobaxterm.mobatek.net) version >= 12.3 a try 
+as it features a key generator, terminal and graphical user interface for data transfers all-in-one.
+The following steps use the *portable* version of *MobaXterm Home Edition*, which is free and does not need to be installed with an installer;
+just download, unpack and execute.
+If you want to use another terminal, key generator or data transfer app please consult their manuals...
 
- * Install [WinSCP](http://winscp.net/eng/download.php) if you only want to transfer data to/from the cluster via a graphical user interface.
- * Install [PuTTY](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) if you want to login via SSH to process data or if you want to transfer data via the commandline.
+ * 1: Launch MobaXterm and choose the ```MobaKeyGen (SSH key generator)``` from the tools as shown in the screenshot below.
 
-1. Launch PuTTYgen as shown in the screenshot below.
-![launch PuTTYgen](img/puttygen1.png)
+![launch MobaKeyGen](img/MobaXterm1.png)
 
 ###### Configure
 
-![Select key type](img/puttygen2.png)
+![Select key type](img/MobaXterm2.png)
 
  * 2: From the **parameters** section at the bottom of the window choose: ```Type of key to generate:``` **ED25519**
  * 3: Click the **Generate** button...
 
 ###### Generate key pair
 
-![Generate randomness and subsequently key pair](img/puttygen3.png)
+![Generate randomness and subsequently key pair](img/MobaXterm3.png)
 
- * 4: Yes you really have to move the mouse now: computers are pretty bad at generating random numbers and PuTTYgen uses the coordinates of your mouse movement as a seed to generate a random number.
+ * 4: Yes you really have to move the mouse now: computers are pretty bad at generating random numbers and MobaKeyGen uses the coordinates of your mouse movement as a seed to generate a random number.
 
 ###### Secure private key and save pair to disk
 
 Your key pair was generated.
 
-![Save keys](img/puttygen4.png)
+![Save keys](img/MobaXterm4.png)
 
 Now make sure you:
 
@@ -145,7 +148,7 @@ To request an account, [contact the helpdesk via email](../contact/) and
    On macOS you can press ```<Shift>+<Cmd>+<.>``` to toggle the visibility of hidden files in *Open...* and *Save...* dialog windows.
    Please use a search engine for a solution to display hidden files in other situations like Finder windows or on other platforms.
  * 3.B If on Windows:  
-   Paste the contents of the public key as displayed in PuTTYgen's *Public key for pasting into OpenSSH authorized_keys file* field in the email.
+   Paste the contents of the public key as displayed in MobaKeyGen's *Public key for pasting into OpenSSH authorized_keys file* field in the email.
  * Motivate your account request by specifying the project your are working on and by adding your collaborators on CC.
  * Never ever email/give anyone your private key! If you do, the key is no longer private and useless for security: trash the key pair and start over by generating a new pair.
  * If you ever suspect that your private key may have been compromised (laptop got stolen, computer got infected with a virus/trojan/malware, etc.): 

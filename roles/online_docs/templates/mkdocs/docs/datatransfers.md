@@ -65,7 +65,7 @@ This is known as _SSH agent forwarding_ and can be accomplished with the ```-A``
       This may happen when you were already logged in to the same server without the ```-A``` option in another active SSH session;
       make sure you logout from the server of the {{ slurm_cluster_name | capitalize }} HPC cluster in all terminals and try login with ```-A``` again.
       If that did not help, then the next step depends on the OS of the machine where you are running your SSH client and/or the SSH client itself.
-       * MacOS/Linux/Unix (and !MobaXterm on Windows): Use the ```ssh-add -l``` command on your _**client**_
+       * MacOS/Linux/Unix and MobaXterm on Windows: Use the ```ssh-add -l``` command on your _**client**_
          When you also get the message ```The agent has no identities.``` or ''Could not open a connection to your authentication agent'' on your SSH client, 
          you need to add your private key. If your private key is located in the default path (~/.ssh/id_ed25519) you can use the following command:
 

@@ -1,7 +1,7 @@
 #jinja2: trim_blocks:False
 # How to start a session and connect to a User Interface server
 
-## User Interface (UI) and jumphost servers
+## User Interface (UI) and Jumphost servers
 
 To submit jobs, check their status, test scripts, etc. you need to login on a _**User Interface (UI)**_ server using SSH.
 Each cluster has its own _**UI**_ and the one for the {{ slurm_cluster_name | capitalize }} HPC cluster is named _**{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_.
@@ -10,17 +10,17 @@ but as this disrupts the processing of jobs scheduled maintenance is planned onl
 
 Not applying updates for several months could become a serious security risk for machines that are directly accessible via the internet.
 Therefore the servers of the {{ slurm_cluster_name | capitalize }} cluster are on an internal network that is not directly accessible from the internet.
-In order to access the UI you will need to hop via a _**jumphost**_, 
+In order to access the UI you will need to hop via a _**Jumphost**_, 
 which is a security hardened machine that is not in any way involved in the processing of jobs nor in storing data and does receive daily (security) updates.
-In order to apply/activate security patches the jumphost may be temporarily unavailable, which means you cannot login to the _UI_ and hence cannot manage jobs nor create new ones, 
+In order to apply/activate security patches the _Jumphost_ may be temporarily unavailable, which means you cannot login to the _UI_ and hence cannot manage jobs nor create new ones, 
 but existing jobs (running or queued) won't be affected and the cluster will continue to process those.
-The _**jumphost**_ for the {{ slurm_cluster_name | capitalize }} HPC cluster is named _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}**_
+The _**Jumphost**_ for the {{ slurm_cluster_name | capitalize }} HPC cluster is named _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}**_
 
 ## Request an account
 
 First make sure you have an account. If you are new, please [follow these instructions to request an account](../accounts/).
 
-## SSH config and login to UI via jumphost for users on macOS, Linux or Unix
+## SSH config and login to UI via Jumphost for users on macOS, Linux or Unix
 
 The following assumes:
 
@@ -54,7 +54,7 @@ The following assumes:
         #
         mv "${HOME}/.ssh/known_hosts.new" "${HOME}/.ssh/known_hosts"
 
-##### 2. Configure transparent multi-hop SSH for logins via the jumphost
+##### 2. Configure transparent multi-hop SSH for logins via the Jumphost
 
  * Create a ```${HOME}/.ssh/tmp``` folder. Open a terminal and type the following command:
 
@@ -137,12 +137,12 @@ The following assumes:
         #             PasswordAuthentication No
         #             ProxyCommand ssh -X -q -i ${HOME}/.ssh/some_other_private_key_file youraccount@$(echo %h | sed 's/+[^+]*$//').some.sub.domain -W $(echo %h | sed 's/^[^+]*+//'):%p
         #
-        # Universal jumphost settings for triple-hop SSH.
+        # Universal Jumphost settings for triple-hop SSH.
         #
         Host *+*+*
             ProxyCommand ssh -X -q $(echo %h | sed 's/+[^+]*$//') -W $(echo %h | sed 's/^[^+]*+[^+]*+//'):%p
         #
-        # Double-hop proxy settings for jumphosts{% if slurm_cluster_domain | length %} in {{ slurm_cluster_domain }} domain{% endif %}.
+        # Double-hop proxy settings for Jumphosts{% if slurm_cluster_domain | length %} in {{ slurm_cluster_domain }} domain{% endif %}.
         #
         Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}+* {% endfor %}{% raw %}{% endraw %}
             PasswordAuthentication No
@@ -162,10 +162,10 @@ The following assumes:
 
         chmod -R go-rwx "${HOME}/.ssh"
 
-##### 3. Login via jumphost
+##### 3. Login via Jumphost
 
- * You can now login to the _UI_ named ```{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` with the account as specified in your ```${HOME}/.ssh/config```. 
-   via the _jumphost_ named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}``` 
+ * You can now login to the _UI_ named ```{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` with the account as specified in your ```${HOME}/.ssh/config``` 
+   via the _Jumphost_ named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}``` 
    using the alias ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```. 
    Type the following command in a terminal:
 
@@ -175,7 +175,7 @@ The following assumes:
 
         ssh some_other_account@{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
- * If you also added the ```Host *+*+*``` code block from the example ```${HOME}/.ssh/config``` you can do tripple hops starting with a jumphost like this:
+ * If you also added the ```Host *+*+*``` code block from the example ```${HOME}/.ssh/config``` you can do tripple hops starting with a _Jumphost_ like this:
 
         ssh jumphost+intermediate_server+destination_server
 
@@ -203,11 +203,11 @@ The following assumes:
       * or the permissions on your ```${HOME}/.ssh/``` dir and/or on its content are wrong  
       * or your account is misconfigured on our account server.  
      Firstly, check your account name, private key and permissions.  
-     Secondly, check if you can login to the jumphost with a single hop  
+     Secondly, check if you can login to the _Jumphost_ with a single hop  
 
         ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
-     If you can login to the jumphost, but cannot use double hop SSH to login to the UI via the jumphost,
+     If you can login to the _Jumphost_, but cannot use double hop SSH to login to the _UI_ via the _Jumphost_,
      you may have to add your private key to the SSH agent on you local machine. 
      To check which private key(s) are available to your SSH agent you can list them with on your local computer with:
 
@@ -235,63 +235,97 @@ The following assumes:
       3. A copy of your ```${HOME}/.ssh/config``` file.  
      **Never ever send us your private key**; It does not help to debug your connection problems, but will render the key useless as it is no longer private.
 
-## SSH config and login to UI via jumphost for users on Windows
+## SSH config and login to UI via Jumphost for users on Windows
 
-##### 1. Install PuTTY and Pageant
+The instructions below assume:
 
- * Download and install _**[PuTTY](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html)**_  
-   If you downloaded the standalone _PuTTY_ app as opposed to the whole _PuTTY_ suite, then make sure to also download the key manager _Pageant_.
+ * you've already downloaded _**[MobaXterm](https://mobaxterm.mobatek.net)**_ to generate a pair of SSH keys (using the instructions for requesting accounts)
+ * and will now use _**MobaXterm**_ to login to the cluster
+ * and that you received a notification that your account has been activated
+ * and that you are on the machine from which you want to connect to the cluster.
 
-##### 2. Load your private key in Pageant
+If you prefer another terminal application consult the corresponding manual.
 
- * Start _**Pageant**_
- * Load your private key into _**Pageant**_
+###### Launch MobaXterm and create a new session
 
-##### 3. Configure PuTTY for transparent multi-hop SSH for logins via the jumphost
+![launch MobaXterm](img/MobaXterm5.png)
 
- * Start _**Putty**_
- * Go to _**Connection**_ -> _**SSH**_ -> _**Auth**_ and select _**Allow agent forwarding**_
- * Go to _**Connection**_ -> _**SSH**_ -> _**Auth**_ -> _**Private key file for authentication**_ and add your private key.
- * Go to _**Connection**_ -> _**Data**_ and fill in your accountname in the _**auto-login username**_ option
+ * Launch _**MobaXterm**_ and click the _**Session**_ button from the top left of the window.
+ * A _**Session settings**_ window will popup.
 
-##### 4. Login via jumphost
+###### Configure a new session
 
-You can now connect to for example UI {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} 
-via jumphost {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} using a double hop like this:
+![Configure MobaXterm session](img/MobaXterm6.png)
 
-{% if public_ip_addresses is defined and public_ip_addresses | length %}{% for jumphost in groups['jumphost'] %}
- * In a _**Putty**_ configuration window supply the _hostname_ _**{{ public_ip_addresses[jumphost] }}**_, your **accountname** and
-{% endfor %}{% else %}
- * In a _**Putty**_ configuration window supply the _hostname_ _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_, your **accountname** and
-{% endif %}
- * Click the _**Connect**_ button...
- * Once the connection is established type the following command in a terminal:
+ * Session type
+    * 1: Select _**SSH**_.
+ * Basic SSH settings tab
+    * 2: _Remote host_ field: Use the name of the User Interface (UI) _**{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_ .
+    * 3: _Specify username_ field: Use your _**account name**_ as you received it by email from the helpdesk.
+ * Advanced SSH settings tab:
+    * 4: _Use private key_ field: Select the _**private key file**_ you generated previously.
 
-        ssh youraccount@{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+![Configure MobaXterm session](img/MobaXterm7.png)
 
-#### 5. Connecting to {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} via jumphost {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} using MobaXterm.
+ * Network settings tab
+    * 5: _Gateway SSH server_ field: Use the _Jumphost_ {% if public_ip_addresses is defined and public_ip_addresses | length %}IP address _**{{ public_ip_addresses[groups['jumphost'] | first] }}**_{% else %}address _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}**_{% endif %}.
+    * Optional: _Port_ field: The default port for SSH is 22 and this is usually fine. 
+      However if you encounter a network where port 22 is blocked, you can try port 80. (Normally used for HTTP, but our Jumposts can use it for SSH too.)
+    * 6: _User_ field: Use your _**account name**_ as you received it by email from the helpdesk (same as for 3).
+    * 7: _Use private key_ field: Select the _**private key file**_ you generated previously (same as for 4).
+    * 8: Click _**OK**_
 
-MobaXterm for windows is a great toolbox for remote computing. has It has a user friendly interface for supporting drag and drop file transfers directly into the virtual hpc cluster, 
-but also a UNIX terminal functionality to support basic commands (bash, grep, awk, sed, rsync, etc etc ) or SFTP support.
-MobaXterm makes it easy to connect to _**{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_ via a jumphost. 
+###### Password (popup)
 
-To set up a connection to {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}  in MobaXterm you do the following:
+![Configure MobaXterm session](img/MobaXterm8.png)
 
- * Download and install [MobaXterm](https://mobaxterm.mobatek.net/download.html)
- * create a new SSH, session
- * put _**{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_ in the "remote host" field
- * open the "advanced SSH settings" section and import your private key.
- * open the "Network settings" section
- * check "Connect through SSH gateway \(jump host\)"
-{% if public_ip_addresses is defined and public_ip_addresses | length %}{% for jumphost in groups['jumphost'] %}
-* fill-in _**{{ public_ip_addresses[jumphost] }}**_ in order to connect to _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_
-{% endfor %}{% else %}
- * fill-in _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_ in order to connect to _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_
-{% endif %}
- * This will silently create an encrypted SSH tunnel to _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_ and then use this tunnel in order to connect to _**{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_.
- * Use the 'browser or sftp' tab for the more windows drag and drop interface, or the 'Shell' tab to make se of a terminal interface.
- 
+ * MobaXterm should now produce a popup window where you can enter the _**password**_ to decrypt the private key.
+    * Note this is the password you chose yourself when you created the key pair.
+    * You are the only one that ever knew this password; we have no copy/backup whatsoever on the server side. 
+      If you forgot the password, the private key is useless and you will have to start over by creating a new key pair.
+
+###### Password again (prompt)
+
+![Configure MobaXterm session](img/MobaXterm9a.png)
+
+MobaXterm should now start a session and login to the _Jumphost_ resulting in
+
+ * a session tab (left part of the window with white background) and 
+ * a terminal where you can type commands (right part of the screen with black background).
+
+In the terminal tab _**MobaXterm**_ will try to login from the _Jumphost_ to the _User Interface (UI)_ with the same private key file. 
+This may require retyping the password to decrypt the private key a second time, this time in the terminal tab.
+
+###### Session established
+
+You have now logged in to the UI {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}.
+
+![Configure MobaXterm session](img/MobaXterm9b.png)
+
+The left part of the window with white background switched to a file browser, 
+while the right part remains a terminal where you can type commands.
+
+## Customize your environment
+
+Once logged in you can customize your environment by editing your ```${HOME}/.bashrc``` file.
+The first few lines that are already present should not be changed unless you want to break your environment,
+so please append your custom stuff at the bottom of this file. In case you did corrupt your ```${HOME}/.bashrc```, 
+you can get a fresh copy from the template located in ```/etc/skel/.bashrc```.
+
+#### Time Zone
+
+The cluster runs in the Coordinated Universal Time (or UTC) time zone, which is not adjusted for daylight saving time. 
+The latter could confuse software when switching from winter to summer time or back resulting in newer files having older time stamps.
+If you prefer to see time stamps in your local time zone, you can set your preferred time zone by configuring the TZ environment variable. 
+E.g. for the Netherlands:
+```
+export TZ=Europe/Amsterdam
+```
+If you add this command to your ```${HOME}/.bashrc``` file you can make it the default when you login.
+See the [list of time zones on WikiPedia](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for other countries.
 
 
 
-Fore more advanced information about MobaXterm please have a look at [these instructions to automate such a double hop on Windows](https://mobaxterm.mobatek.net/documentation.html#2_1_5)
+
+
+

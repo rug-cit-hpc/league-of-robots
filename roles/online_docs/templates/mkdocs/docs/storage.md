@@ -272,23 +272,13 @@ The report will show 11 columns:
 ```
 
 ## List of storage devices / mount points used on {{ slurm_cluster_name | capitalize }}
-
 | Path | Function | (Soft) Quota | (Hard) Limit | Backup | Cleanup | Mounted on UIs | Mounted on DAIs | Mounted on compute nodes |
 |:---- |:-------- | ----------:| ----------:|:------:|:-------:|:--------------:|:---------------:|:------------------------:|
-{% for mount in lfs_mounts | selectattr('lfs', 'match', '^home$') | list %}
-| /{{ mount.lfs }} | Home dirs from shard file system for personal settings/preferences. | 1 GB | 2 GB | Yes | No | Yes | Yes | Yes |
-{% endfor %}
-{% for mount in lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list %}
-| /{{ mount.lfs }} | High Availability shared file system for permanent data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
-{% endfor %}
-{% for mount in lfs_mounts | selectattr('lfs', 'search', 'arc[0-9]+$') | list %}
-| /{{ mount.lfs }} | High Availability shared file system for archived data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
-{% endfor %}
-{% for mount in lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list %}
-| {{ mount.lfs }} | High Performance shared file system for temporary data. | Several TBs; varies per group | quota + ~10% | No | Yes, when older than 45 days | Yes | No | Yes |
-{% endfor %}
-{% for mount in lfs_mounts | selectattr('lfs', 'search', 'scr[0-9]+$') | list %}
-| /{{ mount.lfs }} | High Performance local file system for temporary data. | Several TBs; varies per group | quota + ~10% | No | Yes, when older than 45 days | Yes | No | No |
+{% for mount in lfs_mounts | selectattr('lfs', 'match', '^home$') | list %}| /{{ mount.lfs }} | Home dirs from shard file system for personal settings/preferences. | 1 GB | 2 GB | Yes | No | Yes | Yes | Yes |
+{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list %}| /{{ mount.lfs }} | High Availability shared file system for permanent data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
+{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'arc[0-9]+$') | list %}| /{{ mount.lfs }} | High Availability shared file system for archived data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
+{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list %}| /{{ mount.lfs }} | High Performance shared file system for temporary data. | Several TBs; varies per group | quota + ~10% | No | Yes, when older than 45 days | Yes | No | Yes |
+{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'scr[0-9]+$') | list %}| /{{ mount.lfs }} | High Performance local file system for temporary data. | Several TBs; varies per group | quota + ~10% | No | Yes, when older than 45 days | Yes | No | No |
 {% endfor %}
 
 ## The life cycle of experimental data
