@@ -1,0 +1,41 @@
+---
+- name: Install iptables with yum.
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - 'iptables'
+      - 'iptables-services'
+  #notify: restart_iptables
+  become: true
+
+- name: List hostinfo.
+  debug:
+    msg: "allNetworkInterfaces: {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | map(attribute='value') | list }}"
+
+
+#- name: Flush iptables the first time playbook runs.
+#  command: >
+#    iptables -F
+#    creates=/etc/firewall.bash
+
+- name: Deploy firewall configuration script.
+  template:
+    src: 'configure-iptables-firewall.bash.j2'
+    dest: '/root/configure-iptables-firewall.bash'
+    owner: root
+    group: root
+    mode: 0740
+  #notify: restart_iptables
+  become: true
+
+#
+#- name: Configure the firewall service.
+#  service:
+#    name: firewall
+#    state: "{{ iptables_state }}"
+#    enabled: "{{ iptables_enabled }}"
+#
+#- import_tasks: disable-other-firewalls.yml
+#  when: iptables_disable_firewalld or iptables_disable_ufw
+...

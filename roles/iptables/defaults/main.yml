@@ -1,0 +1,22 @@
+---
+iptables_state: 'started'
+iptables_enabled: true
+
+iptables_internal_interfaces: []
+iptables_external_interfaces: []
+iptables_allow_any_port_inbound: []
+iptables_allow_any_port_outbound: []
+iptables_allow_ssh_inbound: []
+iptables_allow_ssh_outbound: []
+iptables_allow_ebi_mysql_outbound: []
+iptables_allow_ftp_outbound: []
+iptables_allow_aspera_outbound: []
+
+#ALLOW_ICMP_INBOUND
+#ALLOW_GLOBUS_OUTBOUND
+
+iptables_log_dropped_packets: true
+# Set to true to ensure other iptables management software is disabled.
+iptables_disable_firewalld: false
+iptables_disable_ufw: false
+...
