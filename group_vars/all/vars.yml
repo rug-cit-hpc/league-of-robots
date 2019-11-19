@@ -201,6 +201,11 @@ auth_users:
     uid: 1034
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ695kAPGOCMN5lcvJ/VweC4ivM/g/g/0M+7buo0+pxB amohan
+  cthomas:
+    comment: 'Coline Thomas'
+    uid: 1035
+    pub_keys: |
+              ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB3yUX1PNRfZT6GYMiwfVBhJJYlaQ3gEM+VuLZFalA0O cthomas
 
 #
 # Local group specs.

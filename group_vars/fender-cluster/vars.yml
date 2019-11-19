@@ -128,7 +128,8 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'amohan'
     groups: ['users', 'solve-rd']
-
+  - user: 'cthomas'
+    groups: ['users', 'solve-rd']
 pfs_mounts: [
   { pfs: 'ecst02',
     source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD/ecst02',
