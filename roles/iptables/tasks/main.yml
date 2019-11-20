@@ -1,41 +1,102 @@
+###############################################################################################################################################
+# Query tests
+#- name: 'List hostinfo 1.'
+#  debug:
+#    msg: "allNetworkInterfaces: {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | map(attribute='value.device') | list }}"
+#
+#- name: 'List hostinfo 2.'
+#  debug:
+#    msg: "allNetworkInterfaces: {{ ansible_facts | json_query(_query) }}"
+#  vars:
+#    _query: "*.ipv4.address"
+#
+#- name: 'List hostinfo 3.'
+#  debug:
+#    msg: "allNetworkInterfaces: {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | list }}"
+#
+#- name: 'List hostinfo 3.q'
+#  debug:
+#    msg: "allNetworkInterfaces: {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | list | json_query(_query) }}"
+#  vars:
+#    _query: '[].{Name: value.device, IPv4: value.ipv4, IPv6: value.ipv6, Type: value.type}'
+###############################################################################################################################################
+
+#
+# This role configures host-based firewalls using iptables.
+# We first create a list of IPv4 addresses used by a host and determine if these addresses are public or private.
+# Next we fetch the network interface names for the public and private addresses:
+#  * internal interfaces = those who use a private IPv4 address.
+#  * external interfaces = those who use a public IPv4 address.
+# Finally we configure the IPv4 firewall to:
+#  * allow anything over the loopback interface.
+#  * allow anything over internal interfaces.
+#  * disable anything by default except for specific services on specific ports to/from specific subnets.
+#    A subnet is specified with mask as [0-9].[0-9].[0-9].[0-9]/[0-9] and may contain one or more IP addresses.
+#    E.g. 111.111.111.111/32 is the single machine 111.111.111.111
+#    and 111.111.111.111/24 is the range from 111.111.111.1 up to and including 111.111.111.254.
+# Finally we configure the IPv6 firewall to:
+#  * allow anything over the loopback interface.
+#  * disable anything else over any other interface both internal and external.
+#
+
 ---
-- name: Install iptables with yum.
-  yum:
-    state: latest
-    update_cache: yes
-    name:
-      - 'iptables'
-      - 'iptables-services'
-  #notify: restart_iptables
-  become: true
+#- name: 'Install iptables with yum.'
+#  yum:
+#    state: latest
+#    update_cache: yes
+#    name:
+#      - 'iptables'
+#      - 'iptables-services'
+#  notify: restart_iptables
+#  become: true
+#
 
-- name: List hostinfo.
+- name: 'Create lists of private and of public IP addresses.'
+  set_fact:
+    private_ip_addresses: "{{ ansible_facts | dict2items | json_query('[*].value.ipv4.address') | map('ipaddr', 'private') | list | reject('==', None) | list }}"
+    public_ip_addresses: "{{ ansible_facts | dict2items | json_query('[*].value.ipv4.address') | map('ipaddr', 'public') | list | reject('==', None) | list }}"
+
+- name: 'List IP addressess.'
   debug:
-    msg: "allNetworkInterfaces: {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | map(attribute='value') | list }}"
+    msg: |
+         All private IP addresses: {{ private_ip_addresses }}.
+         All public IP addresses: {{ public_ip_addresses }}.
 
 
-#- name: Flush iptables the first time playbook runs.
-#  command: >
-#    iptables -F
-#    creates=/etc/firewall.bash
 
-- name: Deploy firewall configuration script.
+
+
+- name: 'Deploy firewall configuration script.'
   template:
     src: 'configure-iptables-firewall.bash.j2'
     dest: '/root/configure-iptables-firewall.bash'
     owner: root
     group: root
     mode: 0740
-  #notify: restart_iptables
+#  notify: configure_iptables
   become: true
 
 #
-#- name: Configure the firewall service.
+#- name: 'Configure the firewall service.'
 #  service:
-#    name: firewall
-#    state: "{{ iptables_state }}"
-#    enabled: "{{ iptables_enabled }}"
-#
+#    name: "{{ item }}"
+#    state: 'started'
+#    enabled: 'yes'
+#    daemon_reload: 'yes'
+#  with_items:
+#     - 'iptables'
+#     - 'ip6tables'
+#  become: true
+
 #- import_tasks: disable-other-firewalls.yml
 #  when: iptables_disable_firewalld or iptables_disable_ufw
 ...
+
+
+#	systemctl disable firewalld
+#	yum install iptables-services
+#	systemctl enable iptables
+#	systemctl enable ip6tables
+#	systemctl start iptables
+#	systemctl start ip6tables
+#	/root/firewall/firewall.sh
