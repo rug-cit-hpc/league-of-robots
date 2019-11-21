@@ -61,10 +61,22 @@
     msg: |
          All private IP addresses: {{ private_ip_addresses }}.
          All public IP addresses: {{ public_ip_addresses }}.
+         Is it a sequence: {{ public_ip_addresses is sequence }}.
 
+- name: 'List hostinfo 3.'
+  debug:
+    msg: "allNetworkInterfaces: {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | list }}"
 
+- name: 'Create lists of internal and external network interfaces.'
+  set_fact:
+    iptables_internal_interfaces: "{{ ansible_facts | dict2items | selectattr('value.ipv4.address', 'in', 'public_ip_addresses') | map(attribute='value.device') | list }}"
+    #iptables_external_interfaces: "{{ ansible_facts | dict2items | selectattr('value.ipv4.address', 'in', public_ip_addresses) | map(attribute='value.device') | list }}"
 
-
+- name: 'List network interfaces.'
+  debug:
+    msg: |
+         All internal interfaces: {{ iptables_internal_interfaces }}.
+         All external interfaces: {{ iptables_external_interfaces }}.
 
 - name: 'Deploy firewall configuration script.'
   template:
