@@ -206,6 +206,11 @@ auth_users:
     uid: 1035
     pub_keys: |
               ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB3yUX1PNRfZT6GYMiwfVBhJJYlaQ3gEM+VuLZFalA0O cthomas
+  kim:
+    comment: 'Kim de Lange'
+    uid: 1036
+    pub_keys: |
+              ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDy+Zqy5R62HACdm0JSgAJFMEtmZW+Nh0j1T8X+5pdH+yD2qewArBUKb/rSDEjGOLeG5u5voLpICrdOvN8KIFEHwvN1kNRKv7jTUTg0d+ldj4HfSjF90IWJe6s1BuacAXy91hGjh7Xz+ixSD99v8TnAemUE3qddj/YAArYZN3he42nUwj2EGExJwZ3pZy1QWhWsBaByBgQLZ8JJb79Q3bsxJw9ELUvMhn+HwTSp80LWX1BKbaASYHBvaO0zAq9HXTLuqGnM3lOomDUQv8olOwIjeHZ/YCKYumRMvAVu6vmCSNwa1nMzq7nTYhSyK/jmZ6tqtpekfDPI83Ju0/1iBL6iLuXXfl3/WTK/qTRJv9lBW4Fs8qV5Bh7/SUFe+TD5bblLiOI0GBGJ2IomHEUzd6lJimxBsVvF74gzz2gWGopBp2tx4ScQy2u3IRlUnclhSfltkmkNXwAY1oFWdyUVRZuTxj9jF03qTOhj+kbeNmqCB4zEJBEy+XkzXgPiZ6uybyDtMhS6ORgDi3Hgp48psCNHdtB3R4tZ+zhRtFn+jxbh87peimnMk6ui0SgkFpHP8cu7dVWRGqtjajxMzD8Ngpg1hjnztD8cjEqrTCx8/zHWuf5ZAfbeFu39x8oYCZTVRYUYlP+ulLKp+ePo9Akr+SivGSyTphn5BugtLKxtWsRB3Q== kdelange
 
 #
 # Local group specs.
