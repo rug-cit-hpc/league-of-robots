@@ -226,7 +226,7 @@ The minimal requirements for a group are as follows:
 * Other 'regular' group members:
     * Have read-only access to ```prm``` and ```arc``` file systems to check-out existing data sets.
     * Have read-write access to ```tmp``` and ```scr``` file systems to produce new results.
-    * Can request a data manager to review and migration a newly produced data set to ```prm``` or ```arc``` file systems.
+    * Can request a data manager to review and migrate a newly produced data set to ```prm``` or ```arc``` file systems.
 * A group has at least one owner and one data manager, but to prevent delays in processing membership request and data set reviews a group has preferably more than one owner and more than one data manager.
 
 ## Quota
