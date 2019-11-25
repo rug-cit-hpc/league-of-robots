@@ -23,12 +23,12 @@ set -u
 TARGET_SERVER='{{ ansible_hostname }}'
 declare -a INTERNAL_INTERFACES=(
 {% for internal_interface in internal_interfaces %}
-	'{{ internal_interface.device }}',	# {{ internal_interface.description }}
+	'{{ internal_interface }}'
 {% endfor %}
 )
 declare -a EXTERNAL_INTERFACES=(
 {% for external_interface in external_interfaces %}
-	'{{ external_interface.device }}',	# {{ external_interface.description }}
+	'{{ external_interface }}'
 {% endfor %}
 )
 
@@ -37,7 +37,20 @@ declare -a EXTERNAL_INTERFACES=(
 #
 LOOPBACK='127.0.0.0/8'
 
-
+declare -a ALLOW_SSH_INBOUND=(
+)
+declare -a ALLOW_SSH_OUTBOUND=(
+)
+declare -a ALLOW_ICMP_INBOUND=(
+)
+declare -a ALLOW_EBI_MYSQL_OUTBOUND=(
+)
+declare -a ALLOW_FTP_OUTBOUND=(
+)
+declare -a ALLOW_ASPERA_OUTBOUND=(
+)
+declare -a ALLOW_GLOBUS_OUTBOUND=(
+)
 
 #
 ##
@@ -57,7 +70,7 @@ SERVER_NAME="$(echo ${SERVER_NAME} | sed 's/-mgmt//')"
 # Check if we have a config valid for this server.
 #
 if [[ "${SERVER_NAME}" == "${TARGET_SERVER}" ]]; then
-	echo "INFO: Hostname check passed. Will configure firewall..."
+	echo "INFO: Hostname check passed. Will configure iptables firewall..."
 else
 	echo "ERROR: This config file is for \"${TARGET_SERVER}\", but this is \"${SERVER_NAME}\"."
 	echo 'FATAL: Cannot configure firewall on this server.'
@@ -69,6 +82,12 @@ fi
 ### Kernel tweaks.
 ##
 #
+
+############ ToDo #####################################
+# Kernel tweaks old and not yet migrated to new syntax.
+#
+echo '0' > /proc/sys/net/ipv4/ip_forward
+#######################################################
 
 #
 # Prevent SYNC-floods.
@@ -90,8 +109,8 @@ echo '0' > /proc/sys/net/ipv4/conf/all/forwarding
 echo '0' > /proc/sys/net/ipv6/conf/all/forwarding
 
 #
-# Disable logging of spoofed packets, source routed packets, and redirect packets
-# to prevent flooding the logs.
+# Disable logging of spoofed packets, source routed packets, 
+# and redirect packets to prevent flooding the logs.
 #
 echo '0' > /proc/sys/net/ipv4/conf/all/log_martians
 
@@ -239,20 +258,25 @@ iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 ############################################################################################################################3
 
 #
-# Allow operator/nagios.
-#
-iptables -A INPUT  -i ${INTERFACE_EXT} -p tcp  -s ${OPERATOR} -j ACCEPT
-iptables -A OUTPUT -o ${INTERFACE_EXT} -p tcp  -d ${OPERATOR} -j ACCEPT
-iptables -A INPUT  -i ${INTERFACE_EXT} -p udp  -s ${OPERATOR} -j ACCEPT
-iptables -A OUTPUT -o ${INTERFACE_EXT} -p udp  -d ${OPERATOR} -j ACCEPT
-iptables -A INPUT  -i ${INTERFACE_EXT} -p icmp -s ${OPERATOR} -j ACCEPT
-iptables -A OUTPUT -o ${INTERFACE_EXT} -p icmp -d ${OPERATOR} -j ACCEPT
-
-#
-# Allow outbound ICMP.
+# Allow all outbound ICMP.
+# Allow limited inbound ICMP:
+#    Type 0    Echo Reply   (a.k.a. pong) must be RELATED.
+#    Type 8    Echo Request (a.k.a. ping)
+#    Type 3    Destination Unreachable:
+#              Unable to deliver the datagram to the specified network, host, protocal, or port.
+#              Also sent if the datagram needs to be fragmented and the the Don't Fragment flag is on.
+#              Required for Path-MTU Discovery and to prevent a PMTU "black hole".
+#    Type 11   Time Exceeded:
+#              The Time To Live (TTL) for the datagram has been exceeded.
+#              Required for traceroute.
 #
 iptables -A OUTPUT -o ${INTERFACE_EXT} -p icmp -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 iptables -A INPUT  -i ${INTERFACE_EXT} -p icmp -m state --state ESTABLISHED,RELATED     -j ACCEPT
+for IP_ADDRESS in ${ALLOW_ICMP_INBOUND[@]}; do
+  iptables -A INPUT  -i ${INTERFACE_EXT} -p icmp --icmp-type 3  -s ${IP_ADDRESS} -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+  iptables -A INPUT  -i ${INTERFACE_EXT} -p icmp --icmp-type 8  -s ${IP_ADDRESS} -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+  iptables -A INPUT  -i ${INTERFACE_EXT} -p icmp --icmp-type 11 -s ${IP_ADDRESS} -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+done
 
 #
 # Allow outbound NTP.
@@ -356,15 +380,30 @@ iptables   -A INPUT  -i ${INTERFACE_EXT} -p tcp                  -m multiport --
 iptables   -A INPUT  -i ${INTERFACE_EXT} -p udp                  -m multiport --sports 33001:33100 -m state --state ESTABLISHED     -j ACCEPT
 
 #
-# Log incoming packets, but only from RUGNET, 
-# because we can act upon misbehaving clients from RUG, but not from elsewhere.
+# Allow Globus outbound.
 #
-iptables -A INPUT -i ${INTERFACE_EXT} -s 129.125.0.0/16 -j LOGDROP
+# Globus requires (most common configs) for "broker" service:
+#  * TCP port  2223        outbound for control channel with the Globus Transfer service and for obtaining certificates during initial setup.
+#                          Normally this will be the *.globus.org subnet.
+#  * UDP port 19302        outbound for connecting to STUN server when setting up a session with another Globus Connect Personal endpoint.
+#                          Normally this will be the stun.l.google.com Google STUN server.
+# For each endpoint:
+#  * TCP ports 50000-51000 outbound for data channel for transfers with Globus Connect Server endpoints.
+#  * UDP ports 32768-65535 outbound for data channel for transfers with other Globus Connect Personal endpoints.
+
+#
+iptables   -A OUTPUT -o ${INTERFACE_EXT} -p tcp -d ${GLOBUS_ORG_NET}          --dport 2223  -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables   -A OUTPUT -o ${INTERFACE_EXT} -p udp -d ${GOOGLE_STUN}             --dport 19302 -m state --state NEW,ESTABLISHED -j ACCEPT
+for IP_ADDRESS in ${ALLOW_GLOBUS_OUTBOUND[@]}; do
+  iptables -A OUTPUT -o ${INTERFACE_EXT} -p tcp -d ${IP_ADDRESS} -m multiport --dports 50000:51000 -m state --state NEW,ESTABLISHED -j ACCEPT
+  iptables -A OUTPUT -o ${INTERFACE_EXT} -p udp -d ${IP_ADDRESS} -m multiport --dports 32678:65535 -m state --state NEW,ESTABLISHED -j ACCEPT
+done
+
 
 #
 # (Re)start fail2ban, so it will (re)create a custom f2b-SSH iptables chain.
 #
-service fail2ban restart
+#service fail2ban restart
 
 #
 # List the rules:
@@ -387,5 +426,4 @@ ip6tables --list -n
 #
 service iptables save
 service ip6tables save
-
 

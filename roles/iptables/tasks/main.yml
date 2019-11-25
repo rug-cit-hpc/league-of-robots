@@ -47,36 +47,52 @@
 #    name:
 #      - 'iptables'
 #      - 'iptables-services'
+
+# ToDo: fail2ban
+
 #  notify: restart_iptables
 #  become: true
 #
+#
+#- name: 'Enable netfilter kernel module for FTP connection tracking.'
+#  lineinfile:
+#    path: '/etc/sysconfig/iptables-config'
+#    regexp: '^IPTABLES_MODULES='
+#    line: 'IPTABLES_MODULES="nf_conntrack_ftp"'
+#  notify:
+#    - restart_iptables
+#    - reconfigure_iptables
+#  become: true
 
 - name: 'Create lists of private and of public IP addresses.'
   set_fact:
-    private_ip_addresses: "{{ ansible_facts | dict2items | json_query('[*].value.ipv4.address') | map('ipaddr', 'private') | list | reject('==', None) | list }}"
-    public_ip_addresses: "{{ ansible_facts | dict2items | json_query('[*].value.ipv4.address') | map('ipaddr', 'public') | list | reject('==', None) | list }}"
-
-- name: 'List IP addressess.'
-  debug:
-    msg: |
-         All private IP addresses: {{ private_ip_addresses }}.
-         All public IP addresses: {{ public_ip_addresses }}.
-         Is it a sequence: {{ public_ip_addresses is sequence }}.
-
-- name: 'List hostinfo 3.'
-  debug:
-    msg: "allNetworkInterfaces: {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | list }}"
+    private_ip_addresses: "{{ ansible_facts | dict2items
+      | json_query('[*].value.ipv4.address')
+      | map('ipaddr', 'private') | list
+      | reject('==', None) | list }}"
+    public_ip_addresses: "{{ ansible_facts | dict2items
+      | json_query('[*].value.ipv4.address')
+      | map('ipaddr', 'public') | list
+      | reject('==', None) | list }}"
 
 - name: 'Create lists of internal and external network interfaces.'
   set_fact:
-    iptables_internal_interfaces: "{{ ansible_facts | dict2items | selectattr('value.ipv4.address', 'in', 'public_ip_addresses') | map(attribute='value.device') | list }}"
-    #iptables_external_interfaces: "{{ ansible_facts | dict2items | selectattr('value.ipv4.address', 'in', public_ip_addresses) | map(attribute='value.device') | list }}"
+    internal_interfaces: "{{ ansible_facts | dict2items
+      | selectattr('value.ipv4.address', 'defined')
+      | selectattr('value.ipv4.address', 'in', private_ip_addresses)
+      | map(attribute='value.device') | list }}"
+    external_interfaces: "{{ ansible_facts | dict2items
+      | selectattr('value.ipv4.address', 'defined')
+      | selectattr('value.ipv4.address', 'in', public_ip_addresses)
+      | map(attribute='value.device') | list }}"
 
-- name: 'List network interfaces.'
+- name: 'DEBUG: List discovered IP addressess and network interfaces.'
   debug:
     msg: |
-         All internal interfaces: {{ iptables_internal_interfaces }}.
-         All external interfaces: {{ iptables_external_interfaces }}.
+         Private IP addresses: {{ private_ip_addresses }}.
+         Public  IP addresses: {{ public_ip_addresses }}.
+         Internal interfaces:  {{ internal_interfaces }}.
+         External interfaces:  {{ external_interfaces }}.
 
 - name: 'Deploy firewall configuration script.'
   template:
@@ -85,7 +101,7 @@
     owner: root
     group: root
     mode: 0740
-#  notify: configure_iptables
+#  notify: reconfigure_iptables
   become: true
 
 #
@@ -98,6 +114,7 @@
 #  with_items:
 #     - 'iptables'
 #     - 'ip6tables'
+#  notify: reconfigure_iptables
 #  become: true
 
 #- import_tasks: disable-other-firewalls.yml
