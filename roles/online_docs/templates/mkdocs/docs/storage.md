@@ -216,17 +216,17 @@ The minimal requirements for a group are as follows:
 
 * Group leaders / PIs can request new groups. When the group is created they will be registered as the group owners.
 * Group owners are responsible for
-  * Processing (accepting or rejecting) requests for group membership.
-  * Securing funding and paying the bills.
-  * Appointing data managers for their group.
+    * Processing (accepting or rejecting) requests for group membership.
+    * Securing funding and paying the bills.
+    * Appointing data managers for their group.
 * Data managers are responsible for the group's data on ```prm``` and ```arc``` storage systems.
-  * They ensure the group makes arrangements what to store how and where. E.g file naming conventions, file formats to use, etc.
-  * They enforce the group's policy on what to store how and where by reviewing data sets produced by other group members on ```tmp``` or ```scr``` file systems before migrating/copying them to ```prm``` and ```arc```.
-  * They have read-write access to all file systems including ```prm``` and ```arc```.
+    * They ensure the group makes arrangements what to store how and where. E.g file naming conventions, file formats to use, etc.
+    * They enforce the group's policy on what to store how and where by reviewing data sets produced by other group members on ```tmp``` or ```scr``` file systems before migrating/copying them to ```prm``` and ```arc```.
+    * They have read-write access to all file systems including ```prm``` and ```arc```.
 * Other 'regular' group members:
-  * Have read-only access to ```prm``` and ```arc``` file systems to check-out existing data sets.
-  * Have read-write access to ```tmp``` and ```scr``` file systems to produce new results.
-  * Can request a data manager to review and migration a newly produced data set to ```prm``` or ```arc``` file systems.
+    * Have read-only access to ```prm``` and ```arc``` file systems to check-out existing data sets.
+    * Have read-write access to ```tmp``` and ```scr``` file systems to produce new results.
+    * Can request a data manager to review and migrate a newly produced data set to ```prm``` or ```arc``` file systems.
 * A group has at least one owner and one data manager, but to prevent delays in processing membership request and data set reviews a group has preferably more than one owner and more than one data manager.
 
 ## Quota
