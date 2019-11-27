@@ -1,7 +1,7 @@
 ---
 - name: Install EGA Fuse Layer
   yum:
-    state: present
+    state: latest
     name:
       - ega-fuse-client
   become: true
@@ -10,6 +10,8 @@
     path: /usr/local/fuse-layer
     state: directory
     mode: 0755
+    owner: root
+    group: root
   become: true
 
 - name: Install service files.
