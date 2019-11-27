@@ -34,20 +34,11 @@
     group: root
   become: true
 
-- name: install service files
-  command: systemctl daemon-reload
-  become: true
-
-- name: enable service at boot
+- name: Make sure fuse-layer service is enabled and started.
   systemd:
-    name: fuse-layer
-    enabled: yes
+    name: 'fuse-layer.service'
+    state: 'started'
+    enabled: 'yes'
+    daemon_reload: yes
   become: true
-
-- name: make sure services are started.
-  systemd:
-    name: fuse-layer.service
-    state: restarted
-  tags:
-      - start-service
-  become: true
+  notify: restart_fuser-layer
