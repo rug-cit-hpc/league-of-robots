@@ -1,29 +1,32 @@
 ---
+- name: Install EGA Fuse Layer
+  yum:
+    state: latest
+    name:
+      - ega-fuse-client
+  become: true
+  notify: restart_fuser-layer
+
 - file:
     path: /usr/local/fuse-layer
     state: directory
     mode: 0755
+    owner: root
+    group: root
   become: true
+  notify: restart_fuser-layer
 
 - name: Install service files.
   template:
-    src: templates/fuse-layer.service
-    dest: /etc/systemd/system/fuse-layer.service
+    src: templates/ega-fuse-client.service
+    dest: /etc/systemd/system/ega-fuse-client.service
     mode: 644
     owner: root
     group: root
   tags:
       - service-files
   become: true
-
-- name: Install fuse files.
-  template:
-    src: templates/fuse.sh
-    dest: /usr/local/fuse-layer/fuse.sh
-    mode: 644
-    owner: root
-    group: root
-  become: true
+  notify: restart_fuser-layer
 
 - name: Install config.ini  files.
   template:
@@ -33,21 +36,13 @@
     owner: root
     group: root
   become: true
+  notify: restart_fuser-layer
 
-- name: install service files
-  command: systemctl daemon-reload
-  become: true
-
-- name: enable service at boot
+- name: Make sure fuse-layer service is enabled and started.
   systemd:
-    name: fuse-layer
-    enabled: yes
+    name: 'fuse-layer.service'
+    state: 'started'
+    enabled: 'yes'
+    daemon_reload: yes
   become: true
-
-- name: make sure servcies are started.
-  systemd:
-    name: fuse-layer.service
-    state: restarted
-  tags:
-      - start-service
-  become: true
+  notify: restart_fuser-layer
