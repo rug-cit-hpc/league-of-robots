@@ -5,6 +5,7 @@
     name:
       - ega-fuse-client
   become: true
+  notify: restart_fuser-layer
 
 - file:
     path: /usr/local/fuse-layer
@@ -13,6 +14,7 @@
     owner: root
     group: root
   become: true
+  notify: restart_fuser-layer
 
 - name: Install service files.
   template:
@@ -24,6 +26,7 @@
   tags:
       - service-files
   become: true
+  notify: restart_fuser-layer
 
 - name: Install config.ini  files.
   template:
@@ -33,6 +36,7 @@
     owner: root
     group: root
   become: true
+  notify: restart_fuser-layer
 
 - name: Make sure fuse-layer service is enabled and started.
   systemd:
