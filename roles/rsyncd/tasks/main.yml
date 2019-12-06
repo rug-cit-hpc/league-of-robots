@@ -15,7 +15,7 @@
 
 - name: 'Install rsyncd config file with "modules" for /home and /groups.'
   template:
-    src: 'files/rsyncd.conf'
+    src: 'templates/rsyncd.conf'
     dest: '/etc/rsyncd.conf'
     owner: 'root'
     group: 'root'
