@@ -40,7 +40,7 @@
 
 - name: Make sure fuse-layer service is enabled and started.
   systemd:
-    name: 'fuse-layer.service'
+    name: 'ega-fuse-client.service'
     state: 'started'
     enabled: 'yes'
     daemon_reload: yes
