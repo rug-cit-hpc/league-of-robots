@@ -48,6 +48,15 @@
       - munge
   become: true
 
+- name: Install a logrotate file for slurm.
+  copy:
+    src: "files/logrotate_slurm"
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+    dest: '/etc/logrotate.d/slurm'
+  become: true
+
 - name: Install munge.key file.
   copy:
     src: "files/{{ slurm_cluster_name }}_munge.key"
