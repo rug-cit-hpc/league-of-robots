@@ -48,7 +48,7 @@
       - munge
   become: true
 
-- name: Install munge.key file.
+- name: Install a logrotate file for slurm.
   copy:
     src: "files/logrotate_slurm"
     owner: 'root'
