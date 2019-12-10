@@ -53,6 +53,7 @@ private_storage_net_id: net_provider_vlan3126
 private_storage_subnet_id: subnet3126
 security_group_id: SSH-and-ping-2
 slurm_ldap: true
+fuse_mountpoint: /groups/solve-rd/prm10/EGAD00001005352/
 availability_zone: AZ_1
 storage_availability_zone: nova
 local_volume_size: 1
