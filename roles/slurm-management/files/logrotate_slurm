@@ -14,6 +14,6 @@
            size=5M
            create 640 slurm root
            postrotate
-            /etc/init.d/slurm reconfig
-           endscript
+            systemctl reload slurmctld.service
+            systemctl reload slurmdbd.service
        }
