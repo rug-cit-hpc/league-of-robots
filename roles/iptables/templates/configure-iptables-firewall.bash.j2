@@ -83,6 +83,7 @@ fi
 ##
 #
 
+
 ############ ToDo #####################################
 # Kernel tweaks old and not yet migrated to new syntax.
 #
@@ -399,7 +400,6 @@ for IP_ADDRESS in ${ALLOW_GLOBUS_OUTBOUND[@]}; do
   iptables -A OUTPUT -o ${INTERFACE_EXT} -p udp -d ${IP_ADDRESS} -m multiport --dports 32678:65535 -m state --state NEW,ESTABLISHED -j ACCEPT
 done
 
-
 #
 # (Re)start fail2ban, so it will (re)create a custom f2b-SSH iptables chain.
 #
@@ -426,4 +426,3 @@ ip6tables --list -n
 #
 service iptables save
 service ip6tables save
-

@@ -47,13 +47,10 @@
 #    name:
 #      - 'iptables'
 #      - 'iptables-services'
-
-# ToDo: fail2ban
-
+#      #### ToDo: fail2ban
 #  notify: restart_iptables
 #  become: true
-#
-#
+
 #- name: 'Enable netfilter kernel module for FTP connection tracking.'
 #  lineinfile:
 #    path: '/etc/sysconfig/iptables-config'
