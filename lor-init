@@ -4,12 +4,12 @@
 # for which the config is stored in the repo containing this script.
 #
 # This script assumes there is for each CLUSTERNAME a corresponding:
-#  1. ./group_vars/CLUSTERNAME-cluster/   Ansible group variables and secrets encrypted with Ansible vault.
-#  2. ./CLUSTERNAME_hosts.ini             Ansible inventory file in the root of this repo.
-#  3. ./.vault_pass.txt.CLUSTERNAME       Ansible vault password file in the root of this repo.
+#  1. ./group_vars/CLUSTERNAME-cluster/      Ansible group variables and secrets encrypted with Ansible vault.
+#  2. ./CLUSTERNAME_hosts.ini                Ansible inventory file in the root of this repo.
+#  3. ./.vault/vault_pass.txt.CLUSTERNAME    Ansible vault password file in the root of this repo.
 #
 # Once this code was sourced (not executed!) like this:
-#     $> . .lorrc
+#     $> . ./lor-init
 # You can call the lor-config function for a specific cluster. E.g.:
 #     $> lor-config talos
 #
@@ -39,7 +39,8 @@ function lor-config() {
 	declare -a required_paths=(
 		"${LOR_DIR}/group_vars/${cluster}-cluster/"
 		"${LOR_DIR}/${cluster}_hosts.ini"
-		"${LOR_DIR}/.vault_pass.txt.${cluster}"
+		"${LOR_DIR}/.vault/vault_pass.txt.${cluster}"
+		"${LOR_DIR}/.vault/vault_pass.txt.all"
 	)
 	for required_path in "${required_paths[@]}"; do
 		if [[ ! -e "${required_path}" ]]; then
@@ -57,10 +58,10 @@ function lor-config() {
 	cd ${LOR_DIR}
 	export AI_INVENTORY="${cluster}_hosts.ini"
 	export AI_PROXY="${jumphost}"
-	export ANSIBLE_VAULT_PASSWORD_FILE=".vault_pass.txt.${cluster}"
+	export ANSIBLE_VAULT_IDENTITY_LIST="all@.vault/vault_pass.txt.all, ${cluster}@.vault/vault_pass.txt.${cluster}"
 	export ANSIBLE_TRANSFORM_INVALID_GROUP_CHARS=ignore
 	printf '%s\n' "Current working directory is $(pwd)"
 	printf '%s\n' "Using AI_PROXY:                    ${AI_PROXY}"
 	printf '%s\n' "Using AI_INVENTORY:                ${AI_INVENTORY}"
-	printf '%s\n' "Using ANSIBLE_VAULT_PASSWORD_FILE: ${ANSIBLE_VAULT_PASSWORD_FILE}"
+	printf '%s\n' "Using ANSIBLE_VAULT_IDENTITY_LIST: ${ANSIBLE_VAULT_IDENTITY_LIST}"
 }

@@ -1,0 +1,36 @@
+---
+#
+# ICMP (only inbound; outbound ICMP is allowed without restrictions).
+# 
+iptables_allow_icmp_inbound: []
+#
+# SSH.
+#
+iptables_allow_ssh_inbound: []
+iptables_allow_ssh_outbound: []
+#
+# Public MySQL databases @ EBI (only outbound).
+#
+iptables_allow_ebi_mysql_outbound: []
+#
+# FTP (only outbound).
+#
+iptables_allow_ftp_outbound: []
+#
+# Aspera (only outbound). 
+#
+iptables_allow_aspera_outbound: []
+#
+# Globus ToolKit (only outbound).
+#
+iptables_allow_globus_outbound: []
+#
+# Log dropped packets only for debugging to prevent flooding logs!
+#
+iptables_log_dropped_packets: false
+#
+# Set to true to ensure other iptables management software is disabled.
+#
+iptables_disable_firewalld: false
+iptables_disable_ufw: false
+...

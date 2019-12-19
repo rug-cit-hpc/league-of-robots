@@ -76,6 +76,8 @@
       - curl
       - dos2unix
       - figlet
+      - fuse
+      - fuse-libs
       - git
       - git-core
       - gnutls
@@ -85,6 +87,7 @@
       - ncurses-static
       - openssl
       - readline-static
+      - rsync
       - screen
       - tcl-devel
       - telnet
@@ -93,8 +96,6 @@
       - unzip
       - vim
       - wget
-      - fuse
-      - fuse-libs
   tags:
     - software
   become: true
