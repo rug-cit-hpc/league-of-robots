@@ -22,6 +22,7 @@ import subprocess
 import sys
 import yaml
 
+
 class UserKeys(object):
     """
     Class holding information about a user and her/his keys.
@@ -78,7 +79,7 @@ class UserKeys(object):
     def is_rsync_only(self):
         """
         It would be best if users get minimal privileges and only receive "full" shell access
-        if they have certain attributes. This currently does not work, so we have to do it 
+        if they have certain attributes. This currently does not work, so we have to do it
         the other way around: limit users to rsync-only if they have certain attributes.
 
         Returns:
@@ -163,7 +164,7 @@ class UserKeys(object):
         """
         if self.keys != '':
             return "\n".join(['restrict,command="/bin/rsync --server --daemon --config=/etc/rsyncd.conf ." {0}'.format(line)
-                for line in self.keys.split('\n')])
+                              for line in self.keys.split('\n')])
         else:
             return ''
 
