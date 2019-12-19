@@ -37,19 +37,40 @@ declare -a EXTERNAL_INTERFACES=(
 #
 LOOPBACK='127.0.0.0/8'
 
+declare -a ALLOW_ICMP_INBOUND=(
+{% for ip in iptables_allow_icmp_inbound %}
+	'{{ ip.addr }}'	# {{ ip.desc }}
+{% endfor %}
+)
 declare -a ALLOW_SSH_INBOUND=(
+{% for ip in iptables_allow_ssh_inbound %}
+	'{{ ip.addr }}'	# {{ ip.desc }}
+{% endfor %}
 )
 declare -a ALLOW_SSH_OUTBOUND=(
-)
-declare -a ALLOW_ICMP_INBOUND=(
+{% for ip in iptables_allow_ssh_outbound %}
+	'{{ ip.addr }}'	# {{ ip.desc }}
+{% endfor %}
 )
 declare -a ALLOW_EBI_MYSQL_OUTBOUND=(
+{% for ip in iptables_allow_ebi_mysql_outbound %}
+	'{{ ip.addr }}'	# {{ ip.desc }}
+{% endfor %}
 )
 declare -a ALLOW_FTP_OUTBOUND=(
+{% for ip in iptables_allow_ftp_outbound %}
+	'{{ ip.addr }}'	# {{ ip.desc }}
+{% endfor %}
 )
 declare -a ALLOW_ASPERA_OUTBOUND=(
+{% for ip in iptables_allow_aspera_outbound %}
+	'{{ ip.addr }}'	# {{ ip.desc }}
+{% endfor %}
 )
 declare -a ALLOW_GLOBUS_OUTBOUND=(
+{% for ip in iptables_allow_globus_outbound %}
+	'{{ ip.addr }}'	# {{ ip.desc }}
+{% endfor %}
 )
 
 #
@@ -229,28 +250,9 @@ iptables -t nat -I PREROUTING -p udp --dport {{ forwarded_port.src }} -j REDIREC
 iptables -t nat -I OUTPUT -p udp -o lo --dport {{ forwarded_port.src }} -j REDIRECT --to-port {{ forwarded_port.dest }}
 {% endfor %}
 
-# Open ports.
-{# Add a rule for each open port #}
-{% for port in iptables_allowed_tcp_ports %}
-iptables -A INPUT -p tcp -m tcp --dport {{ port }} -j ACCEPT
-{% endfor %}
-{% for port in iptables_allowed_udp_ports %}
-iptables -A INPUT -p udp -m udp --dport {{ port }} -j ACCEPT
-{% endfor %}
-
-# Accept icmp ping requests.
-iptables -A INPUT -p icmp -j ACCEPT
-
-# Allow NTP traffic for time synchronization.
-iptables -A OUTPUT -p udp --dport 123 -j ACCEPT
-iptables -A INPUT -p udp --sport 123 -j ACCEPT
-
-# Additional custom rules.
-{% for rule in iptables_additional_rules %}
-{{ rule }}
-{% endfor %}
-
+#
 # Allow established connections:
+#
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
 
@@ -392,7 +394,7 @@ iptables   -A INPUT  -i ${INTERFACE_EXT} -p udp                  -m multiport --
 #  * TCP ports 50000-51000 outbound for data channel for transfers with Globus Connect Server endpoints.
 #  * UDP ports 32768-65535 outbound for data channel for transfers with other Globus Connect Personal endpoints.
 
-#
+# ToDo: GLOBUS_ORG_NET and GOOGLE_STUN
 iptables   -A OUTPUT -o ${INTERFACE_EXT} -p tcp -d ${GLOBUS_ORG_NET}          --dport 2223  -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables   -A OUTPUT -o ${INTERFACE_EXT} -p udp -d ${GOOGLE_STUN}             --dport 19302 -m state --state NEW,ESTABLISHED -j ACCEPT
 for IP_ADDRESS in ${ALLOW_GLOBUS_OUTBOUND[@]}; do

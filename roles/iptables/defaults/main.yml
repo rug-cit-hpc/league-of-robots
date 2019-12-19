@@ -4,11 +4,6 @@
 # 
 iptables_allow_icmp_inbound: []
 #
-# Any.
-#
-iptables_allow_any_port_inbound: []
-iptables_allow_any_port_outbound: []
-#
 # SSH.
 #
 iptables_allow_ssh_inbound: []
@@ -39,6 +34,3 @@ iptables_log_dropped_packets: false
 iptables_disable_firewalld: false
 iptables_disable_ufw: false
 ...
-
-
-
