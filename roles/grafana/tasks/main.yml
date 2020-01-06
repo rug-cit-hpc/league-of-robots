@@ -1,0 +1,36 @@
+---
+- name: Create directories for grafana.
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: '65534'
+  with_items:
+    - '/srv/grafana/lib'
+  notify:
+    - restart_grafana
+  become: true
+
+- name: Install service files.
+  template:
+    src: 'templates/grafana.service'
+    dest: '/etc/systemd/system/grafana.service'
+    mode: 0644
+    owner: root
+    group: root
+  tags:
+    - service-files
+  notify:
+    - restart_grafana
+  become: true
+
+- name: Make sure grafana service is started and enabled on (re)boot.
+  systemd:
+    name: grafana.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  tags:
+    - start-service
+  become: true
+...
