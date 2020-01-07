@@ -196,7 +196,7 @@ Both Grafana and Prometheus server will run inside Docker containers on this VM.
 | FileSystem Quota reporting                           | quota.bash <br/> https://github.com/molgenis/cluster-utils         | DAI                                         | GCC |
 | SLURM cluster usage reporting                        | slurm_report.bash <br/> https://github.com/molgenis/cluster-utils  | DAI                                         | GCC |
 | Account expiration and group memberships             | COmanage                                                           | SURF SCZ COmanage                           | GCC |
-| SLURM Job Profiling                                  | SLURM plugin & grafana                                             | SAI/DAI?                                    | GCC |
+| SLURM Job Profiling                                  | SLURM plugin & grafana                                             | SAI/DAI                                     | GCC |
 
 #### DNS
 
