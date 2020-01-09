@@ -65,9 +65,10 @@ LogLevel VERBOSE
 #    * Fetch public keys from LDAP
 #    * Disable local keys stored in ~/.ssh/ folders except for local admin accounts.
 #
+AuthenticationMethods "publickey,password" "publickey,keyboard-interactive"
 UsePAM yes
 PermitRootLogin no
-PasswordAuthentication no
+PasswordAuthentication yes
 PermitEmptyPasswords no
 ChallengeResponseAuthentication no
 GSSAPIAuthentication no
