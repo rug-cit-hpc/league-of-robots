@@ -1,0 +1,5 @@
+---
+- hosts: slurm-management
+  roles:
+     - grafana
+...
