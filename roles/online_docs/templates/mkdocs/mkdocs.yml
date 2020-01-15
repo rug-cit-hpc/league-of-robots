@@ -18,4 +18,7 @@ nav:
     - 'Data transfers - How to move data to / from {{ slurm_cluster_name | capitalize }}': 'datatransfers.md'
     - 'Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}': 'analysis.md'
     - 'Technical specifications - Details of the {{ slurm_cluster_name | capitalize }} HPC environment': 'specifications.md'
+{% if 'hyperchicken' in slurm_cluster_name or 'fender' in slurm_cluster_name %}
+    - 'Solve-RD - Where and how to use the Solve-RD dataset.': 'solve-rd.md'
+{% endif %}
 #    - 'Support - FAQs, mailinglists & courses': 'support.md'
