@@ -1,5 +1,8 @@
 Port 22
-{% if inventory_hostname in groups['jumphost'] %}Port 80{% endif %}
+{% if inventory_hostname in groups['jumphost'] %}
+Port 80
+{% endif %}
+
 UseDNS no
 
 #
