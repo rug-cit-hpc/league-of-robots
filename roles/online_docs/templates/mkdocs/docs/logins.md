@@ -153,7 +153,7 @@ The following assumes:
         #
         Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}80+* {% endfor %}{% raw %}{% endraw %}
             PasswordAuthentication No
-            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+80[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 80
+            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/80+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 80
     Replace all occurences of _**youraccount**_ with the account name you received from the helpdesk.  
     If you are **not on a Mac or on a very old Mac** your OpenSSH client may not understand the ```IgnoreUnknown``` configuration option and you may have to comment/disable the  
     ```# Generic stuff: only for macOS clients``` section listed at the top of the example ```${HOME}/.ssh/config```.
