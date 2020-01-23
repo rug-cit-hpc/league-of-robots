@@ -73,8 +73,6 @@ local_admin_users:
   - 'morris'
   - 'pieter'
   - 'wim'
-  - 'umcg-atd-dm'
-  - 'solve-rd-dm'
   - 'gerben'
 envsync_user: 'envsync'
 envsync_group: 'depad'
@@ -93,6 +91,9 @@ regular_users:
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
+  - user: 'solve-rd-ateambot'
+    groups: ['solve-rd']
+    sudoers: '%solve-rd'
   - user: 'gvdvries'
     groups: ['users', 'depad','umcg-atd', 'solve-rd']
   - user: 'mbijlsma'
@@ -132,6 +133,8 @@ regular_users:
   - user: 'cthomas'
     groups: ['users', 'solve-rd']
   - user: 'mbenjamins'
+    groups: ['users', 'solve-rd']
+  - user: 'gbullich'
     groups: ['users', 'solve-rd']
 pfs_mounts: [
   { pfs: 'ecst02',
