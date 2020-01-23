@@ -148,12 +148,12 @@ The following assumes:
             PasswordAuthentication No
             ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p
         #
-        # Sometimes port 22 for the SSH protocol is blocked by firewalls; in that case you can try to use SSH on port 80 as fall-back.
-        # Do not use port 80 by default for SSH as it officially assigned to HTTP traffic and some firewalls will cause problems when trying to route SSH over port 80.
+        # Sometimes port 22 for the SSH protocol is blocked by firewalls; in that case you can try to use SSH on port 443 as fall-back.
+        # Do not use port 443 by default for SSH as it officially assigned to HTTPS traffic and some firewalls will cause problems when trying to route SSH over port 443.
         #
-        Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}80+* {% endfor %}{% raw %}{% endraw %}
+        Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}443+* {% endfor %}{% raw %}{% endraw %}
             PasswordAuthentication No
-            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 80
+            ProxyCommand ssh -X -q youraccount@$(echo %h | sed 's/443+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 443
     Replace all occurences of _**youraccount**_ with the account name you received from the helpdesk.  
     If you are **not on a Mac or on a very old Mac** your OpenSSH client may not understand the ```IgnoreUnknown``` configuration option and you may have to comment/disable the  
     ```# Generic stuff: only for macOS clients``` section listed at the top of the example ```${HOME}/.ssh/config```.
@@ -179,9 +179,9 @@ The following assumes:
 
         ssh jumphost+intermediate_server+destination_server
 
- * In case you are on a network where the default port for _SSH_ (22) is blocked by a firewall you can try to setup _SSH_ over port 80, which is the default for HTTP and almost always allowed, using an alias like this:
+ * In case you are on a network where the default port for _SSH_ (22) is blocked by a firewall you can try to setup _SSH_ over port 443, which is the default for HTTPS and almost always allowed, using an alias like this:
 
-        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}80+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}443+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
 #### Frequent Asked Questions (FAQs) and trouble shooting
 
@@ -270,7 +270,7 @@ If you prefer another terminal application consult the corresponding manual.
  * Network settings tab
     * 5: _Gateway SSH server_ field: Use the _Jumphost_ {% if public_ip_addresses is defined and public_ip_addresses | length %}IP address _**{{ public_ip_addresses[groups['jumphost'] | first] }}**_{% else %}address _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}**_{% endif %}.
     * Optional: _Port_ field: The default port for SSH is 22 and this is usually fine. 
-      However if you encounter a network where port 22 is blocked, you can try port 80. (Normally used for HTTP, but our Jumposts can use it for SSH too.)
+      However if you encounter a network where port 22 is blocked, you can try port 443. (Normally used for HTTPS, but our Jumposts can use it for SSH too.)
     * 6: _User_ field: Use your _**account name**_ as you received it by email from the helpdesk (same as for 3).
     * 7: _Use private key_ field: Select the _**private key file**_ you generated previously (same as for 4).
     * 8: Click _**OK**_
