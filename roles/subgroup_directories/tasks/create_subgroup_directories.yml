@@ -1,17 +1,17 @@
 ---
 - name: 'Get group directories form the ldap cache.'
   shell: |
-    ldapsearch -LLL -D 'cn=clusteradminumcg,o=asds' -w 'xie8hieRae.z4Le1' -b 'ou=umcg,o=asds' -H 'ldap://172.23.40.249' "(ObjectClass=GroupofNames)" dn | tr "=," "\n" | fgrep "{{ group }}" | grep -e "^{{ group }}$" || true
+    ldapsearch -LLL -D '{{ ldap_binddn }}' -w '{{ bindpw }}' -b '{{ ldap_base }}' -H 'ldap://{{ uri_ldap }}' "(ObjectClass=GroupofNames)" dn | tr "=," "\n" | fgrep "{{ group }}" | grep -e "^{{ group }}$" || true
   register: group_directories
 
 - name: 'Get subgroup directories with version number form the ldap cache.'
   shell: |
-    ldapsearch -LLL -D 'cn=clusteradminumcg,o=asds' -w 'xie8hieRae.z4Le1' -b 'ou=umcg,o=asds' -H 'ldap://172.23.40.249' "(ObjectClass=GroupofNames)" dn | tr "=," "\n" | fgrep "{{ group }}" | grep -v "^{{ group }}$" | grep -- "-v[0-9][0-9]*$" || true
+    ldapsearch -LLL -D '{{ ldap_binddn }}' -w '{{ bindpw }}' -b '{{ ldap_base }}' -H 'ldap://{{ uri_ldap }}' "(ObjectClass=GroupofNames)" dn | tr "=," "\n" | fgrep "{{ group }}" | grep -v "^{{ group }}$" | grep -- "-v[0-9][0-9]*$" || true
   register: subgroup_directories_version
 
 - name: 'Get subgroup directories without version number form the ldap cache.'
   shell: |
-    ldapsearch -LLL -D 'cn=clusteradminumcg,o=asds' -w 'xie8hieRae.z4Le1' -b 'ou=umcg,o=asds' -H 'ldap://172.23.40.249' "(ObjectClass=GroupofNames)" dn | tr "=," "\n" | fgrep "{{ group }}" | grep -v "^{{ group }}$" | grep -v -- "-v[0-9][0-9]*$"|| true
+    ldapsearch -LLL -D '{{ ldap_binddn }}' -w '{{ bindpw }}' -b '{{ ldap_base }}' -H 'ldap://{{ uri_ldap }}' "(ObjectClass=GroupofNames)" dn | tr "=," "\n" | fgrep "{{ group }}" | grep -v "^{{ group }}$" | grep -v -- "-v[0-9][0-9]*$"|| true
   register: subgroup_directories
 
 - name: 'Create list of subgroup_directories without version'
