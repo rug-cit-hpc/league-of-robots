@@ -1,0 +1,26 @@
+---
+- name: "loop over file systems"
+  include_tasks:
+    file: "{{ playbook_dir }}/roles/subgroup_directories/tasks/test.yml"
+  vars:
+    lfs: "{{ item.0.lfs | regex_replace('^(.*)prm(.*)$', 'prm\\2')}}"
+    pfs: "{{ item.0.pfs }}"
+    group: "{{ item.1 }}"
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in groups['sys-admin-interface']
+
+- name: "loop over file systems"
+  include_tasks:
+    file: "{{ playbook_dir }}/roles/subgroup_directories/tasks/test.yml"
+  vars:
+    lfs: "{{ item.0.lfs | regex_replace('^(.*)tmp(.*)$', 'tmp\\2')}}"
+    pfs: "{{ item.0.pfs }}"
+    group: "{{ item.1 }}"
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in groups['sys-admin-interface']
+
+...

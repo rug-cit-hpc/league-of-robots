@@ -1,0 +1,4 @@
+{{ subgroup_directories.stdout }}
+
+{{ subdirectories }}
+
