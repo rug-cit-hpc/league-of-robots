@@ -1,0 +1,78 @@
+---
+- name: 'Get group directories form the ldap cache.'
+  shell: |
+    ldapsearch -LLL -D 'cn=clusteradminumcg,o=asds' -w 'xie8hieRae.z4Le1' -b 'ou=umcg,o=asds' -H 'ldap://172.23.40.249' "(ObjectClass=GroupofNames)" dn | tr "=," "\n" | fgrep "{{ group }}" | grep -e "^{{ group }}$" || true
+  register: group_directories
+
+- name: 'Get subgroup directories with version number form the ldap cache.'
+  shell: |
+    ldapsearch -LLL -D 'cn=clusteradminumcg,o=asds' -w 'xie8hieRae.z4Le1' -b 'ou=umcg,o=asds' -H 'ldap://172.23.40.249' "(ObjectClass=GroupofNames)" dn | tr "=," "\n" | fgrep "{{ group }}" | grep -v "^{{ group }}$" | grep -- "-v[0-9][0-9]*$" || true
+  register: subgroup_directories_version
+
+- name: 'Get subgroup directories without version number form the ldap cache.'
+  shell: |
+    ldapsearch -LLL -D 'cn=clusteradminumcg,o=asds' -w 'xie8hieRae.z4Le1' -b 'ou=umcg,o=asds' -H 'ldap://172.23.40.249' "(ObjectClass=GroupofNames)" dn | tr "=," "\n" | fgrep "{{ group }}" | grep -v "^{{ group }}$" | grep -v -- "-v[0-9][0-9]*$"|| true
+  register: subgroup_directories
+
+- name: 'Create list of subgroup_directories without version'
+  set_fact:
+    subgroup_directories_split: "{{ subgroup_directories.stdout.split('\n') | list }}"
+  
+- name: 'Create list of subgroup_directories with version'
+  set_fact:
+    subgroup_directories_version_split: "{{ subgroup_directories_version.stdout.split('\n') | list }}"
+
+- name: 'Create "[tmp0*|prm0*]/projects" directory'
+  file:
+    path: "/mnt/{{ pfs }}/groups/{{ group }}/{{ lfs }}/projects/"
+    owner: "{{ group }}-dm"
+    group: "{{ group }}"
+    mode: "{{ mode_project }}"
+    state: 'directory'
+  when: inventory_hostname in groups['sys-admin-interface']
+  become: true
+
+- name: 'Create "[tmp0*|prm0*]/releases" directory '
+  file:
+    path: "/mnt/{{ pfs }}/groups/{{ group }}/{{ lfs }}/releases/"
+    owner: "{{ group }}-dm"
+    group: "{{ group }}"
+    mode: "{{ mode_dataset }}"
+    state: 'directory'
+  when: inventory_hostname in groups['sys-admin-interface']
+  become: true
+
+- name: 'Create "prm08/releases/dataset" directory structure for subgroups with version number'
+  file:
+    path: "/mnt/{{ pfs }}/groups/{{ group }}/{{ lfs }}/releases/{{ item | regex_replace('^' + group + '-(.*)-(v[0-9][0-9]*)$', '\\1') }}"
+    owner: "{{ group }}-dm"
+    group: "{{ group }}"
+    mode: "{{ mode_dataset }}"
+    state: 'directory'
+  with_items: "{{ subgroup_directories_version_split }}"
+  when: inventory_hostname in groups['sys-admin-interface']
+  become: true
+
+- name: 'Create "prm08/releases/dataset/version" directory structure for subgroups with version number'
+  file:
+    path: "/mnt/{{ pfs }}/groups/{{ group }}/{{ lfs }}/releases/{{ item | regex_replace('^' + group + '-(.*)-(v[0-9][0-9]*)$', '\\1') }}/{{ item | regex_replace('^' + group + '-(.*)-(v[0-9][0-9]*)$', '\\2') }}"
+    owner: "{{ group }}-dm"
+    group: "{% if item | length %}{{ item }}{% else %}{{ group }}{% endif %}"
+    mode: "{{  mode_version }}"
+    state: 'directory'
+  with_items: "{{ subgroup_directories_version_split }}"
+  when: inventory_hostname in groups['sys-admin-interface']
+  become: true
+
+- name: 'Create "[tmp0*|prm0*]/projects/" directory structure for subgroups without version number'
+  file:
+    path: "/mnt/{{ pfs }}/groups/{{ group }}/{{ lfs }}/projects/{{ item | regex_replace('^' + group + '-(.*)$', '\\1') }}"
+    owner: "{{ group }}-dm"
+    group: "{% if item | length %}{{ item }}{% else %}{{ group }}{% endif %}"
+    mode: "{{ mode_project }}"
+    state: 'directory'
+  with_items: "{{ subgroup_directories_split }}"
+  when: inventory_hostname in groups['sys-admin-interface']
+  become: true
+
+...
