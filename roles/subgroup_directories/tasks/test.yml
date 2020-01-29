@@ -1,5 +1,0 @@
----
-- name: 'DEBUG1: test.yml'
-  debug:
-    msg: "dit willen we graag zien: lfs={{ lfs }} en pfs={{ pfs }} en de group is {{ group }}"
-...
