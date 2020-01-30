@@ -1,0 +1,7 @@
+---
+- name: Install mariadb role.
+  hosts: slurm-management
+  tasks:
+  roles:
+     - mariadb
+...
