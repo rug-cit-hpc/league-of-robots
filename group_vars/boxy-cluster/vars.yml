@@ -1,0 +1,35 @@
+---
+slurm_cluster_name: 'boxy'
+slurm_cluster_domain: 'hpc.rug.nl'
+stack_prefix: 'bx'
+uri_ldap: 172.23.40.249
+ldap_base: ou=umcg,o=asds
+ldap_binddn: cn=clusteradminumcg,o=asds
+regular_groups:
+  - 'umcg-atd'
+  - 'umcg-lifelines'
+regular_users:
+  - user: 'umcg-lifelines-dm'
+    groups: ['umcg-lifelines']
+    sudoers: '%umcg-lifelines-dms'
+pfs_mounts: [
+  { pfs: 'umcgst08',
+    source: '172.23.34.213@tcp:172.23.34.214@tcp:/umcgst08',
+    type: 'lustre',
+    rw_options: 'defaults',
+    ro_options: 'defaults,ro' },
+  { pfs: 'umcgst09',
+    source: '172.23.34.213@tcp:172.23.34.214@tcp:/umcgst09',
+    type: 'lustre',
+    rw_options: 'defaults',
+    ro_options: 'defaults,ro' },
+]
+lfs_mounts: [
+  { lfs: 'groups/GROUP/tmp03',
+    pfs: 'umcgst08',
+    groups: ['umcg-atd', 'umcg-lifelines'] },
+  { lfs: 'groups/GROUP/prm03',
+    pfs: 'umcgst09',
+    groups: ['umcg-atd', 'umcg-lifelines'] },
+]
+...
