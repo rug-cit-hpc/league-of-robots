@@ -140,6 +140,8 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'ebenetti'
     groups: ['users', 'solve-rd']
+  - user: 'kdelange'
+    groups: ['users', 'solve-rd']
 pfs_mounts: [
   { pfs: 'ecst02',
     source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD/ecst02',
