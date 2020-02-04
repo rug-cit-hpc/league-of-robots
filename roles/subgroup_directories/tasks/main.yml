@@ -32,5 +32,4 @@
   loop_control:
     loop_var: lfs_item
   when: inventory_hostname in groups['sys-admin-interface']
-
 ...
