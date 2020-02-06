@@ -133,7 +133,7 @@ regular_users:
   - user: 'cthomas'
     groups: ['users', 'solve-rd']
   - user: 'mbenjamins'
-    groups: ['users', 'solve-rd']
+    groups: ['users','depad', 'umcg-atd', 'solve-rd']
   - user: 'lmatalonga'
     groups: ['users', 'solve-rd']
   - user: 'gbullich'
@@ -142,6 +142,10 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'kdelange'
     groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+  - user: 'sli'
+    groups: ['users', 'solve-rd']
+  - user: 'rschuele'
+    groups: ['users', 'solve-rd']
 pfs_mounts: [
   { pfs: 'ecst02',
     source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD',
