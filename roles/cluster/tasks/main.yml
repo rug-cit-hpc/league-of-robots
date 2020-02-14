@@ -86,6 +86,7 @@
       - ncdu
       - ncurses-static
       - openssl
+      - qt5-qtbase
       - readline-static
       - rsync
       - screen
