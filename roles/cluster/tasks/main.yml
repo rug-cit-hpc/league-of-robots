@@ -87,6 +87,7 @@
       - ncurses-static
       - openssl
       - qt5-qtbase
+      - qt5-qtxmlpatterns
       - readline-static
       - rsync
       - screen

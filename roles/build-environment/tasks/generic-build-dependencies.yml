@@ -15,6 +15,7 @@
       - 'openssl-devel'
       - 'patch'
       - 'qt5-qtbase-devel'
+      - 'qt5-qtxmlpatterns-devel'
       - 'rpm-build'
   become: true
 ...
