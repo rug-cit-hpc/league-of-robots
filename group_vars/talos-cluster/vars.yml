@@ -13,11 +13,11 @@ motd: |
           ###################################
           # Date                 EOS        #
           ###################################
-          # Friday 2019-09-06    Sprint 142 #
-          # Friday 2019-10-18    Sprint 144 #
-          # Friday 2019-11-08    Sprint 146 #
-          # Friday 2019-11-29    Sprint 148 #
-          # Friday 2019-12-20    Sprint 150 #
+          # Friday 2020-03-12    Sprint 152 #
+          # Friday 2020-04-24    Sprint 154 #
+          # Friday 2020-06-05    Sprint 156 #
+          # Friday 2020-07-16    Sprint 158 #
+          # Friday 2020-08-27    Sprint 160 #
           ###################################
           You have been warned!!!
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"

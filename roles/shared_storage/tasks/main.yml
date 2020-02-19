@@ -22,7 +22,7 @@
 
 - name: 'Create "home" Logical File System (LFS) on Physical File Systems (PFSs) mounted on SAIs.'
   file:
-    path: "/mnt/{{ item.pfs }}/{{ item.lfs }}"
+    path: "/mnt/{{ item.pfs | regex_replace('/.+$', '') }}/{{ item.lfs }}"
     owner: 'root'
     group: 'root'
     mode: '0755'
@@ -33,7 +33,7 @@
 
 - name: 'Create root groups folder for "tmp" and "prm" Logical File Systems (LFSs) on Physical File Systems (PFSs) mounted on SAIs.'
   file:
-    path: "/mnt/{{ item.pfs }}/{{ item.lfs | regex_replace('GROUP.*', '') }}"
+    path: "/mnt/{{ item.pfs | regex_replace('/.+$', '') }}/{{ item.lfs | regex_replace('GROUP.*', '') }}"
     owner: 'root'
     group: 'root'
     mode: '0755'
@@ -45,7 +45,7 @@
 
 - name: 'Create folder for each group on Physical File Systems (PFSs) mounted on SAIs.'
   file:
-    path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) | regex_replace('((tmp)|(prm))[0-9]+$', '') }}"
+    path: "/mnt/{{ item.0.pfs | regex_replace('/.+$', '') }}/{{ item.0.lfs | regex_replace('GROUP', item.1) | regex_replace('((tmp)|(prm))[0-9]+$', '') }}"
     owner: 'root'
     group: "{{ item.1 }}"
     mode: '2750'
@@ -58,7 +58,7 @@
 
 - name: 'Create "tmp" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs) mounted on SAIs.'
   file:
-    path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+    path: "/mnt/{{ item.0.pfs | regex_replace('/.+$', '') }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
     owner: 'root'
     group: "{{ item.1 }}"
     mode: '2770'
@@ -71,7 +71,7 @@
 
 - name: 'Create "prm" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs) mounted on SAIs.'
   file:
-    path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+    path: "/mnt/{{ item.0.pfs | regex_replace('/.+$', '') }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
     owner: "{{ item.1 }}-dm"
     group: "{{ item.1 }}"
     mode: '2750'
@@ -84,7 +84,7 @@
 
 - name: 'Create "apps" Logical File Systems (LFSs) on Physical File Systems (PFSs) mounted on SAIs.'
   file:
-    path: "/mnt/{{ item.pfs }}/{{ item.lfs }}/apps"
+    path: "/mnt/{{ item.pfs | regex_replace('/.+$', '') }}/{{ item.lfs }}/apps"
     owner: "{{ envsync_user }}"
     group: "{{ envsync_group }}"
     mode: '2755'
