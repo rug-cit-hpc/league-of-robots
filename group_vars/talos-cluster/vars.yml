@@ -90,18 +90,19 @@ regular_users:
     sudoers: 'umcg-kdelange,kim'
 pfs_mounts: [
   { pfs: 'umcgst11',
-    source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst11',
+    source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster',
     type: 'nfs4',
     rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
     ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro' },
 ]
 lfs_mounts: [
   { lfs: 'home',
-    pfs: 'umcgst11' },
-  { lfs: 'groups/GROUP/tmp08',
+    pfs: 'umcgst11',
+    machines: "{{ groups['cluster'] }}" },
+  { lfs: 'tmp08',
     pfs: 'umcgst11',
     groups: ['umcg-atd', 'umcg-gcc', 'umcg-lifelines'] },
-  { lfs: 'groups/GROUP/prm08',
+  { lfs: 'prm08',
     pfs: 'umcgst11',
     groups: ['umcg-atd', 'umcg-gcc', 'umcg-lifelines'] },
   { lfs: 'env08',
