@@ -3,7 +3,7 @@
   include_tasks:
     file: "{{ playbook_dir }}/roles/subgroup_directories/tasks/create_subgroup_directories.yml"
   vars:
-    lfs: "{{ lfs_item.0.lfs | regex_replace('^(.*)prm(.*)$', 'prm\\2')}}"
+    lfs: "{{ lfs_item.0.lfs }}"
     pfs: "{{ lfs_item.0.pfs }}"
     group: "{{ lfs_item.1 }}"
     mode_project: '2750'
@@ -20,7 +20,7 @@
   include_tasks:
     file: "{{ playbook_dir }}/roles/subgroup_directories/tasks/create_subgroup_directories.yml"
   vars:
-    lfs: "{{ lfs_item.0.lfs | regex_replace('^(.*)tmp(.*)$', 'tmp\\2')}}"
+    lfs: "{{ lfs_item.0.lfs )}}"
     pfs: "{{ lfs_item.0.pfs }}"
     group: "{{ lfs_item.1 }}"
     mode_project: '2770'
