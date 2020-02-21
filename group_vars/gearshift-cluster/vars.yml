@@ -100,7 +100,7 @@ regular_groups:
   - 'umcg-gonl'
   - 'umcg-griac'
   - 'umcg-gsad'
-  - 'umcg-hofker'
+  - 'umcg-impact'
   - 'umcg-lifelines'
   - 'umcg-lld'
   - 'umcg-llnext'
@@ -170,8 +170,8 @@ regular_users:
     groups: ['umcg-gsad']
     sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
   - user: 'umcg-hofker-dm'
-    groups: ['umcg-hofker']
-    sudoers: '%umcg-hofker'
+    groups: ['umcg-impact']
+    sudoers: '%umcg-impact'
   - user: 'umcg-lifelines-dm'
     groups: ['umcg-lifelines']
     sudoers: '%umcg-lifelines-dms'
@@ -217,8 +217,8 @@ pfs_mounts: [
     type: 'nfs4',
     rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
     ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro' },
-  { pfs: 'dh2/groups',
-    source: '172.23.57.203@tcp12:172.23.57.204@tcp12:/dh2/groups',
+  { pfs: 'umcgst02',
+    source: '172.23.57.203@tcp12:172.23.57.204@tcp12:/dh2/umcgst02',
     type: 'lustre',
     rw_options: 'defaults,lazystatfs,flock',
     ro_options: 'defaults,lazystatfs,ro' },
@@ -228,8 +228,9 @@ pfs_mounts: [
 #
 lfs_mounts: [
   { lfs: 'home',
-    pfs: 'umcgst10' },
-  { lfs: 'groups/GROUP/tmp01',
+    pfs: 'umcgst10',
+    machines: "{{ groups['cluster'] }}" },
+  { lfs: 'tmp01',
     pfs: 'umcgst10',
     groups: [
         'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
@@ -240,13 +241,13 @@ lfs_mounts: [
         'umcg-pub', 'umcg-radicon', 'umcg-tifn', 'umcg-ugli',
         'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
-  { lfs: 'groups/GROUP/prm01',
+  { lfs: 'prm01',
     pfs: 'umcgst10',
     groups: [
         'umcg-atd'
       ]},
-  { lfs: 'groups/GROUP/prm03',
-    pfs: 'dh2/groups',
+  { lfs: 'prm03',
+    pfs: 'umcgst02',
     groups: [
         'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
         'umcg-bios', 'umcg-dag3', 'umcg-datateam',
