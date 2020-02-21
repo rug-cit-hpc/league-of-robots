@@ -121,6 +121,9 @@ regular_users:
   - user: 'umcg-capicebot'
     groups: ['umcg-as']
     sudoers: '%umcg-as'
+  - user: 'umcg-as-dm'
+    groups: ['umcg-as']
+    sudoers: '%umcg-as'
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
