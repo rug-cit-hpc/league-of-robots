@@ -32,7 +32,7 @@ additional_etc_hosts: |
   172.23.40.29       gs-compute09        gs-compute09.hpc.local
   172.23.40.30       gs-compute10        gs-compute10.hpc.local
   172.23.40.31       gs-compute11        gs-compute11.hpc.local
-vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-11]"
+vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-10]"
 vcompute_sockets: 24
 vcompute_cores_per_socket: 1
 vcompute_real_memory: 221501
