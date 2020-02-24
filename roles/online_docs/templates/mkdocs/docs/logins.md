@@ -185,55 +185,57 @@ The following assumes:
 
 #### Frequent Asked Questions (FAQs) and trouble shooting
 
-* Q: Why do I get the error ```muxserver_listen bind(): No such file or directory.```?  
-  A: You may have failed to create the ```${HOME}/.ssh/tmp``` folder or the permissions on this folder are wrong.
-* Q: Why do I get the error ```ControlPath too long```?  
-  A: The ```ControlPath ~/.ssh/tmp/%C``` line in your ```${HOME}/.ssh/config``` file expands to a path that is too long.
-     Change the ```ControlPath``` line in your ```${HOME}/.ssh/config``` file to create a shorter path for the automagically created sockets.
-* Q: Why do I get the error ```ssh_exchange_identification: Connection closed by remote host```?  
-  A: Either this server does not exist (anymore). You may have a typo in the name of the server you are trying to connect to.
-     Check both the command you typed as well as your ```${HOME}/.ssh/config``` for typos in server names.  
-     Or you are using the wrong private key. If your private key is not saved with the default name in the default location,
-     check if you specified the correct private file both for the ```ProxyCommand``` in your ```${HOME}/.ssh/config``` 
-     as well as with the ```-i``` option for the ```ssh``` command.
-* Q: Why do I get the error ```Permission denied (publickey).```?  
-  A: This error can be caused by various configuration issues:  
-      * Either you are using the wrong account name  
-      * or you are using the wrong private key file  
-      * or the permissions on your ```${HOME}/.ssh/``` dir and/or on its content are wrong  
-      * or your account is misconfigured on our account server.  
-     Firstly, check your account name, private key and permissions.  
-     Secondly, check if you can login to the _Jumphost_ with a single hop  
+ * Q: Why do I get the error ```muxserver_listen bind(): No such file or directory.```?  
+   A: You may have failed to create the ```${HOME}/.ssh/tmp``` folder or the permissions on this folder are wrong.
+ * Q: Why do I get the error ```ControlPath too long```?  
+   A: The ```ControlPath ~/.ssh/tmp/%C``` line in your ```${HOME}/.ssh/config``` file expands to a path that is too long.
+      Change the ```ControlPath``` line in your ```${HOME}/.ssh/config``` file to create a shorter path for the automagically created sockets.
+ * Q: Why do I get the error ```ssh_exchange_identification: Connection closed by remote host```?  
+   A: Either this server does not exist (anymore). You may have a typo in the name of the server you are trying to connect to.
+      Check both the command you typed as well as your ```${HOME}/.ssh/config``` for typos in server names.  
+      Or you are using the wrong private key. If your private key is not saved with the default name in the default location,
+      check if you specified the correct private file both for the ```ProxyCommand``` in your ```${HOME}/.ssh/config``` 
+      as well as with the ```-i``` option for the ```ssh``` command.
+ * Q: Why do I get the error ```Permission denied (publickey).```?  
+   A: This error can be caused by various configuration issues:
+     * Either you are using the wrong account name
+     * or you are using the wrong private key file
+     * or the permissions on your ```${HOME}/.ssh/``` dir and/or on its content are wrong
+     * or your account is misconfigured on our account server.  
+   Firstly, check your account name, private key and permissions.  
+   Secondly, check if you can login to the _Jumphost_ with a single hop using
 
-        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+              ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
-     If you can login to the _Jumphost_, but cannot use double hop SSH to login to the _UI_ via the _Jumphost_,
-     you may have to add your private key to the SSH agent on you local machine. 
-     To check which private key(s) are available to your SSH agent you can list them with on your local computer with:
+        * If you can login to the _Jumphost_, but cannot use double hop SSH to login to the _UI_ via the _Jumphost_,
+          you may have to add your private key to the SSH agent on you local machine. 
+          To check which private key(s) are available to your SSH agent you can list them with on your local computer with:
 
-        ssh-add -l
+                  ssh-add -l
 
-     If you get:
+        * If you cannot login and get:
 
-        The agent has no identities.
+                  The agent has no identities.
 
-     then you have to add your private key with the ```ssh-add``` command, which should return output like this:
+          then you have to add your private key with the ```ssh-add``` command, which should return output like this:
 
-        Identity added: /path/to/your/home/dir/.ssh/id_ed25519 (key_comment)
+                  Identity added: /path/to/your/home/dir/.ssh/id_ed25519 (key_comment)
 
-     Your private key should now be listed when you check with ```ssh-add -l```, which should look like this:
+          Your private key should now be listed when you check with ```ssh-add -l```, which should look like this:
 
-        256 SHA256:j/ZNnUvHYW3U$wgIapHw73SnhojjxlWkAcGZ6qDX6Lw key_comment (ED25519)
+                  256 SHA256:j/ZNnUvHYW3U$wgIapHw73SnhojjxlWkAcGZ6qDX6Lw key_comment (ED25519)
 
      If that did not resolve the issue, then increase the verbosity to debug connection problems (see below).
-* Q: Can I increase the verbosity to debug connection problems?  
-  A: Yes try adding ```-vvv``` like this:  
-     ```ssh -vvv youraccount@{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```  
-     If that does not help to figure out what is wrong please [contact the helpdesk](../contact/) and include:  
-      1. The command you used for your failed login attempt  
-      2. The output of that failed login attempt with ```-vvv``` debugging enabled  
-      3. A copy of your ```${HOME}/.ssh/config``` file.  
-     **Never ever send us your private key**; It does not help to debug your connection problems, but will render the key useless as it is no longer private.
+   
+ * Q: Can I increase the verbosity to debug connection problems?  
+   A: Yes try adding ```-vvv``` like this:  
+   ```ssh -vvv youraccount@{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```  
+   If that does not help to figure out what is wrong please [contact the helpdesk](../contact/) and
+     * Do include:
+        1. The command you used for your failed login attempt
+        2. The output of that failed login attempt with ```-vvv``` debugging enabled
+        3. A copy of your ```${HOME}/.ssh/config``` file.
+     * **Never ever send us your private key**; It does not help to debug your connection problems, but will render the key useless as it is no longer private.
 
 ## SSH config and login to UI via Jumphost for users on Windows
 

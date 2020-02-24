@@ -146,7 +146,7 @@ Instead use the [Lua based module system \(Lmod\)](https://github.com/TACC/Lmod)
 
 If the software you need is not yet available, please use the following procedure:
 
-  1. First try to install the software on a UI in a ```/groups/${group}/tmp0*/...``` folder (without EasyBuild).
+  1. First try to install the software on a UI in a ```/groups/${group}/tmp*/...``` folder (without EasyBuild).
   2. Test the software and evaluate if it is useful to do a proper reproducible deployment.  
      If yes, continue and otherwise cleanup.
   3. Depending on time involved in a project:
@@ -159,7 +159,7 @@ If the software you need is not yet available, please use the following procedur
 
 * You can use these steps on a UI to 
   [create your own personal EasyBuild environment](https://gist.github.com/mmterpstra/d11ec81bf78c169ab6be5911df384496)
-  to deploy software with EasyBuild on a UI in a /groups/${group}/tmp0*/... folder.  
+  to deploy software with EasyBuild on a UI in a /groups/${group}/tmp*/... folder.  
   Please visit [this page](https://easybuild.readthedocs.io/en/latest/Writing_easyconfig_files.html) to learn how to make an EasyConfig file.
 * Fork our [easybuild-easyconfigs repo on GitHub](https://github.com/molgenis/easybuild-easyconfigs) and create pull request with your newly created EasyConfig(s).
 * If you are not a member of the deploy admins group yet: request membership by [sending an email to the helpdesk](../contact/).  
@@ -274,11 +274,11 @@ The report will show 11 columns:
 ## List of storage devices / mount points used on {{ slurm_cluster_name | capitalize }}
 | Path | Function | (Soft) Quota | (Hard) Limit | Backup | Cleanup | Mounted on UIs | Mounted on DAIs | Mounted on compute nodes |
 |:---- |:-------- | ----------:| ----------:|:------:|:-------:|:--------------:|:---------------:|:------------------------:|
-{% for mount in lfs_mounts | selectattr('lfs', 'match', '^home$') | list %}| /{{ mount.lfs }} | Home dirs from shard file system for personal settings/preferences. | 1 GB | 2 GB | Yes | No | Yes | Yes | Yes |
-{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list %}| /{{ mount.lfs }} | High Availability shared file system for permanent data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
-{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'arc[0-9]+$') | list %}| /{{ mount.lfs }} | High Availability shared file system for archived data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
-{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list %}| /{{ mount.lfs }} | High Performance shared file system for temporary data. | Several TBs; varies per group | quota + ~10% | No | Yes, when older than 45 days | Yes | No | Yes |
-{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'scr[0-9]+$') | list %}| /{{ mount.lfs }} | High Performance local file system for temporary data. | Several TBs; varies per group | quota + ~10% | No | Yes, when older than 45 days | Yes | No | No |
+{% for mount in lfs_mounts | selectattr('lfs', 'match', '^home$') | list %}| ```/{{ mount.lfs }}``` | Home dirs from shared file system for personal settings/preferences. | 1 GB | 2 GB | Yes | No | Yes | Yes | Yes |
+{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list %}| ```/groups/${group}/{{ mount.lfs }}``` | High Availability shared file system for permanent data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
+{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'arc[0-9]+$') | list %}| ```/groups/${group}/{{ mount.lfs }}``` | High Availability shared file system for archived data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
+{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list %}| ```/groups/${group}/{{ mount.lfs }}``` | High Performance shared file system for temporary data. | Several TBs; varies per group | quota + ~10% | No | Yes, when older than 45 days | Yes | No | Yes |
+{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'scr[0-9]+$') | list %}| ```/groups/${group}/{{ mount.lfs }}``` | High Performance local file system for temporary data. | Several TBs; varies per group | quota + ~10% | No | Yes, when older than 45 days | Yes | No | No |
 {% endfor %}
 
 ## The life cycle of experimental data
