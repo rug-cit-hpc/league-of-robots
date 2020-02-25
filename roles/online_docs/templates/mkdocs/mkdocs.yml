@@ -5,6 +5,8 @@ theme:
   hljs_languages:
     - yaml
 site_dir: "/var/www/html/{{ slurm_cluster_name }}/"
+extra_css:
+    - css/custom.css
 nav:
   - Home: 'index.md'
   - About: 
@@ -19,6 +21,7 @@ nav:
     - 'Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}': 'analysis.md'
     - 'Technical specifications - Details of the {{ slurm_cluster_name | capitalize }} HPC environment': 'specifications.md'
 {% if 'hyperchicken' in slurm_cluster_name or 'fender' in slurm_cluster_name %}
-    - 'Solve-RD - Where and how to use the Solve-RD dataset.': 'solve-rd.md'
+  - Group specific documentation:
+    - 'Solve-RD - How to find and work with Solve-RD data': 'solve-rd.md'
 {% endif %}
 #    - 'Support - FAQs, mailinglists & courses': 'support.md'
