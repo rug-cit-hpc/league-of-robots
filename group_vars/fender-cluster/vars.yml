@@ -87,7 +87,7 @@ regular_users:
     groups: ['depad']
   - user: 'solve-rd-dm'
     groups: ['solve-rd']
-    sudoers: '%solve-rd'
+    sudoers: 'gvdvries,wsteyaert,ljohansson,pneerincx,mbijlsma,ddanis,lmatalonga'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
@@ -145,6 +145,8 @@ regular_users:
   - user: 'sli'
     groups: ['users', 'solve-rd']
   - user: 'rschuele'
+    groups: ['users', 'solve-rd']
+  - user: 'jvandrovcova'
     groups: ['users', 'solve-rd']
 pfs_mounts: [
   { pfs: 'ecst02',
