@@ -150,18 +150,19 @@ regular_users:
     groups: ['users', 'solve-rd']
 pfs_mounts: [
   { pfs: 'ecst02',
-    source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD/ecst02',
+    source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD',
     type: 'nfs',
     rw_options: 'defaults,_netdev,noatime,nodiratime',
     ro_options: 'defaults,_netdev,noatime,nodiratime,ro' },
 ]
 lfs_mounts: [
   { lfs: 'home',
-    pfs: 'ecst02' },
-  { lfs: 'groups/GROUP/tmp10',
+    pfs: 'ecst02',
+    machines: "{{ groups['cluster'] }}" },
+  { lfs: 'tmp10',
     pfs: 'ecst02',
     groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'groups/GROUP/prm10',
+  { lfs: 'prm10',
     pfs: 'ecst02',
     groups: ['umcg-atd', 'solve-rd'] },
   { lfs: 'env10',

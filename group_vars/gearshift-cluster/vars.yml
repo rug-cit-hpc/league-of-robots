@@ -13,11 +13,11 @@ motd: |
           ###################################
           # Date                 EOS        #
           ###################################
-          # Friday 2019-09-06    Sprint 142 #
-          # Friday 2019-10-18    Sprint 144 #
-          # Friday 2019-11-08    Sprint 146 #
-          # Friday 2019-11-29    Sprint 148 #
-          # Friday 2019-12-20    Sprint 150 #
+          # Friday 2020-03-12    Sprint 152 #
+          # Friday 2020-04-24    Sprint 154 #
+          # Friday 2020-06-05    Sprint 156 #
+          # Friday 2020-07-16    Sprint 158 #
+          # Friday 2020-08-27    Sprint 160 #
           ###################################
           You have been warned!!!
 additional_etc_hosts: |
@@ -32,7 +32,7 @@ additional_etc_hosts: |
   172.23.40.29       gs-compute09        gs-compute09.hpc.local
   172.23.40.30       gs-compute10        gs-compute10.hpc.local
   172.23.40.31       gs-compute11        gs-compute11.hpc.local
-vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-11]"
+vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-10]"
 vcompute_sockets: 24
 vcompute_cores_per_socket: 1
 vcompute_real_memory: 221501
@@ -49,7 +49,7 @@ ui_sockets: 2
 ui_cores_per_socket: 1
 ui_real_memory: 3789
 ui_local_disk: 0
-ui_features: 'prm01,tmp01'
+ui_features: 'prm03,tmp01'
 ui_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
@@ -100,7 +100,7 @@ regular_groups:
   - 'umcg-gonl'
   - 'umcg-griac'
   - 'umcg-gsad'
-  - 'umcg-hofker'
+  - 'umcg-impact'
   - 'umcg-lifelines'
   - 'umcg-lld'
   - 'umcg-llnext'
@@ -109,6 +109,7 @@ regular_groups:
   - 'umcg-oncogenetics'
   - 'umcg-pub'
   - 'umcg-radicon'
+  - 'umcg-solve-rd'
   - 'umcg-tifn'
   - 'umcg-ugli'
   - 'umcg-verbeek'
@@ -119,6 +120,9 @@ regular_users:
     groups: ['umcg-aad']
     sudoers: '%umcg-aad'
   - user: 'umcg-capicebot'
+    groups: ['umcg-as']
+    sudoers: '%umcg-as'
+  - user: 'umcg-as-dm'
     groups: ['umcg-as']
     sudoers: '%umcg-as'
   - user: 'umcg-atd-ateambot'
@@ -170,8 +174,8 @@ regular_users:
     groups: ['umcg-gsad']
     sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
   - user: 'umcg-hofker-dm'
-    groups: ['umcg-hofker']
-    sudoers: '%umcg-hofker'
+    groups: ['umcg-impact']
+    sudoers: '%umcg-impact'
   - user: 'umcg-lifelines-dm'
     groups: ['umcg-lifelines']
     sudoers: '%umcg-lifelines-dms'
@@ -196,6 +200,9 @@ regular_users:
   - user: 'umcg-radicon-dm'
     groups: ['umcg-radicon']
     sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-solve-rd-dm'
+    groups: ['umcg-solve-rd']
+    sudoers: 'umcg-gvdvries,umcg-mbijlsma,umcg-pneerincx'
   - user: 'umcg-tifn-dm'
     groups: ['umcg-tifn']
     sudoers: 'umcg-akurilshchikov,umcg-jfu'
@@ -213,33 +220,49 @@ regular_users:
     sudoers: 'umcg-jgelderloos,umcg-aclaringbould,umcg-rmodderman,umcg-hwestra,umcg-avich,umcg-obakker,umcg-ddevries'
 pfs_mounts: [
   { pfs: 'umcgst10',
-    source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster/umcgst10',
+    source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster',
     type: 'nfs4',
     rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
     ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro' },
+  { pfs: 'umcgst02',
+    source: '172.23.57.203@tcp12:172.23.57.204@tcp12:/dh2',
+    type: 'lustre',
+    rw_options: 'defaults,lazystatfs,flock',
+    ro_options: 'defaults,lazystatfs,ro' },
 ]
 #
-# During public beta phase we only use tmp* folders/mounts for 'production' groups.
-# Only anlysis team development (umcg-atd) group, which is exclusively used for testing has prm* folder/mount for now.
+# Only anlysis team development (umcg-atd) group, which is exclusively used for testing has prm01 folder/mount for now.
 #
 lfs_mounts: [
   { lfs: 'home',
-    pfs: 'umcgst10' },
-  { lfs: 'groups/GROUP/tmp01',
+    pfs: 'umcgst10',
+    machines: "{{ groups['cluster'] }}" },
+  { lfs: 'tmp01',
     pfs: 'umcgst10',
     groups: [
-        'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama', 
-        'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-franke-scrna', 
-        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl', 
-        'umcg-griac', 'umcg-gsad', 'umcg-hofker', 'umcg-lifelines', 'umcg-lld', 
-        'umcg-llnext', 'umcg-micompany', 'umcg-msb', 'umcg-oncogenetics', 
-        'umcg-pub', 'umcg-radicon', 'umcg-tifn', 'umcg-ugli', 
+        'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
+        'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-franke-scrna',
+        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
+        'umcg-griac', 'umcg-gsad', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
+        'umcg-llnext', 'umcg-micompany', 'umcg-msb', 'umcg-oncogenetics',
+        'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-tifn', 'umcg-ugli',
         'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
-  { lfs: 'groups/GROUP/prm01',
+  { lfs: 'prm01',
     pfs: 'umcgst10',
     groups: [
         'umcg-atd'
+      ]},
+  { lfs: 'prm03',
+    pfs: 'umcgst02',
+    groups: [
+        'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
+        'umcg-bios', 'umcg-dag3', 'umcg-datateam',
+        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
+        'umcg-griac', 'umcg-gsad', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
+        'umcg-llnext', 'umcg-micompany', 'umcg-msb', 'umcg-oncogenetics',
+        'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-tifn', 'umcg-ugli',
+        'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
   { lfs: 'env01',
     pfs: 'umcgst10',

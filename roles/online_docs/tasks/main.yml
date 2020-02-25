@@ -134,7 +134,7 @@
     - "/var/www/html/{{ slurm_cluster_name }}/"
   become: true
 
-- name: 'Create static files for MarkDown on webserver.'
+- name: 'Create static files for index in document root on webserver.'
   synchronize:
     src: "{{ playbook_dir }}/roles/online_docs/files/index//./{{ item.src }}"
     dest: "/var/www/html/"
@@ -209,8 +209,11 @@
       - '--perms'
       - '--force'
   with_items:
+    - src: 'css'
     - src: 'img'
   when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] < "7"
+  notify:
+    - build_mkdocs
   become: true
 
 - name: 'Create static files for MarkDown on webserver.'
@@ -244,8 +247,11 @@
       - '--perms'
       - '--force'
   with_items:
+    - src: 'css'
     - src: 'img'
   when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "7"
+  notify:
+    - build_mkdocs
   become: true
 
 - name: 'Create MarkDown files based on templates on webserver.'
@@ -256,7 +262,8 @@
     group: root
     mode: '0600'
   with_filetree: 'templates/mkdocs'
-  when: item.state == 'file'
+  # Exclude temporary *.html preview files, which are also exlcuded in .gitignore and should not be transferred.
+  when: item.state == 'file' and '.md.html' not in item.path
   notify:
     - build_mkdocs
   become: true

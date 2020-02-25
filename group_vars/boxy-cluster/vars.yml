@@ -14,22 +14,14 @@ regular_users:
     sudoers: '%umcg-lifelines-dms'
 pfs_mounts: [
   { pfs: 'umcgst08',
-    source: '172.23.34.213@tcp:172.23.34.214@tcp:/umcgst08',
-    type: 'lustre',
-    rw_options: 'defaults',
-    ro_options: 'defaults,ro' },
-  { pfs: 'umcgst09',
-    source: '172.23.34.213@tcp:172.23.34.214@tcp:/umcgst09',
+    source: '172.23.34.213@tcp:172.23.34.214@tcp:',
     type: 'lustre',
     rw_options: 'defaults',
     ro_options: 'defaults,ro' },
 ]
 lfs_mounts: [
-  { lfs: 'groups/GROUP/tmp03',
+  { lfs: 'tmp03',
     pfs: 'umcgst08',
-    groups: ['umcg-atd', 'umcg-lifelines'] },
-  { lfs: 'groups/GROUP/prm03',
-    pfs: 'umcgst09',
     groups: ['umcg-atd', 'umcg-lifelines'] },
 ]
 ...

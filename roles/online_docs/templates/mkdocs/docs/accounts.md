@@ -141,20 +141,36 @@ Now make sure you:
 
 To request an account, [contact the helpdesk via email](../contact/) and
 
- * 3.A If on Linux / Unix / macOS:  
+ * Either if on a **Windows** computer:  
+   Paste the contents of the public key as displayed in MobaKeyGen's *Public key for pasting into OpenSSH authorized_keys file* field in the email.
+ * Or if on a **Linux** / **Unix** / **macOS** computer:  
    Attach the id_rsa.pub public key file generated with ssh-keygen.  
    If you cannot see / find the key file, you most likely stored the file in a folder starting with a ```.```; e.g. in your ```~/.ssh``` folder which is the default.
    Folders and files that start with a ```.``` are *hidden* files and not displayed by default.
    On macOS you can press ```<Shift>+<Cmd>+<.>``` to toggle the visibility of hidden files in *Open...* and *Save...* dialog windows.
    Please use a search engine for a solution to display hidden files in other situations like Finder windows or on other platforms.
- * 3.B If on Windows:  
-   Paste the contents of the public key as displayed in MobaKeyGen's *Public key for pasting into OpenSSH authorized_keys file* field in the email.
- * Motivate your account request by specifying the project your are working on and by adding your collaborators on CC.
+ * Please motivate your account request and
+     * For **guest** accounts to access only a data transfer machine associated with the cluster:
+         * Specify the project your are working on and add your collaborators on CC.
+     * For **regular** accounts to access the cluster:
+         * Specify the groups you want to become a member of in order to access specific data sets. 
+           Put all group owners of the corresponding groups on CC and ask them to approve your request in a reply to the helpdesk. 
+           If you do not know who the group owners are, please consult a colleague or your boss / P.I. / team lead / project lead / etc.
+         * Please add a staff member of the department/group where you are appointed or the project you are involved in on CC and 
+           ask him/her to confirm your appointment/involvement and the expiration date of your contract in a reply to the helpdesk. 
+           We will then setup your cluster account with the same expiration date.  
+           (A staff member can be your boss, P.I., team lead, project lead or secretary.)
+       Please note: we cannot give you access until we have received both approval from at least one group owner and a confirmation for the expiration date of your contract/collaboration.
  * Never ever email/give anyone your private key! If you do, the key is no longer private and useless for security: trash the key pair and start over by generating a new pair.
  * If you ever suspect that your private key may have been compromised (laptop got stolen, computer got infected with a virus/trojan/malware, etc.): 
     * [notify the helpdesk](../contact/) immediately, so we can revoke the public key for the compromised private key
-    * and start over by generating a new pair
+    * and start over by generating a new pair.
 
 ## 4. Start using servers/services
 
-Once you get notified by email that your account is ready you can proceed to [login](../logins/)
+ * Once you get notified by email that your account is ready you can proceed to [login](../logins/)
+ * If you want to request access to an additional group, send your request by email to the helpdesk and with the corresponding group owners on CC.
+   You can lookup the group owners yourself on the cluster using:
+
+             module load cluster-utils
+             colleagues -g <groupname>

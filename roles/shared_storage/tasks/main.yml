@@ -1,4 +1,9 @@
 ---
+#
+##
+### List content of variables for debugging.
+##
+#
 - name: 'Show the content of the group_vars/[cluster]/vars.yml lfs_mounts variable for debugging purposes.'
   debug:
     msg: "{{ lfs_mounts }}"
@@ -9,10 +14,16 @@
   with_items: "{{ pfs_mounts }}"
   when: inventory_hostname in groups['sys-admin-interface']
 
+#
+##
+### Mount PFS-ses on DAI and create all required LFS-ses and subfolders on them with the correct permissions.
+##
+#
+
 - name: 'Mount complete Physical File Systems (PFS-ses) on SAIs.'
   mount:
     path: "/mnt/{{ item.pfs }}"
-    src: "{{ item.source }}"
+    src: "{{ item.source }}/{{ item.pfs }}"
     fstype: "{{ item.type }}"
     opts: "{{ item.rw_options }}"
     state: 'mounted'
@@ -27,13 +38,13 @@
     group: 'root'
     mode: '0755'
     state: 'directory'
-  with_items: "{{ lfs_mounts | selectattr('lfs', 'match', '^home$') | list }}"
+  with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'home') | list }}"
   when: inventory_hostname in groups['sys-admin-interface']
   become: true
 
 - name: 'Create root groups folder for "tmp" and "prm" Logical File Systems (LFSs) on Physical File Systems (PFSs) mounted on SAIs.'
   file:
-    path: "/mnt/{{ item.pfs }}/{{ item.lfs | regex_replace('GROUP.*', '') }}"
+    path: "/mnt/{{ item.pfs }}/groups"
     owner: 'root'
     group: 'root'
     mode: '0755'
@@ -45,7 +56,7 @@
 
 - name: 'Create folder for each group on Physical File Systems (PFSs) mounted on SAIs.'
   file:
-    path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) | regex_replace('((tmp)|(prm))[0-9]+$', '') }}"
+    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1 }}"
     owner: 'root'
     group: "{{ item.1 }}"
     mode: '2750'
@@ -58,7 +69,7 @@
 
 - name: 'Create "tmp" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs) mounted on SAIs.'
   file:
-    path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
     owner: 'root'
     group: "{{ item.1 }}"
     mode: '2770'
@@ -71,7 +82,7 @@
 
 - name: 'Create "prm" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs) mounted on SAIs.'
   file:
-    path: "/mnt/{{ item.0.pfs }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
     owner: "{{ item.1 }}-dm"
     group: "{{ item.1 }}"
     mode: '2750'
@@ -94,21 +105,27 @@
   when: inventory_hostname in groups['sys-admin-interface']
   become: true
 
+#
+##
+### Mount all LFS-ses on cluster components/machines.
+##
+#
+
 - name: 'Mount "home" Logical File System (LFS) from shared storage.'
   mount:
-    path: "/{{ item.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.lfs }}"
+    path: "/home"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.pfs }}/{{ item.lfs }}"
     fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
-  with_items: "{{ lfs_mounts | selectattr('lfs', 'match', '^home$') | list }}"
-  when: inventory_hostname in groups['cluster'] and not inventory_hostname in groups['nfs-server']|default([])
+  with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'home') | list }}"
+  when: inventory_hostname in item.machines and not inventory_hostname in groups['nfs-server']|default([])
   become: True
 
 - name: 'Mount "tmp" Logical File Systems (LFSs) per group from shared storage.'
   mount:
-    path: "/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+    path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
     fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
@@ -120,8 +137,8 @@
 
 - name: 'Mount "prm" Logical File Systems (LFSs) per group from shared storage.'
   mount:
-    path: "/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.lfs | regex_replace('GROUP', item.1) }}"
+    path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
     fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
@@ -134,7 +151,7 @@
 - name: 'Mount "env" Logical File Systems (LFSs) from shared storage read-write on DAIs.'
   mount:
     path: "/mnt/{{ item.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.pfs }}/{{ item.lfs }}"
     fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
@@ -145,7 +162,7 @@
 - name: 'Mount "apps" from one "env" Logical File System (LFS) from shared storage read-only as /apps on UIs and vcompute nodes.'
   mount:
    path: '/apps'
-   src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.lfs }}/apps"
+   src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.pfs }}/{{ item.lfs }}/apps"
    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='ro_options') | first }}"
    state: 'mounted'

@@ -136,11 +136,12 @@ pfs_mounts: [
 ]
 lfs_mounts: [
   { lfs: 'home',
-    pfs: 'ecst01' },
-  { lfs: 'groups/GROUP/tmp11',
+    pfs: 'ecst01',
+    machines: "{{ groups['cluster'] }}" },
+  { lfs: 'tmp11',
     pfs: 'ecst01',
     groups: ['umcg-atd', 'erknet', 'euro-nmd', 'ern-liver'] },
-  { lfs: 'groups/GROUP/prm11',
+  { lfs: 'prm11',
     pfs: 'ecst01',
     groups: ['umcg-atd', 'erknet', 'euro-nmd', 'ern-liver'] },
   { lfs: 'env11',
