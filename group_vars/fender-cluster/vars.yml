@@ -87,7 +87,7 @@ regular_users:
     groups: ['depad']
   - user: 'solve-rd-dm'
     groups: ['solve-rd']
-    sudoers: 'gvdvries,wsteyaert,ljohansson,pneerincx,mbijlsma,ddanis,lmatalonga'
+    sudoers: '%solve-rd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
