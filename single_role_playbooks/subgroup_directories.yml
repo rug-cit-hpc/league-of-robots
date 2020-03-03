@@ -1,5 +1,5 @@
 ---
-- hosts: sys-admin-interface
+- hosts: user-interface
   roles:
     - subgroup_directories
 ...
