@@ -52,6 +52,13 @@ declare    ldap_group_object_class='groupofnames'
 declare    ldap_group_quota_soft_limit_template='ruggroupumcgquotaLFSsoft'
 declare    ldap_group_quota_hard_limit_template='ruggroupumcgquotaLFS'
 declare -A ldap_quota_limits=()
+#
+# Lustre quota type for groups:
+# We prefer "project quota" for group folders,
+# but we'll use "group quota" when project quota are not supported (yet).
+#
+declare    lustre_quota_type='group' # default that will work on older and newer Lustre filesystems.
+
 
 #
 # Initialise Log4Bash logging with defaults.
@@ -307,21 +314,30 @@ function processFileSystems () {
 #  * Use lfs setquota to configure quota limit for project.
 #
 function applyLustreQuota () {
-	local _lfs_path="${1}"
-	local _gid="${2}"
-	local _soft_quota_limit="${3}"
-	local _hard_quota_limit="${4}"
+	local    _lfs_path="${1}"
+	local    _gid="${2}"
+	local    _soft_quota_limit="${3}"
+	local    _hard_quota_limit="${4}"
+	local    _cmd
+	local -a _cmds
 	if [[ "${apply_settings}" -eq 1 ]]; then
 		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Executing quota commands ..."
 	else
 		log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Dry run: the following quota commands would have been executed with the '-a' switch ..."
 	fi
-	local _cmd
-	local -a _cmds=(
-		"chattr +P ${_lfs_path}"
-		"chattr -p ${_gid} ${_lfs_path}"
-		"lfs setquota -p ${_gid} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
-	)
+	if [[ "${lustre_quota_type}" == 'project' ]]; then
+		_cmds=(
+			"chattr +P ${_lfs_path}"
+			"chattr -p ${_gid} ${_lfs_path}"
+			"lfs setquota -p ${_gid} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
+		)
+	elif [[ "${lustre_quota_type}" == 'group' ]]; then
+		_cmds=(
+			"lfs setquota -g ${_gid} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
+		)
+	else
+		log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "   Unsuported Lustre quota type: ${lustre_quota_type}."
+	fi
 	for _cmd in "${_cmds[@]}"; do
 		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Applying cmd: ${_cmd}"
 		if [[ "${apply_settings}" -eq 1 ]]; then
