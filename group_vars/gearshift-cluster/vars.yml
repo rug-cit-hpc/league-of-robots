@@ -105,6 +105,7 @@ regular_groups:
   - 'umcg-lld'
   - 'umcg-llnext'
   - 'umcg-micompany'
+  - 'umcg-mmbimg'
   - 'umcg-msb'
   - 'umcg-oncogenetics'
   - 'umcg-pub'
@@ -188,6 +189,9 @@ regular_users:
   - user: 'umcg-micompany-dm'
     groups: ['umcg-micompany']
     sudoers: 'umcg-cxu,umcg-cvermeulen'
+  - user: 'umcg-mmbimg-dm'
+    groups: ['umcg-mmbimg']
+    sudoers: '%umcg-mmbimg-dms'
   - user: 'umcg-msb-dm'
     groups: ['umcg-msb']
     sudoers: '%umcg-msb'
@@ -244,7 +248,7 @@ lfs_mounts: [
         'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-franke-scrna',
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
-        'umcg-llnext', 'umcg-micompany', 'umcg-msb', 'umcg-oncogenetics',
+        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
         'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-tifn', 'umcg-ugli',
         'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
@@ -260,7 +264,7 @@ lfs_mounts: [
         'umcg-bios', 'umcg-dag3', 'umcg-datateam',
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
-        'umcg-llnext', 'umcg-micompany', 'umcg-msb', 'umcg-oncogenetics',
+        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
         'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-tifn', 'umcg-ugli',
         'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
