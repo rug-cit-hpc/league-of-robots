@@ -16,4 +16,13 @@
     daemon_reload: yes
   become: true
   listen: restart_mysql
+
+- name: Start MariaDB/MySQL service.
+  systemd:
+    name: 'mysql.service'
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  become: true
+  listen: start_mysql
 ...
