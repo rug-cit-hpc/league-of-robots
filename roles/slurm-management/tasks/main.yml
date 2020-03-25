@@ -133,7 +133,7 @@
     host: 'localhost'
     priv: "{{ slurm_database_name }}.*:ALL"
     connect_timeout: 120
-#  no_log: True
+  no_log: True
   notify:
     - restart_slurmdbd
 
