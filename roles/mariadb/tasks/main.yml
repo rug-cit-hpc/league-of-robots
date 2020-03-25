@@ -20,7 +20,7 @@
     state: latest
     update_cache: yes
   notify:
-    - start_mysql
+    - restart_mysql
   become: true
 
 - name: Deploy MariaDB/MySQL galara.cnf on node if we have at least three nodes.
