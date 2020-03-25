@@ -1,29 +1,26 @@
-# Install a docker based MariaDB.
+# Install  MariaDB.
 ---
 - name: Make MariaDB/MySQL settings volume.
   file:
     path: "{{ item }}"
     state: directory
-    mode: '0777' # This is broken, insecure, oops. 
+    mode: '0750'
     owner: root
     group: root
   with_items:
-      - '/srv/mariadb/lib/mysql'
-      - '/srv/mariadb/etc/mysql'
-      - '/srv/mariadb/etc/mysql/conf.d'
-  notify:
-    - restart_mysql
+      - '/lib/mysql'
+      - '/etc/mysql'
+      - '/etc/mysql/conf.d'
   become: true
 
-- name: Deploy MariaDB/MySQL config file.
-  copy:
-    src: 'files/my.cnf'
-    dest: '/srv/mariadb/etc/mysql/conf.d/my.cnf'
-    mode: '0660'
-    owner: root
-    group: root
+- name: Yum install mariadb-server.
+  yum:
+    name:
+      - mariadb-server
+    state: latest
+    update_cache: yes
   notify:
-    - restart_mysql
+    - start_mysql
   become: true
 
 - name: Deploy MariaDB/MySQL galara.cnf on node if we have at least three nodes.
@@ -38,54 +35,41 @@
   when: "'databases' in group_names and groups['databases'] | length >= 3"
   become: true
 
-  # This mimics galera_new_cluster.sh
-- name: Initialize a new MariaDB/MySQL cluster.
-  block:
-    - set_fact:
-        mariadb_args: "--wsrep-new-cluster"
-    - template:
-        src: 'templates/mysql.service'
-        dest: '/etc/systemd/system/mysql.service'
-        mode: '0644'
-        owner: root
-        group: root
-      notify:
-       - restart_mysql
-    - systemd:
-        name: mysql.service
-        state: started
-        enabled: yes
-        daemon_reload: yes
-  when: "'databases' in group_names and groups['databases'] \
-         | length >= 3 and ansible_hostname == hostname_node0"
+- name: Deploy MariaDB/MySQL config file.
+  copy:
+    src: 'files/my.cnf'
+    dest: '/etc/mysql/conf.d/my.cnf'
+    mode: '0660'
+    owner: root
+    group: root
+  notify:
+    - restart_mysql
   become: true
 
-- name: Install MariaDB/MySQL service file.
-  block:
-    - set_fact:
-        mariadb_args: ""
-    - template:
-        src: 'templates/mysql.service'
-        dest: '/etc/systemd/system/mysql.service'
-        mode: '0644'
-        owner: root
-        group: root
-      notify:
-       - restart_mysql
-  become: true
+# This command will fail when the root password was set previously
+- name: Check if root password is set
+  shell: >
+    mysqladmin -u root status
+  changed_when: false
+  failed_when: false
+  register: root_pwd_check
+
+- name: Set root user password
+  mysql_user:
+    name: root
+    host: "localhost"
+    password: "{{ MYSQL_ROOT_PASSWORD }}"
+    check_implicit_admin: true
+    login_unix_socket: "/var/lib/mysql/mysql.sock"
+    login_user: root
+    login_password: ""
+    state: present
+  when: root_pwd_check.rc == 0
 
 - name: Give the master node some time to initialize the MariaDB/MySQL cluster.
   command: bash -c "sleep 60"
   when: "'databases' in group_names and groups['databases'] \
          | length >= 3"
-
-- name: Make sure MariaDB/MySQL service is started.
-  systemd:
-    name: mysql.service
-    state: started
-    enabled: yes
-    daemon_reload: yes
-  become: true
 
 - name: Give the MariaDB/MySQL cluster some time to initialize replication.
   command: bash -c "sleep 60 && systemctl daemon-reload"
