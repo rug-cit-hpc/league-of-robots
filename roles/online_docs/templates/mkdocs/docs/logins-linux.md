@@ -310,3 +310,4 @@ while the right part remains a terminal where you can type commands.
 -----
 
 Back to operating system independent [instructions for logins](../logins/)
+

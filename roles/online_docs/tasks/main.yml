@@ -126,6 +126,7 @@
     - "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
     - "/srv/mkdocs/{{ slurm_cluster_name }}/docs/attachments"
     - "/var/www/html/{{ slurm_cluster_name }}/"
+    - "/var/www/html/{{ slurm_cluster_name }}/attachments/"
   become: true
 
 - name: 'Create static files for index in document root.'

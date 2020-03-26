@@ -487,7 +487,6 @@ else
 	log4Bash 'ERROR' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Failed to login; check if your network wired or using WiFi is up.'
 	log4Bash 'WARN' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Consult the online documentation for debugging options.'
 fi
-
 read -e -p "Press [ENTER] to exit."
 
 trap - EXIT
