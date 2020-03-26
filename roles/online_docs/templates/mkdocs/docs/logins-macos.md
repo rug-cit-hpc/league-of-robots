@@ -15,15 +15,26 @@ The following assumes:
       This is accomplished by only adding an ```Include conf.d/*``` directive to your main ```${HOME}/.ssh/config```  
       All the {{ slurm_cluster_name | capitalize }} specific code is added to a ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}``` config file.
     * Updates the config for {{ slurm_cluster_name | capitalize }} if the script is executed again.
- * Download the zipped [ssh-client-config-for-{{ slurm_cluster_name }}.app](../attachments/ssh-client-config-for-{{ slurm_cluster_name }}.zip) script.
- * Locate and unzip the downloaded archive, which will result in an ```ssh-client-config-for-{{ slurm_cluster_name }}.app```
- * The ssh-client-config-for-{{ slurm_cluster_name }}.app is a wrapper for the configuration script and can be executed by double clicking it in the ```Finder```.
- * The app will open the script in the ```Terminal``` application and prompt for your account name.  
-   Type your account name and hit the [ENTER] key on your keyboard.
+ * Download the zipped [ssh-client-config-for-{{ slurm_cluster_name }}](../attachments/ssh-client-config-for-{{ slurm_cluster_name }}-macos.zip) AppleScript application.
+ * Locate and unzip the downloaded archive, which will result in an ```ssh-client-config-for-{{ slurm_cluster_name }}``` application  
+   (optionally with ```.app``` extension depending on your display preferences).
+ * The ```ssh-client-config-for-{{ slurm_cluster_name }}``` app is a wrapper for the configuration script and can be started by double clicking in the ```Finder``` application.
+ * Depending on your macOS version, you may receive a pop-up requesting permission to allow access to the ```Terminal``` application:  
+   ![Allow access to the Terminal.app](img/ssh-client-config-macos-1.png)
+   Click _Ok_ to allow access to the ```Terminal```.  
+   If you want to revoke this permission or change it back to allow later on, you can do so in 
+    _System Preferences_ -> _Security & Privacy_ prefs -> _Privacy_ tab -> _Automation_
+ * The ```ssh-client-config-for-{{ slurm_cluster_name }}``` app will open the configuration script in the ```Terminal``` application and prompt for your account name.  
+   ![Allow access to the Terminal.app](img/ssh-client-config-macos-2.png)
+   Type your account name as you received it from the helpdesk and hit the [ENTER] key on your keyboard.
  * Done!
- * If you made a mistake, you can simply re-run the script again to update/fix your config.
+ * If you made a mistake, you can simply re-run the ```ssh-client-config-for-{{ slurm_cluster_name }}``` app again to update/fix your config.
 
-##### 3. Login via Jumphost
+##### 2A. Login on the commandline in a Terminal
+
+Note: If you only need to transfer data and prefer a Graphical User Interface (GUI), you can skip this and scroll down to the section _2B. Transfer data using a GUI_.
+
+If you want to transfer data using the commandline or analyze data on the cluster using jobs:
 
  * You can now login to the _UI_ named ```{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` 
    with the account as specified in your ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}``` 
@@ -44,6 +55,21 @@ The following assumes:
  * In case you are on a network where the default port for _SSH_ (22) is blocked by a firewall you can try to setup _SSH_ over port 443, which is the default for HTTPS and almost always allowed, using an alias like this:
 
         ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}443+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+
+##### 2B. Transfer data using a GUI
+
+To the best of our knowledge there is only one file transfer application with a Graphical User Interface that is both free and supports multi-hop SSH via a jumphost by using your OpenSSH config: _ForkLift 2_
+You can get _ForkLift 2_ from the App store. Please note that there is a newer version _ForkLift 3_, but this one is not available from the App store neither is it free.
+There are other options, but those are either paid apps or they don't support multi-hop SSH using your OpenSSH config. 
+
+To start a session with _ForkLift 2_ use:
+
+ * _Protocol:_ **SFTP**
+ * _Name_: **{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**
+ * _Server_: **{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**
+ * _Username_: your account name as you received it from the helpdesk
+ * Leave empty and use defaults for all remaining fields.  
+   Hence leave the _Password_ field empty too!
 
 #### Frequent Asked Questions (FAQs) and trouble shooting
 
@@ -104,3 +130,6 @@ The following assumes:
         3. A copy of your ```${HOME}/.ssh/config``` file.
      * **Never ever send us your private key**; It does not help to debug your connection problems, but will render the key useless as it is no longer private.
 
+-----
+
+Back to operating system independent [instructions for logins](../logins/)

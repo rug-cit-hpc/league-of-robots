@@ -64,11 +64,15 @@ Enter file in which to save the key (/path/to/your/home_dir/.ssh/id_ed25519): <r
 ```
 By default it will be stored in your ```~/.ssh/``` folder where ```~``` is your home directory.
 The public key will be stored in the same location as the private key, start with the same name as the private key and have a ```.pub``` suffix.  
+
 WARNING:
- 1. Accepting the default may overwrite existing keys, so check first if you already have a key in that location!  
-    Only accept the default by pressing the *\<return\>* key if you have no key in the default location.
- 2. OpenSSH will by default use the key from the default location. 
-    If you create the key in a non-default location, you will need to explicitly specify which key file to use when connecting via ssh or sftp.
+
+ 1. Accepting the default will overwrite an existing key pair,
+    so only accept the default if you either do not have a default key pair yet
+    or if you want to replace your default key pair.
+ 2. If you create a key pair in a non-default location, 
+    you will need to explicitly specify which key file to use when you start a session.
+    Consult the OpenSSH manual for details.
 
 ###### Secure the private key
 
@@ -99,7 +103,8 @@ as it features a key generator, terminal and graphical user interface for data t
 The following steps use the *portable* version of *MobaXterm Home Edition*, which is free and does not need to be installed with an installer;
 just download, unpack and execute.
 If you want to use another terminal, key generator or data transfer app please consult their manuals...
-
+ 
+ * 0: Check your MobaXterm version is **12.3 or newer** as older ones have a known bug and won't work.
  * 1: Launch MobaXterm and choose the ```MobaKeyGen (SSH key generator)``` from the tools as shown in the screenshot below.
 
 ![launch MobaKeyGen](img/MobaXterm1.png)

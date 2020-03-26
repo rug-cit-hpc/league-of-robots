@@ -307,3 +307,6 @@ You have now logged in to the UI {{ groups['user-interface'] | first | regex_rep
 The left part of the window with white background switched to a file browser, 
 while the right part remains a terminal where you can type commands.
 
+-----
+
+Back to operating system independent [instructions for logins](../logins/)

@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 #!/bin/bash
 #
 # Bash sanity.
@@ -251,6 +252,7 @@ function manageConfig() {
 	#
 	# Make new known_hosts file the default.
 	#
+	log4Bash 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Replacing ${HOME}/.ssh/known_hosts with ${HOME}/.ssh/known_hosts.new ..."
 	mv "${HOME}/.ssh/known_hosts.new" "${HOME}/.ssh/known_hosts"
 	#
 	# Create main config file if it did not already exist.
@@ -264,11 +266,33 @@ function manageConfig() {
 	# so we can easily update that by replacing the {{ slurm_cluster_name | capitalize }} config file
 	# without affecting any other SSH configs.
 	#
-	if grep -Fcq 'Include conf.d/*' "${HOME}/.ssh/config"; then
-		log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Include directive for conf.d subdir already present in main ${HOME}/.ssh/config."
+	if grep -cqi '^Include conf.d/\*$' "${HOME}/.ssh/config"; then
+		#
+		# Check the order: the Include directive must be placed before any Host or Match directives,
+		# otherwise the Include will only apply to a specific set of hosts.
+		#
+		if grep -cqi '^Host\|^Match' "${HOME}/.ssh/config"; then
+			local _first_line_include="$(grep -in '^Include conf.d/\*$' "${HOME}/.ssh/config" | head -n 1 | awk -F ':' '{print $1}')"
+			local _first_line_host_or_match="$(grep -in '^Host\|^Match'  "${HOME}/.ssh/config" | head -n 1 | awk -F ':' '{print $1}')"
+			if [[ "${_first_line_include}" -lt "${_first_line_host_or_match}" ]]; then
+				log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Include directive for conf.d subdir already present in main ${HOME}/.ssh/config file"
+				log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "    and located in correct order: before Host or Match directives."
+			else
+				log4Bash 'ERROR' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Include directive for conf.d subdir already present in main ${HOME}/.ssh/config file on the wrong line."
+				log4Bash 'ERROR' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'The order is important: the line "Include conf.d/*" must be present before any "Host ..." or "Match ..." directives.'
+				log4Bash 'FATAL' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Fix the order of lines in your ${HOME}/.ssh/config file manually and run this script again."
+			fi
+		else
+			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Include directive for conf.d subdir already present in main ${HOME}/.ssh/config file."
+		fi
 	else
-		log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Appending Include directive for conf.d subdir to main config ${HOME}/.ssh/config."
-		printf '%s\n' 'Include conf.d/*' >> "${HOME}/.ssh/config"
+		log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Adding Include directive for conf.d subdir to config ${HOME}/.ssh/config."
+		log4Bash 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Prepending Include directive for conf.d subdir to new config ${HOME}/.ssh/config.new ..."
+		printf '%s\n\n' 'Include conf.d/*' > "${HOME}/.ssh/config.new"
+		log4Bash 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Appending existing ${HOME}/.ssh/config to new config ${HOME}/.ssh/config.new ..."
+		cat "${HOME}/.ssh/config" >> "${HOME}/.ssh/config.new"
+		log4Bash 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Replacing existing ${HOME}/.ssh/config with ${HOME}/.ssh/config.new ..."
+		mv "${HOME}/.ssh/config.new" "${HOME}/.ssh/config"
 	fi
 	#
 	# Create cluster specific config file
@@ -445,9 +469,25 @@ manageConfig "${user}"
 # Notify user.
 #
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Finished configuring your SSH client for logins to {{ slurm_cluster_name | capitalize }}.'
-log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'You can log in to User Interface {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} via jumphost {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} in a terminal with the following SSH command:'
-log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}'
-log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'For additional examples and how to transfer data with rsync over SSH see the online documentation.'
+log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'You can log in to User Interface {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}'
+log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    via jumphost {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}'
+log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    in a terminal with the following SSH command:'
+log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}'
+log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'We will now test your connection by executing the above SSH command to login and logout.'
+log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'If this is the first time your private key will be used for an SSH session,'
+log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    you will receive a pop-up to supply the password for your private key,'
+log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    which can be stored in your login KeyChain,'
+log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "    so you won't have to retype the password again for a subsequent SSH session."
+read -e -p "Press [ENTER] to test your connection."
+if ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} exit; then
+	log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Login was succesful.'
+	log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Consult the online documentation for additional examples '
+	log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    and how to transfer data with rsync over SSH.'
+else
+	log4Bash 'ERROR' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Failed to login; check if your network wired or using WiFi is up.'
+	log4Bash 'WARN' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Consult the online documentation for debugging options.'
+fi
+
 read -e -p "Press [ENTER] to exit."
 
 trap - EXIT

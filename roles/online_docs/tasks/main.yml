@@ -122,8 +122,10 @@
     mode: '0755'
   with_items:
     - "/srv/mkdocs/{{ slurm_cluster_name }}/"
+    - "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/"
+    - "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
+    - "/srv/mkdocs/{{ slurm_cluster_name }}/docs/attachments"
     - "/var/www/html/{{ slurm_cluster_name }}/"
-    - "/var/www/html/{{ slurm_cluster_name }}/attachments/"
   become: true
 
 - name: 'Create static files for index in document root.'
@@ -210,7 +212,7 @@
 - name: 'Create skeleton for AppleScript app.'
   synchronize:
     src: "{{ playbook_dir }}/roles/online_docs/files/ssh-client-config.app/./"
-    dest: "/var/www/html/{{ slurm_cluster_name }}/attachments/ssh-client-config-for-{{ slurm_cluster_name }}.app"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/ssh-client-config-for-{{ slurm_cluster_name }}.app"
     owner: 'no'
     group: 'no'
     use_ssh_args: 'yes'
@@ -219,35 +221,56 @@
       - '--relative'
       - '--omit-dir-times'
       - '--omit-link-times'
-      - '--chmod=Du=rwx,Dgo-rwx,Fu=rw,Fgo-rwx'
+      - '--chmod=Dug=rwx,Do-rwx,Fug=rwX,Fo-rwx'
       - '--perms'
       - '--force'
   become: true
 
-- name: 'Create attachments based on templates.'
+- name: 'Make sure AppleScript app main script is executable.'
+  file:
+    path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/ssh-client-config-for-{{ slurm_cluster_name }}.app/Contents/MacOS/applet"
+    state: file
+    owner: root
+    group: root
+    mode: '0750'
+  become: true
+
+- name: 'Create files for attachments based on templates.'
   template:
     src: "attachments/{{ item.src }}"
-    dest: "/var/www/html/{{ slurm_cluster_name }}/attachments/{{ item.dest }}"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.dest }}"
     owner: root
     group: root
     mode: "{{ item.mode }}"
   with_items:
+    #
+    # For macOS users we inject the configuration script for this cluster into the AppleScript app skeleton:
+    # 
+    #
     - src: 'ssh-client-config.bash'
-      dest: "ssh-client-config-for-{{ slurm_cluster_name }}.app/Contents/MacOS/ssh-client-config.command" # For macOS users.
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}.app/Contents/MacOS/ssh-client-config.command"
       mode: '0755'
+    #
+    # For Linux/Unix users: just generate a bare Bash script.
+    #
     - src: 'ssh-client-config.bash'
-      dest: "ssh-client-config-for-{{ slurm_cluster_name }}.bash" # For Linux/Unix users.
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}.bash"
       mode: '0755'
   become: true
 
-- name: 'Zip the AppleScript app bundle.'
+- name: 'Zip the ssh-client-config tools from the tmp subfolder and save the archives in the attachments subfolder.'
   archive:
-    path: "/var/www/html/{{ slurm_cluster_name }}/attachments/ssh-client-config-for-{{ slurm_cluster_name }}.app"
-    dest: "/var/www/html/{{ slurm_cluster_name }}/attachments/ssh-client-config-for-{{ slurm_cluster_name }}.zip"
+    path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.path }}"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/attachments/{{ item.dest }}"
     format: 'zip'
     owner: root
     group: root
     mode: '0644'
+  with_items:
+    - path: "ssh-client-config-for-{{ slurm_cluster_name }}.app"
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}-macos.zip"
+    - path: "ssh-client-config-for-{{ slurm_cluster_name }}.bash"
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}-linux.zip"
   become: true
 
 - name: 'Create MarkDown files based on templates.'
