@@ -114,8 +114,6 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'slaurie'
     groups: ['users', 'solve-rd']
-  - user: 'mpauper'
-    groups: ['users', 'solve-rd']
   - user: 'jvdvelde'
     groups: ['users', 'solve-rd']
   - user: 'fmusacchia'
@@ -155,6 +153,8 @@ regular_users:
   - user: 'asommer'
     groups: ['users', 'solve-rd']
   - user: 'droelofs'
+    groups: ['users', 'solve-rd']
+  - user: 'dlagorce'
     groups: ['users', 'solve-rd']
 pfs_mounts: [
   { pfs: 'ecst02',
