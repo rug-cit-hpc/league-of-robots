@@ -46,6 +46,17 @@
     - restart_mysql
   become: true
 
+- name: Deploy MariaDB/MySQL innodb settings file
+  copy:
+    src: 'files/innodb.cnf'
+    dest: '/etc/my.cnf.d/innodb.cnf'
+    mode: '0660'
+    owner: root
+    group: root
+  notify:
+    - restart_mysql
+  become: true
+
 # This command will fail when the root password was set previously
 - name: Check if root password is set
   shell: >
