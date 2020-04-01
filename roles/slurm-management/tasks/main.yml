@@ -130,7 +130,7 @@
     login_password: "{{ MYSQL_ROOT_PASSWORD }}"
     name: "{{ slurm_storage_user }}"
     password: "{{ slurm_storage_pass }}"
-    host: '%'
+    host: 'localhost'
     priv: "{{ slurm_database_name }}.*:ALL"
     connect_timeout: 120
   no_log: True
@@ -260,7 +260,6 @@
 
 - name: Create Slurm accounting DB backup now.
   shell: |
-         /bin/docker run --network host --rm mariadb \
              mysqldump --all-databases -uroot -p{{ MYSQL_ROOT_PASSWORD }} -h 127.0.0.1 \
                > /root/slurm/backup/slurm.sql
   tags:
@@ -275,8 +274,7 @@
     hour: '3'
     job: >
       /bin/cp --backup=numbered /root/slurm/backup/slurm.sql /root/slurm/backup/slurm_bak.sql
-      && /bin/docker run --network host --rm mariadb
-      mysqldump --all-databases -uroot -p{{ MYSQL_ROOT_PASSWORD }} -h 127.0.0.1
+      && mysqldump --all-databases -uroot -p{{ MYSQL_ROOT_PASSWORD }} -h localhost
       > /root/slurm/backup/slurm.sql
       && /bin/find /root/slurm/backup/slurm_bak.sql.* -mtime 7 -delete
   tags:
