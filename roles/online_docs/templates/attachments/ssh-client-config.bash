@@ -475,7 +475,7 @@ log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    in a terminal with t
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}'
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'We will now test your connection by executing the above SSH command to login and logout.'
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'If this is the first time your private key will be used for an SSH session,'
-log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    you will receive a pop-up to supply the password for your private key,'
+log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    you will receive a prompt to supply the password for your private key,'
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    which can be stored in your login KeyChain,'
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "    so you won't have to retype the password again for a subsequent SSH session."
 read -e -p "Press [ENTER] to test your connection."
