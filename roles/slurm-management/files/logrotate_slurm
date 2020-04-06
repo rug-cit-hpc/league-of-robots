@@ -16,4 +16,5 @@
            postrotate
             systemctl reload slurmctld.service
             systemctl reload slurmdbd.service
+           endscript
        }
