@@ -30,7 +30,7 @@
   template:
     src: 'files/galera.cnf'
     dest: '/etc/my.cnf.d/galera.cnf'
-    mode: '0660'
+    mode: '0644'
     owner: 'root'
     group: 'root'
   notify:
@@ -42,13 +42,21 @@
   copy:
     src: "files/{{ item }}"
     dest: "/etc/my.cnf.d/{{ item }}"
-    mode: '0660'
+    mode: '0644'
     owner: 'root'
     group: 'root'
   with_items:
     - 'innodb.cnf'
   notify:
-    - restart_mariadb
+    - 'restart_mariadb'
+  become: true
+
+- name: 'Make sure the MariaDB/MySQL service is enabled and started.'
+  systemd:
+    name: 'mariadb.service'
+    state: 'started'
+    enabled: 'yes'
+    daemon_reload: 'yes'
   become: true
 
 # This command will fail when the root password was set previously
@@ -70,6 +78,13 @@
     login_password: ''
     state: 'present'
   when: root_pwd_check.rc == 0
+
+#
+# Must flush handlers explicitly, because this role is included as dependency for Slurm.
+# Without explicit flush the handlers will run after the slurm rol tasks,
+# which is too late resulting in Slurm unable to work with the Slurm Accounting DB.
+#
+- meta: flush_handlers
 
 - name: 'Give the MariaDB/MySQL master node some time to initialize the database cluster.'
   command: bash -c "sleep 60"

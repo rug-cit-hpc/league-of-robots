@@ -1,6 +1,6 @@
 # Deploy Slurm control host.
 ---
-- name: Add Slurm group.
+- name: 'Add Slurm group.'
   group:
     name: slurm
     gid: "{{ slurm_gid }}"
@@ -9,7 +9,7 @@
     - restart_slurmctld
   become: true
 
-- name: Add Munge group.
+- name: 'Add Munge group.'
   group:
     name: munge
     gid: "{{ munge_gid }}"
@@ -19,7 +19,7 @@
     - restart_slurmctld
   become: true
 
-- name: Add Slurm user.
+- name: 'Add Slurm user.'
   user:
     name: slurm
     uid: "{{ slurm_uid }}"
@@ -29,7 +29,7 @@
     - restart_slurmctld
   become: true
 
-- name: Add Munge user.
+- name: 'Add Munge user.'
   user:
     name: munge
     uid: "{{ munge_uid }}"
@@ -40,7 +40,7 @@
     - restart_slurmctld
   become: true
 
-- name: Install munge
+- name: 'Install munge.'
   yum:
     state: latest
     update_cache: yes
@@ -48,7 +48,7 @@
       - munge
   become: true
 
-- name: Install a logrotate file for slurm.
+- name: 'Install a logrotate file for slurm.'
   copy:
     src: "files/logrotate_slurm"
     owner: 'root'
@@ -57,7 +57,7 @@
     dest: '/etc/logrotate.d/slurm'
   become: true
 
-- name: Install munge.key file.
+- name: 'Install munge.key file.'
   copy:
     src: "files/{{ slurm_cluster_name }}_munge.key"
     owner: 'munge'
@@ -70,7 +70,7 @@
     - restart_slurmctld
   become: true
 
-- name: Install Slurm management dependencies with yum.
+- name: 'Install Slurm management dependencies with yum.'
   yum:
     state: latest
     update_cache: yes
@@ -83,7 +83,7 @@
     - restart_slurmctld
   become: true
 
-- name: Install Slurm management deamons with yum.
+- name: 'Install Slurm management deamons with yum.'
   yum:
     state: installed
     update_cache: yes
@@ -99,7 +99,7 @@
     - restart_slurmctld
   become: true
 
-- name: Patch slurm daemon systemd service files to use custom sub dir for PID files.
+- name: 'Patch slurm daemon systemd service files to use custom sub dir for PID files.'
   lineinfile:
     path: "/usr/lib/systemd/system/{{ item }}.service"
     regexp: '^PIDFile='
@@ -112,22 +112,24 @@
     - restart_slurmctld
   become: true
 
-- name: Create a database for Slurm accounting.
+- name: 'Create a database for Slurm accounting.'
   mysql_db:
-    login_host: 127.0.0.1
+    login_host: 'localhost'
     login_user: 'root'
     login_password: "{{ MYSQL_ROOT_PASSWORD }}"
+    login_unix_socket: "/var/lib/mysql/mysql.sock"
     name: "{{ slurm_database_name }}"
     state: 'present'
   no_log: True
   notify:
     - restart_slurmdbd
 
-- name: Make sure the slurm database user is present and grant privileges on the Slurm accounting DB.
+- name: 'Make sure the slurm database user is present and grant privileges on the Slurm accounting DB.'
   mysql_user:
-    login_host: 127.0.0.1
+    login_host: 'localhost'
     login_user: 'root'
     login_password: "{{ MYSQL_ROOT_PASSWORD }}"
+    login_unix_socket: "/var/lib/mysql/mysql.sock"
     name: "{{ slurm_storage_user }}"
     password: "{{ slurm_storage_pass }}"
     host: 'localhost'
@@ -137,7 +139,7 @@
   notify:
     - restart_slurmdbd
 
-- name: Create folders for Slurm.
+- name: 'Create folders for Slurm.'
   file:
     name: "{{ item.name }}"
     owner: "{{ item.owner }}"
@@ -163,7 +165,7 @@
       mode: '0775'
   become: true
 
-- name: Install Slurm config file.
+- name: 'Install Slurm config file.'
   template:
     src: 'templates/slurm.conf'
     dest: '/etc/slurm/slurm.conf'
@@ -175,7 +177,7 @@
   tags:
     - slurm.conf
 
-- name: Install Slurm DBD config file.
+- name: 'Install Slurm DBD config file.'
   template:
     src: 'templates/slurmdbd.conf'
     dest: '/etc/slurm/slurmdbd.conf'
@@ -185,7 +187,7 @@
   notify: reload_slurmdbd
   become: true
 
-- name: Install Slurm scripts.
+- name: 'Install Slurm scripts.'
   copy:
     src: "files/{{ item }}"
     dest: "/etc/slurm/{{ item }}"
@@ -196,7 +198,7 @@
     - 'job_submit.lua'
   become: true
 
-- name: Make sure slurmdbd and munge services are enabled and started.
+- name: 'Make sure slurmdbd and munge services are enabled and started.'
   systemd:
     name: "{{item}}"
     state: 'started'
@@ -207,7 +209,7 @@
     - 'slurmdbd.service'
   become: true
 
-- name: Copy Slurm DB initialization script to host running slurmdbd.
+- name: 'Copy Slurm DB initialization script to host running slurmdbd.'
   template:
     src: 'templates/configure_slurm_accounting_db.bash'
     dest: '/etc/slurm/configure_slurm_accounting_db.bash'
@@ -221,7 +223,7 @@
 #
 - meta: flush_handlers
 
-- name: Execute Slurm DB initialization script on host running slurmdbd.
+- name: 'Execute Slurm DB initialization script on host running slurmdbd.'
   shell: |
          /etc/slurm/configure_slurm_accounting_db.bash
   tags:
@@ -239,7 +241,7 @@
   failed_when: command_result.stderr != ''
   become: true
 
-- name: Make sure slurmctld service is enabled and started now that the cluster DB is present.
+- name: 'Make sure slurmctld service is enabled and started now that the cluster DB is present.'
   systemd:
     name: 'slurmctld.service'
     state: 'started'
@@ -247,7 +249,7 @@
     daemon_reload: yes
   become: true
 
-- name: Make backup dir.
+- name: 'Make backup dir.'
   file:
     path: '/root/slurm/backup'
     state: 'directory'
@@ -258,23 +260,25 @@
     - backup
   become: true
 
-- name: Create Slurm accounting DB backup now.
+- name: 'Create Slurm accounting DB backup now.'
   shell: |
-             mysqldump --all-databases -uroot -p{{ MYSQL_ROOT_PASSWORD }} -h 127.0.0.1 \
-               > /root/slurm/backup/slurm.sql
+         mysqldump --all-databases \
+             -uroot -p{{ MYSQL_ROOT_PASSWORD }} \
+             -h localhost --protocol=socket \
+             > /root/slurm/backup/slurm.sql
   tags:
     - backup
   no_log: true
   become: true
 
-- name: Deploy cron job to backup the Slurm accounting DB every night. Keep 7 backups.
+- name: 'Deploy cron job to backup the Slurm accounting DB every night. Keep 7 backups.'
   cron:
     name: 'Slurm database backup'
     minute: '11'
     hour: '3'
     job: >
       /bin/cp --backup=numbered /root/slurm/backup/slurm.sql /root/slurm/backup/slurm_bak.sql
-      && mysqldump --all-databases -uroot -p{{ MYSQL_ROOT_PASSWORD }} -h localhost
+      && mysqldump --all-databases -uroot -p{{ MYSQL_ROOT_PASSWORD }} -h localhost --protocol=socket
       > /root/slurm/backup/slurm.sql
       && /bin/find /root/slurm/backup/slurm_bak.sql.* -mtime 7 -delete
   tags:
