@@ -80,6 +80,7 @@ local_admin_users:
   - 'kees'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
+functional_admin_group: 'umcg-funad'
 hpc_env_prefix: '/apps'
 regular_groups:
   - 'umcg-aad'
