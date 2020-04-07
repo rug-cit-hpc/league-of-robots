@@ -69,10 +69,12 @@ local_admin_users:
   - 'kim'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
+functional_admin_group: 'umcg-funad'
 hpc_env_prefix: '/apps'
 regular_groups:
   - 'umcg-atd'
   - 'umcg-depad'
+  - 'umcg-endocrinology'
   - 'umcg-gcc'
   - 'umcg-lifelines'
 regular_users:
@@ -82,6 +84,9 @@ regular_users:
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
+  - user: 'umcg-endocrinology-dm'
+    groups: ['umcg-endocrinology']
+    sudoers: '%umcg-endocrinology-dms'
   - user: 'umcg-gcc-dm'
     groups: ['umcg-gcc']
     sudoers: '%umcg-gcc'
@@ -101,7 +106,7 @@ lfs_mounts: [
     machines: "{{ groups['cluster'] }}" },
   { lfs: 'tmp08',
     pfs: 'umcgst11',
-    groups: ['umcg-atd', 'umcg-gcc', 'umcg-lifelines'] },
+    groups: ['umcg-atd', 'umcg-endocrinology', 'umcg-gcc', 'umcg-lifelines'] },
   { lfs: 'prm08',
     pfs: 'umcgst11',
     groups: ['umcg-atd', 'umcg-gcc', 'umcg-lifelines'] },
