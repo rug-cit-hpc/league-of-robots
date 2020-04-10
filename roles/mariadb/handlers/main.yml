@@ -9,20 +9,20 @@
 #
 # Currently restart only: mysql.service does not support reloads yet :(.
 #
-- name: Restart MariaDB/MySQL service.
+- name: 'Restart MariaDB/MySQL service.'
   systemd:
-    name: 'mysql.service'
-    state: restarted
+    name: 'mariadb.service'
+    state: 'restarted'
     daemon_reload: yes
   become: true
-  listen: restart_mysql
+  listen: restart_mariadb
 
-- name: Start MariaDB/MySQL service.
+- name: 'Start MariaDB/MySQL service.'
   systemd:
-    name: 'mysql.service'
-    state: started
+    name: 'mariadb.service'
+    state: 'started'
     enabled: yes
     daemon_reload: yes
   become: true
-  listen: start_mysql
+  listen: start_mariadb
 ...

@@ -1,88 +1,97 @@
 # Install  MariaDB.
 ---
-- name: Make MariaDB/MySQL settings volume.
-  file:
-    path: "{{ item }}"
-    state: directory
-    mode: '0750'
-    owner: root
-    group: root
-  with_items:
-      - '/lib/mysql'
-      - '/etc/mysql'
-      - '/etc/mysql/conf.d'
-  become: true
-
-- name: Yum install mariadb-server.
+- name: 'Install mariadb-server.'
   yum:
     name:
-      - mariadb-server
-    state: latest
+      - 'mariadb-server'
+    state: 'latest'
     update_cache: yes
   notify:
-    - restart_mysql
+    - 'restart_mariadb'
   become: true
 
-- name: Deploy MariaDB/MySQL galara.cnf on node if we have at least three nodes.
+- name: 'Create/check dirs used by MariaDB/MySQL.'
+  file:
+    path: "{{ item.path }}"
+    state: 'directory'
+    mode: "{{ item.mode }}"
+    owner: "{{ item.og }}"
+    group: "{{ item.og }}"
+  with_items:
+    - path: '/var/lib/mysql'
+      mode: '0755'
+      og: 'mysql'
+    - path: '/etc/my.cnf.d/'
+      mode: '0755'
+      og: 'root'
+  become: true
+
+- name: 'Deploy MariaDB/MySQL galara.cnf on node if we have at least three nodes.'
   template:
-    src: files/galera.cnf
-    dest: /srv/mariadb/etc/mysql/conf.d/galera.cnf
-    mode: '0660'
-    owner: root
-    group: root
+    src: 'files/galera.cnf'
+    dest: '/etc/my.cnf.d/galera.cnf'
+    mode: '0644'
+    owner: 'root'
+    group: 'root'
   notify:
-    - restart_mysql
+    - restart_mariadb
   when: "'databases' in group_names and groups['databases'] | length >= 3"
   become: true
 
-- name: Deploy MariaDB/MySQL config file.
+- name: 'Deploy MariaDB/MySQL config files.'
   copy:
-    src: 'files/my.cnf'
-    dest: '/etc/mysql/conf.d/my.cnf'
-    mode: '0660'
-    owner: root
-    group: root
+    src: "files/{{ item }}"
+    dest: "/etc/my.cnf.d/{{ item }}"
+    mode: '0644'
+    owner: 'root'
+    group: 'root'
+  with_items:
+    - 'innodb.cnf'
   notify:
-    - restart_mysql
+    - 'restart_mariadb'
   become: true
 
-- name: Deploy MariaDB/MySQL innodb settings file
-  copy:
-    src: 'files/innodb.cnf'
-    dest: '/etc/my.cnf.d/innodb.cnf'
-    mode: '0660'
-    owner: root
-    group: root
-  notify:
-    - restart_mysql
+- name: 'Make sure the MariaDB/MySQL service is enabled and started.'
+  systemd:
+    name: 'mariadb.service'
+    state: 'started'
+    enabled: 'yes'
+    daemon_reload: 'yes'
   become: true
 
 # This command will fail when the root password was set previously
-- name: Check if root password is set
+- name: 'Check if MariaDB/MySQL root password is set.'
   shell: >
     mysqladmin -u root status
   changed_when: false
   failed_when: false
   register: root_pwd_check
 
-- name: Set root user password
+- name: 'Set MariaDB/MySQL root user password.'
   mysql_user:
-    name: root
-    host: "localhost"
+    name: 'root'
+    host: 'localhost'
     password: "{{ MYSQL_ROOT_PASSWORD }}"
     check_implicit_admin: true
     login_unix_socket: "/var/lib/mysql/mysql.sock"
-    login_user: root
-    login_password: ""
-    state: present
+    login_user: 'root'
+    login_password: ''
+    state: 'present'
   when: root_pwd_check.rc == 0
 
-- name: Give the master node some time to initialize the MariaDB/MySQL cluster.
+#
+# Must flush handlers explicitly, because this role is included as dependency for Slurm.
+# Without explicit flush the handlers will run after the slurm rol tasks,
+# which is too late resulting in Slurm unable to work with the Slurm Accounting DB.
+#
+- meta: flush_handlers
+
+- name: 'Give the MariaDB/MySQL master node some time to initialize the database cluster.'
   command: bash -c "sleep 60"
   when: "'databases' in group_names and groups['databases'] \
          | length >= 3"
 
-- name: Give the MariaDB/MySQL cluster some time to initialize replication.
+- name: 'Give the MariaDB/MySQL cluster some time to initialize replication.'
   command: bash -c "sleep 60 && systemctl daemon-reload"
   when: "'databases' in group_names and groups['databases'] | length >= 3"
   become: true

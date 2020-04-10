@@ -1,7 +1,6 @@
 ---
 - hosts: slurm-management
   roles:
-     - docker
      - mariadb
      - slurm-management
   vars:
