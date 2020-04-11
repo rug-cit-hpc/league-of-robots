@@ -2,50 +2,50 @@
 ---
 - name: 'Add Slurm group.'
   group:
-    name: slurm
+    name: 'slurm'
     gid: "{{ slurm_gid }}"
   notify:
-    - restart_slurmdbd
-    - restart_slurmctld
+    - 'restart_slurmdbd'
+    - 'restart_slurmctld'
   become: true
 
 - name: 'Add Munge group.'
   group:
-    name: munge
+    name: 'munge'
     gid: "{{ munge_gid }}"
   notify:
-    - restart_munge
-    - restart_slurmdbd
-    - restart_slurmctld
+    - 'restart_munge'
+    - 'restart_slurmdbd'
+    - 'restart_slurmctld'
   become: true
 
 - name: 'Add Slurm user.'
   user:
-    name: slurm
+    name: 'slurm'
     uid: "{{ slurm_uid }}"
-    group: slurm
+    group: 'slurm'
   notify:
-    - restart_slurmdbd
-    - restart_slurmctld
+    - 'restart_slurmdbd'
+    - 'restart_slurmctld'
   become: true
 
 - name: 'Add Munge user.'
   user:
-    name: munge
+    name: 'munge'
     uid: "{{ munge_uid }}"
-    group: munge
+    group: 'munge'
   notify:
-    - restart_munge
-    - restart_slurmdbd
-    - restart_slurmctld
+    - 'restart_munge'
+    - 'restart_slurmdbd'
+    - 'restart_slurmctld'
   become: true
 
 - name: 'Install munge.'
   yum:
-    state: latest
+    state: 'latest'
     update_cache: yes
     name:
-      - munge
+      - 'munge'
   become: true
 
 - name: 'Install a logrotate file for slurm.'
@@ -65,27 +65,27 @@
     mode: '0600'
     dest: '/etc/munge/munge.key'
   notify:
-    - restart_munge
-    - restart_slurmdbd
-    - restart_slurmctld
+    - 'restart_munge'
+    - 'restart_slurmdbd'
+    - 'restart_slurmctld'
   become: true
 
 - name: 'Install Slurm management dependencies with yum.'
   yum:
-    state: latest
+    state: 'latest'
     update_cache: yes
     name:
       - 'MySQL-python'
       - 'lua-posix'
   notify:
-    - restart_munge
-    - restart_slurmdbd
-    - restart_slurmctld
+    - 'restart_munge'
+    - 'restart_slurmdbd'
+    - 'restart_slurmctld'
   become: true
 
 - name: 'Install Slurm management deamons with yum.'
   yum:
-    state: installed
+    state: 'installed'
     update_cache: yes
     allow_downgrade: yes
     name:
@@ -94,9 +94,9 @@
       - "slurm-slurmdbd*{{ slurm_version }}"
       - "slurm-perlapi*{{ slurm_version }}"
   notify:
-    - restart_munge
-    - restart_slurmdbd
-    - restart_slurmctld
+    - 'restart_munge'
+    - 'restart_slurmdbd'
+    - 'restart_slurmctld'
   become: true
 
 - name: 'Patch slurm daemon systemd service files to use custom sub dir for PID files.'
@@ -108,8 +108,8 @@
     - 'slurmctld'
     - 'slurmdbd'
   notify:
-    - restart_slurmdbd
-    - restart_slurmctld
+    - 'restart_slurmdbd'
+    - 'restart_slurmctld'
   become: true
 
 - name: 'Create a database for Slurm accounting.'
@@ -120,9 +120,10 @@
     login_unix_socket: "/var/lib/mysql/mysql.sock"
     name: "{{ slurm_database_name }}"
     state: 'present'
-  no_log: True
+  no_log: true
   notify:
-    - restart_slurmdbd
+    - 'restart_slurmdbd'
+    - 'restart_slurmctld'
 
 - name: 'Make sure the slurm database user is present and grant privileges on the Slurm accounting DB.'
   mysql_user:
@@ -135,9 +136,10 @@
     host: 'localhost'
     priv: "{{ slurm_database_name }}.*:ALL"
     connect_timeout: 120
-  no_log: True
+  no_log: true
   notify:
-    - restart_slurmdbd
+    - 'restart_slurmdbd'
+    - 'restart_slurmctld'
 
 - name: 'Create folders for Slurm.'
   file:
@@ -145,7 +147,7 @@
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
-    state: directory
+    state: 'directory'
   with_items:
     - name: '/etc/slurm'
       owner: 'root'
@@ -172,10 +174,9 @@
     owner: 'root'
     group: 'root'
     mode: '0644'
-  notify: reload_slurmctld
+  notify: 'reload_slurmctld'
+  tags: 'slurm.conf'
   become: true
-  tags:
-    - slurm.conf
 
 - name: 'Install Slurm DBD config file.'
   template:
@@ -184,7 +185,7 @@
     owner: 'root'
     group: 'root'
     mode: '0644'
-  notify: reload_slurmdbd
+  notify: 'reload_slurmdbd'
   become: true
 
 - name: 'Install Slurm scripts.'
@@ -216,6 +217,7 @@
     owner: 'root'
     group: 'root'
     mode: '0700'
+  tags: 'create_database'
   become: true
 
 #
@@ -226,8 +228,6 @@
 - name: 'Execute Slurm DB initialization script on host running slurmdbd.'
   shell: |
          /etc/slurm/configure_slurm_accounting_db.bash
-  tags:
-    - create_database
   register: command_result
   retries: 3
   delay: 5
@@ -239,6 +239,7 @@
   #       something that already exists. This results in "Nothing new added." on STDOUT, but no message on STDERR.
   #       In case something is really wrong there will be messags printed to STDERR.
   failed_when: command_result.stderr != ''
+  tags: 'create_database'
   become: true
 
 - name: 'Make sure slurmctld service is enabled and started now that the cluster DB is present.'
@@ -256,8 +257,7 @@
     owner: 'root'
     group: 'root'
     mode: '0700'
-  tags:
-    - backup
+  tags: 'backup'
   become: true
 
 - name: 'Create Slurm accounting DB backup now.'
@@ -266,8 +266,7 @@
              -uroot -p{{ MYSQL_ROOT_PASSWORD }} \
              -h localhost --protocol=socket \
              > /root/slurm/backup/slurm.sql
-  tags:
-    - backup
+  tags: 'backup'
   no_log: true
   become: true
 
@@ -281,8 +280,7 @@
       && mysqldump --all-databases -uroot -p{{ MYSQL_ROOT_PASSWORD }} -h localhost --protocol=socket
       > /root/slurm/backup/slurm.sql
       && /bin/find /root/slurm/backup/slurm_bak.sql.* -mtime 7 -delete
-  tags:
-    - backup
+  tags: 'backup'
   no_log: true
   become: true
 ...
