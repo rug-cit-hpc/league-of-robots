@@ -92,6 +92,7 @@ regular_groups:
   - 'umcg-dag3'
   - 'umcg-datateam'
   - 'umcg-depad'
+  - 'umcg-endocrinology'
   - 'umcg-franke-scrna'
   - 'umcg-gaf'
   - 'umcg-gap'
@@ -113,6 +114,7 @@ regular_groups:
   - 'umcg-radicon'
   - 'umcg-solve-rd'
   - 'umcg-tifn'
+  - 'umcg-ukb'
   - 'umcg-ugli'
   - 'umcg-verbeek'
   - 'umcg-weersma'
@@ -148,6 +150,9 @@ regular_users:
   - user: 'umcg-datateam-dm'
     groups: ['umcg-datateam']
     sudoers: 'umcg-mbijlsma'
+  - user: 'umcg-endocrinology-dm'
+    groups: ['umcg-endocrinology']
+    sudoers: '%umcg-endocrinology-dms'
   - user: 'umcg-franke-scrna-dm'
     groups: ['umcg-franke-scrna']
     sudoers: 'umcg-ddevries,umcg-hbrugge,umcg-mvdwijst'
@@ -211,6 +216,9 @@ regular_users:
   - user: 'umcg-tifn-dm'
     groups: ['umcg-tifn']
     sudoers: 'umcg-akurilshchikov,umcg-jfu'
+  - user: 'umcg-ukb-dm'
+    groups: ['umcg-ukb']
+    sudoers: '%umcg-ukb-dms'
   - user: 'umcg-ugli-dm'
     groups: ['umcg-ugli']
     sudoers: 'umcg-pdeelen,umcg-mbenjamins,umcg-pneerincx'
@@ -246,11 +254,11 @@ lfs_mounts: [
     pfs: 'umcgst10',
     groups: [
         'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
-        'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-franke-scrna',
+        'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
-        'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-tifn', 'umcg-ugli',
+        'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
         'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
   { lfs: 'prm01',
@@ -262,11 +270,11 @@ lfs_mounts: [
     pfs: 'umcgst02',
     groups: [
         'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
-        'umcg-bios', 'umcg-dag3', 'umcg-datateam',
+        'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
-        'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-tifn', 'umcg-ugli',
+        'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
         'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
   { lfs: 'env01',
