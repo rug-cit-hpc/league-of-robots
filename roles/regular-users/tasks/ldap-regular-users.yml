@@ -51,6 +51,17 @@
       sshPublicKey: "{{ auth_users[item.user].pub_keys }}"
   with_items: "{{ regular_users }}"
 
+- name: 'Update public keys.'
+  ldap_attr:
+    dn: "cn={{ item.user }},ou=users,{{ ldap_base }}"
+    state: exact
+    server_uri: 'ldap:///'
+    bind_dn: "{{ ldap_binddn }}"
+    bind_pw: "{{ bindpw }}"
+    name: 'sshPublicKey'
+    values: "{{ auth_users[item.user].pub_keys }}"
+  with_items: "{{ regular_users }}"
+
 - name: 'Add users to groups.'
   ldap_attr:
     dn: "cn={{ item.1 }},ou=groups,{{ ldap_base }}"
