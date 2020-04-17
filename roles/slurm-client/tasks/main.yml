@@ -147,7 +147,7 @@
     group: 'root'
     mode: '0644'
   notify:
-    - 'reload_slurmd'
+    - 'restart_slurmd'
   become: true
 
 - name: 'Configure cgroups.'
