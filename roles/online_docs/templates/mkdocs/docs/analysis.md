@@ -230,7 +230,7 @@ scancel -u [your account]
 When you need to interact with a running job you can start an interactive session with the [srun](http://slurm.schedmd.com/srun.html) command. 
 Just like for the ```sbatch``` command you will need to request resources like amount of cores, amount of memory, work allocation time (walltime), etc. E.g.:
 ```
-srun --cpus-per-task=1 --mem=1gb --nodes=1 --time=00:01:00 --pty bash -i
+srun --cpus-per-task=1 --mem=1gb --nodes=1 --qos=priority --time=00:01:00 --pty bash -i
 ```
 When the requested resources are available the interactive session will start immediately. 
 When you exit the bash shell using either the ```exit``` command or by pressing ```CTRL+d``` the interactive job will be cancelled automagically and the corresponding resources released.
