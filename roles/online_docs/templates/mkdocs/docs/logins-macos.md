@@ -6,7 +6,7 @@ The following assumes:
  * you have a ```${HOME}/.ssh``` folder with SSH keys (as generated using the instructions for requesting accounts)
  * and that you received a notification with your account name and that your account has been activated
  * and that you are on the machine from which you want to connect to the cluster
- * and that this machine runs macOS _Sierra_ 10.12.2, which includes OpenSSH 7.3p1, or newer.  
+ * and that this machine runs **macOS _Sierra_ 10.12.2 or newer**, which includes OpenSSH 7.3p1 or newer.  
    Older versions lack several OpenSSH features we need and are incompatible.
 
 ## 1. Configure your SSH client
@@ -23,7 +23,8 @@ We've compiled an AppleScript app to configure your SSH client, which will:
  * Locate and unzip the downloaded archive, which will result in an ```ssh-client-config-for-{{ slurm_cluster_name }}``` application  
    (optionally with ```.app``` extension depending on your display preferences).
  * Start the ```ssh-client-config-for-{{ slurm_cluster_name }}``` app by double clicking in the ```Finder``` application.
- * Follow the instructions ...
+ * Follow the instructions ...  
+   Check the _Detailed Walkthrough_ below if you experience problems or skip to the *Log in to {{ slurm_cluster_name | capitalize }}* section.
 
 #### Detailed Walkthrough
 
@@ -86,19 +87,33 @@ If you want to transfer data using the commandline or analyze data on the cluste
 
 ##### 2B. Data transfers using a GUI
 
-To the best of our knowledge there is only one file transfer application with a Graphical User Interface that is both free and supports multi-hop SSH via a jumphost by using your OpenSSH config: _ForkLift 2_
+If you prefer a Graphical User Interface that is both free and supports multi-hop SSH via a jumphost by using your OpenSSH config, we suggest you give _ForkLift 2_ a try.
 You can get _ForkLift 2_ from the [App store](https://apps.apple.com/app/forklift-file-manager-and-ftp-sftp-webdav-amazon-s3-client/id412448059).
 Please note that there is a newer version _ForkLift 3_, but this one is not available from the App store neither is it free.
-There are other options, but those are either paid apps or they don't support multi-hop SSH using your OpenSSH config. 
+There are various other options, but those are either paid apps or they don't support multi-hop SSH using your OpenSSH config.
 
-To start a session with _ForkLift 2_ use:
-
- * _Protocol:_ **SFTP**
- * _Name_: **{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**
- * _Server_: **{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**
- * _Username_: your account name as you received it from the helpdesk
- * Leave empty and use defaults for all remaining fields.  
-   Hence leave the _Password_ field empty too!
+ * To start a session with _ForkLift 2_ launch the app.
+ * You will see two file browser columns next to each other.  
+   Both will initially show the same contents of your home dir.  
+   ![Allow access to the Terminal.app](img/ForkLift1.png)  
+   To configure one to the columns to show the contents of the cluster, click on the **star symbol** at the beginning of the path at the top of a column.
+ * ![Allow access to the Terminal.app](img/ForkLift2.png)  
+   Click the **+** button to create a new _favorite_
+ * ![Allow access to the Terminal.app](img/ForkLift3.png)  
+   Provide the connection details:
+    * _Protocol:_ **SFTP**
+    * _Name_: **{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**
+    * _Server_: **{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**
+    * _Username_: your account name as you received it from the helpdesk
+    * Leave the _Password_ field empty.
+    * Optionally you can specify a default encoding and remote path to start browsing on the cluster.  
+   ![Allow access to the Terminal.app](img/ForkLift3b.png)  
+   Click the **Save** button to store the new favorite.
+ * Your favorite should now be listed under _Favorites_.  
+   ![Allow access to the Terminal.app](img/ForkLift4.png)
+ * Click on the favorite you created to create connection.
+   ![Allow access to the Terminal.app](img/ForkLift5.png)  
+   Note that if you did not specify an explicit _remote path_ you will start by default in your remote home dir on the cluster, which may be empty.
 
 ## Frequent Asked Questions (FAQs) and trouble shooting
 
