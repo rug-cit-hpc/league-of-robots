@@ -212,7 +212,7 @@
 
 - name: 'Create skeleton for AppleScript app.'
   synchronize:
-    src: "{{ playbook_dir }}/roles/online_docs/files/ssh-client-config.app/./"
+    src: "{{ playbook_dir }}/roles/online_docs/files/attachments/ssh-client-config.app/./"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/ssh-client-config-for-{{ slurm_cluster_name }}.app"
     owner: 'no'
     group: 'no'
