@@ -300,6 +300,15 @@ function manageConfig() {
 	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Creating or updating ${HOME}/.ssh/conf.d/{{ slurm_cluster_name }} ..."
 	cat <<EOF > "${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}"
 #
+# Special comment lines parsed by our mount-cluster-drives script to create sshfs mounts.
+# (Will be ignored by OpenSSH.)
+# {% set sshfs_groups = groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') + '+' + groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') + ':/groups/' %}
+# {% set sshfs_home   = groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') + '+' + groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') + ':/home/${_user}/' %}
+#SSHFS mountpoint_{{ sshfs_groups | hash('sha256') | truncate(8,true,'') }}={{ sshfs_groups }}
+#SSHFS mountpoint_{{ sshfs_home   | hash('sha256') | truncate(8,true,'') }}={{ sshfs_home }}
+#
+
+#
 # Generic stuff: only for macOS clients.
 #
 IgnoreUnknown UseKeychain
@@ -309,7 +318,7 @@ IgnoreUnknown AddKeysToAgent
 #
 # Host settings.
 #
-Host reception*
+Host{% for jumphost in groups['jumphost'] %} {{ jumphost | regex_replace('^' + ai_jumphost + '\\+','') }}*{% endfor %}
     #
     # Default account name when not specified explicitly.
     #
