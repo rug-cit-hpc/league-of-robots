@@ -39,7 +39,7 @@ If the data you want to work with is not already available on the cluster,
 you will need to transfer data to the cluster, 
 which is covered by [instructions on a separate data transfers page](../datatransfers/).
 
-## Jobs 
+## Job types
 
 Simple tasks that require little time, little computational power and little memory can be executed directly on a User Interface (UI) server. 
 Please think twice though before you hit enter: if you crash the UI, others can no longer submit nor monitor their jobs, which is pretty annoying. 
@@ -50,7 +50,7 @@ There are 2 kind of jobs:
 1. _batch_ jobs a.k.a. non-interactive jobs
 2. _interactive_ jobs
 
-### 1. Batch jobs
+## 1. Batch jobs
 
 For large data sets or long running commands you will need to create a (bash) job script, which can be submitted to the Slurm scheduler. 
 When resources are available the scheduler will copy the job at the top of the queue to a compute node where the job script will run. 
@@ -225,14 +225,23 @@ Deleting all your jobs in one go:
 scancel -u [your account]
 ```
 
-### 2. Interactive jobs
+## 2. Interactive jobs
 
 When you need to interact with a running job you can start an interactive session with the [srun](http://slurm.schedmd.com/srun.html) command. 
-Just like for the ```sbatch``` command you will need to request resources like amount of cores, amount of memory, work allocation time (walltime), etc. E.g.:
+This creates a shell on a compute node, which works the same as a shell on the User Interface except that the shell is restricted to the requested resources. 
+This is ideal for debugging/testing and prevents your work from running out of control and crashing processes from other users or vice versa. 
+Just like for the ```sbatch``` command you will need to request resources like amount of cores, amount of memory, work allocation time (walltime), etc. 
+E.g. to request a session for one hour:
 ```
-srun --cpus-per-task=1 --mem=1gb --nodes=1 --qos=priority --time=00:01:00 --pty bash -i
+srun --cpus-per-task=1 --mem=1gb --nodes=1 --qos=priority --time=01:00:00 --pty bash -i
 ```
 When the requested resources are available the interactive session will start immediately. 
+To increase the chance your interactive session will start quickly, even when the cluster is relatively busy, you can request _Quality of Service_ level _priority_ with ```--qos=priority```.
+
+**Essential**: the order of ```srun``` arguments is not important except that ```--pty bash -i``` must be last. 
+Any options after that are interpreted as arguments for the requested shell and not for the ```srun``` command. 
+Hence the ```-i``` in the example is an argument for the ```bash``` shell.
+
 When you exit the bash shell using either the ```exit``` command or by pressing ```CTRL+d``` the interactive job will be cancelled automagically and the corresponding resources released.
 
 <a name="quality-of-service"></a>
