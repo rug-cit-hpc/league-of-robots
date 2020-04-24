@@ -302,10 +302,10 @@ function manageConfig() {
 #
 # Special comment lines parsed by our mount-cluster-drives script to create sshfs mounts.
 # (Will be ignored by OpenSSH.)
-# {% set sshfs_groups = groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') + '+' + groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') + ':/groups/' %}
-# {% set sshfs_home   = groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') + '+' + groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') + ':/home/${_user}/' %}
-#SSHFS mountpoint_{{ sshfs_groups | hash('sha256') | truncate(8,true,'') }}={{ sshfs_groups }}
-#SSHFS mountpoint_{{ sshfs_home   | hash('sha256') | truncate(8,true,'') }}={{ sshfs_home }}
+# {% set sshfs_jumphost = groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') %}
+# {% set sshfs_ui = groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') %}
+#SSHFS {{ sshfs_ui }}_groups={{ sshfs_jumphost }}+{{ sshfs_ui }}:/groups/
+#SSHFS {{ sshfs_ui }}_home={{ sshfs_jumphost }}+{{ sshfs_ui }}:/home/${_user}/
 #
 
 #
