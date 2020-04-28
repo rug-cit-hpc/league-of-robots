@@ -216,8 +216,11 @@ function thereShallBeOnlyOne() {
 
 function manageConfig() {
 	local _user="${1}"
+	local _private_key_file="${2}"
 	local _result
-	log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Will configure SSH logins to {{ slurm_cluster_name | capitalize }} for ${_user}."
+	log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Will configure SSH logins to {{ slurm_cluster_name | capitalize }} for'
+	log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "    for user: ${_user}"
+	log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "    using private key file: ${_private_key_file}"
 	#
 	# Create directory for SSH config if it did not already exist.
 	#
@@ -333,6 +336,7 @@ Host{% for jumphost in groups['jumphost'] %} {{ jumphost | regex_replace('^' + a
     # Do not use password based authentication as fallback,
     # which may be confusing and won't work anyway.
     #
+    IdentityFile "${_private_key_file}"
     PasswordAuthentication No
     #
     # Multiplex connections to
@@ -366,18 +370,18 @@ Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + a
 # Universal jumphost settings for triple-hop SSH.
 #
 Host *+*+*
-    ProxyCommand ssh -x -q $(echo %h | sed 's/+[^+]*$//') -W $(echo %h | sed 's/^[^+]*+[^+]*+//'):%p
+    ProxyCommand ssh -x -q -i "${_private_key_file}" $(echo %h | sed 's/+[^+]*$//') -W $(echo %h | sed 's/^[^+]*+[^+]*+//'):%p
 #
 # Double-hop SSH settings to connect via Jumphosts{% if slurm_cluster_domain | length %}{{ slurm_cluster_domain }}{% endif %}.
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}+* {% endfor %}{% raw %}{% endraw %}
-    ProxyCommand ssh -x -q ${_user}@\$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p
+    ProxyCommand ssh -x -q -i "${_private_key_file}" ${_user}@\$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p
 #
 # Sometimes port 22 for the SSH protocol is blocked by firewalls; in that case you can try to use SSH on port 443 as fall-back.
 # Do not use port 443 by default for SSH as it officially assigned to HTTPS traffic and some firewalls will cause problems when trying to route SSH over port 443.
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}443+* {% endfor %}{% raw %}{% endraw %}
-    ProxyCommand ssh -x -q ${_user}@\$(echo %h | sed 's/443+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p -p 443
+    ProxyCommand ssh -x -q -i "${_private_key_file}" ${_user}@\$(echo %h | sed 's/443+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p -p 443
 
 EOF
 }
@@ -434,13 +438,22 @@ done
 #
 thereShallBeOnlyOne "${TMPDIR:-/tmp}/${SCRIPT_NAME}.lock"
 
+#
+# Get account name and path to private key.
+#
 if [[ -z "${user:-}" ]]; then
 	read -e -p "Type the account name you received from the helpdesk for logins to {{ slurm_cluster_name | capitalize }} and press [ENTER]: " user
 fi
 if [[ -z "${user:-}" ]]; then
 	log4Bash 'FATAL' "${LINENO}" "${FUNCNAME[0]:-main}" '1' 'Your account name cannot be empty.'
 fi
-
+read -e -p "Specify the path to the private key file you want to use (or accept the default: ~/.ssh/id_ed25519) and press [ENTER]: " private_key_file
+private_key_file="${private_key_file:-~/.ssh/id_ed25519}"
+if [[ -e "${private_key_file}" ]]; then
+	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "The specified private key file ${private_key_file} exists."
+else
+	log4Bash 'FATAL' "${LINENO}" "${FUNCNAME[0]:-main}" '1' "The specified private key file ${private_key_file} does not exist."
+fi
 
 #
 # Check if client has a compatible OpenSSH version.
@@ -472,7 +485,7 @@ fi
 #
 # Create/update SSH config.
 #
-manageConfig "${user}"
+manageConfig "${user}" "${private_key_file}"
 
 #
 # Notify user.
@@ -493,7 +506,7 @@ if ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','
 	log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Consult the online documentation for additional examples '
 	log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    and how to transfer data with rsync over SSH.'
 else
-	log4Bash 'ERROR' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Failed to login; check if your network wired or using WiFi is up.'
+	log4Bash 'ERROR' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Failed to login; check if your network either wired or using WiFi is up.'
 	log4Bash 'WARN' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Consult the online documentation for debugging options.'
 fi
 read -e -p "Press [ENTER] to exit."
