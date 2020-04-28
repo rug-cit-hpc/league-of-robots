@@ -449,7 +449,7 @@ if [[ -z "${user:-}" ]]; then
 fi
 read -e -p "Specify the path to the private key file you want to use (or accept the default: ~/.ssh/id_ed25519) and press [ENTER]: " private_key_file
 private_key_file="${private_key_file:-~/.ssh/id_ed25519}"
-if [[ -e "${private_key_file}" ]]; then
+if [[ -e "${private_key_file/#\~/${HOME}}" ]]; then
 	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "The specified private key file ${private_key_file} exists."
 else
 	log4Bash 'FATAL' "${LINENO}" "${FUNCNAME[0]:-main}" '1' "The specified private key file ${private_key_file} does not exist."
