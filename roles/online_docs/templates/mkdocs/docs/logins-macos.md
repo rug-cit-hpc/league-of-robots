@@ -43,7 +43,9 @@ The ```ssh-client-config-for-{{ slurm_cluster_name }}``` app will guide you thro
     _System Preferences_ -> _Security & Privacy_ prefs -> _Privacy_ tab -> _Automation_
  * The ```ssh-client-config-for-{{ slurm_cluster_name }}``` app will open the configuration script in the ```Terminal``` application and prompt for your account name.  
    ![Type your account name](img/ssh-client-config-macos-2.png)  
-   Type your account name as you received it from the helpdesk and hit the \[ENTER\] key on your keyboard.
+   Type your account name as you received it from the helpdesk and hit the \[ENTER\] key on your keyboard.  
+   Optionally you can specify an alternative location for your private key file.  
+   (Just hit the \[ENTER\] key to use the default private key file path.)
  * Your SSH client will now be configured for logins to {{ slurm_cluster_name }} via the corresponding jumphost
    followed by a connection test: the script will try to login using the created config with the account you supplied and the ssh command  
    ```ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```  
@@ -55,7 +57,7 @@ The ```ssh-client-config-for-{{ slurm_cluster_name }}``` app will guide you thro
    We have no backup whatsoever; If you forgot the password, you will have to start over by creating a new key pair.
  * Done! Hit the \[ENTER\] key on your keyboard to exit the configuration script.  
    ![Done](img/ssh-client-config-macos-5.png)
- * If you made a mistake, you can simply re-run the ```ssh-client-config-for-{{ slurm_cluster_name }}``` app again to update/fix your config.
+ * If you made a mistake, you can simply run the ```ssh-client-config-for-{{ slurm_cluster_name }}``` app again to update/fix your config.
 
 ## Log in to {{ slurm_cluster_name | capitalize }}
 
@@ -87,7 +89,7 @@ If you want to transfer data using the commandline or analyze data on the cluste
 
 ##### 2B. Data transfers using a GUI
 
-If you prefer a Graphical User Interface that is both free and supports multi-hop SSH via a jumphost by using your OpenSSH config, we suggest you give _ForkLift 2_ a try.
+If you prefer a Graphical User Interface that is both free and supports multi-hop SSH via a jumphost using your OpenSSH config, we suggest you give _ForkLift 2_ a try.
 You can get _ForkLift 2_ from the [App store](https://apps.apple.com/app/forklift-file-manager-and-ftp-sftp-webdav-amazon-s3-client/id412448059).
 Please note that there is a newer version _ForkLift 3_, but this one is not available from the App store neither is it free.
 There are various other options, but those are either paid apps or they don't support multi-hop SSH using your OpenSSH config.

@@ -228,7 +228,7 @@ The minimal requirements for a main group are as follows:
  * A group has at least one owner and one data manager, but to prevent delays in processing membership request and data set reviews a group has preferably more than one owner and more than one data manager.
  * Optionally sub groups may be used to create more fine grained permissions to access data.
     * A sub group inherits group owners, data managers and quota limits from the main group.  
-      E.g. a sub group cannot have different data managers than it's main group.
+      E.g. a sub group cannot have different data managers.
     * All members of the sub group must be members of the main group.
     * The members of the sub group are a subset of the members of the main group.
 

@@ -54,7 +54,7 @@ To generate an RSA key pair with OpenSSH, type the following command:
 ssh-keygen -t ed25519 -C "your_comment_see_below"
 ```
 As comment/label for your keys please use **your first initial followed by (optionally your middle name followed by) your family name** all in lowercase and without any separators like spaces, dots or underscores. 
-So if your name is _**Jack the Hippo**_, please use _**jthehippo**_ as comment, so we can easily identify the key as yours.
+So if your name is _**Jack Peter Frank the Hippo**_, please use _**jthehippo**_ as comment, so we can easily identify the key as yours.
 
 ###### Select where to store the key pair
 
@@ -132,7 +132,7 @@ Now make sure you:
 
  * 5:  Replace the comment in **Key comment** with  
        **your first initial followed by (optionally your middle name followed by) your family name** all in lowercase and without any separators like spaces, dots or underscores.  
-       So if your name is _**Jack the Hippo**_, please use _**jthehippo**_ as comment, so we can easily identify the key as yours.
+       So if your name is _**Jack Peter Frank the Hippo**_, please use _**jthehippo**_ as comment, so we can easily identify the key as yours.
  * 6:  Secure your private key with a good password **before** saving the private key. DO NOT choose a simple password or even worse an empty one!
  * 7:  Confirm the password
  * 8:  Click the **Save public key** button.
