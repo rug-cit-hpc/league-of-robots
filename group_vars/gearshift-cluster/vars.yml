@@ -156,8 +156,14 @@ regular_users:
   - user: 'umcg-franke-scrna-dm'
     groups: ['umcg-franke-scrna']
     sudoers: 'umcg-ddevries,umcg-hbrugge,umcg-mvdwijst'
+  - user: 'umcg-gaf-ateambot'
+    groups: ['umcg-gaf']
+    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
   - user: 'umcg-gaf-dm'
     groups: ['umcg-gaf']
+    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-gap-ateambot'
+    groups: ['umcg-gap']
     sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
   - user: 'umcg-gap-dm'
     groups: ['umcg-gap']
