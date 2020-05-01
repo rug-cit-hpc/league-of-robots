@@ -43,7 +43,7 @@ groups:
       description: Instance {{ $labels.instance }} will fill up within 72 hours
       summary: '{{ $labels.instance }} disk almost full'
   - alert: DiskFull
-    expr: node_filesystem_free{job="node",mountpoint!~"/tmp|/net|/cvmfs|/var/lib/nfs/rpc_pipefs|/cvmfs|/misc|/run/docker/netns/.+?|/cgroup.+?", fstype!~"fuse.+?"} < 5.24288e+06
+    expr: node_filesystem_free{job="node",mountpoint!~"/net|/cvmfs|/var/lib/nfs/rpc_pipefs|/cvmfs|/misc|/run/docker/netns/.+?|/cgroup.+?", fstype!~"fuse.+?"} < 5.24288e+06
     for: 5m
     labels:
       severity: page
