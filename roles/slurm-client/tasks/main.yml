@@ -191,4 +191,14 @@
     - 'munge.service'
     - 'slurmd.service'
   become: true
+
+- name: 'Allow passwordless sudo to slurm user for users in the functional_admins_group.'
+  template:
+    src: 'roles/slurm-management/templates/91-slurm'
+    dest: "/etc/sudoers.d/91-slurm"
+    owner: 'root'
+    group: 'root'
+    mode: '0440'
+  when: functional_admin_group is defined and functional_admin_group | length >= 1
+  become: true
 ...
