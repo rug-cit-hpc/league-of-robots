@@ -8,8 +8,8 @@ rewrite_domain: "imperator{% if slurm_cluster_domain | length %}.{{ slurm_cluste
 motd: |
       !!! WARNING: This cluster is in beta testing
           and may be redeployed from scratch, which
-          may result in complete data loss starting
-          on 09:00 on the following EOS Fridays:
+          may result in complete data loss of home and tmp01 group folders
+          starting on 09:00 on the following EOS Fridays:
           ###################################
           # Date                 EOS        #
           ###################################
@@ -20,6 +20,8 @@ motd: |
           # Friday 2020-08-27    Sprint 160 #
           ###################################
           You have been warned!!!
+          This does not affect prm03 group folders,
+          which are on a different storage system.
 additional_etc_hosts: |
   172.23.40.21       gs-compute01        gs-compute01.hpc.local
   172.23.40.22       gs-compute02        gs-compute02.hpc.local
