@@ -16,6 +16,9 @@ nav:
   - User Guide:
     - 'Requesting accounts for {{ slurm_cluster_name | capitalize }}': 'accounts.md'
     - 'Login - How to start a session': 'logins.md'
+      'SSH client config for Windows users': 'logins-windows.md'
+      - 'SSH client config for macOS users': 'logins-macos.md'
+      - 'SSH client config for Linux/Unix users': 'logins-linux.md'
     - 'Keep - What is stored where on {{ slurm_cluster_name | capitalize }}': 'storage.md'
     - 'Data transfers - How to move data to / from {{ slurm_cluster_name | capitalize }}': 'datatransfers.md'
     - 'Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}': 'analysis.md'
