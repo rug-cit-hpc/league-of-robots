@@ -210,10 +210,10 @@
     - build_mkdocs
   become: true
 
-- name: 'Create skeleton for AppleScript app.'
+- name: 'Create skeleton for AppleScript apps.'
   synchronize:
-    src: "{{ playbook_dir }}/roles/online_docs/files/attachments/ssh-client-config.app/./"
-    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/ssh-client-config-for-{{ slurm_cluster_name }}.app"
+    src: "{{ playbook_dir }}/roles/online_docs/files/attachments/{{ item.src }}/./"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.dest }}"
     owner: 'no'
     group: 'no'
     use_ssh_args: 'yes'
@@ -225,15 +225,23 @@
       - '--chmod=Dug=rwx,Do-rwx,Fug=rwX,Fo-rwx'
       - '--perms'
       - '--force'
+  with_items:
+    - src:  'ssh-client-config.app'
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}.app"
+    - src:  'mount-cluster-drives.app'
+      dest: 'mount-cluster-drives.app'
   become: true
 
-- name: 'Make sure AppleScript app main script is executable.'
+- name: 'Make sure ssh-client-config AppleScript app main script is executable.'
   file:
-    path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/ssh-client-config-for-{{ slurm_cluster_name }}.app/Contents/MacOS/applet"
+    path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item }}/Contents/MacOS/applet"
     state: file
     owner: root
     group: root
     mode: '0750'
+  with_items:
+    - "ssh-client-config-for-{{ slurm_cluster_name }}.app"
+    - 'mount-cluster-drives.app'
   become: true
 
 - name: 'Create files for attachments based on templates.'
@@ -259,7 +267,7 @@
       mode: '0755'
   become: true
 
-- name: 'Zip the ssh-client-config tools from the tmp subfolder and save the archives in the attachments subfolder.'
+- name: 'Zip the scripted tools from the tmp subfolder and save the archives in the attachments subfolder.'
   archive:
     path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.path }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/attachments/{{ item.dest }}"
@@ -272,6 +280,8 @@
       dest: "ssh-client-config-for-{{ slurm_cluster_name }}-macos.zip"
     - path: "ssh-client-config-for-{{ slurm_cluster_name }}.bash"
       dest: "ssh-client-config-for-{{ slurm_cluster_name }}-linux.zip"
+    - path: 'mount-cluster-drives.app'
+      dest: 'mount-cluster-drives-macos.zip'
   become: true
 
 - name: 'Create MarkDown files based on templates.'

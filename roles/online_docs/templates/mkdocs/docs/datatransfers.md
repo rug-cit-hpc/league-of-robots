@@ -11,11 +11,15 @@ Your options to move data to/from the {{ slurm_cluster_name | capitalize }} HPC 
 1. Push data from an external machine to the cluster UI via the jumphost or  
    Pull data on an external machine from the cluster UI via the jumphost.  
    Supported protocols:
-    * rsync over ssh
+    * ssh including
+       * via the commandline: rsync over ssh
+       * via [GUI on Windows: sftp/scp](../datatransfers-windows/)
+       * via [GUI on macOS: sshfs or sftp](../datatransfers-macos/)
 2. Push data from the cluster UI to an external server or  
    Pull data on the cluster UI from an external server.  
    Supported protocols:
-    * rsync over ssh
+    * ssh including
+       * via the commandline: rsync over ssh
     * http(s)
 {# jinja2 comment: firewall requires improvements for aspera.
     * aspera
