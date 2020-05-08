@@ -188,7 +188,7 @@ regular_users:
   - user: 'umcg-gsad-dm'
     groups: ['umcg-gsad']
     sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
-  - user: 'umcg-hofker-dm'
+  - user: 'umcg-impact-dm'
     groups: ['umcg-impact']
     sudoers: '%umcg-impact'
   - user: 'umcg-lifelines-dm'
