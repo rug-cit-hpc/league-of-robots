@@ -36,7 +36,7 @@ The ```mount-cluster-drives``` app parses special comment lines like this:
 # {% set sshfs_jumphost = groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') %}
 # {% set sshfs_ui = groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') %}
 #SSHFS {{ sshfs_ui }}_groups={{ sshfs_jumphost }}+{{ sshfs_ui }}:/groups/
-#SSHFS {{ sshfs_ui }}_home={{ sshfs_jumphost }}+{{ sshfs_ui }}:/home/${_user}/
+#SSHFS {{ sshfs_ui }}_home={{ sshfs_jumphost }}+{{ sshfs_ui }}:/home/<youraccount>/
 #
 ```
 in ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}```,
