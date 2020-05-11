@@ -5,4 +5,4 @@ On Windows you can use the built-in _**SFTP**_ or _**SCP**_ client in the corres
 Once logged in using the SSH client configuration instructions for [Windows clients](../logins-windows/), 
 you can simply drag and drop from _**MobaXterm**_ to _**Windows Explorer**_ or vice versa to transfer files.
 
-![MobaXtermBrowser](img/MobaXterm10.png)
+![MobaXtermBrowser](img/MobaXterm9c.png)

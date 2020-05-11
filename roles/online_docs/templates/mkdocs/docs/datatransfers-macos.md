@@ -1,18 +1,33 @@
 #jinja2: trim_blocks:False
 # Data transfers - Push to or pull from {{ slurm_cluster_name | capitalize }} User Interface via Jumphost with GUI on macOS
 
-On macOS you can use _**SSHFS**_ (SSH File System) to browse the file systems of the {{ slurm_cluster_name | capitalize }} cluster directly in the _**Finder**_ over a normal SSH connection.
-_SSHFS_ depends on the _FUSE libraries_, which extend the native macOS file handling capabilities via third-party file systems.
+On macOS you can use
 
-## 1. Install FUSE for macOS
+ * either _**SSHFS**_ (SSH File System) to browse the file systems of the {{ slurm_cluster_name | capitalize }} cluster directly in the _**Finder**_ 
+ * or a dedicated _SFTP_ client app like _**ForkLift2**_. 
 
-Download and install **[FUSE for macOS from https://osxfuse.github.io/](https://osxfuse.github.io/)**
+Both use the _**S**ecure **F**ile **T**ransfer **P**rotocol_, which is basically _FTP_ tunneled over an _SSH_ connection.
 
-## 2. Install SSHFS for macOS
+## SFTP with SSHFS in the Finder
 
-Download and install **[SSHFS from https://osxfuse.github.io/](https://osxfuse.github.io/)**
+_SSHFS_ simulates a file system over a normal SSH connection and depends on the _FUSE libraries_, which extend the native macOS file handling capabilities via third-party file systems.
+**Important**: SSHFS is great for browsing file systems and transferring data.
+You may also open a remote file read-only in an application on your Mac for a quick peak at it's content,
+but you should not open a remote file in read-write mode and start to make changes unless you want get surprising results.
+When you loose the network connection for whatever reason (like unstable WiFI or when you put your Mac to sleep),
+you may loose unsaved changes or worse end up with "half modified" corrupt files.
+So when you want to modify/edit a remote file, transfer a copy from the remote server to your local Mac, 
+make changes to the copy, save them and transfer the updated file back to the server.
 
-## 3. Download and run mount-cluster-drives app
+### 1. Install FUSE for macOS
+
+ * Download and install _**FUSE for macOS**_ from [https://osxfuse.github.io/](https://osxfuse.github.io/)
+
+### 2. Install SSHFS for macOS
+
+ * Download and install _**SSHFS**_ from [https://osxfuse.github.io/](https://osxfuse.github.io/)
+
+### 3. Download and run mount-cluster-drives app
 
  * Download and unzip the [mount-cluster-drives](../attachments/mount-cluster-drives-macos.zip) AppleScript application.
  * Start the ```mount-cluster-drives``` app by double clicking in the ```Finder``` application.
@@ -26,7 +41,9 @@ Download and install **[SSHFS from https://osxfuse.github.io/](https://osxfuse.g
    You can now drag and drop files in the ```Finder``` to transfer to / from {{ slurm_cluster_name | capitalize }}.
  * To unmount the _SSHFS_ shares click the eject button behind the name of the share.
 
-#### Technical Details
+##### Technical Details
+
+Some technical details for the curious who like to know how this works or need to debug connection issues:
 
 The ```mount-cluster-drives``` app parses special comment lines like this:
 ```
@@ -39,11 +56,9 @@ The ```mount-cluster-drives``` app parses special comment lines like this:
 #SSHFS {{ sshfs_ui }}_home={{ sshfs_jumphost }}+{{ sshfs_ui }}:/home/<youraccount>/
 #
 ```
-in ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}```,
-which is the SSH client configuration file for {{ slurm_cluster_name | capitalize }}.
-
-This ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}``` file was created by the ```ssh-client-config-for-{{ slurm_cluster_name }}``` app 
-from the SSH client configuration [instructions for macOS clients](../logins-macos/) page.
+in the OpenSSH client configuration file for {{ slurm_cluster_name | capitalize }} ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}```,
+which was created by the ```ssh-client-config-for-{{ slurm_cluster_name }}``` app 
+from the OpenSSH client configuration [instructions for macOS clients](../logins-macos/) page.
 
 The parsed comment lines result in the following mount commands:
 ```
@@ -57,3 +72,33 @@ sshfs -o "defer_permissions,follow_symlinks,noappledouble,noapplexattr,reconnect
 
 If you have access to multiple clusters, which were configured in a similar way, you may have multiple _SSHFS_ mounts,
 which are all mounted with the same ```mount-cluster-drives``` app.
+
+## SFTP with dedicated ForkLift2 client
+
+If you prefer a dedicated Graphical User Interface that is both free and supports multi-hop SSH via a jumphost using your OpenSSH config, we suggest you give _ForkLift 2_ a try.
+You can get _ForkLift 2_ from the [App store](https://apps.apple.com/app/forklift-file-manager-and-ftp-sftp-webdav-amazon-s3-client/id412448059).
+Please note that there is a newer version _ForkLift 3_, but this one is not available from the App store neither is it free.
+There are various other options, but those are either paid apps or they don't support multi-hop SSH using your OpenSSH config.
+
+To start a session with _ForkLift 2_:
+
+ * Launch the app; You will see two file browser columns next to each other.  
+   Both will initially show the same contents of your local home dir.  
+   ![Allow access to the Terminal.app](img/ForkLift1.png)  
+   To configure one of the columns to show the contents of the cluster, click on the **star symbol** at the beginning of the path at the top of a column.
+ * Click the **+** button to create a new _favorite_  
+   ![Allow access to the Terminal.app](img/ForkLift2.png)  
+ * Provide the connection details:  
+   ![Allow access to the Terminal.app](img/ForkLift3b.png)  
+    * _Protocol:_ **SFTP**
+    * _Name_: **{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**
+    * _Server_: **{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**
+    * _Username_: your account name as you received it from the helpdesk
+    * Leave the _Password_ field empty.
+    * Optionally you can specify a default encoding and remote path to start browsing on the cluster.  
+   Click the **Save** button to store the new favorite.
+ * Your favorite should now be listed under _Favorites_.  
+   ![Allow access to the Terminal.app](img/ForkLift4.png)
+ * Click on your new favorite to connect to the server and start a session.
+   ![Allow access to the Terminal.app](img/ForkLift5.png)  
+   Note that if you did not specify an explicit _remote path_ you will start by default in your remote home dir on the cluster, which may be empty.
