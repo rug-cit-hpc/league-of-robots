@@ -22,6 +22,12 @@ make changes to the copy, save them and transfer the updated file back to the se
 ### 1. Install FUSE for macOS
 
  * Download and install _**FUSE for macOS**_ from [https://osxfuse.github.io/](https://osxfuse.github.io/)
+ * Note: when you are on _macOS Catalina_ or newer, you may get a security warning like this:  
+   ![InstallFuseForMacOS](img/osxfuse-1.png)  
+   Open the _Security Preferences_ pane from _System Preferences_ and  
+   ![InstallFuseForMacOS](img/osxfuse-2.png)  
+   1: Open the lock to make changes and  
+   2: Allow the system to load the Fuse for macOS kernel extensions developed by _Benjamin Fleischer_
 
 ### 2. Install SSHFS for macOS
 
@@ -30,7 +36,13 @@ make changes to the copy, save them and transfer the updated file back to the se
 ### 3. Download and run mount-cluster-drives app
 
  * Download and unzip the [mount-cluster-drives](../attachments/mount-cluster-drives-macos.zip) AppleScript application.
- * Start the ```mount-cluster-drives``` app by double clicking in the ```Finder``` application.
+ * Locate the ```mount-cluster-drives``` app, **right click** in the ```Finder``` application and select _**Open**_ from the contextual pop-up menu:
+   ![Launch mount-cluster-drives.app](img/mount-cluster-drives-0b.png)  
+   Note: when you are on macOS _Catalina_ or newer, you may get a security warning like this:  
+   ![Launch mount-cluster-drives.app](img/mount-cluster-drives-0d.png)  
+   Select _**Open**_ to continue. 
+   (If you started the app by double clicking as opposed to choosing _Open_ from the contextual pop-up menu, 
+   the window will look similar, but will lack to _Open_ button allowing you only only to _Cancel_ or _Move to Bin_)
  * Depending on your macOS version, you may receive a pop-up requesting permission to allow access to the ```Finder``` application:  
    ![Allow access to the Finder.app](img/mount-cluster-drives-1.png)  
    Click _Ok_ to allow access to the ```Finder```.  
