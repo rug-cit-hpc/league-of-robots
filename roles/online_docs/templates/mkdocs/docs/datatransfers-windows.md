@@ -6,3 +6,7 @@ Once logged in using the SSH client configuration instructions for [Windows clie
 you can simply drag and drop from _**MobaXterm**_ to _**Windows Explorer**_ or vice versa to transfer files.
 
 ![MobaXtermBrowser](img/MobaXterm9c.png)
+
+-----
+
+Back to operating system independent [instructions for data transfers](../datatransfers/)

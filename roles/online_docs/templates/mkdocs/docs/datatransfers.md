@@ -60,47 +60,21 @@ To get a private key on {{ slurm_cluster_name | capitalize }} you can
 * either create a new key pair on {{ slurm_cluster_name | capitalize }}  
 * or temporarily forward your private key with _SSH agent forwarding_ to {{ slurm_cluster_name | capitalize }}
 
-###### SSH agent forwarding with MobaXterm on Windows
+###### Configure SSH agent forwarding
 
-SSH agent forwarding can be accomplished with MobaXterm as follows:
+First, configure _SSH agent forwarding_ using one of:
 
-* Select the _Configuration_ menu item from the _Settings_ menu  
-  ![MobaXterm Configuration](img/MobaXterm10.png)
-* Select the _SSH_ tab  
-  ![MobaXterm Configuration](img/MobaXterm11.png)  
-  1. Enable _**Use internal SSH agent "MobAgent"**_  
-  2. Enable _**Forward SSH agents**_  
-  3. Click the _**+**_ button to select and load your private key.
-* Create a session and login to {{ slurm_cluster_name | capitalize }} via the jumphost as usual.
+* [Instructions for MobaXterm on Windows](../ssh-agent-forwarding-mobaxterm/)
+* [Instructions for OpenSSH on macOS / Linux / Unix](../ssh-agent-forwarding-openssh/)
 
-###### SSH agent forwarding with OpenSSH on macOS / Linux / Unix
-
-* Check if your private key was added to the SSH agent on your local _**client**_ by issuing the command  
-  ```$your_client> ssh-add -l```  
-* You should get a response with the key fingerprint of the private key you want to use.
-* If instead you get the message ```The agent has no identities``` or ```Could not open a connection to your authentication agent```,  
-  then you will need to add your private key:  
-    * If your private key is located in the default path (```${HOME}/.ssh/id_ed25519```) you can use the following command:  
-      ```$your_client> ssh-add```  
-    * If your key is not located in the default path, you will have to specify which private key file to add:  
-      ```$your_client> ssh-add /path/to/my/private.key```
-* Login to {{ slurm_cluster_name | capitalize }} with SSH _agent forwarding_ enabled 
-  can now be accomplished with the ```-A``` argument on the commandline like this:  
-  ```$your_client> ssh -A {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```
-
-_**Note**_: You **cannot** accomplish this by configuring a ```ProxyCommand``` directive in a  ```${HOME}/.ssh/conf.d/*``` config file on your local computer.
-
-###### Verify that SSH agent forwarding worked
-
-After login to {{ slurm_cluster_name | capitalize }}, 
-execute the following command to verify that _agent forwarding_ worked 
-and to list the identities (private keys) available to the SSH agent:
+Next, login to {{ slurm_cluster_name | capitalize }} and verify that _agent forwarding_ worked 
+by executing the following command to list the identities (private keys) available to your _SSH agent_:
 ```
 ${{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}> ssh-add -l
 ```
 
 * You should get a response with at least one key fingerprint, which means you can now transfer data with ```rsync``` to/from the other server 
-  assuming you are allowed to access the other server, are allowed to transfer the data and that no firewalls are blocking the connection.
+  assuming you have an enabled account with public key on the other server and that no firewalls are blocking the connection.
 * If instead you get ```The agent has no identities``` or ```Could not open a connection to your authentication agent```, 
   then the key forwarding failed. 
   This may happen when you were already logged in to the same server without _agent forwarding_ in another active SSH session;

@@ -114,3 +114,7 @@ To start a session with _ForkLift 2_:
  * Click on your new favorite to connect to the server and start a session.
    ![Allow access to the Terminal.app](img/ForkLift5.png)  
    Note that if you did not specify an explicit _remote path_ you will start by default in your remote home dir on the cluster, which may be empty.
+
+-----
+
+Back to operating system independent [instructions for data transfers](../datatransfers/)
