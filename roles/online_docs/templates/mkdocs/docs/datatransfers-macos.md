@@ -13,11 +13,11 @@ Both use the _**S**ecure **F**ile **T**ransfer **P**rotocol_, which is basically
 _SSHFS_ simulates a file system over a normal SSH connection and depends on the _FUSE libraries_, which extend the native macOS file handling capabilities via third-party file systems.
 **Important**: SSHFS is great for browsing file systems and transferring data.
 You may also open a remote file read-only in an application on your Mac for a quick peak at it's content,
-but you should not open a remote file in read-write mode and start to make changes unless you want get surprising results.
-When you loose the network connection for whatever reason (like unstable WiFI or when you put your Mac to sleep),
+but you should not open a remote file in read-write mode and start to make changes unless you want to get surprising results;
+When you loose the network connection, for example due to unstable WiFi or when you put your Mac to sleep,
 you may loose unsaved changes or worse end up with "half modified" corrupt files.
-So when you want to modify/edit a remote file, transfer a copy from the remote server to your local Mac, 
-make changes to the copy, save them and transfer the updated file back to the server.
+So when you want to modify a remote file, transfer a copy from the remote server to your local Mac, 
+make changes to the copy, save them and transfer the updated file to the server.
 
 ### 1. Install FUSE for macOS
 
