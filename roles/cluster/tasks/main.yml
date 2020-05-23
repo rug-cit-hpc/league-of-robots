@@ -71,6 +71,7 @@
     state: latest
     update_cache: yes
     name:
+      - bash-completion
       - bc
       - bzip2
       - curl
