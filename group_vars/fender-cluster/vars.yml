@@ -108,6 +108,8 @@ regular_users:
     groups: ['users', 'depad','umcg-atd', 'solve-rd']
   - user: 'ddanis'
     groups: ['users', 'solve-rd']
+  - user: 'dhendriksen'
+    groups: ['users', 'solve-rd']
   - user: 'ksablauskas'
     groups: ['users', 'solve-rd']
   - user: 'wsteyaert'
