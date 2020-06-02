@@ -39,7 +39,7 @@ declare config_file='/etc/ssh/ldap.conf'
 #
 # LDAP is case insensitive, but we use lowercase only for field names,
 # so we can use simple literal strings in comparisons as opposed to regexes
-# to handle differences in UPPER- vs. lowercase.
+# to handle differences in UPPERCASE vs. lowercase.
 #
 # The UPPERCASE "LFS" in ${ldap_group_quota_*_limit_template} variables 
 # is a required placeholder that will get replaced with the value of the Logical File System (LFS)
@@ -48,17 +48,16 @@ declare config_file='/etc/ssh/ldap.conf'
 #      the fieldname/key to lookup the soft quota limit for the LFS prm01 is
 #      ruggroupumcgquotaprm01soft
 #
-declare    ldap_group_object_class='groupofnames'
-declare    ldap_group_quota_soft_limit_template='ruggroupumcgquotaLFSsoft'
-declare    ldap_group_quota_hard_limit_template='ruggroupumcgquotaLFS'
+declare    ldap_group_object_class='{{ ldap_group_object_class }}'
+declare    ldap_group_quota_soft_limit_template='{{ ldap_group_quota_soft_limit_template }}'
+declare    ldap_group_quota_hard_limit_template='{{ ldap_group_quota_hard_limit_template }}'
 declare -A ldap_quota_limits=()
 #
 # Lustre quota type for groups:
 # We prefer "project quota" for group folders,
 # but we'll use "group quota" when project quota are not supported (yet).
 #
-declare    lustre_quota_type='group' # default that will work on older and newer Lustre filesystems.
-
+declare    lustre_quota_type='{{ lustre_quota_type }}'
 
 #
 # Initialise Log4Bash logging with defaults.
