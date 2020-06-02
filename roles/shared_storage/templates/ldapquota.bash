@@ -26,17 +26,6 @@ set -o pipefail # Fail when any command in series of piped commands failed as op
 umask 0077
 
 #
-# Global variables.
-#
-declare TMPDIR="${TMPDIR:-/tmp}" # Default to /tmp if ${TMPDIR} was not defined.
-declare SCRIPT_NAME
-SCRIPT_NAME="$(basename "${0}" '.bash')"
-export TMPDIR
-export SCRIPT_NAME
-declare mixed_stdouterr='' # global variable to capture output from commands for reporting in custom log messages.
-declare ldif_dir="${TMPDIR}/ldifs"
-declare config_file='/etc/ssh/ldap.conf'
-#
 # LDAP is case insensitive, but we use lowercase only for field names,
 # so we can use simple literal strings in comparisons as opposed to regexes
 # to handle differences in UPPERCASE vs. lowercase.
@@ -52,12 +41,29 @@ declare    ldap_group_object_class='{{ ldap_group_object_class }}'
 declare    ldap_group_quota_soft_limit_template='{{ ldap_group_quota_soft_limit_template }}'
 declare    ldap_group_quota_hard_limit_template='{{ ldap_group_quota_hard_limit_template }}'
 declare -A ldap_quota_limits=()
+
 #
 # Lustre quota type for groups:
 # We prefer "project quota" for group folders,
 # but we'll use "group quota" when project quota are not supported (yet).
 #
 declare    lustre_quota_type='{{ lustre_quota_type }}'
+
+#
+# No more Ansible variables below this point!
+#
+{% raw %}
+#
+# Global variables.
+#
+declare TMPDIR="${TMPDIR:-/tmp}" # Default to /tmp if ${TMPDIR} was not defined.
+declare SCRIPT_NAME
+SCRIPT_NAME="$(basename "${0}" '.bash')"
+export TMPDIR
+export SCRIPT_NAME
+declare mixed_stdouterr='' # global variable to capture output from commands for reporting in custom log messages.
+declare ldif_dir="${TMPDIR}/ldifs"
+declare config_file='/etc/ssh/ldap.conf'
 
 #
 # Initialise Log4Bash logging with defaults.
@@ -560,3 +566,5 @@ fi
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" 0 "Finished!"
 trap - EXIT
 exit 0
+
+{% endraw %}
