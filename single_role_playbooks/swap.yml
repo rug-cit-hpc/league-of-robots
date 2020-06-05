@@ -1,4 +1,4 @@
 ---
-- hosts: deploy-admin-interface
+- hosts: cluster
   roles:
     - swap
