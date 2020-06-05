@@ -58,12 +58,15 @@ ui_ethernet_interfaces:
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-ca"
 use_ldap: yes
 create_ldap: no
-uri_ldap: 172.23.40.249
-uri_ldaps: comanage-in.id.rug.nl
-ldap_port: 389
-ldaps_port: 636
-ldap_base: ou=research,o=asds
-ldap_binddn: cn=clusteradminumcg,o=asds
+uri_ldap: '172.23.40.249'
+uri_ldaps: 'comanage-in.id.rug.nl'
+ldap_port: '389'
+ldaps_port: '636'
+ldap_base: 'ou=research,o=asds'
+ldap_binddn: 'cn=clusteradminumcg,o=asds'
+ldap_group_object_class: 'groupofnames'
+ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
+ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
 filter_passwd: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
 filter_shadow: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
 pam_authz_search: '(|(&(objectClass=posixGroup)(cn=co_bbmri_g-GRP_Gearshift)(memberUid=$username))(&(cn=$username)(rugpersonentitlementvalue=umcg)))'
@@ -241,6 +244,7 @@ regular_users:
   - user: 'umcg-wijmenga-dm'
     groups: ['umcg-wijmenga']
     sudoers: 'umcg-jgelderloos,umcg-aclaringbould,umcg-rmodderman,umcg-hwestra,umcg-avich,umcg-obakker,umcg-ddevries'
+lustre_quota_type: 'group'
 pfs_mounts: [
   { pfs: 'umcgst10',
     source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster',
