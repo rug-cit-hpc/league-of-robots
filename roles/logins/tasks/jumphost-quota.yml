@@ -1,0 +1,79 @@
+#
+# (Re)mount file systems with quota support.
+#
+---
+#
+# Adding quota options to /etc/fstab does noting for an XFS root partition,
+# but we add them anyway to get /etc/fstab in sync with what the mount or/proc/mounts will report.
+#
+- name: 'Enable user quota for XFS / in /etc/fstab.'
+  lineinfile:
+    path: '/etc/fstab'
+    backup: yes
+    backrefs: yes
+    regexp: '^(\S+\s+{{ item.mountpoint }}\s+\S+\s+)(?!(?:\S*,)?{{ item.mountoption }}(?:,\S*)?\s+)(\S+)(\s+.+)$'
+    line: '\1{{ item.mountoption }},\2\3'
+  with_items:
+    - mountpoint: '/'
+      mountoption: 'uquota'
+  when: inventory_hostname in groups['jumphost']
+  register: fstab_status
+  become: true
+
+#
+# Cannot simply remount an XFS file system to ebnable quota:
+# Quota must be enabled at boot.
+#
+- name: 'Checking if we need to update GRUB cmdline.'
+  shell: "grep 'GRUB_CMDLINE_LINUX=.*rootflags.*' /etc/default/grub"
+  register: grub_config_grep
+  changed_when: false
+  failed_when: false
+
+- name: 'Enable user quota for XFS / in GRUB config.'
+  lineinfile:
+    path: '/etc/default/grub'
+    backup: yes
+    backrefs: yes
+    regexp: '^(GRUB_CMDLINE_LINUX=\")([^\"]*)(\s+rootflags=(\S+))([^\"]*\")$'
+    line: '\1\2 rootflags=uquota,\4\5'
+  when: inventory_hostname in groups['jumphost'] and ('rootflags' in grub_config_grep.stdout) and ('uquota' not in grub_config_grep.stdout)
+  notify: 'rebuild_grub_config'
+  become: true
+
+- name: 'Enable user quota for XFS / in GRUB config.'
+  lineinfile:
+    path: '/etc/default/grub'
+    backup: yes
+    backrefs: yes
+    regexp: '^(GRUB_CMDLINE_LINUX=\")([^\"]*)(\")$'
+    line: '\1\2 rootflags=uquota\3'
+  when: inventory_hostname in groups['jumphost'] and ('rootflags' not in grub_config_grep.stdout)
+  notify: 'rebuild_grub_config'
+  become: true
+
+#
+# This depends on a correctly configured pam-script PAM plugin.
+#
+- name: 'Install set_quota.sh script.'
+  copy:
+    src: 'set_quota.sh'
+    dest: '/etc/pam-script.d/set_quota.sh'
+    owner: 'root'
+    group: 'root'
+    mode: '0744'
+  when: inventory_hostname in groups['jumphost']
+  become: true
+
+- name: 'Enable set_quota.sh script for certain PAM states.'
+  file:
+    src: "{{ item }}"
+    dest: "/etc/pam-script.d/{{ item }}_ses_open"
+    owner: 'root'
+    group: 'root'
+    state: 'link'
+  with_items:
+    - 'set_quota.sh'
+  when: inventory_hostname in groups['jumphost']
+  become: true
+...
