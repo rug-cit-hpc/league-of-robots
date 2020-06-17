@@ -10,14 +10,14 @@
   changed_when: false
   failed_when: false
   check_mode: no
-  register: rsync_version
-  delegate_to: localhost
+  register: 'rsync_version'
+  delegate_to: 'localhost'
 - name: 'Abort when modern rsync >= 3.1.2 is missing on control host.'
   debug:
     msg: "FATAL: Need rsync >= 3.1.2 on the control host, but detected {{ rsync_version.stdout }}."
   when:         'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
   failed_when: 'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
-  delegate_to: localhost
+  delegate_to: 'localhost'
 
 - name: 'Check OS version of target host.'
   fail:
@@ -42,7 +42,7 @@
   shell: |
          scontrol version | head -n 1 | sed 's|^slurm *\([0-9\.]*\).*$|\1|' | tr -d '\n'
   args:
-    executable: /bin/bash
+    executable: '/bin/bash'
     warn: no
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
@@ -50,7 +50,7 @@
   changed_when: false
   failed_when: false
   check_mode: no
-  register: slurm_version
+  register: 'slurm_version'
 
 - name: 'Get Lmod version from UI.'
   #
@@ -63,7 +63,7 @@
          source ~/.modulesrc >/dev/null 2>&1
          lmod -v | sed '/^$/d' | sed 's|^.*Version \([0-9\.]*\).*$|\1|' | head -1
   args:
-    executable: /bin/bash
+    executable: '/bin/bash'
     warn: no
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
@@ -71,41 +71,41 @@
   changed_when: false
   failed_when: false
   check_mode: no
-  register: lmod_version
+  register: 'lmod_version'
 
 - name: 'Set selinux in permissive mode.'
   selinux:
-    policy: targeted
-    state: permissive
+    policy: 'targeted'
+    state: 'permissive'
   become: true
 
 - name: 'Install EPEL repo and rsync.'
   yum:
-    state: latest
+    state: 'latest'
     update_cache: yes
     name:
-      - epel-release
-      - rsync
+      - 'epel-release'
+      - 'rsync'
   become: true
 
 - name: 'Install webserver and php.'
   yum:
-    state: latest
+    state: 'latest'
     update_cache: yes
     name:
-      - php
-      - httpd
+      - 'php'
+      - 'httpd'
   notify:
-    - restart_httpd
+    - 'restart_httpd'
   become: true
 
 - name: 'Enable webserver.'
   service:
     name: "{{ item }}"
     enabled: yes
-    state: started
+    state: 'started'
   with_items:
-    - httpd
+    - 'httpd'
   become: true
 
 - name: 'Install MkDocs on RedHat 7.x.'
@@ -116,9 +116,9 @@
 - name: 'Create base directories for MarkDown and HTML files.'
   file:
     path: "{{ item }}"
-    state: directory
-    owner: root
-    group: root
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
     mode: '0755'
   with_items:
     - "/srv/mkdocs/{{ slurm_cluster_name }}/"
@@ -163,14 +163,14 @@
 - name: 'Create sub directory structure for MarkDown files.'
   file:
     path: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"
-    state: directory
-    owner: root
-    group: root
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
     mode: '0700'
-  with_filetree: 'templates/mkdocs'
+  with_filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
   when: item.state == 'directory'
   notify:
-    - build_mkdocs
+    - 'build_mkdocs'
   become: true
 
 - name: 'Create static files for MarkDown.'
@@ -207,7 +207,7 @@
     - src: 'css'
     - src: 'img'
   notify:
-    - build_mkdocs
+    - 'build_mkdocs'
   become: true
 
 - name: 'Create skeleton for AppleScript apps.'
@@ -235,9 +235,9 @@
 - name: 'Make sure ssh-client-config AppleScript app main script is executable.'
   file:
     path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item }}/Contents/MacOS/applet"
-    state: file
-    owner: root
-    group: root
+    state: 'file'
+    owner: 'root'
+    group: 'root'
     mode: '0750'
   with_items:
     - "ssh-client-config-for-{{ slurm_cluster_name }}.app"
@@ -248,8 +248,8 @@
   template:
     src: "attachments/{{ item.src }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.dest }}"
-    owner: root
-    group: root
+    owner: 'root'
+    group: 'root'
     mode: "{{ item.mode }}"
   with_items:
     #
@@ -272,8 +272,8 @@
     path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.path }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/attachments/{{ item.dest }}"
     format: 'zip'
-    owner: root
-    group: root
+    owner: 'root'
+    group: 'root'
     mode: '0644'
   with_items:
     - path: "ssh-client-config-for-{{ slurm_cluster_name }}.app"
@@ -288,13 +288,13 @@
   template:
     src: "{{ item.src }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"
-    owner: root
-    group: root
+    owner: 'root'
+    group: 'root'
     mode: '0600'
-  with_filetree: 'templates/mkdocs'
+  with_filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
   # Exclude temporary *.html preview files, which are also exlcuded in .gitignore and should not be transferred.
   when: item.state == 'file' and '.md.html' not in item.path
   notify:
-    - build_mkdocs
+    - 'build_mkdocs'
   become: true
 ...

@@ -6,6 +6,7 @@
     warn: no
   changed_when: false
   failed_when: false
+  ignore_errors: true
   check_mode: no
   register: rsync_version
 

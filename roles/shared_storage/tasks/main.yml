@@ -155,7 +155,7 @@
     fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
-  with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list}}"
+  with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
   when: inventory_hostname in groups['deploy-admin-interface']
   become: true
 

@@ -14,7 +14,7 @@
 
 - name: 'Remove outdated ansible-managed files from /etc/sudoers.d/.'
   file:
-    path: "{{item}}"
+    path: "{{ item }}"
     state: absent
   with_items: "{{ ansible_managed_sudoers.files | map (attribute='path') | list }}"
   when: item | regex_replace('.*ansible-managed-','') not in regular_users | default([]) | selectattr('sudoers', 'defined') | map (attribute='user') | list
