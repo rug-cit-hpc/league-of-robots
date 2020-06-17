@@ -2,6 +2,7 @@
 firewall_allowed_tcp_ports:
   - "22"
   - "80"
+  - "3000"  # Grafana server.
 firewall_additional_rules:
   - "iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 80 -j REDIRECT --to-port 22"
   - "iptables -A INPUT -i eth1 -p tcp -s 129.125.2.233,129.125.2.225,129.125.2.226 --dport 9090 -j ACCEPT -m comment --comment 'prometheus server'"

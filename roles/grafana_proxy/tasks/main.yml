@@ -3,7 +3,7 @@
   yum:
     name: nginx
     state: latest
-    update_cache: yes
+    update_cache: true
   become: true
 
 - name: Deploy nginx.conf.
@@ -15,13 +15,22 @@
     group: root
   become: true
 
-- name: Add .htpasswd
+- name: create tls certs directory
+  file:
+    path: /etc/certificates/live/airlock.hpc.rug.nl
+    state: directory
+    mode: 0751
+  become: true
+
+- name: copy certificate and chain files in place
   copy:
-    content: "{{ prom_proxy_htpasswd }}"
-    dest: /etc/nginx/.htpasswd
-    mode: 0600
-    owner: nginx
-    group: nginx
+    src: "tls/{{ item }}"
+    dest: /etc/certificates/live/{{ item }}
+  with_items:
+    - cert.pem
+    - dhparam
+    - fullchain.pem
+    - privkey.pem
   become: true
 
 - name: Make sure nginx is enabled and restarted.

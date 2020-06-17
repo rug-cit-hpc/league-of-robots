@@ -1,5 +1,5 @@
 ---
 - hosts: jumphost
   roles:
-     - prom_proxy
+     - grafana_proxy
 ...
