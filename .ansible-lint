@@ -1,3 +1,7 @@
 ---
 exclude_paths:
-  - "~/.ansible" # Exclude external playbooks.
+  - '~/.ansible' # Exclude external playbooks.
+skip_list:
+  # We explicitly use latest combined with other tech to pin versions (e.g. Spacewalk).
+  - '403' # "Package installs should not use latest".
+...

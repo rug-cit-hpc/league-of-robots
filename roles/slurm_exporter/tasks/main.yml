@@ -1,49 +1,45 @@
 ---
-- set_fact:
+- name: 'Setting service_name fact.'
+  set_fact:
     service_name: prometheus-slurm-exporter
-- file:
-    path: /usr/local/prometheus
-    state: directory
-    mode: 0755
-    owner: root
-    group: root
+
+- name: 'Create directory for Prometheus.'
+  file:
+    path: '/usr/local/prometheus'
+    state: 'directory'
+    mode: '0755'
+    owner: 'root'
+    group: 'root'
   become: true
 
-- name: Install binary
+- name: "Install Prometheus {{ service_name }} binary."
   copy:
     src: "{{ playbook_dir }}/promtools/results/{{ service_name }}"
     dest: "/usr/local/prometheus/{{ service_name }}"
-    mode: 0755
-    owner: root
-    group: root
+    mode: '0755'
+    owner: 'root'
+    group: 'root'
+  notify: "restart_{{ service_name }}"
   become: true
 
-- name: Install service files.
+- name: "Install {{ service_name }} service file."
   template:
     src: "templates/{{ service_name }}.service"
     dest: "/etc/systemd/system/{{ service_name }}.service"
-    mode: 644
-    owner: root
-    group: root
+    mode: '0644'
+    owner: 'root'
+    group: 'root'
   tags:
-    - service-files
+    - 'service-files'
+  notify: "restart_{{ service_name }}"
   become: true
 
-- name: install service files
-  command: systemctl daemon-reload
-  become: true
-
-- name: enable service at boot
+- name: "Make sure {{ service_name }} service is enabled and started."
   systemd:
     name: "{{ service_name }}.service"
+    state: 'started'
     enabled: yes
-  become: true
-
-- name: make sure servcies are started.
-  systemd:
-    name: "{{ service_name }}"
-    state: restarted
   tags:
-    - start-service
+      - 'start-service'
   become: true
 ...

@@ -86,7 +86,7 @@
     - slurm-management
     - prom_server
     - grafana
-    - {role: cadvisor, become: true}
+    - cadvisor
   vars:
     # These variables are needed by the mariadb role.
     # Which is a depencency of the slurm-management role.
