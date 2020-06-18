@@ -62,10 +62,10 @@ local_admin_groups:
   - 'admin'
   - 'docker'
 local_admin_users:
+  - 'alex2'
   - 'egon'
   - 'gerben'
   - 'henkjan'
-  - 'kim'
   - 'kim'
   - 'marieke'
   - 'marlies'
