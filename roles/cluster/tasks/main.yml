@@ -92,6 +92,8 @@
       - readline-static
       - rsync
       - screen
+      - singularity-runtime
+      - singularity
       - tcl-devel
       - telnet
       - tmux
