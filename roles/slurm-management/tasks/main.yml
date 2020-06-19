@@ -223,7 +223,7 @@
 #
 # Flush handlers to make sure Slurm DB is present and connection settings have been updated.
 #
-- meta: 'flush_handlers'
+- meta: flush_handlers
 
 - name: 'Execute Slurm DB initialization script on host running slurmdbd.'
   shell: |
