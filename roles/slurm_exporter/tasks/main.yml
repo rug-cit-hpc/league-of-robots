@@ -6,10 +6,10 @@
 - name: 'Create directory for Prometheus.'
   file:
     path: '/usr/local/prometheus'
-    state: 'directory'
+    state: directory
     mode: '0755'
-    owner: 'root'
-    group: 'root'
+    owner: root
+    group: root
   become: true
 
 - name: "Install Prometheus {{ service_name }} binary."
@@ -17,8 +17,8 @@
     src: "{{ playbook_dir }}/promtools/results/{{ service_name }}"
     dest: "/usr/local/prometheus/{{ service_name }}"
     mode: '0755'
-    owner: 'root'
-    group: 'root'
+    owner: root
+    group: root
   notify: "restart_{{ service_name }}"
   become: true
 
@@ -27,19 +27,19 @@
     src: "templates/{{ service_name }}.service"
     dest: "/etc/systemd/system/{{ service_name }}.service"
     mode: '0644'
-    owner: 'root'
-    group: 'root'
+    owner: root
+    group: root
   tags:
-    - 'service-files'
+    - service-files
   notify: "restart_{{ service_name }}"
   become: true
 
 - name: "Make sure {{ service_name }} service is enabled and started."
   systemd:
     name: "{{ service_name }}.service"
-    state: 'started'
+    state: started
     enabled: yes
   tags:
-      - 'start-service'
+      - start-service
   become: true
 ...

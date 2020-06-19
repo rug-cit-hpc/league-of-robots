@@ -1,29 +1,33 @@
 ---
-- hosts: imperator
-  become: true
+- name: 'Install monitoring tools.'
+  hosts: slurm-management
   roles:
-     - prom_server
-     - cadvisor
+    - prom_server
+    - grafana
+    - cadvisor
 
-- name: Monitoring of the virtualized components
-  hosts: cluster
-  become: true
-  tasks:
-  roles:
-     - node_exporter
-
-- name: Monitoring of the hardware components
+- name: 'Monitoring of the hardware components.'
   hosts: metal
-  become: true
   tasks:
   roles:
-     - cadvisor
-     - node_exporter
-     - ipmi_exporter
+    - cadvisor
+    - node_exporter
+    - ipmi_exporter
 
-- name: Airlock proxies prometheus for Grafana in the cloud
-  hosts: airlock
-  become: true
+- name: 'Monitoring of the virtualized components.'
+  hosts: jumphost, cluster
   tasks:
   roles:
-     - grafana_proxy
+    - node_exporter
+
+- name: 'Monitoring of the SLURM resource manager.'
+  hosts: user-interface
+  roles:
+    - slurm_exporter
+
+- name: 'Jumphost proxies Prometheus for Grafana in the cloud.'
+  hosts: jumphost
+  tasks:
+  roles:
+    - grafana_proxy
+...

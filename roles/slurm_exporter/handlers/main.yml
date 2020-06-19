@@ -10,8 +10,8 @@
 - name: 'Restart prometheus-slurm-exporter service.'
   systemd:
     name: 'prometheus-slurm-exporter.service'
-    state: 'restarted'
-    daemon_reload: 'yes'
+    state: restarted
+    daemon_reload: yes
   become: true
   listen: restart_prometheus-slurm-exporter
 #
@@ -20,7 +20,7 @@
 - name: 'Reload prometheus-slurm-exporter service.'
   systemd:
     name: 'prometheus-slurm-exporter.service'
-    state: 'reloaded'
+    state: reloaded
   become: true
   listen: reload_prometheus-slurm-exporter
 ...
