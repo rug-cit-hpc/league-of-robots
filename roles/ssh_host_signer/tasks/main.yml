@@ -10,8 +10,8 @@
 - name: 'Create local temporary directory.'
   tempfile:
     suffix: 'ssh_host_signer'
-    state: 'directory'
-  delegate_to: 'localhost'
+    state: directory
+  delegate_to: localhost
   changed_when: false
   register: temporary_directory
   become: false
@@ -35,20 +35,20 @@
   file:
     path: "{{ ssh_host_signer_ca_private_key }}"
     mode: '0600'
-  delegate_to: 'localhost'
+  delegate_to: localhost
 
 - name: 'Sign SSH keys.'
   command: ssh-keygen -s {{ ssh_host_signer_ca_private_key | quote }} -P {{ ssh_host_signer_ca_private_key_pass | quote }} -I {{ ssh_host_signer_id | quote }} -h -n {{ ssh_host_signer_hostnames | quote }} "{{ temporary_directory.path }}/public_keys/{{ inventory_hostname | quote }}{{ item.path | quote }}.pub"
   with_items: "{{ private_keys.files }}"
   changed_when: false
-  delegate_to: 'localhost'
+  delegate_to: localhost
   no_log: true
 
 - name: 'Find certificates.'
   find:
     path: "{{ temporary_directory.path }}/public_keys/{{ inventory_hostname }}{{ ssh_host_signer_key_directory }}"
     pattern: 'ssh_host_*_key-cert.pub'
-  delegate_to: 'localhost'
+  delegate_to: localhost
   register: certificates
 
 - name: 'Compare certificates.'
@@ -60,7 +60,7 @@
   with_items: "{{ certificates.files }}"
   changed_when: false
   failed_when: false
-  delegate_to: 'localhost'
+  delegate_to: localhost
   register: certificate_comparison
 
 - name: 'Copy certificates back to server.'
@@ -69,42 +69,42 @@
     dest: "{{ ssh_host_signer_key_directory }}"
   when: item.rc != 0
   with_items: "{{ certificate_comparison.results }}"
-  notify: 'reload_sshd'
+  notify: reload_sshd
   become: true
 
 - name: 'Remove local temporary directory.'
   file:
     name: "{{ temporary_directory.path }}"
-    state: 'absent'
-  delegate_to: 'localhost'
+    state: absent
+  delegate_to: localhost
   changed_when: false
 
 - name: 'Add the signed certificates to SSH configuration file.'
   lineinfile:
     dest: "{{ ssh_host_signer_ssh_config }}"
     line: "HostCertificate {{ item.path }}-cert.pub"
-    state: 'present'
+    state: present
     insertafter: "HostKey {{ item.path }}"
     backup: yes
   with_items: "{{ private_keys.files | selectattr('path', 'match', ssh_host_signer_key_types) | list }}"
-  notify: 'reload_sshd'
+  notify: reload_sshd
   become: true
 
 - name: 'Remove HostKey directives from the SSH configuration file for unused ssh host key types.'
   lineinfile:
     dest: "{{ ssh_host_signer_ssh_config }}"
     line: "HostCertificate {{ item.path }}-cert.pub"
-    state: 'absent'
+    state: absent
   with_items: "{{ private_keys.files | rejectattr('path', 'match', ssh_host_signer_key_types) | list }}"
-  notify: 'reload_sshd'
+  notify: reload_sshd
   become: true
 
 - name: 'Remove corresponding HostCertificate directives from the SSH configuration file for unused ssh host key types.'
   lineinfile:
     dest: "{{ ssh_host_signer_ssh_config }}"
     line: "HostKey {{ item.path }}"
-    state: 'absent'
+    state: absent
   with_items: "{{ private_keys.files | rejectattr('path', 'match', ssh_host_signer_key_types) | list }}"
-  notify: 'reload_sshd'
+  notify: reload_sshd
   become: true
 ...
