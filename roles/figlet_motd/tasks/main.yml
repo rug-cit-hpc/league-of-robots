@@ -1,9 +1,9 @@
 ---
 - name: 'Install figlet.'
   yum:
-    state: 'latest'
+    state: latest
     update_cache: yes
-    name: 'figlet'
+    name: figlet
   become: true
 
 - name: 'Generate figlet ASCII art.'
@@ -17,8 +17,8 @@
   template:
     src: 'templates/motd'
     dest: '/etc/motd'
-    owner: 'root'
-    group: 'root'
+    owner: root
+    group: root
     mode: '0644'
   when: figlet.changed
   become: true
