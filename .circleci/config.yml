@@ -24,7 +24,10 @@ jobs:
           command: |
             . venv/bin/activate
             ansible-lint cluster.yml > lint_results 2>&1 || true
-            errors=$(grep -c '^[0-9]* [A-Z].*' lint_results)
-            if (( errors > 18 )); then /bin/false; fi
             cat lint_results
+            errors=$(grep -c '^[0-9]* [A-Z].*' lint_results)
+            echo '###############################################'
+            printf 'Counted %d ansible-lint errors.' ${errors:-0}
+            echo '###############################################'
+            if (( errors > 18 )); then /bin/false; fi
 ...
