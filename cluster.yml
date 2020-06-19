@@ -47,7 +47,7 @@
     - sshd
     - node_exporter
     - {role: geerlingguy.security, become: true}
-    - prom_proxy
+    - grafana_proxy
     - regular-users
   tasks:
     - name: 'Install cron job to reboot jumphost regularly to activate kernel updates.'

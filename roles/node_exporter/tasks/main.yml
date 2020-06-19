@@ -2,9 +2,9 @@
 - name: 'Create dir for Prometheus.'
   file:
     path: '/usr/local/prometheus'
-    state: 'directory'
+    state: directory
     mode: '0755'
-  notify: 'restart_node_exporter'
+  notify: restart_node_exporter
   become: true
 
 - name: 'Install Prometheus node exporter.'
@@ -12,7 +12,7 @@
     src: "{{ playbook_dir }}/promtools/results/node_exporter"
     dest: '/usr/local/prometheus/node_exporter'
     mode: '0755'
-  notify: 'restart_node_exporter'
+  notify: restart_node_exporter
   become: true
 
 - name: 'Install node exporter service file.'
@@ -20,19 +20,19 @@
     src: 'templates/node-exporter.service'
     dest: '/etc/systemd/system/node-exporter.service'
     mode: '0644'
-    owner: 'root'
-    group: 'root'
+    owner: root
+    group: root
   tags:
-      - 'service-files'
-  notify: 'restart_node_exporter'
+      - service-files
+  notify: restart_node_exporter
   become: true
 
 - name: 'Make sure node exporter service is enabled and started.'
   systemd:
     name: 'node-exporter.service'
-    state: 'started'
+    state: started
     enabled: yes
   tags:
-      - 'start-service'
+      - start-service
   become: true
 ...

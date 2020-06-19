@@ -26,4 +26,4 @@
   become: true
   tasks:
   roles:
-     - prom_proxy
+     - grafana_proxy
