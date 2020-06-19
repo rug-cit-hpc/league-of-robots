@@ -38,7 +38,7 @@
     regexp: '^(GRUB_CMDLINE_LINUX=\")([^\"]*)(\s+rootflags=(\S+))([^\"]*\")$'
     line: '\1\2 rootflags=uquota,\4\5'
   when: inventory_hostname in groups['jumphost'] and ('rootflags' in grub_config_grep.stdout) and ('uquota' not in grub_config_grep.stdout)
-  notify: 'rebuild_grub_config'
+  notify: rebuild_grub_config
   become: true
 
 - name: 'Enable user quota for XFS / in GRUB config.'
@@ -49,7 +49,7 @@
     regexp: '^(GRUB_CMDLINE_LINUX=\")([^\"]*)(\")$'
     line: '\1\2 rootflags=uquota\3'
   when: inventory_hostname in groups['jumphost'] and ('rootflags' not in grub_config_grep.stdout)
-  notify: 'rebuild_grub_config'
+  notify: rebuild_grub_config
   become: true
 
 #
@@ -59,8 +59,8 @@
   copy:
     src: 'set_quota.sh'
     dest: '/etc/pam-script.d/set_quota.sh'
-    owner: 'root'
-    group: 'root'
+    owner: root
+    group: root
     mode: '0744'
   when: inventory_hostname in groups['jumphost']
   become: true
@@ -69,11 +69,11 @@
   file:
     src: "{{ item }}"
     dest: "/etc/pam-script.d/{{ item }}_ses_open"
-    owner: 'root'
-    group: 'root'
-    state: 'link'
+    owner: root
+    group: root
+    state: link
   with_items:
-    - 'set_quota.sh'
+    - set_quota.sh
   when: inventory_hostname in groups['jumphost']
   become: true
 ...
