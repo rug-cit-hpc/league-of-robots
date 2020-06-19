@@ -1,62 +1,62 @@
 ---
-- name: 'Create cron job to restart systemd-logind regularly as workaround for known DBus bug.'
+- name: Create cron job to restart systemd-logind regularly as workaround for known DBus bug.
   cron:
     #
     # Silly workaround for bug in interaction dbus <-> logind
     # Need DBus 1.11.10 for a fix, but CentOS 7.6 is stuck on dbus 1.10.24.
     #
-    name: 'Restart systemd-logind'
+    name: Restart systemd-logind
     minute: "/10"
-    user: 'root'
-    job: '/bin/systemctl restart systemd-logind'
-    cron_file: 'restart_logind'
+    user: root
+    job: /bin/systemctl restart systemd-logind
+    cron_file: restart_logind
   become: true
 
-- name: 'Install yum dependencies.'
+- name: Install yum dependencies.
   yum:
-    state: 'latest'
+    state: latest
     update_cache: yes
     name:
-      - 'pam_script'
-      - 'oddjob-mkhomedir'
+      - pam_script
+      - oddjob-mkhomedir
   notify:
-    - 'authconfig_update'
-    - 'restart_oddjobd'
+    - authconfig_update
+    - restart_oddjobd
   become: true
 
-- name: 'Deploy password-auth-ac for PAM.'
+- name: Deploy password-auth-ac for PAM.
   copy:
-    src: 'password-auth-ac'
-    dest: '/etc/pam.d/password-auth-ac'
-    owner: 'root'
-    group: 'root'
+    src: password-auth-ac
+    dest: /etc/pam.d/password-auth-ac
+    owner: root
+    group: root
     mode: '0600'
   notify:
-    - 'authconfig_update'
-    - 'restart_oddjobd'
+    - authconfig_update
+    - restart_oddjobd
   become: true
 
-- name: 'Enable pam_script.'
+- name: Enable pam_script.
   file:
-    src: 'pam_script'
+    src: pam_script
     dest: "/etc/{{ item }}"
-    owner: 'root'
-    group: 'root'
-    state: 'link'
+    owner: root
+    group: root
+    state: link
   with_items:
-    - 'pam_script_acct'
-    - 'pam_script_auth'
-    - 'pam_script_passwd'
-    - 'pam_script_ses_close'
-    - 'pam_script_ses_open'
+    - pam_script_acct
+    - pam_script_auth
+    - pam_script_passwd
+    - pam_script_ses_close
+    - pam_script_ses_open
   become: true
 
-- name: 'Create /etc/pam-script.d/ dir.'
+- name: Create /etc/pam-script.d/ dir.
   file:
-    name: '/etc/pam-script.d'
-    state: 'directory'
-    owner: 'root'
-    group: 'root'
+    name: /etc/pam-script.d
+    state: directory
+    owner: root
+    group: root
     mode: '0755'
   become: true
 
@@ -91,26 +91,26 @@
 #  when: inventory_hostname in groups['cluster']
 #  become: true
 #
-- name: 'Disable login_checks.sh script as we use the Slurm job_submit.lua plugin now.'
+- name: Disable login_checks.sh script as we use the Slurm job_submit.lua plugin now.
   file:
     path: "{{ item }}"
-    state: 'absent'
+    state: absent
   with_items:
-    - 'login_checks.sh_ses_open'
-    - 'login_checks.sh'
+    - login_checks.sh_ses_open
+    - login_checks.sh
   become: true
 
-- name: 'Enable services.'
+- name: Enable services.
   systemd:
     name: "{{ item }}"
     enabled: yes
-    state: 'started'
-    daemon_reload: 'yes'
+    state: started
+    daemon_reload: yes
   with_items:
-    - 'dbus.service'
-    - 'oddjobd.service'
+    - dbus.service
+    - oddjobd.service
   notify:
-    - 'authconfig_update'
-    - 'restart_oddjobd'
+    - authconfig_update
+    - restart_oddjobd
   become: true
 ...
