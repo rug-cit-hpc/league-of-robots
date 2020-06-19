@@ -9,9 +9,9 @@
     name: "{{ item }}"
     state: restarted
   with_items:
-    - httpd
+    - 'httpd'
   become: true
-  listen: restart_httpd
+  listen: 'restart_httpd'
 
 - name: '(Re)build webpages.'
   shell: |
@@ -22,5 +22,5 @@
          export PATH="${PATH}:/usr/local/bin/"
          mkdocs build
   become: true
-  listen: build_mkdocs
+  listen: 'build_mkdocs'
 ...

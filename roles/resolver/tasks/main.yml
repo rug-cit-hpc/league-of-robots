@@ -1,12 +1,12 @@
 ---
 - name: 'Install dnsmasq.'
   yum:
-    state: latest
+    state: 'latest'
     update_cache: yes
     name:
-      - dnsmasq
+      - 'dnsmasq'
   become: true
-  notify: restart_dnsmasq
+  notify: 'restart_dnsmasq'
 
 - name: 'Configure /etc/dnsmasq.conf to use nameservers as listed in group_vars for this cluster.'
   template:
@@ -16,7 +16,7 @@
     group: root
     mode: '0644'
   become: true
-  notify: restart_dnsmasq
+  notify: 'restart_dnsmasq'
 
 - name: 'Configure /etc/resolv.conf to use dnsmasq on localhost.'
   copy:
@@ -33,7 +33,7 @@
     name: 'dnsmasq.service'
     enabled: yes
   become: true
-  notify: restart_dnsmasq
+  notify: 'restart_dnsmasq'
 
-- meta: flush_handlers
+- meta: 'flush_handlers'
 ...

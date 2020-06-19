@@ -36,21 +36,21 @@
 - name: 'Reload munge service.'
   systemd:
     name: 'munge.service'
-    state: reloaded
+    state: 'reloaded'
   become: true
   listen: reload_munge
 
 - name: 'Reload slurmdbd service.'
   systemd:
     name: 'slurmdbd.service'
-    state: reloaded
+    state: 'reloaded'
   become: true
   listen: reload_slurmdbd
 
 - name: 'Reload slurmctld service.'
   systemd:
     name: 'slurmctld.service'
-    state: reloaded
+    state: 'reloaded'
   become: true
   listen: reload_slurmctld
 ...

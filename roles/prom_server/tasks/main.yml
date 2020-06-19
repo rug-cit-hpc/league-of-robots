@@ -9,7 +9,7 @@
     - '/srv/prometheus/etc/prometheus'
     - '/srv/prometheus/prometheus'
   notify:
-   - restart_prometheus
+   - 'restart_prometheus'
   become: true
 
 - name: 'Install settings files.'
@@ -20,10 +20,10 @@
     owner: root
     group: root
   with_items:
-    - alerting.rules
-    - targets.json
+    - 'alerting.rules'
+    - 'targets.json'
   notify:
-   - restart_prometheus
+   - 'restart_prometheus'
   become: true
 
 - name: 'Install settings files based on templates.'
@@ -34,7 +34,7 @@
     owner: root
     group: root
   notify:
-   - restart_prometheus
+   - 'restart_prometheus'
   become: true
 
 - name: 'Install service files.'
@@ -45,18 +45,18 @@
     owner: root
     group: root
   tags:
-    - service-files
+    - 'service-files'
   notify:
-   - restart_prometheus
+   - 'restart_prometheus'
   become: true
 
 - name: 'Make sure prometheus service is started and enabled on (re)boot.'
   systemd:
     name: 'prometheus.service'
     enabled: yes
-    state: started
+    state: 'started'
     daemon_reload: yes
   tags:
-    - start-service
+    - 'start-service'
   become: true
 ...
