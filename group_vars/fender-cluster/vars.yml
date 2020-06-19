@@ -6,6 +6,7 @@ slurm_version: '17.11.9-2.umcg.el7'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 motd: "To solve or not to solve, that's the question."
+figlet_font: 'slant'
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-12]"
 vcompute_sockets: 16
 vcompute_cores_per_socket: 1

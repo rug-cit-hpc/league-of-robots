@@ -5,6 +5,7 @@ stack_prefix: 'gs'
 slurm_version: '18.08.8-1.el7.umcg'
 mailhub: '172.23.34.34'
 rewrite_domain: "imperator{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
+figlet_font: 'cyberlarge'
 motd: |
       !!! WARNING: This cluster is in beta testing
           and may be redeployed from scratch, which

@@ -1,4 +1,4 @@
-{{ figlet.stdout }}
+{{ figlet['content'] | b64decode }}
 
 {{ motd }}
 
