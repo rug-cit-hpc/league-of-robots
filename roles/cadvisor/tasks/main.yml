@@ -4,16 +4,16 @@
     src: 'templates/cadvisor.service'
     dest: '/etc/systemd/system/cadvisor.service'
     mode: '0644'
-    owner: 'root'
-    group: 'root'
-  notify: 'restart_cadvisor'
+    owner: root
+    group: root
+  notify: restart_cadvisor
   become: true
 
 - name: 'Make sure cadvisor service is enabled and started.'
   systemd:
     name: 'cadvisor.service'
-    state: 'started'
-    enabled: 'yes'
+    state: started
+    enabled: yes
     daemon_reload: yes
   become: true
 ...
