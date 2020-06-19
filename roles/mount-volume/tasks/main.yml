@@ -18,7 +18,7 @@
     src: '/dev/vdb'
     fstype: 'ext4'
     opts: 'rw,relatime'
-    state: 'mounted'
+    state: mounted
   become: true
 
 - name: 'Recheck the local mount point.'
@@ -30,9 +30,9 @@
 - name: 'Configure permissions for root.'
   file:
     path: "{{ volume_mount_point }}"
-    state: 'directory'
-    owner: 'root'
-    group: 'root'
+    state: directory
+    owner: root
+    group: root
     mode: '0755'
   when: mount_local.rc == 0 and inventory_hostname in groups['compute-vm']
   become: true
@@ -40,8 +40,8 @@
 - name: 'Configure permissions for deploy admins.'
   file:
     path: "{{ volume_mount_point }}"
-    state: 'directory'
-    owner: 'root'
+    state: directory
+    owner: root
     group: "{{ envsync_group }}"
     mode: '2775'
   when: mount_local.rc == 0 and inventory_hostname in groups['deploy-admin-interface']
