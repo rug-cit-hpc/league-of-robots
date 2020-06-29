@@ -1,18 +1,18 @@
 ---
-- name: Create cron job to restart systemd-logind regularly as workaround for known DBus bug.
+- name: 'Create cron job to restart systemd-logind regularly as workaround for known DBus bug.'
   cron:
     #
     # Silly workaround for bug in interaction dbus <-> logind
     # Need DBus 1.11.10 for a fix, but CentOS 7.6 is stuck on dbus 1.10.24.
     #
-    name: Restart systemd-logind
-    minute: "/10"
+    name: 'Restart systemd-logind'
+    minute: '/10'
     user: root
-    job: /bin/systemctl restart systemd-logind
+    job: '/bin/systemctl restart systemd-logind'
     cron_file: restart_logind
   become: true
 
-- name: Install yum dependencies.
+- name: 'Install yum dependencies.'
   yum:
     state: latest
     update_cache: yes
@@ -24,10 +24,10 @@
     - restart_oddjobd
   become: true
 
-- name: Deploy password-auth-ac for PAM.
+- name: 'Deploy password-auth-ac for PAM.'
   copy:
-    src: password-auth-ac
-    dest: /etc/pam.d/password-auth-ac
+    src: 'password-auth-ac'
+    dest: '/etc/pam.d/password-auth-ac'
     owner: root
     group: root
     mode: '0600'
@@ -36,9 +36,9 @@
     - restart_oddjobd
   become: true
 
-- name: Enable pam_script.
+- name: 'Enable pam_script.'
   file:
-    src: pam_script
+    src: 'pam_script'
     dest: "/etc/{{ item }}"
     owner: root
     group: root
@@ -51,9 +51,9 @@
     - pam_script_ses_open
   become: true
 
-- name: Create /etc/pam-script.d/ dir.
+- name: 'Create /etc/pam-script.d/ dir.'
   file:
-    name: /etc/pam-script.d
+    name: '/etc/pam-script.d'
     state: directory
     owner: root
     group: root
@@ -71,8 +71,8 @@
 #
 #- name: Install login_checks.sh script.
 #  copy:
-#    src: login_checks.sh
-#    dest: /etc/pam-script.d/login_checks.sh
+#    src: 'login_checks.sh'
+#    dest: '/etc/pam-script.d/login_checks.sh'
 #    owner: root
 #    group: root
 #    mode: '0755'
@@ -81,26 +81,32 @@
 #
 #- name: Enable login_checks.sh script for ses_open.
 #  file:
-#    src: login_checks.sh
-#    dest: "/etc/pam-script.d/{{ item }}"
+#    src: "{{ item }}"
+#    dest: "/etc/pam-script.d/{{ item }}_ses_open"
 #    owner: root
 #    group: root
 #    state: link
 #  with_items:
-#    - login_checks.sh_ses_open
+#    - login_checks.sh
 #  when: inventory_hostname in groups['cluster']
 #  become: true
 #
-- name: Disable login_checks.sh script as we use the Slurm job_submit.lua plugin now.
+- name: 'Disable login_checks.sh script as we use the Slurm job_submit.lua plugin now.'
   file:
-    path: "{{ item }}"
+    path: "/etc/pam-script.d/{{ item }}"
     state: absent
   with_items:
     - login_checks.sh_ses_open
     - login_checks.sh
   become: true
 
-- name: Enable services.
+- name: 'Set tiny quota for regular users on jumphosts.'
+  include_tasks:
+    file: "{{ playbook_dir }}/roles/logins/tasks/jumphost-quota.yml"
+  when:
+    - inventory_hostname in groups['jumphost'] | default([])
+
+- name: 'Enable services.'
   systemd:
     name: "{{ item }}"
     enabled: yes
