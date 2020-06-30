@@ -47,7 +47,7 @@
     - sshd
     - node_exporter
     - {role: geerlingguy.security, become: true}
-    - prom_proxy
+    - grafana_proxy
     - regular-users
   tasks:
     - name: 'Install cron job to reboot jumphost regularly to activate kernel updates.'
@@ -70,7 +70,7 @@
     - ssh_known_hosts
     - spacewalk_client
     - logins
-    - figlet_hostname
+    - figlet_motd
     - mount-volume
     - ldap
     - node_exporter
@@ -86,7 +86,7 @@
     - slurm-management
     - prom_server
     - grafana
-    - {role: cadvisor, become: true}
+    - cadvisor
   vars:
     # These variables are needed by the mariadb role.
     # Which is a depencency of the slurm-management role.
@@ -102,7 +102,7 @@
     - ssh_known_hosts
     - spacewalk_client
     - logins
-    - figlet_hostname
+    - figlet_motd
     - mount-volume
     - build-environment
     - ldap
@@ -123,7 +123,7 @@
     - ssh_known_hosts
     - spacewalk_client
     - logins
-    - figlet_hostname
+    - figlet_motd
     - build-environment
     - ldap
     - node_exporter
@@ -145,7 +145,7 @@
     - ssh_known_hosts
     - spacewalk_client
     - logins
-    - figlet_hostname
+    - figlet_motd
     - mount-volume
     - ldap
     - node_exporter

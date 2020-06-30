@@ -1,0 +1,22 @@
+---
+- name: 'Generate figlet ASCII art for hostname.'
+  shell: |
+         {{ figlet_cmd }} > "/etc/{{ ansible_hostname }}.figlet.{{ figlet_cmd | checksum }}"
+  args:
+    creates: "/etc/{{ ansible_hostname }}.figlet.{{ figlet_cmd | checksum }}"
+  become: true
+
+- name: 'Get generated figlet ASCII art for hostname.'
+  slurp:
+    src: "/etc/{{ ansible_hostname }}.figlet.{{ figlet_cmd | checksum }}"
+  register: figlet
+
+- name: 'Create /etc/motd.'
+  template:
+    src: 'templates/motd'
+    dest: '/etc/motd'
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+...

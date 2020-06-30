@@ -7,22 +7,11 @@
 # Restart before reload: an reload after a restart may be redundant but should not fail,
 # but the other way around may fail when the impact of changes was too large for a reload.
 #
-# Currently restart only: mysql.service does not support reloads yet :(.
-#
-- name: 'Restart MariaDB/MySQL service.'
+- name: 'Restart cadvisor service.'
   systemd:
-    name: 'mariadb.service'
-    state: 'restarted'
+    name: 'cadvisor.service'
+    state: restarted
     daemon_reload: yes
   become: true
-  listen: restart_mariadb
-
-- name: 'Start MariaDB/MySQL service.'
-  systemd:
-    name: 'mariadb.service'
-    state: 'started'
-    enabled: yes
-    daemon_reload: yes
-  become: true
-  listen: start_mariadb
+  listen: restart_cadvisor
 ...

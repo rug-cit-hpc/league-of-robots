@@ -14,7 +14,7 @@
 
 - name: 'Install yum dependencies.'
   yum:
-    state: latest
+    state: 'latest'
     update_cache: yes
     name:
       - pam_script
@@ -111,6 +111,7 @@
     name: "{{ item }}"
     enabled: yes
     state: started
+    daemon_reload: yes
   with_items:
     - dbus.service
     - oddjobd.service

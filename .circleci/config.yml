@@ -10,25 +10,24 @@ jobs:
   build:
     docker:
       - image: circleci/python:3
-
     working_directory: ~/repo
-
     steps:
       - checkout
-
       - run:
           name: install dependencies
           command: |
             python3 -m venv venv
             . venv/bin/activate
             pip install ansible-lint
-
-      # run tests!
       - run:
           name: run tests
           command: |
             . venv/bin/activate
             ansible-lint cluster.yml > lint_results 2>&1 || true
-            errors=$(grep -c "\:" lint_results)
-            if (( errors > 224 )); then /bin/false; fi
             cat lint_results
+            errors=$(grep -c '^[0-9]* [A-Z].*' lint_results)
+            echo '###############################################'
+            printf 'Counted %d ansible-lint errors.' ${errors:-0}
+            echo '###############################################'
+            if (( errors > 18 )); then /bin/false; fi
+...

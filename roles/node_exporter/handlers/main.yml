@@ -7,22 +7,20 @@
 # Restart before reload: an reload after a restart may be redundant but should not fail,
 # but the other way around may fail when the impact of changes was too large for a reload.
 #
-# Currently restart only: mysql.service does not support reloads yet :(.
+- name: 'Restart node-exporter service.'
+  systemd:
+    name: 'node-exporter.service'
+    state: restarted
+    daemon_reload: yes
+  become: true
+  listen: restart_node_exporter
 #
-- name: 'Restart MariaDB/MySQL service.'
+# Service reloads after restarts.
+#
+- name: 'Reload node-exporter service.'
   systemd:
-    name: 'mariadb.service'
-    state: 'restarted'
-    daemon_reload: yes
+    name: 'node-exporter.service'
+    state: reloaded
   become: true
-  listen: restart_mariadb
-
-- name: 'Start MariaDB/MySQL service.'
-  systemd:
-    name: 'mariadb.service'
-    state: 'started'
-    enabled: yes
-    daemon_reload: yes
-  become: true
-  listen: start_mariadb
+  listen: reload_node_exporter
 ...

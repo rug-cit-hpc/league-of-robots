@@ -1,25 +1,19 @@
 ---
-- name: Install service files.
+- name: 'Install cadvisor service file.'
   template:
-    src: templates/cadvisor.service
-    dest: /etc/systemd/system/cadvisor.service
-    mode: 644
+    src: 'templates/cadvisor.service'
+    dest: '/etc/systemd/system/cadvisor.service'
+    mode: '0644'
     owner: root
     group: root
-  tags:
-    - service-files
+  notify: restart_cadvisor
+  become: true
 
-- name: install service files
-  command: systemctl daemon-reload
-
-- name: enable service at boot
+- name: 'Make sure cadvisor service is enabled and started.'
   systemd:
-    name: cadvisor.service
+    name: 'cadvisor.service'
+    state: started
     enabled: yes
-
-- name: make sure servcies are started.
-  systemd:
-    name: cadvisor.service
-    state: restarted
-  tags:
-    - start-service
+    daemon_reload: yes
+  become: true
+...

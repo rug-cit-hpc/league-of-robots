@@ -1,62 +1,62 @@
 ---
-- name: Create directories for Prometheus.
+- name: 'Create directories for Prometheus.'
   file:
     path: "{{ item }}"
     state: directory
-    mode: 0755
+    mode: '0755'
     owner: '65534'
   with_items:
     - '/srv/prometheus/etc/prometheus'
     - '/srv/prometheus/prometheus'
   notify:
-   - restart_prometheus
+   - 'restart_prometheus'
   become: true
 
-- name: Install settings files.
+- name: 'Install settings files.'
   copy:
     src: "templates/etc/{{ item }}"
     dest: "/srv/prometheus/etc/prometheus/{{ item }}"
-    mode: 0644
+    mode: '0644'
     owner: root
     group: root
   with_items:
-    - alerting.rules
-    - targets.json
+    - 'alerting.rules'
+    - 'targets.json'
   notify:
-   - restart_prometheus
+   - 'restart_prometheus'
   become: true
 
-- name: Install settings files based on templates.
+- name: 'Install settings files based on templates.'
   template:
     src: 'templates/etc/prometheus.yml'
     dest: '/srv/prometheus/etc/prometheus/prometheus.yml'
-    mode: 0644
+    mode: '0644'
     owner: root
     group: root
   notify:
-   - restart_prometheus
+   - 'restart_prometheus'
   become: true
 
-- name: Install service files.
+- name: 'Install service files.'
   template:
     src: 'templates/prometheus.service'
     dest: '/etc/systemd/system/prometheus.service'
-    mode: 644
+    mode: '0644'
     owner: root
     group: root
   tags:
-    - service-files
+    - 'service-files'
   notify:
-   - restart_prometheus
+   - 'restart_prometheus'
   become: true
 
-- name: Make sure prometheus service is started and enabled on (re)boot.
+- name: 'Make sure prometheus service is started and enabled on (re)boot.'
   systemd:
-    name: prometheus.service
+    name: 'prometheus.service'
     enabled: yes
-    state: started
+    state: 'started'
     daemon_reload: yes
   tags:
-    - start-service
+    - 'start-service'
   become: true
 ...

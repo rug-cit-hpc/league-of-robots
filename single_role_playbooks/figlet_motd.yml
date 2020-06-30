@@ -1,5 +1,5 @@
 ---
 - hosts: cluster
   roles:
-    - figlet_hostname
+    - figlet_motd
 ...

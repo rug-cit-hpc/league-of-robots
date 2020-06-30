@@ -201,7 +201,7 @@
 
 - name: 'Make sure slurmdbd and munge services are enabled and started.'
   systemd:
-    name: "{{item}}"
+    name: "{{ item }}"
     state: 'started'
     enabled: 'yes'
     daemon_reload: 'yes'
@@ -223,7 +223,7 @@
 #
 # Flush handlers to make sure Slurm DB is present and connection settings have been updated.
 #
-- meta: flush_handlers
+- meta: 'flush_handlers'
 
 - name: 'Execute Slurm DB initialization script on host running slurmdbd.'
   shell: |
@@ -232,13 +232,13 @@
   retries: 3
   delay: 5
   until:
-    - command_result.stderr == ''
-    - command_result.stdout != ''
+    - command_result.stderr|length == 0
+    - command_result.stdout|length > 0
   # NOTE: cannot use command_result.rc to check for the exit value of script in failed_when or changed_when
   #       as the sacctmgr commands used in the script may return exit code 1 when trying to create/modify
   #       something that already exists. This results in "Nothing new added." on STDOUT, but no message on STDERR.
   #       In case something is really wrong there will be messags printed to STDERR.
-  failed_when: command_result.stderr != ''
+  failed_when: command_result.stderr|length > 0
   tags: 'create_database'
   become: true
 
