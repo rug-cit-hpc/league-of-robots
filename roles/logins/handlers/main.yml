@@ -7,7 +7,7 @@
 - name: 'Run authconfig update.'
   command: "authconfig --enablemkhomedir --update"
   become: true
-  listen: 'authconfig_update'
+  listen: authconfig_update
 
 #
 # Notes:
@@ -22,9 +22,12 @@
     name: "{{ item }}"
     state: restarted
   with_items:
-    - 'dbus'
-    - 'systemd-logind'
-    - 'oddjobd'
+    - dbus
+    - systemd-logind
+    - oddjobd
   become: true
-  listen: 'restart_oddjobd'
+  listen: restart_oddjobd
+
+- name: 'Set tiny quota for regular users on jumphosts.'
+  import_tasks: "{{ playbook_dir }}/roles/logins/handlers/jumphost-quota.yml"
 ...
