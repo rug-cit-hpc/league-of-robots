@@ -4,7 +4,7 @@
 # Handlers are executed in the order in which they are defined 
 # and not in the order in whch they are listed in a "notify: handler_name" statement!
 #
-- name: Run authconfig update.
+- name: 'Run authconfig update.'
   shell: "authconfig --enablemkhomedir --update"
   become: true
   listen: authconfig_update
@@ -17,7 +17,7 @@
 #   https://bugzilla.redhat.com/show_bug.cgi?id=1532105
 #   Workaround for now is to always restart systemd-logind after DBus is restarted.
 #
-- name: Restart oddjobd service and its dependencies.
+- name: 'Restart oddjobd service and its dependencies.'
   service:
     name: "{{item}}"
     state: restarted
@@ -27,4 +27,7 @@
     - oddjobd
   become: true
   listen: restart_oddjobd
+
+- name: 'Set tiny quota for regular users on jumphosts.'
+  import_tasks: "{{ playbook_dir }}/roles/logins/handlers/jumphost-quota.yml"
 ...
