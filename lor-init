@@ -38,7 +38,7 @@ function lor-config() {
 	fi
 	declare -a required_paths=(
 		"${LOR_DIR}/group_vars/${cluster}-cluster/"
-		"${LOR_DIR}/${cluster}_hosts.ini"
+		"${LOR_DIR}/static_inventories/${cluster}_hosts.ini"
 		"${LOR_DIR}/.vault/vault_pass.txt.${cluster}"
 		"${LOR_DIR}/.vault/vault_pass.txt.all"
 	)
@@ -51,12 +51,12 @@ function lor-config() {
 	#
 	# Get jumphost from inventory file.
 	#
-	local jumphost=$(fgrep -A1 '[jumphost]' "${LOR_DIR}/${cluster}_hosts.ini" | tail -1)
+	local jumphost=$(fgrep -A1 '[jumphost]' "${LOR_DIR}/static_inventories/${cluster}_hosts.ini" | tail -1)
 	#
 	# Init and report current setup.
 	#
 	cd ${LOR_DIR}
-	export AI_INVENTORY="${cluster}_hosts.ini"
+	export AI_INVENTORY="static_inventories/${cluster}_hosts.ini"
 	export AI_PROXY="${jumphost}"
 	export ANSIBLE_VAULT_IDENTITY_LIST="all@.vault/vault_pass.txt.all, ${cluster}@.vault/vault_pass.txt.${cluster}"
 	export ANSIBLE_TRANSFORM_INVALID_GROUP_CHARS=ignore
