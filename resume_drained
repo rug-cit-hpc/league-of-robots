@@ -16,10 +16,10 @@ def get_node_states():
 
     Returns: list (list of Nodes objects)
     """
-    proc = run(['sinfo', '-h', '-o', '%n,%T'], stdout=PIPE)
+    proc = run(['sinfo', '-h', '-o', '%n,%T,%E'], stdout=PIPE)
     proc.check_returncode()
 
-    Node = namedtuple('Node', ['hostname', 'state'])
+    Node = namedtuple('Node', ['hostname', 'state', 'reason'])
 
     # make a list of named tuples with hostname and state properties
     nodes = [
@@ -36,6 +36,8 @@ if __name__ == '__main__':
     nodes = get_node_states()
 
     for node in filter(lambda n: n.state == 'drained', nodes):
+        if node.reason not in ["Kill task failed"]:
+            continue
         print(f'Resuming {node.hostname}')
         proc = run([
             'scontrol', 'update', 'nodename={}'.format(node.hostname),
