@@ -30,14 +30,25 @@ def get_node_states():
     return nodes
 
 
+def want_to_resume(node):
+    """
+    Filter to select nodes we want to resume again.
+    """
+    if node.state != 'drained':
+        return False
+    elif node.reason == 'Kill task failed':
+        return True
+    elif node.reason[:21] == 'NHC: check_ps_loadavg':
+        return True
+    return False
+
+
 if __name__ == '__main__':
 
     warnings.filterwarnings(action='ignore', module='.*paramiko.*')
     nodes = get_node_states()
 
-    for node in filter(lambda n: n.state == 'drained', nodes):
-        if node.reason not in ["Kill task failed"]:
-            continue
+    for node in filter(want_to_resume, nodes):
         print(f'Resuming {node.hostname}')
         proc = run([
             'scontrol', 'update', 'nodename={}'.format(node.hostname),
