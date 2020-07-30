@@ -1,0 +1,9 @@
+---
+#
+# Configure allowed network ports for geerlingguy.firewall role
+#
+firewall_allowed_tcp_ports:
+  - '22'   # SSH
+  - '80'   # HTTP
+  - '443'  # HTTPS
+...
