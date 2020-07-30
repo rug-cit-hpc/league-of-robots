@@ -163,5 +163,20 @@
   roles:
     - admin-users
     - ssh_host_signer
+    - yum-repos
+    - {role: geerlingguy.repo-epel, become: true}
+    - sshd
+    - {role: geerlingguy.security, become: true}
     - online_docs
+  tasks:
+    - name: 'Install cron job to reboot server regularly to activate kernel updates.'
+      cron:
+        name: 'Reboot to load new kernel.'
+        weekday: '1'
+        minute: '45'
+        hour: '11'
+        user: root
+        job: /bin/needs-restarting -r >/dev/null 2>&1 || /sbin/shutdown -r +60 "Restarting to apply updates..."
+        cron_file: reboot
+      become: true
 ...
