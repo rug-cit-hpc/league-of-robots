@@ -1,7 +1,6 @@
 ---
 - src: geerlingguy.firewall
   version: 2.4.0
-- src: geerlingguy.postfix
 - src: geerlingguy.repo-epel
 - src: geerlingguy.security
 ...
