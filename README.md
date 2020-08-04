@@ -123,9 +123,9 @@ Deploying a fully functional virtual cluster from scratch involves the following
 
 3. Configure Ansible settings including the vault.
 
-   To create a new virtual cluster you will need ```group_vars``` and an inventory for that HPC cluster:
+   To create a new virtual cluster you will need ```group_vars``` and an static inventory for that HPC cluster:
    
-   * See the ```*_hosts.ini``` files for existing clusters for examples to create a new ```[name-of-the-cluster]*_hosts.ini```.
+   * See the ```static_inventories/*_hosts.ini``` files for existing clusters for examples to create a new ```[name-of-the-cluster]*_hosts.ini```.
    * Create a ```group_vars/[name-of-the-cluster]/``` folder with a ```vars.yml```.  
      You'll find and example ```vars.yml``` file in ```group_vars/template/```.  
      To generate a new ```secrets.yml``` with new random passwords for the various daemons/components and encrypt this new ```secrets.yml``` file:
@@ -196,7 +196,7 @@ Deploying a fully functional virtual cluster from scratch involves the following
    Some examples for the *Talos* development cluster:
    * Configure the dynamic inventory and jumphost for the *Talos* test cluster:
      ```bash
-     export AI_INVENTORY='talos_hosts.ini'
+     export AI_INVENTORY='static_inventories/talos_hosts.ini'
      export AI_PROXY='reception'
      export ANSIBLE_VAULT_IDENTITY_LIST='all@.vault/vault_pass.txt.all, talos@.vault/vault_pass.txt.talos'
      ```
@@ -206,7 +206,7 @@ Deploying a fully functional virtual cluster from scratch involves the following
      . ./lor-init
      lof-config talos
      ```
-   * Firstly
+   * Firstly,
       * Create local admin accounts, which can then be used to deploy the rest of the playbook.
       * Deploy the signed hosts keys.
      Without local admin accounts we'll need to use either a ```root``` account for direct login or the default user account of the image used to create the VMs.
