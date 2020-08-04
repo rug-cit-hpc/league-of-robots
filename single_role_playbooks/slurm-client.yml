@@ -1,6 +1,6 @@
 ---
-- hosts: slurm-management
-  name: Dummy to gather facts
+- name: Dummy to gather facts
+  hosts: sys-admin-interface
   tasks: []
 
 - name: Install virtual compute nodes
