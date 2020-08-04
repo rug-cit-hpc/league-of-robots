@@ -51,22 +51,19 @@
   become: true
 
 - name: 'Remove all (non-spacewalk) repo config files from /etc/yum.repos.d/.'
-  shell: 'rm -rf /etc/yum.repos.d/*'
+  shell: 'rm -rfv /etc/yum.repos.d/*'
   args:
     warn: false
-  become: true
-
-- name: 'Clear the yum cache.'
-  command: 'yum clean all'
-  args:
-    warn: false
-  ignore_errors: yes
+  register: deleted_items
+  changed_when: deleted_items.stdout | length >= 1
+  failed_when: deleted_items.stderr | length >= 1
   become: true
 
 - name: 'Upgrade all packages to version specified in spacewalk channel.'
   yum:
    name: '*'
    state: latest
+   update_cache: yes
    exclude: 'slurm*' # Specific Slurm versions configured in slurm-* roles, because we use a custom patched version.
   become: true
 ...
