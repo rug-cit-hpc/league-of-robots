@@ -56,7 +56,7 @@
   when: versioned_subgroups_list | length > 0
   become: true
   become_user: "{{ group }}-dm"
-  
+
 - name: "Create directory structure for projects on {{ lfs }}."
   block:
     - name: "Create /groups/{{ group }}/{{ lfs }}/projects directory."

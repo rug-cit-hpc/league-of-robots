@@ -1,5 +1,5 @@
 ---
-- name: Install EGA Fuse Layer
+- name: Install EGA Fuse client.
   yum:
     state: latest
     name:
@@ -7,10 +7,11 @@
   become: true
   notify: restart_fuser-layer
 
-- file:
+- name: Create /usr/local/fuse-layer directory.
+  file:
     path: /usr/local/fuse-layer
     state: directory
-    mode: 0755
+    mode: '0755'
     owner: root
     group: root
   become: true
@@ -20,7 +21,7 @@
   template:
     src: templates/ega-fuse-client.service
     dest: /etc/systemd/system/ega-fuse-client.service
-    mode: 644
+    mode: '0644'
     owner: root
     group: root
   tags:
@@ -28,11 +29,11 @@
   become: true
   notify: restart_fuser-layer
 
-- name: Install config.ini  files.
+- name: Install config.ini files.
   template:
     src: templates/config.ini
     dest: /usr/local/fuse-layer/config.ini
-    mode: 644
+    mode: '0644'
     owner: root
     group: root
   become: true
