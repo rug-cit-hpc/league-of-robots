@@ -27,8 +27,7 @@ ui_ethernet_interfaces:
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
-uri_ldap: ldap.pilot.scz.lab.surf.nl
-uri_ldaps: ldap.pilot.scz.lab.surf.nl
+ldap_uri: ldap://ldap.pilot.scz.lab.surf.nl
 ldap_port: 636
 ldaps_port: 636
 ldap_base: o=ElixirNL,dc=pilot-clients,dc=scz,dc=lab,dc=surf,dc=nl
