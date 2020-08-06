@@ -3,7 +3,7 @@
   template:
     src: templates/{{ item }}
     dest: /etc/systemd/system/{{ item }}
-    mode: 644
+    mode: 0600
     owner: root
     group: root
   with_items:
@@ -23,7 +23,7 @@
   copy:
     src: files/01-overlay-memberof
     dest: /srv/openldap/custom/01-overlay-memberof
-    mode: 644
+    mode: 0644
     owner: root
     group: root
   become: true
