@@ -141,7 +141,7 @@
     - sudoers
     - subgroup_directories
     - role: fuse-layer
-      when: fuse_mountpoint is defined and fuse_mountpoint | length >= 1}
+      when: fuse_mountpoint is defined and fuse_mountpoint | length >= 1
 
 - name: 'H. Roles for compute nodes.'
   hosts: compute-vm
