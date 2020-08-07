@@ -1,7 +1,8 @@
 ---
 - name: 'Install spacewalk client repo.'
   yum:
-    name: 'https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/spacewalk-2.8-client/epel-7-x86_64/00742644-spacewalk-repo/spacewalk-client-repo-2.8-11.el7.centos.noarch.rpm'
+    name: "https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/\
+           spacewalk-2.8-client/epel-7-x86_64/00742644-spacewalk-repo/spacewalk-client-repo-2.8-11.el7.centos.noarch.rpm"
     state: present
   become: true
 
