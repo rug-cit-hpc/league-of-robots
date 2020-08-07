@@ -61,8 +61,8 @@
 
 # This command will fail when the root password was set previously
 - name: 'Check if MariaDB/MySQL root password is set.'
-  shell: >
-    mysqladmin -u root status
+  command:
+    cmd: mysqladmin -u root status
   changed_when: false
   failed_when: false
   register: root_pwd_check
