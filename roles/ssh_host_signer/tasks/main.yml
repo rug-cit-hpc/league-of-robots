@@ -65,7 +65,8 @@
   args:
     executable: '/bin/bash'
   vars:
-    existing_certificates_dir: "{{ temporary_directory.path | quote }}/existing_certificates/{{ inventory_hostname | quote }}{{ ssh_host_signer_key_directory }}"
+    existing_certificates_dir: "{{ temporary_directory.path | quote }}/existing_certificates/\
+                                {{ inventory_hostname | quote }}{{ ssh_host_signer_key_directory }}"
   with_items: "{{ certificates.files }}"
   changed_when: false
   failed_when: false
