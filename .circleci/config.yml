@@ -29,5 +29,5 @@ jobs:
             echo '###############################################'
             printf 'Counted %d ansible-lint errors.\n' ${errors:-0}
             echo '###############################################'
-            if (( errors > 2 )); then /bin/false; fi
+            if (( errors > 1 )); then /bin/false; fi
 ...
