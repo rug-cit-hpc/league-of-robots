@@ -1,9 +1,9 @@
 ---
-- name: 'Gather facts from servers in "slurm-management" group.'
+- name: 'Gather facts from servers in "sys-admin-interface" group.'
   setup:
   delegate_to: "{{ item }}"
   delegate_facts: true
-  with_items: "{{ groups['slurm-management'] }}"
+  with_items: "{{ groups['sys-admin-interface'] }}"
 
 - name: 'Include Slurm defaults from "slurm-management" role.'
   include_vars:

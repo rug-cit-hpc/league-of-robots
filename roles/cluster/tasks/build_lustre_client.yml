@@ -5,5 +5,7 @@
     dest: '/tmp/lustre-client-dkms-2.11.0-1.el7.src.rpm'
 
 - name: 'Build the Lustre client.'
-  command: rpmbuild --rebuild --without servers /tmp/lustre-client-dkms-2.11.0-1.el7.src.rpm
+  command:
+    cmd: 'rpmbuild --rebuild --without servers /tmp/lustre-client-dkms-2.11.0-1.el7.src.rpm'
+    creates: '/tmp/lustre-client-dkms-2.11.0-1.el7.src.rpm.rebuild'
 ...

@@ -1,6 +1,6 @@
 ---
 - name: 'Install monitoring tools.'
-  hosts: slurm-management
+  hosts: sys-admin-interface
   roles:
     - prom_server
     - grafana

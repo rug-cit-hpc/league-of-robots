@@ -27,7 +27,7 @@ jobs:
             cat lint_results
             errors=$(grep -c '^[0-9]* [A-Z].*' lint_results)
             echo '###############################################'
-            printf 'Counted %d ansible-lint errors.' ${errors:-0}
+            printf 'Counted %d ansible-lint errors.\n' ${errors:-0}
             echo '###############################################'
-            if (( errors > 18 )); then /bin/false; fi
+            if (( errors > 1 )); then /bin/false; fi
 ...

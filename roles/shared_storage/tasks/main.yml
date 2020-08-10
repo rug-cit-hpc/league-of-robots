@@ -4,15 +4,15 @@
 ### List content of variables for debugging.
 ##
 #
-- name: 'Show the content of the group_vars/[cluster]/vars.yml lfs_mounts variable for debugging purposes.'
-  debug:
-    msg: "{{ lfs_mounts }}"
-
-- name: 'Show the content of the group_vars/[cluster]/vars.yml pfs_mounts variable for debugging purposes.'
-  debug:
-    msg: "pfs: {{ item.pfs }} | source: {{ item.source }} | type: {{ item.type }} | rw_options: {{ item.rw_options }}."
-  with_items: "{{ pfs_mounts }}"
-  when: inventory_hostname in groups['sys-admin-interface']
+# - name: 'Show the content of the group_vars/[cluster]/vars.yml lfs_mounts variable for debugging purposes.'
+#   debug:
+#     msg: "{{ lfs_mounts }}"
+#
+# - name: 'Show the content of the group_vars/[cluster]/vars.yml pfs_mounts variable for debugging purposes.'
+#   debug:
+#     msg: "pfs: {{ item.pfs }} | source: {{ item.source }} | type: {{ item.type }} | rw_options: {{ item.rw_options }}."
+#   with_items: "{{ pfs_mounts }}"
+#   when: inventory_hostname in groups['sys-admin-interface']
 
 #
 ##

@@ -30,8 +30,7 @@ ui_ethernet_interfaces:
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: yes
-uri_ldap: hc-dai
-uri_ldaps: hc-dai
+ldap_uri: ldap://hc-dai
 ldap_port: 389
 ldaps_port: 636
 ldap_base: dc=hpc,dc=rug,dc=nl
@@ -65,9 +64,6 @@ nameservers: [
 local_admin_groups:
   - 'admin'
   - 'docker'
-  - 'solve-rd'
-  - 'umcg-atd'
-  - 'depad'
 local_admin_users:
   - 'centos'
   - 'egon'
@@ -77,9 +73,6 @@ local_admin_users:
   - 'morris'
   - 'pieter'
   - 'wim'
-  - 'umcg-atd-dm'
-  - 'solve-rd-dm'
-  - 'envsync'
 envsync_user: 'envsync'
 envsync_group: 'depad'
 hpc_env_prefix: '/apps'

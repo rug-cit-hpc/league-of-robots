@@ -2,7 +2,7 @@
 slurm_cluster_name: 'boxy'
 slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'bx'
-uri_ldap: 172.23.40.249
+ldap_uri: ldap://172.23.40.249
 ldap_base: ou=umcg,o=asds
 ldap_binddn: cn=clusteradminumcg,o=asds
 regular_groups:

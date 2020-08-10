@@ -30,8 +30,7 @@ ui_ethernet_interfaces:
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/ca-key-production-ebi"
 use_ldap: yes
 create_ldap: yes
-uri_ldap: fd-dai
-uri_ldaps: fd-dai
+ldap_uri: ldap://fd-dai
 ldap_port: 389
 ldaps_port: 636
 ldap_base: dc=hpc,dc=rug,dc=nl

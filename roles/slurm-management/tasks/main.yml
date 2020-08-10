@@ -226,8 +226,8 @@
 - meta: 'flush_handlers'
 
 - name: 'Execute Slurm DB initialization script on host running slurmdbd.'
-  shell: |
-         /etc/slurm/configure_slurm_accounting_db.bash
+  command:
+    cmd: '/etc/slurm/configure_slurm_accounting_db.bash'
   register: command_result
   retries: 3
   delay: 5
@@ -260,7 +260,7 @@
   tags: 'backup'
   become: true
 
-- name: 'Create Slurm accounting DB backup now.'
+- name: 'Create Slurm accounting DB backup now.' # noqa 301
   shell: |
          mysqldump --all-databases \
              -uroot -p{{ MYSQL_ROOT_PASSWORD }} \
