@@ -2,18 +2,36 @@
 #
 # Important: maintain correct handler order.
 # Handlers are executed in the order in which they are defined 
-# and not in the order in whch they are listed in a "notify: handler_name" statement!
+# and not in the order in which they are listed in a "notify: handler_name" statement!
 #
-- name: Restart services and their dependencies.
+- name: 'Restart services and their dependencies.'
   service:
-    name: "{{item}}"
+    name: "{{ item }}"
     state: restarted
   with_items:
-    - httpd
+    - 'httpd'
   become: true
-  listen: restart_httpd
+  listen: 'restart_httpd'
 
-- name: (Re)build webpages.
+- name: 'Zip the scripted tools from the tmp subfolder and save the archives in the attachments subfolder.'
+  archive:
+    path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.path }}"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/attachments/{{ item.dest }}"
+    format: 'zip'
+    owner: 'root'
+    group: 'root'
+    mode: '0640'
+  with_items:
+    - path: "ssh-client-config-for-{{ slurm_cluster_name }}.app"
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}-macos.zip"
+    - path: "ssh-client-config-for-{{ slurm_cluster_name }}.bash"
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}-linux.zip"
+    - path: 'mount-cluster-drives.app'
+      dest: 'mount-cluster-drives-macos.zip'
+  become: true
+  listen: 'zip_attachments'
+
+- name: '(Re)build webpages.'
   shell: |
          cd /srv/mkdocs/{{ slurm_cluster_name }}/
          umask 0022
@@ -22,5 +40,5 @@
          export PATH="${PATH}:/usr/local/bin/"
          mkdocs build
   become: true
-  listen: build_mkdocs
+  listen: 'build_mkdocs'
 ...

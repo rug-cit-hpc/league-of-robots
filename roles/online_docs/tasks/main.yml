@@ -3,27 +3,35 @@
 #
 ---
 - name: 'Check if rsync >= 3.1.2 is installed on the control host.'
-  shell: |
-         rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+  shell:
+    cmd: |
+      set -o pipefail
+      rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
   args:
     warn: no
   changed_when: false
   failed_when: false
   check_mode: no
-  register: rsync_version
-  delegate_to: localhost
+  register: 'rsync_version'
+  delegate_to: 'localhost'
+
 - name: 'Abort when modern rsync >= 3.1.2 is missing on control host.'
   debug:
     msg: "FATAL: Need rsync >= 3.1.2 on the control host, but detected {{ rsync_version.stdout }}."
   when:         'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
   failed_when: 'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
-  delegate_to: localhost
+  delegate_to: 'localhost'
+
+- name: 'Check OS version of target host.'
+  fail:
+    msg: 'This role requires RedHat/CentOS version >= 7.x'
+  when: ansible_facts['os_family'] != "RedHat" or ansible_facts['distribution_major_version'] <= "6"
 
 #
 # This is currently problematic when
 # * the default user used to login to the cluster is different from 
 # * the default user used to login on the webserver where the docs are hosted
-# as you van specify only one account name with -u on the commandline when running ansible-playbook.
+# as you can specify only one account name with -u on the commandline when running ansible-playbook.
 #
 - name: 'Gather facts from hosts, so we can use them in the generated docs.'
   setup:
@@ -34,10 +42,12 @@
     - "{{ groups['user-interface'] }}"
 
 - name: 'Get Slurm version from scontrol on UI.'
-  shell: |
-         scontrol version | head -n 1 | sed 's|^slurm *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+  shell:
+    cmd: |
+      set -o pipefail
+      scontrol version | head -n 1 | sed 's|^slurm *\([0-9\.]*\).*$|\1|' | tr -d '\n'
   args:
-    executable: /bin/bash
+    executable: '/bin/bash'
     warn: no
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
@@ -45,7 +55,7 @@
   changed_when: false
   failed_when: false
   check_mode: no
-  register: slurm_version
+  register: 'slurm_version'
 
 - name: 'Get Lmod version from UI.'
   #
@@ -53,12 +63,14 @@
   # Modules based on Lua: Version 6.5.8  2016-09-03 13:41 -05:00 (CDT)
   #    by Robert McLay mclay@tacc.utexas.edu
   #
-  shell: |
-         unset MODULEPATH
-         source ~/.modulesrc >/dev/null 2>&1
-         lmod -v | sed '/^$/d' | sed 's|^.*Version \([0-9\.]*\).*$|\1|' | head -1
+  shell:
+    cmd: |
+      set -o pipefail
+      unset MODULEPATH
+      source ~/.modulesrc >/dev/null 2>&1
+      lmod -v | sed '/^$/d' | sed 's|^.*Version \([0-9\.]*\).*$|\1|' | head -1
   args:
-    executable: /bin/bash
+    executable: '/bin/bash'
     warn: no
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
@@ -66,73 +78,71 @@
   changed_when: false
   failed_when: false
   check_mode: no
-  register: lmod_version
-
-- name: 'Install libselinux-python.'
-  yum:
-    state: latest
-    update_cache: yes
-    name:
-      - libselinux-python
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
-  become: true
+  register: 'lmod_version'
 
 - name: 'Set selinux in permissive mode.'
   selinux:
-    policy: targeted
-    state: permissive
+    policy: 'targeted'
+    state: 'permissive'
   become: true
 
 - name: 'Install EPEL repo and rsync.'
   yum:
-    state: latest
+    state: 'latest'
     update_cache: yes
     name:
-      - epel-release
-      - rsync
+      - 'epel-release'
+      - 'rsync'
   become: true
 
 - name: 'Install webserver and php.'
   yum:
-    state: latest
+    state: 'latest'
     update_cache: yes
     name:
-      - php
-      - httpd
+      - 'php'
+      - 'httpd'
   notify:
-    - restart_httpd
+    - 'restart_httpd'
   become: true
 
 - name: 'Enable webserver.'
   service:
     name: "{{ item }}"
     enabled: yes
-    state: started
+    state: 'started'
   with_items:
-    - httpd
+    - 'httpd'
   become: true
-
-- name: 'Install MkDocs on RedHat 6.x.'
-  import_tasks: mkdocs-for-redhat6.yml
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
 
 - name: 'Install MkDocs on RedHat 7.x.'
-  import_tasks: mkdocs-for-redhat7.yml
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "7"
+  include_tasks:
+    file: "{{ playbook_dir }}/roles/online_docs/tasks/mkdocs-for-redhat7.yml"
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "7"
 
-- name: 'Create base directories for MarkDown and HTML files on webserver.'
+- name: 'Create base directories for MarkDown and HTML files.'
   file:
-    path: "{{ item }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
+    path: "{{ item.path }}"
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: "{{ item.mode }}"
   with_items:
-    - "/srv/mkdocs/{{ slurm_cluster_name }}/"
-    - "/var/www/html/{{ slurm_cluster_name }}/"
+    - path: "/srv/mkdocs/{{ slurm_cluster_name }}/"
+      mode: '0750'
+    - path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/"
+      mode: '0750'
+    - path: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
+      mode: '0750'
+    - path: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/attachments"
+      mode: '0750'
+    - path: "/var/www/html/{{ slurm_cluster_name }}/"
+      mode: '0755'
+    - path: "/var/www/html/{{ slurm_cluster_name }}/attachments/"
+      mode: '0755'
   become: true
 
-- name: 'Create static files for MarkDown on webserver.'
+- name: 'Create static files for index in document root.'
   synchronize:
     src: "{{ playbook_dir }}/roles/online_docs/files/index//./{{ item.src }}"
     dest: "/var/www/html/"
@@ -163,55 +173,20 @@
     - src: 'sitemap.php'
   become: true
 
-- name: 'Create sub directory structure for MarkDown files on webserver.'
+- name: 'Create sub directory structure for MarkDown files.'
   file:
     path: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0700'
-  with_filetree: 'templates/mkdocs'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+  with_filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
   when: item.state == 'directory'
   notify:
-    - build_mkdocs
+    - 'build_mkdocs'
   become: true
 
-- name: 'Create static files for MarkDown on webserver.'
-  synchronize:
-    src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/docs/./{{ item.src }}"
-    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
-    owner: 'no'
-    group: 'no'
-    use_ssh_args: 'yes'
-    rsync_opts:
-      # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
-      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
-      # --omit-link-times Is required to prevent "sync error: some files/attrs were not transferred"
-      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
-      #                   Requires rsync >= 3.1.2 (default on Enterprise Linux >= 7.x).
-      # --chmod           Is required to prevent errors when the perms on the source are not what is required/expected on the destination.
-      #                   Fixing perms on the source would be good, but that may be out of our control.
-      #                   In that case --chmod ensures we get what we want on the destination.
-      #                   Works only when combined with --perms.
-      # --force           Is required when symlinks have changed into dirs/files or vice versa.
-      #                   In that case the wrong outdated stuff has to be deleted on the destination first before the new stuff can be created.
-      #                   Deleting the outdated stuff may fail without --force.
-      # --relative        In combination with a "source_server:some/path/not/created/on/destination/./path/created/on/destination/some_file" (dot dir)
-      #                   recreates a partial dir structure on the destination relative to the /./ dir, when it does not already exist.
-      #                   Without this combination of --relative and dot dir rsync will error when the path does not exist on the destination.
-      #                   IMPORTANT: src and dest paths must be absolute paths. Otherwise Ansible will expand the path itself which will remove the /./ dir.
-      - '--relative'
-      - '--omit-dir-times'
-      #- '--omit-link-times'
-      - '--chmod=Du=rwx,Dgo-rwx,Fu=rw,Fgo-rwx'
-      - '--perms'
-      - '--force'
-  with_items:
-    - src: 'img'
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] < "7"
-  become: true
-
-- name: 'Create static files for MarkDown on webserver.'
+- name: 'Create static files for MarkDown.'
   synchronize:
     src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/docs/./{{ item.src }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
@@ -238,24 +213,90 @@
       - '--relative'
       - '--omit-dir-times'
       - '--omit-link-times'
-      - '--chmod=Du=rwx,Dgo-rwx,Fu=rw,Fgo-rwx'
+      - '--chmod=Du=rwx,Dg=rx,Do-rwx,Fu=rwX,Fug=rX,Fo-rwx'
       - '--perms'
       - '--force'
   with_items:
+    - src: 'css'
     - src: 'img'
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "7"
+  notify:
+    - 'build_mkdocs'
   become: true
 
-- name: 'Create MarkDown files based on templates on webserver.'
+- name: 'Create skeleton for AppleScript apps.'
+  synchronize:
+    src: "{{ playbook_dir }}/roles/online_docs/files/attachments/{{ item.src }}/./"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.dest }}"
+    owner: 'no'
+    group: 'no'
+    use_ssh_args: 'yes'
+    recursive: 'yes'
+    rsync_opts:
+      - '--relative'
+      - '--omit-dir-times'
+      - '--omit-link-times'
+      - '--chmod=Du=rwx,Dg=rx,Do-rwx,Fu=rwX,Fg=rX,Fo-rwx'
+      - '--perms'
+      - '--force'
+  with_items:
+    - src:  'ssh-client-config.app'
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}.app"
+    - src:  'mount-cluster-drives.app'
+      dest: 'mount-cluster-drives.app'
+  notify:
+    - 'zip_attachments'
+  become: true
+
+- name: 'Make sure main script of AppleScript apps are executable.'
+  file:
+    path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item }}/Contents/MacOS/applet"
+    state: 'file'
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+  with_items:
+    - "ssh-client-config-for-{{ slurm_cluster_name }}.app"
+    - 'mount-cluster-drives.app'
+  notify:
+    - 'zip_attachments'
+  become: true
+
+- name: 'Create files for attachments based on templates.'
+  template:
+    src: "attachments/{{ item.src }}"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.dest }}"
+    owner: 'root'
+    group: 'root'
+    mode: "{{ item.mode }}"
+  with_items:
+    #
+    # For macOS users we inject the configuration script for this cluster into the AppleScript app skeleton:
+    # 
+    #
+    - src: 'ssh-client-config.bash'
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}.app/Contents/MacOS/ssh-client-config.command"
+      mode: '0750'
+    #
+    # For Linux/Unix users: just generate a bare Bash script.
+    #
+    - src: 'ssh-client-config.bash'
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}.bash"
+      mode: '0750'
+  notify:
+    - 'zip_attachments'
+  become: true
+
+- name: 'Create MarkDown files based on templates.'
   template:
     src: "{{ item.src }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"
-    owner: root
-    group: root
-    mode: '0600'
-  with_filetree: 'templates/mkdocs'
-  when: item.state == 'file'
+    owner: 'root'
+    group: 'root'
+    mode: '0640'
+  with_filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
+  # Exclude temporary *.html preview files, which are also exlcuded in .gitignore and should not be transferred.
+  when: item.state == 'file' and '.md.html' not in item.path
   notify:
-    - build_mkdocs
+    - 'build_mkdocs'
   become: true
 ...

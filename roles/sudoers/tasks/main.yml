@@ -1,14 +1,33 @@
 ---
 #
-# Allow passwordless sudo to the datamanager users for indivual users or %groups.
-# This can be specified in the groupvars regular_users.
+# Allow passwordless sudo to functional accounts (e.g. for datamanager accounts) for indivual users or %groups.
+# Who can become what can be specified in regular_users variable of group_vars/${clustername}/vars.yml.
 #
-- name: 'Allow passwordless sudo to the datamanager users.'
-  lineinfile:
-    dest: '/etc/sudoers'
-    line: "{{ item.1 }}    ALL=({{ item.0.user }})    NOPASSWD:ALL"
+
+- name: 'Find all ansible-managed files in /etc/sudoers.d/.'
+  find:
+    paths: '/etc/sudoers.d/'
+    use_regex: yes
+    patterns: '.*ansible-managed.*'
+  register: ansible_managed_sudoers
   become: true
-  with_subelements:
-    - "{{ regular_users | default([]) | selectattr('sudoers', 'defined')  | list }}"
-    - 'sudoers'
+
+- name: 'Remove outdated ansible-managed files from /etc/sudoers.d/.'
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items: "{{ ansible_managed_sudoers.files | map (attribute='path') | list }}"
+  when: item | regex_replace('.*ansible-managed-','') not in regular_users | default([]) | selectattr('sudoers', 'defined') | map (attribute='user') | list
+  become: true
+
+- name: 'Allow passwordless sudo to functional accounts.'
+  template:
+    src: 'templates/92-ansible-managed'
+    dest: "/etc/sudoers.d/92-ansible-managed-{{ item.user }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0440'
+  with_items:
+    - "{{ regular_users | default([]) | selectattr('sudoers', 'defined') | list }}"
+  become: true
 ...

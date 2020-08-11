@@ -1,4 +1,0 @@
-{{ figlet.stdout }}
-
-{{ motd }}
-

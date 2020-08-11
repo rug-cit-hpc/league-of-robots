@@ -1,4 +1,5 @@
 ---
-- hosts: deploy-admin-interface
+- hosts: user-interface
   roles:
     - fuse-layer
+...

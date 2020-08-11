@@ -27,8 +27,7 @@ ui_ethernet_interfaces:
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
-uri_ldap: ldap.pilot.scz.lab.surf.nl
-uri_ldaps: ldap.pilot.scz.lab.surf.nl
+ldap_uri: ldap://ldap.pilot.scz.lab.surf.nl
 ldap_port: 636
 ldaps_port: 636
 ldap_base: o=ElixirNL,dc=pilot-clients,dc=scz,dc=lab,dc=surf,dc=nl
@@ -95,23 +94,24 @@ regular_users:
   - user: 'solve-rd-dm'
     groups: ['users', 'solve-rd']
 pfs_mounts: [
-  { pfs: 'Local-NFS',
-    source: 'nb-nfs:/nfs',
+  { pfs: 'nfs',
+    source: 'nb-nfs:',
     type: 'nfs4',
     rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
     ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro' },
 ]
 lfs_mounts: [
   { lfs: 'home',
-    pfs: 'Local-NFS' },
-  { lfs: 'groups/GROUP/tmp09',
-    pfs: 'Local-NFS',
+    pfs: 'nfs',
+    machines: "{{ groups['cluster'] }}" },
+  { lfs: 'tmp09',
+    pfs: 'nfs',
     groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'groups/GROUP/prm09',
-    pfs: 'Local-NFS',
+  { lfs: 'prm09',
+    pfs: 'nfs',
     groups: ['umcg-atd', 'solve-rd'] },
   { lfs: 'env09',
-    pfs: 'Local-NFS',
+    pfs: 'nfs',
     machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
 ]
 ...

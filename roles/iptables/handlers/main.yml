@@ -1,0 +1,17 @@
+---
+- name: 'Restart iptables based firewall deamons (IPv4 and IPv6).'
+  service:
+    name: "{{ item }}"
+    state: 'restarted'
+    daemon_reload: 'yes'
+  with_items:
+    - 'iptables'
+    - 'ip6tables'
+  become: true
+  listen: restart_iptables
+
+- name: 'Configure iptables based firewalls (IPv4 and IPv6).'
+  command: '/root/configure-iptables-firewall.bash'
+  become: true
+  listen: configure_iptables
+...

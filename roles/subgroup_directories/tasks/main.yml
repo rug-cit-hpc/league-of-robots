@@ -1,0 +1,33 @@
+---
+- name: 'Loop over "prm" file systems.'
+  include_tasks:
+    file: "{{ playbook_dir }}/roles/subgroup_directories/tasks/create_subgroup_directories.yml"
+  vars:
+    lfs: "{{ lfs_item.0.lfs }}"
+    group: "{{ lfs_item.1 }}"
+    mode_project: '2750'
+    mode_version: '2750'
+    mode_dataset: '2750'
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
+    - 'groups'
+  loop_control:
+    loop_var: lfs_item
+  when: inventory_hostname in groups['user-interface']
+
+- name: 'Loop over "tmp" file systems.'
+  include_tasks:
+    file: "{{ playbook_dir }}/roles/subgroup_directories/tasks/create_subgroup_directories.yml"
+  vars:
+    lfs: "{{ lfs_item.0.lfs }}"
+    group: "{{ lfs_item.1 }}"
+    mode_project: '2770'
+    mode_version: '2770'
+    mode_dataset: '2750'
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
+    - 'groups'
+  loop_control:
+    loop_var: lfs_item
+  when: inventory_hostname in groups['user-interface']
+...

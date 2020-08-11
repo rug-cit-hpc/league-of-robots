@@ -1,0 +1,33 @@
+---
+- name: 'Install figlet.'
+  yum:
+    state: latest
+    update_cache: yes
+    name: figlet
+  become: true
+
+- name: 'Install custom figlet fonts.'
+  synchronize:
+    src: "files/{{ item }}"
+    dest: "/usr/share/figlet/{{ item }}"
+    owner: no
+    group: no
+    use_ssh_args: yes
+    rsync_opts:
+      - '--chmod=Fu=rw,Fgo=r'
+      - '--perms'
+      - '--force'
+  with_items:
+    - 'cyberlarge.flf'
+    - 'doh.flf'
+    - 'ogre.flf'
+    - 'slant.flf'
+    - 'speed.flf'
+  become: true
+
+- name: 'Create MOTD.'
+  include_tasks:
+    file: "{{ playbook_dir }}/roles/figlet_motd/tasks/create_motd.yml"
+  vars:
+    figlet_cmd: 'figlet -f "{{ figlet_font }}" "{{ ansible_hostname }}"'
+...

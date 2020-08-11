@@ -1,74 +1,70 @@
 ---
-- name: Install spacewalk client repo.
+- name: 'Install spacewalk client repo.'
   yum:
-    name: https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/spacewalk-2.8-client/epel-7-x86_64/00742644-spacewalk-repo/spacewalk-client-repo-2.8-11.el7.centos.noarch.rpm
+    name: "https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/\
+           spacewalk-2.8-client/epel-7-x86_64/00742644-spacewalk-repo/spacewalk-client-repo-2.8-11.el7.centos.noarch.rpm"
     state: present
   become: true
 
-- name: Install spacewalk client packages.
+- name: 'Install spacewalk client packages.'
   yum:
    name:
-     - rhn-client-tools
-     - rhn-check
-     - rhn-setup
-     - rhnsd
-     - m2crypto
-     - yum-rhn-plugin
+     - 'rhn-client-tools'
+     - 'rhn-check'
+     - 'rhn-setup'
+     - 'rhnsd'
+     - 'm2crypto'
+     - 'yum-rhn-plugin'
   notify:
-    - restart_rhnsd
+    - 'restart_rhnsd'
   become: true
 
-- name: Enable spacewalk service.
+- name: 'Enable spacewalk service.'
   systemd:
-    name: "{{ item }}"
+    name: 'rhnsd.service'
     enabled: yes
     state: started
-  with_items:
-    - rhnsd.service
   notify:
-    - restart_rhnsd
+    - 'restart_rhnsd'
   become: true
 
-- meta: flush_handlers
+- meta: 'flush_handlers'
 
-- name: Register client at the spacewalk server.
+- name: 'Register client at the spacewalk server.'
   rhn_register:
    state: present
-   activationkey: "{{activation_key}}"
-   server_url: "{{spacewalk_server_url}}"
-   channels: "{{rhn_channels}}"
+   activationkey: "{{ activation_key }}"
+   server_url: "{{ spacewalk_server_url }}"
+   channels: "{{ rhn_channels }}"
   register: result
   until: result is succeeded
   retries: 3
   delay: 3
   ignore_errors: yes
-  no_log: True
+  no_log: true
   become: true
 
-- name: Disable gpgcheck for spacewalk repo.
+- name: 'Disable gpgcheck for spacewalk repo.'
   lineinfile:
     path: '/etc/yum/pluginconf.d/rhnplugin.conf'
     regexp: '^gpgcheck = [0-9].*'
     line: 'gpgcheck = 0'
   become: true
 
-- name: Remove all (non-spacewalk) repo config files from /etc/yum.repos.d/.
-  shell: "rm -rf /etc/yum.repos.d/*"
+- name: 'Remove all (non-spacewalk) repo config files from /etc/yum.repos.d/.'
+  shell: 'rm -rfv /etc/yum.repos.d/*'
   args:
     warn: false
+  register: deleted_items
+  changed_when: deleted_items.stdout | length >= 1
+  failed_when: deleted_items.stderr | length >= 1
   become: true
 
-- name: Clear the yum cache.
-  command: "yum clean all"
-  args:
-    warn: false
-  ignore_errors: yes
-  become: true
-
-- name: Upgrade all packages to version specified in spacewalk channel.
+- name: 'Upgrade all packages to version specified in spacewalk channel.'
   yum:
    name: '*'
    state: latest
-   exclude: slurm* # Specific Slurm versions configured in slurm-* roles, because we use a custom patched version.
+   update_cache: yes
+   exclude: 'slurm*' # Specific Slurm versions configured in slurm-* roles, because we use a custom patched version.
   become: true
 ...

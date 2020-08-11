@@ -1,0 +1,5 @@
+---
+- hosts: cluster
+  roles:
+    - figlet_motd
+...

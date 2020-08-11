@@ -25,8 +25,7 @@
             "gs-compute07:9100",
             "gs-compute08:9100",
             "gs-compute09:9100",
-            "gs-compute10:9100",
-            "gs-compute11:9100"
+            "gs-compute10:9100"
         ],
         "labels": {
             "env": "gearshift",

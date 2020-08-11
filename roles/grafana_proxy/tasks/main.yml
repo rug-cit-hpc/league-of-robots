@@ -1,0 +1,42 @@
+---
+- name: Install nginx.
+  yum:
+    name: nginx
+    state: latest
+    update_cache: true
+  become: true
+
+- name: Deploy nginx.conf.
+  template:
+    src: templates/nginx.conf
+    dest: /etc/nginx/nginx.conf
+    mode: 0644
+    owner: root
+    group: root
+  become: true
+
+- name: create tls certs directory
+  file:
+    path: /etc/certificates/live/airlock.hpc.rug.nl
+    state: directory
+    mode: 0751
+  become: true
+
+- name: copy certificate and chain files in place
+  copy:
+    src: "tls/{{ item }}"
+    dest: /etc/certificates/live/{{ item }}
+  with_items:
+    - cert.pem
+    - dhparam
+    - fullchain.pem
+    - privkey.pem
+  become: true
+
+- name: Make sure nginx is enabled and restarted.
+  systemd:
+    name: nginx.service
+    state: 'restarted'
+    enabled: 'yes'
+  become: true
+...

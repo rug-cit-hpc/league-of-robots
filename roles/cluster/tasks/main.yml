@@ -1,19 +1,91 @@
 ---
-- name: Check if rsync >= 3.1.2 is installed on the control host.
-  shell: |
-         rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+- name: Set hostname to inventory_hostname
+  hostname:
+    name: "{{ inventory_hostname | regex_replace('^' + ai_jumphost + '\\+','') }}"
+  become: true
+
+- name: Set selinux in permissive mode
+  selinux:
+    policy: targeted
+    state: permissive
+  become: true
+
+- name: Install some standard software
+  yum:
+    state: latest
+    update_cache: yes
+    name:
+      - bash-completion
+      - bc
+      - bzip2
+      - curl
+      - dos2unix
+      - figlet
+      - fuse
+      - fuse-libs
+      - git
+      - git-core
+      - gnutls
+      - lsof
+      - nano
+      - ncdu
+      - ncurses-static
+      - openssl
+      - qt5-qtbase
+      - qt5-qtxmlpatterns
+      - readline-static
+      - rsync
+      - screen
+      - singularity-runtime
+      - singularity
+      - tcl-devel
+      - telnet
+      - tmux
+      - tree
+      - unzip
+      - vim
+      - wget
+  tags:
+    - software
+  become: true
+
+- name: Check if rsync >= 3.1.2 is installed on the managed hosts.
+  shell:
+    cmd: |
+      set -o pipefail
+      rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
   args:
     warn: no
   changed_when: false
   failed_when: false
   check_mode: no
-  register: rsync_version
+  register: rsync_version_managed_host
+
+- name: Abort when modern rsync >= 3.1.2 is missing on the managed hosts.
+  debug:
+    msg: "FATAL: Need rsync >= 3.1.2 on {{ inventory_hostname }}, but detected {{ rsync_version.stdout }}."
+  when:        'rsync_version_managed_host is failed or (rsync_version_managed_host.stdout is version_compare("3.1.2", operator="<"))'
+  failed_when: 'rsync_version_managed_host is failed or (rsync_version_managed_host.stdout is version_compare("3.1.2", operator="<"))'
+
+- name: Check if rsync >= 3.1.2 is installed on the control host.
+  shell:
+    cmd: |
+      set -o pipefail
+      rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+  args:
+    warn: no
+  changed_when: false
+  failed_when: false
+  ignore_errors: true
+  check_mode: no
+  register: rsync_version_control_host
+  delegate_to: localhost
 
 - name: Abort when modern rsync >= 3.1.2 is missing on control host.
   debug:
     msg: "FATAL: Need rsync >= 3.1.2 on {{ inventory_hostname }}, but detected {{ rsync_version.stdout }}."
-  when:         'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
-  failed_when: 'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
+  when:        'rsync_version_control_host is failed or (rsync_version_control_host.stdout is version_compare("3.1.2", operator="<"))'
+  failed_when: 'rsync_version_control_host is failed or (rsync_version_control_host.stdout is version_compare("3.1.2", operator="<"))'
   delegate_to: localhost
 
 - name: Add custom config files to /etc/skel/.
@@ -53,49 +125,5 @@
       mode: 'Du=rwx,Dgo=rx,Fu=rw,Fgo=r'
     - src: '.ssh'
       mode: 'Du=rwx,Dgo-rwx,Fu=rw,Fgo-rwx'
-  become: true
-
-- name: Set hostname to inventory_hostname
-  hostname:
-    name: "{{ inventory_hostname | regex_replace('^' + ai_jumphost + '\\+','') }}"
-  become: true
-
-- name: Set selinux in permissive mode
-  selinux:
-    policy: targeted
-    state: permissive
-  become: true
-
-- name: Install some standard software
-  yum:
-    state: latest
-    update_cache: yes
-    name:
-      - bc
-      - bzip2
-      - curl
-      - dos2unix
-      - figlet
-      - git
-      - git-core
-      - gnutls
-      - lsof
-      - nano
-      - ncdu
-      - ncurses-static
-      - openssl
-      - readline-static
-      - screen
-      - tcl-devel
-      - telnet
-      - tmux
-      - tree
-      - unzip
-      - vim
-      - wget
-      - fuse
-      - fuse-libs
-  tags:
-    - software
   become: true
 ...

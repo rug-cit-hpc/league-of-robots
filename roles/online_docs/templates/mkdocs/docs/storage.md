@@ -38,9 +38,7 @@ Please consult the info below and make sure you know what to store where!
    A four year PhD project is not a single experiment! Split your work in batches / experiments that can be completed in a reasonable amount of time: weeks rather than months. 
    Completed means the results were QC-ed and documented, the data that needs to be kept for the long term was migrated to _prm_ storage and the rest was deleted from _tmp_ or _scr_ to make room for new batches / experiments.
 
-## Details
-
-### Centrally installed software
+## Centrally installed software
 
 We deploy software with [EasyBuild](https://github.com/easybuilders/easybuild) in a central place on a Deploy Admin Interface (DAI) server. 
 From there the software is synced to various storage devices that are mounted read-only on User Interface (UI) servers and compute nodes. 
@@ -146,7 +144,7 @@ Instead use the [Lua based module system \(Lmod\)](https://github.com/TACC/Lmod)
 
 If the software you need is not yet available, please use the following procedure:
 
-  1. First try to install the software on a UI in a ```/groups/${group}/tmp0*/...``` folder (without EasyBuild).
+  1. First try to install the software on a UI in a ```/groups/${group}/tmp*/...``` folder (without EasyBuild).
   2. Test the software and evaluate if it is useful to do a proper reproducible deployment.  
      If yes, continue and otherwise cleanup.
   3. Depending on time involved in a project:
@@ -157,21 +155,21 @@ If the software you need is not yet available, please use the following procedur
         
 #### Create your own personal EasyBuild environment and become member of the deploy admins group
 
-* You can use these steps on a UI to 
-  [create your own personal EasyBuild environment](https://gist.github.com/mmterpstra/d11ec81bf78c169ab6be5911df384496)
-  to deploy software with EasyBuild on a UI in a /groups/${group}/tmp0*/... folder.  
-  Please visit [this page](https://easybuild.readthedocs.io/en/latest/Writing_easyconfig_files.html) to learn how to make an EasyConfig file.
-* Fork our [easybuild-easyconfigs repo on GitHub](https://github.com/molgenis/easybuild-easyconfigs) and create pull request with your newly created EasyConfig(s).
-* If you are not a member of the deploy admins group yet: request membership by [sending an email to the helpdesk](../contact/).  
-  Include in your email:
-    * a link to the pull request.
-    * the path to the module file created at the end of the deployment with EasyBuild in your own personal EasyBuild environment.
-  If the EasyConfig is sane and the software was deployed properly, you've passed the test and will be added to the deploy admins group.
-* If you already are a member of the deploy admins group: login on a DAI server and deploy with EasyBuild in /apps/...
+ * You can use these steps on a UI to 
+   [create your own personal EasyBuild environment](https://gist.github.com/mmterpstra/d11ec81bf78c169ab6be5911df384496)
+   to deploy software with EasyBuild on a UI in a /groups/${group}/tmp*/... folder.  
+   Please visit [this page](https://easybuild.readthedocs.io/en/latest/Writing_easyconfig_files.html) to learn how to make an EasyConfig file.
+ * Fork our [easybuild-easyconfigs repo on GitHub](https://github.com/molgenis/easybuild-easyconfigs) and create pull request with your newly created EasyConfig(s).
+ * If you are not a member of the deploy admins group yet: request membership by [sending an email to the helpdesk](../contact/).  
+   Include in your email:
+     * a link to the pull request.
+     * the path to the module file created at the end of the deployment with EasyBuild in your own personal EasyBuild environment.
+   If the EasyConfig is sane and the software was deployed properly, you've passed the test and will be added to the deploy admins group.
+ * If you already are a member of the deploy admins group: login on a DAI server and deploy with EasyBuild in /apps/...
 
 Note: unless you really need a newer version of the ```foss``` toolchain, we suggest you use the same version as for other software already deployed in the cluster.
 
-### Reference data
+## Centrally deployed reference data
 
 We deploy reference data sets like for example the human genome in a central place, which is available on all servers:
 ```
@@ -180,7 +178,7 @@ We deploy reference data sets like for example the human genome in a central pla
 Please use them from that location as opposed to downloading yet another copy elsewhere. 
 If your pet reference data set is missing [contact the helpdesk via email](../contact/) to have it added.
 
-### Your personal home dir @ /home/${user}
+## Your personal home dir @ /home/${user}
 
 This is were you have limited space to store your personal settings/preferences/configs like terminal colors, terminal font sizes, etc.
 Your home is available on all servers of a cluster, but different clusters have separate homes.
@@ -192,9 +190,9 @@ A typical home dir contains << 100 Mb of data:
 
 Important:
 
-* Your home is designed to be a **private folder**; do not try to change permissions to share data located in your home with other users.
-* Your home is on _HA_ and hence not on _HP_ storage. Therefore you should try to minimize the IO load on your home to make sure everyone can enjoy a fast responsive home.
-* Do not abuse your home dir, so:
+ * Your home is designed to be a **private folder**; do not try to change permissions to share data located in your home with other users.
+ * Your home is on _HA_ and hence not on _HP_ storage. Therefore you should try to minimize the IO load on your home to make sure everyone can enjoy a fast responsive home.
+ * Do not abuse your home dir, so:
     * Don't waste resources by installing in your private home dir yet another copy of the same software package that is already available centrally from the module system.
     * Don't run anything that causes massive random IO on your home dir.  
       E.g. don't store job scripts submitted to cluster nodes in homes.
@@ -202,9 +200,9 @@ Important:
       Your home is for personal preferences; not for experiments. 
       Use a group dir for the latter (see below).
 
-### Group dirs @ /groups/${group}/...
+## Group dirs @ /groups/${group}/...
 
-Every user is a member of at least one group. A group has access to large shared storage systems of which we have 4 types:
+Every user is a member of at least one main group. A main group has access to large shared storage systems of which we have 4 types:
 
 * ```/groups/${group}/prm*/: PeRManent dirs```: large, fast dirs for rawdata and final results
 * ```/groups/${group}/arc*/: ARChive   dirs```: large, slow dirs for archived rawdata and final results
@@ -212,22 +210,27 @@ Every user is a member of at least one group. A group has access to large shared
 * ```/groups/${group}/scr*/: SCRatch   dirs```: small, fastest dirs for _local_ temporary data
 
 Not all groups have access to all types of storage systems and not all types are available on all clusters.
-The minimal requirements for a group are as follows:
+The minimal requirements for a main group are as follows:
 
-* Group leaders / PIs can request new groups. When the group is created they will be registered as the group owners.
-* Group owners are responsible for
-  * Processing (accepting or rejecting) requests for group membership.
-  * Securing funding and paying the bills.
-  * Appointing data managers for their group.
-* Data managers are responsible for the group's data on ```prm``` and ```arc``` storage systems.
-  * They ensure the group makes arrangements what to store how and where. E.g file naming conventions, file formats to use, etc.
-  * They enforce the group's policy on what to store how and where by reviewing data sets produced by other group members on ```tmp``` or ```scr``` file systems before migrating/copying them to ```prm``` and ```arc```.
-  * They have read-write access to all file systems including ```prm``` and ```arc```.
-* Other 'regular' group members:
-  * Have read-only access to ```prm``` and ```arc``` file systems to check-out existing data sets.
-  * Have read-write access to ```tmp``` and ```scr``` file systems to produce new results.
-  * Can request a data manager to review and migration a newly produced data set to ```prm``` or ```arc``` file systems.
-* A group has at least one owner and one data manager, but to prevent delays in processing membership request and data set reviews a group has preferably more than one owner and more than one data manager.
+ * Group leaders / PIs can request new main groups. When the main group is created they will be registered as the group owners.
+ * Group owners are responsible for
+    * Processing (accepting or rejecting) requests for group membership.
+    * Securing funding and paying the bills.
+    * Appointing data managers for their group.
+ * Data managers are responsible for the group's data on ```prm``` and ```arc``` storage systems.
+    * They ensure the group makes arrangements what to store how and where. E.g file naming conventions, file formats to use, etc.
+    * They enforce the group's policy on what to store how and where by reviewing data sets produced by other group members on ```tmp``` or ```scr``` file systems before migrating/copying them to ```prm``` and ```arc```.
+    * They have read-write access to all file systems including ```prm``` and ```arc```.
+ * Other _regular_ group members:
+    * Have read-only access to ```prm``` and ```arc``` file systems to check-out existing data sets.
+    * Have read-write access to ```tmp``` and ```scr``` file systems to produce new results.
+    * Can request a data manager to review and migrate a newly produced data set to ```prm``` or ```arc``` file systems.
+ * A group has at least one owner and one data manager, but to prevent delays in processing membership request and data set reviews a group has preferably more than one owner and more than one data manager.
+ * Optionally sub groups may be used to create more fine grained permissions to access data.
+    * A sub group inherits group owners, data managers and quota limits from the main group.  
+      E.g. a sub group cannot have different data managers.
+    * All members of the sub group must be members of the main group.
+    * The members of the sub group are a subset of the members of the main group.
 
 ## Quota
 
@@ -237,10 +240,10 @@ Home directories have _user_ quota, which means that if you run out of space, yo
 All other file systems use _group_ or _file set_ quota, which means that if you run out of space everybody from your group (or file set) is also out of space on that file system, but other groups are not affected. 
 There are two limits and a timer period that determines how these interact:
 
-* **quota (soft)**: exceed your quota and you can still write data until you've reached the (hard) limit or until the timer that kicks in expires whichever comes first.
-* **limit (hard)**: exceed your (hard) limit and you are instantly prohibited from writing any data. You will need to delete something else to free up space before you can write new data.
-* **timers**: after exceeding your quota the timer kicks in and if you do not reduce your data volume to less than your quota, the soft quota will temporarily become your hard limit when the timer expires.
-  You will need to reduce your data volume to less than your quota to reset the timer as well as the (hard) limit.
+ * **quota (soft)**: exceed your quota and you can still write data until you've reached the (hard) limit or until the timer that kicks in expires whichever comes first.
+ * **limit (hard)**: exceed your (hard) limit and you are instantly prohibited from writing any data. You will need to delete something else to free up space before you can write new data.
+ * **timers**: after exceeding your quota the timer kicks in and if you do not reduce your data volume to less than your quota, the soft quota will temporarily become your hard limit when the timer expires.
+   You will need to reduce your data volume to less than your quota to reset the timer as well as the (hard) limit.
 
 The combination of quota, larger limits and timers prevents users from permanently exceeding their quota while allowing them to temporarily consume more space to handle peak loads. 
 Note that if you write a lot of data and fast it is possible to exceed both your quota as well as the larger limit in a time frame that is much shorter than the quota reporting interval. 
@@ -272,23 +275,13 @@ The report will show 11 columns:
 ```
 
 ## List of storage devices / mount points used on {{ slurm_cluster_name | capitalize }}
-
 | Path | Function | (Soft) Quota | (Hard) Limit | Backup | Cleanup | Mounted on UIs | Mounted on DAIs | Mounted on compute nodes |
 |:---- |:-------- | ----------:| ----------:|:------:|:-------:|:--------------:|:---------------:|:------------------------:|
-{% for mount in lfs_mounts | selectattr('lfs', 'match', '^home$') | list %}
-| /{{ mount.lfs }} | Home dirs from shard file system for personal settings/preferences. | 1 GB | 2 GB | Yes | No | Yes | Yes | Yes |
-{% endfor %}
-{% for mount in lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list %}
-| /{{ mount.lfs }} | High Availability shared file system for permanent data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
-{% endfor %}
-{% for mount in lfs_mounts | selectattr('lfs', 'search', 'arc[0-9]+$') | list %}
-| /{{ mount.lfs }} | High Availability shared file system for archived data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
-{% endfor %}
-{% for mount in lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list %}
-| {{ mount.lfs }} | High Performance shared file system for temporary data. | Several TBs; varies per group | quota + ~10% | No | Yes, when older than 45 days | Yes | No | Yes |
-{% endfor %}
-{% for mount in lfs_mounts | selectattr('lfs', 'search', 'scr[0-9]+$') | list %}
-| /{{ mount.lfs }} | High Performance local file system for temporary data. | Several TBs; varies per group | quota + ~10% | No | Yes, when older than 45 days | Yes | No | No |
+{% for mount in lfs_mounts | selectattr('lfs', 'match', '^home$') | list %}| ```/{{ mount.lfs }}``` | Home dirs from shared file system for personal settings/preferences. | 1 GB | 2 GB | Yes | No | Yes | Yes | Yes |
+{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list %}| ```/groups/${group}/{{ mount.lfs }}``` | High Availability shared file system for permanent data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
+{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'arc[0-9]+$') | list %}| ```/groups/${group}/{{ mount.lfs }}``` | High Availability shared file system for archived data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
+{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list %}| ```/groups/${group}/{{ mount.lfs }}``` | High Performance shared file system for temporary data. | Several TBs; varies per group | quota + ~10% | No | Yes, when older than 45 days | Yes | No | Yes |
+{% endfor %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'scr[0-9]+$') | list %}| ```/groups/${group}/{{ mount.lfs }}``` | High Performance local file system for temporary data. | Several TBs; varies per group | quota + ~10% | No | Yes, when older than 45 days | Yes | No | No |
 {% endfor %}
 
 ## The life cycle of experimental data

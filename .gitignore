@@ -7,7 +7,7 @@
 *.pyc
 *.retry
 *.swp
-.vault_pass.txt*
+.vault*
 documentation/.~lock.UMCG Research IT HPC cluster technical design.docx#
 promtools/results/*
 roles/hpc-cloud

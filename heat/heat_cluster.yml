@@ -15,7 +15,7 @@ resources:
     properties:
       key_name: adminkey
       image: {get_param: image_name}
-      flavor: 4C-8GB
+      flavor: 24C-240GB
       networks:
         - network: vlan983
           fixed_ip: 172.23.40.33

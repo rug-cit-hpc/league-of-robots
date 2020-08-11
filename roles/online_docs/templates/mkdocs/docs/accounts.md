@@ -54,7 +54,7 @@ To generate an RSA key pair with OpenSSH, type the following command:
 ssh-keygen -t ed25519 -C "your_comment_see_below"
 ```
 As comment/label for your keys please use **your first initial followed by (optionally your middle name followed by) your family name** all in lowercase and without any separators like spaces, dots or underscores. 
-So if your name is _**Jack the Hippo**_, please use _**jthehippo**_ as comment, so we can easily identify the key as yours.
+So if your name is _**Jack Peter Frank the Hippo**_, please use _**jthehippo**_ as comment, so we can easily identify the key as yours.
 
 ###### Select where to store the key pair
 
@@ -64,11 +64,15 @@ Enter file in which to save the key (/path/to/your/home_dir/.ssh/id_ed25519): <r
 ```
 By default it will be stored in your ```~/.ssh/``` folder where ```~``` is your home directory.
 The public key will be stored in the same location as the private key, start with the same name as the private key and have a ```.pub``` suffix.  
+
 WARNING:
- 1. Accepting the default may overwrite existing keys, so check first if you already have a key in that location!  
-    Only accept the default by pressing the *\<return\>* key if you have no key in the default location.
- 2. OpenSSH will by default use the key from the default location. 
-    If you create the key in a non-default location, you will need to explicitly specify which key file to use when connecting via ssh or sftp.
+
+ 1. Accepting the default will overwrite an existing key pair,
+    so only accept the default if you either do not have a default key pair yet
+    or if you want to replace your default key pair.
+ 2. If you create a key pair in a non-default location, 
+    you will need to explicitly specify which key file to use when you start a session.
+    Consult the OpenSSH manual for details.
 
 ###### Secure the private key
 
@@ -91,40 +95,44 @@ ssh-keygen -p -f ~/.ssh/id_ed25519
 
 #### 2.B On Windows
 
-###### Get PuTTYgen
+###### Get a terminal and key generator application
 
-You can use the ```PuTTYgen``` application, which is distributed as part of the **PuTTY** suite and also bundled with **WinSCP**, to generate a key pair.
+Your OS does not come with a default terminal and key generator application, so you will need to download and install one. 
+There are many options all of which have their own pros and cons; we suggest you give [MobaXterm](https://mobaxterm.mobatek.net) version >= 12.3 a try 
+as it features a key generator, terminal and graphical user interface for data transfers all-in-one.
+The following steps use the *portable* version of *MobaXterm Home Edition*, which is free and does not need to be installed with an installer;
+just download, unpack and execute.
+If you want to use another terminal, key generator or data transfer app please consult their manuals...
+ 
+ * 0: Check your MobaXterm version is **12.3 or newer** as older ones have a known bug and won't work.
+ * 1: Launch MobaXterm and choose the ```MobaKeyGen (SSH key generator)``` from the tools as shown in the screenshot below.
 
- * Install [WinSCP](http://winscp.net/eng/download.php) if you only want to transfer data to/from the cluster via a graphical user interface.
- * Install [PuTTY](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) if you want to login via SSH to process data or if you want to transfer data via the commandline.
-
-1. Launch PuTTYgen as shown in the screenshot below.
-![launch PuTTYgen](img/puttygen1.png)
+![launch MobaKeyGen](img/MobaXterm1.png)
 
 ###### Configure
 
-![Select key type](img/puttygen2.png)
+![Select key type](img/MobaXterm2.png)
 
  * 2: From the **parameters** section at the bottom of the window choose: ```Type of key to generate:``` **ED25519**
  * 3: Click the **Generate** button...
 
 ###### Generate key pair
 
-![Generate randomness and subsequently key pair](img/puttygen3.png)
+![Generate randomness and subsequently key pair](img/MobaXterm3.png)
 
- * 4: Yes you really have to move the mouse now: computers are pretty bad at generating random numbers and PuTTYgen uses the coordinates of your mouse movement as a seed to generate a random number.
+ * 4: Yes you really have to move the mouse now: computers are pretty bad at generating random numbers and MobaKeyGen uses the coordinates of your mouse movement as a seed to generate a random number.
 
 ###### Secure private key and save pair to disk
 
 Your key pair was generated.
 
-![Save keys](img/puttygen4.png)
+![Save keys](img/MobaXterm4.png)
 
 Now make sure you:
 
  * 5:  Replace the comment in **Key comment** with  
        **your first initial followed by (optionally your middle name followed by) your family name** all in lowercase and without any separators like spaces, dots or underscores.  
-       So if your name is _**Jack the Hippo**_, please use _**jthehippo**_ as comment, so we can easily identify the key as yours.
+       So if your name is _**Jack Peter Frank the Hippo**_, please use _**jthehippo**_ as comment, so we can easily identify the key as yours.
  * 6:  Secure your private key with a good password **before** saving the private key. DO NOT choose a simple password or even worse an empty one!
  * 7:  Confirm the password
  * 8:  Click the **Save public key** button.
@@ -138,20 +146,36 @@ Now make sure you:
 
 To request an account, [contact the helpdesk via email](../contact/) and
 
- * 3.A If on Linux / Unix / macOS:  
+ * Either if on a **Windows** computer:  
+   Paste the contents of the public key as displayed in MobaKeyGen's *Public key for pasting into OpenSSH authorized_keys file* field in the email.
+ * Or if on a **Linux** / **Unix** / **macOS** computer:  
    Attach the id_rsa.pub public key file generated with ssh-keygen.  
    If you cannot see / find the key file, you most likely stored the file in a folder starting with a ```.```; e.g. in your ```~/.ssh``` folder which is the default.
    Folders and files that start with a ```.``` are *hidden* files and not displayed by default.
    On macOS you can press ```<Shift>+<Cmd>+<.>``` to toggle the visibility of hidden files in *Open...* and *Save...* dialog windows.
    Please use a search engine for a solution to display hidden files in other situations like Finder windows or on other platforms.
- * 3.B If on Windows:  
-   Paste the contents of the public key as displayed in PuTTYgen's *Public key for pasting into OpenSSH authorized_keys file* field in the email.
- * Motivate your account request by specifying the project your are working on and by adding your collaborators on CC.
+ * Please motivate your account request and
+     * For **guest** accounts to access only a data transfer machine associated with the cluster:
+         * Specify the project your are working on and add your collaborators on CC.
+     * For **regular** accounts to access the cluster:
+         * Specify the groups you want to become a member of in order to access specific data sets. 
+           Put all group owners of the corresponding groups on CC and ask them to approve your request in a reply to the helpdesk. 
+           If you do not know who the group owners are, please consult a colleague or your boss / P.I. / team lead / project lead / etc.
+         * Please add a staff member of the department/group where you are appointed or the project you are involved in on CC and 
+           ask him/her to confirm your appointment/involvement and the expiration date of your contract in a reply to the helpdesk. 
+           We will then setup your cluster account with the same expiration date.  
+           (A staff member can be your boss, P.I., team lead, project lead or secretary.)
+       Please note: we cannot give you access until we have received both approval from at least one group owner and a confirmation for the expiration date of your contract/collaboration.
  * Never ever email/give anyone your private key! If you do, the key is no longer private and useless for security: trash the key pair and start over by generating a new pair.
  * If you ever suspect that your private key may have been compromised (laptop got stolen, computer got infected with a virus/trojan/malware, etc.): 
     * [notify the helpdesk](../contact/) immediately, so we can revoke the public key for the compromised private key
-    * and start over by generating a new pair
+    * and start over by generating a new pair.
 
 ## 4. Start using servers/services
 
-Once you get notified by email that your account is ready you can proceed to [login](../logins/)
+ * Once you get notified by email that your account is ready you can proceed to [login](../logins/)
+ * If you want to request access to an additional group, send your request by email to the helpdesk and with the corresponding group owners on CC.
+   You can lookup the group owners yourself on the cluster using:
+
+             module load cluster-utils
+             colleagues -g <groupname>

@@ -1,4 +1,14 @@
+{% if inventory_hostname in groups['jumphost'] %}
+#
+# Extra ports where sshd will listen in addition to the default 22
+# must be listed before the default of 22,
+# because the geerlingly.security role will modify the last listed Port value
+# and we use the geerlingly.security role with the default of 22.
+#
+Port 443
+{% endif %}
 Port 22
+
 UseDNS no
 
 #

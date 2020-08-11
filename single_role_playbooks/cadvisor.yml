@@ -1,0 +1,5 @@
+---
+- hosts: sys-admin-interface
+  roles:
+     - cadvisor
+...

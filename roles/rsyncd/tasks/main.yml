@@ -1,0 +1,24 @@
+#
+# Configure rsync deamon config file.
+# * For use with rsync-only accounts that connect using a remote shell
+#   and then spwan a single-use daemon server.
+# * Hence there is no systemd managed rsyncd running constantly
+#   and therfore no handler to (re)start a daemon.
+#
+---
+- name: 'Install rsync.'
+  yum:
+    state: 'latest'
+    update_cache: true
+    name: 'rsync'
+  become: true
+
+- name: 'Install rsyncd config file with "modules" for /home and /groups.'
+  template:
+    src: 'templates/rsyncd.conf'
+    dest: '/etc/rsyncd.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  become: true
+...

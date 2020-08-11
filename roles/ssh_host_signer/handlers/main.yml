@@ -1,6 +1,8 @@
 ---
-- name: Reload SSH configuration.
-  service:
+- name: 'Reload SSH configuration.'
+  systemd:
     name: sshd
     state: reloaded
   become: true
+  listen: reload_sshd
+...
