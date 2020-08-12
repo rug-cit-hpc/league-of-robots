@@ -43,6 +43,7 @@
       - tmux
       - tree
       - unzip
+      - urw-base35-fonts
       - vim
       - wget
   tags:
