@@ -52,7 +52,7 @@ If you prefer another terminal application consult the corresponding manual.
         * Or start with two backslashes.  
           E.g. ```\\path\to\private_key.ppk```  
           This won't work and MobaXterm will fail silently: no login, no error, no nothing.  
-          Use a different route in the GUI to browse to your private such that the path starts with a drive letter, colon and single backslash.
+          Use a different route in the GUI to browse to your private key file such that the path starts with a drive letter, colon and single backslash.
     * 9: Click _**OK**_
 
  * Back in the network settings tab
