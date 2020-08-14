@@ -29,15 +29,26 @@ If you prefer another terminal application consult the corresponding manual.
  * Advanced SSH settings tab:
     * 4: _Use private key_ field: Select the _**private key file**_ you generated previously.
 
-![Configure MobaXterm session](img/MobaXterm7.png)
+![Configure MobaXterm session](img/MobaXterm7a.png)
 
  * Network settings tab
-    * 5: _Gateway SSH server_ field: Use the _Jumphost_ {% if public_ip_addresses is defined and public_ip_addresses | length %}IP address _**{{ public_ip_addresses[groups['jumphost'] | first] }}**_{% else %}address _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}**_{% endif %}.
+    * Click on the large _**SSH gateway (jump host)**_ button.
+
+![Configure MobaXterm session](img/MobaXterm7b.png)
+
+ * SSH jump hosts popup window
+    * 5: _Gateway host_ field: Use the _Jumphost_ {% if public_ip_addresses is defined and public_ip_addresses | length %}IP address _**{{ public_ip_addresses[groups['jumphost'] | first] }}**_{% else %}address _**{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}**_{% endif %}.
     * Optional: _Port_ field: The default port for SSH is 22 and this is usually fine. 
       However if you encounter a network where port 22 is blocked, you can try port 443. (Normally used for HTTPS, but our Jumposts can use it for SSH too.)
-    * 6: _User_ field: Use your _**account name**_ as you received it by email from the helpdesk (same as for 3).
-    * 7: _Use private key_ field: Select the _**private key file**_ you generated previously (same as for 4).
-    * 8: Click _**OK**_
+    * 6: _Username_ field: Use your _**account name**_ as you received it by email from the helpdesk (same as for 3).
+    * 7: Select _Use SSH key_ and
+    * 8: Click the small button to select the _**private key file**_ you generated previously (same as for 4).  
+      **Important**: the path to the selected private key will be shown.
+      Depending on how you browsed to the private key file, the path may 
+        * either start with a drive letter, colon and single backslash. E.g. ```H:\path\to\private_key.ppk```  
+        * or start with two backslashes. E.g. ```\\path\to\private_key.ppk```  
+      The former will work, but if the path starts with two slashes MobaXterm may fail silently: no login, no error, not nothing.
+    * 9: Click _**OK**_
 
 ###### Password (popup)
 
