@@ -4,6 +4,7 @@
 The instructions below assume:
 
  * you've already downloaded _**[MobaXterm](https://mobaxterm.mobatek.net)**_ to generate a pair of SSH keys (using the instructions for requesting accounts)
+ * and verified your _**MobaXterm**_ version is **12.3 or newer** (older ones have a known bug and won't work.)
  * and will now use _**MobaXterm**_ to login to the cluster
  * and that you received a notification with your account name and that your account has been activated
  * and that you are on the machine from which you want to connect to the cluster.
@@ -14,7 +15,7 @@ If you prefer another terminal application consult the corresponding manual.
 
 ![launch MobaXterm](img/MobaXterm5.png)
 
- * Launch _**MobaXterm**_ and click the _**Session**_ button from the top left of the window.
+ * Launch _**MobaXterm**_ version **12.3 or newer** and click the _**Session**_ button from the top left of the window.
  * A _**Session settings**_ window will popup.
 
 ###### Configure a new session
@@ -45,10 +46,17 @@ If you prefer another terminal application consult the corresponding manual.
     * 8: Click the small button to select the _**private key file**_ you generated previously (same as for 4).  
       **Important**: the path to the selected private key will be shown.
       Depending on how you browsed to the private key file, the path may 
-        * either start with a drive letter, colon and single backslash. E.g. ```H:\path\to\private_key.ppk```  
-        * or start with two backslashes. E.g. ```\\path\to\private_key.ppk```  
-      The former will work, but if the path starts with two slashes MobaXterm may fail silently: no login, no error, not nothing.
+        * Either start with a drive letter, colon and single backslash.  
+          E.g. ```H:\path\to\private_key.ppk```  
+          This is fine and should work.
+        * Or start with two backslashes.  
+          E.g. ```\\path\to\private_key.ppk```  
+          This won't work and MobaXterm will fail silently: no login, no error, no nothing.  
+          Use a different route in the GUI to browse to your private such that the path starts with a drive letter, colon and single backslash.
     * 9: Click _**OK**_
+
+ * Back in the network settings tab
+    * 10: Click _**Ok**_
 
 ###### Password (popup)
 
