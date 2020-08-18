@@ -129,13 +129,13 @@
   hosts: deploy-admin-interface
   roles:
     - mount-volume
-    - build-environment
+    - build_environment
     - envsync
 
 - name: 'G. Roles for UIs.'
   hosts: user-interface
   roles:
-    - build-environment
+    - build_environment
     - slurm_exporter
     - slurm-client
     - sudoers
