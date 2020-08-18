@@ -4,5 +4,5 @@
      - sys-admin-interface
      - deploy-admin-interface
   roles:
-     - mount-volume
+     - mount_volume
 ...

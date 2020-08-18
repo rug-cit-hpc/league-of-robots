@@ -48,7 +48,7 @@
      - deploy-admin-interface
   become: True
   roles:
-     - mount-volume
+     - mount_volume
 
 - name: Setup NFS server
   hosts: nfs-server
