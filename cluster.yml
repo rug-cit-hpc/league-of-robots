@@ -62,7 +62,7 @@
     - node_exporter
     - {role: geerlingguy.security, become: true}
     - {role: grafana_proxy, when: ansible_hostname == 'airlock'}
-    - regular-users
+    - regular_users
   tasks:
     - name: 'Install cron job to reboot jumphost regularly to activate kernel updates.'
       cron:
@@ -106,7 +106,7 @@
   roles:
     - ldap # client
     - sshd
-    - regular-users
+    - regular_users
     - shared_storage
 
 - name: 'E. Roles for SAIs.'
