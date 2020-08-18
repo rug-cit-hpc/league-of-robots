@@ -140,7 +140,7 @@
     - slurm-client
     - sudoers
     - subgroup_directories
-    - role: fuse-layer
+    - role: fuse_layer
       when: fuse_mountpoint is defined and fuse_mountpoint | length >= 1
 
 - name: 'H. Roles for compute nodes.'
