@@ -137,7 +137,7 @@
   roles:
     - build_environment
     - slurm_exporter
-    - slurm-client
+    - slurm_client
     - sudoers
     - subgroup_directories
     - role: fuse_layer
@@ -147,7 +147,7 @@
   hosts: compute-vm
   roles:
     - mount_volume
-    - slurm-client
+    - slurm_client
 
 - name: 'I. Roles for documentation servers.'
   hosts:

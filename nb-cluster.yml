@@ -120,7 +120,7 @@
   become: true
   tasks:
   roles:
-     - slurm-client
+     - slurm_client
 
 - name: Install User Interface (UI)
   hosts: user-interface
@@ -128,6 +128,6 @@
   tasks:
   roles:
      - slurm_exporter
-     - slurm-client
+     - slurm_client
      - sudoers
 ...
