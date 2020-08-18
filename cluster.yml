@@ -6,8 +6,8 @@
 #       ANSIBLE_VAULT_PASSWORD_FILE=".vault_pass.txt.${cluster_name}"
 #  1. Use standard CentOS cloud image user 'centos' or 'root' user and without host key checking:
 #       export ANSIBLE_HOST_KEY_CHECKING=False
-#       ansible-playbook -i inventory.py -u centos -l 'jumphost,cluster'  single_role_playbooks/admin-users.yml
-#       ansible-playbook -i inventory.py -u root   -l 'docs'              single_role_playbooks/admin-users.yml
+#       ansible-playbook -i inventory.py -u centos -l 'jumphost,cluster'  single_role_playbooks/admin_users.yml
+#       ansible-playbook -i inventory.py -u root   -l 'docs'              single_role_playbooks/admin_users.yml
 #  2. Use local admin user's account and without host key checking:
 #       export ANSIBLE_HOST_KEY_CHECKING=False
 #       ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/ssh_host_signer.yml
@@ -50,7 +50,7 @@
 - name: 'A. Roles for jumphosts.'
   hosts: jumphost
   roles:
-    - admin-users
+    - admin_users
     - ssh_host_signer
     - ssh_known_hosts
     - yum-repos
@@ -79,7 +79,7 @@
   hosts:
     - cluster
   roles:
-    - admin-users
+    - admin_users
     - ssh_host_signer
     - ssh_known_hosts
     - spacewalk_client
@@ -153,7 +153,7 @@
   hosts:
     - docs
   roles:
-    - admin-users
+    - admin_users
     - ssh_host_signer
     - yum-repos
     - {role: geerlingguy.repo-epel, become: true}
