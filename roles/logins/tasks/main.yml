@@ -42,6 +42,7 @@
     dest: "/etc/{{ item }}"
     owner: root
     group: root
+    mode: preserve
     state: link
   with_items:
     - pam_script_acct

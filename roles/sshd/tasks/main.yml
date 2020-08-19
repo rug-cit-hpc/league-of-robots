@@ -3,6 +3,9 @@
   template:
     src: templates/sshd_config
     dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0644'
     validate: '/usr/sbin/sshd -T -f %s'
   notify: restart_sshd
   become: true

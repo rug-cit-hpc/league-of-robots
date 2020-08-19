@@ -13,6 +13,7 @@
     backrefs: yes
     regexp: '^(\S+\s+{{ item.mountpoint }}\s+\S+\s+)(?!(?:\S*,)?{{ item.mountoption }}(?:,\S*)?\s+)(\S+)(\s+.+)$'
     line: '\1{{ item.mountoption }},\2\3'
+    mode: preserve
   with_items:
     - mountpoint: '/'
       mountoption: 'uquota'
@@ -37,6 +38,7 @@
     backrefs: yes
     regexp: '^(GRUB_CMDLINE_LINUX=\")([^\"]*)(\s+rootflags=(\S+))([^\"]*\")$'
     line: '\1\2 rootflags=uquota,\4\5'
+    mode: preserve
   when: inventory_hostname in groups['jumphost'] and ('rootflags' in grub_config_grep.stdout) and ('uquota' not in grub_config_grep.stdout)
   notify: rebuild_grub_config
   become: true
@@ -48,6 +50,7 @@
     backrefs: yes
     regexp: '^(GRUB_CMDLINE_LINUX=\")([^\"]*)(\")$'
     line: '\1\2 rootflags=uquota\3'
+    mode: preserve
   when: inventory_hostname in groups['jumphost'] and ('rootflags' not in grub_config_grep.stdout)
   notify: rebuild_grub_config
   become: true
@@ -71,6 +74,7 @@
     dest: "/etc/pam-script.d/{{ item }}_ses_open"
     owner: root
     group: root
+    mode: preserve
     state: link
   with_items:
     - set_quota.sh

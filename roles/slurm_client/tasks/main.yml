@@ -64,6 +64,7 @@
     path: "/usr/lib/systemd/system/{{ item }}.service"
     regexp: '^PIDFile='
     line: "PIDFile=/var/run/slurm/{{ item }}.pid"
+    mode: preserve
   with_items:
     - 'slurmd'
   notify:
