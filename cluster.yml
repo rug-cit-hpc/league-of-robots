@@ -114,13 +114,13 @@
     - sys-admin-interface
   roles:
     - mount_volume
-    - slurm-management
+    - slurm_management
     - prom_server
     - grafana
     - cadvisor
   vars:
     # These variables are needed by the mariadb role.
-    # Which is a depencency of the slurm-management role.
+    # Which is a depencency of the slurm_management role.
     # See roles/slurm/meta/main.yml
     hostname_node0: "{{ ansible_hostname }}"
     ip_node0: "{{ ansible_default_ipv4['address'] }}"
