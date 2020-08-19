@@ -57,7 +57,7 @@
     - logins
     - {role: geerlingguy.repo-epel, become: true}
     - ldap
-    - static-hostname-lookup
+    - static_hostname_lookup
     - sshd
     - node_exporter
     - {role: geerlingguy.security, become: true}
@@ -86,7 +86,7 @@
     - logins
     - figlet_motd
     - node_exporter
-    - static-hostname-lookup
+    - static_hostname_lookup
     - cluster
     - resolver
     - coredumps
