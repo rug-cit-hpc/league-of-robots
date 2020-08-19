@@ -53,7 +53,7 @@
     - admin_users
     - ssh_host_signer
     - ssh_known_hosts
-    - yum-repos
+    - yum_repos
     - logins
     - {role: geerlingguy.repo-epel, become: true}
     - ldap
@@ -155,7 +155,7 @@
   roles:
     - admin_users
     - ssh_host_signer
-    - yum-repos
+    - yum_repos
     - {role: geerlingguy.repo-epel, become: true}
     - sshd
     - {role: geerlingguy.security, become: true}
