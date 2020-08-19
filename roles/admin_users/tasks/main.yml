@@ -13,8 +13,10 @@
   with_items: "{{ local_admin_groups }}"
   become: true
 - name: 'Allow passwordless sudo for local admin users.'
-  lineinfile: dest=/etc/sudoers line="%admin  ALL=(ALL:ALL) NOPASSWD:ALL"
-  mode: preserve
+  lineinfile:
+    path: '/etc/sudoers'
+    line: "%admin  ALL=(ALL:ALL) NOPASSWD:ALL"
+    mode: preserve
   become: true
 - name: "Create private groups for user's home dirs."
   group:
