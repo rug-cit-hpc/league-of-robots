@@ -3,5 +3,5 @@
     - deploy-admin-interface
     - user-interface
   roles:
-    - build-environment
+    - build_environment
 ...

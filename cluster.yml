@@ -6,8 +6,8 @@
 #       ANSIBLE_VAULT_PASSWORD_FILE=".vault_pass.txt.${cluster_name}"
 #  1. Use standard CentOS cloud image user 'centos' or 'root' user and without host key checking:
 #       export ANSIBLE_HOST_KEY_CHECKING=False
-#       ansible-playbook -i inventory.py -u centos -l 'jumphost,cluster'  single_role_playbooks/admin-users.yml
-#       ansible-playbook -i inventory.py -u root   -l 'docs'              single_role_playbooks/admin-users.yml
+#       ansible-playbook -i inventory.py -u centos -l 'jumphost,cluster'  single_role_playbooks/admin_users.yml
+#       ansible-playbook -i inventory.py -u root   -l 'docs'              single_role_playbooks/admin_users.yml
 #  2. Use local admin user's account and without host key checking:
 #       export ANSIBLE_HOST_KEY_CHECKING=False
 #       ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/ssh_host_signer.yml
@@ -44,25 +44,25 @@
   pre_tasks:
     - name: 'Verify Ansible version meets requirements.'
       assert:
-        that: "ansible_version.full is version_compare('2.4', '>=')"
-        msg: 'You must update Ansible to at least 2.4.x to use this playbook.'
+        that: "ansible_version.full is version_compare('2.6', '>=')"
+        msg: 'You must update Ansible to at least 2.6.x to use this playbook.'
 
 - name: 'A. Roles for jumphosts.'
   hosts: jumphost
   roles:
-    - admin-users
+    - admin_users
     - ssh_host_signer
     - ssh_known_hosts
-    - yum-repos
+    - yum_repos
     - logins
     - {role: geerlingguy.repo-epel, become: true}
     - ldap
-    - static-hostname-lookup
+    - static_hostname_lookup
     - sshd
     - node_exporter
     - {role: geerlingguy.security, become: true}
     - {role: grafana_proxy, when: ansible_hostname == 'airlock'}
-    - regular-users
+    - regular_users
   tasks:
     - name: 'Install cron job to reboot jumphost regularly to activate kernel updates.'
       cron:
@@ -79,14 +79,14 @@
   hosts:
     - cluster
   roles:
-    - admin-users
+    - admin_users
     - ssh_host_signer
     - ssh_known_hosts
     - spacewalk_client
     - logins
     - figlet_motd
     - node_exporter
-    - static-hostname-lookup
+    - static_hostname_lookup
     - cluster
     - resolver
     - coredumps
@@ -106,21 +106,21 @@
   roles:
     - ldap # client
     - sshd
-    - regular-users
+    - regular_users
     - shared_storage
 
 - name: 'E. Roles for SAIs.'
   hosts:
     - sys-admin-interface
   roles:
-    - mount-volume
-    - slurm-management
+    - mount_volume
+    - slurm_management
     - prom_server
     - grafana
     - cadvisor
   vars:
     # These variables are needed by the mariadb role.
-    # Which is a depencency of the slurm-management role.
+    # Which is a depencency of the slurm_management role.
     # See roles/slurm/meta/main.yml
     hostname_node0: "{{ ansible_hostname }}"
     ip_node0: "{{ ansible_default_ipv4['address'] }}"
@@ -128,34 +128,34 @@
 - name: 'F. Roles for DAIs.'
   hosts: deploy-admin-interface
   roles:
-    - mount-volume
-    - build-environment
+    - mount_volume
+    - build_environment
     - envsync
 
 - name: 'G. Roles for UIs.'
   hosts: user-interface
   roles:
-    - build-environment
+    - build_environment
     - slurm_exporter
-    - slurm-client
+    - slurm_client
     - sudoers
     - subgroup_directories
-    - role: fuse-layer
+    - role: fuse_layer
       when: fuse_mountpoint is defined and fuse_mountpoint | length >= 1
 
 - name: 'H. Roles for compute nodes.'
   hosts: compute-vm
   roles:
-    - mount-volume
-    - slurm-client
+    - mount_volume
+    - slurm_client
 
 - name: 'I. Roles for documentation servers.'
   hosts:
     - docs
   roles:
-    - admin-users
+    - admin_users
     - ssh_host_signer
-    - yum-repos
+    - yum_repos
     - {role: geerlingguy.repo-epel, become: true}
     - sshd
     - {role: geerlingguy.security, become: true}

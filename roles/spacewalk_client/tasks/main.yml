@@ -49,6 +49,9 @@
     path: '/etc/yum/pluginconf.d/rhnplugin.conf'
     regexp: '^gpgcheck = [0-9].*'
     line: 'gpgcheck = 0'
+    owner: root
+    group: root
+    mode: '0644'
   become: true
 
 - name: 'Remove all (non-spacewalk) repo config files from /etc/yum.repos.d/.'

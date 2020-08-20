@@ -77,6 +77,9 @@
   copy:
     src: "{{ item.item.path }}"
     dest: "{{ ssh_host_signer_key_directory }}"
+    owner: root
+    group: root
+    mode: '0644'
   when: item.rc != 0
   with_items: "{{ certificate_comparison.results }}"
   notify: reload_sshd
@@ -93,8 +96,11 @@
   lineinfile:
     dest: "{{ ssh_host_signer_ssh_config }}"
     line: "HostCertificate {{ item.path }}-cert.pub"
-    state: present
     insertafter: "HostKey {{ item.path }}"
+    state: present
+    owner: root
+    group: root
+    mode: '0644'
     backup: yes
   with_items: "{{ private_keys.files | selectattr('path', 'match', ssh_host_signer_key_types) | list }}"
   notify: reload_sshd
@@ -105,6 +111,9 @@
     dest: "{{ ssh_host_signer_ssh_config }}"
     line: "HostCertificate {{ item.path }}-cert.pub"
     state: absent
+    owner: root
+    group: root
+    mode: '0644'
   with_items: "{{ private_keys.files | rejectattr('path', 'match', ssh_host_signer_key_types) | list }}"
   notify: reload_sshd
   become: true
@@ -114,6 +123,9 @@
     dest: "{{ ssh_host_signer_ssh_config }}"
     line: "HostKey {{ item.path }}"
     state: absent
+    owner: root
+    group: root
+    mode: '0644'
   with_items: "{{ private_keys.files | rejectattr('path', 'match', ssh_host_signer_key_types) | list }}"
   notify: reload_sshd
   become: true

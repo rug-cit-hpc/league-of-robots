@@ -170,7 +170,7 @@
 # List IPs addresses for/etc/hosts from in-memory inventory
 ##############################################################################
 
-- name: List private ip addresses for roles/static-hostname-lookup/templates/{cluster}_hosts
+- name: List private ip addresses for roles/static_hostname_lookup/templates/{cluster}_hosts
   hosts: 
     - user-interface
   become: true

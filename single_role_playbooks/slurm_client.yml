@@ -7,11 +7,11 @@
   hosts: compute-vm
   tasks:
   roles:
-    - slurm-client
+    - slurm_client
 
 - name: Install user interface
   hosts: user-interface
   tasks:
   roles:
-    - slurm-client
+    - slurm_client
 ...

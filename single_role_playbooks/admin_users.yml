@@ -1,8 +1,8 @@
 ---
 - hosts: jumphost
   roles:
-    - admin-users
+    - admin_users
 - hosts: cluster,docs
   roles:
-    - admin-users
+    - admin_users
 ...

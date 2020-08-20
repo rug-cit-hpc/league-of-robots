@@ -2,7 +2,7 @@
 - hosts: sys-admin-interface
   roles:
      - mariadb
-     - slurm-management
+     - slurm_management
   vars:
      # These variables are needed by the mariadb role.
      hostname_node0: "{{ ansible_hostname }}"

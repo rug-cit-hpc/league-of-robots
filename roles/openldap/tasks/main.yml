@@ -3,9 +3,9 @@
   template:
     src: "templates/{{ item }}"
     dest: "/etc/systemd/system/{{ item }}"
-    mode: 0600
     owner: root
     group: root
+    mode: '0600'
   with_items:
       - openldap.service
       - phpldapadmin.service
@@ -17,15 +17,16 @@
     state: directory
     owner: root
     group: root
+    mode: '0755'
   become: true
 
 - name: Install ldif files for overlays.
   copy:
     src: "files/{{ item }}"
     dest: "/srv/openldap/custom/{{ item }}"
-    mode: 0644
     owner: root
     group: root
+    mode: '0644'
   with_items:
     - 01-overlay-memberof
   become: true

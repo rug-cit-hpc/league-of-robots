@@ -48,7 +48,7 @@
      - deploy-admin-interface
   become: True
   roles:
-     - mount-volume
+     - mount_volume
 
 - name: Setup NFS server
   hosts: nfs-server
@@ -102,10 +102,10 @@
           job: /bin/needs-restarting -r >/dev/null 2>&1 || /sbin/shutdown -r +60 "restarting to apply updates"
           cron_file: reboot
 
-- hosts: slurm-management
+- hosts: slurm_management
   become: true
   roles:
-     - slurm-management
+     - slurm_management
      - prom_server
      - cadvisor
   vars:
@@ -120,7 +120,7 @@
   become: true
   tasks:
   roles:
-     - slurm-client
+     - slurm_client
 
 - name: Install User Interface (UI)
   hosts: user-interface
@@ -128,6 +128,6 @@
   tasks:
   roles:
      - slurm_exporter
-     - slurm-client
+     - slurm_client
      - sudoers
 ...
