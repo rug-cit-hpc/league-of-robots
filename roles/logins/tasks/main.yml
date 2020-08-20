@@ -37,12 +37,9 @@
   become: true
 
 - name: 'Enable pam_script.'
-  file:
+  file: # noqa 208
     src: 'pam_script'
     dest: "/etc/{{ item }}"
-    owner: root
-    group: root
-    mode: preserve
     state: link
   with_items:
     - pam_script_acct
@@ -81,7 +78,7 @@
 #  become: true
 #
 #- name: Enable login_checks.sh script for ses_open.
-#  file:
+#  file: # noqa 208
 #    src: "{{ item }}"
 #    dest: "/etc/pam-script.d/{{ item }}_ses_open"
 #    owner: root

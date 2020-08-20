@@ -34,7 +34,9 @@
   lineinfile:
     dest: '/etc/sudoers'
     line: "%{{ envsync_group }}    ALL=({{ envsync_user }})    NOPASSWD:ALL"
-    mode: preserve
+    owner: root
+    group: root
+    mode: '0440'
   become: true
 
 - name: 'Insert/update block into ~/.bashrc to ensure we use the correct environment for syncing.'

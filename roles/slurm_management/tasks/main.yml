@@ -104,7 +104,9 @@
     path: "/usr/lib/systemd/system/{{ item }}.service"
     regexp: '^PIDFile='
     line: "PIDFile=/var/run/slurm/{{ item }}.pid"
-    mode: preserve
+    owner: root
+    group: root
+    mode: '0644'
   with_items:
     - 'slurmctld'
     - 'slurmdbd'
