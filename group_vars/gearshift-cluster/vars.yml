@@ -294,5 +294,26 @@ lfs_mounts: [
   { lfs: 'env01',
     pfs: 'umcgst10',
     machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
+  #
+  # For a temporary second /apps copy on Data Handling storage a.k.a. env02.
+  # Note: pfs umcgst02 == 172.23.57.203@tcp12:172.23.57.204@tcp12:/dh2
+  #       see pfs_mounts variable above.
+  #
+  # Step 1: leave machines empty: hence do not mount this copy of /apps on any of the nodes yet.
+  #
+  { lfs: 'env02',
+    pfs: 'umcgst02',
+    machines: "" },
+  #
+  # Step 2: When all software, modules, etc. have been synced overnight to the new env02 copy of /apps too:
+  #         remove  {{ groups['user-interface'] }} from the list of machines that will mount env01
+  #         and add {{ groups['user-interface'] }} t    the list of machines that will mount env02.
+  #
+  #{ lfs: 'env01',
+  #  pfs: 'umcgst10',
+  #  machines: "{{ groups['compute-vm'] }}" },
+  #{ lfs: 'env02',
+  #  pfs: 'umcgst02',
+  #  machines: "{{ groups['user-interface'] }}" },
 ]
 ...
