@@ -307,7 +307,7 @@ lfs_mounts: [
   #
   # Step 2: When all software, modules, etc. have been synced overnight to the new env02 copy of /apps too:
   #         remove  {{ groups['user-interface'] }} from the list of machines that will mount env01
-  #         and add {{ groups['user-interface'] }} t    the list of machines that will mount env02.
+  #         and add {{ groups['user-interface'] }} to   the list of machines that will mount env02.
   #
   #{ lfs: 'env01',
   #  pfs: 'umcgst10',
