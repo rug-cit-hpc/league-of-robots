@@ -182,7 +182,12 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'cwilke'
     groups: ['users', 'solve-rd']
-
+  - user: 'ajackson'
+    groups: ['users', 'solve-rd']
+  - user: 'byaldiz'
+    groups: ['users', 'solve-rd']
+  - user: 'bcharbon'
+    groups: ['users', 'depad','umcg-atd', 'solve-rd']
 pfs_mounts: [
   { pfs: 'ecst02',
     source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD',
