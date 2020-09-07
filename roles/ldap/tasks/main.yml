@@ -84,6 +84,9 @@
   template:
     src: "{{ playbook_dir }}/roles/sshd/templates/sshd_config"
     dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0644'
     validate: '/usr/sbin/sshd -T -f %s'
     owner: root
     group: root

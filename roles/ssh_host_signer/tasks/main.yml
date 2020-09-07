@@ -68,6 +68,9 @@
   copy:
     src: "{{ item.item.path }}"
     dest: "{{ ssh_host_signer_key_directory }}"
+    owner: root
+    group: root
+    mode: '0644'
   when: item.rc != 0
   with_items: "{{ certificate_comparison.results }}"
   notify: reload_sshd
