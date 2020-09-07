@@ -3,10 +3,9 @@
 #
 ---
 - name: 'Check if rsync >= 3.1.2 is installed on the control host.'
-  shell:
-    cmd: |
-      set -o pipefail
-      rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+  shell: |
+         set -o pipefail && \
+         rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
   args:
     warn: no
   changed_when: false
@@ -42,10 +41,9 @@
     - "{{ groups['user-interface'] }}"
 
 - name: 'Get Slurm version from scontrol on UI.'
-  shell:
-    cmd: |
-      set -o pipefail
-      scontrol version | head -n 1 | sed 's|^slurm *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+  shell: |
+         set -o pipefail && \
+         scontrol version | head -n 1 | sed 's|^slurm *\([0-9\.]*\).*$|\1|' | tr -d '\n'
   args:
     executable: '/bin/bash'
     warn: no
@@ -63,12 +61,11 @@
   # Modules based on Lua: Version 6.5.8  2016-09-03 13:41 -05:00 (CDT)
   #    by Robert McLay mclay@tacc.utexas.edu
   #
-  shell:
-    cmd: |
-      set -o pipefail
-      unset MODULEPATH
-      source ~/.modulesrc >/dev/null 2>&1
-      lmod -v | sed '/^$/d' | sed 's|^.*Version \([0-9\.]*\).*$|\1|' | head -1
+  shell: |
+         set -o pipefail && \
+         unset MODULEPATH
+         source ~/.modulesrc >/dev/null 2>&1
+         lmod -v | sed '/^$/d' | sed 's|^.*Version \([0-9\.]*\).*$|\1|' | head -1
   args:
     executable: '/bin/bash'
     warn: no
@@ -122,24 +119,18 @@
 
 - name: 'Create base directories for MarkDown and HTML files.'
   file:
-    path: "{{ item.path }}"
+    path: "{{ item }}"
     state: 'directory'
     owner: 'root'
     group: 'root'
-    mode: "{{ item.mode }}"
+    mode: '0755'
   with_items:
-    - path: "/srv/mkdocs/{{ slurm_cluster_name }}/"
-      mode: '0750'
-    - path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/"
-      mode: '0750'
-    - path: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
-      mode: '0750'
-    - path: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/attachments"
-      mode: '0750'
-    - path: "/var/www/html/{{ slurm_cluster_name }}/"
-      mode: '0755'
-    - path: "/var/www/html/{{ slurm_cluster_name }}/attachments/"
-      mode: '0755'
+    - "/srv/mkdocs/{{ slurm_cluster_name }}/"
+    - "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/"
+    - "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
+    - "/srv/mkdocs/{{ slurm_cluster_name }}/docs/attachments"
+    - "/var/www/html/{{ slurm_cluster_name }}/"
+    - "/var/www/html/{{ slurm_cluster_name }}/attachments/"
   become: true
 
 - name: 'Create static files for index in document root.'
@@ -179,7 +170,7 @@
     state: 'directory'
     owner: 'root'
     group: 'root'
-    mode: '0750'
+    mode: '0700'
   with_filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
   when: item.state == 'directory'
   notify:
@@ -213,7 +204,7 @@
       - '--relative'
       - '--omit-dir-times'
       - '--omit-link-times'
-      - '--chmod=Du=rwx,Dg=rx,Do-rwx,Fu=rwX,Fug=rX,Fo-rwx'
+      - '--chmod=Du=rwx,Dgo-rwx,Fu=rw,Fgo-rwx'
       - '--perms'
       - '--force'
   with_items:
@@ -235,7 +226,7 @@
       - '--relative'
       - '--omit-dir-times'
       - '--omit-link-times'
-      - '--chmod=Du=rwx,Dg=rx,Do-rwx,Fu=rwX,Fg=rX,Fo-rwx'
+      - '--chmod=Dug=rwx,Do-rwx,Fug=rwX,Fo-rwx'
       - '--perms'
       - '--force'
   with_items:
@@ -243,11 +234,9 @@
       dest: "ssh-client-config-for-{{ slurm_cluster_name }}.app"
     - src:  'mount-cluster-drives.app'
       dest: 'mount-cluster-drives.app'
-  notify:
-    - 'zip_attachments'
   become: true
 
-- name: 'Make sure main script of AppleScript apps are executable.'
+- name: 'Make sure ssh-client-config AppleScript app main script is executable.'
   file:
     path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item }}/Contents/MacOS/applet"
     state: 'file'
@@ -257,8 +246,6 @@
   with_items:
     - "ssh-client-config-for-{{ slurm_cluster_name }}.app"
     - 'mount-cluster-drives.app'
-  notify:
-    - 'zip_attachments'
   become: true
 
 - name: 'Create files for attachments based on templates.'
@@ -275,15 +262,30 @@
     #
     - src: 'ssh-client-config.bash'
       dest: "ssh-client-config-for-{{ slurm_cluster_name }}.app/Contents/MacOS/ssh-client-config.command"
-      mode: '0750'
+      mode: '0755'
     #
     # For Linux/Unix users: just generate a bare Bash script.
     #
     - src: 'ssh-client-config.bash'
       dest: "ssh-client-config-for-{{ slurm_cluster_name }}.bash"
-      mode: '0750'
-  notify:
-    - 'zip_attachments'
+      mode: '0755'
+  become: true
+
+- name: 'Zip the scripted tools from the tmp subfolder and save the archives in the attachments subfolder.'
+  archive:
+    path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.path }}"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/attachments/{{ item.dest }}"
+    format: 'zip'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  with_items:
+    - path: "ssh-client-config-for-{{ slurm_cluster_name }}.app"
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}-macos.zip"
+    - path: "ssh-client-config-for-{{ slurm_cluster_name }}.bash"
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}-linux.zip"
+    - path: 'mount-cluster-drives.app'
+      dest: 'mount-cluster-drives-macos.zip'
   become: true
 
 - name: 'Create MarkDown files based on templates.'
@@ -292,7 +294,7 @@
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"
     owner: 'root'
     group: 'root'
-    mode: '0640'
+    mode: '0600'
   with_filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
   # Exclude temporary *.html preview files, which are also exlcuded in .gitignore and should not be transferred.
   when: item.state == 'file' and '.md.html' not in item.path

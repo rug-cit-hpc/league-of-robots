@@ -43,7 +43,6 @@
       - tmux
       - tree
       - unzip
-      - urw-base35-fonts
       - vim
       - wget
   tags:
@@ -51,10 +50,9 @@
   become: true
 
 - name: Check if rsync >= 3.1.2 is installed on the managed hosts.
-  shell:
-    cmd: |
-      set -o pipefail
-      rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+  shell: |
+         set -o pipefail && \
+         rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
   args:
     warn: no
   changed_when: false
@@ -69,10 +67,8 @@
   failed_when: 'rsync_version_managed_host is failed or (rsync_version_managed_host.stdout is version_compare("3.1.2", operator="<"))'
 
 - name: Check if rsync >= 3.1.2 is installed on the control host.
-  shell:
-    cmd: |
-      set -o pipefail
-      rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+  shell: |
+         rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
   args:
     warn: no
   changed_when: false
