@@ -96,9 +96,11 @@ regular_groups:
   - 'umcg-biogen'
   - 'umcg-bionic-mdd-gwama'
   - 'umcg-bios'
+  - 'umcg-cineca'
   - 'umcg-dag3'
   - 'umcg-datateam'
   - 'umcg-depad'
+  - 'umcg-ejp-rd'
   - 'umcg-endocrinology'
   - 'umcg-franke-scrna'
   - 'umcg-gaf'
@@ -151,12 +153,18 @@ regular_users:
   - user: 'umcg-bios-dm'
     groups: ['umcg-bios']
     sudoers: '%umcg-bios'
+  - user: 'umcg-cineca-dm'
+    groups: ['umcg-cineca']
+    sudoers: '%umcg-cineca-dms'
   - user: 'umcg-dag3-dm'
     groups: ['umcg-dag3']
     sudoers: 'umcg-avich,umcg-akurilshchikov,umcg-rgacesa'
   - user: 'umcg-datateam-dm'
     groups: ['umcg-datateam']
     sudoers: 'umcg-mbijlsma'
+  - user: 'umcg-ejp-rd-dm'
+    groups: ['umcg-ejp-rd']
+    sudoers: '%umcg-ejp-rd-dms'
   - user: 'umcg-endocrinology-dm'
     groups: ['umcg-endocrinology']
     sudoers: '%umcg-endocrinology-dms'
@@ -268,7 +276,7 @@ lfs_mounts: [
     pfs: 'umcgst10',
     groups: [
         'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
-        'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-endocrinology', 'umcg-franke-scrna',
+        'umcg-bios','umcg-cineca', 'umcg-dag3', 'umcg-datateam','umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
@@ -284,7 +292,7 @@ lfs_mounts: [
     pfs: 'umcgst02',
     groups: [
         'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
-        'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-endocrinology', 'umcg-franke-scrna',
+        'umcg-bios','umcg-cineca', 'umcg-dag3', 'umcg-datateam','umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
