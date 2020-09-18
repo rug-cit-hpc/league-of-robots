@@ -454,7 +454,7 @@ You can access this folder in your job script using this environment variable:
 ${TMPDIR}
 ```
 Please make sure you do not use more disk space then requested. 
-Jobs consuming local scratch space outside their ```${TMPDIR``` will be deleted without notice as they interfere with scheduling.
+Jobs consuming local scratch space outside their ```${TMPDIR}``` will be deleted without notice as they interfere with scheduling.
 
 ## Debugging and Frequent Asked Question (FAQs)
 
