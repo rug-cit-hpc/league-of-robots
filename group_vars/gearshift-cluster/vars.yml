@@ -7,22 +7,29 @@ mailhub: '172.23.34.34'
 rewrite_domain: "imperator{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'cyberlarge'
 motd: |
-      !!! WARNING: This cluster is in beta testing
-          and may be redeployed from scratch, which
-          may result in complete data loss of home and tmp01 group folders
-          starting on 09:00 on the following EOS Fridays:
-          ###################################
-          # Date                 EOS        #
-          ###################################
-          # Friday 2020-03-12    Sprint 152 #
-          # Friday 2020-04-24    Sprint 154 #
-          # Friday 2020-06-05    Sprint 156 #
-          # Friday 2020-07-16    Sprint 158 #
-          # Friday 2020-08-27    Sprint 160 #
-          ###################################
-          You have been warned!!!
+      =========================================================
+      !!! WARNING: {{ slurm_cluster_name | capitalize }} is in beta testing
+      =========================================================
+          This cluster may be redeployed from scratch, which
+          may result in complete data loss of home dirs 
+          and tmp01 group folders: You have been warned!!!
           This does not affect prm03 group folders,
-          which are on a different storage system.
+          which are on a different (production) storage system.
+      =========================================================
+      Scheduled maintenance 2020-10-16 - 2020-10-19:
+      =========================================================
+          prm03 folders temporarily not available
+          due to maintenance for data center power grid.
+      =========================================================
+      Scheduled maintenance 2020-10-26 - 2020-10-29:
+      =========================================================
+          {{ slurm_cluster_name | capitalize }} cluster completely offline
+          due to major upgrade including redeployment
+          of all servers from scratch.
+          We do NOT plan to reformat the file system hosting
+          home dirs and tmp01 dirs, but tmp=tmp,
+          so if it does break it's gone.
+      =========================================================
 additional_etc_hosts: |
   172.23.40.21       gs-compute01        gs-compute01.hpc.local
   172.23.40.22       gs-compute02        gs-compute02.hpc.local
