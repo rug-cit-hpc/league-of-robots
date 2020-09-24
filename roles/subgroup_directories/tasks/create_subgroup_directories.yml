@@ -21,7 +21,7 @@
             | tr "=," "\n" \
             | fgrep "{{ group }}" \
             | grep -v "^{{ group }}$" \
-            | grep -v -- "-v[0-9][0-9]*$\|-dms$" \
+            | grep -v -- "-v[0-9][0-9]*$\|-dms$\|-owners$" \
             || true
       register: unversioned_subgroups
     - set_fact: # noqa 502
