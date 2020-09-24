@@ -21,8 +21,6 @@
       - curl
       - dos2unix
       - figlet
-      - fuse
-      - fuse-libs
       - git
       - git-core
       - gnutls

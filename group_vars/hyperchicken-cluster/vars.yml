@@ -52,7 +52,9 @@ private_storage_net_id: net_provider_vlan3126
 private_storage_subnet_id: subnet3126
 security_group_id: SSH-and-ping-2
 slurm_ldap: true
-fuse_mountpoint: /groups/solve-rd/tmp09/
+ega_fuse_client_mounts:
+  solve_rd: '/groups/solve-rd/prm09/ega-fuse-client'
+ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
 availability_zone: AZ_1
 storage_availability_zone: nova
 local_volume_size: 1
