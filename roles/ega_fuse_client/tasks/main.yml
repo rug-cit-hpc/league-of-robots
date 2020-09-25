@@ -86,17 +86,6 @@
   become: true
   notify: restart_ega-fuse-client
 
-- name: Install symlinks for service unit instances.
-  file: # noqa 208
-    src: 'ega-fuse-client@.service'
-    dest: "/usr/lib/systemd/system/ega-fuse-client@{{ item.key }}.service"
-    state: link
-  tags:
-      - service-files
-  become: true
-  with_dict: "{{ ega_fuse_client_mounts }}"
-  notify: restart_ega-fuse-client
-
 - name: Make sure ega-fuse-client service instances are enabled and started.
   systemd:
     name: "ega-fuse-client@{{ item.key }}.service"

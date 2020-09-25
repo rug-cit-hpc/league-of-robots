@@ -3,8 +3,8 @@ Description=EGA Fuse Client for %I mount.
 
 [Service]
 TimeoutStartSec=0
-
 EnvironmentFile=/etc/ega-fuse-client.d/%i.env
+SuccessExitStatus=143
 
 ExecStart=/usr/bin/env "${EGA_FUSE_CLIENT_JAVA_HOME}/bin/java" \
 -Xmx4g \
