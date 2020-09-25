@@ -30,6 +30,28 @@
   become: true
   notify: restart_ega-fuse-client
 
+- name: Check mount point status.
+  shell: '/bin/mountpoint {{ item.value }} 2>&1'
+  with_dict: "{{ ega_fuse_client_mounts }}"
+  register: mountpoint_status
+  changed_when: "mountpoint_status.rc != 0"
+  failed_when: false
+  become: true
+
+- name: Create mount points.
+  file:
+    path: "{{ item.value }}"
+    state: directory
+    mode: '0550'
+    owner: root
+    group: root
+  when: mountpoint_status | json_query(query) | first != 0
+  vars:
+    query: "results[?item.key=='{{ item.key }}'].rc"
+  with_dict: "{{ ega_fuse_client_mounts }}"
+  become: true
+  notify: restart_ega-fuse-client
+
 - name: Install *.env files for service instances in /etc/ega-fuse-client.d/.
   template:
     src: templates/ega-fuse-client.env
@@ -51,19 +73,6 @@
   with_dict: "{{ ega_fuse_client_mounts }}"
   become: true
   notify: restart_ega-fuse-client
-
-- name: Check mount point status.
-  shell: '/bin/mountpoint -q {{ item.value }}'
-  with_dict: "{{ ega_fuse_client_mounts }}"
-  register: mountpoint_status
-  changed_when: "mountpoint_status.rc != 0"
-  failed_when: false
-
-- name: Debug
-  debug:
-    msg: "{{ mountpoint_status }}"
-
-- meta: end_play
 
 - name: Install service unit template file.
   template:
