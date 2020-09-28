@@ -72,7 +72,7 @@ IgnoreUnknown AddKeysToAgent
 #
 # Host settings.
 #
-Host reception*
+Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}* {% endfor %}{% raw %}{% endraw %}
     #
     # Default account name when not specified explicitly.
     #
