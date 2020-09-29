@@ -140,8 +140,8 @@
     - slurm_client
     - sudoers
     - subgroup_directories
-    - role: fuse_layer
-      when: fuse_mountpoint is defined and fuse_mountpoint | length >= 1
+    - role: ega_fuse_client
+      when: ega_fuse_client_mounts is defined and ega_fuse_client_mounts | length >= 1
 
 - name: 'H. Roles for compute nodes.'
   hosts: compute-vm
