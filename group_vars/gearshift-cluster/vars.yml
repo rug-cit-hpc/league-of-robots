@@ -204,7 +204,7 @@ regular_users:
     sudoers: 'umcg-pneerincx'
   - user: 'umcg-griac-dm'
     groups: ['umcg-griac']
-    sudoers: 'umcg-cvermeulen,umcg-cxu,umcg-ndijk,umcg-mdevries,umcg-mberg'
+    sudoers: 'umcg-cvermeulen,umcg-cxu,umcg-jvnijnatten,umcg-ndijk,umcg-mdevries,umcg-mberg'
   - user: 'umcg-gsad-dm'
     groups: ['umcg-gsad']
     sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
