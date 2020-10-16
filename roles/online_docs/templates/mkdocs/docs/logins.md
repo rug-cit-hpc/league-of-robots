@@ -26,6 +26,7 @@ First make sure you have an account. If you are new, please [follow these instru
 
 Configure your SSH client with the instructions for your operating system:
 
- * Instructions for [Windows clients](../logins-windows/).
- * Instructions for [macOS clients](../logins-macos/).
- * Instructions for [Linux/Unix clients](../logins-linux/).
+ * Configuration and login instructions for [Windows clients](../logins-windows/).
+ * Configuration instructions for [macOS clients](../logins-macos-config/).
+ * Configuration instructions for [Linux/Unix clients](../logins-linux-config/).
+ * Login instructions for [macOS/Linux/Unix clients](../logins-macos-linux/).
