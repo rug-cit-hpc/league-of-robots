@@ -1,9 +1,9 @@
 ---
-- name: 'Gather facts from servers in "sys-admin-interface" group.'
+- name: 'Gather facts from servers in "sys_admin_interface" group.'
   setup:
   delegate_to: "{{ item }}"
   delegate_facts: true
-  with_items: "{{ groups['sys-admin-interface'] }}"
+  with_items: "{{ groups['sys_admin_interface'] }}"
 
 - name: 'Include Slurm defaults from "slurm_management" role.'
   include_vars:
@@ -166,22 +166,22 @@
 
 - name: 'Deploy UI nhc.conf.'
   template:
-    src: 'templates/user-interface_nhc.conf'
+    src: 'templates/user_interface_nhc.conf'
     dest: '/etc/nhc/nhc.conf'
     owner: 'root'
     group: 'root'
     mode: '0644'
-  when: inventory_hostname in groups['user-interface']
+  when: inventory_hostname in groups['user_interface']
   become: true
 
-- name: 'Deploy compute-vm nhc.conf.'
+- name: 'Deploy compute_vm nhc.conf.'
   template:
-    src: 'templates/compute-vm_nhc.conf'
+    src: 'templates/compute_vm_nhc.conf'
     dest: '/etc/nhc/nhc.conf'
     owner: 'root'
     group: 'root'
     mode: '0644'
-  when: inventory_hostname in groups['compute-vm']
+  when: inventory_hostname in groups['compute_vm']
   become: true
 
 - name: 'Start slurm and munge services.'

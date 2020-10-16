@@ -31,16 +31,16 @@ Your options to move data to/from the {{ slurm_cluster_name | capitalize }} HPC 
 
 * You can transfer data with ```rsync``` over _SSH_ to copy files to for example your home dir on the cluster with something like the command below.
 
-        $your_client> rsync -av some_directory {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}:
+        $your_client> rsync -av some_directory {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}:
 
     _**Note the colon**_ at the end of the ```rsync``` command:
 
-      1. Without the colon you would copy to a local file named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` instead.
+      1. Without the colon you would copy to a local file named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` instead.
       1. If you do not specify a path after the colon you'll transfer data to the default location, which is your home dir.
 
 * If you want the data to go elsewhere you'll have to specify where. E.g.:
 
-        $your_client> rsync -av some_directory {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}:/path/to/somewhere/else/
+        $your_client> rsync -av some_directory {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}:/path/to/somewhere/else/
 
 * Swap source and destination to pull data from the cluster as opposed to pushing data to the cluster.
 
@@ -70,7 +70,7 @@ First, configure _SSH agent forwarding_ using one of:
 Next, login to {{ slurm_cluster_name | capitalize }} and verify that _agent forwarding_ worked 
 by executing the following command to list the identities (private keys) available to your _SSH agent_:
 ```
-${{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}> ssh-add -l
+${{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}> ssh-add -l
 ```
 
 * You should get a response with at least one key fingerprint, which means you can now transfer data with ```rsync``` to/from the other server 
@@ -85,7 +85,7 @@ ${{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','
 Once you have a private key on {{ slurm_cluster_name | capitalize }} and can login to the other server using ssh, 
 you can use rsync (over ssh) to pull data from the other server like this:
 ```
-${{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}> rsync -av your-account@other-server.some.domain:/path/to/source_folder   /path/to/destination_folder/
+${{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}> rsync -av your-account@other-server.some.domain:/path/to/source_folder   /path/to/destination_folder/
 ```
 Swap source and destination to push data to the other server as opposed to pulling data from the other sever.
 

@@ -63,7 +63,7 @@ The ```mount-cluster-drives``` app parses special comment lines like this:
 # Special comment lines parsed by our mount-cluster-drives script to create sshfs mounts.
 # (Will be ignored by OpenSSH.)
 # {% set sshfs_jumphost = groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') %}
-# {% set sshfs_ui = groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') %}
+# {% set sshfs_ui = groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') %}
 #SSHFS {{ sshfs_ui }}_groups={{ sshfs_jumphost }}+{{ sshfs_ui }}:/groups/
 #SSHFS {{ sshfs_ui }}_home={{ sshfs_jumphost }}+{{ sshfs_ui }}:/home/<youraccount>/
 #
@@ -103,8 +103,8 @@ To start a session with _ForkLift 2_:
  * Provide the connection details:  
    ![Allow access to the Terminal.app](img/ForkLift3b.png)  
     * _Protocol:_ **SFTP**
-    * _Name_: **{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**
-    * _Server_: **{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**
+    * _Name_: **{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**
+    * _Server_: **{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**
     * _Username_: your account name as you received it from the helpdesk
     * Leave the _Password_ field empty.
     * Optionally you can specify a default encoding and remote path to start browsing on the cluster.  

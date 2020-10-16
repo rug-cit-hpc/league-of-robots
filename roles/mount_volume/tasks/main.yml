@@ -34,7 +34,7 @@
     owner: root
     group: root
     mode: '0755'
-  when: mount_local.rc == 0 and inventory_hostname in groups['compute-vm']
+  when: mount_local.rc == 0 and inventory_hostname in groups['compute_vm']
   become: true
 
 - name: 'Configure permissions for deploy admins.'
@@ -44,6 +44,6 @@
     owner: root
     group: "{{ envsync_group }}"
     mode: '2775'
-  when: mount_local.rc == 0 and inventory_hostname in groups['deploy-admin-interface']
+  when: mount_local.rc == 0 and inventory_hostname in groups['deploy_admin_interface']
   become: true
 ...

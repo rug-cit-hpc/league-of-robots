@@ -308,6 +308,6 @@ lfs_mounts: [
       ]},
   { lfs: 'env01',
     pfs: 'umcgst10',
-    machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
+    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
 ]
 ...

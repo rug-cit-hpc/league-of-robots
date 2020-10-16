@@ -146,7 +146,7 @@ lfs_mounts: [
     groups: ['umcg-atd', 'erknet', 'euro-nmd', 'ern-liver'] },
   { lfs: 'env11',
     pfs: 'ecst01',
-    machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
+    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
 ]
 interfaces:
   - device: 'eth0'

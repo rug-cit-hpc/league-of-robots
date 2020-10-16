@@ -5,7 +5,7 @@
   when:
    - use_ldap | default(true, true) | bool
    - create_ldap | default(false, true) | bool
-   - inventory_hostname in groups['ldap-server'] | default([])
+   - inventory_hostname in groups['ldap_server'] | default([])
 
 - name: 'Create local regular users & groups.'
   include_tasks:

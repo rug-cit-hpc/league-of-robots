@@ -13,7 +13,7 @@
     - 'groups'
   loop_control:
     loop_var: lfs_item
-  when: inventory_hostname in groups['user-interface']
+  when: inventory_hostname in groups['user_interface']
 
 - name: 'Loop over "tmp" file systems.'
   include_tasks:
@@ -29,5 +29,5 @@
     - 'groups'
   loop_control:
     loop_var: lfs_item
-  when: inventory_hostname in groups['user-interface']
+  when: inventory_hostname in groups['user_interface']
 ...

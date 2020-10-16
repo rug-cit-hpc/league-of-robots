@@ -40,7 +40,7 @@ An HPC cluster can have
 
 ## group_vars
 
-The _LFS-ses_ and _PFS-ses_ they are located on must be specified for each HPC cluster in the corresponding _group\_vars_ located at ```groups_vars/${name}-cluster/vars.yml```
+The _LFS-ses_ and _PFS-ses_ they are located on must be specified for each HPC cluster in the corresponding _group\_vars_ located at ```groups_vars/${name}_cluster/vars.yml```
 An example snippet (see below for explanation of what get's mounted where based on this example):
 ```
 ---
@@ -74,7 +74,7 @@ lfs_mounts: [
     machines: "{{ groups['cluster'] }}" },
   { lfs: 'env08',
     pfs: 'isilon11',
-    machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
+    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
   { lfs: 'tmp08',
     pfs: 'isilon11',
     groups: [

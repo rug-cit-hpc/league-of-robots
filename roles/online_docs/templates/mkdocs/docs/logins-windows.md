@@ -25,7 +25,7 @@ If you prefer another terminal application consult the corresponding manual.
  * Session type
     * 1: Select _**SSH**_.
  * Basic SSH settings tab
-    * 2: _Remote host_ field: Use the name of the User Interface (UI) _**{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_ .
+    * 2: _Remote host_ field: Use the name of the User Interface (UI) _**{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_ .
     * 3: _Specify username_ field: Use your _**account name**_ as you received it by email from the helpdesk.
  * Advanced SSH settings tab:
     * 4: _Use private key_ field: Select the _**private key file**_ you generated previously.
@@ -81,7 +81,7 @@ This may require retyping the password to decrypt the private key a second time,
 
 ###### Session established
 
-You have now logged in to the UI {{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}.
+You have now logged in to the UI {{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}.
 
 ![Configure MobaXterm session](img/MobaXterm9b.png)
 

@@ -1,16 +1,16 @@
 ---
 - name: Dummy to gather facts
-  hosts: sys-admin-interface
+  hosts: sys_admin_interface
   tasks: []
 
 - name: Install virtual compute nodes
-  hosts: compute-vm
+  hosts: compute_vm
   tasks:
   roles:
     - slurm_client
 
 - name: Install user interface
-  hosts: user-interface
+  hosts: user_interface
   tasks:
   roles:
     - slurm_client
