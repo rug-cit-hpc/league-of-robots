@@ -20,7 +20,7 @@ nav:
     - 'Generate SSH key pair for Windows': 'generate-key-pair-mobaxterm.md'
     - 'Generate SSH key pair for macOS & Linux': 'generate-key-pair-openssh.md'
   - Logins:
-    - 'How to start a session': 'logins.md'
+    - 'Jumphosts, UIs and sessions': 'logins.md'
     - 'SSH client config for Windows': 'logins-windows.md'
     - 'SSH client config for macOS': 'logins-macos.md'
     - 'SSH client config for Linux': 'logins-linux.md'

@@ -215,4 +215,3 @@ Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + a
 -----
 
 Back to operating system independent [instructions for logins](../logins/)
-
