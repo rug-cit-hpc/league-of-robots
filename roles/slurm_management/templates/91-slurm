@@ -6,6 +6,6 @@
 #
 # Allow users from the {{ functional_admin_group }} group to become the slurm user.
 # The {{ functional_admin_group }} group must be listed in the Ansible variable functional_admin_group in
-# league-of-robots/group_vars/{{ slurm_cluster_name }}-cluster/vars.yml
+# league-of-robots/group_vars/{{ slurm_cluster_name }}_cluster/vars.yml
 #
 %{{ functional_admin_group }}    ALL=(slurm)    NOPASSWD:ALL
