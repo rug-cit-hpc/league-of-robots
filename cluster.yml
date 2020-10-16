@@ -93,7 +93,7 @@
 
 - name: 'C. Create LDAP account server.'
   hosts:
-    - ldap-server
+    - ldap_server
   roles:
     - role: openldap
       when:
@@ -111,7 +111,7 @@
 
 - name: 'E. Roles for SAIs.'
   hosts:
-    - sys-admin-interface
+    - sys_admin_interface
   roles:
     - mount_volume
     - slurm_management
@@ -126,14 +126,14 @@
     ip_node0: "{{ ansible_default_ipv4['address'] }}"
 
 - name: 'F. Roles for DAIs.'
-  hosts: deploy-admin-interface
+  hosts: deploy_admin_interface
   roles:
     - mount_volume
     - build_environment
     - envsync
 
 - name: 'G. Roles for UIs.'
-  hosts: user-interface
+  hosts: user_interface
   roles:
     - build_environment
     - slurm_exporter
@@ -144,7 +144,7 @@
       when: ega_fuse_client_mounts is defined and ega_fuse_client_mounts | length >= 1
 
 - name: 'H. Roles for compute nodes.'
-  hosts: compute-vm
+  hosts: compute_vm
   roles:
     - mount_volume
     - slurm_client

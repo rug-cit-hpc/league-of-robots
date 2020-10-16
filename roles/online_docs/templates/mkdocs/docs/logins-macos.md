@@ -48,7 +48,7 @@ The ```ssh-client-config-for-{{ slurm_cluster_name }}``` app will guide you thro
    (Just hit the \[ENTER\] key to use the default private key file path.)
  * Your SSH client will now be configured for logins to {{ slurm_cluster_name }} via the corresponding jumphost
    followed by a connection test: the script will try to login using the created config with the account you supplied and the ssh command  
-   ```ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```  
+   ```ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```  
    Make sure you are connected to the internet and hit the \[ENTER\] key on your keyboard to start the connection test.  
    ![Test SSH connection](img/ssh-client-config-macos-3.png)
  * If this was the first time you use your private key for an SSH session, you will get prompted to supply the password for your private key.  
@@ -66,17 +66,17 @@ Note: If you only need to transfer data and prefer a Graphical User Interface (G
 
 If you want to transfer data using the commandline or analyze data on the cluster using jobs:
 
- * You can now login to the _UI_ named ```{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` 
+ * You can now login to the _UI_ named ```{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` 
    with the account as specified in your ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}``` 
    via the _Jumphost_ named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}``` 
-   using the alias ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```. 
+   using the alias ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```. 
    Type the following command in a terminal:
 
-        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
  * In order to override the account name specified in your ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}``` you can use:
 
-        ssh some_other_account@{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+        ssh some_other_account@{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
  * If you also added the ```Host *+*+*``` code block from the example ```${HOME}/.ssh/config``` you can do tripple hops starting with a _Jumphost_ like this:
 
@@ -84,7 +84,7 @@ If you want to transfer data using the commandline or analyze data on the cluste
 
  * In case you are on a network where the default port for _SSH_ (22) is blocked by a firewall you can try to setup _SSH_ over port 443, which is the default for HTTPS and almost always allowed, using an alias like this:
 
-        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}443+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+        ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}443+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
 
 ## Frequent Asked Questions (FAQs) and trouble shooting
 
@@ -137,7 +137,7 @@ If you want to transfer data using the commandline or analyze data on the cluste
    
  * Q: Can I increase the verbosity to debug connection problems?  
    A: Yes try adding ```-vvv``` like this:  
-   ```ssh -vvv youraccount@{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```  
+   ```ssh -vvv youraccount@{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```  
    If that does not help to figure out what is wrong please [contact the helpdesk](../contact/) and
      * Do include:
         1. The command you used for your failed login attempt

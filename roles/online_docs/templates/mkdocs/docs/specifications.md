@@ -5,7 +5,7 @@
 
 Key ingredients of the High Performance Computing (HPC) environment of the {{ slurm_cluster_name | capitalize }} cluster
 
- * Linux OS: [CentOS](https://www.centos.org/) {{ hostvars[groups['user-interface'][0]]['ansible_distribution_version'] }} with [Spacewalk](https://spacewalkproject.github.io/) for package distribution/management.
+ * Linux OS: [CentOS](https://www.centos.org/) {{ hostvars[groups['user_interface'][0]]['ansible_distribution_version'] }} with [Spacewalk](https://spacewalkproject.github.io/) for package distribution/management.
  * Job scheduling: [Slurm Workload Manager](https://slurm.schedmd.com/) {{ slurm_version.stdout }}
  * Module system: [Lmod](https://github.com/TACC/Lmod) {{ lmod_version.stdout }}
  * Deployment of (Bioinformatics) software: [EasyBuild](https://github.com/easybuilders/easybuild)
@@ -13,10 +13,10 @@ Key ingredients of the High Performance Computing (HPC) environment of the {{ sl
 ## Virtual Servers
 
  * Jumphosts: _{% for server in groups['jumphost'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
- * User Interfaces (UIs): _{% for server in groups['user-interface'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
- * Deploy Admin Interfaces (DAIs): _{% for server in groups['deploy-admin-interface'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
- * Sys Admin Interfaces (SAIs): _{% for server in groups['sys-admin-interface'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
- * Compute Nodes: _{% for server in groups['compute-vm'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
+ * User Interfaces (UIs): _{% for server in groups['user_interface'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
+ * Deploy Admin Interfaces (DAIs): _{% for server in groups['deploy_admin_interface'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
+ * Sys Admin Interfaces (SAIs): _{% for server in groups['sys_admin_interface'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
+ * Compute Nodes: _{% for server in groups['compute_vm'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
 
 ## Shared Storage
 

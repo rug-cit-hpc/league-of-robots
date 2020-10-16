@@ -39,7 +39,7 @@
   delegate_facts: true
   with_items:
     - "{{ groups['jumphost'] }}"
-    - "{{ groups['user-interface'] }}"
+    - "{{ groups['user_interface'] }}"
 
 - name: 'Get Slurm version from scontrol on UI.'
   shell:
@@ -51,7 +51,7 @@
     warn: no
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
-  delegate_to: "{{ groups['user-interface'] | first }}"
+  delegate_to: "{{ groups['user_interface'] | first }}"
   changed_when: false
   failed_when: false
   check_mode: no
@@ -74,7 +74,7 @@
     warn: no
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
-  delegate_to: "{{ groups['user-interface'] | first }}"
+  delegate_to: "{{ groups['user_interface'] | first }}"
   changed_when: false
   failed_when: false
   check_mode: no

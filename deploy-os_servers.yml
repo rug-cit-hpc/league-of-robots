@@ -1,6 +1,6 @@
 ---
 - name: Deploying headnode.
-  hosts: user-interface 
+  hosts: user_interface 
   connection: local
   tasks:
 ##############################################################################
@@ -13,7 +13,7 @@
       name: Get headnode name.
       headnode_name: "{{ item }}"
     with_items:
-      - "{{ groups['user-interface'] }}"
+      - "{{ groups['user_interface'] }}"
 
   - name: create persistent data volume for headnode
     os_volume:
@@ -59,11 +59,11 @@
       public_ip: "{{ headnode_vm.openstack.accessIPv4 }}"
       
 ##############################################################################
-# Configure vnode from inventory group 'compute-vm' using Openstack API.
+# Configure vnode from inventory group 'compute_vm' using Openstack API.
 ##############################################################################
 - name: Deploying vcompute nodes.
   hosts: 
-    - compute-vm
+    - compute_vm
   connection: local
   tasks:
   - name: create persistent data volume for vcompute nodes.
@@ -75,7 +75,7 @@
 
 - name: Create vcompute instance
   hosts: 
-    - user-interface
+    - user_interface
   connection: local
   tasks:
   - name: Create instance
@@ -93,7 +93,7 @@
       availability_zone: '{{ availability_zone }}'
     register: vcompute_vm
     with_items:
-      - "{{ groups['compute-vm'] }}"
+      - "{{ groups['compute_vm'] }}"
  
   - name: add node to inventory
     add_host:
@@ -107,7 +107,7 @@
 - name: attach vcompute data volume
   connection: local
   hosts: 
-    - compute-vm
+    - compute_vm
   tasks:
   - name: attach vcompute data volume
     os_server_volume:
@@ -125,8 +125,8 @@
       state: present
       availability_zone: '{{ storage_availability_zone }}'
     with_items:
-      - "{{ groups['deploy-admin-interface'] }}"
-      - "{{ groups['sys-admin-interface'] }}"
+      - "{{ groups['deploy_admin_interface'] }}"
+      - "{{ groups['sys_admin_interface'] }}"
       - "{{ groups['jumphost'] }}"
 
   - name: Create managment instance
@@ -144,8 +144,8 @@
       availability_zone: '{{ availability_zone }}'
     register: managment_vm
     with_items:
-      - "{{ groups['deploy-admin-interface'] }}"
-      - "{{ groups['sys-admin-interface'] }}"
+      - "{{ groups['deploy_admin_interface'] }}"
+      - "{{ groups['sys_admin_interface'] }}"
       - "{{ groups['jumphost'] }}"
 
   - name: attach managment data volume
@@ -153,8 +153,8 @@
       server: "{{ item }}"
       volume: "{{ item }}-volume"
     with_items:
-      - "{{ groups['deploy-admin-interface'] }}"
-      - "{{ groups['sys-admin-interface'] }}"
+      - "{{ groups['deploy_admin_interface'] }}"
+      - "{{ groups['sys_admin_interface'] }}"
       - "{{ groups['jumphost'] }}"
 
   - name: add node to inventory
@@ -172,7 +172,7 @@
 
 - name: List private ip addresses for roles/static_hostname_lookup/templates/{cluster}_hosts
   hosts: 
-    - user-interface
+    - user_interface
   become: true
   gather_facts: false
   tasks:
