@@ -42,7 +42,7 @@ make changes to the copy, save them and transfer the updated file to the server.
    ![Launch mount-cluster-drives.app](img/mount-cluster-drives-0d.png)  
    Select _**Open**_ to continue. 
    (If you started the app by double clicking as opposed to choosing _Open_ from the contextual pop-up menu, 
-   the window will look similar, but will lack to _Open_ button allowing you only only to _Cancel_ or _Move to Bin_)
+   the window will look similar, but will lack the _Open_ button allowing you only to _Cancel_ or _Move to Bin_)
  * Depending on your macOS version, you may receive a pop-up requesting permission to allow access to the ```Finder``` application:  
    ![Allow access to the Finder.app](img/mount-cluster-drives-1.png)  
    Click _Ok_ to allow access to the ```Finder```.  
