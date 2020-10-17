@@ -511,9 +511,9 @@ done
 
 touch ${SLURM_SUBMIT_DIR}/checkENV-${SLURMD_NODENAME}-${SLURM_JOB_USER}-${SLURM_JOB_ID}.finished
 ```
-To submit this script to a specific node like for example _{{ groups['compute-vm'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_ and with QoS _priority_ for quick debugging:
+To submit this script to a specific node like for example _{{ groups['compute_vm'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_ and with QoS _priority_ for quick debugging:
 ```
-sbatch --nodelist={{ groups['compute-vm'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} --qos=priority CheckEnvironment.sh
+sbatch --nodelist={{ groups['compute_vm'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} --qos=priority CheckEnvironment.sh
 ```
 
 This script can be supplemented with for example ```ls``` and ```df``` commands to see if certain paths exist, what their permissions are and which filesystems are mounted. 

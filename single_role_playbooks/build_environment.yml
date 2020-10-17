@@ -1,7 +1,7 @@
 ---
 - hosts:
-    - deploy-admin-interface
-    - user-interface
+    - deploy_admin_interface
+    - user_interface
   roles:
     - build_environment
 ...

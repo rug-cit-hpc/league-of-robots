@@ -215,6 +215,6 @@ lfs_mounts: [
     groups: ['umcg-atd', 'solve-rd'] },
   { lfs: 'env10',
     pfs: 'ecst02',
-    machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
+    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
 ]
 ...

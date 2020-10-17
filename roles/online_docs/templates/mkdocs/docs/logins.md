@@ -6,7 +6,7 @@
 ![logins always via jumphost](img/logins.svg)
 
 To submit jobs, check their status, test scripts, etc. you need to login on a _**User Interface (UI)**_ server using SSH.
-Each cluster has its own _**UI**_ and the one for the {{ slurm_cluster_name | capitalize }} HPC cluster is named _**{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_.
+Each cluster has its own _**UI**_ and the one for the {{ slurm_cluster_name | capitalize }} HPC cluster is named _**{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}**_.
 The UI and various other servers that make up the cluster receive updates during scheduled maintenance, 
 but as this disrupts the processing of jobs, scheduled maintenance is planned only ~twice a year.
 

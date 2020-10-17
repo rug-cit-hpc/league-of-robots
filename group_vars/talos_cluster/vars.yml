@@ -123,7 +123,7 @@ lfs_mounts: [
     groups: ['umcg-atd', 'umcg-gcc', 'umcg-lifelines'] },
   { lfs: 'env08',
     pfs: 'umcgst11',
-    machines: "{{ groups['compute-vm'] + groups['user-interface'] }}" },
+    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
 ]
 iptables_allow_icmp_inbound:
   - 'umcg_net1'

@@ -17,7 +17,7 @@ firewall_allowed_tcp_ports:
 # Local group specs.
 # Note:
 #  *  all local groups are listed here.
-#  * In ../[name]-cluster/vars.yml we list which groups are created locally on which cluster.
+#  * In ../[name]_cluster/vars.yml we list which groups are created locally on which cluster.
 #  * Never ever change nor recycle a GID value here unless you are in for a surprise...
 #
 auth_groups:
