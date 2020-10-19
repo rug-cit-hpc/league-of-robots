@@ -14,7 +14,6 @@ Note: If you only need to transfer data and prefer a Graphical User Interface (G
 If you want to transfer data using the commandline or analyze data on the cluster using jobs:
 
  * You can login to the _UI_ named ```{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}``` 
->>>>>>> d9c571a426d242fc83e25bcd9eba5901511cdaff:roles/online_docs/templates/mkdocs/docs/logins-macos.md
    with the account as specified in your ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}``` 
    via the _Jumphost_ named ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}``` 
    using the alias ```{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```. 
