@@ -48,7 +48,7 @@ The ```ssh-client-config-for-{{ slurm_cluster_name }}``` app will guide you thro
    (Just hit the \[ENTER\] key to use the default private key file path.)
  * Your SSH client will now be configured for logins to {{ slurm_cluster_name }} via the corresponding jumphost
    followed by a connection test: the script will try to login using the created config with the account you supplied and the ssh command  
-   ```ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user-interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```  
+   ```ssh {{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}+{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}```  
    Make sure you are connected to the internet and hit the \[ENTER\] key on your keyboard to start the connection test.  
    ![Test SSH connection](img/ssh-client-config-macos-3.png)
  * If this was the first time you use your private key for an SSH session, you will get prompted to supply the password for your private key.  
