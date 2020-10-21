@@ -93,6 +93,9 @@ regular_users:
     groups: ['users', 'umcg-atd']
   - user: 'solve-rd-dm'
     groups: ['users', 'solve-rd']
+#
+# Shared storage related variables
+#
 pfs_mounts: [
   { pfs: 'nfs',
     source: 'nb-nfs:',

@@ -52,9 +52,6 @@ private_storage_net_id: net_provider_vlan3126
 private_storage_subnet_id: subnet3126
 security_group_id: SSH-and-ping-2
 slurm_ldap: true
-ega_fuse_client_mounts:
-  solve_rd: '/groups/solve-rd/prm09/ega-fuse-client'
-ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
 availability_zone: AZ_1
 storage_availability_zone: nova
 local_volume_size: 1
@@ -102,6 +99,9 @@ regular_users:
     groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
   - user: 'rkanninga'
     groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+#
+# Shared storage related variables
+#
 pfs_mounts: [
   { pfs: 'ecst01',
     source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD',
@@ -123,6 +123,9 @@ lfs_mounts: [
     pfs: 'ecst01',
     machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
 ]
+ega_fuse_client_mounts:
+  solve_rd: '/groups/solve-rd/prm09/ega-fuse-client'
+ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
 interfaces:
   - device: 'eth0'
     bootproto: 'dhcp'

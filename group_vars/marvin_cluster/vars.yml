@@ -127,6 +127,9 @@ regular_users:
   - user: 'ern-liver-dm'
     groups: ['users', 'ern-liver']
     sudoers: '%ern-liver'
+#
+# Shared storage related variables
+#
 pfs_mounts: [
   { pfs: 'ecst01',
     source: '',
