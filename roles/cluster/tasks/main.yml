@@ -60,11 +60,6 @@
   check_mode: no
   register: rsync_version_managed_host
 
-- name: Abort when modern rsync >= 3.1.2 is missing on the managed hosts.
-  debug:
-    msg: "FATAL: Need rsync >= 3.1.2 on {{ inventory_hostname }}, but detected {{ rsync_version.stdout }}."
-  when:        'rsync_version_managed_host is failed or (rsync_version_managed_host.stdout is version_compare("3.1.2", operator="<"))'
-  failed_when: 'rsync_version_managed_host is failed or (rsync_version_managed_host.stdout is version_compare("3.1.2", operator="<"))'
 
 - name: Check if rsync >= 3.1.2 is installed on the control host.
   shell:
@@ -80,12 +75,6 @@
   register: rsync_version_control_host
   delegate_to: localhost
 
-- name: Abort when modern rsync >= 3.1.2 is missing on control host.
-  debug:
-    msg: "FATAL: Need rsync >= 3.1.2 on {{ inventory_hostname }}, but detected {{ rsync_version.stdout }}."
-  when:        'rsync_version_control_host is failed or (rsync_version_control_host.stdout is version_compare("3.1.2", operator="<"))'
-  failed_when: 'rsync_version_control_host is failed or (rsync_version_control_host.stdout is version_compare("3.1.2", operator="<"))'
-  delegate_to: localhost
 
 - name: Add custom config files to /etc/skel/.
   synchronize:
