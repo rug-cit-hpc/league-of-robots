@@ -17,15 +17,6 @@ motd: |
           This does not affect prm03 group folders,
           which are on a different (production) storage system.
       =========================================================
-      Scheduled maintenance 2020-10-26 - 2020-10-29:
-      =========================================================
-          {{ slurm_cluster_name | capitalize }} cluster completely offline
-          due to major upgrade including redeployment
-          of all servers from scratch.
-          We do NOT plan to reformat the file system hosting
-          home dirs and tmp01 dirs, but tmp=tmp,
-          so if it does break it's gone.
-      =========================================================
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
 vcompute_sockets: 4
 vcompute_cores_per_socket: 1
