@@ -376,7 +376,8 @@ Host *+*+*
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}+* {% endfor %}{% raw %}{% endraw %}
     User ${_user}
-    ProxyCommand ssh -x -q -i "${_private_key_file}" %r@\$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p
+    IdentityFile "${_private_key_file}"
+    ProxyCommand ssh -x -q -i "${_private_key_file}" $(echo "${AI_PROXY_USER:-%r}")@\$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p
 #
 # Sometimes port 22 for the SSH protocol is blocked by firewalls; in that case you can try to use SSH on port 443 as fall-back.
 # Do not use port 443 by default for SSH as it is officially assigned to HTTPS traffic
@@ -384,7 +385,8 @@ Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + a
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}443+* {% endfor %}{% raw %}{% endraw %}
     User ${_user}
-    ProxyCommand ssh -x -q -i "${_private_key_file}" %r@\$(echo %h | sed 's/443+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p -p 443
+    IdentityFile "${_private_key_file}"
+    ProxyCommand ssh -x -q -i "${_private_key_file}" $(echo "${AI_PROXY_USER:-%r}")@\$(echo %h | sed 's/443+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p -p 443
 
 EOF
 }
