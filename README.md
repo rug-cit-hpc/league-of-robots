@@ -241,7 +241,7 @@ Once configured correctly you should be able to do a multi-hop SSH via the jumph
   ```
 * For login with a different account on the jumphost:
   ```
-  export AI_PROXY_USER='user_on_jumphost'
+  export JUMPHOST_USER='user_on_jumphost'
   ssh user_on_destination@jumphost+destination
   ```
 
@@ -271,14 +271,14 @@ Once configured correctly you should be able to do a multi-hop SSH via the jumph
   ansible-playbook -i inventory.py -u [admin_account] -l 'jumphost' cluster.yml
   ```
 * Secondly, deploy the rest of the machines in the same order.
-  For creation of the local admin accounts you must (temporarily) set ```AI_PROXY_USER``` for the jumphost to _your local admin account_,
+  For creation of the local admin accounts you must (temporarily) set ```JUMPHOST_USER``` for the jumphost to _your local admin account_,
   because the ```centos``` user will no longer be able to login to the jumphost.
   ```bash
   export ANSIBLE_HOST_KEY_CHECKING=False
-  export AI_PROXY_USER=[admin_account] # Requires SSH client config as per end user documentation: see above.
+  export JUMPHOST_USER=[admin_account] # Requires SSH client config as per end user documentation: see above.
   ansible-playbook -i inventory.py -u centos          -l 'cluster'      single_role_playbooks/admin_users.yml
   ansible-playbook -i inventory.py -u root            -l 'docs'         single_role_playbooks/admin_users.yml
-  unset AI_PROXY_USER
+  unset JUMPHOST_USER
   ansible-playbook -i inventory.py -u [admin_account] -l 'cluster,docs' single_role_playbooks/ssh_host_signer.yml
   export ANSIBLE_HOST_KEY_CHECKING=True
   ansible-playbook -i inventory.py -u [admin_account] -l 'cluster,docs' cluster.yml

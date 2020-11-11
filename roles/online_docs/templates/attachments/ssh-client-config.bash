@@ -370,23 +370,19 @@ Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + a
 # Universal jumphost settings for triple-hop SSH.
 #
 Host *+*+*
-    ProxyCommand ssh -x -q -i "${_private_key_file}" $(echo %h | sed 's/+[^+]*$//') -W $(echo %h | sed 's/^[^+]*+[^+]*+//'):%p
+    ProxyCommand ssh -x -q \$(echo %h | sed 's/+[^+]*$//') -W \$(echo %h | sed 's/^[^+]*+[^+]*+//'):%p
 #
 # Double-hop SSH settings to connect via specific jumphosts.
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}+* {% endfor %}{% raw %}{% endraw %}
-    User ${_user}
-    IdentityFile "${_private_key_file}"
-    ProxyCommand ssh -x -q -i "${_private_key_file}" $(echo "${AI_PROXY_USER:-%r}")@\$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p
+    ProxyCommand ssh -x -q \$(echo "\${JUMPHOST_USER:-%r}")@\$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p
 #
 # Sometimes port 22 for the SSH protocol is blocked by firewalls; in that case you can try to use SSH on port 443 as fall-back.
 # Do not use port 443 by default for SSH as it is officially assigned to HTTPS traffic
 # and some firewalls will cause problems with SSH traffic over port 443.
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}443+* {% endfor %}{% raw %}{% endraw %}
-    User ${_user}
-    IdentityFile "${_private_key_file}"
-    ProxyCommand ssh -x -q -i "${_private_key_file}" $(echo "${AI_PROXY_USER:-%r}")@\$(echo %h | sed 's/443+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p -p 443
+    ProxyCommand ssh -x -q \$(echo "\${JUMPHOST_USER:-%r}")@\$(echo %h | sed 's/443+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p -p 443
 
 EOF
 }
