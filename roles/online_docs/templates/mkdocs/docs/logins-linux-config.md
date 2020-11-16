@@ -60,8 +60,11 @@ otherwise the _Include_ will only apply to a specific set of hosts.
 ## 4. Create SSH config file for {{ slurm_cluster_name | capitalize }}
 
 Now we need to configure transparent multi-hop SSH for {{ slurm_cluster_name | capitalize }}.
-Open your ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}``` file in a text editor and add the lines below 
-replacing all occurrences of _**youraccount**_ with the account name you received from the helpdesk.
+Open your ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}``` file in a text editor and add the lines below.
+
+* Replace all occurrences of _**youraccount**_ with the account name you received from the helpdesk.
+* Edit the line ```IdentityFile "~/.ssh/id_ed25519"``` to point to the private key file you generated if you did not save it in the default location, which is "~/.ssh/id_ed25519".
+
 ```
 #
 # Generic stuff: only for macOS clients.
@@ -88,6 +91,7 @@ Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + a
     # Do not use password based authentication as fallback,
     # which may be confusing and won't work anyway.
     #
+    IdentityFile "~/.ssh/id_ed25519"
     PasswordAuthentication No
     #
     # Multiplex connections to
@@ -126,16 +130,14 @@ Host *+*+*
 # Double-hop SSH settings to connect via Jumphosts{% if slurm_cluster_domain | length %}{{ slurm_cluster_domain }}{% endif %}.
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}+* {% endfor %}{% raw %}{% endraw %}
-    User youraccount
-    ProxyCommand ssh -x -q %r@$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p
+    ProxyCommand ssh -x -q $(echo "${JUMPHOST_USER:-%r}")@$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p
 #
 # Sometimes port 22 for the SSH protocol is blocked by firewalls; in that case you can try to use SSH on port 443 as fall-back.
 # Do not use port 443 by default for SSH as it officially assigned to HTTPS traffic
 # and some firewalls will cause problems when trying to route SSH over port 443.
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}443+* {% endfor %}{% raw %}{% endraw %}
-    User youraccount
-    ProxyCommand ssh -x -q %r@$(echo %h | sed 's/443+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 443
+    ProxyCommand ssh -x -q $(echo "${JUMPHOST_USER:-%r}")@$(echo %h | sed 's/443+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 443
 ```
 
 ## 5. Login

@@ -245,6 +245,7 @@
       dest: 'mount-cluster-drives.app'
   notify:
     - 'zip_attachments'
+    - 'build_mkdocs'
   become: true
 
 - name: 'Make sure main script of AppleScript apps are executable.'
@@ -259,6 +260,7 @@
     - 'mount-cluster-drives.app'
   notify:
     - 'zip_attachments'
+    - 'build_mkdocs'
   become: true
 
 - name: 'Create files for attachments based on templates.'
@@ -284,6 +286,7 @@
       mode: '0750'
   notify:
     - 'zip_attachments'
+    - 'build_mkdocs'
   become: true
 
 - name: 'Create MarkDown files based on templates.'
