@@ -175,12 +175,9 @@ TRAPEXIT() {
 	local _exit_signal="${?}"
 	if [[ "${_exit_signal}" -ne 0 ]]; then
 		trapHandler 'EXIT' "${LINENO}" "${FUNCNAME[0]:-main}" "${?}"
-	else
-		log4Zsh 'WARN' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Ignoring exit zero."
 	fi
-	printf '%s' "DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
 }
-TRAPERR() {
+TRAPZERR() {
 	trapHandler 'ERR' "${LINENO}" "${FUNCNAME[0]:-main}" "${?}"
 }
 
@@ -192,14 +189,26 @@ function setIisilonDirectoryQuota () {
 	local _soft_limit="${2}"
 	local _hard_limit="${3}"
 	local _grace_period="${4}"
+	local _quota_stats
+	local _quota_cmd
+	#
+	# Check if dir already has quota limits
+	# and hence if we need to create new or modify existing limits.
+	#
+	_quota_stats="$(isi quota quotas list --no-header --no-footer --format table --path "${_path}")"
+	if [[ -z "${_quota_stats:-}" ]]; then
+		_quota_cmd='create'
+	else
+		_quota_cmd='modify'
+	fi
 	if [[ "${apply_settings}" -eq 1 ]]; then
-		log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Running 'isi quota quotas create' for ${_path} with limits soft=${_soft_limit}, hard=${_hard_limit} and grace=${_grace_period} ..."
-		isi quota quotas create "${_path}" directory --enforced=true --container=true \
+		log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Running 'isi quota quotas ${_quota_cmd}' for ${_path} with limits soft=${_soft_limit}, hard=${_hard_limit} and grace=${_grace_period} ..."
+		isi quota quotas "${_quota_cmd}" "${_path}" directory --enforced=true --container=true \
 			--soft-threshold="${_soft_limit}" \
 			--hard-threshold="${_hard_limit}" \
 			--soft-grace="${_grace_period}"
 	else
-		log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Dry run: compiled 'isi quota quotas create' command for ${_path} with limits soft=${_soft_limit}, hard=${_hard_limit} and grace=${_grace_period}."
+		log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Dry run: compiled 'isi quota quotas ${_quota_cmd}' command for ${_path} with limits soft=${_soft_limit}, hard=${_hard_limit} and grace=${_grace_period}."
 	fi
 }
 
@@ -250,6 +259,7 @@ log4Zsh 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Search for PFS-ses in ${
 if [[ "${#pfss[@]}" -eq 0 ]]; then
 	log4Zsh 'FATAL' "${LINENO}" "${FUNCNAME[0]:-main}" '1' "No PFS-ses starting with prefix ${pfs_name_prefix} found in ${pfs_base_path}."
 else
+	echo "Found ${#pfss[@]} PFS-ses: ${pfss[@]}, dusz"
 	log4Zsh 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Found ${#pfss[@]} PFS-ses starting with prefix ${pfs_name_prefix} found in ${pfs_base_path}."
 fi
 #
