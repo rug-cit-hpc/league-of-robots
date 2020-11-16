@@ -109,7 +109,7 @@ The vault passwd is used to encrypt/decrypt the ```secrets.yml``` file per clust
 which will be created in the next step if you do not already have one.
 In addition a second vault passwd is used for various files in ```group_vars/all/``` and which contain settings that are the same for all clusters.
 If you have multiple HPC clusters with their own vault passwd you will have multiple vault password files. 
-The pattern ```.vault*``` is part of ```.gitignore```, so if put the vault passwd files in the ```.vault/``` subdir,
+The pattern ```.vault*``` is part of ```.gitignore```, so if you put the vault passwd files in the ```.vault/``` subdir,
 they will not accidentally get committed to the repo.
 
 * To generate a new Ansible vault password and put it in ```.vault/vault_pass.txt.[name-of-the-cluster|all]```, use the following oneliner:
@@ -215,7 +215,7 @@ Note that:
   and admin accounts must **not** depend on a ```~/.ssh/authorized_keys``` from an external storage system.
 * The default ```centos``` account will become useless after the first steps of the playbook have been deployed,
   because its home dir with ```~/.ssh/authorized_keys```is located in /home,
-  which will vanishes when we mount homes from shared storage.
+  which will vanish when we mount homes from shared storage.
   Changing the location of the default ```centos``` account is not trivial and can result in a situation where you lock yourself out.
 
 Therefore the first step is to create additional local admin accounts:
@@ -234,7 +234,7 @@ The templates for the documentation are located in this repo at:
 [roles/online_docs/templates/mkdocs/docs/](roles/online_docs/templates/mkdocs/docs/)  
 Deployed docs can currently be found at:  
 [http://docs.gcc.rug.nl/](http://docs.gcc.rug.nl/)  
-Once configured correctly you should be able to do a multi-hop SSH via the jumphost to destination using an aliases like this:
+Once configured correctly you should be able to do a multi-hop SSH via a jumphost to a destination server using aliases like this:
 * For login with the same account on both jumphost and destination:
   ```
   ssh user@jumphost+destination
