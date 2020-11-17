@@ -29,17 +29,17 @@ additional_etc_hosts: |
   172.23.40.30       gs-compute10        gs-compute10.hpc.local
   172.23.40.31       gs-compute11        gs-compute11.hpc.local
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-10]"
-vcompute_sockets: 24
-vcompute_cores_per_socket: 1
-vcompute_real_memory: 221501
+vcompute_sockets: 2
+vcompute_cores_per_socket: 12
+vcompute_real_memory: 241659
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 2800000
 vcompute_features: 'tmp01'
 vcompute_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
-  - 'eth2'
+  - 'vlan983'
+  - 'vlan985.isilon'
+  - 'vlan985.lustre'
 ui_hostnames: "{{ slurm_cluster_name }}"
 ui_sockets: 2
 ui_cores_per_socket: 12
@@ -47,8 +47,8 @@ ui_real_memory: 221500
 ui_local_disk: 0
 ui_features: 'prm03,tmp01'
 ui_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
+  - 'vlan983'
+  - 'vlan985.isilon'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-ca"
 use_ldap: yes
 create_ldap: no
