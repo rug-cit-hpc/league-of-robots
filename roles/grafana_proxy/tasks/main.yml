@@ -25,7 +25,7 @@
 - name: copy certificate and chain files in place
   copy:
     src: "tls/{{ item }}"
-    dest: /etc/certificates/live/{{ item }}
+    dest: /etc/certificates/live/airlock.hpc.rug.nl/{{ item }}
     owner: root
     group: root
     mode: '0644'
