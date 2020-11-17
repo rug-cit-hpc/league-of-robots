@@ -68,6 +68,9 @@ nameservers: [
   '8.8.4.4',       # Google DNS.
   '8.8.8.8',       # Google DNS.
 ]
+nameserver_domain_overrides:
+  - domain: hpc.local
+    nameserver: 172.23.40.244
 local_admin_groups:
   - 'admin'
   - 'docker'
