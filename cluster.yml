@@ -82,6 +82,7 @@
     - admin_users
     - ssh_host_signer
     - ssh_known_hosts
+    - swap
     - spacewalk_client
     - logins
     - figlet_motd
