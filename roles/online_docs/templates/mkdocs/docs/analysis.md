@@ -478,40 +478,84 @@ A: The environment available to your jobs on execution hosts is similar but not 
 set -e
 set -u
 
-echo 'Complete job environment:'
 echo '=========================================================================='
+echo 'Complete job environment:'
+echo '--------------------------------------------------------------------------'
 printenv
 echo '=========================================================================='
+echo '#'
+echo '##'
+echo '#'
+echo '=========================================================================='
+echo 'Module system version:'
+echo '--------------------------------------------------------------------------'
 module --version 2>&1
 echo '=========================================================================='
-module av
+echo '#'
+echo '##'
+echo '#'
 echo '=========================================================================='
+echo 'Available and loaded modules:'
+echo '--------------------------------------------------------------------------'
+module av
+echo '--------------------------------------------------------------------------'
 module list 2>&1
 echo '=========================================================================='
-module load cluster-utils
+echo '#'
+echo '##'
+echo '#'
 echo '=========================================================================='
+echo 'Try to load cluster-utils module:'
+echo '--------------------------------------------------------------------------'
+echo 'Loading cluster-utils module ... '
+module load cluster-utils
+echo '--------------------------------------------------------------------------'
 module list
 echo '=========================================================================='
-cd ${TMPDIR:-}
-echo -n "Local scratch dir for job ${SLURM_JOB_ID}: "; pwd
+echo '#'
+echo '##'
+echo '#'
 echo '=========================================================================='
-echo 'Local scratch dir contains:'
+echo 'Checking local scratch dir ${TMPDIR} for job ${SLURM_JOB_ID}:'
+echo '--------------------------------------------------------------------------'
+echo -n "TMPDIR for job ${SLURM_JOB_ID} is: "
+cd "${TMPDIR:-}"
+pwd
+echo '--------------------------------------------------------------------------'
+echo 'TMPDIR contains:'
+ls -ahl "${TMPDIR:-}"
 echo '=========================================================================='
-ls -ahl
+echo '#'
+echo '##'
+echo '#'
 echo '=========================================================================='
-
-#
-# Let's produce some CPU load, so it will popup in job stats.
-#
+echo 'Checking if swap space is defined on this host:'
+echo '--------------------------------------------------------------------------'
+if [[ $(free | grep -i Swap | awk '{print $2}') -eq 0 ]]; then
+    echo "ERROR: $(hostname) lacks swap space."
+    exit 1
+else
+    echo "INFO: $(hostname) has swap space ($(free -m | grep -i Swap | awk '{print $2}') MB)."
+fi
+echo '=========================================================================='
+echo '#'
+echo '##'
+echo '#'
+echo '=========================================================================='
+echo -n 'Generating some CPU load, so it will popup in job stats ...'
 seconds=10
 endtime=$(($(date +%s) + ${seconds}))
 while [ $(date +%s) -lt ${endtime} ]; do
+    echo '.'
     head -10000000 /dev/urandom | md5sum > /dev/null
 done
+echo '=========================================================================='
 
 touch ${SLURM_SUBMIT_DIR}/checkENV-${SLURMD_NODENAME}-${SLURM_JOB_USER}-${SLURM_JOB_ID}.finished
 ```
+
 To submit this script to a specific node like for example _{{ groups['compute_vm'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_ and with QoS _priority_ for quick debugging:
+
 ```
 sbatch --nodelist={{ groups['compute_vm'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} --qos=priority CheckEnvironment.sh
 ```
