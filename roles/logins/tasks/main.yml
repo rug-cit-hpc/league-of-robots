@@ -6,7 +6,7 @@
     # Need DBus 1.11.10 for a fix, but CentOS 7.6 is stuck on dbus 1.10.24.
     #
     name: 'Restart systemd-logind'
-    minute: '/10'
+    minute: '*/10'
     user: root
     job: '/bin/systemctl restart systemd-logind'
     cron_file: restart_logind
