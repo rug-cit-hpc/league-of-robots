@@ -54,7 +54,7 @@
         mode: "{{ mode_version }}"
         state: 'directory'
       with_items: "{{ versioned_subgroups_list }}"
-      ignore_errors: yes # Continue of this specific subgroup failed and try to create other subgroup folders.
+      ignore_errors: yes # Continue if this specific subgroup failed and try to create other subgroup folders.
   when: versioned_subgroups_list | length > 0
   become: true
   become_user: "{{ group }}-dm"
@@ -76,7 +76,7 @@
         mode: "{{ mode_project }}"
         state: 'directory'
       with_items: "{{ unversioned_subgroups_list }}"
-      ignore_errors: yes # Continue of this specific subgroup failed and try to create other subgroup folders.
+      ignore_errors: yes # Continue if this specific subgroup failed and try to create other subgroup folders.
   when: unversioned_subgroups_list | length > 0
   become: true
   become_user: "{{ group }}-dm"
