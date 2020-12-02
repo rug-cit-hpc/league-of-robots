@@ -4,6 +4,8 @@ slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'tl'
 slurm_version: '18.08.8-1.el7.umcg'
 slurm_allow_jobs_to_span_nodes: true
+rhn_channels:
+  - umcg2020
 mailhub: '172.23.34.34'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'ogre'
