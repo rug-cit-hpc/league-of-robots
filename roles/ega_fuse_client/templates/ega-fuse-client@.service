@@ -1,5 +1,8 @@
 [Unit]
 Description=EGA Fuse Client for %I mount.
+RequiresMountsFor={{ ega_fuse_client_java_home }}
+After=remote-fs.target
+Requires=remote-fs.target
 
 [Service]
 TimeoutStartSec=0
