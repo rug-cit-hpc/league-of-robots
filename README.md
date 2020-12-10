@@ -30,6 +30,27 @@ E.g. ```19.01.1``` is the first release in January 2019.
 
 We follow the [Python PEP8 naming conventions](https://www.python.org/dev/peps/pep-0008/#naming-conventions) for variable names, function names, etc.
 
+#### Ansible & environment patches
+
+Various parts of the Ansible playbook use rsync to copy data to the target host.
+Unfortunately the Ansible rsync wrapper module contains a few bugs.
+These bugs must be patched on the control host:
+
+ - [Bugfix for bug #17492 "Do not prepend PWD when path is in form user@server:path or server:path"](https://github.com/ansible-collections/ansible.posix/pull/118)
+ - [Bugfix for bug #24365 "Do not disable SSH connection sharing"](https://github.com/ansible/ansible/pull/41332)
+ - Both bugs are in a file named ```synchronize.py```, but one is a _module_ and the other is an _action_ with the same name.
+ - On macOS with Ansible installed using HomeBrew you will find these files in:  
+   For Ansible <= 2.9.x:  
+   ```
+   /usr/local/Cellar/ansible/${ansible_version}/libexec/lib/python*/site-packages/ansible/modules/files/synchronize.py
+   /usr/local/Cellar/ansible/${ansible_version}/libexec/lib/python*/site-packages/ansible/modules/files/synchronize.py
+   ```
+   For Ansible >= 2.10.x:  
+   ```
+   /usr/local/Cellar/ansible/${ansible_version}/libexec/lib/python*/site-packages/ansible_collections/ansible/posix/plugins/action/synchronize.py
+   /usr/local/Cellar/ansible/${ansible_version}/libexec/lib/python*/site-packages/ansible_collections/ansible/posix/plugins/modules/synchronize.py
+   ```
+
 ## Clusters
 
 This repo currently contains code and configs for the following clusters:
