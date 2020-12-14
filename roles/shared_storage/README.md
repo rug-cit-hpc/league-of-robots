@@ -15,12 +15,19 @@ This role mounts parts of shared storage systems (shares a.k.a. exports) on vari
    * Without backups.
    * with automagic cleanup of old data.
    * By design mounted on both _User Interface (UI)_ and _compute nodes_ of an HPC cluster.
+ * **rsc[0-9]{2}**: An _LFS_ for **r**ead-only **s**torage **c**ache:
+   * On a file system optimized for High Performance (HP) where possible.
+   * Without backups.
+   * Without automagic cleanup of old data.
+   * By design mounted
+     * read-write on the _User Interface (UI)_ servers of an HPC cluster with write permissions limited to data managers.
+     * read-only on compute nodes.
  * **prm[0-9]{2}**: An _LFS_ for **p**e**rm**anent data:
    * On a file system optimized for High Availability (HA) where possible.
    * With backups.
    * Without automagic cleanup of old data.
    * By design only mounted on the _User Interface (UI)_ servers of an HPC cluster.
-     In order to crunch data from a _prm_ _LFS_ it must be staged to a _tmp_ _LFS_ first.
+     In order to crunch data from a _prm_ _LFS_ it must be staged to a _tmp_ or _rsc_ _LFS_ first.
  * **apps**: An _LFS_ for the original of the shared environment (software, modules, reference data).
    * By design mounted read-write and only on the _Deploy Admin Interface (DAI)_ in **/apps**.
    * Preferably on a local file system and not on shared storage as the latter is known to be horribly slow 
