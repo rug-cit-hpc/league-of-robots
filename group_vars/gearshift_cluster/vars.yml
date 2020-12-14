@@ -264,6 +264,11 @@ pfs_mounts: [
     type: 'lustre',
     rw_options: 'defaults,lazystatfs,flock',
     ro_options: 'defaults,lazystatfs,ro' },
+  { pfs: 'umcgstXX',
+    source: '172.23.57.203@tcp12:172.23.57.204@tcp12:/dhXX',
+    type: 'lustre',
+    rw_options: 'defaults,lazystatfs,flock',
+    ro_options: 'defaults,lazystatfs,ro' },
 ]
 #
 # Only anlysis team development (umcg-atd) group, which is exclusively used for testing has prm01 folder/mount for now.
@@ -298,6 +303,11 @@ lfs_mounts: [
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
         'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
         'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
+      ]},
+  { lfs: 'rsc01',
+    pfs: 'umcgstXX',
+    groups: [
+        'umcg-atd', 'umcg-solve-rd'
       ]},
   { lfs: 'env01',
     pfs: 'umcgst10',
