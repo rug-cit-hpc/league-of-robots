@@ -20,6 +20,7 @@
   with_items:
     - 'cyberlarge.flf'
     - 'doh.flf'
+    - 'lockergnome.flf'
     - 'ogre.flf'
     - 'slant.flf'
     - 'speed.flf'
