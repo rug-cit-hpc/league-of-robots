@@ -264,8 +264,8 @@ pfs_mounts: [
     type: 'lustre',
     rw_options: 'defaults,lazystatfs,flock',
     ro_options: 'defaults,lazystatfs,ro' },
-  { pfs: 'umcgstXX',
-    source: '172.23.57.203@tcp12:172.23.57.204@tcp12:/dhXX',
+  { pfs: 'umcgst03',
+    source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1',
     type: 'lustre',
     rw_options: 'defaults,lazystatfs,flock',
     ro_options: 'defaults,lazystatfs,ro' },
@@ -305,7 +305,7 @@ lfs_mounts: [
         'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
   { lfs: 'rsc01',
-    pfs: 'umcgstXX',
+    pfs: 'umcgst03',
     groups: [
         'umcg-atd', 'umcg-solve-rd'
       ]},
