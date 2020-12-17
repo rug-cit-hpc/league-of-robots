@@ -42,7 +42,7 @@
   when: inventory_hostname in groups['sys_admin_interface']
   become: true
 
-- name: 'Create root groups folder for "tmp" and "prm" Logical File Systems (LFSs) on Physical File Systems (PFSs) mounted on SAIs.'
+- name: 'Create root groups folder for "tmp", "rsc" and "prm" Logical File Systems (LFSs) on Physical File Systems (PFSs) mounted on SAIs.'
   file:
     path: "/mnt/{{ item.pfs }}/groups"
     owner: 'root'
@@ -50,7 +50,7 @@
     mode: '0755'
     state: 'directory'
   with_items:
-    - "{{ lfs_mounts | selectattr('lfs', 'search', '(tmp)|(prm)[0-9]+$') | list }}"
+    - "{{ lfs_mounts | selectattr('lfs', 'search', '(tmp)|(rsc)|(prm)[0-9]+$') | list }}"
   when: inventory_hostname in groups['sys_admin_interface']
   become: true
 
@@ -62,7 +62,7 @@
     mode: '2750'
     state: 'directory'
   with_subelements:
-    - "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(prm))[0-9]+$') | list }}"
+    - "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm))[0-9]+$') | list }}"
     - 'groups'
   when: inventory_hostname in groups['sys_admin_interface']
   become: true
@@ -76,6 +76,19 @@
     state: 'directory'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in groups['sys_admin_interface']
+  become: true
+
+- name: 'Create "rsc" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs) mounted on SAIs.'
+  file:
+    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    owner: "{{ item.1 }}-dm"
+    group: "{{ item.1 }}"
+    mode: '2750'
+    state: 'directory'
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'rsc[0-9]+$') | list }}"
     - 'groups'
   when: inventory_hostname in groups['sys_admin_interface']
   become: true
@@ -133,6 +146,32 @@
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
     - 'groups'
   when: inventory_hostname in groups['compute_vm'] or inventory_hostname in groups['user_interface'] or inventory_hostname in groups['deploy_admin_interface']
+  become: true
+
+- name: 'Mount "rsc" Logical File Systems (LFSs) per group from shared storage read-write on UIs.'
+  mount:
+    path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='rw_options') | first }}"
+    state: 'mounted'
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'rsc[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in groups['user_interface']
+  become: true
+
+- name: 'Mount "rsc" Logical File Systems (LFSs) per group from shared storage read-only on compute nodes.'
+  mount:
+    path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='ro_options') | first }}"
+    state: 'mounted'
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'rsc[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in groups['compute_vm']
   become: true
 
 - name: 'Mount "prm" Logical File Systems (LFSs) per group from shared storage.'
