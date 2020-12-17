@@ -4,16 +4,25 @@ slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'nb'
 slurm_version: '18.08.8-1.el7.umcg'
 mailhub: '192.168.0.5'
-rewrite_domain: "{{ stack_prefix }}-sai.{{ slurm_cluster_domain }}"
-motd: "Besides, the determined Real Programmer can write FORTRAN programs in any language. -- Ed Post"
-vcompute_hostnames: "{{ stack_prefix }}-vcompute[0-20]"
+rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
+motd: |
+      =========================================================
+      !!! WARNING: {{ slurm_cluster_name | capitalize }} is in beta testing
+      =========================================================
+          This cluster may be redeployed from scratch, which
+          may result in complete data loss of home dirs 
+          and tmp0* group folders: You have been warned!!!
+          This does not affect prm0* group folders,
+          which are on a different (production) storage system.
+      =========================================================
+vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
 vcompute_sockets: 4
 vcompute_cores_per_socket: 1
 vcompute_real_memory: 3790
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 0
-vcompute_features: 'tmp09'
+vcompute_features: 'tmp02'
 vcompute_ethernet_interfaces:
   - 'eth0'
 ui_hostnames: "{{ slurm_cluster_name }}"
@@ -21,7 +30,7 @@ ui_sockets: 4
 ui_cores_per_socket: 1
 ui_real_memory: 3790
 ui_local_disk: 0
-ui_features: 'prm09,tmp09'
+ui_features: 'prm02,tmp02'
 ui_ethernet_interfaces:
   - 'eth0'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
@@ -47,8 +56,6 @@ security_group_id: SSH-and-ping-2
 slurm_ldap: true
 availability_zone: AZ_1
 local_volume_size: 1
-nfs_network_range: 10.0.42.0/22
-nfs_mountpoint: /nfs
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
@@ -62,8 +69,6 @@ local_admin_users:
   - 'henkjan'
   - 'marieke'
   - 'morris'
-  - 'fokke'
-  - 'wim'
   - 'pieter'
   - 'wim'
   - 'umcg-atd-dm'
@@ -107,13 +112,13 @@ lfs_mounts: [
   { lfs: 'home',
     pfs: 'nfs',
     machines: "{{ groups['cluster'] }}" },
-  { lfs: 'tmp09',
+  { lfs: 'tmp02',
     pfs: 'nfs',
     groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'prm09',
+  { lfs: 'prm02',
     pfs: 'nfs',
     groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'env09',
+  { lfs: 'env02',
     pfs: 'nfs',
     machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
 ]
