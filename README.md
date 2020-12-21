@@ -135,7 +135,7 @@ they will not accidentally get committed to the repo.
 
 * To generate a new Ansible vault password and put it in ```.vault/vault_pass.txt.[name-of-the-cluster|all]```, use the following oneliner:
   ```bash
-  tr -cd '[:alnum:]' < /dev/urandom | fold -w60 | head -n1 > .vault_pass.txt.[name-of-the-cluster|all]
+  LC_ALL=C tr -cd '[:alnum:]' < /dev/urandom | fold -w60 | head -n1 > .vault/vault_pass.txt.[name-of-the-cluster|all]
   ```
 * Or to use an existing Ansible vault password create ```.vault/vault_pass.txt.[name-of-the-cluster|all]``` and use a text editor to add the password.
 * Make sure the ```.vault/``` subdir and it's content is private:
