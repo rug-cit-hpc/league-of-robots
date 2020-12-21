@@ -52,7 +52,6 @@ private_subnet_id: Solve-RD_subnet
 private_storage_net_id: net_provider_vlan3126
 private_storage_subnet_id: subnet3126
 security_group_id: SSH-and-ping-2
-slurm_ldap: true
 availability_zone: AZ_1
 storage_availability_zone: nova
 local_volume_size: 1

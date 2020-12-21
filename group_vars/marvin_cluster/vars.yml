@@ -51,7 +51,6 @@ private_subnet_id: EJP-RD-subnet
 private_storage_net_id: 
 private_storage_subnet_id: 
 security_group_id: SSH-and-ping-2
-slurm_ldap: true
 availability_zone: AZ_1
 storage_availability_zone: nova
 local_volume_size: 1
