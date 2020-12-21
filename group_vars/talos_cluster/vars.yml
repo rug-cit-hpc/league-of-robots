@@ -11,12 +11,12 @@ rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{
 figlet_font: 'ogre'
 motd: |
       =========================================================
-      !!! WARNING: This cluster is in beta testing
+      !!! WARNING: {{ slurm_cluster_name | capitalize }} is in beta testing
       =========================================================
           This cluster may be redeployed from scratch, which
           may result in complete data loss of home dirs 
-          and tmp01 group folders: You have been warned!!!
-          This does not affect prm03 group folders,
+          and tmp0* group folders: You have been warned!!!
+          This does not affect prm0* group folders,
           which are on a different (production) storage system.
       =========================================================
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
