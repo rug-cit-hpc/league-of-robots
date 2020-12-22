@@ -110,12 +110,26 @@ Deploying a fully functional virtual cluster from scratch involves the following
 
 ## Details for phase 3. Create, start and configure virtual machines on an OpenStack cluster to create a Slurm HPC cluster.
 
-#### 0. Clone this repo.
+#### 0. Clone this repo and configure Python virtual environment.
 
 ```bash
 mkdir -p ${HOME}/git/
 cd ${HOME}/git/
 git clone https://github.com/rug-cit-hpc/league-of-robots.git
+cd league-of-robots
+#
+# Create Python virtual environment (once)
+#
+python3 -m venv openstacksdk.venv
+#
+# Activate virtual environment.
+#
+source openstacksdk.venv/bin/activate
+#
+# Install OpenStack SDK (once) and other python packages.
+#
+pip3 install openstacksdk
+pip3 install ruamel.yaml
 ```
 
 #### 1. First import the required roles into this playbook:
@@ -126,7 +140,7 @@ ansible-galaxy install -r galaxy-requirements.yml
 
 #### 2. Create a `vault_pass.txt`.
 
-The vault passwd is used to encrypt/decrypt the ```secrets.yml``` file per cluster, 
+The vault password is used to encrypt/decrypt the ```secrets.yml``` file per cluster, 
 which will be created in the next step if you do not already have one.
 In addition a second vault passwd is used for various files in ```group_vars/all/``` and which contain settings that are the same for all clusters.
 If you have multiple HPC clusters with their own vault passwd you will have multiple vault password files. 
@@ -148,17 +162,32 @@ they will not accidentally get committed to the repo.
 To create a new virtual cluster you will need ```group_vars``` and an static inventory for that HPC cluster:
 
 * See the ```static_inventories/*_hosts.ini``` files for existing clusters for examples to create a new ```[name-of-the-cluster]*_hosts.ini```.
-* Create a ```group_vars/[name-of-the-cluster]/``` folder with a ```vars.yml```.  
+* Create a ```group_vars/[name-of-the-cluster]_cluster/``` folder with a ```vars.yml```.  
   You'll find and example ```vars.yml``` file in ```group_vars/template/```.  
   To generate a new ```secrets.yml``` with new random passwords for the various daemons/components and encrypt this new ```secrets.yml``` file:
   ```bash
-  ./generate_secrets.py group_vars/template/secrets.yml group_vars/[name-of-the-cluster]/secrets.yml
-  ansible-vault --vault-id [name-of-the-cluster]@.vault/vault_pass.txt.[name-of-the-cluster] encrypt group_vars/[name-of-the-cluster]/secrets.yml
+  #
+  # Activate Python virtual env created in step 0.
+  #
+  source openstacksdk.venv/bin/activate
+  #
+  # Configure this repo for a specific cluster.
+  # This will set required ENVIRONMENT variables including
+  # ANSIBLE_VAULT_IDENTITY_LIST='all@.vault/vault_pass.txt.all, [name-of-the-cluster]@.vault/vault_pass.txt.[name-of-the-cluster]'
+  #
+  . ./lor-init
+  lor-config [name-of-the-cluster]
+  #
+  #
+  # Create new secrets.yml file based on a template and encrypt it with the vault password.
+  #
+  ./generate_secrets.py group_vars/template/secrets.yml group_vars/[name-of-the-cluster]_cluster/secrets.yml
+  ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] group_vars/[name-of-the-cluster]_cluster/secrets.yml 
   ```
   The encrypted ```secrets.yml``` can now safely be committed.  
   The ```.vault/vault_pass.txt.[name-of-the-cluster]``` file is excluded from the repo using the ```.vault*``` pattern in ```.gitignore```.
 
-To use use an existing encrypted ```group_vars/[name-of-the-cluster]/secrets.yml```:
+To use use an existing encrypted ```group_vars/[name-of-the-cluster]_cluster/secrets.yml```:
 
 * Add a ```.vault/vault_pass.txt.[name-of-the-cluster]``` file to this repo and use a text editor to add the vault password to this file.
 
@@ -172,9 +201,9 @@ The authenticity of host '....' can't be established.
 ECDSA key fingerprint is ....
 Are you sure you want to continue connecting (yes/no)?
 ```
-* The filename of the CA private key is specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/[name-of-the-cluster] /vars.yml```
+* The filename of the CA private key is specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/[name-of-the-cluster]_cluster/vars.yml```
 * The filename of the corresponding CA public key must be the same as the one of the private key suffixed with ```.pub```
-* The password required to decrypt the CA private key must be specified using the ```ssh_host_signer_ca_private_key_pass``` variable defined in ```group_vars/[name-of-the-cluster] /secrets.yml```,
+* The password required to decrypt the CA private key must be specified using the ```ssh_host_signer_ca_private_key_pass``` variable defined in ```group_vars/[name-of-the-cluster]_cluster/secrets.yml```,
   which must be encrypted with ```ansible-vault```.
 * Each user must add the content of the CA public key to their ```~.ssh/known_hosts``` like this:
   ```
@@ -208,7 +237,7 @@ Are you sure you want to continue connecting (yes/no)?
 #### 6. Generate munge key and encrypt using the ansible-vault.
 
 Execute:
-```
+```bash
 dd if=/dev/urandom bs=1 count=1024 > roles/slurm_management/files/[name-of-the-cluster]_munge.key
 ansible-vault --vault-id [name-of-the-cluster]@.vault/vault_pass.txt.[name-of-the-cluster] encrypt roles/slurm_management/files/[name-of-the-cluster]_munge.key
 ```
@@ -257,11 +286,11 @@ Deployed docs can currently be found at:
 [http://docs.gcc.rug.nl/](http://docs.gcc.rug.nl/)  
 Once configured correctly you should be able to do a multi-hop SSH via a jumphost to a destination server using aliases like this:
 * For login with the same account on both jumphost and destination:
-  ```
+  ```bash
   ssh user@jumphost+destination
   ```
 * For login with a different account on the jumphost:
-  ```
+  ```bash
   export JUMPHOST_USER='user_on_jumphost'
   ssh user_on_destination@jumphost+destination
   ```
@@ -276,7 +305,7 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
   ```
   This can also be accomplished with less typing by sourcing an initialisation file, which provides the ```lor-config``` function 
   to configure these environment variables for a specific cluster/site:
-  ```
+  ```bash
   . ./lor-init
   lor-config talos
   ```
