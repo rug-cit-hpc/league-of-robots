@@ -37,8 +37,7 @@ ldap_base: dc=hpc,dc=rug,dc=nl
 ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
 ldap_domain: hpc.rug.nl
 key_name: Gerben
-image_cirros: cirros-0.3.4-x86_64-disk.img
-image_centos7: centos7
+cloud_image: centos7
 cloud_user: centos
 flavor_ui: s1.large
 flavor_vcompute: s1.gargantuan

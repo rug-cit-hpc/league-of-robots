@@ -1,9 +1,12 @@
 #
-# Install OpenStack SDK.
 #   1.   $> cd git/league-of-robots
+# Create Python virtual environment (once)
 #   2.   $> python3 -m venv openstacksdk.venv
+# Activate virtual environment.
 #   3.   $> source openstacksdk.venv/bin/activate
+# Install OpenStack SDK (once).
 #   4.   $> pip3 install openstacksdk
+#        $> pip3 install ruamel.yaml
 # NOTE: Openstack RC file must be sourced first to be able to use Openstack API from SDK:
 #   5. Login to OpenStack web interface -> API Access -> click the "Download Openstack RC File" button.
 #   6. Source the downloaded file. E.g.:
@@ -13,22 +16,23 @@
 #        $> source ./lor-init
 #   8. Configure League of Robots for a specific cluster. E.g.:
 #        $> lor-config nibbler
-#   9. Make sure the Python interpretor from the virtual env is used.
-#        $> export ANSIBLE_PYTHON_INTERPRETER=python
-#  10. Execute playbook to create VMs. E.g.:
+#   9. Execute playbook to create VMs. E.g.:
 #        $> ansible-playbook -i static_inventories/nibbler_hosts.ini deploy-os_servers.yml
 #
 ---
-# - name: 'Sanity checks before we start.'
-#   hosts: localhost
-#   connection: local
-#   pre_tasks:
-#     - name: 'Verify Ansible version meets requirements.'
-#       assert:
-#         that: "ansible_version.full is version_compare('2.10', '>=')"
-#         msg: 'You must update Ansible to at least 2.10.x to use this playbook.'
+- name: 'Sanity checks before we start.'
+  hosts: localhost
+  connection: local
+  pre_tasks:
+    - name: 'Verify Ansible version meets requirements.'
+      assert:
+        that: "ansible_version.full is version_compare('2.10', '>=')"
+        msg: 'You must update Ansible to at least 2.10.x to use this playbook.'
 
-- name: Configure OpenStack project.
+##############################################################################
+# Configure jumphosts from inventory using Openstack API.
+##############################################################################
+- name: Create jumphosts.
   hosts: jumphost
   connection: local
   vars:
@@ -37,58 +41,21 @@
     # which would fail to use the interpretor from an activated virtual environment.
     #
     - ansible_python_interpreter: python
-    - public_keys_as_yaml_items: "{% for admin in local_admin_users %}
-                                  {% if auth_users[admin].pub_keys is defined
-                                     and auth_users[admin].pub_keys
-                                     and auth_users[admin].pub_keys != '' %}
-                                  {{ auth_users[admin].pub_keys | regex_replace('^[^$]', '  - ', multiline=True) }}
-                                  {% endif %}
-                                  {% endfor %}"
   tasks:
     - name: Log the public keys of the admins.
       debug:
-        msg: |
-             {% for admin in local_admin_users %}{{ auth_users[admin].pub_keys }}{% endfor %}
-    - name: Log the public keys of the admins as yaml items.
-      debug:
-        msg: |
-             {{ public_keys_as_yaml_items }}
-    - name: Log the public keys of the admins in cloud-init config format.
-      debug:
-        msg: |
-             #cloud-config
-             # add each entry to ~/.ssh/authorized_keys for the configured user or the
-             # first user defined in the user definition directive.
-             ssh_authorized_keys:
-             {% for admin in local_admin_users %}{% if auth_users[admin].pub_keys is defined and auth_users[admin].pub_keys and auth_users[admin].pub_keys != '' %}{{ auth_users[admin].pub_keys | regex_replace('^[^$]', '  - ', multiline=True) }}{% endif %}{% endfor %}
-#             {% for admin in local_admin_users %}{{ auth_users[admin].pub_keys | regex_replace('^[^$]', '  - ', multiline=True) }}{% endfor %}
-#     - name: Add public keys for admin accounts to OpenStack project. These will be inserted into the created VMs.
-#       os_keypair:
+        msg: "{{ public_keys_of_local_admins }}"
+#     - name: "Create persistent data volume for jumphost '{{ inventory_hostname }}'"
+#       os_volume:
+#         display_name: "{{ inventory_hostname }}-volume"
+#         size: 5
 #         state: present
-#         name: admins_configured_by_ansible
-#         public_key: |
-#           {% for admin in local_admin_users %}{{ auth_users[admin].pub_keys }}{% endfor %}
-    - name: Tot hier en niet verder
-      meta: end_play
-
-##############################################################################
-# Configure jumphosts from inventory using Openstack API.
-##############################################################################
-- name: Create jumphosts.
-  hosts: jumphost
-  connection: local
-  tasks:
-    - name: Create persistent data volume for {{ inventory_hostname }}
-      os_volume:
-        display_name: "{{ inventory_hostname }}-volume"
-        size: 5
-        state: present
-        availability_zone: "{{ storage_availability_zone }}"
-    - name: Create {{ inventory_hostname }} VM
+#         availability_zone: "{{ storage_availability_zone | default('nova') }}"
+    - name: "Create jumphost '{{ inventory_hostname }}'"
       os_server:
         state: present
         name: "{{ inventory_hostname }}"
-        image: '{{ image_centos7 }}'
+        image: '{{ cloud_image }}'
         flavor: '{{ flavor_ui }}'
         security_groups: '{{ security_group_id }}'
         #key_name: '{{ key_name }}'
@@ -96,24 +63,16 @@
         nics: 
           - net-name: '{{ private_net_id }}'
           - net-name: '{{ private_storage_net_id }}'
-
         userdata: |
           #cloud-config
-          # add each entry to ~/.ssh/authorized_keys for the configured user or the
-          # first user defined in the user definition directive.
+          #
+          # Add each entry to ~/.ssh/authorized_keys for the configured user
+          # or the first user defined in the user definition directive.
+          #
           ssh_authorized_keys:
-            - ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAGEA3FSyQwBI6Z+nCSjUUk8EEAnnkhXlukKoUPND/RRClWz2s5TCzIkd3Ou5+Cyz71X0XmazM3l5WgeErvtIwQMyT1KjNoMhoJMrJnWqQPOt5Q8zWd9qG7PBl9+eiH5qV7NZ mykey@host
-            - ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA3I7VUf2l5gSn5uavROsc5HRDpZdQueUq5ozemNSj8T7enqKHOEaFoU2VoPgGEWC9RyzSQVeyD6s7APMcE82EtmW4skVEgEGSbDc1pvxzxtchBj78hJP6Cf5TCMFSXw+Fz5rF1dR23QDbN1mkHs7adr8GW4kSWqU7Q7NDwfIrJJtO7Hi42GyXtvEONHbiRPOe8stqUly7MvUoN+5kfjBM8Qqpfl2+FNhTYWpMfYdPUnE7u536WqzFmsaqJctz3gBxH9Ex7dFtrxR4qiqEr9Qtlu3xGn7Bw07/+i1D+ey3ONkZLN+LQ714cgj8fRS4Hj29SCmXp5Kt5/82cD/VN3NtHw== smoser@brickies
-          
+          {% for public_key in public_keys_of_local_admins %}  - {{ public_key }}{% endfor %}
         availability_zone: '{{ availability_zone }}'
       register: "{{ inventory_hostname }}_vm"
-
-
-#cloud-config
-
-
-
-
     - name: Tot hier en niet verder
       meta: end_play
 
@@ -141,7 +100,7 @@
     os_server:
       state: present
       name: "{{ headnode_name }}"
-      image: '{{ image_centos7 }}'
+      image: '{{ cloud_image }}'
       flavor: '{{ flavor_ui }}'
       security_groups: '{{ security_group_id }}'
       #key_name: '{{ key_name }}'
@@ -197,7 +156,7 @@
     os_server:
       state: present
       name: '{{ item }}'
-      image: '{{ image_centos7 }}'
+      image: '{{ cloud_image }}'
       flavor: '{{ flavor_vcompute }}'
       security_groups: '{{ security_group_id }}'
       key_name: '{{ key_name }}'
@@ -230,10 +189,10 @@
       volume: "{{ inventory_hostname }}-volume"
 
 #############################################################################
-# Configure DAI, SAI and jumphost from inventory using Openstack API.
+# Configure DAI and SAI from inventory using Openstack API.
 #############################################################################
 
-  - name: create persistent data volume for headnode
+  - name: Create persistent data volumes for admin interface machines.
     os_volume:
       display_name: "{{ item }}-volume"
       size: 20
@@ -242,13 +201,12 @@
     with_items:
       - "{{ groups['deploy_admin_interface'] }}"
       - "{{ groups['sys_admin_interface'] }}"
-      - "{{ groups['jumphost'] }}"
 
-  - name: Create managment instance
+  - name:  Create admin interface machines.
     os_server:
       state: present
       name: "{{ item }}"
-      image: '{{ image_centos7 }}'
+      image: '{{ cloud_image }}'
       flavor: '{{ flavor_management }}'
       security_groups: '{{ security_group_id }}'
       key_name: '{{ key_name }}'
@@ -261,7 +219,6 @@
     with_items:
       - "{{ groups['deploy_admin_interface'] }}"
       - "{{ groups['sys_admin_interface'] }}"
-      - "{{ groups['jumphost'] }}"
 
   - name: attach managment data volume
     os_server_volume:
@@ -270,7 +227,6 @@
     with_items:
       - "{{ groups['deploy_admin_interface'] }}"
       - "{{ groups['sys_admin_interface'] }}"
-      - "{{ groups['jumphost'] }}"
 
   - name: add node to inventory
     add_host:
