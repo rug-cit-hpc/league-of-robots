@@ -49,17 +49,17 @@ ldap_binddn: 'cn=clusteradminumcg,o=asds'
 ldap_group_object_class: 'groupofnames'
 ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
 ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
-cloud_image: centos7
+cloud_image: CentOS 7
 cloud_user: centos
-flavor_nano: s1.nano
-flavor_tiny: s1.tiny
-public_net_id: ext-net-37
-private_net_id: internal_net
-private_subnet_id: Solve-RD_subnet
-private_storage_net_id: net_provider_vlan3126
-private_storage_subnet_id: subnet3126
-security_group_id: SSH-and-ping-2
-availability_zone: AZ_1
+flavor_jumphost: m1.small
+flavor_ui: m1.xlarge
+flavor_vcompute: htc-node
+flavor_management: m1.small
+network_id_public: vlan16
+network_id_private_management: vlan983
+network_id_private_storage: vlan985
+security_group_id: default
+availability_zone: nova
 local_volume_size: 1
 nameservers: [
   '8.8.4.4',  # Google DNS.

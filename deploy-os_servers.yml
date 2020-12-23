@@ -56,13 +56,13 @@
         state: present
         name: "{{ inventory_hostname }}"
         image: '{{ cloud_image }}'
-        flavor: '{{ flavor_ui }}'
+        flavor: '{{ flavor_jumphost }}'
         security_groups: '{{ security_group_id }}'
         #key_name: '{{ key_name }}'
         auto_floating_ip: no
         nics: 
-          - net-name: '{{ private_net_id }}'
-          - net-name: '{{ private_storage_net_id }}'
+          - net-name: '{{ network_id_public }}'
+          - net-name: '{{ network_id_private_management }}'
         userdata: |
           #cloud-config
           #
@@ -72,7 +72,7 @@
           ssh_authorized_keys:
           {% for public_key in public_keys_of_local_admins %}  - {{ public_key }}{% endfor %}
         availability_zone: '{{ availability_zone }}'
-      register: "{{ inventory_hostname }}_vm"
+      register: jumphost_vm
     - name: Tot hier en niet verder
       meta: end_play
 
@@ -80,7 +80,7 @@
 # Configure UIs from inventory using Openstack API.
 ##############################################################################
 - name: Deploying headnode.
-  hosts: user_interface
+  hosts: user_interface_jes
   connection: local
   tasks:
   - set_fact:
