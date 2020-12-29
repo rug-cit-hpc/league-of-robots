@@ -55,10 +55,10 @@ flavor_jumphost: m1.small
 flavor_ui: m1.xlarge
 flavor_vcompute: htc-node
 flavor_management: m1.small
-network_id_public: vlan16
+network_id_public_external: vlan16
+network_id_public_internal: internal_vlan16
 network_id_private_management: vlan983
 network_id_private_storage: vlan985
-security_group_id: default
 availability_zone: nova
 local_volume_size: 1
 nameservers: [
