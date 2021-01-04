@@ -1,6 +1,14 @@
+#
+# Install roles and collections from the default Ansible Galaxy server.
+#
 ---
-- src: geerlingguy.firewall
-  version: 2.4.0
-- src: geerlingguy.repo-epel
-- src: geerlingguy.security
+roles:
+  - src: geerlingguy.firewall
+    version: 2.4.0
+  - src: geerlingguy.repo-epel
+  - src: geerlingguy.security
+collections:
+  - name: openstack.cloud
+    version: '>=1.2.0'
+
 ...

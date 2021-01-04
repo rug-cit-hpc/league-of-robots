@@ -132,11 +132,13 @@ pip3 install openstacksdk
 pip3 install ruamel.yaml
 ```
 
-#### 1. First import the required roles into this playbook:
+#### 1. First import the required roles and collections for this playbook:
 
 ```bash
 ansible-galaxy install -r galaxy-requirements.yml
 ```
+
+Note: the default location where these dependencies will get installed with the above command is ```${HOME}/.ansible/```.
 
 #### 2. Create a `vault_pass.txt`.
 
