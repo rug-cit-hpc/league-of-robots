@@ -1,0 +1,32 @@
+---
+ip_addresses:
+  docs:
+    addr: 195.169.22.76
+    mask: /32
+    fqdn: docs.gcc.rug.nl
+    desc: 'Documentation webserver.'
+  boxy-management:
+    addr: 172.23.40.237
+    mask: /32
+  boxy-storage:
+    addr: 172.23.34.237
+    mask: /32
+  calculon-management:
+    addr: 172.23.40.247
+    mask: /32
+  calculon-storage:
+    addr: 172.23.34.247
+    mask: /32
+  gearshift-management:
+    addr: 172.23.40.33
+    mask: /32
+  gearshift-storage:
+    addr: 172.23.34.33
+    mask: /32
+  talos-management:
+    addr: 172.23.40.92
+    mask: /32
+  talos-storage:
+    addr: 172.23.34.92
+    mask: /32
+...
