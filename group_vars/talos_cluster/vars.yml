@@ -19,6 +19,18 @@ motd: |
           This does not affect prm0* group folders,
           which are on a different (production) storage system.
       =========================================================
+additional_etc_hosts:
+  - group: all
+    hosts:
+      - docs
+  - group: boxy_cluster
+    hosts:
+      - boxy-management
+      - boxy-storage
+  - group: calculon_cluster
+    hosts:
+      - calculon-management
+      - calculon-storage
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
 vcompute_sockets: 4
 vcompute_cores_per_socket: 1

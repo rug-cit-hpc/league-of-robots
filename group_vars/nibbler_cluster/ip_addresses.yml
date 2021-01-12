@@ -1,45 +1,45 @@
 ---
 ip_addresses:
   nb-dai:
-    addr: 172.23.41.96
+    addr: 10.10.1.185
     mask: /32
-    vlan: vlan983
+    vlan: internal_management
     fqdn:
     desc: Deploy Admin Interface
   nb-sai:
-    addr: 172.23.44.231
+    addr: 10.10.1.234
     mask: /32
-    vlan: vlan983
+    vlan: internal_management
     fqdn:
     desc: Sys Admin Interface
-  nb-vcompute03:
-    addr: 172.23.44.233
+  nb-vcompute01:
+    addr: 10.10.1.24
     mask: /32
-    vlan: vlan983
+    vlan: internal_management
     fqdn:
     desc: Compute Node
   nb-vcompute02:
-    addr: 172.23.44.235
+    addr: 10.10.1.182
     mask: /32
-    vlan: vlan983
+    vlan: internal_management
     fqdn:
     desc: Compute Node
-  nb-vcompute01:
-    addr: 172.23.44.232
+  nb-vcompute03:
+    addr: 10.10.1.59
     mask: /32
-    vlan: vlan983
+    vlan: internal_management
     fqdn:
     desc: Compute Node
   nibbler:
-    addr: 172.23.44.234
+    addr: 10.10.1.195
     mask: /32
-    vlan: vlan983
+    vlan: internal_management
     fqdn:
     desc: User Interface
   tunnel:
-    addr: 172.23.44.237
+    addr: 10.10.1.17
     mask: /32
-    vlan: vlan983
+    vlan: internal_management
     fqdn:
     desc: Jumphost
 ...
