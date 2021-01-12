@@ -37,10 +37,19 @@
     mode: '0600'
   delegate_to: localhost
 
+- name: 'Create temporary unvaulted copy of CA private key.'
+  copy:
+    src: "{{ ssh_host_signer_ca_private_key }}"
+    dest: "{{ temporary_directory.path }}/{{ ssh_host_signer_ca_private_key | basename }}"
+    mode: '0600'
+    decrypt: yes
+  delegate_to: localhost
+  become: false
+
 - name: 'Sign SSH host keys.'
   command: >
     ssh-keygen -h
-      -s {{ ssh_host_signer_ca_private_key | quote }}
+      -s {{ temporary_directory.path | quote }}/{{ ssh_host_signer_ca_private_key | basename | quote }}
       -P {{ ssh_host_signer_ca_private_key_pass | quote }}
       -I {{ ssh_host_signer_id | quote }}
       -n {{ ssh_host_signer_hostnames | quote }}
