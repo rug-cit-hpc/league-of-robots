@@ -9,6 +9,5 @@ roles:
   - src: geerlingguy.security
 collections:
   - name: openstack.cloud
-    version: '>=1.2.0'
-
+    version: '>=1.2.1'
 ...
