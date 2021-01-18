@@ -67,9 +67,6 @@
         gateway_ip: 10.10.1.1
         enable_dhcp: yes
         dns_nameservers: "{{ nameservers }}"
-        host_routes:
-          - destination: 0.0.0.0/0
-            nexthop: 10.10.1.1
         wait: true
         timeout: "{{ openstack_api_timeout }}"
     - name: "Create {{ network_id_private_storage }} network."
@@ -86,13 +83,9 @@
         network_name: "{{ network_id_private_storage }}"
         state: present
         cidr: 10.10.2.0/24
-        gateway_ip: 10.10.2.1
+        no_gateway_ip: yes
         enable_dhcp: yes
         dns_nameservers: "{{ nameservers }}"
-        host_routes:
-          # Configure default route via the management network.
-          - destination: 0.0.0.0/0
-            nexthop: 10.10.1.1
         wait: true
         timeout: "{{ openstack_api_timeout }}"
     - name: "Create router to bridge {{ network_id_public_external }} and {{ network_id_private_management }} networks."
