@@ -46,33 +46,41 @@
     - ansible_python_interpreter: python
   tasks:
     - name: "Create {{ network_id_private_management }} network."
-      os_network:
+      openstack.cloud.network:
         state: present
         name: "{{ network_id_private_management }}"
         external: false
         wait: true
         timeout: "{{ openstack_api_timeout }}"
     - name: "Assign subnet to {{ network_id_private_management }} network."
-      os_subnet:
+      openstack.cloud.subnet:
         # 'name' must be the same as 'network_name' or else creating routers for this subnet will fail due to known bug.
         name: "{{ network_id_private_management }}"
         network_name: "{{ network_id_private_management }}"
         state: present
         cidr: 10.10.1.0/24
+        # Bug: https://storyboard.openstack.org/#!/story/2008172
+        # openstack.cloud.subnet is not idempotent and will fail when a router is present
+        # and which is linked to the gateway_ip of the subnet.
+        # In that case you must delete the router in order to be able to run this playbook,
+        # which may require disassociating floating IPs first: yikes!
         gateway_ip: 10.10.1.1
         enable_dhcp: yes
         dns_nameservers: "{{ nameservers }}"
+        host_routes:
+          - destination: 0.0.0.0/0
+            nexthop: 10.10.1.1
         wait: true
         timeout: "{{ openstack_api_timeout }}"
     - name: "Create {{ network_id_private_storage }} network."
-      os_network:
+      openstack.cloud.network:
         name: "{{ network_id_private_storage }}"
         state: present
         external: false
         wait: true
         timeout: "{{ openstack_api_timeout }}"
     - name: "Assign subnet to {{ network_id_private_storage }} network."
-      os_subnet:
+      openstack.cloud.subnet:
         # 'name' must be the same as 'network_name' or else creating routers for this subnet will fail due to known bug.
         name: "{{ network_id_private_storage }}"
         network_name: "{{ network_id_private_storage }}"
@@ -80,6 +88,11 @@
         cidr: 10.10.2.0/24
         gateway_ip: 10.10.2.1
         enable_dhcp: yes
+        dns_nameservers: "{{ nameservers }}"
+        host_routes:
+          # Configure default route via the management network.
+          - destination: 0.0.0.0/0
+            nexthop: 10.10.1.1
         wait: true
         timeout: "{{ openstack_api_timeout }}"
     - name: "Create router to bridge {{ network_id_public_external }} and {{ network_id_private_management }} networks."
