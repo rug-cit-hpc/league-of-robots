@@ -132,7 +132,7 @@ pip3 install openstacksdk
 pip3 install ruamel.yaml
 ```
 
-#### 1. First import the required roles and collections for this playbook:
+#### 1. First import the required roles and collections for the playbooks:
 
 ```bash
 ansible-galaxy install -r galaxy-requirements.yml
@@ -246,6 +246,41 @@ ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] roles/slurm_manag
 The encrypted ```[name-of-the-cluster]_munge.key``` can now safely be committed.
 
 #### 7. Running playbooks.
+
+There are two playbooks:
+
+1. `deploy-os_servers.yml`:
+   * Creates virtual resources in OpenStack: networks, subnets, routers, volumes and finally the virtual machines.
+   * Interacts with the OpenstackSDK / API on localhost.
+   * Uses a static inventory from `static_inventories/*.ini`
+1. `cluster.yml`:
+   * Configures the virtual machines created with the `deploy-os_servers.yml` playbook.
+   * Has no dependency on the OpenstackSDK / API.
+   * Uses the `inventory.py` dynamic inventory script.
+
+##### deploy-os_servers.yml
+
+* Login to the OpenStack web interface -> API Access -> click the "Download Openstack RC File" button.  
+  This will result in an `[OpenStack_project_name]-openrc.sh` file.
+* Configure environment and run playbook:
+  ```bash
+  #
+  # Activate Python virtual env created in step 0.
+  #
+  source openstacksdk.venv/bin/activate
+  #
+  # Initialyse the OpenstackSDK
+  #
+  source ./[OpenStack_project_name]-openrc.sh
+  #
+  # Configure this repo for deployment of a specifc HPC cluster.
+  #
+  source ./lor-init
+  lor-config [name-of-the-cluster]
+  ansible-playbook -i static_inventories/[name-of-the-cluster]_hosts.ini deploy-os_servers.yml
+  ```
+
+##### cluster.yml
 
 ###### Deployment order: local admin accounts and signed host keys must come first
 

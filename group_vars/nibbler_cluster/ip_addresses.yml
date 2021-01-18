@@ -1,37 +1,37 @@
 ---
 ip_addresses:
   nb-dai:
-    addr: 10.10.1.185
+    addr: 10.10.1.140
     mask: /32
     vlan: internal_management
     fqdn:
     desc: Deploy Admin Interface
   nb-sai:
-    addr: 10.10.1.234
+    addr: 10.10.1.149
     mask: /32
     vlan: internal_management
     fqdn:
     desc: Sys Admin Interface
-  nb-vcompute01:
-    addr: 10.10.1.24
-    mask: /32
-    vlan: internal_management
-    fqdn:
-    desc: Compute Node
   nb-vcompute02:
-    addr: 10.10.1.182
+    addr: 10.10.1.35
     mask: /32
     vlan: internal_management
     fqdn:
     desc: Compute Node
   nb-vcompute03:
-    addr: 10.10.1.59
+    addr: 10.10.1.212
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: Compute Node
+  nb-vcompute01:
+    addr: 10.10.1.112
     mask: /32
     vlan: internal_management
     fqdn:
     desc: Compute Node
   nibbler:
-    addr: 10.10.1.195
+    addr: 10.10.1.12
     mask: /32
     vlan: internal_management
     fqdn:
