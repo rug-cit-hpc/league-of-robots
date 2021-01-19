@@ -314,6 +314,6 @@ lfs_mounts: [
     machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
 ]
 ega_fuse_client_mounts:
-  solve_rd: '/groups/solve-rd/prm03/ega-fuse-client'
+  solve_rd: '/groups/umcg-solve-rd/prm03/ega-fuse-client'
 ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
 ...
