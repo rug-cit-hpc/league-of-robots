@@ -1,4 +1,9 @@
 ---
+- name: 'Set hostname to inventory_hostname.'
+  hostname:
+    name: "{{ inventory_hostname | regex_replace('^' + ai_jumphost + '\\+','') }}"
+  become: true
+
 - name: 'Find SSH host keys.'
   find:
     path: "{{ ssh_host_signer_key_directory }}"
