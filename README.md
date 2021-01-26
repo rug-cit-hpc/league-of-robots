@@ -260,7 +260,7 @@ There are two playbooks:
 
 ##### deploy-os_servers.yml
 
-* Login to the OpenStack web interface -> API Access -> click the "Download Openstack RC File" button.  
+* Login to the OpenStack web interface -> API Access -> click the _"Download Openstack RC File"_ button.  
   This will result in an `[OpenStack_project_name]-openrc.sh` file.
 * Configure environment and run playbook:
   ```bash
@@ -269,7 +269,7 @@ There are two playbooks:
   #
   source openstacksdk.venv/bin/activate
   #
-  # Initialyse the OpenstackSDK
+  # Initialize the OpenstackSDK
   #
   source ./[OpenStack_project_name]-openrc.sh
   #
