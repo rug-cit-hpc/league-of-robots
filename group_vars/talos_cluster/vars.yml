@@ -11,14 +11,26 @@ rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{
 figlet_font: 'ogre'
 motd: |
       =========================================================
-      !!! WARNING: This cluster is in beta testing
+      !!! WARNING: {{ slurm_cluster_name | capitalize }} is in beta testing
       =========================================================
           This cluster may be redeployed from scratch, which
           may result in complete data loss of home dirs 
-          and tmp01 group folders: You have been warned!!!
-          This does not affect prm03 group folders,
+          and tmp0* group folders: You have been warned!!!
+          This does not affect prm0* group folders,
           which are on a different (production) storage system.
       =========================================================
+additional_etc_hosts:
+  - group: all
+    hosts:
+      - docs
+  - group: boxy_cluster
+    hosts:
+      - boxy-management
+      - boxy-storage
+  - group: calculon_cluster
+    hosts:
+      - calculon-management
+      - calculon-storage
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
 vcompute_sockets: 4
 vcompute_cores_per_socket: 1
@@ -119,11 +131,14 @@ lfs_mounts: [
     groups: ['umcg-atd', 'umcg-lifelines'] },
   { lfs: 'prm08',
     pfs: 'umcgst11',
-    groups: ['umcg-atd', 'umcg-gcc', 'umcg-lifelines'] },
+    groups: ['umcg-atd', 'umcg-gcc', 'umcg-lifelines', 'umcg-solve-rd'] },
   { lfs: 'env08',
     pfs: 'umcgst11',
     machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
 ]
+ega_fuse_client_mounts:
+  solve_rd: '/groups/umcg-solve-rd/prm08/ega-fuse-client'
+ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
 iptables_allow_icmp_inbound:
   - 'umcg_net1'
   - 'umcg_net2'

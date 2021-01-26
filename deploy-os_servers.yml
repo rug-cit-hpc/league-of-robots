@@ -1,182 +1,459 @@
+#
+#   1.   $> cd git/league-of-robots
+# Create Python virtual environment (once)
+#   2.   $> python3 -m venv openstacksdk.venv
+# Activate virtual environment.
+#   3.   $> source openstacksdk.venv/bin/activate
+# Install OpenStack SDK (once).
+#   4.   $> pip3 install openstacksdk
+#        $> pip3 install ruamel.yaml
+# NOTE: Openstack RC file must be sourced first to be able to use Openstack API from SDK:
+#   5. Login to OpenStack web interface -> API Access -> click the "Download Openstack RC File" button.
+#   6. Source the downloaded file. E.g.:
+#        $> source ./UMCG_HPC-openrc.sh
+#   7. Fetch Ansible dependencies
+#        $> ansible-galaxy install -r galaxy-requirements.yml
+# Configure this repo for deployment of a specifc HPC cluster.
+#   8. Source lor-init from this repo. E.g.:
+#        $> source ./lor-init
+#   9. Configure League of Robots for a specific cluster. E.g.:
+#        $> lor-config nibbler
+#  10. Execute playbook to create VMs. E.g.:
+#        $> ansible-playbook -i static_inventories/nibbler_hosts.ini deploy-os_servers.yml
+#
 ---
-- name: Deploying headnode.
-  hosts: user_interface 
+- name: 'Sanity checks before we start.'
+  hosts: localhost
   connection: local
+  pre_tasks:
+    - name: 'Verify Ansible version meets requirements.'
+      assert:
+        that: "ansible_version.full is version_compare('2.10', '>=')"
+        msg: 'You must update Ansible to at least 2.10.x to use this playbook.'
+##############################################################################
+# Create vxlans, router, security groups and other components we need
+# before we can create Virtual Machines.
+##############################################################################
+- name: Create components required for creating VMs using OpenStack API.
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which would fail to use the interpretor from an activated virtual environment.
+    #
+    - ansible_python_interpreter: python
   tasks:
+    - name: "Create {{ network_id_private_management }} network."
+      openstack.cloud.network:
+        state: present
+        name: "{{ network_id_private_management }}"
+        external: false
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Assign subnet to {{ network_id_private_management }} network."
+      openstack.cloud.subnet:
+        # 'name' must be the same as 'network_name' or else creating routers for this subnet will fail due to known bug.
+        name: "{{ network_id_private_management }}"
+        network_name: "{{ network_id_private_management }}"
+        state: present
+        cidr: 10.10.1.0/24
+        # Bug: https://storyboard.openstack.org/#!/story/2008172
+        # openstack.cloud.subnet is not idempotent and will fail when a router is present
+        # and which is linked to the gateway_ip of the subnet.
+        # In that case you must delete the router in order to be able to run this playbook,
+        # which may require disassociating floating IPs first: yikes!
+        gateway_ip: 10.10.1.1
+        enable_dhcp: yes
+        dns_nameservers: "{{ nameservers }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Create {{ network_id_private_storage }} network."
+      openstack.cloud.network:
+        name: "{{ network_id_private_storage }}"
+        state: present
+        external: false
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Assign subnet to {{ network_id_private_storage }} network."
+      openstack.cloud.subnet:
+        # 'name' must be the same as 'network_name' or else creating routers for this subnet will fail due to known bug.
+        name: "{{ network_id_private_storage }}"
+        network_name: "{{ network_id_private_storage }}"
+        state: present
+        cidr: 10.10.2.0/24
+        no_gateway_ip: yes
+        enable_dhcp: yes
+        dns_nameservers: "{{ nameservers }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Create router to bridge {{ network_id_public_external }} and {{ network_id_private_management }} networks."
+      openstack.cloud.router:
+        state: present
+        name: "Router bridging {{ network_id_public_external }} and {{ network_id_private_management }}"
+        network: "{{ network_id_public_external }}"
+        interfaces:
+          - "{{ network_id_private_management }}"
+          #
+          # Specifying only the network_id_private_management will fail when the default gateway IP
+          # from that subnet is already in use. In that case we must specify an IP,
+          # but there is no easy, safe way to determine which one we should use....
+          #
+          #- net: "{{ network_id_private_management }}"
+          #  subnet: "{{ network_id_private_management }}"
+          #  portip: 10.10.1.1
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Create security group for {{ slurm_cluster_name }} jumphosts."
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ slurm_cluster_name }}_jumphosts"
+        description: |
+                     Security group for security hardened jumphosts bridging the external and internal network.
+                     Allows SSH inbound on both port 22 and 443.
+                     Allows ICMP inbound.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow SSH inbound on port 22."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_jumphosts"
+        direction: ingress 
+        protocol: tcp
+        port_range_min: 22
+        port_range_max: 22
+        remote_ip_prefix: 0.0.0.0/0
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow SSH inbound on port 443."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_jumphosts"
+        direction: ingress 
+        protocol: tcp
+        port_range_min: 443
+        port_range_max: 443
+        remote_ip_prefix: 0.0.0.0/0
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow ICMP inbound."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_jumphosts"
+        direction: ingress 
+        protocol: icmp
+        port_range_min: -1 # ICMP protocol does not have any ports.
+        port_range_max: -1 # ICMP protocol does not have any ports.
+        remote_ip_prefix: 0.0.0.0/0
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: Create security group for {{ slurm_cluster_name }} cluster machines behind jumphost.
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ slurm_cluster_name }}_cluster"
+        description: |
+                     Security group for cluster machines behind a jumphost.
+                     Allows SSH and ICMP inbound from machines in the jumphost security group.
+                     Allows any traffic inbound from other machines in the same security group.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow SSH inbound on port 22 from {{ slurm_cluster_name }}_jumphosts security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_cluster"
+        direction: ingress 
+        protocol: tcp
+        port_range_min: 22
+        port_range_max: 22
+        remote_group: "{{ slurm_cluster_name }}_jumphosts"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow ICMP inbound from {{ slurm_cluster_name }}_jumphosts security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_cluster"
+        direction: ingress 
+        protocol: icmp
+        port_range_min: -1 # ICMP protocol does not have any ports.
+        port_range_max: -1 # ICMP protocol does not have any ports.
+        remote_group: "{{ slurm_cluster_name }}_jumphosts"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow any inbound tcp traffic from machines within the same security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_cluster"
+        direction: ingress 
+        protocol: tcp
+        port_range_min: -1 # Pport range min -1 and max -1 means the same as min 1 and max 65535,
+        port_range_max: -1 # but the latter is not idempotent due to a known bug.
+        remote_group: "{{ slurm_cluster_name }}_cluster"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow any inbound udp traffic from machines within the same security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_cluster"
+        direction: ingress 
+        protocol: udp
+        port_range_min: -1 # Pport range min -1 and max -1 means the same as min 1 and max 65535,
+        port_range_max: -1 # but the latter is not idempotent due to a known bug.
+        remote_group: "{{ slurm_cluster_name }}_cluster"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow any inbound icmp traffic from machines within the same security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_cluster"
+        direction: ingress 
+        protocol: icmp
+        port_range_min: -1 # ICMP protocol does not have any ports.
+        port_range_max: -1 # ICMP protocol does not have any ports.
+        remote_group: "{{ slurm_cluster_name }}_cluster"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
 ##############################################################################
-# Configure headnode from inventory using Openstack API.
-# NOTE: Openstack RC file must be sourced to be able to use Openstack API.
-# RUN: ansible-playbook deploy-os_server.yaml -c local -i {your}_hosts -v
+# Configure jumphosts from inventory using Openstack API.
 ##############################################################################
-
-  - set_fact:
-      name: Get headnode name.
-      headnode_name: "{{ item }}"
-    with_items:
-      - "{{ groups['user_interface'] }}"
-
-  - name: create persistent data volume for headnode
-    os_volume:
-      display_name: "{{ headnode_name }}-volume"
-      size: 20
-      state: present
-      availability_zone: '{{ storage_availability_zone }}'
-
-  - name: Create headnode instance
-    os_server:
-      state: present
-      name: "{{ headnode_name }}"
-      image: '{{ image_centos7 }}'
-      flavor: '{{ flavor_ui }}'
-      security_groups: '{{ security_group_id }}'
-      key_name: '{{ key_name }}'
-      auto_floating_ip: no
-      nics: 
-        - net-name: '{{ private_net_id }}'
-        - net-name: '{{ private_storage_net_id }}'
-      availability_zone: '{{ availability_zone }}'
-    register: headnode_vm
-
-  - name: attach headnode data volume
-    os_server_volume:
-      server: "{{ headnode_name }}"
-      volume: "{{ headnode_name }}-volume"
-
-  - name: associated floating IP to headnode.
-    os_floating_ip:
-      network: '{{ public_net_id  }}'
-      server: "{{ headnode_name }}"
-      reuse: yes
-    register: floating_ip
-    
-  - name: add headnode to inventory
-    add_host:
-      name: "{{ headnode_name }}"
-      groups: headnode
-      ansible_ssh_host: "{{ headnode_vm.openstack.accessIPv4 }}"
-      private_ip: "{{ headnode_vm.server.addresses['Solve-RD_private'] | map(attribute='addr') | list | first }}"
-      ansible_ssh_user: "{{ cloud_user }}"
-      public_ip: "{{ headnode_vm.openstack.accessIPv4 }}"
-      
+- name: Create jumphosts.
+  hosts: jumphost
+  connection: local
+  gather_facts: no
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+    - name: Create jumphost server.
+      openstack.cloud.server:
+        state: present
+        name: "{{ inventory_hostname }}"
+        image: "{{ cloud_image }}"
+        flavor: "{{ flavor_jumphost }}"
+        security_groups: "{{ slurm_cluster_name }}_jumphosts"
+        auto_floating_ip: no
+        nics:
+          - net-name: "{{ network_id_private_management }}"
+        userdata: |
+          #cloud-config
+          password: "{{ cloud_console_pass }}"
+          chpasswd: { expire: False }
+          #
+          # Add each entry to ~/.ssh/authorized_keys for the configured user
+          # or the first user defined in the user definition directive.
+          #
+          ssh_authorized_keys:
+          {% for public_key in public_keys_of_local_admins %}  - {{ public_key }}
+          {% endfor %}
+        availability_zone: "{{ availability_zone }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      register: jumphost_vm
+    - name: Assign floating IP to jumphost
+      openstack.cloud.floating_ip:
+        server: "{{ inventory_hostname }}"
+        state: present
+        reuse: true
+        network: "{{ network_id_public_external }}"
+        nat_destination: "{{ network_id_private_management }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      #
+      # Known bug https://github.com/ansible/ansible/issues/57451
+      # openstack.cloud.floating_ip is not idempotent:
+      # Succeeds only the first time and throws error on any subsequent calls.
+      # Therefore we use a "when" with a silly complex jinja filter including a JMESpath query
+      # to check is the VM already has a floating IP linked to an interface in the correct VXLAN.
+      #
+      when: (jumphost_vm.server.addresses | dict2items(key_name='vlan', value_name='specs') | json_query(query)) != network_id_private_management
+      vars:
+        query: '[?specs[?"OS-EXT-IPS:type"==`floating`]].vlan | [0]'
 ##############################################################################
-# Configure vnode from inventory group 'compute_vm' using Openstack API.
+# Configure UIs from inventory using Openstack API.
 ##############################################################################
-- name: Deploying vcompute nodes.
+- name: Create User Interfaces.
+  hosts: user_interface
+  connection: local
+  gather_facts: no
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+    - name: Create UI server.
+      openstack.cloud.server:
+        state: present
+        name: "{{ inventory_hostname }}"
+        image: "{{ cloud_image }}"
+        flavor: "{{ flavor_ui }}"
+        security_groups: "{{ slurm_cluster_name }}_cluster"
+        auto_floating_ip: no
+        nics:
+          - net-name: "{{ network_id_private_management }}"
+          - net-name: "{{ network_id_private_storage }}"
+        userdata: |
+          #cloud-config
+          password: "{{ cloud_console_pass }}"
+          chpasswd: { expire: False }
+          #
+          # Add each entry to ~/.ssh/authorized_keys for the configured user
+          # or the first user defined in the user definition directive.
+          #
+          ssh_authorized_keys:
+          {% for public_key in public_keys_of_local_admins %}  - {{ public_key }}
+          {% endfor %}
+        availability_zone: "{{ availability_zone }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+##############################################################################
+# Configure compute nodes from inventory using Openstack API.
+##############################################################################
+- name: Create compute nodes.
   hosts: 
     - compute_vm
   connection: local
+  gather_facts: no
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
   tasks:
-  - name: create persistent data volume for vcompute nodes.
-    os_volume:
-      display_name: "{{ inventory_hostname }}-volume"
-      size: "{{ local_volume_size }}"
-      state: present
-      availability_zone: "{{ storage_availability_zone }}"
-
-- name: Create vcompute instance
-  hosts: 
-    - user_interface
-  connection: local
-  tasks:
-  - name: Create instance
-    os_server:
-      state: present
-      name: '{{ item }}'
-      image: '{{ image_centos7 }}'
-      flavor: '{{ flavor_vcompute }}'
-      security_groups: '{{ security_group_id }}'
-      key_name: '{{ key_name }}'
-      auto_floating_ip: no
-      nics: 
-        - net-name: '{{ private_net_id }}'
-        - net-name: '{{ private_storage_net_id }}'
-      availability_zone: '{{ availability_zone }}'
-    register: vcompute_vm
-    with_items:
-      - "{{ groups['compute_vm'] }}"
- 
-  - name: add node to inventory
-    add_host:
-      name: "{{item.openstack.name}}"
-      groups: nodes
-      ansible_ssh_host: "{{ item.server.addresses['Solve-RD_private'] }}"
-      private_ip: "{{ item.server.addresses['Solve-RD_private'] | map(attribute='addr') | list | first }}"
-      ansible_ssh_user: "{{ cloud_user }}"
-    with_items: "{{ vcompute_vm.results }}"
-      
-- name: attach vcompute data volume
-  connection: local
-  hosts: 
-    - compute_vm
-  tasks:
-  - name: attach vcompute data volume
-    os_server_volume:
-      server: "{{ inventory_hostname }}"
-      volume: "{{ inventory_hostname }}-volume"
-
+    - name: Create persistent data volume for compute node.
+      openstack.cloud.volume:
+        display_name: "{{ inventory_hostname }}-volume"
+        size: "{{ local_volume_size_vcompute }}"
+        state: present
+        availability_zone: "{{ storage_availability_zone | default('nova') }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: Create compute node server.
+      openstack.cloud.server:
+        state: present
+        name: "{{ inventory_hostname }}"
+        image: "{{ cloud_image }}"
+        flavor: "{{ flavor_vcompute }}"
+        security_groups: "{{ slurm_cluster_name }}_cluster"
+        auto_floating_ip: no
+        nics:
+          - net-name: "{{ network_id_private_management }}"
+          - net-name: "{{ network_id_private_storage }}"
+        userdata: |
+          #cloud-config
+          password: "{{ cloud_console_pass }}"
+          chpasswd: { expire: False }
+          #
+          # Add each entry to ~/.ssh/authorized_keys for the configured user
+          # or the first user defined in the user definition directive.
+          #
+          ssh_authorized_keys:
+          {% for public_key in public_keys_of_local_admins %}  - {{ public_key }}
+          {% endfor %}
+        availability_zone: "{{ availability_zone }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: Attach local storage volume to compute node.
+      openstack.cloud.server_volume:
+        server: "{{ inventory_hostname }}"
+        volume: "{{ inventory_hostname }}-volume"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
 #############################################################################
-# Configure DAI, SAI and jumphost from inventory using Openstack API.
+# Configure DAI and SAI from inventory using Openstack API.
 #############################################################################
-
-  - name: create persistent data volume for headnode
-    os_volume:
-      display_name: "{{ item }}-volume"
-      size: 20
-      state: present
-      availability_zone: '{{ storage_availability_zone }}'
-    with_items:
-      - "{{ groups['deploy_admin_interface'] }}"
-      - "{{ groups['sys_admin_interface'] }}"
-      - "{{ groups['jumphost'] }}"
-
-  - name: Create managment instance
-    os_server:
-      state: present
-      name: "{{ item }}"
-      image: '{{ image_centos7 }}'
-      flavor: '{{ flavor_management }}'
-      security_groups: '{{ security_group_id }}'
-      key_name: '{{ key_name }}'
-      auto_floating_ip: no
-      nics:
-        - net-name: '{{ private_net_id }}'
-        - net-name: '{{ private_storage_net_id }}'
-      availability_zone: '{{ availability_zone }}'
-    register: managment_vm
-    with_items:
-      - "{{ groups['deploy_admin_interface'] }}"
-      - "{{ groups['sys_admin_interface'] }}"
-      - "{{ groups['jumphost'] }}"
-
-  - name: attach managment data volume
-    os_server_volume:
-      server: "{{ item }}"
-      volume: "{{ item }}-volume"
-    with_items:
-      - "{{ groups['deploy_admin_interface'] }}"
-      - "{{ groups['sys_admin_interface'] }}"
-      - "{{ groups['jumphost'] }}"
-
-  - name: add node to inventory
-    add_host:
-      name: "{{item.openstack.name}}"
-      groups: nodes
-      ansible_ssh_host: "{{ item.server.addresses['Solve-RD_private'] }}"
-      private_ip: "{{ item.server.addresses['Solve-RD_private'] | map(attribute='addr') | list | first }}"
-      ansible_ssh_user: "{{ cloud_user }}"
-    with_items: "{{ managment_vm.results }}"
-
-##############################################################################
-# List IPs addresses for/etc/hosts from in-memory inventory
-##############################################################################
-
-- name: List private ip addresses for roles/static_hostname_lookup/templates/{cluster}_hosts
+- name: Create Sys and Deploy Admin Interfaces.
   hosts: 
-    - user_interface
-  become: true
-  gather_facts: false
+    - sys_admin_interface
+    - deploy_admin_interface
+  connection: local
+  gather_facts: no
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
   tasks:
-    - debug:  msg="{{ hostvars[item]['private_ip'] }}           {{ item }}"
-      with_items:
-        - "{{ groups['cluster'] }}"
-        - "{{ groups['jumphost'] }}"
+    - name: Create persistent data volume for admin interface.
+      openstack.cloud.volume:
+        display_name: "{{ inventory_hostname }}-volume"
+        size: "{{ local_volume_size_management }}"
+        state: present
+        availability_zone: "{{ storage_availability_zone | default('nova') }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name:  Create admin interface server.
+      openstack.cloud.server:
+        state: present
+        name: "{{ inventory_hostname }}"
+        image: "{{ cloud_image }}"
+        flavor: "{{ flavor_management }}"
+        security_groups: "{{ slurm_cluster_name }}_cluster"
+        auto_floating_ip: no
+        nics:
+          - net-name: "{{ network_id_private_management }}"
+          - net-name: "{{ network_id_private_storage }}"
+        userdata: |
+          #cloud-config
+          password: "{{ cloud_console_pass }}"
+          chpasswd: { expire: False }
+          #
+          # Add each entry to ~/.ssh/authorized_keys for the configured user
+          # or the first user defined in the user definition directive.
+          #
+          ssh_authorized_keys:
+          {% for public_key in public_keys_of_local_admins %}  - {{ public_key }}
+          {% endfor %}
+        availability_zone: "{{ availability_zone }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: Attach local storage volume to admin interface server.
+      openstack.cloud.server_volume:
+        server: "{{ inventory_hostname }}"
+        volume: "{{ inventory_hostname }}-volume"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+##############################################################################
+# Get IPs addresses from API for static hostname lookup with /etc/hosts.
+##############################################################################
+- name: Fetch network addresses assigned to VMs using OpenStack API.
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which would fail to use the interpretor from an activated virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+      #
+      # Note: we fetch info for all servers relevant or not
+      # as filtering directly during the API call is problematic.
+      # Will filter the results for the relevant servers later on.
+      #
+    - name: Get server info from OpenStack API.
+      openstack.cloud.server_info:
+      register: api_server_info
+    - name: "Add addresses to {{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml"
+      template:
+        src: "{{ playbook_dir }}/group_vars/template/ip_addresses.yml.j2"
+        dest: "{{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml.new"
+      vars:
+        relevant_servers_list: "{{ groups['jumphost'] + groups['cluster'] }}"
+        relevant_servers_info: "{{ api_server_info.openstack_servers | selectattr('name', 'in', relevant_servers_list) | list }}"
+    - name: "ToDo"
+      debug:
+        msg: |
+             ***********************************************************************************************************
+             IMPORTANT: Manual work!
+                        Ansible created:
+                            {{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml.new
+                        Please inspect this file carefully and if Ok execute:
+                            mv {{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml{.new,}
+             ***********************************************************************************************************
+...

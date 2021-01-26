@@ -20,6 +20,7 @@
   with_items:
     - 'cyberlarge.flf'
     - 'doh.flf'
+    - 'lockergnome.flf'
     - 'ogre.flf'
     - 'slant.flf'
     - 'speed.flf'
@@ -29,5 +30,5 @@
   include_tasks:
     file: "{{ playbook_dir }}/roles/figlet_motd/tasks/create_motd.yml"
   vars:
-    figlet_cmd: 'figlet -f "{{ figlet_font }}" "{{ ansible_hostname }}"'
+    figlet_cmd: 'figlet -w 120 -f "{{ figlet_font }}" "{{ ansible_hostname }}"'
 ...

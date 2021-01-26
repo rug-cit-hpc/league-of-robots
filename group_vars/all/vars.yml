@@ -1,4 +1,5 @@
 ---
+openstack_api_timeout: 180
 admin_ranges: "129.125.249.0/24,172.23.40.1/24"
 ssh_host_signer_ca_keypair_dir: "ssh-host-ca"
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/hpc-ca"
@@ -13,6 +14,13 @@ ai_jumphost: "{{ lookup('env','AI_PROXY') }}"
 firewall_allowed_tcp_ports:
   - '22'   # SSH
   - '9100'   # Node Exporter
+#
+# Public keys of all local admins.
+#
+public_keys_of_local_admins: "{{ local_admin_users | map('extract', auth_users) \
+    | rejectattr('pub_keys', 'none') | rejectattr('pub_keys', 'undefined') \
+    | map(attribute='pub_keys') \
+    | map('regex_findall', '^([^\\n]+)', 'multiline=True') | flatten }}"
 #
 # Local group specs.
 # Note:

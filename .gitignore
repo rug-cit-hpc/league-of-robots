@@ -9,6 +9,7 @@
 *.swp
 .vault*
 documentation/.~lock.UMCG Research IT HPC cluster technical design.docx#
+openstacksdk.*
 promtools/results/*
 roles/hpc-cloud
 roles/HPCplaybooks

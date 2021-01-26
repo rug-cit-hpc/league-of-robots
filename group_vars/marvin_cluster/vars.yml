@@ -5,8 +5,12 @@ stack_prefix: 'mv'
 slurm_version: '18.08.8-1.el7.umcg'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
-motd: "It is rare, but not unheard of."
 figlet_font: 'speed'
+motd: "It is rare, but not unheard of."
+additional_etc_hosts:
+  - group: all
+    hosts:
+      - docs
 vcompute_hostnames: "{{ stack_prefix }}-vcompute01"
 vcompute_sockets: 16
 vcompute_cores_per_socket: 1
@@ -37,8 +41,7 @@ ldap_base: dc=ejp,dc=rd,dc=nl
 ldap_binddn: cn=admin,dc=ejp,dc=rd,dc=nl
 ldap_domain: ejp.rd.nl
 key_name: Gerben
-image_cirros: cirros-0.3.4-x86_64-disk.img
-image_centos7: centos7
+cloud_image: centos7
 cloud_user: centos
 flavor_ui: s1.large
 flavor_vcompute: s1.gargantuan
@@ -51,7 +54,6 @@ private_subnet_id: EJP-RD-subnet
 private_storage_net_id: 
 private_storage_subnet_id: 
 security_group_id: SSH-and-ping-2
-slurm_ldap: true
 availability_zone: AZ_1
 storage_availability_zone: nova
 local_volume_size: 1

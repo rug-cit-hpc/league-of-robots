@@ -1,4 +1,9 @@
 ---
+#
+# ToDo: this may fail when deploying a cluster from scratch
+# when DNS resolving is not yet properly configured resulting in:
+# 'Failure downloading https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/spacewalk-2.8-client/epel-7-x86_64/00742644-spacewalk-repo/spacewalk-client-repo-2.8-11.el7.centos.noarch.rpm, Request failed: <urlopen error [Errno -2] Name or service not known>'
+#
 - name: 'Install spacewalk client repo.'
   yum:
     name: "https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/\
