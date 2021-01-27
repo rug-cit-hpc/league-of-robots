@@ -18,6 +18,7 @@
       - bash-completion
       - bc
       - bzip2
+      - cargo
       - curl
       - dos2unix
       - figlet
