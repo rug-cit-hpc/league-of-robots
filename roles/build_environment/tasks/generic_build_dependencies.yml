@@ -12,6 +12,7 @@
       - 'intltool'
       - 'kernel-devel'
       - 'libselinux-devel'
+      - 'libsodium-devel'
       - 'openssl-devel'
       - 'patch'
       - 'qt5-qtbase-devel'
