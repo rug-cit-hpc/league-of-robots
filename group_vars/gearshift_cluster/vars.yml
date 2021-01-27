@@ -182,7 +182,7 @@ regular_users:
     sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
   - user: 'umcg-gastrocol-dm'
     groups: ['umcg-gastrocol']
-    sudoers: 'umcg-avich,umcg-hushixian'
+    sudoers: '%umcg-gastrocol-dms'
   - user: 'umcg-gcc-dm'
     groups: ['umcg-gcc']
     sudoers: '%umcg-gcc'
