@@ -119,7 +119,7 @@
     - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow SSH inbound on port 22."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_jumphosts"
-        direction: ingress 
+        direction: ingress
         protocol: tcp
         port_range_min: 22
         port_range_max: 22
@@ -129,7 +129,7 @@
     - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow SSH inbound on port 443."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_jumphosts"
-        direction: ingress 
+        direction: ingress
         protocol: tcp
         port_range_min: 443
         port_range_max: 443
@@ -139,7 +139,7 @@
     - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow ICMP inbound."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_jumphosts"
-        direction: ingress 
+        direction: ingress
         protocol: icmp
         port_range_min: -1 # ICMP protocol does not have any ports.
         port_range_max: -1 # ICMP protocol does not have any ports.
@@ -160,7 +160,7 @@
     - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow SSH inbound on port 22 from {{ slurm_cluster_name }}_jumphosts security group."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_cluster"
-        direction: ingress 
+        direction: ingress
         protocol: tcp
         port_range_min: 22
         port_range_max: 22
@@ -170,7 +170,7 @@
     - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow ICMP inbound from {{ slurm_cluster_name }}_jumphosts security group."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_cluster"
-        direction: ingress 
+        direction: ingress
         protocol: icmp
         port_range_min: -1 # ICMP protocol does not have any ports.
         port_range_max: -1 # ICMP protocol does not have any ports.
@@ -180,7 +180,7 @@
     - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow any inbound tcp traffic from machines within the same security group."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_cluster"
-        direction: ingress 
+        direction: ingress
         protocol: tcp
         port_range_min: -1 # Pport range min -1 and max -1 means the same as min 1 and max 65535,
         port_range_max: -1 # but the latter is not idempotent due to a known bug.
@@ -190,7 +190,7 @@
     - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow any inbound udp traffic from machines within the same security group."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_cluster"
-        direction: ingress 
+        direction: ingress
         protocol: udp
         port_range_min: -1 # Pport range min -1 and max -1 means the same as min 1 and max 65535,
         port_range_max: -1 # but the latter is not idempotent due to a known bug.
@@ -200,7 +200,7 @@
     - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow any inbound icmp traffic from machines within the same security group."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_cluster"
-        direction: ingress 
+        direction: ingress
         protocol: icmp
         port_range_min: -1 # ICMP protocol does not have any ports.
         port_range_max: -1 # ICMP protocol does not have any ports.
@@ -310,7 +310,7 @@
 # Configure compute nodes from inventory using Openstack API.
 ##############################################################################
 - name: Create compute nodes.
-  hosts: 
+  hosts:
     - compute_vm
   connection: local
   gather_facts: no
@@ -365,7 +365,7 @@
 # Configure DAI and SAI from inventory using Openstack API.
 #############################################################################
 - name: Create Sys and Deploy Admin Interfaces.
-  hosts: 
+  hosts:
     - sys_admin_interface
     - deploy_admin_interface
   connection: local
@@ -443,6 +443,7 @@
       template:
         src: "{{ playbook_dir }}/group_vars/template/ip_addresses.yml.j2"
         dest: "{{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml.new"
+        mode: '0644'
       vars:
         relevant_servers_list: "{{ groups['jumphost'] + groups['cluster'] }}"
         relevant_servers_info: "{{ api_server_info.openstack_servers | selectattr('name', 'in', relevant_servers_list) | list }}"
@@ -453,7 +454,9 @@
              IMPORTANT: Manual work!
                         Ansible created:
                             {{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml.new
-                        Please inspect this file carefully and if Ok execute:
+                        Please inspect this file carefully with:
+                            diff -y {{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml{.new,}
+                        and if Ok execute:
                             mv {{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml{.new,}
              ***********************************************************************************************************
 ...
