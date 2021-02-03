@@ -23,6 +23,7 @@
           | head -n 1 | tr -d '\n' \
           | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|'
   args:
+    executable: /bin/bash
     warn: no
   changed_when: false
   check_mode: no
@@ -48,6 +49,7 @@
           | head -n 1 | tr -d '\n' \
           | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|'
   args:
+    executable: /bin/bash
     warn: no
   changed_when: false
   check_mode: no
