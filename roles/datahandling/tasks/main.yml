@@ -3,7 +3,7 @@
   lineinfile:
     path: /etc/default/grub
     regexp: '^GRUB_DEFAULT='
-    line: 'GRUB_DEFAULT=2'
+    line: 'GRUB_DEFAULT=CentOS Linux (3.10.0-1062.4.1.el7.x86_64) 7 (Core)'
   become: true
   notify: grub2-mkconfig
 
