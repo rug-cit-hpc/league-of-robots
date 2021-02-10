@@ -19,6 +19,7 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install "ansible-lint[community,yamllint]"
+            ansible-galaxy install -r galaxy-requirements.yml
       - run:
           name: run tests
           command: |
