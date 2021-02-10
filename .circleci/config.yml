@@ -18,7 +18,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install ansible-lint
+            pip install "ansible-lint[community,yamllint]"
       - run:
           name: run tests
           command: |
