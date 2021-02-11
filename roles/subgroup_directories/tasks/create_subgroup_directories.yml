@@ -10,7 +10,7 @@
           | grep -- "-v[0-9][0-9]*$" \
           || true
       register: versioned_subgroups
-    - set_fact:  # noqa 502
+    - set_fact:  # noqa unnamed-task
         versioned_subgroups_list: "{% if versioned_subgroups.stdout | length %}{{ versioned_subgroups.stdout.split('\n') | list }}{% endif %}"
 
 - block:
@@ -24,7 +24,7 @@
             | grep -v -- "-v[0-9][0-9]*$\|-dms$\|-owners$" \
             || true
       register: unversioned_subgroups
-    - set_fact:  # noqa 502
+    - set_fact:  # noqa unnamed-task
         unversioned_subgroups_list: "{% if unversioned_subgroups.stdout | length %}{{ unversioned_subgroups.stdout.split('\n') | list }}{% endif %}"
 
 - name: "Create directory structure for releases with version number on {{ lfs }}."

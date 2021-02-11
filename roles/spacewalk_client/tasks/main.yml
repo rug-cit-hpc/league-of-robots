@@ -16,12 +16,12 @@
 - name: 'Install spacewalk client packages.'
   yum:
     name:
-     - 'rhn-client-tools'
-     - 'rhn-check'
-     - 'rhn-setup'
-     - 'rhnsd'
-     - 'm2crypto'
-     - 'yum-rhn-plugin'
+      - 'rhn-client-tools'
+      - 'rhn-check'
+      - 'rhn-setup'
+      - 'rhnsd'
+      - 'm2crypto'
+      - 'yum-rhn-plugin'
   notify:
     - 'restart_rhnsd'
   become: true
@@ -39,10 +39,10 @@
 
 - name: 'Register client at the spacewalk server.'
   rhn_register:
-   state: present
-   activationkey: "{{ activation_key }}"
-   server_url: "{{ spacewalk_server_url }}"
-   channels: "{{ rhn_channels }}"
+    state: present
+    activationkey: "{{ activation_key }}"
+    server_url: "{{ spacewalk_server_url }}"
+    channels: "{{ rhn_channels }}"
   register: result
   until: result is succeeded
   retries: 3

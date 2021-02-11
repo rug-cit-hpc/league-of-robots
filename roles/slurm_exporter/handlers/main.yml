@@ -11,7 +11,7 @@
   systemd:
     name: 'prometheus-slurm-exporter.service'
     state: restarted
-    daemon_reload: yes
+    daemon_reload: true
   become: true
   listen: restart_prometheus-slurm-exporter
 #
