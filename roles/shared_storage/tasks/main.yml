@@ -133,7 +133,7 @@
     state: 'mounted'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'home') | list }}"
   when: inventory_hostname in item.machines and not inventory_hostname in groups['nfs_server']|default([])
-  become: True
+  become: true
 
 - name: 'Mount "tmp" Logical File Systems (LFSs) per group from shared storage.'
   mount:
@@ -200,11 +200,11 @@
 
 - name: 'Mount "apps" from one "env" Logical File System (LFS) from shared storage read-only as /apps on UIs and vcompute nodes.'
   mount:
-   path: '/apps'
-   src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.pfs }}/{{ item.lfs }}/apps"
-   fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
-   opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='ro_options') | first }}"
-   state: 'mounted'
+    path: '/apps'
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.pfs }}/{{ item.lfs }}/apps"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='ro_options') | first }}"
+    state: 'mounted'
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
   when: inventory_hostname in item.machines

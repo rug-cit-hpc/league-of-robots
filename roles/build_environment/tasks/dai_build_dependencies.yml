@@ -2,7 +2,7 @@
 - name: Install extra build depedencies for Deploy Admin Interfaces (DAIs).
   yum:
     state: latest
-    update_cache: yes
+    update_cache: true
     name:
       #
       # Slurm dependencies.
@@ -29,7 +29,7 @@
       #
       # Ansible dependencies.
       #
-      - 'python-devel' # Previously python2-devel
+      - 'python-devel'  # Previously python2-devel
       - 'python-nose'
       - 'python-coverage'
       - 'python-mock'
@@ -42,7 +42,7 @@
       #
       # Lua, Lmod, EasyBuild dependencies.
       #
-      - 'mlnx-ofa_kernel-devel' # Previously rdma-core-devel
+      - 'mlnx-ofa_kernel-devel'  # Previously rdma-core-devel
       - 'libxml2-devel'
       - 'libXext-devel'
       - 'libX11-devel'

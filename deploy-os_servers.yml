@@ -37,7 +37,7 @@
 - name: Create components required for creating VMs using OpenStack API.
   hosts: localhost
   connection: local
-  gather_facts: no
+  gather_facts: false
   vars:
     #
     # Disable Ansible's interpretor detection logic,
@@ -65,7 +65,7 @@
         # In that case you must delete the router in order to be able to run this playbook,
         # which may require disassociating floating IPs first: yikes!
         gateway_ip: 10.10.1.1
-        enable_dhcp: yes
+        enable_dhcp: true
         dns_nameservers: "{{ nameservers }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
@@ -83,8 +83,8 @@
         network_name: "{{ network_id_private_storage }}"
         state: present
         cidr: 10.10.2.0/24
-        no_gateway_ip: yes
-        enable_dhcp: yes
+        no_gateway_ip: true
+        enable_dhcp: true
         dns_nameservers: "{{ nameservers }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
@@ -100,9 +100,9 @@
           # from that subnet is already in use. In that case we must specify an IP,
           # but there is no easy, safe way to determine which one we should use....
           #
-          #- net: "{{ network_id_private_management }}"
-          #  subnet: "{{ network_id_private_management }}"
-          #  portip: 10.10.1.1
+          # - net: "{{ network_id_private_management }}"
+          #   subnet: "{{ network_id_private_management }}"
+          #   portip: 10.10.1.1
         wait: true
         timeout: "{{ openstack_api_timeout }}"
     - name: "Create security group for {{ slurm_cluster_name }} jumphosts."
@@ -141,8 +141,8 @@
         security_group: "{{ slurm_cluster_name }}_jumphosts"
         direction: ingress
         protocol: icmp
-        port_range_min: -1 # ICMP protocol does not have any ports.
-        port_range_max: -1 # ICMP protocol does not have any ports.
+        port_range_min: -1  # ICMP protocol does not have any ports.
+        port_range_max: -1  # ICMP protocol does not have any ports.
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
@@ -172,8 +172,8 @@
         security_group: "{{ slurm_cluster_name }}_cluster"
         direction: ingress
         protocol: icmp
-        port_range_min: -1 # ICMP protocol does not have any ports.
-        port_range_max: -1 # ICMP protocol does not have any ports.
+        port_range_min: -1  # ICMP protocol does not have any ports.
+        port_range_max: -1  # ICMP protocol does not have any ports.
         remote_group: "{{ slurm_cluster_name }}_jumphosts"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
@@ -182,8 +182,8 @@
         security_group: "{{ slurm_cluster_name }}_cluster"
         direction: ingress
         protocol: tcp
-        port_range_min: -1 # Pport range min -1 and max -1 means the same as min 1 and max 65535,
-        port_range_max: -1 # but the latter is not idempotent due to a known bug.
+        port_range_min: -1  # Pport range min -1 and max -1 means the same as min 1 and max 65535,
+        port_range_max: -1  # but the latter is not idempotent due to a known bug.
         remote_group: "{{ slurm_cluster_name }}_cluster"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
@@ -192,8 +192,8 @@
         security_group: "{{ slurm_cluster_name }}_cluster"
         direction: ingress
         protocol: udp
-        port_range_min: -1 # Pport range min -1 and max -1 means the same as min 1 and max 65535,
-        port_range_max: -1 # but the latter is not idempotent due to a known bug.
+        port_range_min: -1  # Pport range min -1 and max -1 means the same as min 1 and max 65535,
+        port_range_max: -1  # but the latter is not idempotent due to a known bug.
         remote_group: "{{ slurm_cluster_name }}_cluster"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
@@ -202,8 +202,8 @@
         security_group: "{{ slurm_cluster_name }}_cluster"
         direction: ingress
         protocol: icmp
-        port_range_min: -1 # ICMP protocol does not have any ports.
-        port_range_max: -1 # ICMP protocol does not have any ports.
+        port_range_min: -1  # ICMP protocol does not have any ports.
+        port_range_max: -1  # ICMP protocol does not have any ports.
         remote_group: "{{ slurm_cluster_name }}_cluster"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
@@ -213,7 +213,7 @@
 - name: Create jumphosts.
   hosts: jumphost
   connection: local
-  gather_facts: no
+  gather_facts: false
   vars:
     #
     # Disable Ansible's interpretor detection logic,
@@ -229,7 +229,7 @@
         image: "{{ cloud_image }}"
         flavor: "{{ flavor_jumphost }}"
         security_groups: "{{ slurm_cluster_name }}_jumphosts"
-        auto_floating_ip: no
+        auto_floating_ip: false
         nics:
           - net-name: "{{ network_id_private_management }}"
         userdata: |
@@ -272,7 +272,7 @@
 - name: Create User Interfaces.
   hosts: user_interface
   connection: local
-  gather_facts: no
+  gather_facts: false
   vars:
     #
     # Disable Ansible's interpretor detection logic,
@@ -288,7 +288,7 @@
         image: "{{ cloud_image }}"
         flavor: "{{ flavor_ui }}"
         security_groups: "{{ slurm_cluster_name }}_cluster"
-        auto_floating_ip: no
+        auto_floating_ip: false
         nics:
           - net-name: "{{ network_id_private_management }}"
           - net-name: "{{ network_id_private_storage }}"
@@ -313,7 +313,7 @@
   hosts:
     - compute_vm
   connection: local
-  gather_facts: no
+  gather_facts: false
   vars:
     #
     # Disable Ansible's interpretor detection logic,
@@ -337,7 +337,7 @@
         image: "{{ cloud_image }}"
         flavor: "{{ flavor_vcompute }}"
         security_groups: "{{ slurm_cluster_name }}_cluster"
-        auto_floating_ip: no
+        auto_floating_ip: false
         nics:
           - net-name: "{{ network_id_private_management }}"
           - net-name: "{{ network_id_private_storage }}"
@@ -369,7 +369,7 @@
     - sys_admin_interface
     - deploy_admin_interface
   connection: local
-  gather_facts: no
+  gather_facts: false
   vars:
     #
     # Disable Ansible's interpretor detection logic,
@@ -386,14 +386,14 @@
         availability_zone: "{{ storage_availability_zone | default('nova') }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name:  Create admin interface server.
+    - name: Create admin interface server.
       openstack.cloud.server:
         state: present
         name: "{{ inventory_hostname }}"
         image: "{{ cloud_image }}"
         flavor: "{{ flavor_management }}"
         security_groups: "{{ slurm_cluster_name }}_cluster"
-        auto_floating_ip: no
+        auto_floating_ip: false
         nics:
           - net-name: "{{ network_id_private_management }}"
           - net-name: "{{ network_id_private_storage }}"
@@ -423,7 +423,7 @@
 - name: Fetch network addresses assigned to VMs using OpenStack API.
   hosts: localhost
   connection: local
-  gather_facts: no
+  gather_facts: false
   vars:
     #
     # Disable Ansible's interpretor detection logic,
@@ -431,11 +431,11 @@
     #
     - ansible_python_interpreter: python
   tasks:
-      #
-      # Note: we fetch info for all servers relevant or not
-      # as filtering directly during the API call is problematic.
-      # Will filter the results for the relevant servers later on.
-      #
+    #
+    # Note: we fetch info for all servers relevant or not
+    # as filtering directly during the API call is problematic.
+    # Will filter the results for the relevant servers later on.
+    #
     - name: Get server info from OpenStack API.
       openstack.cloud.server_info:
       register: api_server_info

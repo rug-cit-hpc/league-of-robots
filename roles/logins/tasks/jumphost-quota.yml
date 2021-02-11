@@ -9,8 +9,8 @@
 - name: 'Enable user quota for XFS / in /etc/fstab.'
   lineinfile:
     path: '/etc/fstab'
-    backup: yes
-    backrefs: yes
+    backup: true
+    backrefs: true
     regexp: '^(\S+\s+{{ item.mountpoint }}\s+\S+\s+)(?!(?:\S*,)?{{ item.mountoption }}(?:,\S*)?\s+)(\S+)(\s+.+)$'
     line: '\1{{ item.mountoption }},\2\3'
     owner: root
@@ -36,8 +36,8 @@
 - name: 'Enable user quota for XFS / in GRUB config.'
   lineinfile:
     path: '/etc/default/grub'
-    backup: yes
-    backrefs: yes
+    backup: true
+    backrefs: true
     regexp: '^(GRUB_CMDLINE_LINUX=\")([^\"]*)(\s+rootflags=(\S+))([^\"]*\")$'
     line: '\1\2 rootflags=uquota,\4\5'
     owner: root
@@ -50,8 +50,8 @@
 - name: 'Enable user quota for XFS / in GRUB config.'
   lineinfile:
     path: '/etc/default/grub'
-    backup: yes
-    backrefs: yes
+    backup: true
+    backrefs: true
     regexp: '^(GRUB_CMDLINE_LINUX=\")([^\"]*)(\")$'
     line: '\1\2 rootflags=uquota\3'
     owner: root
@@ -75,7 +75,7 @@
   become: true
 
 - name: 'Enable set_quota.sh script for certain PAM states.'
-  file: # noqa 208
+  file:  # noqa 208
     src: "{{ item }}"
     dest: "/etc/pam-script.d/{{ item }}_ses_open"
     state: link

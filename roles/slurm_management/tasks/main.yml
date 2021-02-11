@@ -43,7 +43,7 @@
 - name: 'Install munge.'
   yum:
     state: 'latest'
-    update_cache: yes
+    update_cache: true
     name:
       - 'munge'
   become: true
@@ -73,7 +73,7 @@
 - name: 'Install Slurm management dependencies with yum.'
   yum:
     state: 'latest'
-    update_cache: yes
+    update_cache: true
     name:
       - 'MySQL-python'
       - 'lua-posix'
@@ -86,8 +86,8 @@
 - name: 'Install Slurm management deamons with yum.'
   yum:
     state: 'installed'
-    update_cache: yes
-    allow_downgrade: yes
+    update_cache: true
+    allow_downgrade: true
     name:
       - "slurm*{{ slurm_version }}"
       - "slurm-slurmctld*{{ slurm_version }}"
@@ -250,7 +250,7 @@
     name: 'slurmctld.service'
     state: 'started'
     enabled: 'yes'
-    daemon_reload: yes
+    daemon_reload: true
   become: true
 
 - name: 'Make backup dir.'
@@ -263,7 +263,7 @@
   tags: 'backup'
   become: true
 
-- name: 'Create Slurm accounting DB backup now.' # noqa 301
+- name: 'Create Slurm accounting DB backup now.'  # noqa 301
   shell: |
          mysqldump --all-databases \
              -uroot -p{{ MYSQL_ROOT_PASSWORD }} \

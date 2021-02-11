@@ -2,7 +2,7 @@
 - name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
   find:
     paths: "{{ playbook_dir }}/group_vars/"
-    recurse: yes
+    recurse: true
     patterns: 'ip_addresses.yml'
   register: ip_addresses_files
   delegate_to: localhost
@@ -19,7 +19,7 @@
     mode: 0644
     owner: root
     group: root
-    backup: yes
+    backup: true
   become: true
   tags: ['etc_hosts']
 ...

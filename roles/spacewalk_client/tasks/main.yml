@@ -2,7 +2,9 @@
 #
 # ToDo: this may fail when deploying a cluster from scratch
 # when DNS resolving is not yet properly configured resulting in:
-# 'Failure downloading https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/spacewalk-2.8-client/epel-7-x86_64/00742644-spacewalk-repo/spacewalk-client-repo-2.8-11.el7.centos.noarch.rpm, Request failed: <urlopen error [Errno -2] Name or service not known>'
+# 'Failure downloading https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/spacewalk-2.8-client/\
+#  epel-7-x86_64/00742644-spacewalk-repo/spacewalk-client-repo-2.8-11.el7.centos.noarch.rpm,
+#  Request failed: <urlopen error [Errno -2] Name or service not known>'
 #
 - name: 'Install spacewalk client repo.'
   yum:
@@ -13,7 +15,7 @@
 
 - name: 'Install spacewalk client packages.'
   yum:
-   name:
+    name:
      - 'rhn-client-tools'
      - 'rhn-check'
      - 'rhn-setup'
@@ -27,7 +29,7 @@
 - name: 'Enable spacewalk service.'
   systemd:
     name: 'rhnsd.service'
-    enabled: yes
+    enabled: true
     state: started
   notify:
     - 'restart_rhnsd'
@@ -45,7 +47,7 @@
   until: result is succeeded
   retries: 3
   delay: 3
-  ignore_errors: yes
+  ignore_errors: true
   no_log: true
   become: true
 
@@ -70,9 +72,9 @@
 
 - name: 'Upgrade all packages to version specified in spacewalk channel.'
   yum:
-   name: '*'
-   state: latest
-   update_cache: yes
-   exclude: 'slurm*' # Specific Slurm versions configured in slurm-* roles, because we use a custom patched version.
+    name: '*'
+    state: latest
+    update_cache: true
+    exclude: 'slurm*'  # Specific Slurm versions configured in slurm-* roles, because we use a custom patched version.
   become: true
 ...

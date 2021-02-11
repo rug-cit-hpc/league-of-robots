@@ -24,7 +24,11 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            export ANSIBLE_ROLES_PATH="${HOME}/.ansible/roles/:${ANSIBLE_ROLES_PATH:-}"
+            if [[ -n "${ANSIBLE_ROLES_PATH:-}" ]]; then
+                export ANSIBLE_ROLES_PATH="${HOME}/.ansible/roles/:${ANSIBLE_ROLES_PATH}"
+            else
+                export ANSIBLE_ROLES_PATH="${HOME}/.ansible/roles/"
+            fi
             ansible-lint cluster.yml deploy-os_servers.yml > lint_results 2>&1 || true
             cat lint_results
             errors=$(grep -c '^[0-9]* [A-Z].*' lint_results)

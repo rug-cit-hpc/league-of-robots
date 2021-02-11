@@ -72,7 +72,7 @@
 - name: Enable services.
   systemd:
     name: "{{ item }}"
-    enabled: yes
+    enabled: true
     state: started
   with_items:
     - nslcd

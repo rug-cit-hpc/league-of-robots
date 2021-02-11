@@ -24,19 +24,19 @@
     bind_dn: "{{ ldap_binddn }}"
     bind_pw: "{{ bindpw }}"
     attributes:
-     gidNumber: "{{ auth_groups[item].gid }}"
+      gidNumber: "{{ auth_groups[item].gid }}"
   with_items: "{{ regular_groups }}"
 
 - name: 'Add private groups for home dirs of users to parent entry for groups.'
   ldap_entry:
-    dn: "cn={{ item.user }},ou=groups,{{ ldap_base }}" # Use same name as user's account name for user's private group.
+    dn: "cn={{ item.user }},ou=groups,{{ ldap_base }}"  # Use same name as user's account name for user's private group.
     objectClass: 'posixGroup'
     state: present
     server_uri: "{{ ldap_uri }}"
     bind_dn: "{{ ldap_binddn }}"
     bind_pw: "{{ bindpw }}"
     attributes:
-     gidNumber: "{{ auth_users[item.user].uid }}" # Use same GID as user's UID for user's private group.
+      gidNumber: "{{ auth_users[item.user].uid }}"  # Use same GID as user's UID for user's private group.
   with_items: "{{ regular_users }}"
 
 - name: 'Add users to parent entry for users.'
@@ -57,7 +57,7 @@
       cn: "{{ item.user }}"
       uid: "{{ item.user }}"
       uidNumber: "{{ auth_users[item.user].uid }}"
-      gidNumber: "{{ auth_users[item.user].uid }}" # primary group == private group for user.
+      gidNumber: "{{ auth_users[item.user].uid }}"  # primary group == private group for user.
       homeDirectory: "/home/{{ item.user }}"
       loginShell: '/bin/bash'
       sshPublicKey: "{{ auth_users[item.user].pub_keys }}"

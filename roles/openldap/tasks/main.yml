@@ -7,8 +7,8 @@
     group: root
     mode: '0600'
   with_items:
-      - openldap.service
-      - phpldapadmin.service
+    - openldap.service
+    - phpldapadmin.service
   become: true
 
 - name: Make directory for the openldap ldif volume.
@@ -35,10 +35,10 @@
   systemd:
     name: "{{ item }}"
     state: started
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
   with_items:
-      - openldap.service
-      - phpldapadmin.service
+    - openldap.service
+    - phpldapadmin.service
   become: true
 ...

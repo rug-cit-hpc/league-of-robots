@@ -2,7 +2,7 @@
 - name: Install generic build depedencies.
   yum:
     state: latest
-    update_cache: yes
+    update_cache: true
     name:
       - '@development'
       - 'glibc-common'

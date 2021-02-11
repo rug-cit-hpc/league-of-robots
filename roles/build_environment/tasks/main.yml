@@ -1,8 +1,8 @@
 #
-# Deploy a basic/generic build environment on both 
+# Deploy a basic/generic build environment on both
 #  * User Interface: to allow regular users to compile extra stuff in their home or in a tmp group dir.
 #  * Deploy Admin Interface: to allow deploy admins to compile and deploy apps using EasyBuild.
-# The DAI requires additional packages for compiling Slurm, Lmod, Lua, Ansible, etc., 
+# The DAI requires additional packages for compiling Slurm, Lmod, Lua, Ansible, etc.,
 # which users won't need.
 #
 ---

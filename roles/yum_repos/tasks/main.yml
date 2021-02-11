@@ -4,7 +4,7 @@
     name: "{{ item }}"
     description: "{{ yum_repos[item].description }}"
     baseurl: "{{ yum_repos[item].baseurl }}"
-    gpgcheck: no
+    gpgcheck: false
   with_items: "{{ yum_repos }}"
   become: true
 ...
