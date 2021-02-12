@@ -40,7 +40,10 @@
   hosts: jumphost
 
 - name: 'Sanity checks before we start.'
-  hosts: all
+  hosts:
+    - jumphost
+    - cluster
+    - docs
   pre_tasks:
     - name: 'Verify Ansible version meets requirements.'
       assert:
