@@ -316,4 +316,5 @@ lfs_mounts: [
 ega_fuse_client_mounts:
   solve_rd: '/groups/umcg-solve-rd/prm03/ega-fuse-client'
 ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
+grub_default: '"CentOS Linux (3.10.0-1062.4.1.el7.x86_64) 7 (Core)"'
 ...
