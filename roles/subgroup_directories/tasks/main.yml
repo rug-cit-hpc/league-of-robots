@@ -1,7 +1,7 @@
 ---
 - name: 'Loop over "prm" file systems.'
   include_tasks:
-    file: "{{ playbook_dir }}/roles/subgroup_directories/tasks/create_subgroup_directories.yml"
+    file: create_subgroup_directories.yml
   vars:
     lfs: "{{ lfs_item.0.lfs }}"
     group: "{{ lfs_item.1 }}"
@@ -17,7 +17,7 @@
 
 - name: 'Loop over "tmp" file systems.'
   include_tasks:
-    file: "{{ playbook_dir }}/roles/subgroup_directories/tasks/create_subgroup_directories.yml"
+    file: create_subgroup_directories.yml
   vars:
     lfs: "{{ lfs_item.0.lfs }}"
     group: "{{ lfs_item.1 }}"

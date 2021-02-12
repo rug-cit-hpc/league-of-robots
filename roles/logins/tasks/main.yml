@@ -100,7 +100,7 @@
 
 - name: 'Set tiny quota for regular users on jumphosts.'
   include_tasks:
-    file: "{{ playbook_dir }}/roles/logins/tasks/jumphost-quota.yml"
+    file: jumphost-quota.yml
   when:
     - inventory_hostname in groups['jumphost'] | default([])
 

@@ -97,7 +97,7 @@
 
 - name: 'Install MkDocs on RedHat 7.x.'
   include_tasks:
-    file: "{{ playbook_dir }}/roles/online_docs/tasks/mkdocs-for-redhat7.yml"
+    file: mkdocs-for-redhat7.yml
   when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "7"
 
 - name: 'Create base directories for MarkDown and HTML files.'

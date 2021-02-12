@@ -1,7 +1,9 @@
 ---
-- include_tasks: enable_swap.yml
+- include_tasks:
+    file: enable_swap.yml
   when: swap_file_state == 'enabled'
 
-- include_tasks: disable_swap.yml
+- include_tasks:
+    file: disable_swap.yml
   when: swap_file_state != 'enabled'
 ...
