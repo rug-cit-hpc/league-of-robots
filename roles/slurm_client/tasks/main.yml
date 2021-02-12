@@ -49,8 +49,8 @@
 - name: 'Install the Slurm client with yum.'
   yum:
     state: 'installed'
-    update_cache: yes
-    allow_downgrade: yes
+    update_cache: true
+    allow_downgrade: true
     name:
       - "slurm*{{ slurm_version }}"
       - "slurm-slurmd*{{ slurm_version }}"
@@ -76,7 +76,7 @@
 - name: 'Install NHC with yum.'
   yum:
     state: 'latest'
-    update_cache: yes
+    update_cache: true
     name:
       - 'lbnl-nhc'
   notify:

@@ -1,4 +1,4 @@
 ---
 dependencies:
-    - { role: mariadb }
+    - role: mariadb
 ...

@@ -3,7 +3,7 @@
 - name: Install yum dependencies
   yum:
     state: latest
-    update_cache: yes
+    update_cache: true
     name:
       - openldap-clients
       - nss-pam-ldapd
@@ -72,7 +72,7 @@
 - name: Enable services.
   systemd:
     name: "{{ item }}"
-    enabled: yes
+    enabled: true
     state: started
   with_items:
     - nslcd

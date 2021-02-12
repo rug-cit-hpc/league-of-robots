@@ -13,7 +13,7 @@
   yum:
     name: lustre-client-2.10.8-1.el7.x86_64
     state: present
-    update_cache: yes
+    update_cache: false
   become: true
 
 - name: make endpoints to mount datahandling storage on.
@@ -37,7 +37,7 @@
     mode: 0644
     owner: root
     group: root
-    backup: no
+    backup: false
 
 - name: Mount dh1
   mount:
@@ -57,6 +57,7 @@
 
 - name: mount all mountpoints in fstab
   # Mount -a does not change anything if nothing needs changing.
-  command: mount -a # noqa 301
+  command: mount -a  # noqa no-changed-when
   args:
     warn: false
+...

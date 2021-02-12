@@ -23,7 +23,7 @@
     group: "{{ item.user }}"
     groups: "{{ item.groups }}"
     home: "/home/{{ item.user }}"
-    append: no
+    append: false
   with_items: "{{ regular_users }}"
   become: true
 
@@ -32,7 +32,7 @@
     user: "{{ item.user }}"
     key: "{{ auth_users[item.user].pub_keys }}"
     state: present
-    exclusive: yes
+    exclusive: true
   with_items: "{{ regular_users }}"
   become: true
 ...

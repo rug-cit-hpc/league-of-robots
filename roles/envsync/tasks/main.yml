@@ -16,8 +16,8 @@
     group: "{{ envsync_user }}"
     groups: "{{ envsync_group }}"
     home: "/home/{{ envsync_user }}"
-    create_home: no
-    append: no
+    create_home: false
+    append: false
   become: false
 
 #
@@ -50,7 +50,7 @@
       module list
     marker: "# {mark} ANSIBLE MANAGED BLOCK - Setup environment for environment synchronization account."
     insertafter: EOF
-    create: no
+    create: false
   become: true
 
 - name: 'Deploy script to verify and if necessary fix prmissions of the environment managed by the envsync account.'

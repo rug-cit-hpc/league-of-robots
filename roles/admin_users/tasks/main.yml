@@ -43,7 +43,7 @@
     group: admin
     groups: "{{ local_admin_groups }}"
     home: "/admin/{{ item }}"
-    append: no
+    append: false
   with_items: "{{ local_admin_users }}"
   become: true
 - name: 'Deploy authorized keys for admins.'
@@ -51,7 +51,7 @@
     user: "{{ item }}"
     key: "{{ auth_users[item].pub_keys }}"
     state: present
-    exclusive: yes
+    exclusive: true
   with_items: "{{ local_admin_users }}"
   become: true
 ...

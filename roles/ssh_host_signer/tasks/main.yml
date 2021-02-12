@@ -47,7 +47,7 @@
     src: "{{ ssh_host_signer_ca_private_key }}"
     dest: "{{ temporary_directory.path }}/{{ ssh_host_signer_ca_private_key | basename }}"
     mode: '0600'
-    decrypt: yes
+    decrypt: true
   delegate_to: localhost
   become: false
 
@@ -115,7 +115,7 @@
     owner: root
     group: root
     mode: '0644'
-    backup: yes
+    backup: true
   with_items: "{{ private_keys.files | selectattr('path', 'match', ssh_host_signer_key_types) | list }}"
   notify: reload_sshd
   become: true

@@ -9,7 +9,7 @@
 
 #
 # This is currently problematic when
-# * the default user used to login to the cluster is different from 
+# * the default user used to login to the cluster is different from
 # * the default user used to login on the webserver where the docs are hosted
 # as you can specify only one account name with -u on the commandline when running ansible-playbook.
 #
@@ -28,13 +28,13 @@
       scontrol version | head -n 1 | sed 's|^slurm *\([0-9\.]*\).*$|\1|' | tr -d '\n'
   args:
     executable: '/bin/bash'
-    warn: no
+    warn: false
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
   delegate_to: "{{ groups['user_interface'] | first }}"
   changed_when: false
   failed_when: false
-  check_mode: no
+  check_mode: false
   register: 'slurm_version'
 
 - name: 'Get Lmod version from UI.'
@@ -51,13 +51,13 @@
       lmod -v | sed '/^$/d' | sed 's|^.*Version \([0-9\.]*\).*$|\1|' | head -1
   args:
     executable: '/bin/bash'
-    warn: no
+    warn: false
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
   delegate_to: "{{ groups['user_interface'] | first }}"
   changed_when: false
   failed_when: false
-  check_mode: no
+  check_mode: false
   register: 'lmod_version'
 
 - name: 'Set selinux in permissive mode.'
@@ -69,7 +69,7 @@
 - name: 'Install EPEL repo and rsync.'
   yum:
     state: 'latest'
-    update_cache: yes
+    update_cache: true
     name:
       - 'epel-release'
       - 'rsync'
@@ -78,7 +78,7 @@
 - name: 'Install webserver and php.'
   yum:
     state: 'latest'
-    update_cache: yes
+    update_cache: true
     name:
       - 'php'
       - 'httpd'
@@ -89,7 +89,7 @@
 - name: 'Enable webserver.'
   service:
     name: "{{ item }}"
-    enabled: yes
+    enabled: true
     state: 'started'
   with_items:
     - 'httpd'
@@ -97,7 +97,7 @@
 
 - name: 'Install MkDocs on RedHat 7.x.'
   include_tasks:
-    file: "{{ playbook_dir }}/roles/online_docs/tasks/mkdocs-for-redhat7.yml"
+    file: mkdocs-for-redhat7.yml
   when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "7"
 
 - name: 'Create base directories for MarkDown and HTML files.'
@@ -219,9 +219,9 @@
       - '--perms'
       - '--force'
   with_items:
-    - src:  'ssh-client-config.app'
+    - src: 'ssh-client-config.app'
       dest: "ssh-client-config-for-{{ slurm_cluster_name }}.app"
-    - src:  'mount-cluster-drives.app'
+    - src: 'mount-cluster-drives.app'
       dest: 'mount-cluster-drives.app'
   notify:
     - 'zip_attachments'
@@ -252,8 +252,7 @@
     mode: "{{ item.mode }}"
   with_items:
     #
-    # For macOS users we inject the configuration script for this cluster into the AppleScript app skeleton:
-    # 
+    # For macOS users we inject the configuration script for this cluster into the AppleScript app skeleton.
     #
     - src: 'ssh-client-config.bash'
       dest: "ssh-client-config-for-{{ slurm_cluster_name }}.app/Contents/MacOS/ssh-client-config.command"

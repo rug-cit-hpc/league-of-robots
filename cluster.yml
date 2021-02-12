@@ -105,7 +105,7 @@
   hosts:
     - cluster
   roles:
-    - ldap # client
+    - ldap  # client
     - sshd
     - regular_users
     - shared_storage

@@ -82,7 +82,7 @@
     owner: root
     group: root
   tags:
-      - service-files
+    - service-files
   become: true
   notify: restart_ega-fuse-client
 
@@ -90,8 +90,8 @@
   systemd:
     name: "ega-fuse-client@{{ item.key }}.service"
     state: started
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
   with_dict: "{{ ega_fuse_client_mounts }}"
   become: true
 ...
