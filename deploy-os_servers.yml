@@ -69,6 +69,8 @@
         dns_nameservers: "{{ nameservers }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+      tags:
+        - never
     - name: "Create {{ network_id_private_storage }} network."
       openstack.cloud.network:
         name: "{{ network_id_private_storage }}"
