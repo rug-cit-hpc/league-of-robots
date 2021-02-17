@@ -49,7 +49,7 @@ network_id_public_external: vlan16
 network_id_private_management: internal_management
 network_id_private_storage: internal_storage
 public_ip_addresses:
-  lobby: ''
+  lobby: '195.169.22.135'
 availability_zone: nova
 local_volume_size_vcompute: 1
 local_volume_size_management: 1
