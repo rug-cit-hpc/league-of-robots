@@ -189,6 +189,7 @@ function setIisilonDirectoryQuota () {
 	local _soft_limit="${2}"
 	local _hard_limit="${3}"
 	local _grace_period="${4}"
+	local _enforce="${5:-false}"
 	local _quota_stats
 	local _quota_cmd
 	#
@@ -203,7 +204,7 @@ function setIisilonDirectoryQuota () {
 	fi
 	if [[ "${apply_settings}" -eq 1 ]]; then
 		log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Running 'isi quota quotas ${_quota_cmd}' for ${_path} with limits soft=${_soft_limit}, hard=${_hard_limit} and grace=${_grace_period} ..."
-		isi quota quotas "${_quota_cmd}" "${_path}" directory --enforced=true --container=true \
+		isi quota quotas "${_quota_cmd}" "${_path}" directory --enforced="${_enforce}" --container=true \
 			--soft-threshold="${_soft_limit}" \
 			--hard-threshold="${_hard_limit}" \
 			--soft-grace="${_grace_period}"
@@ -274,7 +275,32 @@ for pfs in "${pfss[@]}"; do
 			log4Zsh 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "No home dirs found in ${pfs}/home/."
 		else
 			for home_dir in "${home_dirs[@]}"; do
-				setIisilonDirectoryQuota "${home_dir}" '1G' '2G' '7D'
+				setIisilonDirectoryQuota "${home_dir}" '1G' '2G' '7D' 'true'
+			done
+		fi
+	fi
+	if [[ -e "${pfs}/groups" ]]; then
+		log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Processing groups on PFS ${pfs} ..."
+		declare -a groups
+		groups=($(find "${pfs}/groups/" -mindepth 1 -maxdepth 1 -type d))
+		if [[ "${#groups[@]:-0}" -eq 0 ]]; then
+			log4Zsh 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "No groups found in ${pfs}/groups/."
+		else
+			for group in "${groups[@]}"; do
+				group_dirs=($(find "${pfs}/groups/${group}/" -mindepth 1 -maxdepth 1 -type d))
+				if [[ "${#group_dirs[@]:-0}" -eq 0 ]]; then
+					log4Zsh 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "No group dirs found in ${pfs}/groups/${group}/."
+				else
+					for group_dir in "${group_dirs[@]}"; do
+						if [[ -r "${pfs}/groups/${group}/${group_dir}/.quota" ]]; then
+							
+						setIisilonDirectoryQuota "${group_dir}" '1G' '2G' '7D' 'false'
+						
+						else
+							log4Zsh 'WARN' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "${pfs}/groups/${group}/${group_dir}/.quota missing or not readable."
+						fi
+					done
+				fi
 			done
 		fi
 	fi
