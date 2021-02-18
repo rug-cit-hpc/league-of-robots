@@ -1,5 +1,13 @@
 ---
 ip_addresses:
+  calculon-management:
+    addr: 172.23.40.247
+    mask: /32
+    vlan: vlan983
+  calculon-storage:
+    addr: 172.23.34.247
+    mask: /32
+    vlan: vlan985
   winterpeen:
     addr: 172.23.40.230
     mask: /32
