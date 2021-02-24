@@ -165,7 +165,7 @@ ip_addresses:
     fqdn:
     desc: User Interface
   lobby:
-    addr: 10.10.1.162
+    addr: 10.10.1.144
     mask: /32
     vlan: internal_management
     fqdn:
