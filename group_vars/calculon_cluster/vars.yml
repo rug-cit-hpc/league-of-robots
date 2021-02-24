@@ -18,6 +18,44 @@ motd: |
           This does not affect prm0* group folders,
           which are on a different (production) storage system.
       =========================================================
+additional_etc_hosts:
+  - group: all
+    hosts:
+      - docs
+  - group: boxy_cluster
+    hosts:
+      - boxy-management
+      - boxy-storage
+  - group: calculon_cluster
+    hosts:
+      - calculon-management
+      - calculon-storage
+      - winterpeen
+      - umcg-node001
+      - umcg-node002
+      - umcg-node003
+      - umcg-node004
+      - umcg-node005
+      - umcg-node006
+      - umcg-node007
+      - umcg-node008
+      - umcg-node009
+      - umcg-node010
+      - umcg-node011
+      - umcg-node012
+      - umcg-node013
+      - umcg-node014
+      - umcg-node015
+      - umcg-node016
+      - umcg-node017
+      - umcg-node018
+      - umcg-node019
+      - umcg-node020
+      - calculon
+      - umcg
+      - boxy
+      - bender
+      - flexo
 ui_hostnames: "{{ slurm_cluster_name }}"
 ui_sockets: 4
 ui_cores_per_socket: 1
