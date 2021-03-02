@@ -5,9 +5,7 @@
         ldapsearch -LLL -D '{{ ldap_binddn }}' -w '{{ bindpw }}' -b '{{ ldap_base }}' -H '{{ ldap_uri }}' \
             "(ObjectClass=GroupofNames)" dn \
           | tr "=," "\n" \
-          | fgrep "{{ group }}" \
-          | grep -v "^{{ group }}$" \
-          | grep -- "-v[0-9][0-9]*$" \
+          | grep "^{{ group }}-.*-v[0-9][0-9]*$" \
           || true
       register: versioned_subgroups
     - set_fact:  # noqa unnamed-task
@@ -18,11 +16,10 @@
       shell: |
         ldapsearch -LLL -D '{{ ldap_binddn }}' -w '{{ bindpw }}' -b '{{ ldap_base }}' -H '{{ ldap_uri }}' \
             "(ObjectClass=GroupofNames)" dn \
-            | tr "=," "\n" \
-            | fgrep "{{ group }}" \
-            | grep -v "^{{ group }}$" \
-            | grep -v -- "-v[0-9][0-9]*$\|-dms$\|-owners$" \
-            || true
+          | tr "=," "\n" \
+          | grep "^{{ group }}-.*$" \
+          | grep -v -- "-v[0-9][0-9]*$\|-dms$\|-owners$" \
+          || true
       register: unversioned_subgroups
     - set_fact:  # noqa unnamed-task
         unversioned_subgroups_list: "{% if unversioned_subgroups.stdout | length %}{{ unversioned_subgroups.stdout.split('\n') | list }}{% endif %}"
