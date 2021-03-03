@@ -257,6 +257,8 @@ regular_users:
 # Shared storage related variables
 #
 lustre_quota_type: 'group'
+lustre_client_version: '2.10.8-1.el7.x86_64'
+lustre_client_networks: 'tcp11(vlan985.lustre),tcp12(vlan985.lustre)'
 pfs_mounts: [
   { pfs: 'umcgst10',
     source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster',
