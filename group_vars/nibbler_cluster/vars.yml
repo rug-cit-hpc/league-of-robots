@@ -124,8 +124,8 @@ pfs_mounts: [
   { pfs: 'umcgst01',
     source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1',
     type: 'lustre',
-    rw_options: 'defaults,lazystatfs,flock',
-    ro_options: 'defaults,lazystatfs,ro' },
+    rw_options: 'defaults,_netdev,flock',
+    ro_options: 'defaults,_netdev,ro' },
 ]
 lfs_mounts: [
   { lfs: 'home',

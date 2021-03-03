@@ -264,13 +264,13 @@ pfs_mounts: [
   { pfs: 'umcgst02',
     source: '172.23.57.203@tcp12:172.23.57.204@tcp12:/dh2',
     type: 'lustre',
-    rw_options: 'defaults,lazystatfs,flock',
-    ro_options: 'defaults,lazystatfs,ro' },
+    rw_options: 'defaults,_netdev,flock',
+    ro_options: 'defaults,_netdev,ro' },
   { pfs: 'umcgst03',
     source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1',
     type: 'lustre',
-    rw_options: 'defaults,lazystatfs,flock',
-    ro_options: 'defaults,lazystatfs,ro' },
+    rw_options: 'defaults,_netdev,flock',
+    ro_options: 'defaults,_netdev,ro' },
 ]
 #
 # Only anlysis team development (umcg-atd) group, which is exclusively used for testing has prm01 folder/mount for now.
