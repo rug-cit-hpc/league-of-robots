@@ -1,0 +1,34 @@
+---
+- name: Set to boot the desired kernel.
+  lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_DEFAULT='
+    line: "GRUB_DEFAULT={{ grub_default | default('0') }}"
+  become: true
+  notify: grub2-mkconfig
+
+- meta: flush_handlers
+
+- name: Install the Lustre client.
+  yum:
+    name: "lustre-client-{{ lustre_client_version }}"
+    state: present
+    update_cache: false
+  become: true
+
+- name: Load the Lustre kernel module.
+  modprobe:
+    name: lustre
+    state: present
+  become: true
+
+- name: Deploy lustre.conf
+  template:
+    src: templates/lustre.conf
+    dest: /etc/modprobe.d/lustre.conf
+    mode: 0644
+    owner: root
+    group: root
+    backup: false
+  become: true
+...
