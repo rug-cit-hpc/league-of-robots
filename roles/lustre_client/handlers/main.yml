@@ -1,12 +1,6 @@
 ---
-- name: Generate new GRUB config.
-  command: 'grub2-mkconfig -o /boot/grub2/grub.cfg'
-  become: true
-  notify: grub2-reboot
-  listen: grub2-mkconfig
-
-- name: Reboot the machine with new GRUB config.
+- name: Reboot machine with new kernel.
   reboot:
   become: true
-  listen: grub2-reboot
+  listen: reboot
 ...
