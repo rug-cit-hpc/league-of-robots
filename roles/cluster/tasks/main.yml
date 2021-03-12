@@ -51,12 +51,13 @@
   become: true
 
 - name: Add custom config files to /etc/skel/.
-  synchronize:
+  ansible.posix.synchronize:
     src: "{{ playbook_dir }}/roles/cluster/files/skel/./{{ item.src }}"
     dest: '/etc/skel/'
     owner: 'no'
     group: 'no'
-    use_ssh_args: 'yes'
+    use_ssh_args: true
+    ssh_connection_multiplexing: true
     rsync_opts:
       # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
       #                   for file systems like NFS mounts that cannot handle setting dir times properly.

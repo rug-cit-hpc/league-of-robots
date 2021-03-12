@@ -123,12 +123,13 @@
   become: true
 
 - name: 'Create static files for index in document root.'
-  synchronize:
+  ansible.posix.synchronize:
     src: "{{ playbook_dir }}/roles/online_docs/files/index//./{{ item.src }}"
     dest: "/var/www/html/"
     owner: 'no'
     group: 'no'
-    use_ssh_args: 'yes'
+    use_ssh_args: true
+    ssh_connection_multiplexing: true
     rsync_opts:
       # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
       #                   for file systems like NFS mounts that cannot handle setting dir times properly.
@@ -167,12 +168,13 @@
   become: true
 
 - name: 'Create static files for MarkDown.'
-  synchronize:
+  ansible.posix.synchronize:
     src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/docs/./{{ item.src }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
     owner: 'no'
     group: 'no'
-    use_ssh_args: 'yes'
+    use_ssh_args: true
+    ssh_connection_multiplexing: true
     rsync_opts:
       # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
       #                   for file systems like NFS mounts that cannot handle setting dir times properly.
@@ -204,12 +206,13 @@
   become: true
 
 - name: 'Create skeleton for AppleScript apps.'
-  synchronize:
+  ansible.posix.synchronize:
     src: "{{ playbook_dir }}/roles/online_docs/files/attachments/{{ item.src }}/./"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.dest }}"
     owner: 'no'
     group: 'no'
-    use_ssh_args: 'yes'
+    use_ssh_args: true
+    ssh_connection_multiplexing: true
     recursive: 'yes'
     rsync_opts:
       - '--relative'
