@@ -1,6 +1,6 @@
 ---
 slurm_cluster_name: 'nibbler'
-slurm_cluster_domain: 'hpc.rug.nl'
+slurm_cluster_domain: ''  # Only add hpc.rug.nl domain when jumphost is registered in DNS.
 stack_prefix: 'nb'
 slurm_version: '18.08.8-1.el7.umcg'
 rhn_channels:
@@ -120,6 +120,7 @@ regular_users:
 #
 # Shared storage related variables
 #
+lustre_client_networks: 'tcp11(vlan???.lustre),tcp12(vlan???.lustre)'
 pfs_mounts: [
   { pfs: 'umcgst01',
     source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1',

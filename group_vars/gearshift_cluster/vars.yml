@@ -253,7 +253,6 @@ regular_users:
 # Shared storage related variables
 #
 lustre_quota_type: 'group'
-lustre_client_version: '2.10.8-1.el7.x86_64'
 lustre_client_networks: 'tcp11(vlan985.lustre),tcp12(vlan985.lustre)'
 pfs_mounts: [
   { pfs: 'umcgst10',
@@ -318,5 +317,4 @@ lfs_mounts: [
 ega_fuse_client_mounts:
   solve_rd: '/groups/umcg-solve-rd/prm03/ega-fuse-client'
 ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
-grub_default: '"CentOS Linux (3.10.0-1062.4.1.el7.x86_64) 7 (Core)"'
 ...
