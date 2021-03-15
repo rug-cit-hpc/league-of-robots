@@ -342,12 +342,12 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
   ```bash
   export ANSIBLE_HOST_KEY_CHECKING=False
   export JUMPHOST_USER=[admin_account] # Requires SSH client config as per end user documentation: see above.
-  ansible-playbook -i inventory.py -u centos          -l 'cluster'      single_role_playbooks/admin_users.yml
-  ansible-playbook -i inventory.py -u root            -l 'docs'         single_role_playbooks/admin_users.yml
+  ansible-playbook -i inventory.py -u centos          -l 'repo,cluster'      single_role_playbooks/admin_users.yml
+  ansible-playbook -i inventory.py -u root            -l 'docs'              single_role_playbooks/admin_users.yml
   unset JUMPHOST_USER
-  ansible-playbook -i inventory.py -u [admin_account] -l 'cluster,docs' single_role_playbooks/ssh_host_signer.yml
+  ansible-playbook -i inventory.py -u [admin_account] -l 'repo,cluster,docs' single_role_playbooks/ssh_host_signer.yml
   export ANSIBLE_HOST_KEY_CHECKING=True
-  ansible-playbook -i inventory.py -u [admin_account] -l 'cluster,docs' cluster.yml
+  ansible-playbook -i inventory.py -u [admin_account] -l 'repo,cluster,docs' cluster.yml
   ```
 * (Re-)deploying only a specific role - e.g. *slurm_management* - on the previously deployed test cluster *Talos*
   ```bash
