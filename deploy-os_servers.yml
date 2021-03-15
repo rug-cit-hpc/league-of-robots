@@ -269,6 +269,54 @@
       vars:
         query: '[?specs[?"OS-EXT-IPS:type"==`floating`]].vlan | [0]'
 ##############################################################################
+# Configure repo servers from inventory using Openstack API.
+##############################################################################
+- name: Create repo servers.
+  hosts: repo
+  connection: local
+  gather_facts: false
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+    - name: Create persistent data volume for repo server.
+      openstack.cloud.volume:
+        display_name: "{{ inventory_hostname }}-volume"
+        size: "{{ local_volume_size_repo }}"
+        state: present
+        availability_zone: "{{ storage_availability_zone | default('nova') }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: Create repo server.
+      openstack.cloud.server:
+        state: present
+        name: "{{ inventory_hostname }}"
+        image: "{{ cloud_image }}"
+        flavor: "{{ flavor_management }}"
+        security_groups: "{{ slurm_cluster_name }}_cluster"
+        auto_floating_ip: false
+        nics:
+          - net-name: "{{ network_id_private_management }}"
+        userdata: |
+          #cloud-config
+          password: "{{ cloud_console_pass }}"
+          chpasswd: { expire: False }
+          #
+          # Add each entry to ~/.ssh/authorized_keys for the configured user
+          # or the first user defined in the user definition directive.
+          #
+          ssh_authorized_keys:
+          {% for public_key in public_keys_of_local_admins %}  - {{ public_key }}
+          {% endfor %}
+        availability_zone: "{{ availability_zone }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      register: repo_vm
+##############################################################################
 # Configure UIs from inventory using Openstack API.
 ##############################################################################
 - name: Create User Interfaces.
@@ -447,7 +495,7 @@
         dest: "{{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml.new"
         mode: '0644'
       vars:
-        relevant_servers_list: "{{ groups['jumphost'] + groups['cluster'] }}"
+        relevant_servers_list: "{{ groups['jumphost'] + groups['repo'] + groups['cluster'] }}"
         relevant_servers_info: "{{ api_server_info.openstack_servers | selectattr('name', 'in', relevant_servers_list) | list }}"
     - name: "ToDo"
       debug:

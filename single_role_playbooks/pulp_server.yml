@@ -1,0 +1,53 @@
+#
+#   1.   $> cd git/league-of-robots
+#   2. Create VM for Pulp with deploy-os_servers.yml playbook.
+#   3. Fetch Ansible dependencies
+#        $> ansible-galaxy install -r galaxy-requirements.yml
+# Configure this repo for deployment of a specifc HPC cluster.
+#   4. Source lor-init from this repo. E.g.:
+#        $> source ./lor-init
+#   5. Configure League of Robots for a specific cluster. E.g.:
+#        $> lor-config nibbler
+#   6. Execute playbook to deploy Pulp. E.g.:
+#        $> ansible-playbook -i inventory.py -u <admin> deploy-pulp.yml
+#
+---
+- name: 'Sanity checks before we start.'
+  hosts: repo
+  pre_tasks:
+    - name: 'Verify Ansible version meets requirements.'
+      assert:
+        that: "ansible_version.full is version_compare('2.10', '>=')"
+        msg: 'You must update Ansible to at least 2.10.x to use this playbook.'
+  vars:
+    pulp_default_admin_password: password
+    pulp_install_plugins:
+      # galaxy-ng: {}
+      # pulp-2to3-migration: {}
+      # pulp-ansible: {}
+      # pulp-certguard: {}
+      # pulp-container: {}
+      # pulp-cookbook: {}
+      # pulp-deb: {}
+      pulp-file: {}
+      # pulp-gem: {}
+      # pulp-maven: {}
+      # pulp-npm: {}
+      # pulp-python: {}
+      # pulp-rpm: {}
+    pulp_settings:
+      secret_key: secret
+      content_origin: "{{ pulp_webserver_disable_https | default(false) | ternary('http', 'https') }}://{{ ansible_fqdn }}"
+  roles:
+    - admin_users
+    - ssh_host_signer
+    - ssh_known_hosts
+    - logins
+    - {role: geerlingguy.repo-epel, become: true}
+    - static_hostname_lookup
+    - sshd
+    - {role: geerlingguy.security, become: true}
+    - pulp.pulp_installer.pulp_all_services
+  environment:
+    DJANGO_SETTINGS_MODULE: pulpcore.app.settings
+...

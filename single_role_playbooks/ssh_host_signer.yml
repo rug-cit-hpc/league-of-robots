@@ -1,6 +1,7 @@
 ---
 - hosts:
     - jumphost
+    - repo
     - cluster
     - docs
   roles:

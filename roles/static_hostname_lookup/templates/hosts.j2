@@ -20,6 +20,15 @@
 {{ "%-15s" | format(ip_addresses[server_hostname].addr) }}    {{ server_hostname }}
   {% endfor %}
 {% endif %}
+{% if groups['repo'] is defined and groups['repo'] | length >= 1 %}
+#
+# Repo servers
+#
+  {% for server in groups['repo'] %}
+     {% set server_hostname = server | regex_replace('^' + ai_jumphost + '\\+','') %}
+{{ "%-15s" | format(ip_addresses[server_hostname].addr) }}    {{ server_hostname }}
+  {% endfor %}
+{% endif %}
 {% if groups['sys_admin_interface'] is defined and groups['sys_admin_interface'] | length >= 1 %}
 #
 # Sys Admin Interfaces (SAIs)
