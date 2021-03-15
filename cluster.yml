@@ -57,8 +57,8 @@
     - ssh_host_signer
     - ssh_known_hosts
     - yum_repos
-    - logins
     - {role: geerlingguy.repo-epel, become: true}
+    - logins
     - ldap
     - static_hostname_lookup
     - sshd
