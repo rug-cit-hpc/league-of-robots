@@ -19,35 +19,7 @@
       assert:
         that: "ansible_version.full is version_compare('2.10', '>=')"
         msg: 'You must update Ansible to at least 2.10.x to use this playbook.'
-- name: 'Satisfy dependencies for Pulp.'
-  hosts: repo
-  roles:
-    - admin_users
-    - ssh_host_signer
-    - ssh_known_hosts
-    - {role: geerlingguy.repo-epel, become: true}
-    - logins
-    - static_hostname_lookup
-    - sshd
-    - {role: geerlingguy.security, become: true}
-  tasks:
-    - name: 'Upgrade all packages to the latest and greatest version.'
-      yum:
-        name: '*'
-        state: latest
-        update_cache: true
-      become: true
-    - name: 'Install cron job to reboot jumphost regularly to activate kernel updates.'
-      cron:
-        name: 'Reboot to load new kernel.'
-        weekday: '1'
-        minute: '45'
-        hour: '11'
-        user: root
-        job: /bin/needs-restarting -r >/dev/null 2>&1 || /sbin/shutdown -r +60 "Restarting to apply updates..."
-        cron_file: reboot
-      become: true
-- name: 'Install Pulp.'
+- name: 'Satisfy dependencies for and install Pulp.'
   hosts: repo
   vars:
     pulp_default_admin_password: password
@@ -69,6 +41,14 @@
       secret_key: secret
       content_origin: "{{ pulp_webserver_disable_https | default(false) | ternary('http', 'https') }}://{{ ansible_fqdn }}"
   roles:
+    - admin_users
+    - ssh_host_signer
+    - ssh_known_hosts
+    - logins
+    - {role: geerlingguy.repo-epel, become: true}
+    - static_hostname_lookup
+    - sshd
+    - {role: geerlingguy.security, become: true}
     - pulp.pulp_installer.pulp_all_services
   environment:
     DJANGO_SETTINGS_MODULE: pulpcore.app.settings
