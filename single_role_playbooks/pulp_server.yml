@@ -44,8 +44,8 @@
     - admin_users
     - ssh_host_signer
     - ssh_known_hosts
-    - logins
     - {role: geerlingguy.repo-epel, become: true}
+    - logins
     - static_hostname_lookup
     - sshd
     - {role: geerlingguy.security, become: true}
