@@ -10,4 +10,6 @@ roles:
 collections:
   - name: openstack.cloud
     version: '>=1.2.1'
+  - name: ansible.posix
+    version: '>=1.2.0'
 ...

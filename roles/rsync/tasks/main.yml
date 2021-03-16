@@ -1,6 +1,6 @@
 #
 # Install rsync on managed hosts and verify if rsync on both managed and control hosts meet minimum requirements.
-# This role must be applied before using the Ansible "synchronize" task in other roles.
+# This role must be applied before using the Ansible "ansible.posix.synchronize" task in other roles.
 #
 # This role should not be confused with the rsyncd role,
 # which configures an rsync deamon on a managed host.
