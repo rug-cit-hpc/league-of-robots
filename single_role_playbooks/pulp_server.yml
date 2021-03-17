@@ -40,6 +40,7 @@
     pulp_settings:
       secret_key: secret
       content_origin: "{{ pulp_webserver_disable_https | default(false) | ternary('http', 'https') }}://{{ ansible_fqdn }}"
+<<<<<<< HEAD
   roles:
     - admin_users
     - ssh_host_signer
@@ -50,6 +51,18 @@
     - sshd
     - {role: geerlingguy.security, become: true}
     - pulp.pulp_installer.pulp_all_services
+=======
+>>>>>>> Created new role to apply updates with handler to reboot for kernel updates and to create a cronjob to reboot for kernel updates on machines that receive dayly updates.
   environment:
     DJANGO_SETTINGS_MODULE: pulpcore.app.settings
+  roles:
+    - admin_users
+    - ssh_host_signer
+    - ssh_known_hosts
+    - {role: geerlingguy.repo-epel, become: true}
+    - logins
+    - static_hostname_lookup
+    - sshd
+    - {role: geerlingguy.security, become: true}
+    - update
 ...
