@@ -410,6 +410,9 @@ In fact if you do specify a partition it will be removed automagically from your
 We use various shared storage systems with quota. 
 Some are optimized for _High Performance_ (HP) while others are optimized for _High Availability_ (HA). 
 To make optimal use of the available storage please consult the [storage](../storage/) page.
+Note that _High Performance_ (HP) for shared storage systems means high bandwidth, but not low latency.
+If your workload results in serial or streaming IO patterns your jobs can read or write directly from the shared storage systems.
+If your workload on the other hand results in random IO patterns, you should consider using [local scratch space on a cluster node](#local-storage) instead.
 
 To get the status of quota limits for groups and filesystems your account has access to you can use:
 ```
@@ -426,7 +429,7 @@ Alternatively you can use an ```#SBATCH``` comment in the header of your script 
 ```
 #SBATCH --constraint="tmp02&prm02"
 ```
-Note that when specifying multiple features they must joined with an ampersand and the list must be quoted.
+Note that when specifying multiple features they must be joined with an ampersand and the list must be quoted.
 
 For the complete picture and which tmp filesystems are available on which nodes look for the _FEATURES_ column in:
 ```
@@ -439,7 +442,13 @@ cnodes
 
 #### Local scratch space on a cluster node
 
-If you want to use local disk space on a node instead of or in addition to the shared storage, you need to request local disk space either on the commandline when submitting your job like this:
+Local scratch disks on compute nodes have a lot less capacity than large shared file systems and may have less bandwidth too,
+but feature lower latency as the data does not have to travel over network to a compute node.
+This makes local scratch space the preferred type of storage for workloads that result in random IO patterns.
+
+{% if vcompute_local_disk | default(0, true) | int > 0 %}
+If you want to use local disk space on a node instead of or in addition to the shared storage,
+you need to request local disk space either on the commandline when submitting your job like this:
 ```
 sbatch --tmp=4gb myScript.sh
 ```
@@ -455,7 +464,11 @@ ${TMPDIR}
 ```
 Please make sure you do not use more disk space then requested. 
 Jobs consuming local scratch space outside their ```${TMPDIR}``` will be deleted without notice as they interfere with scheduling.
-
+{% else %}
+The compute nodes of this cluster do not have local scratch disks.
+If your workload uses a random IO pattern that produces too much load on a shared file system,
+you should consider using a different algorithm or different cluster.
+{% endif %}
 ## Debugging and Frequent Asked Question (FAQs)
 
 #### Q: How do I know what environment is available to my job on an execution host?

@@ -30,11 +30,11 @@ In addition to LFS-ses for _home dirs_ and the centrally deployed _software_  an
 
 ## Resources available to Slurm jobs
 
-| Resource            | Amount/value/name                      |
-|:------------------- | --------------------------------------:|
-| Compute nodes       | {{ vcompute_hostnames }}               |
-| Cores/node          | {{ vcompute_max_cpus_per_node }}       |
-| RAM/node \(MB\)     | {{ vcompute_max_mem_per_node }}        |
-| Storage/node \(MB\) | {{ vcompute_local_disk }}              |
-| Node features       | {{ vcompute_features }}                |
+| Resource            | Amount/value/name                            |
+|:------------------- | --------------------------------------------:|
+| Compute nodes       | {{ vcompute_hostnames }}                     |
+| Cores/node          | {{ vcompute_max_cpus_per_node }}             |
+| RAM/node \(MB\)     | {{ vcompute_max_mem_per_node }}              |
+| Storage/node \(MB\) | {{ vcompute_local_disk | default(0, true) }} |
+| Node features       | {{ vcompute_features }}                      |
 
