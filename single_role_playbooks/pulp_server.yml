@@ -36,7 +36,7 @@
       # pulp-maven: {}
       # pulp-npm: {}
       # pulp-python: {}
-      # pulp-rpm: {}
+      pulp-rpm: {}
     pulp_settings:
       secret_key: secret
       content_origin: "{{ pulp_webserver_disable_https | default(false) | ternary('http', 'https') }}://{{ ansible_fqdn }}"
@@ -52,4 +52,5 @@
     - sshd
     - {role: geerlingguy.security, become: true}
     - update
+    - pulp.pulp_installer.pulp_all_services
 ...
