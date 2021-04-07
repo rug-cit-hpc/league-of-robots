@@ -11,7 +11,7 @@
 
 ### Generate key pair
 
-To generate an RSA key pair with OpenSSH, type the following command:
+To generate a key pair with OpenSSH, type the following command:
 ```no-highlight
 ssh-keygen -t ed25519 -C "your_comment_see_below"
 ```
