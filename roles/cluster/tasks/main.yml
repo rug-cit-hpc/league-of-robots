@@ -25,6 +25,7 @@
       - git
       - git-core
       - gnutls
+      - irods-icommands
       - libsodium
       - lsof
       - nano
