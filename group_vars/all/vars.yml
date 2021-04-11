@@ -48,4 +48,23 @@ yum_repos:
   umcg-centos7:
     description: 'UMCG YUM repo for CentOS 7.'
     baseurl: http://spacewalk02.hpc.rug.nl/umcg-centos7
+#
+# Pulp repos.
+#
+pulp_repos:
+  centos7-base:
+    description: 'CentOS-7 - Base.'
+    baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/centos7-base/"
+  centos7-updates:
+    description: 'CentOS-7 - Updates.'
+    baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/centos7-updates/"
+  centos7-extras:
+    description: 'CentOS-7 - Extras.'
+    baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/centos7-extras/"
+  epel7:
+    description: 'Extra Packages for Enterprise Linux 7 (EPEL).'
+    baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/epel7/"
+  cpel7:
+    description: 'UMCG Custom Packages for Enterprise Linux 7 (CPEL).'
+    baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/cpel7/"
 ...

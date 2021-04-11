@@ -40,6 +40,9 @@
     pulp_settings:
       secret_key: secret
       content_origin: "{{ pulp_webserver_disable_https | default(false) | ternary('http', 'https') }}://{{ ansible_fqdn }}"
+    pulp_root_cert_path_on_repo_server: "/etc/pulp/certs/root.crt"
+    pulp_root_cert_path_on_control_host: "{{ playbook_dir }}/files/{{ slurm_cluster_name }}_cluster/\
+                                          {{ inventory_hostname | regex_replace('^' + ai_jumphost + '\\+','') }}_pulp_root.crt"
   environment:
     DJANGO_SETTINGS_MODULE: pulpcore.app.settings
   roles:
@@ -53,4 +56,24 @@
     - {role: geerlingguy.security, become: true}
     - update
     - pulp.pulp_installer.pulp_all_services
+  tasks:
+    - name: Get checksum of Pulp root certificate on repo server.
+      stat:
+        path: "{{ pulp_root_cert_path_on_repo_server }}"
+        checksum_algorithm: sha1
+      register: repo_server_pulp_root_certificate
+      become: true
+    - name: Checking if Pulp root certificate must be updated.
+      debug:
+        msg: |
+             ***********************************************************************************************************
+             IMPORTANT: Manual work!
+                        The Pulp root certificate on the Pulp repo server in:
+                            {{ pulp_root_cert_path_on_repo_server }}
+                        Differs from the Pulp root certificate on the Ansible control host in:
+                            {{ pulp_root_cert_path_on_control_host }}
+                        Check which one is correct and update the other one.
+             ***********************************************************************************************************
+      when:  repo_server_pulp_root_certificate.stat.checksum | default('Missing Pulp root certificate checksum on repo server', true) != 
+             lookup('unvault', pulp_root_cert_path_on_control_host) | hash('sha1')
 ...

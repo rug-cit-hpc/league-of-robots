@@ -4,6 +4,7 @@ slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'tl'
 slurm_version: '18.08.8-1.el7.umcg'
 slurm_allow_jobs_to_span_nodes: true
+repo_manager: 'spacewalk'
 rhn_channels:
   - umcg2020
 mailhub: '172.23.34.34'

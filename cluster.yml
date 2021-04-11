@@ -76,7 +76,8 @@
     - ssh_host_signer
     - ssh_known_hosts
     - swap
-    - spacewalk_client
+    - {role: spacewalk_client, when: repo_manager == 'spacewalk'}
+    - {role: pulp_client, when: repo_manager == 'pulp'}
     - update
     - logins
     - figlet_motd
