@@ -182,7 +182,7 @@ class UserKeys(object):
     @property
     def ldap_keys(self):
         """
-        Retreive the keys from the standard ldap wrapper.
+        Retrieve the keys from the standard ldap wrapper.
 
         Returns:
             str: The keys of a user.

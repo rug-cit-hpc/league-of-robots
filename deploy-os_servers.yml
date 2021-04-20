@@ -138,6 +138,16 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow LDAPS inbound on port {{ ldaps_port }}."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_jumphosts"
+        direction: ingress
+        protocol: tcp
+        port_range_min: "{{ ldaps_port }}"
+        port_range_max: "{{ ldaps_port }}"
+        remote_ip_prefix: 0.0.0.0/0  # ToDo restrict to {{ ldap_uri }}
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
     - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow ICMP inbound."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_jumphosts"
@@ -169,6 +179,16 @@
         remote_group: "{{ slurm_cluster_name }}_jumphosts"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow LDAPS inbound on port {{ ldaps_port }}."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_cluster"
+        direction: ingress
+        protocol: tcp
+        port_range_min: "{{ ldaps_port }}"
+        port_range_max: "{{ ldaps_port }}"
+        remote_ip_prefix: 0.0.0.0/0  # ToDo restrict to {{ ldap_uri }}
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
     - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow ICMP inbound from {{ slurm_cluster_name }}_jumphosts security group."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_cluster"
@@ -184,7 +204,7 @@
         security_group: "{{ slurm_cluster_name }}_cluster"
         direction: ingress
         protocol: tcp
-        port_range_min: -1  # Pport range min -1 and max -1 means the same as min 1 and max 65535,
+        port_range_min: -1  # Port range min -1 and max -1 means the same as min 1 and max 65535,
         port_range_max: -1  # but the latter is not idempotent due to a known bug.
         remote_group: "{{ slurm_cluster_name }}_cluster"
         wait: true
@@ -194,7 +214,7 @@
         security_group: "{{ slurm_cluster_name }}_cluster"
         direction: ingress
         protocol: udp
-        port_range_min: -1  # Pport range min -1 and max -1 means the same as min 1 and max 65535,
+        port_range_min: -1  # Port range min -1 and max -1 means the same as min 1 and max 65535,
         port_range_max: -1  # but the latter is not idempotent due to a known bug.
         remote_group: "{{ slurm_cluster_name }}_cluster"
         wait: true
