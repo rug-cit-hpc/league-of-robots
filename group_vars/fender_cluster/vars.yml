@@ -3,6 +3,7 @@ slurm_cluster_name: 'fender'
 slurm_cluster_domain: ''
 stack_prefix: 'fd'
 slurm_version: '17.11.9-2.umcg.el7'
+repo_manager: 'spacewalk'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'slant'

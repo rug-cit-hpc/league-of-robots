@@ -3,8 +3,7 @@ slurm_cluster_name: 'nibbler'
 slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'nb'
 slurm_version: '18.08.8-1.el7.umcg'
-rhn_channels:
-  - umcg2020
+repo_manager: 'pulp'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'ogre'
@@ -74,6 +73,7 @@ network_id_private_storage: internal_storage
 public_ip_addresses:
   tunnel: '195.169.22.136'
 availability_zone: nova
+local_volume_size_repo: 20
 local_volume_size_vcompute: 1
 local_volume_size_management: 1
 nameservers: [
