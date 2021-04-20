@@ -24,6 +24,7 @@
   with_items: "{{ groups['repo'] }}"
   become: true
   notify: update-ca-trust
+- meta: flush_handlers
 - name: Find all *.repo files in /etc/yum.repos.d/.
   find:
     paths: '/etc/yum.repos.d/'
@@ -36,5 +37,15 @@
     state: absent
   with_items: "{{ yum_repo_configs.files | map (attribute='path') | list }}"
   when: item | basename | regex_replace('.repo$','') not in pulp_repos | default([])
+  become: true
+- name: Remove RHN/SpaceWalk if it was installed.
+  yum:
+    state: absent
+    name:
+      - rhn-client-tools
+      - rhn-check
+      - rhn-setup
+      - rhnsd
+      - yum-rhn-plugin
   become: true
 ...
