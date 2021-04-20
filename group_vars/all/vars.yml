@@ -67,4 +67,7 @@ pulp_repos:
   cpel7:
     description: 'UMCG Custom Packages for Enterprise Linux 7 (CPEL).'
     baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/cpel7/"
+  irods7:
+    description: 'RENCI iRODS Repository.'
+    baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/irods7/"
 ...
