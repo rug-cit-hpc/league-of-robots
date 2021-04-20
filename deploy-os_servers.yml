@@ -495,7 +495,7 @@
         dest: "{{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml.new"
         mode: '0644'
       vars:
-        relevant_servers_list: "{{ groups['jumphost'] + groups['repo'] + groups['cluster'] }}"
+        relevant_servers_list: "{{ groups['jumphost'] | default([]) + groups['repo'] | default([]) + groups['cluster'] | default([]) }}"
         relevant_servers_info: "{{ api_server_info.openstack_servers | selectattr('name', 'in', relevant_servers_list) | list }}"
     - name: "ToDo"
       debug:

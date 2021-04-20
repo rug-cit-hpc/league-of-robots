@@ -69,7 +69,7 @@ ui_ethernet_interfaces:
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
-ldap_uri: 'ldap://172.23.40.249'
+ldap_uri: 'ldaps://195.169.22.49'
 ldap_port: '389'
 ldaps_port: '636'
 ldap_base: 'ou=umcg,o=asds'
