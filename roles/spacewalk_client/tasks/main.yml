@@ -69,12 +69,4 @@
   changed_when: deleted_items.stdout | length >= 1
   failed_when: deleted_items.stderr | length >= 1
   become: true
-
-- name: 'Upgrade all packages to version specified in spacewalk channel.'
-  yum:
-    name: '*'
-    state: latest
-    update_cache: true
-    exclude: 'slurm*'  # Specific Slurm versions configured in slurm-* roles, because we use a custom patched version.
-  become: true
 ...
