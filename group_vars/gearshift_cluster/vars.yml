@@ -76,7 +76,7 @@ nameserver_domain_overrides:
 local_admin_groups:
   - 'admin'
   - 'docker'
-  local_admin_users:
+local_admin_users:
   - 'bob'
   - 'egon'
   - 'fokke'
