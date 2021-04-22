@@ -76,14 +76,16 @@ nameserver_domain_overrides:
 local_admin_groups:
   - 'admin'
   - 'docker'
-local_admin_users:
+  local_admin_users:
+  - 'bob'
   - 'egon'
+  - 'fokke'
   - 'ger'
   - 'henkjan'
-  - 'wim'
   - 'kees'
-  - 'robin'
   - 'marlies'
+  - 'robin'
+  - 'wim'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 functional_admin_group: 'umcg-funad'
