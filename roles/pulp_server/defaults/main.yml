@@ -1,3 +1,4 @@
+repo_management_user: 'repoadmin'
 pulp_default_admin_password: "{{ pulp_password }}"
 pulp_install_plugins:
   # galaxy-ng: {}

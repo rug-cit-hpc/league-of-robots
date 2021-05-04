@@ -1,3 +1,18 @@
+#
+# This pulp_server role depends on
+#     pulp.pulp_installer.pulp_all_services
+# which installs pulp itself.
+#
+# In this role we
+#  * Create a {{ repo_management_user }} user.
+#  * Install/check additional tooling like:
+#      * pulp-cli, which is the commandline interface to interact with a Pulp instance.
+#      * httpie, a commandline interface to interface with the Pulp API using GET/POST/PUT HTTP calls.
+#  * Configure some repositories and their remotes.
+#  * Sync repositories for the first time to create an initial repository version,
+#    create a publications for the initial repository version and distribute that publication.
+# Creating additional repository version, new publications and updating distribution is manual work for
+# the {{ repo_management_user }} and outside the scope for this pulp_server role.
 ---
 - name: Install packages with yum.
   yum:
@@ -9,6 +24,75 @@
       - jq
       - curl
   become: true
+
+- name: "Create local private group for {{ repo_management_user }} user's home dir."
+  group:
+    name: "{{ repo_management_user }}"                 # Use same name as user's account name for user's private group.
+    gid: "{{ auth_users[repo_management_user].uid }}"  # Use same GID as user's UID for user's private group.
+    state: present
+  become: true
+
+- name: Create /admin root dir for the home dirs of local admin users.
+  file:
+    path: '/admin'
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+  become: true
+
+- name: "Create local {{ repo_management_user }} user."
+  user:
+    name: "{{ repo_management_user }}"
+    uid: "{{ auth_users[repo_management_user].uid }}"
+    comment: "{{ auth_users[repo_management_user].comment }}"
+    group: "{{ repo_management_user }}"
+    home: "/admin/{{ repo_management_user }}"
+    append: false
+  become: true
+
+- name: "Initialize {{ repo_management_user }} account creating home dir if it did not exist yet."
+  command: "su - {{ repo_management_user }}"
+  register: repo_management_user_login
+  failed_when: repo_management_user_login.rc != 0
+  changed_when: "'Creating home directory' in repo_management_user_login.stdout"
+  become: true
+
+- name: "Allow passwordless sudo to the {{ repo_management_user }} account for Pulp admin users."
+  lineinfile:
+    dest: '/etc/sudoers'
+    line: "%admin    ALL=({{ repo_management_user }})    NOPASSWD:ALL"
+    owner: root
+    group: root
+    mode: '0440'
+  become: true
+
+- name: "Install pulp-cli from PyPi using pip and into a dedicated virtualenv in the {{ repo_management_user }} user's home."
+  pip:
+    name: pulp-cli[pygments]>0.8.0
+    virtualenv: "/admin/{{ repo_management_user }}/pulp-cli.venv"
+  become: true
+  become_user: "{{ repo_management_user }}"
+
+- name: "Deploy ~.netrc file for {{ repo_management_user }} user."
+  template:
+    src: templates/repo_management_user.netrc.j2
+    dest: "/admin/{{ repo_management_user }}/.netrc"
+    mode: 0600
+    owner: "{{ repo_management_user }}"
+    group: "{{ repo_management_user }}"
+  become: true
+  become_user: "{{ repo_management_user }}"
+
+- name: "Deploy ~.config/pulp/settings.toml file for {{ repo_management_user }} user."
+  template:
+    src: templates/repo_management_user.settings.toml.j2
+    dest: "/admin/{{ repo_management_user }}/.config/pulp/settings.toml"
+    mode: 0600
+    owner: "{{ repo_management_user }}"
+    group: "{{ repo_management_user }}"
+  become: true
+  become_user: "{{ repo_management_user }}"
 
 - name: Get checksum of Pulp root certificate on repo server.
   stat:
