@@ -75,6 +75,19 @@
   become: true
   become_user: "{{ repo_management_user }}"
 
+- name: Create folders for config files.
+  file:
+    name: "{{ item }}"
+    owner: "{{ repo_management_user }}"
+    group: "{{ repo_management_user }}"
+    mode: '0750'
+    state: 'directory'
+  with_items:
+    - "/admin/{{ repo_management_user }}/.config/"
+    - "/admin/{{ repo_management_user }}/.config/pulp/"
+  become: true
+  become_user: "{{ repo_management_user }}"
+
 - name: "Deploy ~.netrc file for {{ repo_management_user }} user."
   template:
     src: templates/repo_management_user.netrc.j2
