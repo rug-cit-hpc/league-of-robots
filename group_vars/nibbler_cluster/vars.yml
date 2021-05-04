@@ -4,6 +4,7 @@ slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'nb'
 slurm_version: '18.08.8-1.el7.umcg'
 repo_manager: 'pulp'
+repo_management_user: 'repoadmin'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'ogre'
