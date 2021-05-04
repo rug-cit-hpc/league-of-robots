@@ -69,7 +69,8 @@
 
 - name: "Install pulp-cli from PyPi using pip and into a dedicated virtualenv in the {{ repo_management_user }} user's home."
   pip:
-    name: pulp-cli[pygments]>0.8.0
+    name: pulp-cli[pygments]>=0.8.0
+    virtualenv_command: 'python3 -m venv'
     virtualenv: "/admin/{{ repo_management_user }}/pulp-cli.venv"
   become: true
   become_user: "{{ repo_management_user }}"
