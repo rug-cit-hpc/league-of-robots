@@ -15,5 +15,7 @@ collections:
     version: '>=1.2.0'
   - name: pulp.pulp_installer
     version: '>=3.12.2'
+  - name: pulp.squeezer
+    version: '>=0.0.8'
 ...
 
