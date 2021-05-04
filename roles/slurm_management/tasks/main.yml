@@ -99,11 +99,12 @@
     - 'restart_slurmctld'
   become: true
 
-- name: 'Patch slurm daemon systemd service files to use custom sub dir for PID files.'
+# See: https://bugs.schedmd.com/show_bug.cgi?id=8388
+- name: 'Patch slurm daemon systemd service files to disable PID files.'
   lineinfile:
     path: "/usr/lib/systemd/system/{{ item }}.service"
-    regexp: '^PIDFile='
-    line: "PIDFile=/var/run/slurm/{{ item }}.pid"
+    regexp: '^#?PIDFile='
+    line: "#PIDFile=/var/run/slurm/{{ item }}.pid"
     owner: root
     group: root
     mode: '0644'
