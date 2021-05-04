@@ -1,0 +1,21 @@
+pulp_default_admin_password: "{{ pulp_password }}"
+pulp_install_plugins:
+  # galaxy-ng: {}
+  # pulp-2to3-migration: {}
+  # pulp-ansible: {}
+  # pulp-certguard: {}
+  # pulp-container: {}
+  # pulp-cookbook: {}
+  # pulp-deb: {}
+  pulp-file: {}
+  # pulp-gem: {}
+  # pulp-maven: {}
+  # pulp-npm: {}
+  # pulp-python: {}
+  pulp-rpm: {}
+pulp_settings:
+  secret_key: "{{ pulp_secret }}"
+  content_origin: "{{ pulp_webserver_disable_https | default(false) | ternary('http', 'https') }}://{{ ansible_fqdn }}"
+pulp_root_cert_path_on_repo_server: "/etc/pulp/certs/root.crt"
+pulp_root_cert_path_on_control_host: "{{ playbook_dir }}/files/{{ slurm_cluster_name }}_cluster/\
+                                      {{ inventory_hostname | regex_replace('^' + ai_jumphost + '\\+','') }}_pulp_root.crt"
