@@ -1,4 +1,8 @@
-repo_management_user: 'repoadmin'
+repo_management_user: repoadmin
+pulp_user: admin
+pulp_api_host: localhost
+pulp_api_port: 24817
+pulp_api_baseurl: "http://{{ pulp_api_host }}:{{ pulp_api_port }}"
 pulp_default_admin_password: "{{ pulp_password }}"
 pulp_install_plugins:
   # galaxy-ng: {}
