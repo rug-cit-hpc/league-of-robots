@@ -3,9 +3,9 @@
 Table of Contents:
 
 * [Summary](#-summary)
-* [Create Server](#-create-server)
-* [Install Pulp](#-install-pulp)
-* [Configure Repositories](#-configure-repos)
+* [Create Pulp server](#-create-server)
+* [Install Pulp & configure repositories with Ansible](#-install-pulp-ansible)
+* [Configure Pulp manually](#-configure-pulp-manually)
 
 ---
 
@@ -19,6 +19,8 @@ So far we use Pulp only for _RPMs_, so we need (the documentation for) the _**Pu
 
 
 ### Pulp Concepts:
+
+ ![](./media/pulp.svg)
 
 Pulp uses the following concepts:
 
@@ -40,7 +42,8 @@ Pulp uses the following concepts:
 ### API only
 
 Pulp started as API only. There is a command line interface (CLI) in beta, but there is no GUI.
-Other projects like Katello provide GUIs for Pulp. We don't use any GUI on top of Pulp to keep deployment as simple as possible.
+Other projects like Katello provide GUIs for Pulp. We don't use any GUI on top of Pulp to keep deployment as simple as possible;
+it has enough dependencies already.
 
 ### Pulp uses storage efficiently:
 
@@ -50,6 +53,12 @@ Other projects like Katello provide GUIs for Pulp. We don't use any GUI on top o
    This means that Pulp will only fetch the meta-data for artifacts when a repository is synchronized with that remote.
    The artifacts themselves will only get fetched from the remote when a client requests them.
 
+### Additional tooling
+
+ * [Pulp CLI](https://github.com/pulp/pulp-cli): Pulp command line interface.
+ * [Pulp Installer](https://github.com/pulp/pulp_installer): Ansible roles to install or upgrade a Pulp 3 server.
+ * [Pulp Squeezer](https://github.com/pulp/squeezer): Ansible collection to manage repos on a Pulp 3 server.
+
 ### Documentation
 
  * Pulp core docs https://docs.pulpproject.org/pulpcore/index.html
@@ -57,22 +66,70 @@ Other projects like Katello provide GUIs for Pulp. We don't use any GUI on top o
  * Pulp core API  https://docs.pulpproject.org/pulpcore/restapi.html
  * Pulp RPM API   https://docs.pulpproject.org/pulp_rpm/restapi.html
  * Pulp RPM API example scripts: https://github.com/pulp/pulp_rpm/tree/master/docs/_scripts
+ * Pulp Installer docs https://pulp-installer.readthedocs.io/en/latest/
+ * Pulp Squeezer docs are not online (yet). You will need to look at the code  
+   either in GitHub: https://github.com/pulp/squeezer
+   or once you have this Ansible collection installed from the commandline using: `ansible-doc pulp.squeezer.<module_name>`
+ 
+# <a name="Create-Server"/> Create Pulp Server
 
-# <a name="Create-Server"/> Create Server
-
-### 1. Use deploy-os_server.yml
+### Use deploy-os_server.yml playbook
 
 The `deploy-os_server.yml` playbook can be used to create all VMs for a cluster including a repo server.
 This playbook requires the _OpenStack SDK_ to be installed and configured on your _Ansible control host_;
 See the `README.md` in the root of this repo for details.
 
+# <a name="Install-Pulp-Ansible"/> Install Pulp & configure repositories with Ansible
 
+### Using the pulp_server role
 
+Make sure the requirements/dependencies from Ansible Galaxy were installed.
+The exec summary:
+```bash
+ansible-galaxy install -r galaxy-requirements.yml
+```
+See the `README.md` in the root of this repo for details.
+Next you can use
+```bash
+. ./lor-init
+lor-config [name-of-the-cluster]
+ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/pulp_server.yml
+```
+This will install Pulp, create an admin account to manage Pulp and install the Pulp CLI in a Python virtual environment
+for that admin account. It will also do part of the initial configuration, but this is incomplete due to missing features in _Pulp Squeezer_;
+the *pulp_server* role can create _remotes_ and _repositories_, but it cannot associate a _remote_ with a _repository_ yet.
+Furthermore the role cannot know when you would to sync a _repo_ with a _remote_ to update content.
 
+### Manual work following the pulp_server role
+
+The following steps must be performed manually for now:
+
+ * Add content (RPMs) to a _repository_ for the ones without _remote_.
+ * Add a _remote_ to a _repository_.
+ * Sync a _repository_ with a _remote_.
+ * Create a new _publication_ for a _repository version_.
+ * Create a new _distribition_ for a _publication_.
+ * Update the _publication_ for an existing _distribition_.
+
+You can use
+
+ * Either Pulp CLI commands where possible (easier and recommended)
+ * Or send raw HTTP GET/PUT calls to the Pulp API using a commandline HTTP client like HTTPie or cURL
+   (harder, but required where Pulp CLI support is incomplete).
+
+See the example commands below for what was initially configured manually for the ```nb-repo``` Pulp server.
+
+# <a name="Configure-Pulp-Manually"/> Configure Pulp manually
+
+Notes from manual installation and configuration of the ```nb-repo``` Pulp server.
+
+### Install Pulp-CLI and other tools.
+
+```
 #
 # Root user
 #
-ssh pieter@tunnel+nb-repo
+ssh tunnel+nb-repo
 sudo su
 
 yum install nano
@@ -83,7 +140,7 @@ yum install curl # already present
 #
 # Admin user
 #
-ssh pieter@tunnel+nb-repo
+ssh tunnel+nb-repo
 
 touch -m 600 ~/.netrc
 nano -w ~/.netrc
@@ -91,13 +148,13 @@ nano -w ~/.netrc
 #### Add:
 # machine localhost
 # login admin
-# password password
+# password *****
 
 #
 # Create Python3 virtual env for pulp-cli
 #
-python3 -m venv pulp.venv
-source pulp.venv/bin/activate
+python3 -m venv pulp-cli.venv
+source pulp-cli.venv/bin/activate
 pip3 install pulp-cli[pygments]
 #
 # Configure pulp-cli
@@ -112,12 +169,11 @@ pulp config create -i  # interactive prompts
 #
 cat ~/.config/pulp/settings.toml
 pulp config validate --strict
+```
 
-#
-##
 ### Manual configuration with pulp CLI (beta)
-##
-#
+
+```
 pulp status
 pulp rpm repository list
 
@@ -326,14 +382,11 @@ pulp rpm publication create --repository epel7 --version 2
 pulp rpm distribution show --name nb-epel7
 pulp rpm distribution update --name nb-epel7 --publication /pulp/api/v3/publications/rpm/rpm/a4765571-dc89-47c3-a7d0-ed9b18fad287/
 pulp rpm distribution show --name nb-epel7
+```
 
-
-
-#
-##
 ### Manual API calls with HTTPie (http) command
-##
-#
+
+```
 export BASE_ADDR='http://localhost:24817'
 export CONTENT_ADDR='http://localhost:24816'
 
@@ -355,7 +408,7 @@ http POST "$BASE_ADDR"/pulp/api/v3/remotes/rpm/rpm/ \
     name='centos7-base-remote' \
     url='http://mirror.centos.org/centos/7/os/x86_64/' \
     policy='on_demand' \
-    tls_validation=False
+    tls_validation=True
 
 #
 # List remotes
@@ -383,26 +436,23 @@ export REPOVERSION_HREF
 echo "Inspecting RepositoryVersion."
 http "$BASE_ADDR""$REPOVERSION_HREF"
 
-
-
+#
 # Create RPM publication
+#
 echo "Create a task to create a publication."
 TASK_URL=$(http POST "$BASE_ADDR"/pulp/api/v3/publications/rpm/rpm/ \
     repository="/pulp/api/v3/repositories/rpm/rpm/eb7f9dd2-c086-45b4-97fd-362e34b0b314/" metadata_checksum_type=sha256 | jq -r '.task')
-
+#
 # Poll the task (here we use a function defined in docs/_scripts/base.sh)
+#
 wait_until_task_finished "$BASE_ADDR""$TASK_URL"
-
+#
 # After the task is complete, it gives us a new publication
+#
 echo "Set PUBLICATION_HREF from finished task."
 PUBLICATION_HREF=$(http "$BASE_ADDR""$TASK_URL"| jq -r '.created_resources | first')
 export PUBLICATION_HREF
 
 echo "Inspecting Publication."
 http "$BASE_ADDR""$PUBLICATION_HREF"
-
-
-
-
-
-
+```
