@@ -68,7 +68,21 @@
     - {role: grafana_proxy, when: ansible_hostname == 'airlock'}
     - regular_users
 
-- name: 'B. Basic roles for all cluster machines part 1.'
+- name: 'B. Roles for repo management servers.'
+  hosts: repo
+  roles:
+    - admin_users
+    - ssh_host_signer
+    - ssh_known_hosts
+    - {role: geerlingguy.repo-epel, become: true}
+    - logins
+    - static_hostname_lookup
+    - sshd
+    - {role: geerlingguy.security, become: true}
+    - update
+    - pulp_server
+
+- name: 'C. Basic roles for all cluster machines part 1.'
   hosts:
     - cluster
   roles:
@@ -87,7 +101,7 @@
     - resolver
     - coredumps
 
-- name: 'C. Create LDAP account server.'
+- name: 'D. Create LDAP account server.'
   hosts:
     - ldap_server
   roles:
@@ -96,7 +110,7 @@
         - use_ldap | default(true, true) | bool
         - create_ldap | default(false, true) | bool
 
-- name: 'D. Basic roles for all cluster machines part 2.'
+- name: 'E. Basic roles for all cluster machines part 2.'
   hosts:
     - cluster
   roles:
@@ -105,7 +119,7 @@
     - regular_users
     - shared_storage
 
-- name: 'E. Roles for SAIs.'
+- name: 'F. Roles for SAIs.'
   hosts:
     - sys_admin_interface
   roles:
@@ -121,14 +135,14 @@
     hostname_node0: "{{ ansible_hostname }}"
     ip_node0: "{{ ansible_default_ipv4['address'] }}"
 
-- name: 'F. Roles for DAIs.'
+- name: 'G. Roles for DAIs.'
   hosts: deploy_admin_interface
   roles:
     - mount_volume
     - build_environment
     - envsync
 
-- name: 'G. Roles for UIs.'
+- name: 'H. Roles for UIs.'
   hosts: user_interface
   roles:
     - build_environment
@@ -139,13 +153,13 @@
     - role: ega_fuse_client
       when: ega_fuse_client_mounts is defined and ega_fuse_client_mounts | length >= 1
 
-- name: 'H. Roles for compute nodes.'
+- name: 'I. Roles for compute nodes.'
   hosts: compute_vm
   roles:
     - mount_volume
     - slurm_client
 
-- name: 'I. Roles for documentation servers.'
+- name: 'J. Roles for documentation servers.'
   hosts:
     - docs
   roles:
