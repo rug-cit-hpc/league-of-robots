@@ -41,7 +41,7 @@
     path: "{{ item }}"
     state: absent
   with_items: "{{ yum_repo_configs.files | map (attribute='path') | list }}"
-  when: item | basename | regex_replace('.repo$','') not in pulp_repos | default([])
+  when: item | basename | regex_replace('.repo$','') not in pulp_repos | map(attribute='name') | list
   become: true
 
 - name: Remove RHN/SpaceWalk if it was installed.
