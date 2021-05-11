@@ -219,6 +219,8 @@
           * Create a new publication from the last repository version.
           * Create a distribution based on the new publication if it did not exist yet
             or update the existing distribution to serve the new publication.
+         For instructions and examples see:
+            .../league-of-robots/documentation/Configuring_Pulp.md
          ***********************************************************************************************************
   failed_when: true #  Always fail to get attention and inform user the work is not complete/done.
 ...
