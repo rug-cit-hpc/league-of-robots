@@ -1,3 +1,3 @@
 machine {{ inventory_hostname | regex_replace('^' + ai_jumphost + '\\+','') }}
-login {{ pulp_user }}
-password {{ pulp_password }}
+login {{ pulp_api_user }}
+password {{ pulp_api_password }}

@@ -39,13 +39,51 @@ Pulp uses the following concepts:
 5. _**Distribution**_:
    Is a location/URL where a _publication_ is served to clients usually over HTTP(S).
 
-### API only
+### Pulp Components
+
+A Pulp server consists of 3 components:
+
+ * REST API (a Django application running under a WSGI server)
+ * Content serving application (An aiohttp.server based application)
+ * Tasking system ([Redis Queue](https://python-rq.org/), which provides a _resource manager_ and _workers_)
+
+### Users and authentication
+
+Three different users are required for a complete Pulp installation.
+
+1. _**repo\_management\_user**_  
+   This is a Linux user/account.
+   Users in the Linux admin group can sudo to this user to manage Pulp manually.
+   E.g. create/update/delete artifacts, repositories, remotes, publications and distributions.
+2. _**pulp\_api\_user**_  
+   This is the account used by the *repo_management_user* to login to the Pulp API to work with Pulp.
+   The pulp_api_password is for this account.
+3. _**pulp\_user**_:  
+   This is a Linux user/account, which is used to run the Pulp daemons/services.
+   This is configured in the pulp.pulp_installer.pulp_all_services role our pulp_server role depends on.
+   The default *pulp_user* is _**pulp**_
+
+The pulp_api_user and pulp_api_password are only used to secure the API.
+
+ * The *pulp_api_user* must be _**admin**_ in Pulp 3.
+ * The *pulp_api_password* will be configured by the pulp-installer upon initial configuration with an Ansible playbook.
+   The pulp-intaller will **not** update a password though. Use the ```pulpcore-manager``` command to change the admin password:
+   ```bash
+   /usr/local/bin/pulpcore-manager reset-admin-password -p [password]
+   ```
+
+In theory you can require clients that want to fetch artifacts (like RPMs) from a Pulp server to authenticate to Pulp,
+but we don't require clients to authenticate.
+
+The *pulp_secret* is used by the Django app too; for "Any usage of cryptographic signing, unless a different key is provided."
+
+### For admins: API only
 
 Pulp started as API only. There is a command line interface (CLI) in beta, but there is no GUI.
 Other projects like Katello provide GUIs for Pulp. We don't use any GUI on top of Pulp to keep deployment as simple as possible;
 it has enough dependencies already.
 
-### Pulp uses storage efficiently:
+### Pulp uses storage efficiently
 
  * Multiple _distributions_ and _publications_ and _repository versions_ may have the same version of an _artifact_,
    which is stored only once.
