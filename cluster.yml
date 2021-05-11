@@ -15,20 +15,22 @@
 #       export ANSIBLE_HOST_KEY_CHECKING=True
 #       ansible-playbook -i inventory.py -u [admin_account] cluster.yml
 #     This will configure:
-#       A. Jumphost first as it is required to access the other machines.
-#       B. Basic roles for all cluster machines part 1:
+#       * Jumphost first as it is required to access the other machines.
+#       * Repo management server second as it is required for version control of the packages
+#         installed on all other machines except for the jumphost, which will always get the latest updates for security.
+#       * Basic roles for all cluster machines part 1:
 #           * Roles that do NOT require regular accounts or groups to be present.
-#       C. An LDAP with regular user accounts, which may be required for additional roles.
+#       * An LDAP with regular user accounts, which may be required for additional roles.
 #             (E.g. a chmod or chgrp for a file/folder requires the corresponding user or group to be present.)
-#       D. Basic roles for all cluster machines part 2:
+#       * Basic roles for all cluster machines part 2:
 #           * Roles that DO depend on regular accounts and groups.
-#       E. SAI as it is required to:
+#       * SAI as it is required to:
 #           * Configure layout on shared storage devices used by other machines.
 #           * Configure Slurm control and Slurm database.
-#       F. DAI
-#       G. UI
-#       H. Compute nodes
-#       I. Documentation server
+#       * DAI
+#       * UI
+#       * Compute nodes
+#       * Documentation server
 #
 
 #
@@ -39,136 +41,25 @@
 - name: 'Dummy play to ping jumphosts and establish a persistent SSH connection.'
   hosts: jumphost
 
-- name: 'Sanity checks before we start.'
-  hosts:
-    - jumphost
-    - cluster
-    - docs
-  pre_tasks:
-    - name: 'Verify Ansible version meets requirements.'
-      assert:
-        that: "ansible_version.full is version_compare('2.6', '>=')"
-        msg: 'You must update Ansible to at least 2.6.x to use this playbook.'
+- import_playbook: single_group_playbooks/pre_deploy_checks.yml
 
-- name: 'A. Roles for jumphosts.'
-  hosts: jumphost
-  roles:
-    - admin_users
-    - ssh_host_signer
-    - ssh_known_hosts
-    - yum_repos
-    - update
-    - {role: geerlingguy.repo-epel, become: true}
-    - logins
-    - ldap
-    - static_hostname_lookup
-    - sshd
-    - node_exporter
-    - {role: geerlingguy.security, become: true}
-    - {role: grafana_proxy, when: ansible_hostname == 'airlock'}
-    - regular_users
+- import_playbook: single_group_playbooks/jumphost.yml
 
-- name: 'B. Roles for repo management servers.'
-  hosts: repo
-  roles:
-    - admin_users
-    - ssh_host_signer
-    - ssh_known_hosts
-    - {role: geerlingguy.repo-epel, become: true}
-    - logins
-    - static_hostname_lookup
-    - sshd
-    - {role: geerlingguy.security, become: true}
-    - update
-    - pulp_server
+- import_playbook: single_group_playbooks/repo.yml
 
-- name: 'C. Basic roles for all cluster machines part 1.'
-  hosts:
-    - cluster
-  roles:
-    - admin_users
-    - ssh_host_signer
-    - ssh_known_hosts
-    - swap
-    - {role: spacewalk_client, when: repo_manager == 'spacewalk'}
-    - {role: pulp_client, when: repo_manager == 'pulp'}
-    - update
-    - logins
-    - figlet_motd
-    - node_exporter
-    - static_hostname_lookup
-    - cluster
-    - resolver
-    - coredumps
+- import_playbook: single_group_playbooks/cluster_part1.yml
 
-- name: 'D. Create LDAP account server.'
-  hosts:
-    - ldap_server
-  roles:
-    - role: openldap
-      when:
-        - use_ldap | default(true, true) | bool
-        - create_ldap | default(false, true) | bool
+- import_playbook: single_group_playbooks/ldap_server.yml
 
-- name: 'E. Basic roles for all cluster machines part 2.'
-  hosts:
-    - cluster
-  roles:
-    - ldap  # client
-    - sshd
-    - regular_users
-    - shared_storage
+- import_playbook: single_group_playbooks/cluster_part2.yml
 
-- name: 'F. Roles for SAIs.'
-  hosts:
-    - sys_admin_interface
-  roles:
-    - mount_volume
-    - slurm_management
-    - prom_server
-    - grafana
-    - cadvisor
-  vars:
-    # These variables are needed by the mariadb role.
-    # Which is a depencency of the slurm_management role.
-    # See roles/slurm/meta/main.yml
-    hostname_node0: "{{ ansible_hostname }}"
-    ip_node0: "{{ ansible_default_ipv4['address'] }}"
+- import_playbook: single_group_playbooks/sys_admin_interface.yml
 
-- name: 'G. Roles for DAIs.'
-  hosts: deploy_admin_interface
-  roles:
-    - mount_volume
-    - build_environment
-    - envsync
+- import_playbook: single_group_playbooks/deploy_admin_interface.yml
 
-- name: 'H. Roles for UIs.'
-  hosts: user_interface
-  roles:
-    - build_environment
-    - slurm_exporter
-    - slurm_client
-    - sudoers
-    - subgroup_directories
-    - role: ega_fuse_client
-      when: ega_fuse_client_mounts is defined and ega_fuse_client_mounts | length >= 1
+- import_playbook: single_group_playbooks/user_interface.yml
 
-- name: 'I. Roles for compute nodes.'
-  hosts: compute_vm
-  roles:
-    - mount_volume
-    - slurm_client
+- import_playbook: single_group_playbooks/compute_vm.yml
 
-- name: 'J. Roles for documentation servers.'
-  hosts:
-    - docs
-  roles:
-    - admin_users
-    - ssh_host_signer
-    - yum_repos
-    - update
-    - {role: geerlingguy.repo-epel, become: true}
-    - sshd
-    - {role: geerlingguy.security, become: true}
-    - online_docs
+- import_playbook: single_group_playbooks/docs.yml
 ...
