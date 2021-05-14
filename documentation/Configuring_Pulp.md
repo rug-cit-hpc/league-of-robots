@@ -2,19 +2,19 @@
 
 Table of Contents:
 
-* [Summary](#-summary)
-* [Create Pulp server](#-create-server)
-* [Install Pulp & configure repositories with Ansible](#-install-pulp-ansible)
-* [Configure Pulp manually](#-configure-pulp-manually)
+* [Intro](#-intro): About Pulp, concepts and documentation.
+* [Create Server](#-create-server): Create VM for Pulp with Ansible.
+* [Install and configure with Ansible](#-install-and-configure-with-ansible): Deploy Pulp & configure repositories both with Ansible.
+* [Configure manually with API](#-configure-manually-with-api): configure repositories manually using the Pulp API.
 
 ---
 
-# <a name="Summary"/> Summary
+# <a name="Intro"/> Intro
 
 We use [Pulp](https://pulpproject.org/) for repository management: caching and versioning of _artifacts_ like _RPMs_
 to make sure we can install a specific version of packages and hence recreate a machine in a specific state.
 
-Pulp can manage different type of _artifacts/repos_ using plug-ins. E.g. for _RPMs_, _Ansible roles_, _Python Packages_, etc.
+Pulp can manage different types of _artifacts/repos_ using plug-ins. E.g. for _RPMs_, _Ansible roles_, _Python Packages_, etc.
 So far we use Pulp only for _RPMs_, so we need (the documentation for) the _**Pulp core framework**_ and the _**Pulp RPM plug-in**_.
 
 
@@ -109,7 +109,7 @@ it has enough dependencies already.
    either in GitHub: https://github.com/pulp/squeezer
    or once you have this Ansible collection installed from the commandline using: `ansible-doc pulp.squeezer.<module_name>`
  
-# <a name="Create-Server"/> Create Pulp Server
+# <a name="Create-Server"/> Create Server
 
 ### Use deploy-os_server.yml playbook
 
@@ -117,7 +117,7 @@ The `deploy-os_server.yml` playbook can be used to create all VMs for a cluster 
 This playbook requires the _OpenStack SDK_ to be installed and configured on your _Ansible control host_;
 See the `README.md` in the root of this repo for details.
 
-# <a name="Install-Pulp-Ansible"/> Install Pulp & configure repositories with Ansible
+# <a name="Install-And-Configure-With-Ansible"/> Install and configure with Ansible
 
 ### Using the pulp_server role
 
@@ -136,7 +136,7 @@ ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/pulp_s
 This will install Pulp, create an admin account to manage Pulp and install the Pulp CLI in a Python virtual environment
 for that admin account. It will also do part of the initial configuration, but this is incomplete due to missing features in _Pulp Squeezer_;
 the *pulp_server* role can create _remotes_ and _repositories_, but it cannot associate a _remote_ with a _repository_ yet.
-Furthermore the role cannot know when you would to sync a _repo_ with a _remote_ to update content.
+Furthermore the role cannot know when you want to sync a _repo_ with a _remote_ to update content.
 
 ### Manual work following the pulp_server role
 
@@ -157,7 +157,7 @@ You can use
 
 See the example commands below for what was initially configured manually for the ```nb-repo``` Pulp server.
 
-# <a name="Configure-Pulp-Manually"/> Configure Pulp manually
+# <a name="Configure-Manually-With-Api"/> Configure manually with API
 
 Notes from manual installation and configuration of the ```nb-repo``` Pulp server.
 
