@@ -73,7 +73,11 @@ pulp_repos:
     #remote_url: no remote for our homebrew packages.
     client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/cpel7/"
   - name: irods7
-    description: 'RENCI iRODS Repository.'
+    description: 'RENCI iRODS Repository for Enterprise Linux 7.'
     remote_url: https://packages.irods.org/yum/pool/centos7/x86_64/
     client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/irods7/"
+  - name: lustre7
+    description: 'Lustre client Long Term Support (LTS) releases for Enterprise Linux 7.'
+    remote_url: https://downloads.whamcloud.com/public/lustre/latest-release/el7/client/
+    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/lustre7/"
 ...

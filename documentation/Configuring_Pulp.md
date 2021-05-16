@@ -159,7 +159,9 @@ See the example commands below for what was initially configured manually for th
 
 # <a name="Configure-Manually-With-Api"/> Configure manually with API
 
-Notes from manual installation and configuration of the ```nb-repo``` Pulp server.
+Below are notes from manual installation and configuration of the ```nb-repo``` Pulp server.
+These can be used as __examples__, but should not be used unmodified as a step by step guide.
+Note that part of what is listed below is now already configured with _Pulp Squeezer_ by the ```pulp_server``` _role_.
 
 ### Install Pulp-CLI and other tools.
 
@@ -180,6 +182,12 @@ yum install curl # already present
 #
 ssh tunnel+nb-repo
 
+#
+# repo_management_user is configured
+#   * either in roles/pulp_server/defaults/main.yml
+#   * or overruled in group_vars/[name-of-the-cluster]_cluster/vars.yml
+#
+sudo -u ${repo_management_user}
 touch -m 600 ~/.netrc
 nano -w ~/.netrc
 
@@ -223,6 +231,7 @@ pulp rpm remote create --tls-validation false --policy on_demand --name centos7-
 pulp rpm remote create --tls-validation false --policy on_demand --name centos7-extras-remote  --url http://mirror.centos.org/centos/7/extras/x86_64/
 pulp rpm remote create                        --policy on_demand --name epel7-remote           --url https://download.fedoraproject.org/pub/epel/7/x86_64/
 pulp rpm remote create                        --policy on_demand --name irods7-remote          --url https://packages.irods.org/yum/pool/centos7/x86_64/
+pulp rpm remote create                        --policy on_demand --name lustre7-remote         --url https://downloads.whamcloud.com/public/lustre/latest-release/el7/client/
 #
 # Create repos linked to remotes where available.
 # CPEL = Custom Packages for Enterprise Linux == our own repo without remote.
@@ -233,6 +242,7 @@ pulp rpm repository create --name centos7-extras  --remote centos7-extras-remote
 pulp rpm repository create --name epel7           --remote epel7-remote
 pulp rpm repository create --name cpel7           # does not have a remote
 pulp rpm repository create --name irods7          --remote irods7-remote
+pulp rpm repository create --name lustre7         --remote lustre7-remote
 #
 # Sync repos using remotes creating new repository versions.
 # Note: first version was "0"; this sync creates version "1".
@@ -241,7 +251,8 @@ pulp rpm repository sync --name centos7-base
 pulp rpm repository sync --name centos7-updates
 pulp rpm repository sync --name centos7-extras
 pulp rpm repository sync --name epel7
-pulp rpm repository sync --name irods7 
+pulp rpm repository sync --name irods7
+pulp rpm repository sync --name lustre7
 #
 # Add RPMs to CPEL repo.
 #
