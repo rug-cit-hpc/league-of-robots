@@ -246,7 +246,36 @@ When you exit the bash shell using either the ```exit``` command or by pressing 
 
 <a name="quality-of-service"></a>
 
-## Quality of Service (QoS)
+## Job priority and scheduling efficiency
+
+When it's busy and not enough resources are available to process all jobs simultaneously, some will have to wait in the queue.
+Which job will be started next is determined based on
+
+1. Job priority
+2. Backfill to improve scheduling efficiency
+
+#### Job priority
+
+Job priority is a relative weight and a combination of:
+
+1. _[Quality of Service](#quality-of-service)_ (QoS): a higher priority QoS has more weight than a lower priority one.
+2. _Fair Share_: Recent historic resource usage impacts your _fair share_;
+   The more resources you used recently, the lower your _fair share_ weight.
+3. Accrued _Queue Time_: the longer a job has been waiting in the queue, the higher the weight.
+
+#### Backfill
+
+To improve scheduling efficiency Slurm may use _backfill_ to start a lower priority job before a higher priority one if it does not delay the higher priority job.
+
+![QoS](img/backfill.svg)
+
+In this example the 2 small _1 core for 1 hour_ jobs had the lowest priority, but with backfill,
+Slurm will start them before the higher priority _5 core for 1 hour_ job, which has to wait for enough resources to become available.
+
+Please note that this is a simplified example taking only cores and time into account.
+In real life Slurm is playing sort of a multidimensional [Tetris](https://nl.wikipedia.org/wiki/Tetris) game taking other resources like memory into account too.
+
+## Quality of Service
 
 We use 5 Quality of Service (QoS) levels with 3 QoS sub-levels each. 
 The QoS sub-levels are automagically determined by the system to differentiate between short versus medium versus long running jobs 
@@ -272,11 +301,11 @@ By specifying a QoS level with higher priority you can request Slurm to re-order
 | panic mode | default x 2 | default x 2            | Occasionally: Just a few.                     | tmp only       |
 | ds         | default     | default                | Minimal: max 1 core + 1GB mem per job.        | tmp and prm    |
 
-Recent jobs have an impact on your _fair share_ weight when determining job priority: 
+Recent jobs determine your _fair share_ weight when calculating job priority: 
 The more resources you recently consumed the lower your priority for new jobs.
 The _usage factor_ determines the impact of your recent jobs on your _fair share_.
 This impact decays exponentially over time, so the older the job the less impact and after a few weeks those old jobs no longer impact your _fair share_ weight at all. 
-Please note that job priority is a combination of:
+Remember that job priority is a combination of:
 
  1. QoS weight
  2. Fair Share (recent historic usage) weight and
