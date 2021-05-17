@@ -29,11 +29,10 @@ Pulp uses the following concepts:
 2. _**Remote**_:
    A repository can be synced with an upstream _remote_
 3. _**Repository Version**_:
-   Each time a _rep_o gets modified 
-   (add content / delete content / sync with a _remote_)
-   a new immutable version is created.
+   A new immutable version is created ach time a _repo_ gets modified.
+   (E.g. add content / delete content / sync with a _remote_)
 4. _**Publication**_:
-   A _publication_ is a _repository version_ + metadata required by clients 
+   A _publication_ is a _repository version_ + metadata required by clients
    in order to be able to consume the content from that _repo version_.
    E.g. manifest files, indices, etc.
 5. _**Distribution**_:
