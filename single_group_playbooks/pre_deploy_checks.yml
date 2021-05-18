@@ -1,0 +1,13 @@
+- name: 'Sanity checks before we start.'
+  hosts:
+    - jumphost
+    - repo
+    - cluster
+    - docs
+  pre_tasks:
+    - name: 'Verify Ansible version meets requirements.'
+      assert:
+        that: "ansible_version.full is version_compare(minimal_ansible_version, '>=')"
+        msg: "You must update Ansible to at least {{ minimal_ansible_version }}.x to use this playbook."
+      vars:
+        minimal_ansible_version: 2.10
