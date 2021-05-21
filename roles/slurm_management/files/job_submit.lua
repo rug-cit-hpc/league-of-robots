@@ -101,11 +101,11 @@ function account_exists(group)
     return false
 end
 
-#
-# Use fairshare=parent only for (group) accounts to flatten the tree.
-# We use the groups only for reporting and not for differentiation in fair share factors.
-# See: https://bugs.schedmd.com/show_bug.cgi?id=3491
-#
+--
+-- Use fairshare=parent only for (group) accounts to flatten the tree.
+-- We use the groups only for reporting and not for differentiation in fair share factors.
+-- See: https://bugs.schedmd.com/show_bug.cgi?id=3491
+--
 function create_account(group)
     local retval = os.execute(string.format(
         "sacctmgr -i create account '%s' descr=scientists org=various parent=users fairshare=parent", group))
@@ -136,12 +136,12 @@ function association_exists(user, group)
     return false
 end
 
-#
-# Use fairshare=[integer] for (user) accounts.
-# Do not use fairshare=parent here, because that would give all users the same fair share,
-# which de facto disables fair share as all parents are groups with the same fair share.
-# See: https://bugs.schedmd.com/show_bug.cgi?id=3491
-#
+--
+-- Use fairshare=[integer] for (user) accounts.
+-- Do not use fairshare=parent here, because that would give all users the same fair share,
+-- which de facto disables fair share as all parents are groups with the same fair share.
+-- See: https://bugs.schedmd.com/show_bug.cgi?id=3491
+--
 function create_association(user,group)
     local retval = os.execute(string.format(
         "sacctmgr -i create user name='%s' account='%s' fairshare=1", user, group))
