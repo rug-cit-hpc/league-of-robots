@@ -1,6 +1,5 @@
 ---
 - hosts: cluster
-  become: true
   roles:
-    - datahandling
+    - lustre_client
 ...

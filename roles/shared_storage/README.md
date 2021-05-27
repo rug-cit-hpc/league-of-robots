@@ -67,8 +67,8 @@ pfs_mounts: [
   { pfs: 'lusty2',
     source: '10.0.0.203@tcp12:10.0.0.204@tcp12:/lusty2',
     type: 'lustre',
-    rw_options: 'defaults,lazystatfs,flock',
-    ro_options: 'defaults,lazystatfs,ro' },
+    rw_options: 'defaults,_netdev,flock',
+    ro_options: 'defaults,_netdev,ro' },
 ]
 #
 # Logical File Systems (LFS-ses) with:
@@ -128,7 +128,7 @@ The **pfs_mounts** variable lists all Physical File Systems and their technical 
 The example above would result in the following _PFS_ entries in ```/etc/fstab``` only on the _SAI_:
 ```
 some-storage001.stor.local:/ifs/isilon11     /mnt/isilon11    nfs4      defaults,_netdev,vers=4.0,noatime,nodiratime    0 0
-10.0.0.203@tcp12:10.0.0.204@tcp12:/lusty2    /mnt/lusty2      lustre    defaults,lazystatfs,flock                       0 0
+10.0.0.203@tcp12:10.0.0.204@tcp12:/lusty2    /mnt/lusty2      lustre    defaults,_netdev,flock                          0 0
 ```
 
 #### lfs_mounts
@@ -181,9 +181,9 @@ The example above would result in the following _LFS_ entries in ```/etc/fstab``
    some-storage001.stor.local:/ifs/isilon11/groups/cool-project/tmp08     /groups/cool-project/tmp08    nfs4      defaults,_netdev,vers=4.0,noatime,nodiratime    0 0
    some-storage001.stor.local:/ifs/isilon11/groups/ateam/prm05            /groups/ateam/prm05           nfs4      defaults,_netdev,vers=4.0,noatime,nodiratime    0 0
    some-storage001.stor.local:/ifs/isilon11/groups/production/prm05       /groups/production/prm05      nfs4      defaults,_netdev,vers=4.0,noatime,nodiratime    0 0
-   10.0.0.203@tcp12:10.0.0.204@tcp12:/lusty2/groups/colla/prm03           /groups/colla/prm03           lustre    defaults,lazystatfs,flock    0 0
-   10.0.0.203@tcp12:10.0.0.204@tcp12:/lusty2/groups/production/prm03      /groups/production/pmr03      lustre    defaults,lazystatfs,flock    0 0
-   10.0.0.203@tcp12:10.0.0.204@tcp12:/lusty2/groups/cool-project/prm03    /groups/cool-project/prm03    lustre    defaults,lazystatfs,flock    0 0
+   10.0.0.203@tcp12:10.0.0.204@tcp12:/lusty2/groups/colla/prm03           /groups/colla/prm03           lustre    defaults,_netdev,flock                          0 0
+   10.0.0.203@tcp12:10.0.0.204@tcp12:/lusty2/groups/production/prm03      /groups/production/pmr03      lustre    defaults,_netdev,flock                          0 0
+   10.0.0.203@tcp12:10.0.0.204@tcp12:/lusty2/groups/cool-project/prm03    /groups/cool-project/prm03    lustre    defaults,_netdev,flock                          0 0
    ```
  * on a _compute node_:
    ```
