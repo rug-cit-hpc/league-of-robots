@@ -75,6 +75,7 @@ local_admin_users:
   - 'marloes'
   - 'morris'
   - 'pieter'
+  - 'sandi'
   - 'wim'
 envsync_user: 'envsync'
 envsync_group: 'depad'

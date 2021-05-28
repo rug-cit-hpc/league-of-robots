@@ -84,6 +84,7 @@ local_admin_users:
   - 'morris'
   - 'pieter'
   - 'robin'
+  - 'sandi'
   - 'wim'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
