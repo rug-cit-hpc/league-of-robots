@@ -8,6 +8,7 @@
     - ssh_host_signer
     - ssh_known_hosts
     - {role: geerlingguy.repo-epel, become: true}
+    - logrotate
     - logins
     - static_hostname_lookup
     - sshd
