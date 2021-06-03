@@ -96,6 +96,7 @@ regular_groups:
   - 'umcg-endocrinology'
   - 'umcg-gcc'
   - 'umcg-lifelines'
+  - 'umcg-sysops'
 regular_users:
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']
@@ -112,6 +113,9 @@ regular_users:
   - user: 'umcg-lifelines-dm'
     groups: ['umcg-lifelines']
     sudoers: '%umcg-lifelines-dms'
+  - user: 'umcg-sysops-dm'
+    groups: ['umcg-sysops']
+    sudoers: '%umcg-sysops'
 #
 # Shared storage related variables
 #
@@ -129,13 +133,13 @@ lfs_mounts: [
     machines: "{{ groups['cluster'] }}" },
   { lfs: 'tmp08',
     pfs: 'umcgst11',
-    groups: ['umcg-atd', 'umcg-endocrinology', 'umcg-gcc', 'umcg-lifelines'] },
+    groups: ['umcg-atd', 'umcg-endocrinology', 'umcg-gcc', 'umcg-lifelines', 'umcg-sysops'] },
   { lfs: 'rsc08',
     pfs: 'umcgst11',
-    groups: ['umcg-atd', 'umcg-lifelines'] },
+    groups: ['umcg-atd', 'umcg-lifelines', 'umcg-sysops'] },
   { lfs: 'prm08',
     pfs: 'umcgst11',
-    groups: ['umcg-atd', 'umcg-gcc', 'umcg-lifelines', 'umcg-solve-rd'] },
+    groups: ['umcg-atd', 'umcg-gcc', 'umcg-lifelines', 'umcg-solve-rd', 'umcg-sysops'] },
   { lfs: 'env08',
     pfs: 'umcgst11',
     machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },

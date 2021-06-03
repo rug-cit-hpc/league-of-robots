@@ -123,6 +123,7 @@ regular_groups:
   - 'umcg-pub'
   - 'umcg-radicon'
   - 'umcg-solve-rd'
+  - 'umcg-sysops'
   - 'umcg-tifn'
   - 'umcg-ukb'
   - 'umcg-ugli'
@@ -235,6 +236,9 @@ regular_users:
   - user: 'umcg-solve-rd-dm'
     groups: ['umcg-solve-rd']
     sudoers: '%umcg-solve-rd-dms'
+  - user: 'umcg-sysops-dm'
+    groups: ['umcg-sysops']
+    sudoers: '%umcg-sysops'
   - user: 'umcg-tifn-dm'
     groups: ['umcg-tifn']
     sudoers: '%umcg-tifn-dms'
@@ -290,7 +294,7 @@ lfs_mounts: [
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
-        'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
+        'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
         'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
   { lfs: 'prm01',
@@ -306,13 +310,13 @@ lfs_mounts: [
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
-        'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
+        'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
         'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
   { lfs: 'rsc01',
     pfs: 'umcgst03',
     groups: [
-        'umcg-atd', 'umcg-solve-rd'
+        'umcg-atd', 'umcg-solve-rd', 'umcg-sysops'
       ]},
   { lfs: 'env01',
     pfs: 'umcgst10',
