@@ -1,6 +1,6 @@
 ---
 - name: 'Make sure we have a parent entry for users.'
-  ldap_entry:
+  community.general.ldap_entry:
     dn: "ou=users,{{ ldap_base }}"
     objectClass: 'organizationalUnit'
     bind_dn: "{{ ldap_binddn }}"
@@ -8,7 +8,7 @@
     server_uri: "{{ ldap_uri }}"
 
 - name: 'Make sure we have a parent entry for groups.'
-  ldap_entry:
+  community.general.ldap_entry:
     dn: "ou=groups,{{ ldap_base }}"
     objectClass: 'organizationalUnit'
     bind_dn: "{{ ldap_binddn }}"
@@ -16,7 +16,7 @@
     server_uri: "{{ ldap_uri }}"
 
 - name: 'Add regular groups to parent entry for groups.'
-  ldap_entry:
+  community.general.ldap_entry:
     dn: "cn={{ item }},ou=groups,{{ ldap_base }}"
     objectClass: 'posixGroup'
     state: present
@@ -28,7 +28,7 @@
   with_items: "{{ regular_groups }}"
 
 - name: 'Add private groups for home dirs of users to parent entry for groups.'
-  ldap_entry:
+  community.general.ldap_entry:
     dn: "cn={{ item.user }},ou=groups,{{ ldap_base }}"  # Use same name as user's account name for user's private group.
     objectClass: 'posixGroup'
     state: present
@@ -40,7 +40,7 @@
   with_items: "{{ regular_users }}"
 
 - name: 'Add users to parent entry for users.'
-  ldap_entry:
+  community.general.ldap_entry:
     dn: "cn={{ item.user }},ou=users,{{ ldap_base }}"
     state: present
     server_uri: "{{ ldap_uri }}"
@@ -64,25 +64,25 @@
   with_items: "{{ regular_users }}"
 
 - name: 'Update public keys.'
-  ldap_attr:
+  community.general.ldap_attrs:
     dn: "cn={{ item.user }},ou=users,{{ ldap_base }}"
     state: exact
     server_uri: "{{ ldap_uri }}"
     bind_dn: "{{ ldap_binddn }}"
     bind_pw: "{{ bindpw }}"
-    name: 'sshPublicKey'
-    values: "{{ auth_users[item.user].pub_keys }}"
+    attributes:
+      sshPublicKey: "{{ auth_users[item.user].pub_keys }}"
   with_items: "{{ regular_users }}"
 
 - name: 'Add users to groups.'
-  ldap_attr:
+  community.general.ldap_attrs:
     dn: "cn={{ item.1 }},ou=groups,{{ ldap_base }}"
     state: present
     server_uri: "{{ ldap_uri }}"
     bind_dn: "{{ ldap_binddn }}"
     bind_pw: "{{ bindpw }}"
-    name: 'memberUid'
-    values: "{{ item.0.user }}"
+    attributes:
+      memberUid: "{{ item.0.user }}"
   with_subelements:
     - "{{ regular_users }}"
     - 'groups'
