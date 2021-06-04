@@ -104,6 +104,8 @@ regular_users:
     groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
   - user: 'rkanninga'
     groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+  - user: 'scimerman'
+    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
 #
 # Shared storage related variables
 #
