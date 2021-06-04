@@ -34,6 +34,10 @@ jobs:
             fi
             ansible-lint cluster.yml deploy-os_servers.yml > lint_results 2>&1 || true
             cat lint_results
+            #
+            # Parse number of errors from:
+            # Finished with [0-9][0-9]* failure(s), [0-9][0-9]* warning(s) on [0-9][0-9]* files
+            #
             lint_status=$(grep '^Finished with' lint_results)
             lint_errors=$(echo "${lint_status}" | sed 's|^Finished with \([0-9][0-9]*\) failure.*|\1|')
             echo '###############################################'

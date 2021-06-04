@@ -33,10 +33,10 @@
                         {{ pulp_root_cert_path_on_control_host }}
                     Check which one is correct and update the other one.
          ***********************************************************************************************************
-  when: repo_server_pulp_root_certificate.stat.checksum | default('Missing Pulp root certificate checksum on repo server', true) != 
-        lookup('unvault', pulp_root_cert_path_on_control_host) | hash('sha1')
-  failed_when: repo_server_pulp_root_certificate.stat.checksum | default('Missing Pulp root certificate checksum on repo server', true) != 
-        lookup('unvault', pulp_root_cert_path_on_control_host) | hash('sha1')
+  when: repo_server_pulp_root_certificate.stat.checksum | default('Missing Pulp root certificate checksum on repo server', true)
+        != lookup('unvault', pulp_root_cert_path_on_control_host) | hash('sha1')
+  failed_when: repo_server_pulp_root_certificate.stat.checksum | default('Missing Pulp root certificate checksum on repo server', true)
+               != lookup('unvault', pulp_root_cert_path_on_control_host) | hash('sha1')
 
 - name: Add pulp web server root certificate to list of trusted root certificates.
   ansible.builtin.copy:
@@ -226,5 +226,5 @@
          For instructions and examples see:
             .../league-of-robots/documentation/Configuring_Pulp.md
          ***********************************************************************************************************
-  failed_when: true #  Always fail to get attention and inform user the work is not complete/done.
+  failed_when: true  # Always fail to get attention and inform user the work is not complete/done.
 ...
