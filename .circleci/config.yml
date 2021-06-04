@@ -23,6 +23,9 @@ jobs:
       - run:
           name: run tests
           command: |
+            set -e
+            set -u
+            set -o pipefail
             . venv/bin/activate
             if [[ -n "${ANSIBLE_ROLES_PATH:-}" ]]; then
                 export ANSIBLE_ROLES_PATH="${HOME}/.ansible/roles/:${ANSIBLE_ROLES_PATH}"
@@ -36,5 +39,5 @@ jobs:
             echo '###############################################'
             printf 'Counted %d ansible-lint error(s).\n' ${lint_errors:-0}
             echo '###############################################'
-            if (( errors > 1 )); then /bin/false; fi
+            if (( ${lint_errors} > 1 )); then /bin/false; fi
 ...

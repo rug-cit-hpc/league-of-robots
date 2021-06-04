@@ -50,7 +50,8 @@
   become: true
   notify: update-ca-trust
 
-- meta: flush_handlers
+- name: Flush handlers.
+  meta: flush_handlers
 
 #
 ## IMPORTANT:
@@ -170,6 +171,7 @@
   register: pulp_status
   become: true
   become_user: "{{ repo_management_user }}"
+  no_log: true
 
 - name: Report pulp status.
   debug:
@@ -188,6 +190,7 @@
   with_items: "{{ pulp_repos | selectattr('remote_url', 'defined') | list }}"
   become: true
   become_user: "{{ repo_management_user }}"
+  no_log: true
 
 - name: Create repositories.
   pulp.squeezer.rpm_repository:
@@ -201,6 +204,7 @@
   with_items: "{{ pulp_repos }}"
   become: true
   become_user: "{{ repo_management_user }}"
+  no_log: true
 
 - name: Incomplete pulp squeezer support notification.
   debug:

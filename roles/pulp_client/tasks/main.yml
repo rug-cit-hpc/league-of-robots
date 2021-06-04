@@ -27,7 +27,8 @@
   become: true
   notify: update-ca-trust
 
-- meta: flush_handlers
+- name: Flush handlers.
+  meta: flush_handlers
 
 - name: Find all *.repo files in /etc/yum.repos.d/.
   find:
