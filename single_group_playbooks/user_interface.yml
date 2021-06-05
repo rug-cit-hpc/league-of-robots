@@ -18,4 +18,3 @@
     - role: ega_fuse_client
       when: ega_fuse_client_mounts is defined and ega_fuse_client_mounts | length >= 1
 ...
-
