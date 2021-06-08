@@ -33,7 +33,7 @@ jobs:
             else
                 export ANSIBLE_ROLES_PATH="${HOME}/.ansible/roles/"
             fi
-            if ansible-lint cluster.yml deploy-os_servers.yml > lint_results 2>&1; then
+            if ansible-lint -p --nocolor cluster.yml deploy-os_servers.yml > lint_results 2>&1; then
               lint_errors=0
             else
               cat lint_results
