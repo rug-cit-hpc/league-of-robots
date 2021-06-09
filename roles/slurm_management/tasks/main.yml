@@ -227,9 +227,10 @@
 #
 # Flush handlers to make sure Slurm DB is present and connection settings have been updated.
 #
-- meta: 'flush_handlers'
+- name: 'Flush handlers.'
+  meta: flush_handlers
 
-- name: 'Execute Slurm DB initialization script on host running slurmdbd.'
+- name: 'Execute Slurm DB initialization script on host running slurmdbd.'  # noqa no-changed-when
   command:
     cmd: '/etc/slurm/configure_slurm_accounting_db.bash'
   register: command_result

@@ -35,5 +35,6 @@
   become: true
   notify: 'restart_dnsmasq'
 
-- meta: 'flush_handlers'
+- name: 'Flush handlers.'
+  meta: flush_handlers
 ...

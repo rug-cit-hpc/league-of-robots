@@ -33,10 +33,10 @@
                         {{ pulp_root_cert_path_on_control_host }}
                     Check which one is correct and update the other one.
          ***********************************************************************************************************
-  when: repo_server_pulp_root_certificate.stat.checksum | default('Missing Pulp root certificate checksum on repo server', true) != 
-        lookup('unvault', pulp_root_cert_path_on_control_host) | hash('sha1')
-  failed_when: repo_server_pulp_root_certificate.stat.checksum | default('Missing Pulp root certificate checksum on repo server', true) != 
-        lookup('unvault', pulp_root_cert_path_on_control_host) | hash('sha1')
+  when: repo_server_pulp_root_certificate.stat.checksum | default('Missing Pulp root certificate checksum on repo server', true)
+        != lookup('unvault', pulp_root_cert_path_on_control_host) | hash('sha1')
+  failed_when: repo_server_pulp_root_certificate.stat.checksum | default('Missing Pulp root certificate checksum on repo server', true)
+               != lookup('unvault', pulp_root_cert_path_on_control_host) | hash('sha1')
 
 - name: Add pulp web server root certificate to list of trusted root certificates.
   ansible.builtin.copy:
@@ -50,7 +50,8 @@
   become: true
   notify: update-ca-trust
 
-- meta: flush_handlers
+- name: Flush handlers.
+  meta: flush_handlers
 
 #
 ## IMPORTANT:
@@ -170,6 +171,7 @@
   register: pulp_status
   become: true
   become_user: "{{ repo_management_user }}"
+  no_log: true
 
 - name: Report pulp status.
   debug:
@@ -188,6 +190,7 @@
   with_items: "{{ pulp_repos | selectattr('remote_url', 'defined') | list }}"
   become: true
   become_user: "{{ repo_management_user }}"
+  no_log: true
 
 - name: Create repositories.
   pulp.squeezer.rpm_repository:
@@ -201,6 +204,7 @@
   with_items: "{{ pulp_repos }}"
   become: true
   become_user: "{{ repo_management_user }}"
+  no_log: true
 
 - name: Incomplete pulp squeezer support notification.
   debug:
@@ -222,5 +226,5 @@
          For instructions and examples see:
             .../league-of-robots/documentation/Configuring_Pulp.md
          ***********************************************************************************************************
-  failed_when: true #  Always fail to get attention and inform user the work is not complete/done.
+  failed_when: true  # Always fail to get attention and inform user the work is not complete/done.
 ...

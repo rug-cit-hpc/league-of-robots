@@ -3,7 +3,7 @@
   ansible.builtin.debug:
     msg: "FATAL: expected repo_manager == pulp, but detected {{ repo_manager }}. \
           Check Ansible repo_manager variable in the group_vars for this site."
-  when:        repo_manager != 'pulp'
+  when: repo_manager != 'pulp'
   failed_when: repo_manager != 'pulp'
 
 - name: Add Pulp yum repos.
@@ -27,7 +27,8 @@
   become: true
   notify: update-ca-trust
 
-- meta: flush_handlers
+- name: Flush handlers.
+  meta: flush_handlers
 
 - name: Find all *.repo files in /etc/yum.repos.d/.
   find:

@@ -35,7 +35,8 @@
     - 'restart_rhnsd'
   become: true
 
-- meta: 'flush_handlers'
+- name: 'Flush handlers.'
+  meta: flush_handlers
 
 - name: 'Register client at the spacewalk server.'
   rhn_register:
