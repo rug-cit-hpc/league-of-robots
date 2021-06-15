@@ -77,6 +77,7 @@ sacctmgr -i modify qos Name='regular-medium' set \
     Priority=10 \
     Preempt='leftover-short,leftover-medium,leftover-long' \
     GrpSubmit=30000 MaxSubmitJobsPU=5000  MaxWall=1-00:00:00 \
+    GrpTRES=cpu={{ [1, (cluster_cores_total | float * 0.6) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.6) | int] | max }} \
     MaxTRESPU=cpu={{ [1, (cluster_cores_total | float * 0.4) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.4) | int] | max }}
 
 sacctmgr -i create qos set Name='regular-long'
@@ -94,6 +95,7 @@ sacctmgr -i modify qos Name='regular-long' set \
 sacctmgr -i create qos set Name='priority'
 sacctmgr -i modify qos Name='priority' set \
     Description='High priority Quality of Service level with corresponding higher impact on your Fair Share.' \
+    Preempt='leftover-short,leftover-medium,leftover-long' \
     Priority=20 \
     UsageFactor=2 \
     GrpSubmit=5000  MaxSubmitJobsPU=1000 \
@@ -103,6 +105,7 @@ sacctmgr -i create qos set Name='priority-short'
 sacctmgr -i modify qos Name='priority-short' set \
     Description='priority-short' \
     Priority=20 \
+    Preempt='leftover-short,leftover-medium,leftover-long' \
     UsageFactor=2 \
     GrpSubmit=5000  MaxSubmitJobsPU=1000   MaxWall=06:00:00 \
     MaxTRESPU=cpu={{ [1, (cluster_cores_total | float * 0.25) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.25) | int] | max }}
@@ -111,19 +114,41 @@ sacctmgr -i create qos set Name='priority-medium'
 sacctmgr -i modify qos Name='priority-medium' set \
     Description='priority-medium' \
     Priority=20 \
+    Preempt='leftover-short,leftover-medium,leftover-long' \
     UsageFactor=2 \
     GrpSubmit=2500  MaxSubmitJobsPU=500   MaxWall=1-00:00:00 \
-    GrpTRES=cpu={{ [1, (cluster_cores_total | float * 0.5) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.5) | int] | max }} \
+    GrpTRES=cpu={{ [1, (cluster_cores_total | float * 0.6) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.6) | int] | max }} \
     MaxTRESPU=cpu={{ [1, (cluster_cores_total | float * 0.2) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.2) | int] | max }}
 
 sacctmgr -i create qos set Name='priority-long'
 sacctmgr -i modify qos Name='priority-long' set \
     Description='priority-long' \
     Priority=20 \
+    Preempt='leftover-short,leftover-medium,leftover-long' \
     UsageFactor=2 \
     GrpSubmit=250   MaxSubmitJobsPU=50   MaxWall=7-00:00:00 \
-    GrpTRES=cpu={{ [1, (cluster_cores_total | float * 0.2) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.2) | int] | max }} \
+    GrpTRES=cpu={{ [1, (cluster_cores_total | float * 0.3) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.3) | int] | max }} \
     MaxTRESPU=cpu={{ [1, (cluster_cores_total | float * 0.1) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.1) | int] | max }}
+
+#
+# QoS interactive
+#
+sacctmgr -i create qos set Name='interactive'
+sacctmgr -i modify qos Name='interactive' set \
+    Description='Highest priority Quality of Service level for interactive sessions.' \
+    Priority=30 \
+    UsageFactor=1 \
+    MaxSubmitJobsPU=1 \
+    GrpTRES=cpu=0,mem=0
+
+sacctmgr -i create qos set Name='interactive-short'
+sacctmgr -i modify qos Name='interactive-short' set \
+    Description='interactive-short' \
+    Priority=30 \
+    Preempt='leftover-short,leftover-medium,leftover-long,regular-short' \
+    UsageFactor=1 \
+    MaxSubmitJobsPU=1   MaxWall=06:00:00 \
+    MaxTRESPU=cpu={{ [1, (vcompute_max_cpus_per_node | float * 0.5) | int] | max }},mem={{ [1000, (vcompute_max_mem_per_node | float * 0.5) | int] | max }}
 
 #
 # QoS ds
@@ -190,6 +215,9 @@ sacctmgr -i modify account root set \
     QOS+=ds,ds-short,ds-medium,ds-long
 
 sacctmgr -i modify account root set \
+    QOS+=interactive,interactive-short
+
+sacctmgr -i modify account root set \
     DefaultQOS=priority
 
 #
@@ -206,6 +234,9 @@ sacctmgr -i modify account users set \
 
 sacctmgr -i modify account users set \
     QOS+=ds,ds-short,ds-medium,ds-long
+
+sacctmgr -i modify account users set \
+    QOS+=interactive,interactive-short
 
 sacctmgr -i modify account users set \
     DefaultQOS=regular
