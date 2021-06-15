@@ -67,9 +67,12 @@ flavor_ui: m1.xlarge
 #flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
 flavor_vcompute: m1.xlarge
 flavor_management: m1.small
-network_id_public_external: vlan16
-network_id_private_management: internal_management
-network_id_private_storage: internal_storage
+network_public_external_id: vlan16
+network_private_management_id: internal_management
+network_private_management_cidr: '10.10.1.0/24'
+network_private_management_gw: '10.10.1.1'
+network_private_storage_id: internal_storage
+network_private_storage_cidr: '10.10.2.0/24'
 public_ip_addresses:
   tunnel: '195.169.22.136'
 availability_zone: nova
