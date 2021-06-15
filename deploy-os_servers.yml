@@ -45,65 +45,65 @@
     #
     - ansible_python_interpreter: python
   tasks:
-    - name: "Create {{ network_id_private_management }} network."
+    - name: "Create {{ network_private_management_id }} network."
       openstack.cloud.network:
         state: present
-        name: "{{ network_id_private_management }}"
+        name: "{{ network_private_management_id }}"
         external: false
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Assign subnet to {{ network_id_private_management }} network."
+    - name: "Assign subnet to {{ network_private_management_id }} network."
       openstack.cloud.subnet:
         # 'name' must be the same as 'network_name' or else creating routers for this subnet will fail due to known bug.
-        name: "{{ network_id_private_management }}"
-        network_name: "{{ network_id_private_management }}"
+        name: "{{ network_private_management_id }}"
+        network_name: "{{ network_private_management_id }}"
         state: present
-        cidr: 10.10.1.0/24
+        cidr: "{{ network_private_management_cidr }}"
         # Bug: https://storyboard.openstack.org/#!/story/2008172
         # openstack.cloud.subnet is not idempotent and will fail when a router is present
         # and which is linked to the gateway_ip of the subnet.
         # In that case you must delete the router in order to be able to run this playbook,
         # which may require disassociating floating IPs first: yikes!
-        gateway_ip: 10.10.1.1
+        gateway_ip: "{{ network_private_management_gw }}"
         enable_dhcp: true
         dns_nameservers: "{{ nameservers }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
       tags:
         - never
-    - name: "Create {{ network_id_private_storage }} network."
+    - name: "Create {{ network_private_storage_id }} network."
       openstack.cloud.network:
-        name: "{{ network_id_private_storage }}"
+        name: "{{ network_private_storage_id }}"
         state: present
         external: false
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Assign subnet to {{ network_id_private_storage }} network."
+    - name: "Assign subnet to {{ network_private_storage_id }} network."
       openstack.cloud.subnet:
         # 'name' must be the same as 'network_name' or else creating routers for this subnet will fail due to known bug.
-        name: "{{ network_id_private_storage }}"
-        network_name: "{{ network_id_private_storage }}"
+        name: "{{ network_private_storage_id }}"
+        network_name: "{{ network_private_storage_id }}"
         state: present
-        cidr: 10.10.2.0/24
+        cidr: "{{ network_private_storage_cidr }}"
         no_gateway_ip: true
         enable_dhcp: true
         dns_nameservers: "{{ nameservers }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Create router to bridge {{ network_id_public_external }} and {{ network_id_private_management }} networks."
+    - name: "Create router to bridge {{ network_public_external_id }} and {{ network_private_management_id }} networks."
       openstack.cloud.router:
         state: present
-        name: "Router bridging {{ network_id_public_external }} and {{ network_id_private_management }}"
-        network: "{{ network_id_public_external }}"
+        name: "Router bridging {{ network_public_external_id }} and {{ network_private_management_id }}"
+        network: "{{ network_public_external_id }}"
         interfaces:
-          - "{{ network_id_private_management }}"
+          - "{{ network_private_management_id }}"
           #
-          # Specifying only the network_id_private_management will fail when the default gateway IP
+          # Specifying only the network_private_management_id will fail when the default gateway IP
           # from that subnet is already in use. In that case we must specify an IP,
           # but there is no easy, safe way to determine which one we should use....
           #
-          # - net: "{{ network_id_private_management }}"
-          #   subnet: "{{ network_id_private_management }}"
+          # - net: "{{ network_private_management_id }}"
+          #   subnet: "{{ network_private_management_id }}"
           #   portip: 10.10.1.1
         wait: true
         timeout: "{{ openstack_api_timeout }}"
@@ -253,7 +253,7 @@
         security_groups: "{{ slurm_cluster_name }}_jumphosts"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_id_private_management }}"
+          - net-name: "{{ network_private_management_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"
@@ -274,8 +274,8 @@
         server: "{{ inventory_hostname }}"
         state: present
         reuse: true
-        network: "{{ network_id_public_external }}"
-        nat_destination: "{{ network_id_private_management }}"
+        network: "{{ network_public_external_id }}"
+        nat_destination: "{{ network_private_management_id }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
       #
@@ -285,7 +285,7 @@
       # Therefore we use a "when" with a silly complex jinja filter including a JMESpath query
       # to check is the VM already has a floating IP linked to an interface in the correct VXLAN.
       #
-      when: (jumphost_vm.server.addresses | dict2items(key_name='vlan', value_name='specs') | json_query(query)) != network_id_private_management
+      when: (jumphost_vm.server.addresses | dict2items(key_name='vlan', value_name='specs') | json_query(query)) != network_private_management_id
       vars:
         query: '[?specs[?"OS-EXT-IPS:type"==`floating`]].vlan | [0]'
 ##############################################################################
@@ -320,7 +320,7 @@
         security_groups: "{{ slurm_cluster_name }}_cluster"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_id_private_management }}"
+          - net-name: "{{ network_private_management_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"
@@ -360,8 +360,8 @@
         security_groups: "{{ slurm_cluster_name }}_cluster"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_id_private_management }}"
-          - net-name: "{{ network_id_private_storage }}"
+          - net-name: "{{ network_private_management_id }}"
+          - net-name: "{{ network_private_storage_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"
@@ -409,8 +409,8 @@
         security_groups: "{{ slurm_cluster_name }}_cluster"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_id_private_management }}"
-          - net-name: "{{ network_id_private_storage }}"
+          - net-name: "{{ network_private_management_id }}"
+          - net-name: "{{ network_private_storage_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"
@@ -465,8 +465,8 @@
         security_groups: "{{ slurm_cluster_name }}_cluster"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_id_private_management }}"
-          - net-name: "{{ network_id_private_storage }}"
+          - net-name: "{{ network_private_management_id }}"
+          - net-name: "{{ network_private_storage_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"

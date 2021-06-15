@@ -41,25 +41,25 @@ ldaps_port: 636
 ldap_base: dc=hpc,dc=rug,dc=nl
 ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
 ldap_domain: hpc.rug.nl
-key_name: Gerben
-cloud_image: centos7
+cloud_image: CentOS7-Cloud
 cloud_user: centos
-flavor_ui: s1.large
-flavor_vcompute: s1.gargantuan
-flavor_management: s1.small
-public_net_id: ext-net-37
+flavor_jumphost: 1c2m20d # s1.small
+flavor_ui: 4c8m80d # s1.large
+flavor_vcompute: 8c16m80d
+flavor_management: 4c4m60d
+network_public_external_id: public
+network_private_management_id: "{{ stack_prefix }}_internal_management"
+network_private_management_cidr: '10.10.1.0/24'
+network_private_management_gw: '10.10.1.1'
+network_private_storage_id: "{{ stack_prefix }}_internal_storage"
+network_private_storage_cidr: '10.10.2.0/24'
 public_ip_addresses:
-  portal: '193.62.55.164'
-private_net_id: Solve-RD_private
-private_subnet_id: Solve-RD_subnet
-private_storage_net_id: net_provider_vlan3126
-private_storage_subnet_id: subnet3126
-security_group_id: SSH-and-ping-2
-availability_zone: AZ_1
-storage_availability_zone: nova
-local_volume_size: 1
+  portal: '45.88.81.146'
+availability_zone: nova
+local_volume_size_repo: 30
+local_volume_size_vcompute: 1
+local_volume_size_management: 1
 nameservers: [
-  '/em-isi-3126.ebi.ac.uk/10.35.126.201',  # Local DNS lookups for shared storage.
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
