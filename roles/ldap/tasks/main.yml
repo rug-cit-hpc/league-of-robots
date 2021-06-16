@@ -48,7 +48,7 @@
 
 - name: Deploy custom ssh-ldap-wrapper.
   template:
-    src: ss-ldap-wrapper.bash
+    src: ssh-ldap-wrapper.bash
     dest: /usr/libexec/openssh/ssh-ldap-wrapper.bash
     owner: root
     group: root
