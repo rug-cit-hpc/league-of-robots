@@ -49,7 +49,7 @@
 - name: Deploy custom ssh-ldap-wrapper.
   template:
     src: ssh_ldap_wrapper.bash
-    dest: /usr/libexec/openssh/ssh_ldap_wrapper.bash
+    dest: /usr/libexec/openssh/ssh-ldap-wrapper.bash
     owner: root
     group: root
     mode: '0755'
