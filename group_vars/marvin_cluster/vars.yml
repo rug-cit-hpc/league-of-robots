@@ -69,7 +69,6 @@ local_admin_groups:
   - 'umcg-atd'
   - 'depad'
 local_admin_users:
-  - 'centos'
   - 'egon'
   - 'gerben'
   - 'henkjan'

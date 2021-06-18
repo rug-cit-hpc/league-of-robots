@@ -7,7 +7,6 @@
   roles:
     - admin_users
     - ssh_host_signer
-    - yum_repos
     - logrotate
     - update
     - {role: geerlingguy.repo-epel, become: true}
