@@ -1,5 +1,10 @@
 ---
 ip_addresses:
+  hc-repo:
+    addr: 10.10.1.167
+    mask: /32
+    vlan: hc_internal_management
+    fqdn:
   hc-dai:
     addr: 10.10.1.86
     mask: /32
