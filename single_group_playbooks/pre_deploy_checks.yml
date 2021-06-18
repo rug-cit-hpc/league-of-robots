@@ -11,3 +11,7 @@
         msg: "You must update Ansible to at least {{ minimal_ansible_version }}.x to use this playbook."
       vars:
         minimal_ansible_version: 2.10
+    - name: 'Verify that the group_vars were parsed.'
+      assert:
+        that: slurm_cluster_name is defined
+        msg: "FATAL: the slurm_cluster_name Ansible variable is undefined, which suggests that the group_vars were not parsed."

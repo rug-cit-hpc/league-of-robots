@@ -498,7 +498,7 @@ The compute nodes of this cluster do not have local scratch disks.
 If your workload uses a random IO pattern that produces too much load on a shared file system,
 you should consider using a different algorithm or different cluster.
 {% endif %}
-## Debugging and Frequent Asked Question (FAQs)
+## Debugging and Frequent Asked Questions (FAQs)
 
 #### Q: How do I know what environment is available to my job on an execution host?
 
