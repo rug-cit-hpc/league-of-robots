@@ -52,9 +52,7 @@ ui_ethernet_interfaces:
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
-ldap_uri: 'ldap://172.23.40.249'
-ldap_port: '389'
-ldaps_port: '636'
+ldap_uri: 'ldaps://svrs.id.rug.nl'
 ldap_base: 'ou=umcg,o=asds'
 ldap_binddn: 'cn=clusteradminumcg,o=asds'
 ldap_group_object_class: 'groupofnames'
