@@ -36,8 +36,6 @@ ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/ca-key-pro
 use_ldap: yes
 create_ldap: yes
 ldap_uri: ldap://fd-dai
-ldap_port: 389
-ldaps_port: 636
 ldap_base: dc=hpc,dc=rug,dc=nl
 ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
 ldap_domain: hpc.rug.nl

@@ -141,13 +141,13 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow LDAPS inbound on port {{ ldaps_port }}."
+    - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow LDAPS inbound on port 636."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_jumphosts"
         direction: ingress
         protocol: tcp
-        port_range_min: "{{ ldaps_port }}"
-        port_range_max: "{{ ldaps_port }}"
+        port_range_min: 636
+        port_range_max: 636
         remote_ip_prefix: 0.0.0.0/0  # ToDo restrict to {{ ldap_uri }}
         wait: true
         timeout: "{{ openstack_api_timeout }}"
@@ -182,13 +182,13 @@
         remote_group: "{{ slurm_cluster_name }}_jumphosts"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow LDAPS inbound on port {{ ldaps_port }}."
+    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow LDAPS inbound on port 636."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_cluster"
         direction: ingress
         protocol: tcp
-        port_range_min: "{{ ldaps_port }}"
-        port_range_max: "{{ ldaps_port }}"
+        port_range_min: 636
+        port_range_max: 636
         remote_ip_prefix: 0.0.0.0/0  # ToDo restrict to {{ ldap_uri }}
         wait: true
         timeout: "{{ openstack_api_timeout }}"
