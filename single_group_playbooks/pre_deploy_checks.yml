@@ -1,3 +1,4 @@
+---
 - name: 'Sanity checks before we start.'
   hosts: all
   any_errors_fatal: true
@@ -25,4 +26,4 @@
       delegate_to: localhost
       changed_when: "'installed successfully' in resolved_dependencies.stdout"
       register: resolved_dependencies
-
+...
