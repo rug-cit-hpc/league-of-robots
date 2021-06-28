@@ -107,7 +107,7 @@
 - name: "Initialize {{ repo_management_user }} account creating home dir if it did not exist yet."
   command:
     cmd: "mkhomedir_helper {{ repo_management_user }} 0077"
-    creates: "/home/{{ repo_management_user }}"
+    creates: "/admin/{{ repo_management_user }}"
   become: true
 
 - name: "Allow passwordless sudo to the {{ repo_management_user }} account for Pulp admin users."
