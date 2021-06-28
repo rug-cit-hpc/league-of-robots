@@ -8,9 +8,12 @@
 #   4.   $> pip3 install openstacksdk
 #        $> pip3 install ruamel.yaml
 # NOTE: Openstack RC file must be sourced first to be able to use Openstack API from SDK:
-#   5. Login to OpenStack web interface -> API Access -> click the "Download Openstack RC File" button.
+#   5. Login to OpenStack web interface -> "Identity" -> "Application Credentials" -> click the "Create Application Credential" button.
+#      This will result in a popup window: specify "Name", "Expiration Date", "Expiration Time", leave the rest empty / use defaults and
+#      click the "Create Application Credential" button.
+#      In the new popup window click the "Download openrc file" button and save the generated *-openrc.sh file in the root of the repo.
 #   6. Source the downloaded file. E.g.:
-#        $> source ./UMCG_HPC-openrc.sh
+#        $> source ./[Application_Credential_Name]-openrc.sh
 #   7. Fetch Ansible dependencies
 #        $> ansible-galaxy install -r galaxy-requirements.yml
 # Configure this repo for deployment of a specifc HPC cluster.
@@ -138,13 +141,13 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow LDAPS inbound on port {{ ldaps_port }}."
+    - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow LDAPS inbound on port 636."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_jumphosts"
         direction: ingress
         protocol: tcp
-        port_range_min: "{{ ldaps_port }}"
-        port_range_max: "{{ ldaps_port }}"
+        port_range_min: 636
+        port_range_max: 636
         remote_ip_prefix: 0.0.0.0/0  # ToDo restrict to {{ ldap_uri }}
         wait: true
         timeout: "{{ openstack_api_timeout }}"
@@ -179,13 +182,13 @@
         remote_group: "{{ slurm_cluster_name }}_jumphosts"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow LDAPS inbound on port {{ ldaps_port }}."
+    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow LDAPS inbound on port 636."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_cluster"
         direction: ingress
         protocol: tcp
-        port_range_min: "{{ ldaps_port }}"
-        port_range_max: "{{ ldaps_port }}"
+        port_range_min: 636
+        port_range_max: 636
         remote_ip_prefix: 0.0.0.0/0  # ToDo restrict to {{ ldap_uri }}
         wait: true
         timeout: "{{ openstack_api_timeout }}"

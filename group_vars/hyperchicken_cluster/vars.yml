@@ -3,7 +3,7 @@ slurm_cluster_name: 'hyperchicken'
 slurm_cluster_domain: ''
 stack_prefix: 'hc'
 slurm_version: '18.08.8-1.el7.umcg'
-repo_manager: 'spacewalk'
+repo_manager: 'pulp'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'lockergnome'
@@ -36,8 +36,6 @@ ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-d
 use_ldap: yes
 create_ldap: yes
 ldap_uri: ldap://hc-dai
-ldap_port: 389
-ldaps_port: 636
 ldap_base: dc=hpc,dc=rug,dc=nl
 ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
 ldap_domain: hpc.rug.nl
@@ -67,7 +65,6 @@ local_admin_groups:
   - 'admin'
   - 'docker'
 local_admin_users:
-  - 'centos'
   - 'egon'
   - 'gerben'
   - 'henkjan'

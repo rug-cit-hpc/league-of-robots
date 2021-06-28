@@ -8,7 +8,6 @@
     - admin_users
     - ssh_host_signer
     - ssh_known_hosts
-    - yum_repos
     - logrotate
     - update
     - {role: geerlingguy.repo-epel, become: true}
