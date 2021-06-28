@@ -388,9 +388,9 @@ A dedicated QoS level for interactive jobs. These jobs will get super mega hyper
 You can have only one job in QoS _interactive_ otherwise it would not be interactive anymore. 
 There is no _medium_ nor _long_ QoS sub-level for interactive jobs: 
 if you need more than 6 hours it is either no longer interactive work or it is not healthy and you need to get yourself a break! 
-Jobs in QoS _interactive-short_ cannot get preempted themselves and can preempt jobs in QoS _regular-short_ & _leftover-*_.
+Jobs in QoS _interactive-short_ cannot get preempted themselves and can preempt jobs in QoS _regular-short_ & _leftover_.
 Interactive jobs will have a bash ```${TMOUT}``` environment variable set to 30 minutes, so you can get a quick coffee break, 
-but do not try to keep in-active *interactive* sessions alive by running silly programs that waste CPU cycles: 
+but do not try to keep in-active _interactive_ sessions alive by running silly programs that waste CPU cycles: 
 Logout if you go to a meeting and start a new interactive job when you get back instead. 
 Wasting more than 30 minutes worth of resources in this QoS may lead to a temporary ban.
 
