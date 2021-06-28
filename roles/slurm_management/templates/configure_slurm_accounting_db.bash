@@ -95,7 +95,6 @@ sacctmgr -i modify qos Name='regular-long' set \
 sacctmgr -i create qos set Name='priority'
 sacctmgr -i modify qos Name='priority' set \
     Description='High priority Quality of Service level with corresponding higher impact on your Fair Share.' \
-    Preempt='leftover-short,leftover-medium,leftover-long' \
     Priority=20 \
     UsageFactor=2 \
     GrpSubmit=5000  MaxSubmitJobsPU=1000 \
