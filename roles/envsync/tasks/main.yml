@@ -24,10 +24,9 @@
 # Configure environment synchronization account.
 #
 - name: 'Initialize envsync account creating home dir if it did not exist yet.'
-  command: "su - {{ envsync_user }}"
-  register: envsync_login
-  failed_when: envsync_login.rc != 0
-  changed_when: "'Creating home directory' in envsync_login.stdout"
+  command:
+    cmd: "mkhomedir_helper {{ envsync_user }} 0077"
+    creates: "/home/{{ envsync_user }}"
   become: true
 
 - name: 'Allow passwordless sudo to the environment synchronization account for deploy admin users.'

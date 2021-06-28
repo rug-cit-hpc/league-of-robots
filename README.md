@@ -239,8 +239,10 @@ There are two playbooks:
 
 ##### deploy-os_servers.yml
 
-* Login to the OpenStack web interface -> API Access -> click the _"Download Openstack RC File"_ button.  
-  This will result in an `[OpenStack_project_name]-openrc.sh` file.
+* Login to the OpenStack web interface -> _Identity_ -> _Application Credentials_ -> click the _Create Application Credential_ button.  
+  This will result in a popup window: specify _Name_, _Expiration Date_, _Expiration Time_, leave the rest empty / use defaults
+  and click the _Create Application Credential_ button.  
+  In the new popup window click the _Download openrc file_ button and save the generated  `*-openrc.sh` file in the root of the repo.
 * Configure environment and run playbook:
   ```bash
   #
@@ -250,7 +252,7 @@ There are two playbooks:
   #
   # Initialize the OpenstackSDK
   #
-  source ./[OpenStack_project_name]-openrc.sh
+  source ./[Application_Credential_Name]-openrc.sh
   #
   # Configure this repo for deployment of a specifc HPC cluster.
   #
