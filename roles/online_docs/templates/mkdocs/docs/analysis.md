@@ -304,14 +304,14 @@ By specifying a QoS level with higher priority you can request Slurm to re-order
 
 #### QoS levels
 
-| QoS         | Priority    | Usage factor  | Available resources                           | Shared Storage |
-|:----------- |:----------- |:------------- |:--------------------------------------------- |:---------------|
-| leftover    | 0           | none          | Lots, up to the whole cluster for short jobs. | tmp only       |
-| regular     | default     | default       | Quite some, but never the whole cluster.      | tmp only       |
-| priority    | default x 2 | default x 2   | Just a few, max ~ 25 percent of the cluster.  | tmp only       |
-| panic mode  | default x 2 | default x 2   | Occasionally: Just a few.                     | tmp only       |
-| interactive | default x 3 | default       | Minimal: max 1 job per user.                  | tmp only       |
-| ds          | default     | default       | Minimal: max 1 core + 1GB mem per job.        | tmp and prm    |
+| QoS         | Priority    | Usage Factor  | Available Resources                           | Shared Storage | Preemptable Jobs |
+|:----------- |:----------- |:------------- |:--------------------------------------------- |:-------------- |:---------------- |
+| leftover    | 0           | none          | Lots, up to the whole cluster for short jobs. | tmp only       | Yes              |
+| regular     | default     | default       | Quite some, but never the whole cluster.      | tmp only       | Only short jobs  |
+| priority    | default x 2 | default x 2   | Just a few, max ~ 25 percent of the cluster.  | tmp only       | No               |
+| panic mode  | default x 2 | default x 2   | Occasionally: Just a few.                     | tmp only       | No               |
+| interactive | default x 3 | default       | Minimal: max 1 job per user.                  | tmp only       | No               |
+| ds          | default     | default       | Minimal: max 1 core + 1GB mem per job.        | tmp and prm    | No               |
 
 
 Recent jobs determine your _fair share_ weight when calculating job priority: 
