@@ -287,7 +287,7 @@ but for long running jobs it is less suitable, because the longer the walltime, 
 
 ## Quality of Service
 
-We use 5 Quality of Service (QoS) levels with 3 QoS sub-levels each. 
+We use 6 Quality of Service (QoS) levels with 3 QoS sub-levels each. 
 The QoS sub-levels are automagically determined by the system to differentiate between short versus medium versus long running jobs 
 and enforce limits on resources available to the latter to prevent long running jobs from hogging the complete cluster.
 The base QoS levels are determined by the users and these allow you to differentiate between:
