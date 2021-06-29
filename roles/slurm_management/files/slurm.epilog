@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -z "${SLURM_JOB_ID}" ]; then
+if [[ -z "${SLURM_JOB_ID}" ]]; then
     logger -s "WARN: SLURM_JOB_ID is empty or unset in SLURM epilog."
     exit 0
 fi
@@ -8,8 +8,10 @@ fi
 #
 # Cleanup job's private tmp dir.
 #
-TMPDIR="/local/${SLURM_JOB_ID}/"
-rm -rf "${TMPDIR}"
+TMPDIR="/local/${SLURM_JOB_ID:-missing_SLURM_JOB_ID}/"
+if [[ -e "${TMPDIR}" ]]; then
+    rm -Rf "${TMPDIR}"
+fi
 
 #
 # Append resource usage stats to job's *.out file if we have an STDOUT file.
@@ -19,7 +21,7 @@ SCONTROL_JOB_INFO="$(scontrol show job ${SLURM_JOB_ID})"
 SLURM_JOB_STDOUT="$(printf '%s\n' "${SCONTROL_JOB_INFO}" | grep 'StdOut=' | sed 's/[[:space:]]*StdOut=//')"
 SLURM_JOB_NODE="$(printf '%s\n' "${SCONTROL_JOB_INFO}" | grep 'BatchHost=' | sed 's/[[:space:]]*BatchHost=//')"
 SLURM_JOB_STDOUT="$(echo "${SLURM_JOB_STDOUT}" | sed "s/%N/${SLURM_JOB_NODE}/")"
-if [ -w "${SLURM_JOB_STDOUT}" ]; then
+if [[ -w "${SLURM_JOB_STDOUT}" ]]; then
 	sformat='JobId,Elapsed,AllocCPUs,AveCPU,ReqMem,MaxVMSize,MaxRSS,MaxDiskRead,MaxDiskWrite'
 	echo '#################################################################################################################' >> "${SLURM_JOB_STDOUT}"
 	echo '# Job details recorded by SLURM job epilog using sacct.                                                         #' >> "${SLURM_JOB_STDOUT}"
