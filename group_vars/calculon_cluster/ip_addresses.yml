@@ -140,18 +140,6 @@ ip_addresses:
     vlan:
     fqdn:
     desc: User Interface
-  umcg:
-    addr: 172.23.40.223
-    mask: /32
-    vlan: 
-    fqdn:
-    desc: User Interface
-  boxy:
-    addr: 172.23.40.237
-    mask: /32
-    vlan: 
-    fqdn:
-    desc: User Interface
   bender:
     addr: 172.23.40.246
     mask: /32

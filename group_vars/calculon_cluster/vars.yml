@@ -23,10 +23,8 @@ additional_etc_hosts:
   - group: all
     hosts:
       - docs
-  - group: boxy_cluster
-    hosts:
-      - boxy-management
-      - boxy-storage
+      - gattaca01
+      - gattaca02
   - group: calculon_cluster
     hosts:
       - calculon-management
@@ -53,8 +51,6 @@ additional_etc_hosts:
       - umcg-node019
       - umcg-node020
       - calculon
-      - umcg
-      - boxy
       - bender
       - flexo
 ui_hostnames: "{{ slurm_cluster_name }}"
