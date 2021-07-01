@@ -140,18 +140,6 @@ ip_addresses:
     vlan:
     fqdn:
     desc: User Interface
-  umcg:
-    addr: 172.23.40.223
-    mask: /32
-    vlan: 
-    fqdn:
-    desc: User Interface
-  boxy:
-    addr: 172.23.40.237
-    mask: /32
-    vlan: 
-    fqdn:
-    desc: User Interface
   bender:
     addr: 172.23.40.246
     mask: /32
@@ -170,4 +158,16 @@ ip_addresses:
     vlan: internal_management
     fqdn:
     desc: Jumphost
+  gattaca01:
+    addr: 195.169.22.97
+    mask: /32
+    vlan:
+    fqdn:
+    desc: User Interface
+  gattaca02:
+    addr: 195.169.22.98
+    mask: /32
+    vlan:
+    fqdn:
+    desc: User Interface
 ...
