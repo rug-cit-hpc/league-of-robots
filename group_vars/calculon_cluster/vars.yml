@@ -23,6 +23,8 @@ additional_etc_hosts:
   - group: all
     hosts:
       - docs
+      - gattaca01
+      - gattaca02
   - group: calculon_cluster
     hosts:
       - calculon-management
@@ -51,8 +53,6 @@ additional_etc_hosts:
       - calculon
       - bender
       - flexo
-      - gattaca01
-      - gattaca02
 ui_hostnames: "{{ slurm_cluster_name }}"
 ui_sockets: 4
 ui_cores_per_socket: 1

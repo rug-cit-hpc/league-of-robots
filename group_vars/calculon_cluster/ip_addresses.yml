@@ -158,16 +158,4 @@ ip_addresses:
     vlan: internal_management
     fqdn:
     desc: Jumphost
-  gattaca01:
-    addr: 195.169.22.97
-    mask: /32
-    vlan:
-    fqdn:
-    desc: User Interface
-  gattaca02:
-    addr: 195.169.22.98
-    mask: /32
-    vlan:
-    fqdn:
-    desc: User Interface
 ...
