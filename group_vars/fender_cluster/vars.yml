@@ -214,6 +214,8 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'druvolo'
     groups: ['users', 'solve-rd']
+  - user: 'ftranmauthem'
+    groups: ['users', 'solve-rd']
 #
 # Shared storage related variables
 #
