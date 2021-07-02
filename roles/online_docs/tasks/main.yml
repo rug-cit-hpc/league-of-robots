@@ -2,39 +2,6 @@
 # Install webserver and deploy cluster specific documentation on that web server.
 #
 ---
-- name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
-  find:
-    paths: "{{ playbook_dir }}/group_vars/"
-    recurse: true
-    patterns: 'ip_addresses.yml'
-  register: ip_addresses_files
-  delegate_to: localhost
-
-- name: 'Include variables from all ip_addresses.yml files.'
-  include_vars:
-    file: "{{ item }}"
-    #name: "networking_lookup.{{ item | dirname | basename }}"
-    name: "networking_lookup"
-  with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
-  register: networking_lookups
-  delegate_to: localhost
-
-- name: Debug1
-  debug:
-    msg: "{{ networking_lookups.results }}"
-
-- name: Combine configs into one dict
-  set_fact:
-    #networking_lookups: "{{ dict(networking_lookups.results | json_query('[].[item, ansible_facts.networking_lookup]')) }}"
-    networking_lookups: "{{ networking_lookups.results | json_query('[].[ansible_facts.networking_lookup.ip_addresses][][][][]') }}"
-  delegate_to: localhost
-
-- name: Debug2
-  debug:
-    msg: "{{ networking_lookups.[groups['docs'] | first | regex_replace('^' + ai_jumphost + '\\+','')].fqdn }}"
-
-
-
 - name: 'Check OS version of target host.'
   fail:
     msg: 'This role requires RedHat/CentOS version >= 7.x'
@@ -92,6 +59,28 @@
   failed_when: false
   check_mode: false
   register: 'lmod_version'
+
+- name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
+  find:
+    paths: "{{ playbook_dir }}/group_vars/"
+    recurse: true
+    patterns: 'ip_addresses.yml'
+  register: ip_addresses_files
+  delegate_to: localhost
+
+- name: 'Include variables from all ip_addresses.yml files.'
+  include_vars:
+    file: "{{ item }}"
+    #name: "networking_lookup.{{ item | dirname | basename }}"
+    name: "networking_lookup"
+  with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
+  register: networking_lookups
+  delegate_to: localhost
+
+- name: 'Combine network info from ip_addresses.yml files into one dict.'
+  set_fact:
+    networking_lookups: "{{ networking_lookups.results | json_query('[].ansible_facts.networking_lookup.ip_addresses') | combine() }}"
+  delegate_to: localhost
 
 - name: 'Set selinux in permissive mode.'
   selinux:

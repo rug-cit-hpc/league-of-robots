@@ -10,7 +10,7 @@ The jobs are submitted to a workload manager, which distributes them efficiently
 
 The key features of the {{ slurm_cluster_name | capitalize }} cluster include:
 
- * Linux OS: [CentOS](https://www.centos.org/) 7.x with [Spacewalk](https://spacewalkproject.github.io/) for package distribution/management.
+ * Linux OS: [CentOS](https://www.centos.org/) 7.x with [{{ repo_manager | capitalize }}]({{ external_hrefs[repo_manager] }}) for package distribution/management.
  * Completely virtualised on an [OpenStack](https://www.openstack.org/) cloud
  * Deployment of HPC cluster with [Ansible playbooks](https://docs.ansible.com/ansible/latest/index.html) under version control in a Git repo: [league-of-robots](https://github.com/rug-cit-hpc/league-of-robots)
  * Job scheduling: [Slurm Workload Manager](https://slurm.schedmd.com/)
