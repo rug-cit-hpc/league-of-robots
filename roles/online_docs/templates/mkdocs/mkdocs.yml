@@ -1,4 +1,6 @@
 site_name: "{{ slurm_cluster_name | capitalize }} HPC cluster"
+site_url: "http://{{ networking_lookups[groups['docs'] | first | regex_replace('^' + ai_jumphost + '\\+','')].fqdn }}/{{ slurm_cluster_name }}/"
+use_directory_urls: true
 theme:
   name: readthedocs
   highlightjs: false
