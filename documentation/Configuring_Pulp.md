@@ -139,6 +139,27 @@ Furthermore the role cannot know when you want to sync a _repo_ with a _remote_ 
 
 ### Manual work following the pulp_server role
 
+For the `pulpcore` version `3.12.2` and `pulp-rpm` version `3.10.0` you need to downgrade the package `productmd` to version `1.32`
+
+```bash
+[root @ reposrv ] # cd /usr/local/lib/pulp/
+[root @ reposrv ] # source bin/activate
+[root @ reposrv ] # pip install 'productmd==1.32' --force-reinstall
+[root @ reposrv ] # shutdown -r now
+```
+And then check for core and plugin versions
+
+```bash
+[ repoadmin @ reposrv ] $ pulp status
+...
+- component: core
+  version: 3.12.2
+- component: rpm
+  version: 3.10.0
+- component: file
+  version: 1.7.0
+```
+
 The following steps must be performed manually for now:
 
  * Add content (RPMs) to a _repository_ for the ones without _remote_.
