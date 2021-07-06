@@ -33,7 +33,7 @@ pulp_install_plugins:
   # pulp-maven: {}
   # pulp-npm: {}
   # pulp-python: {}
-  pulp-rpm: 
+  pulp-rpm:
     version: "==3.10.0"
 pulp_settings:
   secret_key: "{{ pulp_secret }}"
