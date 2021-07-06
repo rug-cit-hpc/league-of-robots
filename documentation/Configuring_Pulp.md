@@ -139,7 +139,7 @@ Furthermore the role cannot know when you want to sync a _repo_ with a _remote_ 
 
 ### Manual work following the pulp_server role
 
-For the `pulpcore` version `3.12.2` and `pulp-rpm` version `3.10.0` you need to downgrade the package `productmd` to version `1.32`
+For the `pulpcore` version `3.12.2` and `pulp-rpm` version `3.10.0` you need to downgrade the package `productmd` to version `1.32` due to the [known bug](https://pulp.plan.io/issues/8825)
 
 ```bash
 [root @ reposrv ] # cd /usr/local/lib/pulp/
