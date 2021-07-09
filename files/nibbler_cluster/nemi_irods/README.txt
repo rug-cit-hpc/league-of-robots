@@ -86,5 +86,5 @@ The iRODS SSL config for user "irods":
 
 Important note:
  * The certificate we initially got was created based on an ECDSA key pair and Ger could not get ECDSA based certificates to work with iRODS.
-   A new certificate based on an RSA key pair was requested...
+   We now use a certificate based on an RSA key pair.
  * The certificate files in this dir are encrypted with Ansible Vault and the vault password for Nibbler.
