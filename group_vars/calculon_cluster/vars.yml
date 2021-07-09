@@ -2,22 +2,13 @@
 slurm_cluster_name: 'calculon'
 slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'cc'
-slurm_version: '18.08.8-1.el7.umcg'
 repo_manager: 'spacewalk'
 rhn_channels:
   - umcg2020
-mailhub: '192.168.0.5'
-rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'ogre'
 motd: |
       =========================================================
-      !!! WARNING: {{ slurm_cluster_name | capitalize }} is in beta testing
-      =========================================================
-          This cluster may be redeployed from scratch, which
-          may result in complete data loss of home dirs 
-          and tmp0* group folders: You have been warned!!!
-          This does not affect prm0* group folders,
-          which are on a different (production) storage system.
+      Welcome to: {{ slurm_cluster_name | capitalize }}
       =========================================================
 additional_etc_hosts:
   - group: all
@@ -25,43 +16,11 @@ additional_etc_hosts:
       - docs
       - gattaca01
       - gattaca02
-  - group: calculon_cluster
-    hosts:
-      - calculon-management
-      - calculon-storage
-      - winterpeen
-      - umcg-node001
-      - umcg-node002
-      - umcg-node003
-      - umcg-node004
-      - umcg-node005
-      - umcg-node006
-      - umcg-node007
-      - umcg-node008
-      - umcg-node009
-      - umcg-node010
-      - umcg-node011
-      - umcg-node012
-      - umcg-node013
-      - umcg-node014
-      - umcg-node015
-      - umcg-node016
-      - umcg-node017
-      - umcg-node018
-      - umcg-node019
-      - umcg-node020
       - calculon
+      - boxy
       - bender
       - flexo
-ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: 4
-ui_cores_per_socket: 1
-ui_real_memory: 3790
-ui_local_disk: 0
-ui_features: 'prm02,tmp02'
-ui_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
+      - winterpeen
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
@@ -69,15 +28,9 @@ ldap_uri: 'ldaps://svrs.id.rug.nl'
 ldap_base: 'ou=umcg,o=asds'
 ldap_binddn: 'cn=clusteradminumcg,o=asds'
 ldap_group_object_class: 'groupofnames'
-ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
-ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
 cloud_image: CentOS 7
 cloud_user: centos
 flavor_jumphost: m1.small
-flavor_ui: m1.xlarge
-#flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
-flavor_vcompute: m1.xlarge
-flavor_management: m1.small
 network_public_external_id: vlan16
 network_private_management_id: internal_management
 network_private_management_cidr: '10.10.1.0/24'
@@ -87,8 +40,6 @@ network_private_storage_cidr: '10.10.2.0/24'
 public_ip_addresses:
   lobby: '195.169.22.135'
 availability_zone: nova
-local_volume_size_vcompute: 1
-local_volume_size_management: 1
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
@@ -107,11 +58,7 @@ local_admin_users:
   - 'morris'
   - 'pieter'
   - 'robin'
+  - 'sandi'
   - 'wim'
 functional_admin_group: 'umcg-funad'
-lfs_mounts: [
-  { lfs: 'home',
-    pfs: 'xyz',
-    machines: "{{ groups['cluster'] }}" },
-]
 ...
