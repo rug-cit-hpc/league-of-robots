@@ -2,7 +2,7 @@
 - name: Install docker comunity edition.
   yum:
     name:
-      - docker-ce
+      - docker
       - python2-pip
     state: latest
     update_cache: yes

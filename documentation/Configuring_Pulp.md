@@ -382,6 +382,7 @@ pulp rpm repository version list --repository centos7-extras
 pulp rpm repository version list --repository epel7
 pulp rpm repository version list --repository cpel7
 pulp rpm repository version list --repository irods7
+pulp rpm repository version list --repository lustre7
 #
 # Create new publications based on new repository versions.
 #
@@ -391,8 +392,9 @@ pulp rpm publication create --repository centos7-base     --version 1
 pulp rpm publication create --repository centos7-updates  --version 1
 pulp rpm publication create --repository centos7-extras   --version 1
 pulp rpm publication create --repository epel7            --version 1
-pulp rpm publication create --repository cpel7            --version 15
+pulp rpm publication create --repository cpel7            --version 14
 pulp rpm publication create --repository irods7           --version 1
+pulp rpm publication create --repository lustre7          --version 1
 #
 # List repos and publications to figure out which publication HREF matches which repo.
 #
@@ -407,6 +409,7 @@ pulp rpm distribution create --name nb-centos7-extras  --base-path nibbler/cento
 pulp rpm distribution create --name nb-epel7           --base-path nibbler/epel7           --publication /pulp/api/v3/publications/rpm/rpm/6718163f-4a97-46c8-ae08-7f538885da9f/
 pulp rpm distribution create --name nb-cpel7           --base-path nibbler/cpel7           --publication /pulp/api/v3/publications/rpm/rpm/0e7c5260-522b-42f5-af63-e3f35312a036/
 pulp rpm distribution create --name nb-irods7          --base-path nibbler/irods7          --publication /pulp/api/v3/publications/rpm/rpm/a9da6d50-043b-4f7a-b898-2c78553cd7b0/
+pulp rpm distribution create --name nb-lustre7         --base-path nibbler/lustre7         --publication /pulp/api/v3/publications/rpm/rpm/3d8as2d0-323c-eff7-v3qq-asd8d72cw82k/
 #
 # List distributions to get the URLs for the clients.
 #

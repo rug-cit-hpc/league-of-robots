@@ -41,4 +41,12 @@
     - openldap.service
     - phpldapadmin.service
   become: true
+
+- name: Install python-ldap depedencies for Deploy Admin Interfaces (DAIs).
+  yum:
+    state: latest
+    update_cache: true
+    name:
+      - 'python-ldap'
+  become: true
 ...
