@@ -11,6 +11,7 @@
     - logrotate
     - update
     - {role: geerlingguy.repo-epel, become: true}
+    - {role: geerlingguy.firewall, become: true}
     - logins
     - ldap
     - static_hostname_lookup
