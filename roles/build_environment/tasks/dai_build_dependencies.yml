@@ -42,7 +42,7 @@
       #
       # Lua, Lmod, EasyBuild dependencies.
       #
-      - 'mlnx-ofa_kernel-devel'  # Previously rdma-core-devel
+      - 'rdma-core-devel' # first was 'rmda-core-devel', then some period 'mlnx-ofa_kernel-devel', now is rdma again
       - 'libxml2-devel'
       - 'libXext-devel'
       - 'libX11-devel'
