@@ -24,8 +24,8 @@
       - 'lua-devel'
       - 'hwloc-devel'
       - 'hdf5-devel'
-      - 'blcr-devel'
-      - 'blcr'
+      #- 'blcr-devel'
+      #- 'blcr'
       #
       # Ansible dependencies.
       #
