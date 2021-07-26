@@ -13,9 +13,9 @@ additional_etc_hosts:
     hosts:
       - docs
 vcompute_hostnames: "{{ stack_prefix }}-vcompute01"
-vcompute_sockets: 16
+vcompute_sockets: 8
 vcompute_cores_per_socket: 1
-vcompute_real_memory: 64264
+vcompute_real_memory: 15884
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 0
