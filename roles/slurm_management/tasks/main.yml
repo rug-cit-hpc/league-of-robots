@@ -268,7 +268,7 @@
 - name: 'Create Slurm accounting DB backup now.'  # noqa no-changed-when
   shell: |
          mysqldump --all-databases \
-             -uroot -p{{ MYSQL_ROOT_PASSWORD }} \
+             -uroot -p{{ MYSQL_ROOT_PASSWORD | quote }} \
              -h localhost --protocol=socket \
              > /root/slurm/backup/slurm.sql
   tags: 'backup'
