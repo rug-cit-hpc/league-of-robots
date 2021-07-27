@@ -102,6 +102,9 @@ regular_users:
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
+  - user: 'umcg-cineca-dm'
+    groups: ['umcg-cineca']
+    sudoers: '%umcg-cineca-dms'
   - user: 'umcg-endocrinology-dm'
     groups: ['umcg-endocrinology']
     sudoers: '%umcg-endocrinology-dms'
@@ -131,18 +134,19 @@ lfs_mounts: [
     machines: "{{ groups['cluster'] }}" },
   { lfs: 'tmp08',
     pfs: 'umcgst11',
-    groups: ['umcg-atd', 'umcg-endocrinology', 'umcg-gcc', 'umcg-lifelines', 'umcg-sysops'] },
+    groups: ['umcg-atd', 'umcg-cineca', 'umcg-endocrinology', 'umcg-gcc', 'umcg-lifelines', 'umcg-sysops'] },
   { lfs: 'rsc08',
     pfs: 'umcgst11',
     groups: ['umcg-atd', 'umcg-lifelines', 'umcg-sysops'] },
   { lfs: 'prm08',
     pfs: 'umcgst11',
-    groups: ['umcg-atd', 'umcg-gcc', 'umcg-lifelines', 'umcg-solve-rd', 'umcg-sysops'] },
+    groups: ['umcg-atd', 'umcg-cineca', 'umcg-gcc', 'umcg-lifelines', 'umcg-solve-rd', 'umcg-sysops'] },
   { lfs: 'env08',
     pfs: 'umcgst11',
     machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
 ]
 ega_fuse_client_mounts:
+  cineca: '/groups/umcg-cineca/prm08/ega-fuse-client'
   solve_rd: '/groups/umcg-solve-rd/prm08/ega-fuse-client'
 ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
 iptables_allow_icmp_inbound:
