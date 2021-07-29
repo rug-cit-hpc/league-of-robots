@@ -300,17 +300,18 @@ function processFileSystems () {
 			# Just append unit: all quota values from the IDVault are in GB.
 			_hard_quota_limit="${_hard_quota_limit}G"
 		fi
+		#
+		# Get the GID for this group, which will be used as the file set / project ID for quota accounting.
+		#
+		local _gid
+		_gid="$(getent group "${_group_from_lfs_path}" | awk -F ':' '{printf $3}')"
 		if [[ "${_fs_type}" == 'lustre' ]]; then
-			applyLustreQuota "${_lfs_path}" "${_group_from_lfs_path}" "${_soft_quota_limit}" "${_hard_quota_limit}"
+			applyLustreQuota "${_lfs_path}" "${_gid}" "${_soft_quota_limit}" "${_hard_quota_limit}"
 		elif [[ "${_fs_type}" == 'nfs4' ]]; then
-			writeIsilonQuotaSettingsCacheFile "${_lfs_path}" "${_group_from_lfs_path}" "${_soft_quota_limit}" "${_hard_quota_limit}"
+			saveQuotaCache "${_lfs_path}" "${_soft_quota_limit}" "${_hard_quota_limit}"
 		else
 			log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Cannot configure quota due to unsuported file system type: ${_fs_type}."
 		fi
-		#
-		# Write quota settings cache file to LFS.
-		#
-		
 	done
 }
 
@@ -321,16 +322,11 @@ function processFileSystems () {
 #
 function applyLustreQuota () {
 	local    _lfs_path="${1}"
-	local    _group="${2}"
+	local    _gid="${2}"
 	local    _soft_quota_limit="${3}"
 	local    _hard_quota_limit="${4}"
 	local    _cmd
 	local -a _cmds
-	#
-	# Get the GID for this group, which will be used as the file set / project ID for quota accounting.
-	#
-	local _gid
-	_gid="$(getent group "${_group}" | awk -F ':' '{printf $3}')"
 	if [[ "${apply_settings}" -eq 1 ]]; then
 		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Executing quota commands ..."
 	else
@@ -358,33 +354,26 @@ function applyLustreQuota () {
 }
 
 #
-# For nfs4 mounts we assume they come from an Isilon.
-# As Isilon systems do not use/support the regular NFS quota tools,
-# we cannot apply quota here.
-# Instead we write a small cache file to the Isilon nfs4 mount.
-# This cache file is parsed by the set_isilon_quota.zsh script on an Isilon server 
-# and used to configure the quota settings there.
+# Store quota limits in a cache file.
+# This can then be used by the storage system itself to read the values and apply quota limits.
+# Needed for example for our Isilon systems which do not support the normal NFS quota tools on NFS clients.
 #
-function writeIsilonQuotaSettingsCacheFile () {
+function saveQuotaCache () {
 	local    _lfs_path="${1}"
-	local    _group="${2}"
-	local    _soft_quota_limit="${3}"
-	local    _hard_quota_limit="${4}"
+	local    _soft_quota_limit="${2}"
+	local    _hard_quota_limit="${3}"
 	local    _cmd
 	local -a _cmds
-	#
-	# Define path for cache file.
-	#
-	local _cache_file="$(dirname "${_lfs_path}").$(basename "${_lfs_path}").qcache"
 	if [[ "${apply_settings}" -eq 1 ]]; then
-		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Executing quota commands ..."
+		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Updating quota cache ..."
 	else
-		log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Dry run: the following quota commands would have been executed with the '-a' switch ..."
+		log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Dry run: the following commands to update the cache would have been executed with the '-a' switch ..."
 	fi
 	_cmds=(
-		"touch ${_cache_file}.new"
-		"chmod 644 ${_cache_file}.new"
-		#"lfs setquota -p ${_gid} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
+		"umask 077; touch ${_lfs_path}.quotacache.new"
+		"printf 'soft=%s\n' ${_soft_quota_limit} >  ${_lfs_path}.quotacache.new"
+		"printf 'hard=%s\n' ${_hard_quota_limit} >> ${_lfs_path}.quotacache.new"
+		"mv ${_lfs_path}.quotacache.new ${_lfs_path}.quotacache"
 	)
 	for _cmd in "${_cmds[@]}"; do
 		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Applying cmd: ${_cmd}"
