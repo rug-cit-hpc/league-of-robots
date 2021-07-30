@@ -202,14 +202,26 @@ function setIisilonDirectoryQuota () {
 	else
 		_quota_cmd='modify'
 	fi
-	if [[ "${apply_settings}" -eq 1 ]]; then
-		log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Running 'isi quota quotas ${_quota_cmd}' for ${_path} with limits soft=${_soft_limit}, hard=${_hard_limit} and grace=${_grace_period} ..."
-		isi quota quotas "${_quota_cmd}" "${_path}" directory --enforced="${_enforce}" --container=true \
-			--soft-threshold="${_soft_limit}" \
-			--hard-threshold="${_hard_limit}" \
-			--soft-grace="${_grace_period}"
+	if [[ "${_enforce}" == 'true' ]]; then
+		if [[ "${apply_settings}" -eq 1 ]]; then
+			log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Running 'isi quota quotas ${_quota_cmd}' for ${_path} with limits soft=${_soft_limit}, hard=${_hard_limit}, grace=${_grace_period} and enforced=${_enforce} ..."
+			isi quota quotas "${_quota_cmd}" "${_path}" directory --enforced="${_enforce}" --container=true \
+				--soft-threshold="${_soft_limit}" \
+				--hard-threshold="${_hard_limit}" \
+				--soft-grace="${_grace_period}"
+			isi quota quotas modify "${_path}" directory --clear-advisory-threshold
+		else
+			log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Dry run: compiled 'isi quota quotas ${_quota_cmd}' command for ${_path} with limits soft=${_soft_limit}, hard=${_hard_limit}, grace=${_grace_period} and enforced=${_enforce}."
+		fi
 	else
-		log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Dry run: compiled 'isi quota quotas ${_quota_cmd}' command for ${_path} with limits soft=${_soft_limit}, hard=${_hard_limit} and grace=${_grace_period}."
+		if [[ "${apply_settings}" -eq 1 ]]; then
+			log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Running 'isi quota quotas ${_quota_cmd}' for ${_path} with advisory limit=${_soft_limit} and enforced=${_enforce} ..."
+			isi quota quotas "${_quota_cmd}" "${_path}" directory --enforced="${_enforce}" --container=false \
+				--advisory-threshold="${_soft_limit}"
+			isi quota quotas modify "${_path}" directory --clear-soft-threshold --clear-hard-threshold
+		else
+			log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Dry run: compiled 'isi quota quotas ${_quota_cmd}' command for ${_path} with limits soft=${_soft_limit}, hard=${_hard_limit}, grace=${_grace_period} and enforced=${_enforce}."
+		fi
 	fi
 }
 
@@ -260,8 +272,8 @@ log4Zsh 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Search for PFS-ses in ${
 if [[ "${#pfss[@]}" -eq 0 ]]; then
 	log4Zsh 'FATAL' "${LINENO}" "${FUNCNAME[0]:-main}" '1' "No PFS-ses starting with prefix ${pfs_name_prefix} found in ${pfs_base_path}."
 else
-	echo "Found ${#pfss[@]} PFS-ses: ${pfss[@]}, dusz"
-	log4Zsh 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Found ${#pfss[@]} PFS-ses starting with prefix ${pfs_name_prefix} found in ${pfs_base_path}."
+	log4Zsh 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Found ${#pfss[@]} PFS-ses starting with prefix ${pfs_name_prefix} found in ${pfs_base_path}:"
+	log4Zsh 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "      ${pfss[*]}"
 fi
 #
 # Search for Logical File Systems/Shares (LFS-ses) on each of the PFS-ses.
@@ -282,24 +294,27 @@ for pfs in "${pfss[@]}"; do
 	if [[ -e "${pfs}/groups" ]]; then
 		log4Zsh 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Processing groups on PFS ${pfs} ..."
 		declare -a groups
-		groups=($(find "${pfs}/groups/" -mindepth 1 -maxdepth 1 -type d))
-		if [[ "${#groups[@]:-0}" -eq 0 ]]; then
-			log4Zsh 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "No groups found in ${pfs}/groups/."
+		group_dirs=($(find "${pfs}/groups/" -mindepth 2 -maxdepth 2 -type d))
+		if [[ "${#group_dirs[@]:-0}" -eq 0 ]]; then
+			log4Zsh 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "No group dirs found in ${pfs}/groups/."
 		else
-			for group in "${groups[@]}"; do
-				group_dirs=($(find "${pfs}/groups/${group}/" -mindepth 1 -maxdepth 1 -type d))
-				if [[ "${#group_dirs[@]:-0}" -eq 0 ]]; then
-					log4Zsh 'TRACE' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "No group dirs found in ${pfs}/groups/${group}/."
+			for group_dir in "${group_dirs[@]}"; do
+				quota_cache_file="${group_dir}.quotacache"
+				unset soft
+				unset hard
+				if [[ -f "${quota_cache_file}" && -r "${quota_cache_file}" ]]; then
+					source "${quota_cache_file}" 2>&1 || {
+						log4Zsh 'ERROR' "${LINENO}" "${FUNCNAME[0]:-main}" "${?}" "Cannot source ${quota_cache_file}."
+						continue
+					}
 				else
-					for group_dir in "${group_dirs[@]}"; do
-						if [[ -r "${pfs}/groups/${group}/${group_dir}/.quota" ]]; then
-							
-						setIisilonDirectoryQuota "${group_dir}" '1G' '2G' '7D' 'false'
-						
-						else
-							log4Zsh 'WARN' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "${pfs}/groups/${group}/${group_dir}/.quota missing or not readable."
-						fi
-					done
+					log4Zsh 'WARN' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "${quota_cache_file} missing or not readable."
+					continue
+				fi
+				if [[ -n "${soft:-}" && -n "${hard:-}" ]]; then
+					setIisilonDirectoryQuota "${group_dir}" "${soft}" "${hard}" '14D' 'false'
+				else
+					log4Zsh 'WARN' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Skipping setting quota limits for ${group_dir}, because ${quota_cache_file} was malformed."
 				fi
 			done
 		fi
