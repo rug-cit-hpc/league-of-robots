@@ -1,104 +1,104 @@
 ---
 ip_addresses:
-  corridor:
-    addr: 10.10.1.161
-    mask: /32
-    vlan: fd_internal_management
-    fqdn:
-    desc: Jumphost
   fd-sai:
-    addr: 10.10.1.67
+    addr: 10.10.1.219
     mask: /32
     vlan: fd_internal_management
     fqdn:
     desc: Sys Admin Interface
   fd-dai:
-    addr: 10.10.1.168
+    addr: 10.10.1.70
     mask: /32
     vlan: fd_internal_management
     fqdn:
     desc: Deploy Admin Interface
   fd-vcompute12:
-    addr: 10.10.1.158
+    addr: 10.10.1.121
     mask: /32
     vlan: fd_internal_management
     fqdn:
     desc: Compute Node
   fd-vcompute11:
-    addr: 10.10.1.227
+    addr: 10.10.1.221
     mask: /32
     vlan: fd_internal_management
     fqdn:
     desc: Compute Node
   fd-vcompute10:
-    addr: 10.10.1.17
-    mask: /32
-    vlan: fd_internal_management
-    fqdn:
-    desc: Compute Node
-  fd-vcompute09:
-    addr: 10.10.1.184
+    addr: 10.10.1.202
     mask: /32
     vlan: fd_internal_management
     fqdn:
     desc: Compute Node
   fd-vcompute08:
-    addr: 10.10.1.222
+    addr: 10.10.1.37
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute09:
+    addr: 10.10.1.101
     mask: /32
     vlan: fd_internal_management
     fqdn:
     desc: Compute Node
   fd-vcompute07:
-    addr: 10.10.1.194
+    addr: 10.10.1.253
     mask: /32
     vlan: fd_internal_management
     fqdn:
     desc: Compute Node
   fd-vcompute06:
-    addr: 10.10.1.206
-    mask: /32
-    vlan: fd_internal_management
-    fqdn:
-    desc: Compute Node
-  fd-vcompute03:
-    addr: 10.10.1.53
-    mask: /32
-    vlan: fd_internal_management
-    fqdn:
-    desc: Compute Node
-  fd-vcompute04:
-    addr: 10.10.1.21
-    mask: /32
-    vlan: fd_internal_management
-    fqdn:
-    desc: Compute Node
-  fd-vcompute02:
-    addr: 10.10.1.200
+    addr: 10.10.1.249
     mask: /32
     vlan: fd_internal_management
     fqdn:
     desc: Compute Node
   fd-vcompute01:
-    addr: 10.10.1.192
+    addr: 10.10.1.120
     mask: /32
     vlan: fd_internal_management
     fqdn:
     desc: Compute Node
   fd-vcompute05:
-    addr: 10.10.1.212
+    addr: 10.10.1.244
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute02:
+    addr: 10.10.1.240
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute04:
+    addr: 10.10.1.87
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute03:
+    addr: 10.10.1.59
     mask: /32
     vlan: fd_internal_management
     fqdn:
     desc: Compute Node
   fender:
-    addr: 10.10.1.143
+    addr: 10.10.1.74
     mask: /32
     vlan: fd_internal_management
     fqdn:
     desc: User Interface
   fd-repo:
-    addr: 10.10.1.185
+    addr: 10.10.1.133
     mask: /32
     vlan: fd_internal_management
     fqdn:
+  corridor:
+    addr: 10.10.1.48
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Jumphost
 ...
