@@ -39,7 +39,6 @@ ldap_uri: ldap://fd-dai
 ldap_base: dc=hpc,dc=rug,dc=nl
 ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
 ldap_domain: hpc.rug.nl
-# key_name: Gerben
 cloud_image: CentOS7-Cloud
 cloud_user: centos
 flavor_jumphost: 1c2m20d # s1.small
