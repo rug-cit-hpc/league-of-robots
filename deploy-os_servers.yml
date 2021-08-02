@@ -72,8 +72,6 @@
         dns_nameservers: "{{ nameservers }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-      tags:
-        - never
     - name: "Create {{ network_private_storage_id }} network."
       openstack.cloud.network:
         name: "{{ network_private_storage_id }}"
@@ -306,19 +304,14 @@
     #
     - ansible_python_interpreter: python
   tasks:
-    - name: Create persistent data volume for repo server.
-      openstack.cloud.volume:
-        display_name: "{{ inventory_hostname }}-volume"
-        size: "{{ local_volume_size_repo }}"
-        state: present
-        availability_zone: "{{ storage_availability_zone | default('nova') }}"
-        wait: true
-        timeout: "{{ openstack_api_timeout }}"
     - name: Create repo server.
       openstack.cloud.server:
         state: present
         name: "{{ inventory_hostname }}"
         image: "{{ cloud_image }}"
+        volume_size: "{{ local_volume_size_root }}"
+        terminate_volume: true
+        boot_from_volume: true
         flavor: "{{ flavor_management }}"
         security_groups: "{{ slurm_cluster_name }}_cluster"
         auto_floating_ip: false
@@ -359,6 +352,9 @@
         state: present
         name: "{{ inventory_hostname }}"
         image: "{{ cloud_image }}"
+        volume_size: "{{ local_volume_size_root }}"
+        terminate_volume: true
+        boot_from_volume: true
         flavor: "{{ flavor_ui }}"
         security_groups: "{{ slurm_cluster_name }}_cluster"
         auto_floating_ip: false
@@ -408,6 +404,9 @@
         state: present
         name: "{{ inventory_hostname }}"
         image: "{{ cloud_image }}"
+        volume_size: "{{ local_volume_size_root }}"
+        terminate_volume: true
+        boot_from_volume: true
         flavor: "{{ flavor_vcompute }}"
         security_groups: "{{ slurm_cluster_name }}_cluster"
         auto_floating_ip: false
@@ -464,6 +463,9 @@
         state: present
         name: "{{ inventory_hostname }}"
         image: "{{ cloud_image }}"
+        volume_size: "{{ local_volume_size_root }}"
+        terminate_volume: true
+        boot_from_volume: true
         flavor: "{{ flavor_management }}"
         security_groups: "{{ slurm_cluster_name }}_cluster"
         auto_floating_ip: false
