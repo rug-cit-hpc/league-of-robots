@@ -219,10 +219,10 @@ Are you sure you want to continue connecting (yes/no)?
 
 Execute:
 ```bash
-dd if=/dev/urandom bs=1 count=1024 > roles/slurm_management/files/[name-of-the-cluster]_munge.key
-ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] roles/slurm_management/files/[name-of-the-cluster]_munge.key
+dd if=/dev/urandom bs=1 count=1024 > files/[name-of-the-cluster]_cluster/munge.key
+ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] files/[name-of-the-cluster]_cluster/munge.key
 ```
-The encrypted ```[name-of-the-cluster]_munge.key``` can now safely be committed.
+The encrypted ```files/[name-of-the-cluster]_cluster/munge.key``` can now safely be committed.
 
 #### 7. Running playbooks.
 
