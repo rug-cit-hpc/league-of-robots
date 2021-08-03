@@ -307,6 +307,8 @@ function processFileSystems () {
 		_gid="$(getent group "${_group_from_lfs_path}" | awk -F ':' '{printf $3}')"
 		if [[ "${_fs_type}" == 'lustre' ]]; then
 			applyLustreQuota "${_lfs_path}" "${_gid}" "${_soft_quota_limit}" "${_hard_quota_limit}"
+		elif [[ "${_fs_type}" == 'nfs4' ]]; then
+			saveQuotaCache "${_lfs_path}" "${_soft_quota_limit}" "${_hard_quota_limit}"
 		else
 			log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Cannot configure quota due to unsuported file system type: ${_fs_type}."
 		fi
@@ -343,6 +345,36 @@ function applyLustreQuota () {
 	else
 		log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "   Unsuported Lustre quota type: ${lustre_quota_type}."
 	fi
+	for _cmd in "${_cmds[@]}"; do
+		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Applying cmd: ${_cmd}"
+		if [[ "${apply_settings}" -eq 1 ]]; then
+			mixed_stdouterr="$(${_cmd})" || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Failed to execute: ${_cmd}"
+		fi
+	done
+}
+
+#
+# Store quota limits in a cache file.
+# This can then be used by the storage system itself to read the values and apply quota limits.
+# Needed for example for our Isilon systems which do not support the normal NFS quota tools on NFS clients.
+#
+function saveQuotaCache () {
+	local    _lfs_path="${1}"
+	local    _soft_quota_limit="${2}"
+	local    _hard_quota_limit="${3}"
+	local    _cmd
+	local -a _cmds
+	if [[ "${apply_settings}" -eq 1 ]]; then
+		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Updating quota cache ..."
+	else
+		log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Dry run: the following commands to update the cache would have been executed with the '-a' switch ..."
+	fi
+	_cmds=(
+		"umask 077; touch ${_lfs_path}.quotacache.new"
+		"printf 'soft=%s\n' ${_soft_quota_limit} >  ${_lfs_path}.quotacache.new"
+		"printf 'hard=%s\n' ${_hard_quota_limit} >> ${_lfs_path}.quotacache.new"
+		"mv ${_lfs_path}.quotacache.new ${_lfs_path}.quotacache"
+	)
 	for _cmd in "${_cmds[@]}"; do
 		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Applying cmd: ${_cmd}"
 		if [[ "${apply_settings}" -eq 1 ]]; then
