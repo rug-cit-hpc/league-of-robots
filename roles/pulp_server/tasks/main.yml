@@ -30,12 +30,15 @@
 - name: Exit with warning if Pulp root certificate is missing on local machine
   debug:
     msg: |
-          The file
-          {{ pulp_root_cert_path_on_control_host }}
-          does not exists or perhaps the folder itself is missing. If latter, make it, reerun the playbook (it will
-          automatically create the certificate), then copy .crt from remote pulp server location
-          /etc/pulp/certs/root.crt
-          to the newly created folder."
+         ***********************************************************************************************************
+         IMPORTANT: Manual work!
+         ***********************************************************************************************************
+         The file does not exist in location:
+         {{ pulp_root_cert_path_on_control_host }}
+         or perhaps the folder itself is missing. If latter, create it, reerun the playbook (it will automatically
+         create the certificate). After that copy the certificate from pulp server location /etc/pulp/certs/root.crt
+         to the newly created folder.
+         ***********************************************************************************************************
   when: not file_details.stat.exists
   failed_when: not file_details.stat.exists
 
