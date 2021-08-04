@@ -21,6 +21,27 @@
   register: repo_server_pulp_root_certificate
   become: true
 
+- name: Check the Pulp root certificate on local machine
+  stat:
+    path: "{{ pulp_root_cert_path_on_control_host }}"
+  register: file_details
+  delegate_to: localhost
+
+- name: Exit with warning if Pulp root certificate is missing on local machine
+  debug:
+    msg: |
+         ***********************************************************************************************************
+         IMPORTANT: Manual work!
+         ***********************************************************************************************************
+         The file does not exist in location:
+         {{ pulp_root_cert_path_on_control_host }}
+         or perhaps the folder itself is missing. If latter, create it, reerun the playbook (it will automatically
+         create the certificate). After that copy the certificate from pulp server location /etc/pulp/certs/root.crt
+         to the newly created folder.
+         ***********************************************************************************************************
+  when: not file_details.stat.exists
+  failed_when: not file_details.stat.exists
+
 - name: Checking if Pulp root certificate must be updated.
   debug:
     msg: |
