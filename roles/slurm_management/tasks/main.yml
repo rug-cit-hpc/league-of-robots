@@ -99,23 +99,6 @@
     - 'restart_slurmctld'
   become: true
 
-# See: https://bugs.schedmd.com/show_bug.cgi?id=8388
-- name: 'Patch slurm daemon systemd service files to disable PID files.'
-  lineinfile:
-    path: "/usr/lib/systemd/system/{{ item }}.service"
-    regexp: '^#?PIDFile='
-    line: "#PIDFile=/var/run/slurm/{{ item }}.pid"
-    owner: root
-    group: root
-    mode: '0644'
-  with_items:
-    - 'slurmctld'
-    - 'slurmdbd'
-  notify:
-    - 'restart_slurmdbd'
-    - 'restart_slurmctld'
-  become: true
-
 - name: 'Create a database for Slurm accounting.'
   mysql_db:
     login_host: 'localhost'
@@ -186,9 +169,9 @@
   template:
     src: 'templates/slurmdbd.conf'
     dest: '/etc/slurm/slurmdbd.conf'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
+    owner: 'slurm'
+    group: 'slurm'
+    mode: '0600'
   notify: 'reload_slurmdbd'
   become: true
 
