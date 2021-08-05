@@ -1,0 +1,17 @@
+---
+- name: Restart openldap service.
+  systemd:
+    name: openldap.service
+    state: restarted
+    daemon_reload: true
+  become: true
+  listen: restart_openldap
+
+- name: Restart phpldapadmin service.
+  systemd:
+    name: phpldapadmin.service
+    state: restarted
+    daemon_reload: true
+  become: true
+  listen: restart_phpldapadmin
+...

@@ -4,6 +4,12 @@
 # Handlers are executed in the order in which they are defined
 # and not in the order in which they are listed in a "notify: handler_name" statement!
 #
+- name: Running update-ca-trust when certificates have changed.
+  command:
+    cmd: update-ca-trust extract
+  become: true
+  listen: update-ca-trust
+
 - name: Restart nslcd service.
   service:
     name: nslcd

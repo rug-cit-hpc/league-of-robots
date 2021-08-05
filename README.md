@@ -179,7 +179,7 @@ This way users only need the public key of the CA in their ```~.ssh/known_hosts`
 and will not get bothered by messages like this:
 ```
 The authenticity of host '....' can't be established.
-ECDSA key fingerprint is ....
+ED25519 key fingerprint is ....
 Are you sure you want to continue connecting (yes/no)?
 ```
 * The filename of the CA private key is specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/[name-of-the-cluster]_cluster/vars.yml```
@@ -215,16 +215,30 @@ Are you sure you want to continue connecting (yes/no)?
   ./build.sh
   ```
 
-#### 6. Generate munge key and encrypt using the ansible-vault.
+#### 6. Generate munge key and encrypt it using Ansible Vault.
 
 Execute:
 ```bash
 dd if=/dev/urandom bs=1 count=1024 > files/[name-of-the-cluster]_cluster/munge.key
 ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] files/[name-of-the-cluster]_cluster/munge.key
 ```
-The encrypted ```files/[name-of-the-cluster]_cluster/munge.key``` can now safely be committed.
+The encrypted ```files/[name-of-the-cluster]_cluster/munge.key``` can now be committed safely.
 
-#### 7. Running playbooks.
+#### 7. Generate TLS certificate for the LDAP server and encrypt it using Ansible Vault.
+
+If in ```group_vars/[name-of-the-cluster]_cluster/vars.yml``` you configured:
+ * ```create_ldap: yes```: This cluster will create and run its own LDAP server. You will need to create a self-signed TLS certificate for the LDAP server.
+ * ```create_ldap: no```: This cluster will use an external LDAP, that was configured & hosted elsewhere, and this step can be skipped.
+
+Execute:
+   ```
+   openssl req -x509 -nodes -days 1825 -newkey rsa:2048 -keyout files/[name-of-the-cluster]_cluster/ldap.key -out files/[name-of-the-cluster]_cluster/ldap.crt
+   ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] files/[name-of-the-cluster]_cluster/ldap.key
+   ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] files/[name-of-the-cluster]_cluster/ldap.crt
+   ```
+The encrypted ```*.crt``` and ```*.key``` in ```files/[name-of-the-cluster]_cluster/``` can now be committed safely.
+
+#### 8. Running playbooks.
 
 There are two playbooks:
 
@@ -356,6 +370,6 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
   ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/slurm_management.yml
   ```
 
-#### 8. Verify operation.
+#### 9. Verify operation.
 
 See the end user documentation, that was generated with the ```online_docs``` role for instructions how to submit a job to test the cluster.
