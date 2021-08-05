@@ -1,7 +1,7 @@
 # Register a machine to our ldap
 ---
 - name: Install yum dependencies
-  yum:
+  ansible.builtin.yum:
     state: latest
     update_cache: true
     name:
@@ -13,8 +13,19 @@
     - restart_sshd
   become: true
 
-- name: Deploy nslcd.conf
-  template:
+- name: Copy LDAP server certificate to LDAP clients.
+  ansible.builtin.copy:
+    src: "{{ slurm_cluster_name }}_cluster/ldap.crt"
+    dest: /etc/pki/ca-trust/source/anchors/
+    owner: root
+    group: root
+    mode: '0600'
+  when: (playbook_dir, '/files/', slurm_cluster_name, '_cluster/', 'ldap.crt') | join('') is exists
+  become: true
+  notify: update-ca-trust
+
+- name: Deploy /etc/nslcd.conf
+  ansible.builtin.template:
     src: nslcd.conf
     dest: /etc/nslcd.conf
     owner: root
@@ -24,9 +35,9 @@
     - restart_nslcd
   become: true
 
-- name: Deploy ldap.conf
-  template:
-    src: ldap.conf
+- name: Deploy /etc/ssh/ldap.conf
+  ansible.builtin.template:
+    src: ssh-ldap.conf
     dest: /etc/ssh/ldap.conf
     owner: root
     group: root
@@ -35,8 +46,22 @@
     - restart_nslcd
   become: true
 
+#
+# Note that /etc/openldap/ldap.conf is not required to make SSH logins work,
+# but is used for tools like the ldapsearch command,
+# which may be used for debugging and by scripts on the cluster: e.g. for fetching quota values.
+#
+- name: Deploy /etc/openldap/ldap.conf
+  ansible.builtin.template:
+    src: openldap-ldap.conf
+    dest: /etc/openldap/ldap.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
 - name: Deploy nsswitch.conf
-  copy:
+  ansible.builtin.copy:
     src: nsswitch.conf
     dest: /etc/nsswitch.conf
     owner: root
@@ -47,7 +72,7 @@
   become: true
 
 - name: Deploy custom ssh-ldap-wrapper.
-  template:
+  ansible.builtin.template:
     src: ssh-ldap-wrapper.bash
     dest: /usr/libexec/openssh/ssh-ldap-wrapper.bash
     owner: root
@@ -56,7 +81,7 @@
   become: true
 
 - name: Enable services.
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: true
     state: started
@@ -67,7 +92,7 @@
   become: true
 
 - name: Redeploy sshd config.
-  template:
+  ansible.builtin.template:
     src: "{{ playbook_dir }}/roles/sshd/templates/sshd_config"
     dest: /etc/ssh/sshd_config
     validate: '/usr/sbin/sshd -T -f %s'
@@ -78,5 +103,5 @@
   become: true
 
 - name: Flush handlers.
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 ...

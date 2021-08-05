@@ -1,6 +1,21 @@
 ---
+- name: Install key and certificate for TLS.
+  ansible.builtin.copy:
+    src: "files/{{ slurm_cluster_name }}_cluster//{{ item.name }}"
+    dest: "/etc/pki/tls/private/{{ item.name }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  with_items:
+    - name: ldap.key
+      mode: '0600'
+    - name: ldap.crt
+      mode: '0644'
+  notify: restart_openldap
+  become: true
+
 - name: Install service files.
-  template:
+  ansible.builtin.template:
     src: "templates/{{ item }}"
     dest: "/etc/systemd/system/{{ item }}"
     owner: root
@@ -9,10 +24,13 @@
   with_items:
     - openldap.service
     - phpldapadmin.service
+  notify:
+    - restart_openldap
+    - restart_phpldapadmin
   become: true
 
 - name: Make directory for the openldap ldif volume.
-  file:
+  ansible.builtin.file:
     path: "/srv/openldap/custom"
     state: directory
     owner: root
@@ -21,7 +39,7 @@
   become: true
 
 - name: Install ldif files for overlays.
-  copy:
+  ansible.builtin.copy:
     src: "files/{{ item }}"
     dest: "/srv/openldap/custom/{{ item }}"
     owner: root
@@ -29,10 +47,12 @@
     mode: '0644'
   with_items:
     - 01-overlay-memberof
+  notify:
+    - restart_openldap
   become: true
 
 - name: Make sure services are started.
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ item }}"
     state: started
     enabled: true
@@ -43,7 +63,7 @@
   become: true
 
 - name: Install python-ldap depedencies for Deploy Admin Interfaces (DAIs).
-  yum:
+  ansible.builtin.yum:
     state: latest
     update_cache: true
     name:
