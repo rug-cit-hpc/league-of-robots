@@ -38,7 +38,5 @@ fi
 # after 30 minutes of inactivity.
 #
 if [[ "${SLURM_JOB_QOS}" =~ ^interactive.* ]]; then
-    echo "TMOUT=1800"
-    echo "readonly TMOUT"
-    echo "export TMOUT"
+    echo "export TMOUT=1800"
 fi
