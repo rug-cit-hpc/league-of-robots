@@ -232,11 +232,13 @@ If in ```group_vars/[name-of-the-cluster]_cluster/vars.yml``` you configured:
 
 Execute:
    ```
-   openssl req -x509 -nodes -days 1825 -newkey rsa:2048 -keyout files/[name-of-the-cluster]_cluster/ldap.key -out files/[name-of-the-cluster]_cluster/ldap.crt
+   openssl req -x509 -nodes -days 1825 -newkey rsa:4096 -keyout files/[name-of-the-cluster]_cluster/ldap.key -out files/[name-of-the-cluster]_cluster/ldap.crt
+   openssl dhparam -out files/[name-of-the-cluster]_cluster/dhparam.pem 4096
    ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] files/[name-of-the-cluster]_cluster/ldap.key
    ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] files/[name-of-the-cluster]_cluster/ldap.crt
+   ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] files/[name-of-the-cluster]_cluster/dhparam.pem
    ```
-The encrypted ```*.crt``` and ```*.key``` in ```files/[name-of-the-cluster]_cluster/``` can now be committed safely.
+The encrypted files in ```files/[name-of-the-cluster]_cluster/``` can now be committed safely.
 
 #### 8. Running playbooks.
 

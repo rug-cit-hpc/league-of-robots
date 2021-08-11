@@ -4,8 +4,6 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-TimeoutStartSec=0
-Restart=always
 ExecStartPre=-/usr/bin/docker kill %n
 ExecStartPre=-/usr/bin/docker rm %n
 ExecStartPre=/usr/bin/docker pull osixia/openldap:1.5.0
@@ -20,6 +18,7 @@ ExecStart=/usr/bin/docker run --rm -i --name %n --network host \
     --env LDAP_TLS_CRT_FILENAME=ldap.crt \
     --env LDAP_TLS_KEY_FILENAME=ldap.key \
     --env LDAP_TLS_CA_CRT_FILENAME=ldap.crt \
+    --env LDAP_TLS_DH_PARAM_FILENAME=dhparam.pem \
     --env LDAP_TLS_VERIFY_CLIENT=never \
     --hostname {{ ansible_hostname }} \
     osixia/openldap:1.5.0 \
