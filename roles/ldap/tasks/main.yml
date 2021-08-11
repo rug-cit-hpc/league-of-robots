@@ -22,7 +22,9 @@
     mode: '0600'
   when: (playbook_dir, '/files/', slurm_cluster_name, '_cluster/', 'ldap.crt') | join('') is exists
   become: true
-  notify: update-ca-trust
+  notify:
+    - update-ca-trust
+    - restart_nslcd
 
 - name: Deploy /etc/nslcd.conf
   ansible.builtin.template:
@@ -82,13 +84,10 @@
 
 - name: Enable services.
   ansible.builtin.systemd:
-    name: "{{ item }}"
-    enabled: true
+    name: nslcd
     state: started
-  with_items:
-    - nslcd
-  notify:
-    - restart_nslcd
+    enabled: true
+    daemon_reload: true
   become: true
 
 - name: Redeploy sshd config.
