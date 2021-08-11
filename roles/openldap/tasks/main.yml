@@ -1,5 +1,5 @@
 ---
-- name: Install key and certificate for TLS.
+- name: Install key, certificate and dhparam files for TLS.
   ansible.builtin.copy:
     src: "files/{{ slurm_cluster_name }}_cluster//{{ item.name }}"
     dest: "/etc/pki/tls/private/{{ item.name }}"
@@ -11,7 +11,29 @@
       mode: '0600'
     - name: ldap.crt
       mode: '0644'
+    - name: dhparam.pem
+      mode: '0644'
   notify: restart_openldap
+  become: true
+
+#
+# On some systems we got:
+#     TLS: could not use CA certificate file `/container/run/service/slapd/assets/certs/ca.crt': Error while reading file.
+# despite specifying:
+#     --env LDAP_TLS_CA_CRT_FILENAME=ldap.crt
+# in the openldap.service file for systemd.
+# Hence it should not try to use any ca.crt, but this silly symlink prevents slapd from from failing to start.
+# Note that this bug did not occur on all VMs with identical config, so it was hit or miss.
+#
+- name: 'Workaround for openldap docker image bug: create symlink for LDAP_TLS_CA_CRT.'
+  file:  # noqa risky-file-permissions
+    src: ldap.crt
+    dest: /etc/pki/tls/private/ca.crt
+    owner: root
+    group: root
+    state: link
+  notify:
+    - restart_openldap
   become: true
 
 - name: Install service files.
