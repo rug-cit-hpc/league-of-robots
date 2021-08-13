@@ -45,5 +45,6 @@
       - 'libXext-devel'
       - 'libX11-devel'
       - 'python-pep8'
+      - 'python3'
   become: true
 ...
