@@ -434,12 +434,11 @@
         wait: true
         timeout: "{{ openstack_api_timeout }}"
 #############################################################################
-# Configure DAI and SAI from inventory using Openstack API.
+# Configure SAI from inventory using Openstack API.
 #############################################################################
-- name: Create Sys and Deploy Admin Interfaces.
+- name: Create and Deploy SAI Interfaces.
   hosts:
     - sys_admin_interface
-    - deploy_admin_interface
   connection: local
   gather_facts: false
   vars:
@@ -450,15 +449,15 @@
     #
     - ansible_python_interpreter: python
   tasks:
-    - name: Create persistent data volume for admin interface.
+    - name: Create persistent data volume for SAI interface.
       openstack.cloud.volume:
         display_name: "{{ inventory_hostname }}-volume"
-        size: "{{ local_volume_size_management }}"
+        size: "{{ local_volume_size_sai }}"
         state: present
         availability_zone: "{{ storage_availability_zone | default('nova') }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: Create admin interface server.
+    - name: Create SAI interface server.
       openstack.cloud.server:
         state: present
         name: "{{ inventory_hostname }}"
@@ -486,7 +485,66 @@
         availability_zone: "{{ availability_zone }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: Attach local storage volume to admin interface server.
+    - name: Attach local storage volume to SAI interface server.
+      openstack.cloud.server_volume:
+        server: "{{ inventory_hostname }}"
+        volume: "{{ inventory_hostname }}-volume"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+
+#############################################################################
+# Configure DAI from inventory using Openstack API.
+#############################################################################
+- name: Create and Deploy DAI Interfaces.
+  hosts:
+    - deploy_admin_interface
+  connection: local
+  gather_facts: false
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+    - name: Create persistent data volume for DAI interface.
+      openstack.cloud.volume:
+        display_name: "{{ inventory_hostname }}-volume"
+        size: "{{ local_volume_size_dai }}"
+        state: present
+        availability_zone: "{{ storage_availability_zone | default('nova') }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: Create DAI interface server.
+      openstack.cloud.server:
+        state: present
+        name: "{{ inventory_hostname }}"
+        image: "{{ cloud_image }}"
+        volume_size: "{{ local_volume_size_root }}"
+        terminate_volume: true
+        boot_from_volume: true
+        flavor: "{{ flavor_management }}"
+        security_groups: "{{ slurm_cluster_name }}_cluster"
+        auto_floating_ip: false
+        nics:
+          - net-name: "{{ network_private_management_id }}"
+          - net-name: "{{ network_private_storage_id }}"
+        userdata: |
+          #cloud-config
+          password: "{{ cloud_console_pass }}"
+          chpasswd: { expire: False }
+          #
+          # Add each entry to ~/.ssh/authorized_keys for the configured user
+          # or the first user defined in the user definition directive.
+          #
+          ssh_authorized_keys:
+          {% for public_key in public_keys_of_local_admins %}  - {{ public_key }}
+          {% endfor %}
+        availability_zone: "{{ availability_zone }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: Attach local storage volume to DAI interface server.
       openstack.cloud.server_volume:
         server: "{{ inventory_hostname }}"
         volume: "{{ inventory_hostname }}-volume"
