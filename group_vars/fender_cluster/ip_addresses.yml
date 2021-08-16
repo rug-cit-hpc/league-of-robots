@@ -1,5 +1,11 @@
 ---
 ip_addresses:
+  fd-dai:
+    addr: 10.10.1.63
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Deploy Admin Interface
   fd-repo:
     addr: 10.10.1.217
     mask: /32
@@ -11,12 +17,6 @@ ip_addresses:
     vlan: fd_internal_management
     fqdn:
     desc: Sys Admin Interface
-  fd-dai:
-    addr: 10.10.1.52
-    mask: /32
-    vlan: fd_internal_management
-    fqdn:
-    desc: Deploy Admin Interface
   fd-vcompute12:
     addr: 10.10.1.213
     mask: /32
