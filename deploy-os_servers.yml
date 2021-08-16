@@ -436,7 +436,7 @@
 #############################################################################
 # Configure SAI from inventory using Openstack API.
 #############################################################################
-- name: Create and Deploy SAI Interfaces.
+- name: Create and Deploy SAI.
   hosts:
     - sys_admin_interface
   connection: local
@@ -449,7 +449,7 @@
     #
     - ansible_python_interpreter: python
   tasks:
-    - name: Create persistent data volume for SAI interface.
+    - name: Create persistent data volume for SAI.
       openstack.cloud.volume:
         display_name: "{{ inventory_hostname }}-volume"
         size: "{{ local_volume_size_sai }}"
@@ -457,7 +457,7 @@
         availability_zone: "{{ storage_availability_zone | default('nova') }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: Create SAI interface server.
+    - name: Create SAI server.
       openstack.cloud.server:
         state: present
         name: "{{ inventory_hostname }}"
@@ -485,7 +485,7 @@
         availability_zone: "{{ availability_zone }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: Attach local storage volume to SAI interface server.
+    - name: Attach local storage volume to SAI server.
       openstack.cloud.server_volume:
         server: "{{ inventory_hostname }}"
         volume: "{{ inventory_hostname }}-volume"
@@ -495,7 +495,7 @@
 #############################################################################
 # Configure DAI from inventory using Openstack API.
 #############################################################################
-- name: Create and Deploy DAI Interfaces.
+- name: Create and Deploy DAI.
   hosts:
     - deploy_admin_interface
   connection: local
@@ -508,7 +508,7 @@
     #
     - ansible_python_interpreter: python
   tasks:
-    - name: Create persistent data volume for DAI interface.
+    - name: Create persistent data volume for DAI.
       openstack.cloud.volume:
         display_name: "{{ inventory_hostname }}-volume"
         size: "{{ local_volume_size_dai }}"
@@ -516,7 +516,7 @@
         availability_zone: "{{ storage_availability_zone | default('nova') }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: Create DAI interface server.
+    - name: Create DAI server.
       openstack.cloud.server:
         state: present
         name: "{{ inventory_hostname }}"
@@ -544,7 +544,7 @@
         availability_zone: "{{ availability_zone }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: Attach local storage volume to DAI interface server.
+    - name: Attach local storage volume to DAI server.
       openstack.cloud.server_volume:
         server: "{{ inventory_hostname }}"
         volume: "{{ inventory_hostname }}-volume"
