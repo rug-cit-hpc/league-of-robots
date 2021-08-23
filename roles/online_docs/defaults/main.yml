@@ -2,4 +2,11 @@
 external_hrefs:
   spacewalk: 'https://spacewalkproject.github.io/'
   pulp: 'https://pulpproject.org/'
+known_hosts_hostnames: "{% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}*,\
+                        {% if public_ip_addresses is defined and public_ip_addresses[jumphost] | length %}{{ public_ip_addresses[jumphost] }},{% endif %}{% endfor %}\
+                        {% for dshost in groups['data_staging'] %}*{{ dshost | regex_replace('^' + ai_jumphost + '\\+','')}}*,
+                        {% if public_ip_addresses is defined and public_ip_addresses[dshost] | length %}{{ public_ip_addresses[dshost] }},{% endif %}{% endfor %}\
+                        {% for adminhost in groups['administration'] %}*{{ adminhost | regex_replace('^' + ai_jumphost + '\\+','')}},{% endfor %}\
+                        {% for dochost in groups['docs'] %}*{{ dochost | regex_replace('^' + ai_jumphost + '\\+','')}},{% endfor %}\
+                        *{{ stack_prefix }}-*"
 ...
