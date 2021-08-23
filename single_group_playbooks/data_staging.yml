@@ -1,0 +1,20 @@
+---
+- import_playbook: pre_deploy_checks.yml
+
+- name: '###==-> Roles for data staging servers. <-==###'
+  hosts:
+    - data_staging
+  roles:
+    - admin_users
+    - ssh_host_signer
+    - logrotate
+    - update
+    - {role: geerlingguy.repo-epel, become: true}
+    - {role: geerlingguy.firewall, become: true}
+    - logins
+    - ldap
+    - sshd
+    - {role: geerlingguy.security, become: true}
+    - rsyncd
+    - regular_users
+...
