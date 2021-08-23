@@ -1,6 +1,7 @@
 ---
 - hosts:
     - jumphost
+    - data_staging
   roles:
     - admin_users
 - hosts:
