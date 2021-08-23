@@ -67,6 +67,7 @@
     patterns: 'ip_addresses.yml'
   register: ip_addresses_files
   delegate_to: localhost
+  connection: local
 
 - name: 'Include variables from all ip_addresses.yml files.'
   include_vars:
@@ -75,11 +76,13 @@
   with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
   register: networking_lookups
   delegate_to: localhost
+  connection: local
 
 - name: 'Combine network info from ip_addresses.yml files into one dict.'
   set_fact:
     networking_lookups: "{{ networking_lookups.results | json_query('[].ansible_facts.networking_lookup.ip_addresses') | combine() }}"
   delegate_to: localhost
+  connection: local
 
 - name: 'Set selinux in permissive mode.'
   selinux:

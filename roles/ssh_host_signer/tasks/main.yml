@@ -17,6 +17,7 @@
     suffix: 'ssh_host_signer'
     state: directory
   delegate_to: localhost
+  connection: local
   changed_when: false
   register: temporary_directory
   become: false
@@ -41,6 +42,7 @@
     path: "{{ ssh_host_signer_ca_private_key }}"
     mode: '0600'
   delegate_to: localhost
+  connection: local
 
 - name: 'Create temporary unvaulted copy of CA private key.'
   copy:
@@ -49,6 +51,7 @@
     mode: '0600'
     decrypt: true
   delegate_to: localhost
+  connection: local
   become: false
 
 - name: 'Sign SSH host keys.'
@@ -62,6 +65,7 @@
   with_items: "{{ private_keys.files }}"
   changed_when: false
   delegate_to: localhost
+  connection: local
   no_log: true
 
 - name: 'Find generated certificates (== signed host keys).'
@@ -69,6 +73,7 @@
     path: "{{ temporary_directory.path }}/public_keys/{{ inventory_hostname }}{{ ssh_host_signer_key_directory }}"
     pattern: 'ssh_host_*_key-cert.pub'
   delegate_to: localhost
+  connection: local
   register: certificates
 
 - name: 'Compare generated certificates to existing certificates from servers.'
@@ -85,6 +90,7 @@
   changed_when: false
   failed_when: false
   delegate_to: localhost
+  connection: local
   register: certificate_comparison
 
 - name: 'Copy certificates back to server if the generated ones are different from the existing ones.'
@@ -104,6 +110,7 @@
     name: "{{ temporary_directory.path }}"
     state: absent
   delegate_to: localhost
+  connection: local
   changed_when: false
 
 - name: 'Add the signed certificates to SSH configuration file.'
