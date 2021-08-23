@@ -1,6 +1,7 @@
 ---
 - hosts:
     - jumphost
+    - data_staging
     - repo
     - cluster
     - docs
