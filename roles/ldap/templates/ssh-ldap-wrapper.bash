@@ -6,7 +6,6 @@
 #     * For regular users from the LDAP: from LDAP using default ssh-ldap-helper or
 #     * For local admin users: from a local ~/.ssh/authorized_keys file.
 #  * Filters the public keys by dropping unsupported key types or short key sizes considered weak.
-#  * Can prepend an SSH forced command for regular users in specific groups to provide restricted access.
 #
 declare user="${1}"
 declare regex='^([0-9][0-9]*) .* \((.*)\)$'
@@ -14,7 +13,6 @@ declare ssh_ldap_helper='/usr/libexec/openssh/ssh-ldap-helper'
 declare ssh_keygen='/usr/bin/ssh-keygen'
 declare minimal_rsa_key_size='4096'
 declare admin_gid='{{ auth_groups['admin'].gid }}'
-declare ssh_forced_command='restrict,command="/bin/rsync --server --daemon --config=/etc/rsyncd.conf ." '
 declare -a authorized_keys=()
 
 function filterKeys() {
@@ -58,12 +56,9 @@ if id "${user:-missing}" >/dev/null 2>&1; then
     #
     declare groups
     groups="$(id -Gn "${user}")"
-    if [[ "${user}" != *guest* && "${groups}" != *sftp-only* && "${groups}" != *rsync-only* ]]; then
-      ssh_forced_command=''  # Disables the forced command resulting in full shell access.
-    fi
     while read -r public_key; do
       test -z "${public_key:-}" && continue
-      filterKeys "${ssh_forced_command}${public_key}"
+      filterKeys "${public_key}"
     done < <("${ssh_ldap_helper}" -s "${user}")
   fi
 else
