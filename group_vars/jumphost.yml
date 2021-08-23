@@ -1,9 +1,11 @@
 ---
 firewall_allowed_tcp_ports:
-  - "22"    # SSH.
-  - "443"   # SSH fallback when 22 is blocked.
-  - "3000"  # Grafana server.
+  - 22    # SSH.
+  - 443   # SSH fallback when 22 is blocked.
+  - 3000  # Grafana server.
 firewall_additional_rules:
   - "iptables -A INPUT -i eth1 -p tcp -s 129.125.2.233,129.125.2.225,129.125.2.226 --dport 9090 -j ACCEPT -m comment --comment 'prometheus server'"
-ssh_host_signer_hostnames: "{{ ansible_hostname }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %},{{ ansible_hostname }}{% if public_ip_addresses is defined and public_ip_addresses[ansible_hostname] | length %},{{ public_ip_addresses[ansible_hostname] }}{% endif %}"
+ssh_host_signer_hostnames: "{{ ansible_hostname }}\
+                            {% if slurm_cluster_domain | length %},{{ ansible_hostname }}.{{ slurm_cluster_domain }}{% endif %}\
+                            {% if public_ip_addresses is defined and public_ip_addresses[ansible_hostname] | length %},{{ public_ip_addresses[ansible_hostname] }}{% endif %}"
 ...
