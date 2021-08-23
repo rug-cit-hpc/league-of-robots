@@ -6,12 +6,14 @@
     patterns: 'ip_addresses.yml'
   register: ip_addresses_files
   delegate_to: localhost
+  connection: local
 - name: Include variables from all ip_addresses.yml files.
   include_vars:
     file: "{{ item }}"
     name: "{{ item | dirname | basename }}"
   with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
   delegate_to: localhost
+  connection: local
 - name: Deploy /etc/hosts file.
   template:
     src: templates/hosts.j2
