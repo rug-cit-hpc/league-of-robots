@@ -98,11 +98,12 @@
     - login_checks.sh
   become: true
 
-- name: 'Set tiny quota for regular users on jumphosts.'
+- name: 'Set tiny quota for regular users on the root partition.'
   include_tasks:
-    file: jumphost-quota.yml
+    file: tiny-user-quota-on-root-partition.yml
   when:
-    - inventory_hostname in groups['jumphost'] | default([])
+    - inventory_hostname in groups['jumphost'] | default([]) or
+      inventory_hostname in groups['data_staging'] | default([])
 
 - name: 'Enable services.'
   systemd:
