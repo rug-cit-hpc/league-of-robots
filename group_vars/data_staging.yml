@@ -6,4 +6,13 @@ ssh_host_signer_hostnames: "{{ ansible_hostname }}\
                             {% if slurm_cluster_domain | length %},{{ ansible_hostname }}.{{ slurm_cluster_domain }}{% endif %}\
                             {% if public_ip_addresses is defined and public_ip_addresses[ansible_hostname] | length %},{{ public_ip_addresses[ansible_hostname] }}{% endif %}\
                             {% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}"
+volumes: [
+  { mount_point: '/groups',
+    device: '/dev/vdb',
+    mounted_owner: root,
+    mounted_group: root,
+    mounted_mode: '0755',
+    mount_options: 'rw,relatime',
+    type: ext4 },
+]
 ...

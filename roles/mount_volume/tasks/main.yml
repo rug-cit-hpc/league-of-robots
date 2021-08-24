@@ -1,49 +1,44 @@
 ---
-- name: 'Check the local mount point.'
-  command: "mountpoint {{ volume_mount_point }}"
-  register: mount_local
+- name: 'Check the mount point.'
+  command: "mountpoint {{ item.mount_point }}"
+  register: mount_point_status
   failed_when: false
   changed_when: false
+  loop: "{{ volumes }}"
 
-- name: 'Create an ext4 filesystem on /dev/vdb.'
+- name: 'Create a filesystem on the device.'
   filesystem:
-    fstype: 'ext4'
-    dev: '/dev/vdb'
-  when: mount_local.rc == 1
+    fstype: "{{ item.item.type }}"
+    dev: "{{ item.item.device }}"
+  when: item.rc == 1
   become: true
+  loop: "{{ mount_point_status.results }}"
 
 - name: 'Mount the volume.'
   mount:
-    path: "{{ volume_mount_point }}"
-    src: '/dev/vdb'
-    fstype: 'ext4'
-    opts: 'rw,relatime'
+    path: "{{ item.mount_point }}"
+    src:  "{{ item.device }}"
+    fstype: "{{ item.type }}"
+    opts: "{{ item.mount_options }}"
     state: mounted
   become: true
+  loop: "{{ volumes }}"
 
-- name: 'Recheck the local mount point.'
-  command: "mountpoint {{ volume_mount_point }}"
-  register: mount_local
+- name: 'Recheck the mount point.'
+  command: "mountpoint {{ item.mount_point }}"
+  register: mount_point_status
   failed_when: false
   changed_when: false
+  loop: "{{ volumes }}"
 
-- name: 'Configure permissions for root.'
+- name: 'Configure permissions for mounted file system.'
   file:
-    path: "{{ volume_mount_point }}"
+    path: "{{ item.item.mount_point }}"
     state: directory
-    owner: root
-    group: root
-    mode: '0755'
-  when: mount_local.rc == 0 and inventory_hostname in groups['compute_vm']
+    owner: "{{ item.item.mounted_owner }}"
+    group: "{{ item.item.mounted_group }}"
+    mode: "{{ item.item.mounted_mode }}"
+  when: item.rc == 0
   become: true
-
-- name: 'Configure permissions for deploy admins.'
-  file:
-    path: "{{ volume_mount_point }}"
-    state: directory
-    owner: root
-    group: "{{ envsync_group }}"
-    mode: '2775'
-  when: mount_local.rc == 0 and inventory_hostname in groups['deploy_admin_interface']
-  become: true
+  loop: "{{ mount_point_status.results }}"
 ...
