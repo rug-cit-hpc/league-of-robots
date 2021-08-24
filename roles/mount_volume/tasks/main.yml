@@ -41,4 +41,11 @@
   when: item.rc == 0
   become: true
   loop: "{{ mount_point_status.results }}"
+
+- name: 'Create group folders on volume.'
+  include_tasks:
+    file: create_group_folders.yml
+  when:
+    - item.mount_point == '/groups'
+  loop: "{{ volumes }}"
 ...
