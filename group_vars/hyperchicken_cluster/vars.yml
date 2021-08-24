@@ -131,7 +131,7 @@ lfs_mounts: [
 ]
 ega_fuse_client_mounts:
   solve_rd: '/groups/solve-rd/prm09/ega-fuse-client'
-ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
+ega_fuse_client_java_home: '/etc/alternatives/jre_11_openjdk'
 interfaces:
   - device: 'eth0'
     bootproto: 'dhcp'
