@@ -61,6 +61,7 @@ ldap_binddn: 'cn=clusteradminumcg,o=asds'
 ldap_group_object_class: 'groupofnames'
 ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
 ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
+data_transfer_only_group: umcg-sftp-only
 nameservers: [
   '/gcc-storage001.stor.hpc.local/172.23.40.244',  # Local DNS lookups for shared storage.
   '8.8.4.4',  # Google DNS.
