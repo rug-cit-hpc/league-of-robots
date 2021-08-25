@@ -17,4 +17,5 @@
     - {role: geerlingguy.security, become: true}
     - rsyncd
     - regular_users
+    - mount_volume
 ...
