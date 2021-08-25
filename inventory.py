@@ -55,7 +55,6 @@ except ImportError:
 import os
 import re
 import sys
-from test.test_sax import start
 if sys.version_info >= (3,2,0):
     from configparser import ConfigParser
 elif sys.version_info >= (3,0,0):
