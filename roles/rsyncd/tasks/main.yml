@@ -16,12 +16,15 @@
     name: 'rsync'
   become: true
 
-- name: 'Install rsyncd config file with "module" for /groups.'
+- name: 'Install rsyncd config files with "modules".'
   template:
-    src: 'templates/rsyncd.conf'
-    dest: '/etc/rsyncd.conf'
+    src: "templates/{{ item }}"
+    dest: "/etc/{{ item }}"
     owner: 'root'
     group: 'root'
     mode: '0644'
+  loop:
+    - rsyncd_all_groups.conf
+    - rsyncd_data_transfer_only_group.conf
   become: true
 ...
