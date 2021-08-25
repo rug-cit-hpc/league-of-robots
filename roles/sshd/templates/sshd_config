@@ -93,7 +93,7 @@ ClientAliveInterval 300
 # Override default of no subsystems
 # and log sftp level file access that would not be easily logged otherwise.
 #
-Subsystem sftp /usr/libexec/openssh/sftp-server -f AUTHPRIV -l INFO
+Subsystem sftp /usr/libexec/openssh/sftp-server -f AUTHPRIV -l INFO -u 0027
 
 {% if use_ldap %}
 #
@@ -119,7 +119,7 @@ AuthorizedKeysFile .ssh/authorized_keys
 # Disable guest and data staging accounts on cluster machines (SAI, DAI, UI, compute nodes).
 #
 Match all
-    DenyGroups *sftp-only* *rsync-only* *guest*
+    DenyGroups {{ data_transfer_only_group }} *guest*
 {% elif inventory_hostname in groups['repo'] %}
 #
 # Only allow (local) admin users on repo servers.
@@ -137,18 +137,27 @@ Match all
 #
 # On data staging servers: Restrict regular users to sftp-only on port 22.
 #
-Match Group *,!admin LocalPort 22
+Match Group *,!admin,!{{ data_transfer_only_group }} LocalPort 22
     AllowAgentForwarding no
     AllowTcpForwarding no
     PermitTTY no
     ChrootDirectory /groups/
-    ForceCommand internal-sftp
+    ForceCommand internal-sftp -f AUTHPRIV -l INFO -u 0027
+Match Group {{ data_transfer_only_group }} LocalPort 22
+    AllowAgentForwarding no
+    AllowTcpForwarding no
+    PermitTTY no
+    ChrootDirectory /groups/{{ data_transfer_only_group }}/
+    ForceCommand internal-sftp -f AUTHPRIV -l INFO -u 0077 -d %u
 #
 # On data staging servers: Restrict regular users to rsync-only on port 443.
 #
-Match Group *,!admin LocalPort 443
+Match Group *,!admin,!{{ data_transfer_only_group }} LocalPort 443
     AllowAgentForwarding no
     AllowTcpForwarding no
-    #PermitTTY no
-    ForceCommand /bin/rsync --server --daemon --config=/etc/rsyncd.conf .
+    ForceCommand /bin/rsync --server --daemon --config=/etc/rsyncd_all_groups.conf .
+Match Group {{ data_transfer_only_group }} LocalPort 443
+    AllowAgentForwarding no
+    AllowTcpForwarding no
+    ForceCommand /bin/rsync --server --daemon --config=/etc/rsyncd_data_transfer_only_group.conf .
 {% endif %}

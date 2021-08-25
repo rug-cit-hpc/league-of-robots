@@ -1,3 +1,4 @@
 ---
 sshd_moduli_minimum: 3072
+data_transfer_only_group: sftp-only
 ...
