@@ -11,9 +11,9 @@
     loop_var: group
   become: true
 
-- name: 'Create "scr01" Logical File System (LFS) folder for each group.'
+- name: 'Create folder for each group.'
   file:
-    path: "/groups/{{ group }}/scr01"
+    path: "/groups/{{ group }}"
     owner: 'root'
     group: "{{ group }}"
     mode: '2770'
