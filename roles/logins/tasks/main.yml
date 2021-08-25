@@ -105,7 +105,7 @@
     owner: root
     group: root
     mode: '0755'
-  when: inventory_hostname in groups['data_staging'] | default([])
+  when: inventory_hostname in groups['data_transfer'] | default([])
   become: true
 
 - name: Enable login_checks_chrooted_home.sh script for ses_open.
@@ -115,7 +115,7 @@
     owner: root
     group: root
     state: link
-  when: inventory_hostname in groups['data_staging'] | default([])
+  when: inventory_hostname in groups['data_transfer'] | default([])
   become: true
 
 - name: 'Set tiny quota for regular users on the root partition.'
@@ -123,7 +123,7 @@
     file: tiny-user-quota-on-root-partition.yml
   when:
     - inventory_hostname in groups['jumphost'] | default([]) or
-      inventory_hostname in groups['data_staging'] | default([])
+      inventory_hostname in groups['data_transfer'] | default([])
 
 - name: 'Enable services.'
   systemd:

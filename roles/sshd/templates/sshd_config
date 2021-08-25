@@ -1,4 +1,4 @@
-{% if inventory_hostname in groups['jumphost'] or inventory_hostname in groups['data_staging'] %}
+{% if inventory_hostname in groups['jumphost'] or inventory_hostname in groups['data_transfer'] %}
 #
 # Extra ports where sshd will listen in addition to the default 22 must be listed before the default of 22,
 # because the geerlingly.security role will modify the last listed Port value
@@ -133,7 +133,7 @@ Match all
 Match all
     AllowGroups admin
 
-{% elif inventory_hostname in groups['data_staging'] %}
+{% elif inventory_hostname in groups['data_transfer'] %}
 #
 # On data staging servers: Restrict regular users to sftp-only on port 22.
 #

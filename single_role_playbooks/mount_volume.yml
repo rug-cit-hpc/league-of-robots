@@ -3,7 +3,7 @@
      - compute_vm
      - sys_admin_interface
      - deploy_admin_interface
-     - data_staging
+     - data_transfer
   roles:
      - mount_volume
 ...

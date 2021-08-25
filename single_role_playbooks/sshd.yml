@@ -7,7 +7,7 @@
 - hosts:
     - repo
     - cluster
-    - data_staging
+    - data_transfer
     - docs
   roles:
     - sshd

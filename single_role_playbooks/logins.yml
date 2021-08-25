@@ -6,7 +6,7 @@
 - hosts:
     - repo
     - cluster
-    - data_staging
+    - data_transfer
   roles:
     - logins
 ...

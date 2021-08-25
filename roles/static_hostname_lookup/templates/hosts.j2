@@ -21,11 +21,11 @@
   {% endfor %}
 {% endif %}
 {% if inventory_hostname in groups['jumphost'] %}
-  {% if groups['data_staging'] is defined and groups['data_staging'] | length >= 1 %}
+  {% if groups['data_transfer'] is defined and groups['data_transfer'] | length >= 1 %}
 #
 # Data Staging servers
 #
-    {% for server in groups['data_staging'] %}
+    {% for server in groups['data_transfer'] %}
       {% set server_hostname = server | regex_replace('^' + ai_jumphost + '\\+','') %}
 {{ "%-15s" | format(ip_addresses[server_hostname].addr) }}    {{ server_hostname }}
     {% endfor %}
