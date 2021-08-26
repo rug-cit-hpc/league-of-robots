@@ -12,7 +12,7 @@
     file: local_regular_users.yml
   when:
     - not use_ldap | default(true, true) | bool
-    - inventory_hostname in groups['cluster'] | default([]) or 
-      inventory_hostname in groups['jumphost'] | default([]) or 
+    - inventory_hostname in groups['cluster'] | default([]) or
+      inventory_hostname in groups['jumphost'] | default([]) or
       inventory_hostname in groups['data_transfer'] | default([])
 ...

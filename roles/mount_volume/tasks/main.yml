@@ -17,7 +17,7 @@
 - name: 'Mount the volume.'
   mount:
     path: "{{ item.mount_point }}"
-    src:  "{{ item.device }}"
+    src: "{{ item.device }}"
     fstype: "{{ item.type }}"
     opts: "{{ item.mount_options }}"
     state: mounted
