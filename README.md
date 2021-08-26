@@ -107,8 +107,11 @@ source openstacksdk.venv/bin/activate
 #
 # Install OpenStack SDK (once) and other python packages.
 #
+pip3 install --upgrade pip
+pip3 install wheel
 pip3 install openstacksdk
 pip3 install ruamel.yaml
+pip3 install ansible
 ```
 
 #### 1. First import the required roles and collections for the playbooks:
