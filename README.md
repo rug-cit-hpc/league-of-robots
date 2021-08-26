@@ -111,6 +111,11 @@ pip3 install --upgrade pip
 pip3 install wheel
 pip3 install openstacksdk
 pip3 install ruamel.yaml
+#
+# Optional: install Ansible with pip.
+# You may skip this step if you already installed Ansible by other means.
+# E.g. with HomeBrew on macOS, with yum or dnf on Linux, etc.
+#
 pip3 install ansible
 ```
 
