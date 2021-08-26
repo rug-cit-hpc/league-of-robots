@@ -112,6 +112,7 @@ regular_groups:
   - 'umcg-depad'
   - 'umcg-gcc'
   - 'umcg-lifelines'
+  - "{{ data_transfer_only_group }}"
 regular_users:
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']
