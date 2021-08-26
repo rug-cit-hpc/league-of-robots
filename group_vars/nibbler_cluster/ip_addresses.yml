@@ -1,6 +1,6 @@
 ---
 ip_addresses:
-  nb-ds:
+  nb-dt:
     addr: 10.10.1.28
     mask: /32
     vlan: internal_management
