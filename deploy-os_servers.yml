@@ -108,6 +108,9 @@
           #   portip: 10.10.1.1
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+    #
+    # Jumphosts security group.
+    #
     - name: "Create security group for {{ slurm_cluster_name }} jumphosts."
       openstack.cloud.security_group:
         state: present
@@ -159,6 +162,63 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+    #
+    # Data staging security group.
+    #
+    - name: "Create security group for {{ slurm_cluster_name }} data staging servers."
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ slurm_cluster_name }}_ds"
+        description: |
+                     Security group for data staging severs without access to the internal network.
+                     Allows SSH inbound on both port 22 and 443.
+                     Allows ICMP inbound.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_ds security group: allow SSH inbound on port 22."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_ds"
+        direction: ingress
+        protocol: tcp
+        port_range_min: 22
+        port_range_max: 22
+        remote_ip_prefix: 0.0.0.0/0
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_ds security group: allow SSH inbound on port 443."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_ds"
+        direction: ingress
+        protocol: tcp
+        port_range_min: 443
+        port_range_max: 443
+        remote_ip_prefix: 0.0.0.0/0
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_ds security group: allow LDAPS inbound on port 636."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_ds"
+        direction: ingress
+        protocol: tcp
+        port_range_min: 636
+        port_range_max: 636
+        remote_ip_prefix: 0.0.0.0/0  # ToDo restrict to {{ ldap_uri }}
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_ds security group: allow ICMP inbound."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_ds"
+        direction: ingress
+        protocol: icmp
+        port_range_min: -1  # ICMP protocol does not have any ports.
+        port_range_max: -1  # ICMP protocol does not have any ports.
+        remote_ip_prefix: 0.0.0.0/0
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    #
+    # Cluster security group.
+    #
     - name: Create security group for {{ slurm_cluster_name }} cluster machines behind jumphost.
       openstack.cloud.security_group:
         state: present
@@ -289,6 +349,94 @@
       when: (jumphost_vm.server.addresses | dict2items(key_name='vlan', value_name='specs') | json_query(query)) != network_private_management_id
       vars:
         query: '[?specs[?"OS-EXT-IPS:type"==`floating`]].vlan | [0]'
+    - name: Make sure jumphosts are started.
+      openstack.cloud.server_action:
+        action: start
+        server: "{{ inventory_hostname }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+##############################################################################
+# Configure data staging servers from inventory using Openstack API.
+##############################################################################
+- name: Create data staging servers.
+  hosts: data_transfer
+  connection: local
+  gather_facts: false
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+    - name: Create persistent data volume for data staging servers.
+      openstack.cloud.volume:
+        display_name: "{{ inventory_hostname }}-volume"
+        size: "{{ local_volume_size_ds }}"
+        state: present
+        availability_zone: "{{ storage_availability_zone | default('nova') }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: Create data staging servers.
+      openstack.cloud.server:
+        state: present
+        name: "{{ inventory_hostname }}"
+        image: "{{ cloud_image }}"
+        volume_size: "{{ local_volume_size_root }}"
+        terminate_volume: true
+        boot_from_volume: true
+        flavor: "{{ flavor_ds }}"
+        security_groups: "{{ slurm_cluster_name }}_ds"
+        auto_floating_ip: false
+        nics:
+          - net-name: "{{ network_private_management_id }}"
+        userdata: |
+          #cloud-config
+          password: "{{ cloud_console_pass }}"
+          chpasswd: { expire: False }
+          #
+          # Add each entry to ~/.ssh/authorized_keys for the configured user
+          # or the first user defined in the user definition directive.
+          #
+          ssh_authorized_keys:
+          {% for public_key in public_keys_of_local_admins %}  - {{ public_key }}
+          {% endfor %}
+        availability_zone: "{{ availability_zone }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      register: ds_vm
+    - name: Assign floating IPs to data staging servers.
+      openstack.cloud.floating_ip:
+        server: "{{ inventory_hostname }}"
+        state: present
+        reuse: true
+        network: "{{ network_public_external_id }}"
+        nat_destination: "{{ network_private_management_id }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      #
+      # Known bug https://github.com/ansible/ansible/issues/57451
+      # openstack.cloud.floating_ip is not idempotent:
+      # Succeeds only the first time and throws error on any subsequent calls.
+      # Therefore we use a "when" with a silly complex jinja filter including a JMESpath query
+      # to check is the VM already has a floating IP linked to an interface in the correct VXLAN.
+      #
+      when: (ds_vm.server.addresses | dict2items(key_name='vlan', value_name='specs') | json_query(query)) != network_private_management_id
+      vars:
+        query: '[?specs[?"OS-EXT-IPS:type"==`floating`]].vlan | [0]'
+    - name: Attach local storage volume to data staging servers.
+      openstack.cloud.server_volume:
+        server: "{{ inventory_hostname }}"
+        volume: "{{ inventory_hostname }}-volume"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: Make sure data staging servers are started.
+      openstack.cloud.server_action:
+        action: start
+        server: "{{ inventory_hostname }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
 ##############################################################################
 # Configure repo servers from inventory using Openstack API.
 ##############################################################################
@@ -331,7 +479,12 @@
         availability_zone: "{{ availability_zone }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-      register: repo_vm
+    - name: Make sure repo servers are started.
+      openstack.cloud.server_action:
+        action: start
+        server: "{{ inventory_hostname }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
 ##############################################################################
 # Configure UIs from inventory using Openstack API.
 ##############################################################################
@@ -373,6 +526,12 @@
           {% for public_key in public_keys_of_local_admins %}  - {{ public_key }}
           {% endfor %}
         availability_zone: "{{ availability_zone }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: Make sure UIs are started.
+      openstack.cloud.server_action:
+        action: start
+        server: "{{ inventory_hostname }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
 ##############################################################################
@@ -431,6 +590,12 @@
       openstack.cloud.server_volume:
         server: "{{ inventory_hostname }}"
         volume: "{{ inventory_hostname }}-volume"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: Make sure compute nodes are started.
+      openstack.cloud.server_action:
+        action: start
+        server: "{{ inventory_hostname }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
 #############################################################################
@@ -550,6 +715,12 @@
         volume: "{{ inventory_hostname }}-volume"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+    - name: Make sure admin interface servers are started.
+      openstack.cloud.server_action:
+        action: start
+        server: "{{ inventory_hostname }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
 ##############################################################################
 # Get IPs addresses from API for static hostname lookup with /etc/hosts.
 ##############################################################################
@@ -578,7 +749,9 @@
         dest: "{{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml.new"
         mode: '0644'
       vars:
-        relevant_servers_list: "{{ groups['jumphost'] | default([]) + groups['repo'] | default([]) + groups['cluster'] | default([]) }}"
+        relevant_servers_list: "{{ groups['jumphost'] | default([]) + \
+                                   groups['data_transfer'] | default([]) + \
+                                   groups['repo'] | default([]) + groups['cluster'] | default([]) }}"
         relevant_servers_info: "{{ api_server_info.openstack_servers | selectattr('name', 'in', relevant_servers_list) | list }}"
     - name: "ToDo"
       debug:

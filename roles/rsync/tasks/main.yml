@@ -55,6 +55,7 @@
   check_mode: no
   register: rsync_version_control_host
   delegate_to: localhost
+  connection: local
 
 - name: Abort when modern rsync >= 3.1.2 is missing on control host.
   debug:
@@ -66,4 +67,5 @@
                or rsync_version_control_host.stdout == 'missing'
                or (rsync_version_control_host.stdout is version_compare("3.1.2", operator="<"))
   delegate_to: localhost
+  connection: local
 ...

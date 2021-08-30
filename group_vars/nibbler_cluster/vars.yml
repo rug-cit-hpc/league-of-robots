@@ -58,9 +58,11 @@ ldap_binddn: 'cn=clusteradminumcg,o=asds'
 ldap_group_object_class: 'groupofnames'
 ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
 ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
+data_transfer_only_group: umcg-sftp-only
 cloud_image: CentOS 7
 cloud_user: centos
 flavor_jumphost: m1.small
+flavor_ds: m1.small
 flavor_ui: m1.xlarge
 #flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
 flavor_vcompute: m1.xlarge
@@ -73,12 +75,13 @@ network_private_storage_id: internal_storage
 network_private_storage_cidr: '10.10.2.0/24'
 public_ip_addresses:
   tunnel: '195.169.22.136'
+  nb-ds: '195.169.22.166'
 availability_zone: nova
+local_volume_size_ds: 10000
 local_volume_size_repo: 20
 local_volume_size_vcompute: 1
 local_volume_size_dai: 200 # used for /apps, but test server shouldn't take too much space
 local_volume_size_sai: 1
-
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
@@ -109,6 +112,7 @@ regular_groups:
   - 'umcg-depad'
   - 'umcg-gcc'
   - 'umcg-lifelines'
+  - "{{ data_transfer_only_group }}"
 regular_users:
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']

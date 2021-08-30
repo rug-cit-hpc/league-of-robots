@@ -1,8 +1,8 @@
 #
-# The rsyncd role depends on the ssh_ldap_wrapper from the ldap role
-# to create "rsync-only" user accounts by prefixing public keys with a "forced command".
+# The rsyncd role depends on the sshd role to modify te /etc/sshd_config file
+# to create "rsync-only" user accounts using an SSH "forced command".
 #
 ---
 dependencies:
-    - { role: ldap }
+    - { role: sshd }
 ...

@@ -1,5 +1,10 @@
 ---
 ip_addresses:
+  nb-dt:
+    addr: 10.10.1.28
+    mask: /32
+    vlan: internal_management
+    fqdn:
   nb-repo:
     addr: 10.10.1.56
     mask: /32

@@ -20,12 +20,23 @@
 {{ "%-15s" | format(ip_addresses[server_hostname].addr) }}    {{ server_hostname }}
   {% endfor %}
 {% endif %}
+{% if inventory_hostname in groups['jumphost'] %}
+  {% if groups['data_transfer'] is defined and groups['data_transfer'] | length >= 1 %}
+#
+# Data Staging servers
+#
+    {% for server in groups['data_transfer'] %}
+      {% set server_hostname = server | regex_replace('^' + ai_jumphost + '\\+','') %}
+{{ "%-15s" | format(ip_addresses[server_hostname].addr) }}    {{ server_hostname }}
+    {% endfor %}
+  {% endif %}
+{% endif %}
 {% if groups['repo'] is defined and groups['repo'] | length >= 1 %}
 #
 # Repo servers
 #
   {% for server in groups['repo'] %}
-     {% set server_hostname = server | regex_replace('^' + ai_jumphost + '\\+','') %}
+    {% set server_hostname = server | regex_replace('^' + ai_jumphost + '\\+','') %}
 {{ "%-15s" | format(ip_addresses[server_hostname].addr) }}    {{ server_hostname }}
   {% endfor %}
 {% endif %}
@@ -34,7 +45,7 @@
 # Sys Admin Interfaces (SAIs)
 #
   {% for server in groups['sys_admin_interface'] %}
-     {% set server_hostname = server | regex_replace('^' + ai_jumphost + '\\+','') %}
+    {% set server_hostname = server | regex_replace('^' + ai_jumphost + '\\+','') %}
 {{ "%-15s" | format(ip_addresses[server_hostname].addr) }}    {{ server_hostname }}
   {% endfor %}
 {% endif %}

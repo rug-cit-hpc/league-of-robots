@@ -63,6 +63,7 @@ ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
 filter_passwd: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
 filter_shadow: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
 pam_authz_search: '(|(&(objectClass=posixGroup)(cn=co_bbmri_g-GRP_Gearshift)(memberUid=$username))(&(cn=$username)(rugpersonentitlementvalue=umcg)))'
+data_transfer_only_group: umcg-sftp-only
 nameservers: [
   '172.23.40.244', # Order is important: local DNS for Isilon storage first!
   '8.8.4.4',       # Google DNS.

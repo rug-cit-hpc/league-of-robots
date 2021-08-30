@@ -3,7 +3,7 @@
 # * For use with rsync-only accounts that connect using a remote shell
 #   and then spwan a single-use daemon server.
 # * Hence there is no systemd managed rsyncd running constantly
-#   and therfore no handler to (re)start a daemon.
+#   and therefore no handler to (re)start a daemon.
 #
 # This role should not be confused with the rsync role, 
 # which configures rsync on a managed host for use with the Ansible "ansible.posix.synchronize" task.
@@ -16,12 +16,15 @@
     name: 'rsync'
   become: true
 
-- name: 'Install rsyncd config file with "modules" for /home and /groups.'
+- name: 'Install rsyncd config files with "modules".'
   template:
-    src: 'templates/rsyncd.conf'
-    dest: '/etc/rsyncd.conf'
+    src: "templates/{{ item }}"
+    dest: "/etc/{{ item }}"
     owner: 'root'
     group: 'root'
     mode: '0644'
+  loop:
+    - rsyncd_all_groups.conf
+    - rsyncd_data_transfer_only_group.conf
   become: true
 ...

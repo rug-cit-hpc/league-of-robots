@@ -19,7 +19,6 @@
   with_items:
     - mountpoint: '/'
       mountoption: 'uquota'
-  when: inventory_hostname in groups['jumphost']
   register: fstab_status
   become: true
 
@@ -43,7 +42,7 @@
     owner: root
     group: root
     mode: '0644'
-  when: inventory_hostname in groups['jumphost'] and ('rootflags' in grub_config_grep.stdout) and ('uquota' not in grub_config_grep.stdout)
+  when: ('rootflags' in grub_config_grep.stdout) and ('uquota' not in grub_config_grep.stdout)
   notify: rebuild_grub_config
   become: true
 
@@ -57,7 +56,7 @@
     owner: root
     group: root
     mode: '0644'
-  when: inventory_hostname in groups['jumphost'] and ('rootflags' not in grub_config_grep.stdout)
+  when: "'rootflags' not in grub_config_grep.stdout"
   notify: rebuild_grub_config
   become: true
 
@@ -71,7 +70,6 @@
     owner: root
     group: root
     mode: '0744'
-  when: inventory_hostname in groups['jumphost']
   become: true
 
 - name: 'Enable set_quota.sh script for certain PAM states.'
@@ -81,6 +79,5 @@
     state: link
   with_items:
     - set_quota.sh
-  when: inventory_hostname in groups['jumphost']
   become: true
 ...

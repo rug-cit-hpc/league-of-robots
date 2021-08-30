@@ -26,6 +26,7 @@
     path: "{{ pulp_root_cert_path_on_control_host }}"
   register: file_details
   delegate_to: localhost
+  connection: local
 
 - name: Exit with warning if Pulp root certificate is missing on local machine
   debug:
