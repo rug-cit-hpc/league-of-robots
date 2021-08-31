@@ -46,7 +46,7 @@ def write_secrets(template_file, secrets_file):
             if key == 'cloud_console_pass':
                 pass_length = 12
             data[key] = ''.join(
-                random.choice(string.ascii_letters + string.digits + '!?@%[]^_+-{}=~.,;:/')
+                random.choice(string.ascii_letters + string.digits + '!?@%[]^_+{}=~.,:/')
                 for _ in range(pass_length))
         else:
             print('INFO: preserving existing value "' + data[key] + '" for key "' + key + '".')
