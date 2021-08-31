@@ -528,3 +528,148 @@ export PUBLICATION_HREF
 echo "Inspecting Publication."
 http "$BASE_ADDR""$PUBLICATION_HREF"
 ```
+
+### Adding rpm to repo repository
+
+The commands are listed below, but in general, these are the steps to add an rpm to the pulp repository:
+
+1. upload rpm to repo server, connect to server and load pulp environment
+2. upload artifact to the pulp
+3. create rpm from this new artifact
+4. add the rpm to the correct repository
+5. create publication 
+6. update distribution with new publication
+7. client side check
+
+#### 1. upload rpm to repo server, connect to server and load pulp environment
+```
+$ rsync -av --rsync-path 'sudo -u root repoadmin' ega-fuse-client-2.1.0-1.noarch.rpm sandi@corridor+fd-repo:/admin/repoadmin/umcg-centos7/
+$ ssh sandi@corridor+fd-repo
+$ sudo su - repoadmin
+$ source pulp-cli.venv/bin/activate
+```
+
+#### 2. upload artifact to the pulp
+```
+pulp artifact upload --file umcg-centos7/ega-fuse-client-2.1.0-1.noarch.rpm
+export BASE_ADDR='http://localhost:24817'
+
+wait_until_task_finished() {
+    echo "Polling the task until it has reached a final state."
+    local task_url=$1
+    while true
+    do
+        response=$(http "$task_url")
+        local response
+        state=$(jq -r .state <<< "${response}")
+        local state
+        jq . <<< "${response}"
+        case ${state} in
+            failed|canceled)
+                echo "Task in final state: ${state}"
+                exit 1
+                ;;
+            completed)
+                echo "$task_url complete."
+                break
+                ;;
+            *)
+                echo "Still waiting..."
+                sleep 1
+                ;;
+        esac
+    done
+}
+```
+
+Collect the returned **pulp_href** variable and create an array with the correct values
+
+#### 3. create rpm from this new artifact
+
+```
+declare -A custom_rpms=(
+    ['ega-fuse-client-2.1.0-1.noarch.rpm']='/pulp/api/v3/artifacts/cc7f9dd2-c086-45b4-97fd-362e34b0baff/'
+)
+```
+
+execute the following for pulp to create an rpm out of the uploaded artifact:
+
+```
+for custom_rpm in "${!custom_rpms[@]}"; do
+    # Create RPM package from an artifact
+    echo "Create RPM ${custom_rpm} from artifact ${custom_rpms[${custom_rpm}]}."
+    TASK_URL=$(http POST "$BASE_ADDR"/pulp/api/v3/content/rpm/packages/ \
+        artifact="${custom_rpms[${custom_rpm}]}" relative_path="${custom_rpm}" | jq -r '.task')
+    # Poll the task (here we use a function defined in docs/_scripts/base.sh)
+    wait_until_task_finished "$BASE_ADDR""$TASK_URL"
+    # After the task is complete, it gives us a new package (RPM content)
+    echo "Set PACKAGE_HREF from finished task."
+    PACKAGE_HREF=$(http "$BASE_ADDR""$TASK_URL"| jq -r '.created_resources | first')
+    echo "Inspecting Package."
+    http "$BASE_ADDR""$PACKAGE_HREF"
+done
+```
+
+collect the returned **pulp_href** and feed it again in the array
+
+```
+declare -A custom_rpms=(
+    ['ega-fuse-client-2.1.0-1.noarch.rpm']='/pulp/api/v3/content/rpm/packages/362e30bfff-efg7-dbc3-cc23-345feea/' 
+)
+```
+
+#### 4. add the rpm to the correct repository
+
+Now you need to select the **pulp_href** of the correct repository that you want to add to the rpm package
+
+```
+pulp rpm repository list                # and get the pul_href of correct repository (usually cpel)
+REPO_HREF='/pulp/api/v3/repositories/rpm/rpm/4baaad23-0a10-4a7e-90fe-17dea19b84f3/'           # < this is an example
+```
+
+Then execute
+
+```
+for custom_rpm in "${!custom_rpms[@]}"; do
+    # Add created RPM content to repository
+    echo "Add created RPM Package ${custom_rpm} to repository."
+    TASK_URL=$(http POST "$BASE_ADDR""$REPO_HREF"'modify/' \
+        add_content_units:="[\"${custom_rpms[${custom_rpm}]}\"]" | jq -r '.task')
+    # Poll the task (here we use a function defined in docs/_scripts/base.sh)
+    wait_until_task_finished "$BASE_ADDR""$TASK_URL"
+done
+```
+
+and check if repository has incremented version
+
+``` pulp rpm repository version list --repository cpel7 ```
+
+
+#### 5. create publication 
+
+First check which publication is currently used by distribution, so you can later compare
+
+``` pulp rpm distribution show --href /pulp/api/v3/distributions/rpm/rpm/8fb72c53-8832-430c-83af-656310be4c2d/ ```
+
+then create publication
+
+``` pulp rpm publication create --repository /pulp/api/v3/repositories/rpm/rpm/b7180e7b-ca73-4357-a89c-2f813e4dab1c/versions/1/     --version ? ```
+
+
+#### 6. update distribution with new publication
+
+``` pulp rpm distribution update --name ? --publication /pulp/api/v3/publications/rpm/rpm/98300791-39cb-4918-b613-7c8f481a8ffd/ ```
+
+With correct distribution name, like **nb-cpel7** or **fd-cpel7**. Then check if distribution is now linked to the new publication (f.e. for fd--cpel7 repository on fender)
+
+``` pulp rpm distribution show --name fd-cpel7 ```
+
+
+#### 7. client side check
+
+Sometimes when you check the client side, the package is not yet visible, therefore you might need to clear cache:
+
+```
+# yum clean all
+# yum search --showduplicates ega-fuse
+```
