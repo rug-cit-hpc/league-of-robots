@@ -642,27 +642,37 @@ done
 
 and check if repository has incremented version
 
-``` pulp rpm repository version list --repository cpel7 ```
+```
+pulp rpm repository version list --repository cpel7
+```
 
 
 #### 5. create publication 
 
 First check which publication is currently used by distribution, so you can later compare
 
-``` pulp rpm distribution show --href /pulp/api/v3/distributions/rpm/rpm/8fb72c53-8832-430c-83af-656310be4c2d/ ```
+```
+pulp rpm distribution show --href /pulp/api/v3/distributions/rpm/rpm/8fb72c53-8832-430c-83af-656310be4c2d/
+```
 
 then create publication
 
-``` pulp rpm publication create --repository /pulp/api/v3/repositories/rpm/rpm/b7180e7b-ca73-4357-a89c-2f813e4dab1c/versions/1/     --version ? ```
+```
+pulp rpm publication create --repository /pulp/api/v3/repositories/rpm/rpm/b7180e7b-ca73-4357-a89c-2f813e4dab1c/versions/1/     --version ?
+```
 
 
 #### 6. update distribution with new publication
 
-``` pulp rpm distribution update --name ? --publication /pulp/api/v3/publications/rpm/rpm/98300791-39cb-4918-b613-7c8f481a8ffd/ ```
+```
+pulp rpm distribution update --name ? --publication /pulp/api/v3/publications/rpm/rpm/98300791-39cb-4918-b613-7c8f481a8ffd/
+```
 
 With correct distribution name, like **nb-cpel7** or **fd-cpel7**. Then check if distribution is now linked to the new publication (f.e. for fd--cpel7 repository on fender)
 
-``` pulp rpm distribution show --name fd-cpel7 ```
+```
+pulp rpm distribution show --name fd-cpel7
+```
 
 
 #### 7. client side check
