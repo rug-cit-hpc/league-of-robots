@@ -319,7 +319,7 @@ lfs_mounts: [
   { lfs: 'rsc01',
     pfs: 'umcgst03',
     groups: [
-        'umcg-atd', 'umcg-solve-rd', 'umcg-sysops'
+        'umcg-atd', 'umcg-pub', 'umcg-solve-rd', 'umcg-sysops'
       ]},
   { lfs: 'env01',
     pfs: 'umcgst10',
