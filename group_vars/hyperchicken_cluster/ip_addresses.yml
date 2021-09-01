@@ -1,7 +1,7 @@
 ---
 ip_addresses:
   hc-dai:
-    addr: 10.10.1.3
+    addr: 10.10.1.252
     mask: /32
     vlan: hc_internal_management
     fqdn:
