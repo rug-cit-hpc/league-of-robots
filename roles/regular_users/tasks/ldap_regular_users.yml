@@ -61,9 +61,10 @@
       homeDirectory: "/home/{{ item.user }}"
       loginShell: '/bin/bash'
       sshPublicKey: "{{ auth_users[item.user].pub_keys }}"
+      mail: "{{ auth_users[item.user].email }}"
   with_items: "{{ regular_users }}"
 
-- name: 'Update public keys.'
+- name: 'Update user attributes.'
   community.general.ldap_attrs:
     dn: "cn={{ item.user }},ou=users,{{ ldap_base }}"
     state: exact
@@ -72,6 +73,7 @@
     bind_pw: "{{ bindpw }}"
     attributes:
       sshPublicKey: "{{ auth_users[item.user].pub_keys }}"
+      mail: "{{ auth_users[item.user].email }}"
   with_items: "{{ regular_users }}"
 
 - name: 'Add users to groups.'
