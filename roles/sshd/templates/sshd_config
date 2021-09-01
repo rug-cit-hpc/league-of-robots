@@ -1,4 +1,4 @@
-{% if inventory_hostname in groups['jumphost'] or inventory_hostname in groups['data_transfer'] %}
+{% if inventory_hostname in groups['jumphost'] | default([]) or inventory_hostname in groups['data_transfer'] | default([]) %}
 #
 # Extra ports where sshd will listen in addition to the default 22 must be listed before the default of 22,
 # because the geerlingly.security role will modify the last listed Port value
@@ -114,26 +114,26 @@ Match Group admin
 AuthorizedKeysFile .ssh/authorized_keys
 {% endif %}
 
-{% if inventory_hostname in groups['cluster'] %}
+{% if inventory_hostname in groups['cluster'] | default([]) %}
 #
 # Disable guest and data staging accounts on cluster machines (SAI, DAI, UI, compute nodes).
 #
 Match all
     DenyGroups {{ data_transfer_only_group }} *guest*
-{% elif inventory_hostname in groups['repo'] %}
+{% elif inventory_hostname in groups['repo'] | default([]) %}
 #
 # Only allow (local) admin users on repo servers.
 #
 Match all
     AllowGroups admin
-{% elif inventory_hostname in groups['docs'] %}
+{% elif inventory_hostname in groups['docs'] | default([]) %}
 #
 # Only allow (local) admin users on documentation servers.
 #
 Match all
     AllowGroups admin
 
-{% elif inventory_hostname in groups['data_transfer'] %}
+{% elif inventory_hostname in groups['data_transfer'] | default([]) %}
 #
 # On data staging servers: Restrict regular users to sftp-only on port 22.
 #
