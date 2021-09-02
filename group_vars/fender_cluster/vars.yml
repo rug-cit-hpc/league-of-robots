@@ -58,7 +58,6 @@ local_volume_size_repo: 30
 local_volume_size_vcompute: 1
 local_volume_size_dai: 1000 # used for /apps
 local_volume_size_sai: 1
-# security_group_id: SSH-and-ping-2
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
@@ -68,14 +67,14 @@ local_admin_groups:
   - 'docker'
 local_admin_users:
   - 'egon'
+  - 'gerben'
   - 'henkjan'
   - 'marieke'
   - 'marloes'
   - 'morris'
   - 'pieter'
-  - 'wim'
-  - 'gerben'
   - 'sandi'
+  - 'wim'
 envsync_user: 'envsync'
 envsync_group: 'depad'
 hpc_env_prefix: '/apps'

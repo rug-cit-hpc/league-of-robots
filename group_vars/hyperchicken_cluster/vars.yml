@@ -58,7 +58,6 @@ local_volume_size_repo: 30
 local_volume_size_vcompute: 1
 local_volume_size_dai: 200 # used for /apps, but test server shouldn't take too much space
 local_volume_size_sai: 1
-
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
