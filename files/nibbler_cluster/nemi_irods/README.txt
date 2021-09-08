@@ -88,3 +88,22 @@ Important note:
  * The certificate we initially got was created based on an ECDSA key pair and Ger could not get ECDSA based certificates to work with iRODS.
    We now use a certificate based on an RSA key pair.
  * The certificate files in this dir are encrypted with Ansible Vault and the vault password for Nibbler.
+
+##################################################################################################
+ Stuff to check / configure on our iCAT
+##################################################################################################
+
+To prevent time-outs for large data transfers add ```/etc/sysctl.d/irodsFix.conf``` which contains:
+```
+#
+# Kernel sysctl configuration
+#
+net.ipv4.tcp_keepalive_time = 1800
+net.ipv4.tcp_keepalive_intvl = 300
+net.ipv4.tcp_keepalive_probes = 6
+```
+
+* Make sure FQDN is in /etc/hostname
+* Update firewall config with ansible
+
+
