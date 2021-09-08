@@ -8,7 +8,7 @@ known_hosts_hostnames: "{% for jumphost in groups['jumphost'] %}\
                             {{ public_ip_addresses[jumphost] }},\
                           {% endif %}\
                         {% endfor %}\
-                        {% for dthost in groups['data_transfer'] %}\
+                        {% for dthost in groups['data_transfer'] | default([]) %}\
                           *{{ dthost | regex_replace('^' + ai_jumphost + '\\+','')}}*,\
                           {% if public_ip_addresses[dthost] is defined and public_ip_addresses[dthost] | length %}\
                             {{ public_ip_addresses[dthost] }},\

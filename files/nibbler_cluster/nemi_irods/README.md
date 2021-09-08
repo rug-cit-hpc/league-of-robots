@@ -88,3 +88,59 @@ Important note:
  * The certificate we initially got was created based on an ECDSA key pair and Ger could not get ECDSA based certificates to work with iRODS.
    We now use a certificate based on an RSA key pair.
  * The certificate files in this dir are encrypted with Ansible Vault and the vault password for Nibbler.
+
+##################################################################################################
+ Stuff to check / configure on our iCAT
+##################################################################################################
+
+To prevent time-outs for large data transfers add ```/etc/sysctl.d/irodsFix.conf``` which contains:
+```
+#
+# Kernel sysctl configuration
+#
+net.ipv4.tcp_keepalive_time = 1800
+net.ipv4.tcp_keepalive_intvl = 300
+net.ipv4.tcp_keepalive_probes = 6
+```
+
+* Make sure FQDN is in /etc/hostname
+* Update firewall config with ansible
+* Enable SSL by changing Change `CS_NEG_DONT_CARE` to `CS_NEG_REQUIRE`  
+  In `/home/irods/.irods/irods_environment.json`:
+  ```
+      "irods_client_server_policy": "CS_NEG_REQUIRE",
+  ```
+  In `/etc/irods/core.re`
+  ```
+  #acPreConnect(*OUT) { *OUT="CS_NEG_DONT_CARE"; }
+  acPreConnect(*OUT) { *OUT="CS_NEG_REQUIRE"; }
+  ```
+  For all users in n `~/.irods/irods_environment.json`:
+  ```
+  {
+      "irods_client_server_negotiation": "request_server_negotiation", 
+      "irods_client_server_policy": "CS_NEG_REQUIRE", 
+      "irods_connection_pool_refresh_time_in_seconds": 300, 
+      "irods_default_hash_scheme": "SHA256", 
+      "irods_default_number_of_transfer_threads": 4, 
+      "irods_encryption_algorithm": "AES-256-CBC", 
+      "irods_encryption_key_size": 32, 
+      "irods_encryption_num_hash_rounds": 16, 
+      "irods_encryption_salt_size": 8, 
+      "irods_host": "umcg-icat01.hpc.rug.nl", 
+      "irods_match_hash_policy": "compatible", 
+      "irods_maximum_size_for_single_buffer_in_megabytes": 32, 
+      "irods_port": 1247, 
+      "irods_user_name": "rods", 
+      "irods_zone_name": "nlumcg",
+      "irods_ssl_verify_server" : "cert"
+  }
+  ```
+  We should check if `iinit` will ask for the `irods_user_name` if we leave it out from the this template.  
+  We should add this template to /etc/skel using Ansible.
+
+### Davrods client
+
+https://github.com/MaastrichtUniversity/rit-davrods
+
+Note Docker container does not yet have SSL enabled iRODS
