@@ -74,6 +74,13 @@
     attributes:
       sshPublicKey: "{{ auth_users[item.user].pub_keys }}"
       mail: "{{ auth_users[item.user].email }}"
+      #
+      # The to_json(ensure_ascii=True) filter is a temporary hack to remove non ASCII characters,
+      # which are not supported in the gecos attribute from the RFC2307 schema.
+      # We can use all characters in the gecos field once we switch to the RFC2307bis schema, which uses UTF-8.
+      #
+      gecos: "{{ auth_users[item.user].comment | to_json(ensure_ascii=True) }}\
+              {% if auth_users[item.user].email is defined and auth_users[item.user].email | length %} <{{ auth_users[item.user].email }}>{% endif %}"
   with_items: "{{ regular_users }}"
 
 - name: 'Add users to groups.'
