@@ -4,6 +4,8 @@ slurm_cluster_domain: ''  # Only add hpc.rug.nl domain when jumphost is register
 stack_prefix: 'nb'
 slurm_version: '20.11.8-1.el7.umcg'
 repo_manager: 'pulp'
+server_dns: 'umcg-icat01.hpc.rug.nl'
+server_dns_short: 'umcg-icat01'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'ogre'
@@ -49,6 +51,12 @@ ui_features: 'prm02,tmp02'
 ui_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
+irods_sockets: 4
+irods_cores_per_socket: 1
+irods_real_memory: 3790
+irods_local_disk: 0
+irods_features: 'tmp02'
+flavor_irods: 'm1.large'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
@@ -69,6 +77,7 @@ flavor_vcompute: m1.xlarge
 flavor_management: m1.small
 network_public_external_id: vlan16
 network_private_management_id: internal_management
+network_private_management_id_13: internal_management_13
 network_private_management_cidr: '10.10.1.0/24'
 network_private_management_gw: '10.10.1.1'
 network_private_storage_id: internal_storage

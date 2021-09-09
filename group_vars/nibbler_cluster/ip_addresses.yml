@@ -5,6 +5,16 @@ ip_addresses:
     mask: /32
     vlan: internal_management
     fqdn:
+  irods-test:
+    addr: 10.10.1.182
+    mask: /32
+    vlan: internal_management
+    fqdn:
+  irods-catalogus:
+    addr: 10.10.1.121
+    mask: /32
+    vlan: internal_management
+    fqdn:
   nb-repo:
     addr: 10.10.1.56
     mask: /32

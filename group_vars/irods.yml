@@ -1,0 +1,6 @@
+---
+firewall_allowed_tcp_ports:
+  - "22"    # SSH.
+  - "1247"  # irods
+  - "20000:20199"  # irods
+...
