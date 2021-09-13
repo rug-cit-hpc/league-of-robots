@@ -4,7 +4,7 @@ firewall_allowed_tcp_ports:
   - 443  # SSH.
 ssh_host_signer_hostnames: "{{ ansible_hostname }}\
                             {% if slurm_cluster_domain | length %},{{ ansible_hostname }}.{{ slurm_cluster_domain }}{% endif %}\
-                            {% if public_ip_addresses is defined and public_ip_addresses[ansible_hostname] | length %},{{ public_ip_addresses[ansible_hostname] }}{% endif %}\
+                            {% if public_ip_addresses[ansible_hostname] is defined and public_ip_addresses[ansible_hostname] | length %},{{ public_ip_addresses[ansible_hostname] }}{% endif %}\
                             {% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}"
 volumes:
   - mount_point: '/groups'
