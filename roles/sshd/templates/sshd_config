@@ -155,9 +155,11 @@ Match Group {{ data_transfer_only_group }} LocalPort 22
 Match Group *,!admin,!{{ data_transfer_only_group }} LocalPort 443
     AllowAgentForwarding no
     AllowTcpForwarding no
+    PermitTTY no
     ForceCommand /bin/rsync --server --daemon --config=/etc/rsyncd_all_groups.conf .
 Match Group {{ data_transfer_only_group }} LocalPort 443
     AllowAgentForwarding no
     AllowTcpForwarding no
+    PermitTTY no
     ForceCommand /bin/rsync --server --daemon --config=/etc/rsyncd_data_transfer_only_group.conf .
 {% endif %}
