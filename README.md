@@ -202,9 +202,10 @@ Are you sure you want to continue connecting (yes/no)?
   ```
   @cert-authority reception*,*talos,*tl-* ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDWNAF....VMZpZ5b9+5GA3O8w== UMCG HPC Development CA
   ```
-* Example to create a new CA key pair with the ```ed25519``` algorithm:
+* Example to create a new CA key pair with the ```ed25519``` algorithm and encryption after that:
   ```bash
-  ssh-keygen -t ed25519 -a 101 -f ssh-host-ca/ca-key-file-name -C "CA key for ..."
+  ssh-keygen -t ed25519 -a 101 -f ssh-host-ca/[name-of-the-cluster]-ca -C "CA key for [name-of-the-cluster]"
+  ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] ssh-host-ca/[name-of-the-cluster]-ca
   ```
 
 #### 5. Build Prometheus Node Exporter

@@ -1,0 +1,147 @@
+---
+slurm_cluster_name: 'wingedhelix'
+slurm_cluster_domain: ''  # Only add hpc.rug.nl domain when jumphost is registered in DNS.
+stack_prefix: 'wh'
+slurm_version: '20.11.8-1.el7.umcg'
+repo_manager: 'pulp'
+mailhub: '192.168.0.5'     # we need to check or remove, as it looks like it is not used anywhere
+rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
+figlet_font: 'ogre'
+motd: |
+      =========================================================
+          Welcome to {{ slurm_cluster_name | capitalize }}
+      =========================================================
+additional_etc_hosts:
+  - group: all
+    hosts:
+      - docs
+vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
+vcompute_sockets: 4
+vcompute_cores_per_socket: 1
+vcompute_real_memory: 3790
+vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
+vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
+vcompute_local_disk: 270000
+vcompute_features: 'tmp02'
+vcompute_ethernet_interfaces:
+  - 'eth0'
+  - 'eth1'
+ui_hostnames: "{{ slurm_cluster_name }}"
+ui_sockets: 4
+ui_cores_per_socket: 1
+ui_real_memory: 3790
+ui_local_disk: 0
+ui_features: 'prm02,tmp02'
+ui_ethernet_interfaces:
+  - 'eth0'
+  - 'eth1'
+use_ldap: yes
+create_ldap: no
+ldap_uri: 'ldaps://svrs.id.rug.nl'
+ldap_base: 'base ou=gd,o=asds'
+ldap_binddn: 'cn=clusteradminGD,o=asds'
+ldap_group_object_class: 'groupofnames'
+ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
+ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
+data_transfer_only_group: umcg-sftp-only
+cloud_image: CentOS 7
+cloud_user: centos
+flavor_jumphost: m1.small
+flavor_ds: m1.small
+flavor_ui: m1.xlarge
+#flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
+flavor_vcompute: m1.xlarge
+flavor_management: m1.small
+network_public_external_id: vlan16
+network_private_management_id: internal_management
+network_private_management_cidr: '10.10.1.0/24'
+network_private_management_gw: '10.10.1.1'
+network_private_storage_id: internal_storage
+network_private_storage_cidr: '10.10.2.0/24'
+public_ip_addresses:
+  porch: ''
+availability_zone: nova
+local_volume_size_repo: 20
+local_volume_size_vcompute: 1
+local_volume_size_dai: 200 # used for /apps, but test server shouldn't take too much space
+local_volume_size_sai: 1
+nameservers: [
+  '8.8.4.4',  # Google DNS.
+  '8.8.8.8',  # Google DNS.
+]
+local_admin_groups:
+  - 'admin'
+  - 'docker'
+local_admin_users:
+  - 'egon'
+  - 'ger'
+  - 'gerben'
+  - 'henkjan'
+  - 'kim'
+  - 'marieke'
+  - 'marlies'
+  - 'marloes'
+  - 'morris'
+  - 'pieter'
+  - 'robin'
+  - 'sandi'
+  - 'wim'
+envsync_user: 'umcg-envsync'
+envsync_group: 'umcg-depad'
+functional_admin_group: 'umcg-funad'
+hpc_env_prefix: '/apps'
+regular_groups:
+  - 'umcg-atd'
+  - 'umcg-depad'
+  - 'umcg-gcc'
+  - 'umcg-gap'
+  - 'umcg-gd'
+  - 'umcg-genomescan'
+  - 'umcg-gsad'
+  - 'umcg-gst'
+  - 'umcg-vipt'
+regular_users:
+  - user: 'umcg-atd-ateambot'
+    groups: ['umcg-atd']
+    sudoers: '%umcg-atd'
+  - user: 'umcg-gcc-ateambot'
+    groups: ['umcg-gcc']
+    sudoers: '%umcg-gcc'
+  - user: 'umcg-gap-ateambot'
+    groups: ['umcg-gap']
+    sudoers: '%umcg-gap'
+  - user: 'umcg-gd-ateambot'
+    groups: ['umcg-gd']
+    sudoers: '%umcg-gd'
+  - user: 'umcg-genomescan-ateambot'
+    groups: ['umcg-genomescan']
+    sudoers: '%umcg-genomescan'
+  - user: 'umcg-gsad-ateambot'
+    groups: ['umcg-gsad']
+    sudoers: '%umcg-gsad'
+  - user: 'umcg-gst-ateambot'
+    groups: ['umcg-gst']
+    sudoers: '%umcg-gst'
+#
+# Shared storage related variables
+#
+lustre_client_networks: 'tcp11(vlan???.lustre),tcp12(vlan???.lustre)'
+pfs_mounts: [
+  { pfs: 'umcgst12',
+    source: '',      # this is going to be filled when we have shared NFS server
+    type: 'nfs4',    # checked with cat /proc/filesystem
+    rw_options: 'defaults,_netdev,flock',
+    ro_options: 'defaults,_netdev,ro' },
+]
+lfs_mounts: [
+  { lfs: 'home',
+    pfs: 'umcgst12',
+    machines: "{{ groups['cluster'] }}" },
+  { lfs: 'tmp07',
+    pfs: 'umcgst12',
+    groups: ['umcg-atd', 'umcg-gcc', 'umcg-gap', 'umcg-gd', 'umcg-genomescan', 'umcg-gsad', 'umcg-gst', 'umcg-vipt'] },
+  { lfs: 'env07',
+    pfs: 'umcgst12',
+    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
+]
+...
