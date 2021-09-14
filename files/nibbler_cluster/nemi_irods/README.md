@@ -65,16 +65,17 @@ you need a parameter file, which can be created on the machine with:
 
 The 3 files *.crt, *.key and *.pem must be stored in /etc/irods/ with the proper permissions.
 E.g. on the rdms-dev-icat:
-
+```
 	[rdms-dev-icat ~]$ cd /etc/irods/
 	[rdms-dev-icat irods]$ ls -ltr
 	total 300
 	-rw-r--r-- 1 irods irods  8829 18 feb 20:10 localhost_and_chain.crt
 	-rw------- 1 irods irods  3272 18 feb 20:11 localhost.key
 	-rw-r--r-- 1 irods irods   424 18 feb 20:11 dhparams.pem
+```
 
 The iRODS SSL config for user "irods":
-  
+```
 	[irods@rdms-dev-icat ~]$ cat /var/lib/irods/.irods/irods_environment.json
 	{
 	    "irods_ssl_certificate_chain_file": "/etc/irods/localhost_and_chain.crt", 
@@ -83,6 +84,7 @@ The iRODS SSL config for user "irods":
 	    "irods_ssl_verify_server": "cert", 
 	    "schema_version": "v3"
 	}
+```
 
 Important note:
  * The certificate we initially got was created based on an ECDSA key pair and Ger could not get ECDSA based certificates to work with iRODS.
@@ -90,10 +92,10 @@ Important note:
  * The certificate files in this dir are encrypted with Ansible Vault and the vault password for Nibbler.
 
 ##################################################################################################
- Stuff to check / configure on our iCAT
+ TO-DO: Stuff to check / configure on our iCAT
 ##################################################################################################
 
-To prevent time-outs for large data transfers add ```/etc/sysctl.d/irodsFix.conf``` which contains:
+* To prevent time-outs for large data transfers add `/etc/sysctl.d/irodsFix.conf` which contains:
 ```
 #
 # Kernel sysctl configuration
@@ -103,20 +105,26 @@ net.ipv4.tcp_keepalive_intvl = 300
 net.ipv4.tcp_keepalive_probes = 6
 ```
 
-* Make sure FQDN is in /etc/hostname
+* Make sure FQDN is in `/etc/hostname`
 * Update firewall config with ansible
-* Enable SSL by changing Change `CS_NEG_DONT_CARE` to `CS_NEG_REQUIRE`  
+* Limit incoming client traffic to surfsara server IP only
+* Check startup order
+    - networking services could be needded before database is turned on
+    - database needs to be turned on for irods to turn on
+* webdav working
+* Enable SSL by changing  `CS_NEG_DONT_CARE` to `CS_NEG_REQUIRE`  
   In `/home/irods/.irods/irods_environment.json`:
-  ```
-      "irods_client_server_policy": "CS_NEG_REQUIRE",
-  ```
+  
+  `"irods_client_server_policy": "CS_NEG_REQUIRE",`
+  
   In `/etc/irods/core.re`
   ```
   #acPreConnect(*OUT) { *OUT="CS_NEG_DONT_CARE"; }
   acPreConnect(*OUT) { *OUT="CS_NEG_REQUIRE"; }
   ```
-  For all users in n `~/.irods/irods_environment.json`:
-  ```
+
+* For all users in `~/.irods/irods_environment.json`:
+```
   {
       "irods_client_server_negotiation": "request_server_negotiation", 
       "irods_client_server_policy": "CS_NEG_REQUIRE", 
@@ -135,12 +143,198 @@ net.ipv4.tcp_keepalive_probes = 6
       "irods_zone_name": "nlumcg",
       "irods_ssl_verify_server" : "cert"
   }
-  ```
-  We should check if `iinit` will ask for the `irods_user_name` if we leave it out from the this template.  
-  We should add this template to /etc/skel using Ansible.
+```
+
+For later
+*  We should add this template to `/etc/skel` using Ansible.
+*  We should check if `iinit` will ask for the `irods_user_name` if we leave it out from the this template.  
+* Test with S3
+* Copy microscopy data from S3 to tape and remove from S3
 
 ### Davrods client
 
 https://github.com/MaastrichtUniversity/rit-davrods
 
 Note Docker container does not yet have SSL enabled iRODS
+
+### HOW TO
+#### Some basics
+* `irods` is a normal linux user under which the stuff is running, and files are owned
+* `rods` is admin username within irods environment
+* `.re` are engine irods rule file, and are used immediatly (no service restart needed)
+* `.r` are user rules file
+* even if you are administrator inside the irods, you don't have access to the data, BUT you can forcefully add yourself the permission of the data
+* the rules are inside `/var/lib/irods/msiExecCmd_bin`
+* rods installation scripts are in folder `/var/lib/irods/scripts/`
+* `/etc/irods/server_config.json` is server configuration file
+* `/var/lib/irods/log/rodsServerLog*` location of server logs
+* `/var/lib/irods/log/rods.Log.2021*` contains normal logs
+
+
+#### Use irods
+
+* uploading the test file on the umcg side
+`iput -R demoResc test.txt`
+
+
+* Listing files
+`ils -l                   # simple list files`
+
+* Check the file on the physical location itself (if local)
+```
+ils -L                  # show phsical path of the system that is located
+sudo su- irods
+ls -l /the/path/to/the/shown/above
+```
+
+* example: Pieter accessing and dowloading the rules files
+```
+ils -A test4
+icd ../public
+iget dmattr.r
+iget dmget.r
+iget dmput.r
+```
+
+* How to (re)run the irods installation script on the server
+```
+cd /var/lib/irods/scripts/
+python ./setup_irods.py
+```
+
+* change password of rods as regular user
+```
+$ iadmin moduser rods password "passwordhere"
+$ ils               # < this returns error
+$ init
+(input new passwords)
+$ ils               # < now it works
+```
+
+* change name of the zone
+```
+iadmin modzon tempZone name nlumcg
+vi /etc/irods/server_config.json
+    # ^ change the value of something like "zone_name" )
+vi .iros/irods_environment.json
+    "irods_zone_name":
+    "irods_host":
+    "irods_cwd":
+    "irods_home":
+# do iinit and retry ils 
+grep tempZone /etc/irods/*
+```
+
+* Turn the certificate usage on/off
+```
+vi /etc/irods/cert.re
+     # and in the line acOreConnect(*OUT) change "don't care" into "required")
+vi .irods/irods_environment.json
+     # change from neg to requiredx509 )
+```
+
+* Check if certificate is valid and file permission correct  
+
+  `openssl x509 -in /etc/irods/localhost_and_chan_umcg-icat01.crt -noout -text`
+
+Also make sure that the `/etc/irods/localhost_and_chan_umcg-icat01.crt` and `/etc/irods/localhost_umcg01.key` are correct and not vaulted and correct permissions
+
+* generation of DH parameter
+```
+openssl dhparam -2 -out dhparams.pem 2048
+```
+
+#### DEBUGGING
+
+* after nfs or certs change, you need to restart irods
+* large data transfer can take for too long and timeout if you don't increase the ``keepalive`` value in ``sysctl``. Example from ``umcg-resc1.irods.surfsara.nl:/etc/sysctl.d/irodsFix.conf``:
+```
+net.ipv4.tcp_keepalive_time = 1800
+net.ipv4.tcp_keepalive_intvl = 300
+net.ipv4.tcp_keepalive_probes = 6
+```
+
+* make sure you have the correct hostname in the
+```
+/etc/irods/server_config.json
+```
+
+* check logs
+```
+tail -50 /var/lib/irods/log/rods.Log.2021...
+```
+
+* restart service
+```
+service irods restart
+```
+
+* check irods_environment.json
+```
+cat ~irods/.irods/irods_environment.json
+```
+and check ssl lines that are corrected and then
+```
+service irods restart
+```
+additionally
+```
+sudo su - irods
+   ils
+```
+and check as normal user
+
+* debug server side
+check the values in `/etc/irods/irods_environment.json`
+look into the logs in the file `/var/lib/irods/log/rodsServerLog*`
+
+* change the irods_hosts to external one, to get more descriptive errors
+  If you suspect that you have wrong settings in the file `.irods/irods_environment.json`, but the output does not describe anything, try and change the `irods_hosts` to external one, then error will be more descriptive.
+  ```
+  iadmin lr demoResc
+  iadmin modresc demoResc host umcg-icat.hpc.rug.nl
+  ```
+
+* networking issues
+  ```
+  tcpdump -nnpi any port 1247
+  tcpdump -X
+  ```
+  or for specific IP address
+  ```
+  tcpdump -nnpi any net 145.38 and port 1247 
+  ```
+
+* when updating irods
+  ```
+  yum upgrade irods
+  service irods restart
+  ```
+
+** ! Whenever you make an update, the acPreConnect in might change, so you need to change it back into ssl require ! **
+
+#### Rules
+
+Surf personel added the rules on the server, so we can use it. One of such are testing the staging and unstaging the file
+```
+$ iput -R surfArchive localFileName.txt
+$ ils -L
+```
+
+on the irods server in the
+    /var/lib/irods/msiExecCmd_bin
+are the rules defined. THOSE are the rules we can use.
+
+
+irule -F dmput.r
+
+iquest "select DATA_NAME,COLL_NAME," "test4"
+
+
+##### Small notes on what was done on Surf side for the archiving
+* adding rule for the archive
+ on the resource side the archive is exported over nfs
+mkresc surfArchive unixfilesystem umcg-resc1.irods.surfsara.nl:/nfs/archivelinks/irumcg/surfArchive
+
+
+
