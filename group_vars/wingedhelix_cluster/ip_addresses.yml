@@ -1,52 +1,52 @@
 ---
 ip_addresses:
-  nb-dt:
+  wh-dt:
     addr: 0.0.0.0
     mask: /32
     vlan: internal_management
     fqdn:
-  nb-repo:
+  wh-repo:
     addr: 0.0.0.0
     mask: /32
     vlan: internal_management
     fqdn:
-  nb-sai:
+  wh-sai:
     addr: 0.0.0.0
     mask: /32
     vlan: internal_management
     fqdn:
     desc: Sys Admin Interface
-  nb-dai:
+  wh-dai:
     addr: 0.0.0.0
     mask: /32
     vlan: internal_management
     fqdn:
     desc: Deploy Admin Interface
-  nb-vcompute03:
+  wh-vcompute03:
     addr: 0.0.0.0
     mask: /32
     vlan: internal_management
     fqdn:
     desc: Compute Node
-  nb-vcompute02:
+  wh-vcompute02:
     addr: 0.0.0.0
     mask: /32
     vlan: internal_management
     fqdn:
     desc: Compute Node
-  nb-vcompute01:
+  wh-vcompute01:
     addr: 0.0.0.0
     mask: /32
     vlan: internal_management
     fqdn:
     desc: Compute Node
-  nibbler:
+  wingedhelix:
     addr: 0.0.0.0
     mask: /32
     vlan: internal_management
     fqdn:
     desc: User Interface
-  tunnel:
+  porch:
     addr: 0.0.0.0
     mask: /32
     vlan: internal_management
