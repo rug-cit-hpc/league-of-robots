@@ -235,7 +235,7 @@ vi .irods/irods_environment.json
 
 * Check if certificate is valid and file permission correct  
 
-  # openssl x509 -in /etc/irods/localhost_and_chan_umcg-icat01.crt -noout -text
+  `openssl x509 -in /etc/irods/localhost_and_chan_umcg-icat01.crt -noout -text`
 
 Also make sure that the `/etc/irods/localhost_and_chan_umcg-icat01.crt` and `/etc/irods/localhost_umcg01.key` are correct and not vaulted and correct permissions
 
