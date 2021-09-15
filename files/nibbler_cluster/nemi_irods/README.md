@@ -250,7 +250,6 @@ openssl dhparam -2 -out dhparams.pem 2048
   to start/restart/stop irods service, use  
   `service irods restart`  
   **! use system init V `service` calls** and not systemd ``systemctl``
-------- and this line is the typo --------
 
 * after nfs or certs change, you need to restart irods
 * large data transfer can take for too long and timeout if you don't increase the ``keepalive`` value in ``sysctl``. Example from ``umcg-resc1.irods.surfsara.nl:/etc/sysctl.d/irodsFix.conf``:
