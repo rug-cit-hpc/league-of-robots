@@ -1,24 +1,19 @@
-FROM golang:1.15-buster
+FROM golang:latest
 
 MAINTAINER Egon Rijpkema <e.m.a.rijpkema@rug.nl>
 
 RUN mkdir /results
 
-RUN go get github.com/godbus/dbus
+RUN go install github.com/prometheus/node_exporter@latest && \
+    cp /go/bin/node_exporter /results
 
-RUN go get github.com/prometheus/node_exporter && \
-    cd ${GOPATH-$HOME/go}/src/github.com/prometheus/node_exporter && \
-    make && \
-    cp node_exporter /results
-
-RUN go get github.com/vpenso/prometheus-slurm-exporter && \
-    cd ${GOPATH-$HOME/go}/src/github.com/vpenso/prometheus-slurm-exporter && \
-    go build && \
+RUN go install github.com/vpenso/prometheus-slurm-exporter@latest  && \
     cp /go/bin/prometheus-slurm-exporter /results
 
-RUN go get github.com/lovoo/ipmi_exporter && \
-    cd ${GOPATH-$HOME/go}/src/github.com/lovoo/ipmi_exporter && \
-    go build && \
-    cp /go/bin/ipmi_exporter /results
+RUN go install git.webhosting.rug.nl/HPC/nvidia_smi_exporter.git@latest  && \
+    cp /go/bin/nvidia_smi_exporter.git /results/nvidia_smi_exporter
 
-CMD tail -f /dev/null
+RUN go install github.com/soundcloud/ipmi_exporter@latest  && \
+    cp /go/bin/ipmi_exporter /results/ipmi_exporter
+
+CMD /go/bin/proxy
