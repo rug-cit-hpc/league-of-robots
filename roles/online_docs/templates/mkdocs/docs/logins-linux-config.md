@@ -116,18 +116,18 @@ Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + a
     ControlPersist 1m
 #
 # Expand short jumphost names to FQDN or IP address.
-#{% if public_ip_addresses is defined and public_ip_addresses | length %}{% for jumphost in groups['jumphost'] %}
+#{% for jumphost in groups['jumphost'] %}{% if public_ip_addresses[jumphost] is defined and public_ip_addresses[jumphost] | length %}
 Host {{ jumphost | regex_replace('^' + ai_jumphost + '\\+','') }}
-    HostName {{ public_ip_addresses[jumphost | regex_replace('^' + ai_jumphost + '\\+','')] }}{% endfor %}{% else %}
-Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','') }} {% endfor %}{% if slurm_cluster_domain | length %}!*.{{ slurm_cluster_domain }}{% endif %}
-    HostName %h{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}{% endif %}
+    HostName {{ public_ip_addresses[jumphost | regex_replace('^' + ai_jumphost + '\\+','')] }}{% else %}
+Host {{ jumphost | regex_replace('^' + ai_jumphost + '\\+','') }} {% if slurm_cluster_domain | length %}!*.{{ slurm_cluster_domain }}{% endif %}
+    HostName %h{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}{% endif %}{% endfor %}
 #
 # Universal jumphost settings for triple-hop SSH.
 #
 Host *+*+*
     ProxyCommand ssh -x -q $(echo %h | sed 's/+[^+]*$//') -W $(echo %h | sed 's/^[^+]*+[^+]*+//'):%p
 #
-# Double-hop SSH settings to connect via Jumphosts{% if slurm_cluster_domain | length %}{{ slurm_cluster_domain }}{% endif %}.
+# Double-hop SSH settings to connect via specific jumphosts.
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}+* {% endfor %}{% raw %}{% endraw %}
     ProxyCommand ssh -x -q $(echo "${JUMPHOST_USER:-%r}")@$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p
