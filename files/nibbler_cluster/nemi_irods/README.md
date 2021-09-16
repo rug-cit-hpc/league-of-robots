@@ -1,6 +1,5 @@
-##################################################################################################
-For the iRODS scale-out service SURFsara needs the following from us:
-##################################################################################################
+
+## For the iRODS scale-out service SURFsara needs the following from us:
 
 1. irods account with rods admin privileges in our iCAT.
    Name preferably: service_surfsara
@@ -26,9 +25,7 @@ For the iRODS scale-out service SURFsara needs the following from us:
                ^                                                                ^
                |________________________port_range:20000-20199__________________|
 
-##################################################################################################
-Good to know:
-##################################################################################################
+## Good to know:
 
 A file added to the tape archive triggers the PEP_RESOURCE_OPEN_PRE hook from the iRODS rule engine.
 This may conflict if we want to use the same hook: need to get in touch with SURFsara if we want to use the same hook/trigger.
@@ -44,9 +41,7 @@ SURFsara adds 3 pieces of metadata automatically to every file in the archive:
  * surf_time when status was last checked.
  * surf_bfid block file identifier. Can be used to salvage data if the archive implodes.
 
-##################################################################################################
-Encrypting iRODS traffic using SSL certificates.
-##################################################################################################
+## Encrypting iRODS traffic using SSL certificates.
 
 Info from Ger @ RUG CIT. Below is an example how they do it @ RUG CIT for their iRDOS a.k.a RUG RDMS.
 
@@ -91,9 +86,7 @@ Important note:
    We now use a certificate based on an RSA key pair.
  * The certificate files in this dir are encrypted with Ansible Vault and the vault password for Nibbler.
 
-##################################################################################################
- TO-DO: Stuff to check / configure on our iCAT
-##################################################################################################
+## TO-DO: Stuff to check / configure on our iCAT
 
 * To prevent time-outs for large data transfers add `/etc/sysctl.d/irodsFix.conf` which contains:
 ```
@@ -112,6 +105,11 @@ net.ipv4.tcp_keepalive_probes = 6
     - networking services could be needded before database is turned on
     - database needs to be turned on for irods to turn on
 * webdav working
+* in `/etc/irods/core.re`: set number of threads to 4
+  ```
+  acSetNumThreads {msiSetNumThreads("default","4","default"); }
+  ```
+  Default may otherwise be to high causing issues with S3 bucket.
 * Enable SSL by changing  `CS_NEG_DONT_CARE` to `CS_NEG_REQUIRE`  
   In `/home/irods/.irods/irods_environment.json`:
   
@@ -122,9 +120,8 @@ net.ipv4.tcp_keepalive_probes = 6
   #acPreConnect(*OUT) { *OUT="CS_NEG_DONT_CARE"; }
   acPreConnect(*OUT) { *OUT="CS_NEG_REQUIRE"; }
   ```
-
 * For all users in `~/.irods/irods_environment.json`:
-```
+  ```
   {
       "irods_client_server_negotiation": "request_server_negotiation", 
       "irods_client_server_policy": "CS_NEG_REQUIRE", 
@@ -143,7 +140,9 @@ net.ipv4.tcp_keepalive_probes = 6
       "irods_zone_name": "nlumcg",
       "irods_ssl_verify_server" : "cert"
   }
-```
+  ```
+
+* Need to install yum install irods-resource-plugin-s3 in addition to base irods package.
 
 For later
 *  We should add this template to `/etc/skel` using Ansible.
@@ -156,6 +155,18 @@ For later
 https://github.com/MaastrichtUniversity/rit-davrods
 
 Note Docker container does not yet have SSL enabled iRODS
+Needs to be enabled by changing  `CS_NEG_DONT_CARE` to `CS_NEG_REQUIRE` in `config/irods_environment.json`
+
+For `config/davrods-vhost.conf`:
+ * umcg-icat01.hpc.rug.nl cannot be resolved in docker container -> change to internal IP address of host VM inside the docker container
+   ```DavRodsServer 10.10.1.121 1247```
+ * By default the container allows read-only access to the iRODS data.
+   To allow write access, delete or comment this section:
+   ```
+        <LimitExcept GET HEAD OPTIONS PROPFIND> 
+          deny from all 
+        </LimitExcept> 
+   ```
 
 ### HOW TO
 #### Some basics
