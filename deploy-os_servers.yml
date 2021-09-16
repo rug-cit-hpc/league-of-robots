@@ -301,7 +301,7 @@
         description: |
                      Security group for security hardened jumphosts bridging the external and internal network.
                      Allows SSH inbound on both port 22 and 443.
-                     Allows SSH inbound on both port 1247, 1248, 5432 and range: 20000:20199 for IRODs.
+                     Allows SSH inbound on both port 1247 and range: 20000:20199 for IRODs.
                      Allows ICMP inbound.
                      Allows all outbound traffic.
         wait: true
@@ -609,7 +609,7 @@
     - name: Create persistent data volume for irods server.
       openstack.cloud.volume:
         display_name: "{{ inventory_hostname }}-volume"
-        size: "{{ local_volume_size_repo }}"
+        size: "{{ local_volume_size_irods }}"
         state: present
         availability_zone: "{{ storage_availability_zone | default('nova') }}"
         wait: true
@@ -640,6 +640,12 @@
         wait: true
         timeout: "{{ openstack_api_timeout }}"
       register: irods_vm
+    - name: Make sure irods nodes are started.
+      openstack.cloud.server_action:
+        action: start
+        server: "{{ inventory_hostname }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}
 ##############################################################################
 # Configure UIs from inventory using Openstack API.
 ##############################################################################
