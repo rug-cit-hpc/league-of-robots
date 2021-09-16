@@ -1,0 +1,43 @@
+---
+#installing the iRODS Rescource Package
+##installing the iRODS ICAT
+- name: Installing the iRODS Package(s)
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+  - "{{irodsPkg}}"
+#running the setup_irods.sh with proper inputs, if iRODS is not already configured
+#Notes about this module:
+#It reads left to right, matching strings up to the ":"
+#This means "iRODS service account" matches "iRODS service account name"
+#The ":" separates the line to search for from the response to enter. Response should be quoted.
+#Lines do not need to be in order. As a prompt occurs, it will search the list to find a match.
+#(?i)TEXTGOESHERE before a line will ignore case.
+#So in short:
+#(?i)this is my query, ignoring case \[and escaped properly\] : "THIS IS MY RESPONSE, on the other side of the colon"
+- name: run iRODS 4.2 setup script
+  become: true
+  expect:
+    creates: "/etc/irods/server_config.json"
+    command: "/bin/python /var/lib/irods/scripts/setup_irods.py"
+    #The series of expected prompts and responses.
+    responses:
+      iRODS user \[.*\]: "{{svcAcnt}}"
+      iRODS group \[.*\]: "{{svcAcnt}}"
+      Please select a number or choose 0 to enter a new value \[.*\]: "2"
+      iRODS server's zone name \[.*\]: "{{iZone}}"
+      iRODS catalog \(ICAT\) host: "{{rescICAT}}"
+      iRODS server's port \[.*\]: "1247"
+      iRODS port range \(begin\) \[.*\]: "20000"
+      iRODS port range \(end\) \[.*\]: "20199"
+      Control Plane port \[.*\]: "1248"
+      Schema Validation Base URI \(or off\) \[.*\]: "file:///var/lib/irods/configuration_schemas"
+      iRODS server's administrator username \[.*\]: "{{iAcnt}}"
+      Please confirm \[.*\]: "yes"
+      iRODS server's zone key: "{{zoneKey}}"
+      iRODS server's negotiation key \(32 characters\): "{{negKey}}"
+      Control Plane key \(32 characters\): "{{ctrlKey}}"
+      iRODS server's administrator password: "{{iPwd}}"
+      iRODS Vault directory \[.*\]: "{{iVault}}"
+    echo: yes

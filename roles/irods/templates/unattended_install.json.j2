@@ -1,0 +1,20 @@
+{
+	"admin_password": "{{ irods_admin_pwd }}",
+	"host_access_control_config": {
+                        "access_entries": []
+                    },
+	"host_system_information": {
+
+    {# we are using db_username here because postgresql allowes ident authentication to 127.0.0.1 by default #}
+			"service_account_user_name": "{{ irods_service_account }}",
+			"service_account_group_name": "{{ irods_service_account }}"
+		},
+	"hosts_config": 
+    {% include 'hosts_config.json.j2' %} ,
+ 
+	"server_config":
+    {% include 'server_config.json.j2' %}
+  ,
+	"service_account_environment":
+    {% include 'service_account_environment.j2' %} 	
+}

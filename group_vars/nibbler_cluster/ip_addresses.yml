@@ -9,12 +9,12 @@ ip_addresses:
     addr: 10.10.1.182
     mask: /32
     vlan: internal_management
-    fqdn:
+    fqdn: umcg-icat01.hpc.rug.nl
   irods-catalogus:
     addr: 10.10.1.121
     mask: /32
     vlan: internal_management
-    fqdn:
+    fqdn: umcg-icat01.hpc.rug.nl
   nb-repo:
     addr: 10.10.1.56
     mask: /32
