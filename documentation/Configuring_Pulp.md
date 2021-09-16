@@ -450,6 +450,8 @@ root@nb-repo $> /usr/local/bin/pulpcore-manager handle-artifact-checksums
 # Updates
 #
 pulp rpm repository sync --name epel7
+# then you want to list the changes (if version remains thes same, there was no changes, otherwise it automaticaly increments:
+pulp rpm repository version list --repository epel7               
 pulp rpm publication create --repository epel7 --version 2
 pulp rpm distribution show --name nb-epel7
 pulp rpm distribution update --name nb-epel7 --publication /pulp/api/v3/publications/rpm/rpm/a4765571-dc89-47c3-a7d0-ed9b18fad287/

@@ -1,0 +1,26 @@
+#
+# Local user account specs.
+# Note:
+#  * All local users are listed in this file.
+#  * In group_vars/[name]-cluster/vars.yml we list which users are created locally on which cluster as regular and/or admin users.
+#  * Never ever change nor recycle a UID value here unless you are in for a surprise...
+#  * If you also have users from an LDAP make sure the UIDs are unique and do not overlap with users specified here.
+#  * The file in group_vars/template/users.yml is an unencrypted template for the real thing in 
+#    group_vars/all/users.yml, which must be encrypted with Ansible Vault using the vault password labelled "all",
+#    shared by all clusters in the repo.
+#
+---
+auth_users:
+  centos:
+    comment: 'Cloud User'
+    uid: 1000
+    pub_keys: |
+              ssh-rsa ...private..key... comment
+              ssh-ed25519 ...private..key... comment
+  auser:
+    comment: 'Another User'
+    uid: 1001
+    email: 'a.user@some.domain'
+    pub_keys: |
+              ssh-ed25519 ...private..key... auser
+...
