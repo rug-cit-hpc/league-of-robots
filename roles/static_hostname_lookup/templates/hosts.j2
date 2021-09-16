@@ -40,13 +40,13 @@
 {{ "%-15s" | format(ip_addresses[server_hostname].addr) }}    {{ server_hostname }}
   {% endfor %}
 {% endif %}
-{% if groups['sys_admin_interface'] is defined and groups['sys_admin_interface'] | length >= 1 %}
+{% if groups['irods'] is defined and groups['irods'] | length >= 1 %}
 #
 # IRODS servers
 #
   {% for server in groups['irods'] %}
      {% set server_hostname = server | regex_replace('^' + ai_jumphost + '\\+','') %}
-{{ "%-15s" | format(ip_addresses[server_hostname].addr) }}    {{ server_dns }}    {{ server_dns_short }}
+{{ "%-15s" | format(ip_addresses[server_hostname].addr) }}    {{ ip_addresses[server_hostname].fqdn }}    {{ ip_addresses[server_hostname].fqdn | regex_replace('^([a-z-0-9]+).*$', '\\1')}}
   {% endfor %}
 {% endif %}
 {% if groups['sys_admin_interface'] is defined and groups['sys_admin_interface'] | length >= 1 %}
