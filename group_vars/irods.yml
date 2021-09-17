@@ -1,0 +1,10 @@
+---
+firewall_allowed_tcp_ports:
+  - "22"    # SSH.
+  - "1247"  # irods
+  - "20000:20199"  # irods
+irods_ssl_certificate_chain_file: "localhost_and_chain_umcg-icat01.crt"
+irods_ssl_certificate_key_file: "localhost-umcg01.key"
+irods_ssl_dh_params_file: "dhparams.pem"
+irods_zone: 'nlumcg'
+...

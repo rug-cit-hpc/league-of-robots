@@ -1,0 +1,42 @@
+---
+- name: Installing postgresql-server
+  become: true
+  yum: 
+    name: postgresql-server
+    state: latest
+
+- name: Installing python-psycopg2
+  become: true
+  yum: 
+    name: python-psycopg2 
+    state: latest
+
+- name: Initializing PGSQL database
+  become: true
+  command: "/usr/bin/postgresql-setup initdb"
+  args:
+    creates: /var/lib/pgsql/data/pg_hba.conf
+
+- name: Fixing pg_hba.conf to permit localhost password authentication
+  become: true
+  lineinfile: 
+    name: /var/lib/pgsql/data/pg_hba.conf 
+    regexp: "host    all             all             127.0.0.1/32            ident" 
+    line: "host    all             all             127.0.0.1/32            md5"
+    backrefs: true
+
+- name: Starting PGSQL
+  become: true
+  systemd: name=postgresql state=restarted
+
+- name: Create a new database with name "ICAT"
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: "{{ irods_db_name }}"
+
+- name: Creating irods sql user and granting privileges
+  become: true
+  become_user: postgres
+  postgresql_user: name="{{ irods_db_user }}" password="{{ irods_db_pwd }}" db="{{ irods_db_name }}" priv=ALL
+

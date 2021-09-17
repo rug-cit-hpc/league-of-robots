@@ -1,0 +1,49 @@
+#
+#   1.   $> cd git/league-of-robots
+#   2. Create VM for irods with deploy-os_servers.yml playbook.
+#   3. Fetch Ansible dependencies
+#        $> ansible-galaxy install -r galaxy-requirements.yml
+# Configure this repo for deployment of a specifc HPC cluster.
+#   4. Source lor-init from this repo. E.g.:
+#        $> source ./lor-init
+#   5. Configure League of Robots for a specific cluster. E.g.:
+#        $> lor-config nibbler
+#   6. Execute playbook to deploy machines. E.g.:
+#        $> ansible-playbook -i static_inventories/nibbler_hosts.ini deploy-os_servers.yml -l 'irods,localhost'
+#        $> export ANSIBLE_HOST_KEY_CHECKING=False
+#  Assosiate floating ip to the machine.
+#        $> ansible-playbook -i static_inventories/nibbler_hosts.ini -u centos -l 'irods' single_role_playbooks/admin_users.yml
+#        $> ansible-playbook -i ansible-playbook -i inventory.py -u <adminuser> single_role_playbooks/static_hostname_lookup.yml -l 'jumphost'
+#        $> ansible-playbook -i ansible-playbook -i inventory.py -u <adminuser> ssh_host_signer.yml -l 'irods'
+#        $> export ANSIBLE_HOST_KEY_CHECKING=True
+#        $> ansible-playbook -i inventory.py -u <adminuser> deploy-irods.yml -vvv
+
+---
+
+- import_playbook: pre_deploy_checks.yml
+
+- name: 'Sanity checks before we start.'
+  hosts: irods
+  pre_tasks:
+    - name: 'Verify Ansible version meets requirements.'
+      assert:
+        that: "ansible_version.full is version_compare('2.10', '>=')"
+        msg: 'You must update Ansible to at least 2.10.x to use this playbook.'
+- name: 'Satisfy dependencies for and install Pulp.'
+  hosts: irods
+  roles:
+    - admin_users
+    - ssh_host_signer
+    - ssh_known_hosts
+    - logrotate
+    - {role: geerlingguy.repo-epel, become: true}
+    - logins
+    - static_hostname_lookup
+    - sshd
+    - pulp_client
+    - {role: geerlingguy.security, become: true}
+    - {role: geerlingguy.firewall, become: true}
+    - update
+    - docker	
+    - irods
+...

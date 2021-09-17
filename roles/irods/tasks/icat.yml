@@ -1,0 +1,29 @@
+#installing the iRODS ICAT
+- name: Installing the iRODS Package(s)
+  become: True
+  yum: 
+    name: "{{ item }}"
+    state: present
+  loop:
+  - irods-server
+  - irods-database-plugin-postgres
+
+- name: set hostname to DNS.
+  become: True
+  hostname:
+    name: "{{ ip_addresses[inventory_hostname].fqdn }}"
+
+- name: create_unattended_installation_json
+  become: True
+  template:
+    src: unattended_install.json.j2
+    dest: /root/unattended_install.json
+  register: create_unattended_installation_json
+
+- name: run_irods_installation_script
+  become: True
+  shell:  python /var/lib/irods/scripts/setup_irods.py --json_configuration_file=/root/unattended_install.json
+  when: create_unattended_installation_json.changed
+  run_once: true
+  async: 120
+  poll: 1  
