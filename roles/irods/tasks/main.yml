@@ -1,7 +1,3 @@
 ---
 - include: pgsql.yml
-  when: svrType == "icat"
 - include: icat.yml
-  when: svrType == "icat"
-- include: resc.yml
-  when: svrType == "resc"
