@@ -645,7 +645,7 @@
         action: start
         server: "{{ inventory_hostname }}"
         wait: true
-        timeout: "{{ openstack_api_timeout }}
+        timeout: "{{ openstack_api_timeout }}"
 ##############################################################################
 # Configure UIs from inventory using Openstack API.
 ##############################################################################
