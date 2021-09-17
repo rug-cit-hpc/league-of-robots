@@ -49,11 +49,6 @@ ui_features: 'prm02,tmp02'
 ui_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
-irods_sockets: 4
-irods_cores_per_socket: 1
-irods_real_memory: 3790
-irods_local_disk: 0
-irods_features: 'tmp02'
 flavor_irods: 'm1.large'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
