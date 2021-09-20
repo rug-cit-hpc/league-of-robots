@@ -1,6 +1,7 @@
 ## To-do until next meeting:
 - [ ] change the password
 - [ ] make davrods working
+  - [ ] add to playbook yum install irods-resource-plugin-s3
 - [ ] test the current irods test environment
   - [ ] add users
   - [ ] copy the files
@@ -175,6 +176,9 @@ net.ipv4.tcp_keepalive_probes = 6
   ```
 
 * Need to install yum install irods-resource-plugin-s3 in addition to base irods package.
+```
+yum install irods-resource-plugin-s3-4.2.10-1.x86_64
+```
 
 For later
 *  We should add this template to `/etc/skel` using Ansible.
@@ -392,6 +396,12 @@ iquest "select DATA_NAME,COLL_NAME," "test4"
 * adding rule for the archive
  on the resource side the archive is exported over nfs
 mkresc surfArchive unixfilesystem umcg-resc1.irods.surfsara.nl:/nfs/archivelinks/irumcg/surfArchive
+
+
+SURF added S3 (hackaton #2)
+```
+iadmin modresc surfObjStore context "SE_DEFAULT_HOSTNAME=proxy.swift.surfsara.nl;S3_AUTH_FILE=/etc/irods/.s3auth;S3_RETRY_COUNT=1;S3_WAIT_TIME=3;S3_PROTO=HTTPS;S3_REGIONNAME=NL;ARCHIVE_NAMING_POLICIY=consistent;S3_CACHE_DIR=/data/S3Cache;HOST_MODE=cacheless_attached"
+```
 
 ## Appendix: extra notes from hackaton #2 (15. September 2021)
 
