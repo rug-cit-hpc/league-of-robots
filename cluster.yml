@@ -51,6 +51,8 @@
 
 - import_playbook: single_group_playbooks/ldap_server.yml
 
+- import_playbook: single_group_playbooks/nfs_server.yml
+
 - import_playbook: single_group_playbooks/cluster_part2.yml
 
 - import_playbook: single_group_playbooks/sys_admin_interface.yml

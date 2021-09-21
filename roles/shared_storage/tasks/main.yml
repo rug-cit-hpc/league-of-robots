@@ -28,7 +28,9 @@
     opts: "{{ item.rw_options }}"
     state: 'mounted'
   with_items: "{{ pfs_mounts }}"
-  when: inventory_hostname in groups['sys_admin_interface']
+  when:
+    - inventory_hostname in groups['sys_admin_interface']
+    - inventory_hostname not in groups ['nfs_server'] | default([]) or 'nfs' not in item.type
   become: true
 
 - name: 'Create "home" Logical File System (LFS) on Physical File Systems (PFSs) mounted on SAIs.'

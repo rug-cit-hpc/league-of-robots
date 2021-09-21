@@ -1,0 +1,7 @@
+---
+- name: Install NFS utils.
+  yum:
+    name: nfs-utils
+  when: pfs_mounts | selectattr('type', 'search', 'nfs') | list | length >= 1
+  become: true
+...

@@ -1,4 +1,19 @@
 ---
+- name: 'Compile list of volumes to mount for NFS servers.'
+  ansible.builtin.set_fact:
+    volumes: "{{ volumes | default([]) + [ volume ] }}"
+  vars:
+    volume:
+      mount_point: "/mnt/{{ item.pfs }}"
+      device: "{{ item.device }}"
+      mounted_owner: root
+      mounted_group: root
+      mounted_mode: '0755'
+      mount_options: 'rw,relatime'
+      type: ext4
+  when: inventory_hostname in groups['nfs_server'] | default([])
+  with_items: "{{ pfs_mounts | selectattr('type', 'search', 'nfs') | selectattr('device', 'defined') | list }}"
+
 - name: 'Check the mount point.'
   command: "mountpoint {{ item.mount_point }}"
   register: mount_point_status

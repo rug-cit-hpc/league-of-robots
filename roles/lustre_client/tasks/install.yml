@@ -71,7 +71,8 @@
   become: true
   notify: reboot
 
-- meta: flush_handlers
+- name: Flush handlers
+  meta: flush_handlers
 
 - name: Install the Lustre client.
   yum:

@@ -125,10 +125,11 @@ regular_users:
 #
 # Shared storage related variables
 #
-lustre_client_networks: 'tcp11(vlan???.lustre),tcp12(vlan???.lustre)'
+#lustre_client_networks: 'tcp11(vlan???.lustre),tcp12(vlan???.lustre)'
 pfs_mounts: [
   { pfs: 'umcgst12',
-    source: '',      # this is going to be filled when we have shared NFS server
+    device: '/dev/vdb',
+    source: 'lookup nfs_server ip address in storage VLAN',
     type: 'nfs4',    # checked with cat /proc/filesystem
     rw_options: 'defaults,_netdev,flock',
     ro_options: 'defaults,_netdev,ro' },
