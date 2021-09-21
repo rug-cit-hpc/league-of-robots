@@ -1,3 +1,36 @@
+## To-do until next meeting:
+- [ ] change the password
+- [ ] make davrods working
+  - [ ] add to playbook yum install irods-resource-plugin-s3
+- [ ] test the current irods test environment
+  - [ ] add users
+  - [ ] copy the files
+- [ ] test alternative clients to connect to irods and davrods
+  - [ ] cyberduck,
+  - [x] linux dav:// client
+  - [ ] Windows 10 default client 4GB limitation?
+- [ ] update playbook
+- [x] update documentation
+- [ ] permanently set firewall
+  - [ ] limit 1247 port incoming connection (on the surf IP and specific client list only?)
+  - [ ] open ports 80 and 443 to docker davrods implementation
+  - [ ] check if 80 can be disabled, and if then the davrods clients can still use it webdav
+  - [ ] limit port 22 to jumphost
+- [ ] remove demoResc resource and add the rootResc
+
+Extra
+- [ ] think about the implemenation of the authentication - sRAM
+  - [ ] use of the sram-sync?
+- [ ] look at the tiering plugin (link below)
+	- [ ] change the irods password
+	- [ ] test the current irods test environment
+
+Links to check:
+- [] https://github.com/irods/irods_capability_storage_tiering
+- [] https://cyberduck.io
+- [] https://github.com/MaastrichtUniversity/sram-sync
+- [] https://hub.docker.com/r/jboss/keycloak/
+
 
 ## For the iRODS scale-out service SURFsara needs the following from us:
 
@@ -143,6 +176,9 @@ net.ipv4.tcp_keepalive_probes = 6
   ```
 
 * Need to install yum install irods-resource-plugin-s3 in addition to base irods package.
+```
+yum install irods-resource-plugin-s3-4.2.10-1.x86_64
+```
 
 For later
 *  We should add this template to `/etc/skel` using Ansible.
@@ -167,6 +203,9 @@ For `config/davrods-vhost.conf`:
           deny from all 
         </LimitExcept> 
    ```
+
+Additionally we added (when testing) in  `/etc/hosts` the line
+	`10.10.1.121	umcg-icat01.hpc.rug.nl`
 
 ### HOW TO
 #### Some basics
@@ -234,6 +273,12 @@ vi .iros/irods_environment.json
     "irods_home":
 # do iinit and retry ils 
 grep tempZone /etc/irods/*
+```
+
+# to list and then delete the resource
+```
+ilsresc
+iadmin rmresc [nameoftheresource]
 ```
 
 * Turn the certificate usage on/off
@@ -353,4 +398,42 @@ iquest "select DATA_NAME,COLL_NAME," "test4"
 mkresc surfArchive unixfilesystem umcg-resc1.irods.surfsara.nl:/nfs/archivelinks/irumcg/surfArchive
 
 
+SURF added S3 (hackaton #2)
+```
+iadmin modresc surfObjStore context "SE_DEFAULT_HOSTNAME=proxy.swift.surfsara.nl;S3_AUTH_FILE=/etc/irods/.s3auth;S3_RETRY_COUNT=1;S3_WAIT_TIME=3;S3_PROTO=HTTPS;S3_REGIONNAME=NL;ARCHIVE_NAMING_POLICIY=consistent;S3_CACHE_DIR=/data/S3Cache;HOST_MODE=cacheless_attached"
+```
 
+## Appendix: extra notes from hackaton #2 (15. September 2021)
+
+#### working on the docker image for davrods
+Build the image, and spin it up
+```
+cd rit-davrods312/
+docker-compose build
+docker-compose up
+```
+
+Go into the docker instance
+
+```
+docker exec -it ritdavrods312_davrods_1 /bin/bash
+```
+
+Tricks to restart the apache service:
+first list all the apache processes
+```
+$ ps auxf
+	process			pid
+	bash			33
+	apachectl 		1
+	/usr/sbin/httpd		10
+	apache 1 ... ... httpd	11
+	apache 1 ... ... httpd	12
+	apache 1 ... ... httpd	13
+	apache 1 ... ... httpd	14
+```
+
+then find the first apache process that is after bash (don't be distracted by httpd ones) and then kill it
+```
+	kill -HUP [pid]
+```
