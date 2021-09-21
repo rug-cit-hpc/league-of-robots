@@ -1,0 +1,14 @@
+#
+# This play depends on:
+#   * cluster_part1.yml
+#
+---
+- import_playbook: pre_deploy_checks.yml
+
+- name: '###==-> Extra roles for NFS server. <-==###'
+  hosts:
+    - nfs_server
+  roles:
+    - mount_volume
+    - nfs_server
+...

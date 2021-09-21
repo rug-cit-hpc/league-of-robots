@@ -8,5 +8,7 @@
     - sshd
     - ldap  # client
     - regular_users
+    - lustre_client
+    - nfs_client
     - shared_storage
 ...

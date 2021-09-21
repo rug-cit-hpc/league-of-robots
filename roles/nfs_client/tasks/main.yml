@@ -1,12 +1,7 @@
 ---
-- name: install nfs utils
+- name: Install NFS utils.
   yum:
     name: nfs-utils
-  become: true
-
-- name: Add fstab entry
-  lineinfile:
-    path: /etc/exports
-    line: /home  {{ nfs_server_ip | default(hostvars[groups['user_interface'][0]]['ansible_default_ipv4']['address']) }}:/home /home nfs rw 0 0
+  when: pfs_mounts | selectattr('type', 'search', 'nfs') | list | length >= 1
   become: true
 ...

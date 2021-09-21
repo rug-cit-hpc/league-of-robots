@@ -10,7 +10,6 @@
   hosts:
     - sys_admin_interface
   roles:
-    - mount_volume
     - slurm_management
     - prom_server
     - grafana
