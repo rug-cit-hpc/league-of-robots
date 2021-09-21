@@ -29,5 +29,6 @@
     - export_nfs_shares
   become: true
 
-- meta: flush_handlers
+- name: Flush handlers
+  meta: flush_handlers
 ...
