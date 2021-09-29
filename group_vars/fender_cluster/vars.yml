@@ -56,7 +56,7 @@ public_ip_addresses:
 availability_zone: nova
 local_volume_size_repo: 30
 local_volume_size_vcompute: 1
-local_volume_size_dai: 1000 # used for /apps
+local_volume_size_dai: 2000 # used for /apps
 local_volume_size_sai: 1
 nameservers: [
   '8.8.4.4',  # Google DNS.
