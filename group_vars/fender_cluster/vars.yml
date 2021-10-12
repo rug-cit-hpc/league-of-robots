@@ -110,7 +110,7 @@ regular_users:
   - user: 'ddanis'
     groups: ['users', 'solve-rd']
   - user: 'dhendriksen'
-    groups: ['users', 'solve-rd']
+    groups: ['users', 'solve-rd', 'depad']
   - user: 'ksablauskas'
     groups: ['users', 'solve-rd']
   - user: 'wsteyaert'
@@ -134,7 +134,7 @@ regular_users:
   - user: 'cthomas'
     groups: ['users', 'solve-rd']
   - user: 'mbenjamins'
-    groups: ['users','depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
   - user: 'lmatalonga'
     groups: ['users', 'solve-rd']
   - user: 'gbullich'
@@ -190,7 +190,7 @@ regular_users:
   - user: 'byaldiz'
     groups: ['users', 'solve-rd']
   - user: 'bcharbon'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', 'depad', 'solve-rd']
   - user: 'amaver'
     groups: ['users', 'solve-rd']
   - user: 'cgilissen'
