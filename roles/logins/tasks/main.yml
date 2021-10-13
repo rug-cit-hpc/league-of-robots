@@ -98,7 +98,7 @@
     - login_checks.sh
   become: true
 
-- name: Install login_checks_chrooted_home.sh script.
+- name: 'Install login_checks_chrooted_home.sh script.'
   template:
     src: login_checks_chrooted_home.sh
     dest: /etc/pam-script.d/login_checks_chrooted_home.sh
@@ -108,13 +108,35 @@
   when: inventory_hostname in groups['data_transfer'] | default([])
   become: true
 
-- name: Enable login_checks_chrooted_home.sh script for ses_open.
+- name: 'Enable login_checks_chrooted_home.sh script for ses_open.'
   file:  # noqa risky-file-permissions
     src: login_checks_chrooted_home.sh
     dest: /etc/pam-script.d/login_checks_chrooted_home.sh_ses_open
     owner: root
     group: root
     state: link
+  when: inventory_hostname in groups['data_transfer'] | default([])
+  become: true
+
+- name: 'Install recycle-chrooted-home-for-expired-account.bash script in /root/.'
+  template:
+    src: recycle-chrooted-home-for-expired-account.bash
+    dest: /root/recycle-chrooted-home-for-expired-account.bash
+    owner: root
+    group: root
+    mode: '0750'
+  when: inventory_hostname in groups['data_transfer'] | default([])
+  become: true
+
+- name: 'Create cron job to run recycle-chrooted-home-for-expired-account.bash script daily.'
+  cron:
+    name: 'Recycle chrooted home dirs for expired users in the {{ data_transfer_only_group }} group.'
+    weekday: '*'
+    hour: '05'
+    minute: '30'
+    user: root
+    job: /root/recycle-chrooted-home-for-expired-account.bash -c
+    cron_file: recycle-chrooted-home-for-expired-account
   when: inventory_hostname in groups['data_transfer'] | default([])
   become: true
 
