@@ -185,6 +185,15 @@
   when: inventory_hostname in groups['compute_vm']
   become: true
 
+- name: 'Install logrotate config file for slurmd.'
+  copy:
+    src: "files/logrotate_slurm"
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+    dest: '/etc/logrotate.d/slurm'
+  become: true
+
 - name: 'Start slurm and munge services.'
   systemd:
     name: "{{ item }}"
