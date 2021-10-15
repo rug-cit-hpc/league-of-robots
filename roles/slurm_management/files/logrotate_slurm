@@ -12,7 +12,7 @@
     noolddir
     rotate 5
     sharedscripts
-    size=10M
+    size 10M
     create 640 slurm root
     postrotate
         pkill -x --signal SIGUSR2 slurmctld
