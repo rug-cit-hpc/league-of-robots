@@ -348,7 +348,7 @@ function applyLustreQuota () {
 	for _cmd in "${_cmds[@]}"; do
 		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Applying cmd: ${_cmd}"
 		if [[ "${apply_settings}" -eq 1 ]]; then
-			mixed_stdouterr="$(${_cmd})" || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Failed to execute: ${_cmd}"
+			mixed_stdouterr="$(${_cmd} 2>&1)" || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Failed to execute: ${_cmd}"
 		fi
 	done
 }
@@ -370,7 +370,7 @@ function saveQuotaCache () {
 		log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Dry run: the following commands to update the cache would have been executed with the '-a' switch ..."
 	fi
 	_cmds=(
-		"umask 077; touch ${_lfs_path}.quotacache.new"
+		"umask 0027; touch ${_lfs_path}.quotacache.new"
 		"printf 'soft=%s\n' ${_soft_quota_limit} >  ${_lfs_path}.quotacache.new"
 		"printf 'hard=%s\n' ${_hard_quota_limit} >> ${_lfs_path}.quotacache.new"
 		"mv ${_lfs_path}.quotacache.new ${_lfs_path}.quotacache"
@@ -396,16 +396,16 @@ function getQuotaFromLDAP () {
 	# Query LDAP
 	#
 	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Retrieving data from LDAP..."
-	mixed_stdouterr=$(ldapsearch -LLL -o ldif-wrap=no \
-						-H "${LDAP_HOST}" \
-						-D "${LDAP_USER}" \
-						-w "${LDAP_PASS}" \
-						-b "${LDAP_SEARCH_BASE}" \
-						"(&(ObjectClass=${ldap_group_object_class})(cn:dn:=${_group}))" \
-						"${_ldap_group_quota_soft_limit_key}" \
-						"${_ldap_group_quota_hard_limit_key}" \
-						2>&1 >"${_ldif_file}") \
-					|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "ldapsearch failed."
+	ldapsearch -LLL -o ldif-wrap=no \
+			-H "${LDAP_HOST}" \
+			-D "${LDAP_USER}" \
+			-w "${LDAP_PASS}" \
+			-b "${LDAP_SEARCH_BASE}" \
+			"(&(ObjectClass=${ldap_group_object_class})(cn:dn:=${_group}))" \
+			"${_ldap_group_quota_soft_limit_key}" \
+			"${_ldap_group_quota_hard_limit_key}" \
+			2>&1 >"${_ldif_file}" \
+		|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "ldapsearch failed."
 	#
 	# Parse query results.
 	#
