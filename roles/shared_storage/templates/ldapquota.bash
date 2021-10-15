@@ -161,7 +161,7 @@ function log4Bash() {
 	# Determine prio.
 	#
 	local _log_level="${1}"
-	local _log_level_prio="${l4b_log_levels["$_log_level"]}"
+	local _log_level_prio="${l4b_log_levels["${_log_level}"]}"
 	local _status="${4:-$?}"
 	#
 	# Log message if prio exceeds threshold.
@@ -378,7 +378,7 @@ function saveQuotaCache () {
 	for _cmd in "${_cmds[@]}"; do
 		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Applying cmd: ${_cmd}"
 		if [[ "${apply_settings}" -eq 1 ]]; then
-			mixed_stdouterr="$(${_cmd})" || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Failed to execute: ${_cmd}"
+			eval "${_cmd}" || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Failed to execute: ${_cmd}"
 		fi
 	done
 }
@@ -410,7 +410,7 @@ function getQuotaFromLDAP () {
 	# Parse query results.
 	#
 	while IFS= read -r -d '' _ldif_record; do
-		_ldif_records+=("$_ldif_record")
+		_ldif_records+=("${_ldif_record}")
 	done < <(sed 's/^$/\x0/' "${_ldif_file}") \
 	|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Parsing LDIF file (${_ldif_file}) into records failed."
 	#
@@ -532,10 +532,13 @@ while getopts ":l:ah" opt; do
 			l4b_log_level_prio="${l4b_log_levels["${l4b_log_level}"]}"
 			;;
 		\?)
-			log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Invalid option -${OPTARG}. Try $(basename "${0}") -h for help."
+			log4Bash 'FATAL' "${LINENO}" "${FUNCNAME[0]:-main}" '1' "Invalid option -${OPTARG}. Try $(basename "${0}") -h for help."
 			;;
 		:)
-			log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Option -${OPTARG} requires an argument. Try $(basename "${0}") -h for help."
+			log4Bash 'FATAL' "${LINENO}" "${FUNCNAME[0]:-main}" '1' "Option -${OPTARG} requires an argument. Try $(basename "${0}") -h for help."
+			;;
+		*)
+			log4Bash 'FATAL' "${LINENO}" "${FUNCNAME[0]:-main}" '1' "Unhandled option. Try $(basename "${0}") -h for help."
 			;;
 		esac
 done
