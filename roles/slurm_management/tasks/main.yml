@@ -48,7 +48,7 @@
       - 'munge'
   become: true
 
-- name: 'Install a logrotate file for slurm.'
+- name: 'Install logrotate config file for slurmctld and slurmdbd.'
   copy:
     src: "files/logrotate_slurm"
     owner: 'root'
