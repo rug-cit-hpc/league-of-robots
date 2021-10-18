@@ -15,8 +15,7 @@
     size 10M
     create 640 slurm root
     postrotate
-        pkill -x --signal SIGUSR2 slurmctld
-        pkill -x --signal SIGUSR2 slurmdbd
+        pkill -x --signal SIGUSR2 slurmd
         exit 0
     endscript
 }
