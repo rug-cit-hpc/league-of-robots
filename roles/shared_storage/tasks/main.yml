@@ -137,6 +137,28 @@
   when: inventory_hostname in item.machines and not inventory_hostname in groups['nfs_server']|default([])
   become: true
 
+- name: 'Create /groups folder.'
+  file:
+    path: '/groups'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+    state: 'directory'
+  when: inventory_hostname in groups['compute_vm'] or inventory_hostname in groups['user_interface'] or inventory_hostname in groups['deploy_admin_interface']
+  become: true
+
+- name: 'Create folder for each group in /groups.'
+  file:
+    path: "/groups/{{ item }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+    state: 'directory'
+  with_items:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm))[0-9]+$') | map(attribute='groups') | list | flatten | unique }}"
+  when: inventory_hostname in groups['compute_vm'] or inventory_hostname in groups['user_interface'] or inventory_hostname in groups['deploy_admin_interface']
+  become: true
+
 - name: 'Mount "tmp" Logical File Systems (LFSs) per group from shared storage.'
   mount:
     path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
