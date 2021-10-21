@@ -15,10 +15,10 @@ additional_etc_hosts:
   - group: all
     hosts:
       - docs
-vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
-vcompute_sockets: 4
+vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-02]"    # not enough vcpus for 3
+vcompute_sockets: 16
 vcompute_cores_per_socket: 1
-vcompute_real_memory: 3790
+vcompute_real_memory: 64264
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
 vcompute_local_disk: 270000
@@ -29,7 +29,7 @@ vcompute_ethernet_interfaces:
 ui_hostnames: "{{ slurm_cluster_name }}"
 ui_sockets: 4
 ui_cores_per_socket: 1
-ui_real_memory: 3790
+ui_real_memory: 15884
 ui_local_disk: 0
 ui_features: 'tmp07'
 ui_ethernet_interfaces:
@@ -38,7 +38,7 @@ ui_ethernet_interfaces:
 use_ldap: yes
 create_ldap: no
 ldap_uri: 'ldaps://svrs.id.rug.nl'
-ldap_base: 'base ou=gd,o=asds'
+ldap_base: 'ou=gd,o=asds'
 ldap_binddn: 'cn=clusteradminGD,o=asds'
 ldap_group_object_class: 'groupofnames'
 ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
@@ -49,22 +49,22 @@ cloud_user: centos
 flavor_jumphost: m1.small
 flavor_ds: m1.small
 flavor_ui: m1.xlarge
-#flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
-flavor_vcompute: m1.xlarge
-flavor_management: m1.small
+#flavor_vcompute: htc-node    # Quota currently too small for 40 core compute nodes.
+flavor_vcompute: m1.huge
+flavor_management: m1.large   # we need at least 4 cpus on DAI and SAI
 network_public_external_id: vlan16
-network_private_management_id: internal_management
+network_private_management_id: wh_internal_management
 network_private_management_cidr: '10.10.1.0/24'
 network_private_management_gw: '10.10.1.1'
-network_private_storage_id: internal_storage
+network_private_storage_id: wh_internal_storage
 network_private_storage_cidr: '10.10.2.0/24'
 public_ip_addresses:
-  porch: ''
+  porch: '195.169.22.170'
 availability_zone: nova
 local_volume_size_repo: 20
 local_volume_size_vcompute: 1
 local_volume_size_dai: 200 # used for /apps, but test server shouldn't take too much space
-local_volume_size_sai: 1
+local_volume_size_sai: 10000
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
@@ -129,10 +129,10 @@ regular_users:
 pfs_mounts: [
   { pfs: 'umcgst12',
     device: '/dev/vdb',
-    source: 'lookup nfs_server ip address in storage VLAN',
+    source: '10.10.2.20:/mnt',
     type: 'nfs4',    # checked with cat /proc/filesystem
-    rw_options: 'defaults,_netdev,flock',
-    ro_options: 'defaults,_netdev,ro' },
+    rw_options: 'defaults,_netdev,noatime,nodiratime,local_lock=flock',
+    ro_options: 'defaults,_netdev,noatime,nodiratime,ro' },
 ]
 lfs_mounts: [
   { lfs: 'home',
