@@ -21,4 +21,15 @@ known_hosts_hostnames: "{% for jumphost in groups['jumphost'] %}\
                           *{{ dochost | regex_replace('^' + ai_jumphost + '\\+','')}},\
                         {% endfor %}\
                         *{{ stack_prefix }}-*"
+dt_server_address: "{% if groups['data_transfer'] is defined and groups['data_transfer'] | length %}\
+                      {% if public_ip_addresses[groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','')] is defined \
+                          and public_ip_addresses[groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','')] | length %}\
+                        {{ public_ip_addresses[groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','')] }}\
+                      {% else %}\
+                        {{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}\
+                        {% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}\
+                      {% endif %}\
+                    {% else %}\
+                      not available\
+                    {% endif %}"
 ...

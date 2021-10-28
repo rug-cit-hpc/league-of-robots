@@ -31,6 +31,9 @@ nav:
   - Storage:
     - 'Keep - What is stored where on {{ slurm_cluster_name | capitalize }}': 'storage.md'
     - 'Data transfers - How to move data to / from {{ slurm_cluster_name | capitalize }}': 'datatransfers.md'
+{% if groups['data_transfer'] is defined and groups['data_transfer'] | length >= 1 %}
+    - 'Data transfers - Using a dedicated data transfer server': 'dedicated-dt-server-overview.md'
+{% endif %}
   - Compute:
     - 'Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}': 'analysis.md'
   - Technical Specifications:

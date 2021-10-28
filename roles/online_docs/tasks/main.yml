@@ -60,6 +60,25 @@
   check_mode: false
   register: 'lmod_version'
 
+- name: 'Get host key fingeprints from dedicated data transfer server.'
+  shell:
+    cmd: |
+      set -o pipefail
+      ssh-keygen -lf <(ssh-keyscan {{ dt_server_address }} 2>/dev/null) \
+        | awk '{print $2,$4}'
+  args:
+    executable: '/bin/bash'
+    warn: false
+  delegate_to: localhost
+  connection: local
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  register: 'data_transfer_host_key_fingerprints'
+  when:
+    - groups['data_transfer'] is defined
+    - groups['data_transfer'] | first | length >= 1
+
 - name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
   find:
     paths: "{{ playbook_dir }}/group_vars/"
