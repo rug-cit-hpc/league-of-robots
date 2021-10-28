@@ -1,5 +1,5 @@
 #jinja2: trim_blocks:False
-# Data transfers - How to move data to / from {{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+# Data transfers - How to move data to / from {{ dt_server_address }}
 
 Firstly and independent of technical options: make sure you are familiar with the _code of conduct_ / _terms and conditions_ / _license_ or whatever it is called and that you are allowed to upload/download a data set!
 When in doubt contact your supervisor / principal investigator and the group/institute that created the data set.
@@ -30,7 +30,7 @@ ${{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','
 #### Transfer data with rsync
 
 Once you have your private key temporarily forwarded to _{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_
-you can use _rsync_ (over ssh) with the _guest_ account to transfer data to/from _{{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_.
+you can use _rsync_ (over ssh) with the _guest_ account to transfer data to/from _{{ dt_server_address }}_.
 See below for some syntax examples.
 Note:
 
@@ -63,7 +63,7 @@ rsync -av --rsh='ssh -p 443 -l some-guest-account' path/to/file_on_{{ groups['us
 #
 # Reverse source and destination to pull a file from data transfer server onto user interface server.
 #
-rsync -av --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/file_on_{{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} path/to/dir_on_{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}/
+rsync -av --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/data_on_transfer_server path/to/dir_on_{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}/
 ```
 
 -----

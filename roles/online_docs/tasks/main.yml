@@ -76,8 +76,8 @@
   check_mode: false
   register: 'data_transfer_host_key_fingerprints'
   when:
-    - groups['data_transfer'] | first is defined
-    - groups['data_transfer'] | first | length
+    - groups['data_transfer'] is defined
+    - groups['data_transfer'] | first | length >= 1
 
 - name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
   find:

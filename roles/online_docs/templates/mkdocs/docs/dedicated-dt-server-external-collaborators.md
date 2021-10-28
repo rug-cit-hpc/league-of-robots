@@ -1,5 +1,5 @@
 #jinja2: trim_blocks:False
-# Data transfers - How to move data to / from {{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+# Data transfers - How to move data to / from {{ dt_server_address }}
 
 Firstly and independent of technical options: make sure you are familiar with the _code of conduct_ / _terms and conditions_ / _license_ or whatever it is called and that you are allowed to upload/download a data set!
 When in doubt contact your supervisor / principal investigator and the group/institute that created the data set.
@@ -28,9 +28,9 @@ as opposed to the FileZilla _installer_ (filename of the download ends in _.exe_
 
 ![Start FileZilla and open the Site Manager](img/FileZilla-Windows-1.png)
 
- * 1: Click the _**Site Manager**_ button to configure the connection to {{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+ * 1: Click the _**Site Manager**_ button to configure the connection to {{ dt_server_address }}
 
-###### Create new site with connection details for {{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+###### Create new site with connection details for {{ dt_server_address }}
 
 ![FileZilla Site Manager](img/FileZilla-Windows-2.png)
 
@@ -53,13 +53,13 @@ as opposed to the FileZilla _installer_ (filename of the download ends in _.exe_
 
 ###### Unknown host key
 
-If this is the first time you connect to {{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }},
+If this is the first time you connect to {{ dt_server_address }},
 FileZilla will show you the _**fingerprint**_ of the server's host key. 
 
 ![FileZilla Site Manager](img/FileZilla-Windows-4.png)
 
  * 13: Verify if the shown _**fingerprint**_ matches one of:  
-   {% for fingerprint in data_transfer_host_key_fingerprints.stdout.split('\n') %}```{{ fingerprint }}```
+   {% for fingerprint in data_transfer_host_key_fingerprints.stdout | default('missing', true) | split('\n') %}```{{ fingerprint }}```
    {% endfor %}
  * 14: Only if the **fingerprint** shown **matches** the expected fingerprint: click the _**OK**_ button to continue.  
    Otherwise, if the **fingerprint does not match**, click the _**Cancel**_ button and [contact our helpdesk](../contact/).
@@ -74,7 +74,7 @@ FileZilla will show you the _**fingerprint**_ of the server's host key.
 ###### Drag and drop files or folders to start a transfer
 
 FileZilla will login and start a session.
-You can browse files/folders on your local machine in the left column and on {{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} in the right column.
+You can browse files/folders on your local machine in the left column and on {{ dt_server_address }} in the right column.
 Drag files/folder from the left column to the right one to upload or vice versa to download.
 
 ![FileZilla Site Manager](img/FileZilla-Windows-6.png)
@@ -87,9 +87,9 @@ Drag files/folder from the left column to the right one to upload or vice versa 
 
 ![Start FileZilla and open the Site Manager](img/FileZilla-macOS-1.png)
 
- * 1: Click the _**Site Manager**_ button to configure the connection to {{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+ * 1: Click the _**Site Manager**_ button to configure the connection to {{ dt_server_address }}
 
-###### Create new site with connection details for {{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}
+###### Create new site with connection details for {{ dt_server_address }}
 
 ![FileZilla Site Manager](img/FileZilla-macOS-2.png)
 
@@ -136,13 +136,13 @@ It cannot use private keys in OpenSSH format, but can convert a private key gene
 
 ###### Unknown host key
 
-If this is the first time you connect to {{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }},
+If this is the first time you connect to {{ dt_server_address }},
 FileZilla will show you the _**fingerprint**_ of the server's host key.
 
 ![FileZilla Site Manager](img/FileZilla-macOS-7.png)
 
  * 18: Verify if the shown _**fingerprint**_ matches one of:  
-   {% for fingerprint in data_transfer_host_key_fingerprints.stdout.split('\n') %}```{{ fingerprint }}```
+   {% for fingerprint in data_transfer_host_key_fingerprints.stdout | default('missing', true) | split('\n') %}```{{ fingerprint }}```
    {% endfor %}
  * 19: Only if the **fingerprint** shown **matches** the expected fingerprint: click the _**OK**_ button to continue.  
    Otherwise, if the **fingerprint does not match**, click the _**Cancel**_ button and [contact our helpdesk](../contact/).
@@ -150,7 +150,7 @@ FileZilla will show you the _**fingerprint**_ of the server's host key.
 ###### Drag and drop files or folders to start a transfer
 
 FileZilla will login and start a session.
-You can browse files/folders on your local machine in the left column and on {{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} in the right column.
+You can browse files/folders on your local machine in the left column and on {{ dt_server_address }} in the right column.
 Drag files/folder from the left column to the right one to upload or vice versa to download.
 
 ![FileZilla Site Manager](img/FileZilla-macOS-8.png)
@@ -159,7 +159,7 @@ Drag files/folder from the left column to the right one to upload or vice versa 
 
 <a name="rsync-commandline"></a>
 
-You can use rsync (over ssh) to transfer data to/from _{{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_.
+You can use rsync (over ssh) to transfer data to/from _{{ dt_server_address }}_.
 Note that the data transfer uses _rsync modules_, which uses double colon syntax (::) to separate the name/address of the server from the path on the server.
 The rsync protocol is more efficient for large data sets and easier to automate, but unfortunately there are no free and good rsync client apps with a Graphical User Interface (GUI).
 See below for some syntax examples.
@@ -188,7 +188,7 @@ rsync -av --rsh='ssh -p 443 -l some-guest-account' path/to/file_on_local_compute
 #
 # Reverse source and destination to pull a file from data transfer server onto user interface server.
 #
-rsync -av --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/file_on_{{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} path/to/dir_on_local_computer/
+rsync -av --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/data_on_transfer_server path/to/dir_on_local_computer/
 ```
 
 -----
