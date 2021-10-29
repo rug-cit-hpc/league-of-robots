@@ -27,7 +27,7 @@ vcompute_ethernet_interfaces:
   - 'eth0'
   - 'eth1'
 ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: 4
+ui_sockets: 8
 ui_cores_per_socket: 1
 ui_real_memory: 15884
 ui_local_disk: 0
