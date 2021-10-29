@@ -2,6 +2,7 @@
 irods_icat_fqdn: "umcg-icat01.hpc.rug.nl"   # fqdn of iCAT server
 firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
   - "22"    # SSH.
+  - "443"  #  davrods SSL
   - "1247"  # irods
   - "20000:20199"  # irods
 irods_ssl_certificate_chain_file: "localhost_and_chain_umcg-icat01.crt"
