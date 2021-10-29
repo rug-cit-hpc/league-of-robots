@@ -31,6 +31,10 @@ Links to check:
 - [] https://github.com/MaastrichtUniversity/sram-sync
 - [] https://hub.docker.com/r/jboss/keycloak/
 
+Clients to add:
+- We'll start with two data processing workstations from microscopy dept.:
+  - [] 129.125.130.209 (3215.-174.T65)
+  - [] 192.168.20.37 (3215.-174.D84)
 
 ## For the iRODS scale-out service SURFsara needs the following from us:
 
