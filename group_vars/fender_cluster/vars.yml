@@ -18,7 +18,7 @@ vcompute_cores_per_socket: 1
 vcompute_real_memory: 64264
 vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
 vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
-vcompute_local_disk: 0
+vcompute_local_disk: 0      # [MB] the slurm setting, how it sees the disk local_volume_size_vcompute
 vcompute_features: 'tmp10'
 vcompute_ethernet_interfaces:
   - 'eth0'
@@ -55,8 +55,8 @@ public_ip_addresses:
   corridor: '45.88.81.213'
 availability_zone: nova
 local_volume_size_repo: 30
-local_volume_size_vcompute: 1
-local_volume_size_dai: 2000 # used for /apps
+local_volume_size_vcompute: 1  # [GB] disk of /dev/vdb -> /local
+local_volume_size_dai: 2000    # used for /apps
 local_volume_size_sai: 1
 nameservers: [
   '8.8.4.4',  # Google DNS.
