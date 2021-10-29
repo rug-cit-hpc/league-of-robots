@@ -276,6 +276,11 @@ pfs_mounts: [
     type: 'nfs4',
     rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
     ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro' },
+  { pfs: 'umcgst01',
+    source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1',
+    type: 'lustre',
+    rw_options: 'defaults,_netdev,flock',
+    ro_options: 'defaults,_netdev,ro' },
   { pfs: 'umcgst02',
     source: '172.23.57.203@tcp12:172.23.57.204@tcp12:/dh2',
     type: 'lustre',
@@ -309,6 +314,17 @@ lfs_mounts: [
     pfs: 'umcgst10',
     groups: [
         'umcg-atd'
+      ]},
+  { lfs: 'prm02',
+    pfs: 'umcgst01',
+    groups: [
+        'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
+        'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
+        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
+        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
+        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
+        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
+        'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
   { lfs: 'prm03',
     pfs: 'umcgst02',
