@@ -1,5 +1,11 @@
 ---
 ip_addresses:
+  tl-repo:
+    addr: 172.23.40.99
+    mask: /32
+    vlan: vlan983
+    fqdn:
+    desc: Repository Management
   tl-dai:
     addr: 172.23.40.94
     mask: /32

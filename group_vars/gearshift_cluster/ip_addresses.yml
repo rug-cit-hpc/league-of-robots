@@ -12,6 +12,12 @@ ip_addresses:
     vlan: vlan983
     fqdn:
     desc: Sys Admin Interface
+  gs-repo:
+    addr: 172.23.40.98
+    mask: /32
+    vlan: vlan983
+    fqdn:
+    desc: Repository Management
   gs-vcompute10:
     addr: 172.23.40.90
     mask: /32

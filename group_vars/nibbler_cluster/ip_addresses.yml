@@ -5,6 +5,7 @@ ip_addresses:
     mask: /32
     vlan: internal_management
     fqdn:
+    desc: Data Transfer
   irods-test:
     addr: 10.10.1.182
     mask: /32
@@ -20,6 +21,7 @@ ip_addresses:
     mask: /32
     vlan: internal_management
     fqdn:
+    desc: Repository Management
   nb-sai:
     addr: 10.10.1.106
     mask: /32
