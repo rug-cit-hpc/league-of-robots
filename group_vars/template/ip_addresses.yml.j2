@@ -9,6 +9,10 @@ ip_addresses:
     fqdn:
     {% if server_info.name in groups['jumphost']%}
     desc: Jumphost
+    {% elif server_info.name in groups['repo']%}
+    desc: Repository Management
+    {% elif server_info.name in groups['data_transfer']%}
+    desc: Data Transfer
     {% elif server_info.name in groups['sys_admin_interface']%}
     desc: Sys Admin Interface
     {% elif server_info.name in groups['deploy_admin_interface']%}
