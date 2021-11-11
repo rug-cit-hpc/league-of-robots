@@ -124,6 +124,7 @@ regular_groups:
   - 'umcg-pmb'
   - 'umcg-pub'
   - 'umcg-radicon'
+  - 'umcg-rehabilitation'
   - 'umcg-solve-rd'
   - 'umcg-sysops'
   - 'umcg-tifn'
@@ -241,6 +242,9 @@ regular_users:
   - user: 'umcg-radicon-dm'
     groups: ['umcg-radicon']
     sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-rehabilitation-dm'
+    groups: ['umcg-rehabilitation']
+    sudoers: '%umcg-rehabilitation-dms'
   - user: 'umcg-solve-rd-dm'
     groups: ['umcg-solve-rd']
     sudoers: '%umcg-solve-rd-dms'
@@ -281,11 +285,11 @@ pfs_mounts: [
     type: 'lustre',
     rw_options: 'defaults,_netdev,flock',
     ro_options: 'defaults,_netdev,ro' },
-  { pfs: 'umcgst02',
-    source: '172.23.57.203@tcp12:172.23.57.204@tcp12:/dh2',
-    type: 'lustre',
-    rw_options: 'defaults,_netdev,flock',
-    ro_options: 'defaults,_netdev,ro' },
+#  { pfs: 'umcgst02',
+#    source: '172.23.57.203@tcp12:172.23.57.204@tcp12:/dh2',
+#    type: 'lustre',
+#    rw_options: 'defaults,_netdev,flock',
+#    ro_options: 'defaults,_netdev,ro' },
   { pfs: 'umcgst03',
     source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1',
     type: 'lustre',
@@ -307,8 +311,8 @@ lfs_mounts: [
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
-        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
-        'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
+        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
+        'umcg-ugli', 'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
   { lfs: 'prm01',
     pfs: 'umcgst10',
@@ -323,20 +327,20 @@ lfs_mounts: [
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
-        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
-        'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
+        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
+        'umcg-ugli', 'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
-  { lfs: 'prm03',
-    pfs: 'umcgst02',
-    groups: [
-        'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
-        'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
-        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
-        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
-        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
-        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
-        'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
-      ]},
+#  { lfs: 'prm03',
+#    pfs: 'umcgst02',
+#    groups: [
+#        'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
+#        'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
+#        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
+#        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
+#        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
+#        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
+#        'umcg-ugli', 'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
+#      ]},
   { lfs: 'rsc01',
     pfs: 'umcgst03',
     groups: [
