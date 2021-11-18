@@ -1,0 +1,9 @@
+---
+- name: Install sssd role.
+  hosts:
+    - jumphost
+    - cluster
+    - data_transfer
+  roles:
+     - sssd
+...

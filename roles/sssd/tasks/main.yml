@@ -1,0 +1,118 @@
+# Register a machine to our ldap
+---
+- name: Install yum dependencies
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - sssd
+      - sssd-tools
+      - openldap-clients
+      - openssh-ldap
+      - coreutils
+      - grep
+      - sed
+  notify:
+    - restart_sssd
+    - restart_sshd
+  become: true
+
+- name: Copy LDAP server certificate to LDAP clients.
+  ansible.builtin.copy:
+    src: "{{ slurm_cluster_name }}_cluster/ldap.crt"
+    dest: /etc/pki/ca-trust/source/anchors/
+    owner: root
+    group: root
+    mode: '0600'
+  when: (playbook_dir, '/files/', slurm_cluster_name, '_cluster/', 'ldap.crt') | join('') is exists
+  become: true
+  notify:
+    - update-ca-trust
+    - restart_sssd
+
+- name: Deploy /etc/sssd/sssd.conf
+  ansible.builtin.template:
+    src: sssd.conf
+    dest: /etc/sssd/sssd.conf
+    owner: root
+    group: root
+    mode: '0600'
+  notify:
+    - restart_sssd
+  become: true
+
+#
+# Note that /etc/openldap/ldap.conf is not required to make SSH logins work,
+# but is used for tools like the ldapsearch command.
+# We do not deploy /etc/openldap/ldap.conf when sssd is used,
+# because the OpenLDAP config file cannot handle multiple LDAP servers.
+# Hence tools and scripts on our clusters to fetch for example public key or quota values from an LDAP
+# will need to manage LDAP connection settings themselves.
+#
+- name: Remove conflicting configuration files for nslcd and ssh-ldap-wrapper.
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /etc/ssh/ldap.conf
+    - /etc/openldap/ldap.conf
+    - /usr/libexec/openssh/ssh-ldap-wrapper.bash
+  become: true
+
+- name: Disable conflicting services.
+  ansible.builtin.systemd:
+    name: nslcd
+    state: stopped
+    enabled: false
+    daemon_reload: true
+  become: true
+
+- name: Deploy nsswitch.conf
+  ansible.builtin.copy:
+    src: nsswitch.conf
+    dest: /etc/nsswitch.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart_sssd
+  become: true
+
+- name: Deploy custom script to fetch public keys from LDAP servers.
+  ansible.builtin.template:
+    src: get_public_keys_from_ldap.bash
+    dest: /usr/libexec/openssh/get_public_keys_from_ldap.bash
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Enable services.
+  ansible.builtin.systemd:
+    name: sssd
+    state: started
+    enabled: true
+    daemon_reload: true
+  become: true
+
+- name: Check if we need to update authconfig.
+  command:
+    cmd: /usr/sbin/authconfig --test
+  register: authconfig_test
+  changed_when: ('nss_sss is disabled' in authconfig_test.stdout) or ('pam_sss is disabled' in authconfig_test.stdout)
+  notify: authconfig_enable_sssd
+
+- name: Redeploy sshd config.
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/roles/sshd/templates/sshd_config"
+    dest: /etc/ssh/sshd_config
+    validate: '/usr/sbin/sshd -T -f %s'
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart_sshd
+  become: true
+
+- name: Flush handlers.
+  ansible.builtin.meta: flush_handlers
+...

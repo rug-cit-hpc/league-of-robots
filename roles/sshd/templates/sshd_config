@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:True, lstrip_blocks: True
 {% if inventory_hostname in groups['jumphost'] | default([]) or inventory_hostname in groups['data_transfer'] | default([]) %}
 #
 # Extra ports where sshd will listen in addition to the default 22 must be listed before the default of 22,
@@ -95,13 +96,18 @@ ClientAliveInterval 300
 #
 Subsystem sftp /usr/libexec/openssh/sftp-server -f AUTHPRIV -l INFO -u 0027
 
-{% if use_ldap %}
+{% if use_ldap | default(true, true) | bool %}
 #
 # Get public keys for regular users from LDAP.
 #
+  {% if use_sssd | default(false, true) | bool%}
+AuthorizedKeysCommand /usr/libexec/openssh/get_public_keys_from_ldap.bash
+  {% else %}
 AuthorizedKeysCommand /usr/libexec/openssh/ssh-ldap-wrapper.bash
-AuthorizedKeysCommandUser root
+  {% endif %}
+AuthorizedKeysCommandUser nobody
 AuthorizedKeysFile /dev/null
+
 #
 # Get public keys for admins from local authorized_keys file.
 #

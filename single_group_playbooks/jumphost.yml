@@ -13,9 +13,16 @@
     - {role: geerlingguy.repo-epel, become: true}
     - {role: geerlingguy.firewall, become: true}
     - logins
-    - ldap
-    - static_hostname_lookup
+    - role: ldap
+      when:
+        - use_ldap | default(true, true) | bool
+        - use_sssd | default(false, true) | bool
+    - role: sssd
+      when:
+        - use_ldap | default(true, true) | bool
+        - use_sssd | default(true, true) | bool
     - sshd
+    - static_hostname_lookup
     - node_exporter
     - {role: geerlingguy.security, become: true}
     - {role: grafana_proxy, when: ansible_hostname == 'airlock'}

@@ -53,12 +53,33 @@ flavor_irods: 'm1.large'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
-ldap_uri: 'ldaps://svrs.id.rug.nl'
-ldap_base: 'ou=umcg,o=asds'
-ldap_binddn: 'cn=clusteradminumcg,o=asds'
-ldap_group_object_class: 'groupofnames'
-ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
-ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
+use_sssd: yes
+ldap_domains:
+  sram:
+    uri: ldaps://sv-sram.id.rug.nl
+    search_base: ou=sram-umcg,ou=users,o=id
+    schema: rfc2307bis
+    min_id: 70000000
+    max_id: 72999999
+    user_object_class: posixAccount
+    user_name: mail
+    user_ssh_public_key: sshPublicKey
+    user_member_of: groupMembership
+    group_member: member
+  grunn:
+    uri: ldaps://svrs.id.rug.nl
+    search_base: ou=umcg,o=asds
+    schema: rfc2307
+    min_id: 50100000
+    max_id: 55999999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: groupMembership
+    group_member: memberUid
+    group_object_class: groupofnames
+    group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
+    group_quota_hard_limit_template: ruggroupumcgquotaLFS
 data_transfer_only_group: umcg-sftp-only
 cloud_image: CentOS 7
 cloud_user: centos
