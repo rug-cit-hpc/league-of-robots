@@ -53,7 +53,7 @@
     owner: root
     group: root
     mode: '0755'
-  when: 
+  when:
     - inventory_hostname in groups['jumphost'] | default([]) or
       inventory_hostname in groups['data_transfer'] | default([]) or
       inventory_hostname in groups['cluster'] | default([])
