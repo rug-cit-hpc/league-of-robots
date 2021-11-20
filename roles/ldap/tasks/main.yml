@@ -90,6 +90,13 @@
     daemon_reload: true
   become: true
 
+- name: Check if we need to update authconfig.
+  command:
+    cmd: /usr/sbin/authconfig --test
+  register: authconfig_test
+  changed_when: ('nss_ldap is disabled' in authconfig_test.stdout) or ('pam_ldap is disabled' in authconfig_test.stdout)
+  notify: authconfig_enable_ldap
+
 - name: Redeploy sshd config.
   ansible.builtin.template:
     src: "{{ playbook_dir }}/roles/sshd/templates/sshd_config"

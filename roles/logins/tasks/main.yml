@@ -1,6 +1,6 @@
 ---
 - name: 'Create cron job to restart systemd-logind regularly as workaround for known DBus bug.'
-  cron:
+  ansible.builtin.cron:
     #
     # Silly workaround for bug in interaction dbus <-> logind
     # Need DBus 1.11.10 for a fix, but CentOS 7.6 is stuck on dbus 1.10.24.
@@ -13,31 +13,19 @@
   become: true
 
 - name: 'Install yum dependencies.'
-  yum:
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name:
       - pam_script
       - oddjob-mkhomedir
   notify:
-    - authconfig_update
-    - restart_oddjobd
-  become: true
-
-- name: 'Deploy password-auth-ac for PAM.'
-  copy:
-    src: 'password-auth-ac'
-    dest: '/etc/pam.d/password-auth-ac'
-    owner: root
-    group: root
-    mode: '0600'
-  notify:
-    - authconfig_update
+    - authconfig_enable_mkhomedir
     - restart_oddjobd
   become: true
 
 - name: 'Enable pam_script.'
-  file:  # noqa risky-file-permissions
+  ansible.builtin.file:  # noqa risky-file-permissions
     src: 'pam_script'
     dest: "/etc/{{ item }}"
     state: link
@@ -50,7 +38,7 @@
   become: true
 
 - name: 'Create /etc/pam-script.d/ dir.'
-  file:
+  ansible.builtin.file:
     name: '/etc/pam-script.d'
     state: directory
     owner: root
@@ -58,48 +46,36 @@
     mode: '0755'
   become: true
 
-#
-# Login checks to handle slurm accounts currently disabled,
-# because error handling/reporting no longer works on CentOS >= 7.x,
-# due to changes in the PAM stack.
-# Login checks were only used to create Slurm accounts in the Slurm accounting DB.
-# This functionality has been relocated to the Slurm job_submit.lua plugin,
-# which will now automatically create account, users and associations of slurm users to slurm accounts
-# upon job submission when they do not already exist.
-#
-# - name: Install login_checks.sh script.
-#   copy:
-#     src: 'login_checks.sh'
-#     dest: '/etc/pam-script.d/login_checks.sh'
-#     owner: root
-#     group: root
-#     mode: '0755'
-#   when: inventory_hostname in groups['cluster']
-#   become: true
-#
-# - name: Enable login_checks.sh script for ses_open.
-#   file:  # noqa risky-file-permissions
-#     src: "{{ item }}"
-#     dest: "/etc/pam-script.d/{{ item }}_ses_open"
-#     owner: root
-#     group: root
-#     state: link
-#   with_items:
-#     - login_checks.sh
-#   when: inventory_hostname in groups['cluster']
-#   become: true
-#
-- name: 'Disable login_checks.sh script as we use the Slurm job_submit.lua plugin now.'
-  file:
-    path: "/etc/pam-script.d/{{ item }}"
-    state: absent
+- name: 'Install login_checks_regular_home.sh script.'
+  ansible.builtin.copy:
+    src: login_checks_regular_home.sh
+    dest: /etc/pam-script.d/login_checks_regular_home.sh
+    owner: root
+    group: root
+    mode: '0755'
+  when: 
+    - inventory_hostname in groups['jumphost'] | default([]) or
+      inventory_hostname in groups['data_transfer'] | default([]) or
+      inventory_hostname in groups['cluster'] | default([])
+  become: true
+
+- name: 'Enable login_checks.sh script for ses_open.'
+  ansible.builtin.file:  # noqa risky-file-permissions
+    src: "{{ item }}"
+    dest: "/etc/pam-script.d/{{ item }}_ses_open"
+    owner: root
+    group: root
+    state: link
   with_items:
-    - login_checks.sh_ses_open
-    - login_checks.sh
+    - login_checks_regular_home.sh
+  when:
+    - inventory_hostname in groups['jumphost'] | default([]) or
+      inventory_hostname in groups['data_transfer'] | default([]) or
+      inventory_hostname in groups['cluster'] | default([])
   become: true
 
 - name: 'Install login_checks_chrooted_home.sh script.'
-  template:
+  ansible.builtin.template:
     src: login_checks_chrooted_home.sh
     dest: /etc/pam-script.d/login_checks_chrooted_home.sh
     owner: root
@@ -109,7 +85,7 @@
   become: true
 
 - name: 'Enable login_checks_chrooted_home.sh script for ses_open.'
-  file:  # noqa risky-file-permissions
+  ansible.builtin.file:  # noqa risky-file-permissions
     src: login_checks_chrooted_home.sh
     dest: /etc/pam-script.d/login_checks_chrooted_home.sh_ses_open
     owner: root
@@ -119,7 +95,7 @@
   become: true
 
 - name: 'Install recycle-chrooted-home-for-expired-account.bash script in /root/.'
-  template:
+  ansible.builtin.template:
     src: recycle-chrooted-home-for-expired-account.bash
     dest: /root/recycle-chrooted-home-for-expired-account.bash
     owner: root
@@ -129,7 +105,7 @@
   become: true
 
 - name: 'Create cron job to run recycle-chrooted-home-for-expired-account.bash script daily.'
-  cron:
+  ansible.builtin.cron:
     name: 'Recycle chrooted home dirs for expired users in the {{ data_transfer_only_group }} group.'
     weekday: '*'
     hour: '05'
@@ -141,14 +117,14 @@
   become: true
 
 - name: 'Set tiny quota for regular users on the root partition.'
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: tiny-user-quota-on-root-partition.yml
   when:
     - inventory_hostname in groups['jumphost'] | default([]) or
       inventory_hostname in groups['data_transfer'] | default([])
 
 - name: 'Enable services.'
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: true
     state: started
@@ -157,7 +133,45 @@
     - dbus.service
     - oddjobd.service
   notify:
-    - authconfig_update
     - restart_oddjobd
   become: true
+
+- name: 'Create custom /etc/pam.d/password-auth-local to include pam_script.so.'
+  ansible.builtin.copy:
+    src: password-auth-local
+    dest: /etc/pam.d/password-auth-local
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+#
+# This patches old/outdated setups where pam_script.so was added to password-auth-ac.
+# The authconfig utility does not support pam_script.so and when it is used in other roles
+# to update password-auth-ac, custom settings like including pam_script.so will get lost.
+#
+- name: 'Remove pam_script.so from /etc/pam.d/password-auth-ac.'
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/password-auth-ac
+    state: absent
+    regexp: 'pam_script.so'
+  become: true
+
+- name: 'Enable custom /etc/pam.d/password-auth-local.'
+  ansible.builtin.file:  # noqa risky-file-permissions
+    src: /etc/pam.d/password-auth-local
+    dest: /etc/pam.d/password-auth
+    owner: root
+    group: root
+    state: link
+  become: true
+
+- name: 'Check if we need to update authconfig.'
+  ansible.builtin.command:
+    cmd: /usr/sbin/authconfig --test
+  register: authconfig_test
+  changed_when: ('pam_oddjob_mkhomedir is disabled' in authconfig_test.stdout)
+  notify:
+    - authconfig_enable_mkhomedir
+    - restart_oddjobd
 ...
