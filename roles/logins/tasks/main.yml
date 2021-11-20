@@ -20,7 +20,7 @@
       - pam_script
       - oddjob-mkhomedir
   notify:
-    - authconfig_enable_mkhomedir
+    - authconfig_update
     - restart_oddjobd
   become: true
 
@@ -32,7 +32,7 @@
     group: root
     mode: '0600'
   notify:
-    - authconfig_enable_mkhomedir
+    - authconfig_update
     - restart_oddjobd
   become: true
 
@@ -157,6 +157,7 @@
     - dbus.service
     - oddjobd.service
   notify:
+    - authconfig_update
     - restart_oddjobd
   become: true
 ...
