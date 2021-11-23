@@ -23,4 +23,9 @@
     state: restarted
   become: true
   listen: restart_sshd
+
+- name: Run authconfig update to enable ldap.
+  command: "authconfig --enableldap --enableldapauth --update"
+  become: true
+  listen: authconfig_enable_ldap
 ...
