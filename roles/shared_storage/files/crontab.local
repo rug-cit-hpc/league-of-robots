@@ -10,5 +10,7 @@
 #     If the nodes with the crontab.smbtime fails, the job will not run.
 #   * There is also a /etc/mcp/override/crontab.smbtime, that will survive Isilon updates,
 #     but adding a cron entry there, means it will run on each Isilon node, which is not what we want.
+#   * We currently do not have access from our Ansible control hosts to the Isilon backend,
+#     so this crontab.local cannot be deployed with Ansible: deploy manually instead!
 #
 30 9,11,13,15,17,19,21 * * * root /bin/zsh /ifs/scripts/set_isilon_quota.zsh -a
