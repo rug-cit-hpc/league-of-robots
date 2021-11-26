@@ -1,8 +1,9 @@
 #jinja2: trim_blocks:False
 # Data transfers - How to move data to / from the dedicated data transfer server
 
-Firstly and independent of technical options: make sure you are familiar with the _code of conduct_ / _terms and conditions_ / _license_ or whatever it is called and that you are allowed to upload/download a data set!
-When in doubt contact your supervisor / principal investigator and the group/institute that created the data set.
+Firstly and independent of technical options: make sure you are familiar with the _code of conduct_ / _terms and conditions_ / _license_ or whatever it is called
+and that you are allowed to upload / download a data set!
+When in doubt contact your supervisor / principal investigator and the group / institute that created the data set.
 
 The {{ slurm_cluster_name | capitalize }} HPC cluster features a dedicated data transfer server _{{ dt_server_address }}_,
 which can be used to exchange data with external collaborators,

@@ -1,6 +1,6 @@
 ---
 slurm_cluster_name: 'nibbler'
-slurm_cluster_domain: ''  # Only add hpc.rug.nl domain when jumphost is registered in DNS.
+slurm_cluster_domain: 'hpc.rug.nl'
 stack_prefix: 'nb'
 slurm_version: '20.11.8-1.el7.umcg'
 repo_manager: 'pulp'
@@ -95,9 +95,6 @@ network_private_management_cidr: '10.10.1.0/24'
 network_private_management_gw: '10.10.1.1'
 network_private_storage_id: internal_storage
 network_private_storage_cidr: '10.10.2.0/24'
-public_ip_addresses:
-  tunnel: '195.169.22.136'
-  nb-dt: '195.169.22.166'
 availability_zone: nova
 local_volume_size_ds: 10000
 local_volume_size_repo: 20
