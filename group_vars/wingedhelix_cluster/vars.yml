@@ -43,7 +43,6 @@ ldap_binddn: 'cn=clusteradminGD,o=asds'
 ldap_group_object_class: 'groupofnames'
 ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
 ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
-data_transfer_only_group: umcg-sftp-only
 cloud_image: CentOS 7
 cloud_user: centos
 flavor_jumphost: m1.small
@@ -86,13 +85,15 @@ local_admin_users:
   - 'robin'
   - 'sandi'
   - 'wim'
+data_transfer_only_group: 'umcg-sftp-only'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 functional_admin_group: 'umcg-funad'
 hpc_env_prefix: '/apps'
 regular_groups:
+  - "{{ envsync_group }}"
+  - "{{ functional_admin_group }}"
   - 'umcg-atd'
-  - 'umcg-depad'
   - 'umcg-gcc'
   - 'umcg-gap'
   - 'umcg-gd'
@@ -101,6 +102,8 @@ regular_groups:
   - 'umcg-gst'
   - 'umcg-vipt'
 regular_users:
+  - user: "{{ envsync_user }}"
+    groups: ["{{ envsync_group }}"]
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
