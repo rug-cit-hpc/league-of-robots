@@ -12,7 +12,14 @@
     - {role: geerlingguy.repo-epel, become: true}
     - {role: geerlingguy.firewall, become: true}
     - logins
-    - ldap
+    - role: ldap
+      when:
+        - use_ldap | default(true, true) | bool
+        - use_sssd | default(false, true) | bool
+    - role: sssd
+      when:
+        - use_ldap | default(true, true) | bool
+        - use_sssd | default(true, true) | bool
     - sshd
     - {role: geerlingguy.security, become: true}
     - rsyncd

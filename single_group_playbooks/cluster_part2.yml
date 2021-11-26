@@ -5,8 +5,15 @@
   hosts:
     - cluster
   roles:
+    - role: ldap
+      when:
+        - use_ldap | default(true, true) | bool
+        - use_sssd | default(false, true) | bool
+    - role: sssd
+      when:
+        - use_ldap | default(true, true) | bool
+        - use_sssd | default(true, true) | bool
     - sshd
-    - ldap  # client
     - regular_users
     - lustre_client
     - nfs_client
