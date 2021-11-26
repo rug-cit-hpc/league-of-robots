@@ -64,8 +64,6 @@ nameservers: [
 local_admin_groups:
   - 'admin'
   - 'docker'
-  - 'umcg-atd'
-  - 'depad'
 local_admin_users:
   - 'egon'
   - 'gerben'
@@ -75,47 +73,43 @@ local_admin_users:
   - 'morris'
   - 'pieter'
   - 'wim'
-  - 'umcg-atd-dm'
-  - 'envsync'
 envsync_user: 'envsync'
 envsync_group: 'depad'
+functional_admin_group: 'funad'
 hpc_env_prefix: '/apps'
 regular_groups:
+  - "{{ envsync_group }}"
+  - "{{ functional_admin_group }}"
   - 'users'
-  - 'depad'
   - 'erknet'
   - 'euro-nmd'
   - 'ern-liver'
   - 'umcg-atd'
 regular_users:
-  - user: 'envsync'
-    groups: ['depad']
-
+  - user: "{{ envsync_user }}"
+    groups: ["{{ envsync_group }}"]
   - user: 'erknet-dm'
     groups: ['erknet']
     sudoers: '%erknet'
-
   - user: 'euro-nmd-dm'
     groups: ['euro-nmd']
     sudoers: '%euro-nmd'
-
   - user: 'ern-liver-dm'
     groups: ['ern-liver']
     sudoers: '%ern-liver'
-
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
   - user: 'gvdvries'
-    groups: ['users', 'depad', 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
   - user: 'mbijlsma'
-    groups: ['users', 'depad', 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
   - user: 'mswertz'
-    groups: ['users', 'depad', 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
   - user: 'pneerincx'
-    groups: ['users', 'depad', 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
   - user: 'rkanninga'
-    groups: ['users', 'depad', 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
   - user: 'umcg-atd-dm'
     groups: ['users', 'umcg-atd']
     sudoers: 'pieter,gerben'

@@ -77,15 +77,17 @@ local_admin_users:
   - 'wim'
 envsync_user: 'envsync'
 envsync_group: 'depad'
+functional_admin_group: 'funad'
 hpc_env_prefix: '/apps'
 regular_groups:
+  - "{{ envsync_group }}"
+  - "{{ functional_admin_group }}"
   - 'users'
-  - 'depad'
   - 'solve-rd'
   - 'umcg-atd'
 regular_users:
-  - user: 'envsync'
-    groups: ['depad']
+  - user: "{{ envsync_user }}"
+    groups: ["{{ envsync_group }}"]
   - user: 'solve-rd-dm'
     groups: ['solve-rd']
     sudoers: '%solve-rd'
@@ -96,21 +98,21 @@ regular_users:
     groups: ['solve-rd']
     sudoers: '%solve-rd'
   - user: 'gvdvries'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mbijlsma'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mswertz'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'pneerincx'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'rkanninga'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'ljohansson'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'ddanis'
     groups: ['users', 'solve-rd']
   - user: 'dhendriksen'
-    groups: ['users', 'solve-rd', 'depad']
+    groups: ['users', "{{ envsync_group }}", 'solve-rd']
   - user: 'ksablauskas'
     groups: ['users', 'solve-rd']
   - user: 'wsteyaert'
@@ -132,7 +134,7 @@ regular_users:
   - user: 'cthomas'
     groups: ['users', 'solve-rd']
   - user: 'mbenjamins'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'lmatalonga'
     groups: ['users', 'solve-rd']
   - user: 'gbullich'
@@ -140,9 +142,9 @@ regular_users:
   - user: 'ebenetti'
     groups: ['users', 'solve-rd']
   - user: 'kdelange'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'scimerman'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'sli'
     groups: ['users', 'solve-rd']
   - user: 'rschuele'
@@ -188,7 +190,7 @@ regular_users:
   - user: 'byaldiz'
     groups: ['users', 'solve-rd']
   - user: 'bcharbon'
-    groups: ['users', 'depad', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'solve-rd']
   - user: 'amaver'
     groups: ['users', 'solve-rd']
   - user: 'cgilissen'

@@ -63,7 +63,6 @@ ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
 filter_passwd: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
 filter_shadow: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
 pam_authz_search: '(|(&(objectClass=posixGroup)(cn=co_bbmri_g-GRP_Gearshift)(memberUid=$username))(&(cn=$username)(rugpersonentitlementvalue=umcg)))'
-data_transfer_only_group: umcg-sftp-only
 nameservers: [
   '172.23.40.244', # Order is important: local DNS for Isilon storage first!
   '8.8.4.4',       # Google DNS.
@@ -86,11 +85,15 @@ local_admin_users:
   - 'marlies'
   - 'robin'
   - 'wim'
+data_transfer_only_group: umcg-sftp-only
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 functional_admin_group: 'umcg-funad'
 hpc_env_prefix: '/apps'
 regular_groups:
+  - "{{ data_transfer_only_group }}"
+  - "{{ envsync_group }}"
+  - "{{ functional_admin_group }}"
   - 'umcg-aad'
   - 'umcg-as'
   - 'umcg-atd'
@@ -100,7 +103,6 @@ regular_groups:
   - 'umcg-cineca'
   - 'umcg-dag3'
   - 'umcg-datateam'
-  - 'umcg-depad'
   - 'umcg-ejp-rd'
   - 'umcg-endocrinology'
   - 'umcg-franke-scrna'
@@ -124,6 +126,7 @@ regular_groups:
   - 'umcg-pmb'
   - 'umcg-pub'
   - 'umcg-radicon'
+  - 'umcg-rehabilitation'
   - 'umcg-solve-rd'
   - 'umcg-sysops'
   - 'umcg-tifn'
@@ -133,6 +136,8 @@ regular_groups:
   - 'umcg-weersma'
   - 'umcg-wijmenga'
 regular_users:
+  - user: "{{ envsync_user }}"
+    groups: ["{{ envsync_group }}"]
   - user: 'umcg-aad-dm'
     groups: ['umcg-aad']
     sudoers: '%umcg-aad'
@@ -241,6 +246,9 @@ regular_users:
   - user: 'umcg-radicon-dm'
     groups: ['umcg-radicon']
     sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-rehabilitation-dm'
+    groups: ['umcg-rehabilitation']
+    sudoers: '%umcg-rehabilitation-dms'
   - user: 'umcg-solve-rd-dm'
     groups: ['umcg-solve-rd']
     sudoers: '%umcg-solve-rd-dms'
@@ -281,11 +289,11 @@ pfs_mounts: [
     type: 'lustre',
     rw_options: 'defaults,_netdev,flock',
     ro_options: 'defaults,_netdev,ro' },
-  { pfs: 'umcgst02',
-    source: '172.23.57.203@tcp12:172.23.57.204@tcp12:/dh2',
-    type: 'lustre',
-    rw_options: 'defaults,_netdev,flock',
-    ro_options: 'defaults,_netdev,ro' },
+#  { pfs: 'umcgst02',
+#    source: '172.23.57.203@tcp12:172.23.57.204@tcp12:/dh2',
+#    type: 'lustre',
+#    rw_options: 'defaults,_netdev,flock',
+#    ro_options: 'defaults,_netdev,ro' },
   { pfs: 'umcgst03',
     source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1',
     type: 'lustre',
@@ -307,8 +315,8 @@ lfs_mounts: [
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
-        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
-        'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
+        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
+        'umcg-ugli', 'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
   { lfs: 'prm01',
     pfs: 'umcgst10',
@@ -323,20 +331,20 @@ lfs_mounts: [
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
-        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
-        'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
+        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
+        'umcg-ugli', 'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
       ]},
-  { lfs: 'prm03',
-    pfs: 'umcgst02',
-    groups: [
-        'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
-        'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
-        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
-        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
-        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
-        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb', 'umcg-ugli',
-        'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
-      ]},
+#  { lfs: 'prm03',
+#    pfs: 'umcgst02',
+#    groups: [
+#        'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
+#        'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
+#        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
+#        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
+#        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
+#        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
+#        'umcg-ugli', 'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
+#      ]},
   { lfs: 'rsc01',
     pfs: 'umcgst03',
     groups: [
@@ -347,7 +355,7 @@ lfs_mounts: [
     machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
 ]
 ega_fuse_client_mounts:
-  cineca: '/groups/umcg-cineca/prm03/ega-fuse-client'
-  solve_rd: '/groups/umcg-solve-rd/prm03/ega-fuse-client'
+  cineca: '/groups/umcg-cineca/prm02/ega-fuse-client'
+  solve_rd: '/groups/umcg-solve-rd/prm02/ega-fuse-client'
 ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
 ...

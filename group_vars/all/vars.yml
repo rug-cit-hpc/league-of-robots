@@ -30,7 +30,7 @@ public_keys_of_local_admins: "{{ local_admin_users | map('extract', auth_users) 
 #
 # Local group specs.
 # Note:
-#  *  all local groups are listed here.
+#  * All local groups are listed here.
 #  * In ../[name]_cluster/vars.yml we list which groups are created locally on which cluster.
 #  * Never ever change nor recycle a GID value here unless you are in for a surprise...
 #
@@ -47,6 +47,18 @@ auth_groups:
     gid: 20004
   umcg-atd:
     gid: 20005
+  funad:
+    gid: 20006
+#
+# Default for a group of users that are only allowd to transfer data.
+# Is used by the sshd role and listed in
+#     roles/sshd/defaults/main.yml,
+# but that file is not used when the
+#     roles/sshd/templates/sshd_config
+# is redeployed by other roles like the ldap or sssd roles.
+# Therefore we set a default here too.
+#
+data_transfer_only_group: sftp-only
 #
 # Custom/extra yum repos
 #

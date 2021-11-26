@@ -1,25 +1,13 @@
 ---
-- name: 'Create folder for each group.'
+- name: Create group folders in {{ mount_point }} with mode {{ mode }}.
   file:
-    path: "/groups/{{ group }}"
+    path: "/groups/{{ folder }}"
     owner: 'root'
-    group: "{{ group }}"
-    mode: '2750'
+    group: "{{ folder }}"
+    mode: "{{ mode }}"
     state: 'directory'
-  loop: "{{ regular_groups }}"
+  loop: "{{ folders }}"
   loop_control:
-    loop_var: group
-  become: true
-
-- name: 'Create folder for each group.'
-  file:
-    path: "/groups/{{ group }}"
-    owner: 'root'
-    group: "{{ group }}"
-    mode: "{% if data_transfer_only_group is defined and data_transfer_only_group == group %}2750{% else %}2770{% endif %}"
-    state: 'directory'
-  loop: "{{ regular_groups }}"
-  loop_control:
-    loop_var: group
+    loop_var: folder
   become: true
 ...
