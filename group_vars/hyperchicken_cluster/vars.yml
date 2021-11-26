@@ -77,15 +77,17 @@ local_admin_users:
   - 'wim'
 envsync_user: 'envsync'
 envsync_group: 'depad'
+functional_admin_group: 'funad'
 hpc_env_prefix: '/apps'
 regular_groups:
+  - "{{ envsync_group }}"
+  - "{{ functional_admin_group }}"
   - 'users'
-  - 'depad'
   - 'solve-rd'
   - 'umcg-atd'
 regular_users:
-  - user: 'envsync'
-    groups: ['depad']
+  - user: "{{ envsync_user }}"
+    groups: ["{{ envsync_group }}"]
   - user: 'solve-rd-dm'
     groups: ['solve-rd']
     sudoers: '%solve-rd'
@@ -93,17 +95,17 @@ regular_users:
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
   - user: 'gvdvries'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mbijlsma'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mswertz'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'pneerincx'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'rkanninga'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'scimerman'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
 #
 # Shared storage related variables
 #

@@ -63,7 +63,6 @@ ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
 filter_passwd: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
 filter_shadow: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
 pam_authz_search: '(|(&(objectClass=posixGroup)(cn=co_bbmri_g-GRP_Gearshift)(memberUid=$username))(&(cn=$username)(rugpersonentitlementvalue=umcg)))'
-data_transfer_only_group: umcg-sftp-only
 nameservers: [
   '172.23.40.244', # Order is important: local DNS for Isilon storage first!
   '8.8.4.4',       # Google DNS.
@@ -86,11 +85,15 @@ local_admin_users:
   - 'marlies'
   - 'robin'
   - 'wim'
+data_transfer_only_group: umcg-sftp-only
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 functional_admin_group: 'umcg-funad'
 hpc_env_prefix: '/apps'
 regular_groups:
+  - "{{ data_transfer_only_group }}"
+  - "{{ envsync_group }}"
+  - "{{ functional_admin_group }}"
   - 'umcg-aad'
   - 'umcg-as'
   - 'umcg-atd'
@@ -100,7 +103,6 @@ regular_groups:
   - 'umcg-cineca'
   - 'umcg-dag3'
   - 'umcg-datateam'
-  - 'umcg-depad'
   - 'umcg-ejp-rd'
   - 'umcg-endocrinology'
   - 'umcg-franke-scrna'
@@ -134,6 +136,8 @@ regular_groups:
   - 'umcg-weersma'
   - 'umcg-wijmenga'
 regular_users:
+  - user: "{{ envsync_user }}"
+    groups: ["{{ envsync_group }}"]
   - user: 'umcg-aad-dm'
     groups: ['umcg-aad']
     sudoers: '%umcg-aad'

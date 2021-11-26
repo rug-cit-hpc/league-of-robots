@@ -61,7 +61,6 @@ ldap_binddn: 'cn=clusteradminumcg,o=asds'
 ldap_group_object_class: 'groupofnames'
 ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
 ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
-data_transfer_only_group: umcg-sftp-only
 nameservers: [
   '/gcc-storage001.stor.hpc.local/172.23.40.244',  # Local DNS lookups for shared storage.
   '8.8.4.4',  # Google DNS.
@@ -85,18 +84,23 @@ local_admin_users:
   - 'robin'
   - 'sandi'
   - 'wim'
+data_transfer_only_group: 'umcg-sftp-only'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 functional_admin_group: 'umcg-funad'
 hpc_env_prefix: '/apps'
 regular_groups:
+  - "{{ data_transfer_only_group }}"
+  - "{{ envsync_group }}"
+  - "{{ functional_admin_group }}"
   - 'umcg-atd'
-  - 'umcg-depad'
   - 'umcg-endocrinology'
   - 'umcg-gcc'
   - 'umcg-lifelines'
   - 'umcg-sysops'
 regular_users:
+  - user: "{{ envsync_user }}"
+    groups: ["{{ envsync_group }}"]
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
