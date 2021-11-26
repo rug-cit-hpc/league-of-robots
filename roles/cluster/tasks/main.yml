@@ -17,6 +17,8 @@
     name:
       - bash-completion
       - bc
+      - bcc-tools
+      - bind-utils
       - bzip2
       - cargo
       - curl
@@ -31,6 +33,7 @@
       - nano
       - ncdu
       - ncurses-static
+      - net-tools
       - openssl
       - qt5-qtbase
       - qt5-qtxmlpatterns
@@ -39,6 +42,7 @@
       - screen
       - singularity-runtime
       - singularity
+      - strace
       - tcl-devel
       - telnet
       - tmux
