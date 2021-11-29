@@ -1,9 +1,4 @@
 ---
-- name: Set hostname to inventory_hostname
-  hostname:
-    name: "{{ inventory_hostname | regex_replace('^' + ai_jumphost + '\\+','') }}"
-  become: true
-
 - name: Set selinux in permissive mode
   selinux:
     policy: targeted
