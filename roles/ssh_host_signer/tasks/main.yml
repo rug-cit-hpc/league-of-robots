@@ -1,7 +1,9 @@
 ---
 - name: 'Set hostname to inventory_hostname.'
   hostname:
-    name: "{% if groups['irods'] is defined and inventory_hostname in groups['irods'] and irods_icat_fqdn is defined and irods_icat_fqdn|length %}{{ irods_icat_fqdn }}{% else %}{{ inventory_hostname | regex_replace('^' + ai_jumphost + '\\+','') }}{% endif %}"
+    name: "{%- if groups['irods'] is defined and inventory_hostname in groups['irods'] and
+            irods_icat_fqdn is defined and irods_icat_fqdn|length -%}{{ irods_icat_fqdn }}
+          {%- else -%}{{ inventory_hostname | regex_replace('^' + ai_jumphost + '\\+','') }}{%- endif -%}"
   become: true
 
 - name: 'Find SSH host keys.'
