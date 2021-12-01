@@ -39,10 +39,11 @@
   register: getent_output
   become: true
 
-- set_fact:
+- name: Store davrods_user_home_path
+  set_fact:
     davrods_user_home_path: "{{ getent_output.stdout }}"
 
-- name: Create davrods docker directories inside {{ davrods_docker_folder }}
+- name: Create davrods docker directories inside {{ davrods_docker_folder }} folder
   file:
     path: '{{ davrods_user_home_path }}/{{ davrods_docker_folder }}/{{ item.path }}'
     state: directory
@@ -71,16 +72,16 @@
 
 # Fix for a https://access.redhat.com/articles/1462323
 - name: 'Add the {{ irods_ssl_dh_params_file }} at the end of {{ irods_ssl_certificate_chain_file }}'
-  ansible.builtin.command: |
-    rm -f {{ irods_ssl_certificate_chain_file }}.orig
-    mv {{ irods_ssl_certificate_chain_file }} {{ irods_ssl_certificate_chain_file }}.orig
-    cat {{ irods_ssl_certificate_chain_file }} {{ irods_ssl_dh_params_file }} > {{ irods_ssl_certificate_chain_file }}
+  ansible.builtin.shell: "{{ item }}"
+  loop:
+    - "mv -f {{ irods_ssl_certificate_chain_file }} {{ irods_ssl_certificate_chain_file }}.orig"
+    - "cat {{ irods_ssl_certificate_chain_file }}.orig {{ irods_ssl_dh_params_file }} > {{ irods_ssl_certificate_chain_file }}"
   args:
-    chdir: /etc/irods/
+    chdir: '{{ davrods_user_home_path }}/{{ davrods_docker_folder }}/config/'
+  register: combinecerts
+  changed_when: combinecerts is succeeded
+  become_user: '{{ davrods_docker_user }}'
   become: true
-  become_user: '{{ irods_service_account }}'
-  register: outputadd
-  changed_when: outputadd.rc != 0
 
 ###### TODO change password irods psql for username (perhaps we don't need to)
 ###### TODO fix templates to variables from secrets (done)
@@ -102,16 +103,16 @@
     enabled: true
   become: true
 
-- name: Build the davrods docker instance ...
+- name: Build the davrods docker instance ... (this will a minute)
   ansible.builtin.command:
     chdir: '{{ davrods_user_home_path }}/{{ davrods_docker_folder }}'
     cmd: docker-compose build davrods
   register: result
   failed_when:
     - result.rc != 0
-  become: true
-  become_user: '{{ davrods_docker_user }}'
   changed_when: false
+  become_user: '{{ davrods_docker_user }}'
+  become: true
 
 - name: Start the davrods docker instance ...
   ansible.builtin.command:
@@ -120,6 +121,6 @@
   register: result
   failed_when:
     - result.rc != 0
-  become: true
-  become_user: '{{ davrods_docker_user }}'
   changed_when: false
+  become_user: '{{ davrods_docker_user }}'
+  become: true

@@ -1,22 +1,22 @@
 ## To-do until next meeting:
 - [ ] change the password
-- [ ] make davrods working
-  - [ ] add to playbook yum install irods-resource-plugin-s3
-- [ ] test the current irods test environment
-  - [ ] add users
-  - [ ] copy the files
-- [ ] test alternative clients to connect to irods and davrods
-  - [ ] cyberduck,
+- [x] make davrods working
+  - [x] add to playbook yum install irods-resource-plugin-s3
+- [x] test the current irods test environment
+  - [x] add users
+  - [x] copy the files
+- [x] test alternative clients to connect to irods and davrods
+  - [x] cyberduck,
   - [x] linux dav:// client
-  - [ ] Windows 10 default client 4GB limitation?
-- [ ] update playbook
+  - [x] Windows 10 default client 4GB limitation?
+- [x] update playbook
 - [x] update documentation
 - [ ] permanently set firewall
   - [ ] limit 1247 port incoming connection (on the surf IP and specific client list only?)
   - [ ] open ports 80 and 443 to docker davrods implementation
   - [ ] check if 80 can be disabled, and if then the davrods clients can still use it webdav
   - [ ] limit port 22 to jumphost
-- [ ] remove demoResc resource and add the rootResc
+- [x] remove demoResc resource and add the rootResc
 
 Extra
 - [ ] think about the implemenation of the authentication - sRAM
@@ -26,15 +26,15 @@ Extra
 	- [ ] test the current irods test environment
 
 Links to check:
-- [] https://github.com/irods/irods_capability_storage_tiering
-- [] https://cyberduck.io
-- [] https://github.com/MaastrichtUniversity/sram-sync
-- [] https://hub.docker.com/r/jboss/keycloak/
+- [ ] https://github.com/irods/irods_capability_storage_tiering
+- [x] https://cyberduck.io
+- [ ] https://github.com/MaastrichtUniversity/sram-sync
+- [ ] https://hub.docker.com/r/jboss/keycloak/
 
 Clients to add:
 - We'll start with two data processing workstations from microscopy dept.:
-  - [] 129.125.130.209 (3215.-174.T65)
-  - [] 192.168.20.37 (3215.-174.D84)
+  - [ ] 129.125.130.209 (3215.-174.T65)
+  - [ ] 192.168.20.37 (3215.-174.D84)
 
 ## For the iRODS scale-out service SURFsara needs the following from us:
 

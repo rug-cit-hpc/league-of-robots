@@ -24,6 +24,7 @@
     regexp: "host    all             all             127.0.0.1/32            ident"
     line: "host    all             all             127.0.0.1/32            md5"
     backrefs: true
+  register: fixipv4
 
 - name: Fixing pg_hba.conf to permit ipv6 localhost password authentication
   become: true
@@ -32,32 +33,12 @@
     regexp: "host    all             all             ::1/128                 ident"
     line: "host    all             all             ::1/128                 md5"
     backrefs: true
+  register: fixipv6
 
-# TODO enable and start and restart
-# TODO open port 5432
-- name: Starting PGSQL
+- name: Restarting PGSQL and making sure it is enabled
+  ansible.builtin.systemd:
+    name: postgresql
+    state: restarted
+    enabled: true
+  when: fixipv4.changed and fixipv6.changed
   become: true
-  systemd: name=postgresql state=restarted
-
-- name: Create a new database with name "ICAT"
-  become: true
-  become_user: postgres
-  postgresql_db:
-    name: "{{ irods_db_name }}"
-
-- name: Create irods group
-  group:
-    name: "{{ irods_db_user }}"
-    state: present
-  become: true
-
-- name: "Creating {{ irods_db_user }} user"
-  user:
-    name: "{{ irods_db_user }}"
-    groups: "{{ irods_db_user }},admin"
-  become: true
-
-- name: Creating irods sql user and granting privileges
-  become: true
-  become_user: postgres
-  postgresql_user: name="{{ irods_db_user }}" password="{{ irods_db_pwd }}" db="{{ irods_db_name }}" priv=ALL

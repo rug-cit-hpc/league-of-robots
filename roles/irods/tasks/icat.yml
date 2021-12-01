@@ -1,4 +1,16 @@
 # installing the iRODS ICAT
+- name: Create {{ irods_service_account }} group
+  group:
+    name: "{{ irods_service_account }}"
+    state: present
+  become: true
+
+- name: Creating {{ irods_service_account }} user
+  user:
+    name: "{{ irods_service_account }}"
+    groups: "{{ irods_service_account }},admin"
+  become: true
+
 - name: Installing the iRODS Package(s)
   yum:
     name: '{{ item }}'
@@ -10,9 +22,9 @@
     - irods-rule-engine-plugin-python
   become: true
 
-- name: Set hostname to corrent name
+- name: Make sure that the hostname is set correct FQDN name
   ansible.builtin.hostname:
-    name: '{{ irods_server_fqdn }}'
+    name: '{{ irods_icat_fqdn }}'
   become: true
 
 - name: Ensure that /etc/irods directory exists and is owned by {{ irods_service_account }}
@@ -40,17 +52,16 @@
       mode: '0644'
   become: true
 
-# TODO limit firewall to the surf side
 - name: If missing, build 4096 bit DHparam /etc/irods/{{ irods_ssl_dh_params_file }} file (takes several minues ...)
   ansible.builtin.command:
-    cmd: /bin/openssl dhparam -2 -out /etc/irods/{{ irods_ssl_dh_params_file }} 4096
+    cmd: /bin/openssl dhparam -2 -out /etc/irods/{{ irods_ssl_dh_params_file }} 2048
     creates: /etc/irods/{{ irods_ssl_dh_params_file }}
   register: result
   failed_when:
     - result.rc != 0
   become: true
 
-- name: set ownership of {{ irods_ssl_dh_params_file }}
+- name: Set ownership of {{ irods_ssl_dh_params_file }}
   ansible.builtin.file:
     path: '/etc/irods/{{ irods_ssl_dh_params_file }}'
     owner: '{{ irods_service_account }}'
@@ -66,21 +77,49 @@
   register: create_unattended_installation_json
   become: true
 
-# TODO REMOVE THIS!
-- name: end play
-  meta: end_play
+# - name: Check if {{ irods_db_name }} database is available
+#  postgresql_ping:
+#    db: "{{ irods_db_name }}"
+#  register: check_database
+#  become_user: postgres
+#  become: true
+#
+- name: Create a new database "{{ irods_db_name }}" if missing
+  postgresql_db:
+    name: "{{ irods_db_name }}"
+    state: present
+#  when: check_database.is_available is false
+  register: db_created
+  become_user: postgres
+  become: true
 
-- name: run_irods_installation_script
+- name: Creating irods sql user and granting privileges
+  postgresql_user:
+    name: "{{ irods_db_user }}"
+    password: "{{ irods_db_pwd }}"
+    db: "{{ irods_db_name }}"
+    priv: ALL
+    state: present
+  become_user: postgres
+  become: true
+
+- name: Collect list of tables from existing {{ irods_db_name }}
+  ansible.builtin.command: psql -d ICAT -c '\dt'
+  changed_when: false
+  register: database_tables
+  become_user: postgres
+  become: true
+
+- name: Install iRODS, if {{ irods_db_name }} is empty (no tables exist)
   ansible.builtin.command: sudo python /var/lib/irods/scripts/setup_irods.py --json_configuration_file=/root/unattended_install.json
-  when: create_unattended_installation_json.changed
+  when: '"No relations found." in database_tables.stdout'
   run_once: true
   async: 120
   poll: 1
-  become: true
   become_user: '{{ irods_service_account }}'
+  become: true
 
-# TODO put later
-- name: /etc/irods/core.re to use certificates
+- name: Edit /etc/irods/core.re to enforce the use of the certificates
   become: true
   lineinfile:
     name: /etc/irods/core.re
@@ -92,6 +131,7 @@
     src: '{{ role_path }}/files/irods_fix.conf'
     dest: /etc/sysctl.d/
     mode: 0644
+  become: true
 
 - name: Fix the s3 authentication by creating dummy s3auth file
   ansible.builtin.copy:
@@ -103,10 +143,15 @@
     mode: 0644
     owner: '{{ irods_service_account }}'
     group: '{{ irods_service_account }}'
+  become_user: '{{ irods_service_account }}'
+  become: true
 
-# TODO set core threads to 4 in /etc/irods/core.re
+# - name: Restart iRODS server
+#   command: /var/lib/irods/irodsctl restart
+#   become_user: '{{ irods_service_account }}'                                    
+#   become: true
 
-- name: Restart irods service
+- name: Enable and restart iRODS service
   sysvinit:
     name: irods
     state: restarted
