@@ -10,7 +10,7 @@ declare pfs_base_path='/ifs/rekencluster'
 declare pfs_name_prefix='umcgst'
 declare TMPDIR="${TMPDIR:-/tmp}" # Default to /tmp if ${TMPDIR} was not defined.
 declare SCRIPT_NAME
-SCRIPT_NAME="$(basename "${0}" '.bash')"
+SCRIPT_NAME="$(basename "${0}" '.zsh')"
 export TMPDIR
 export SCRIPT_NAME
 declare mixed_stdouterr='' # global variable to capture output from commands for reporting in custom log messages.
