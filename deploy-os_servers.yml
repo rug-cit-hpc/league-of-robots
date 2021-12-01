@@ -326,6 +326,16 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ slurm_cluster_name }}_irods security group: allow PostgreSQL inbound on port 5432."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ slurm_cluster_name }}_irods"
+        direction: ingress
+        protocol: tcp
+        port_range_min: 5432
+        port_range_max: 5432
+        remote_ip_prefix: 0.0.0.0/0
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
     - name: "Add rule to {{ slurm_cluster_name }}_irods security group: allow SSH inbound on port 20000:20199."
       openstack.cloud.security_group_rule:
         security_group: "{{ slurm_cluster_name }}_irods"
