@@ -4,6 +4,7 @@
     name:
       - docker
       - python2-pip
+      - docker-compose
     state: latest
     update_cache: yes
   become: true

@@ -1,0 +1,13 @@
+version: '2'
+services:
+  davrods:
+    ports:
+#     - '20198:80'
+      - '443:443'
+    build:
+      context: ./
+      args:
+        - ENV_DAVRODS_IRODS_VERSION
+        - ENV_DAVRODS_VERSION
+        - SSL_ENV=prod 
+    restart: always

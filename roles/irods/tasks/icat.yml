@@ -1,29 +1,114 @@
-#installing the iRODS ICAT
+# installing the iRODS ICAT
 - name: Installing the iRODS Package(s)
-  become: True
-  yum: 
-    name: "{{ item }}"
+  yum:
+    name: '{{ item }}'
     state: present
   loop:
-  - irods-server
-  - irods-database-plugin-postgres
+    - irods-server
+    - irods-database-plugin-postgres
+    - irods-resource-plugin-s3-4.2.10.0-1
+    - irods-rule-engine-plugin-python
+  become: true
 
-- name: set hostname to DNS.
-  become: True
-  hostname:
-    name: "{{ ip_addresses[inventory_hostname].fqdn }}"
+- name: Set hostname to corrent name
+  ansible.builtin.hostname:
+    name: '{{ irods_server_fqdn }}'
+  become: true
+
+- name: Ensure that /etc/irods directory exists and is owned by {{ irods_service_account }}
+  ansible.builtin.file:
+    path: '/etc/irods'
+    state: directory
+    owner: '{{ irods_service_account }}'
+    group: '{{ irods_service_account }}'
+    mode: '0755'
+  become: true
+
+- name: Install certificate key and chain files for iRODS
+  ansible.builtin.copy:
+    src: 'files/{{ slurm_cluster_name }}_cluster/nemi_irods/{{ item.name }}'
+    dest: '/etc/irods/{{ item.name }}'
+    owner: '{{ irods_service_account }}'
+    group: '{{ irods_service_account }}'
+    mode: '{{ item.mode }}'
+    decrypt: true
+    force: true
+  with_items:
+    - name: '{{ irods_ssl_certificate_key_file }}'
+      mode: '0600'
+    - name: '{{ irods_ssl_certificate_chain_file }}'
+      mode: '0644'
+  become: true
+
+# TODO limit firewall to the surf side
+- name: If missing, build 4096 bit DHparam /etc/irods/{{ irods_ssl_dh_params_file }} file (takes several minues ...)
+  ansible.builtin.command:
+    cmd: /bin/openssl dhparam -2 -out /etc/irods/{{ irods_ssl_dh_params_file }} 4096
+    creates: /etc/irods/{{ irods_ssl_dh_params_file }}
+  register: result
+  failed_when:
+    - result.rc != 0
+  become: true
+
+- name: set ownership of {{ irods_ssl_dh_params_file }}
+  ansible.builtin.file:
+    path: '/etc/irods/{{ irods_ssl_dh_params_file }}'
+    owner: '{{ irods_service_account }}'
+    group: '{{ irods_service_account }}'
+    mode: '0644'
+  become: true
 
 - name: create_unattended_installation_json
-  become: True
   template:
     src: unattended_install.json.j2
     dest: /root/unattended_install.json
+    mode: '0600'
   register: create_unattended_installation_json
+  become: true
+
+# TODO REMOVE THIS!
+- name: end play
+  meta: end_play
 
 - name: run_irods_installation_script
-  become: True
-  shell:  python /var/lib/irods/scripts/setup_irods.py --json_configuration_file=/root/unattended_install.json
+  ansible.builtin.command: sudo python /var/lib/irods/scripts/setup_irods.py --json_configuration_file=/root/unattended_install.json
   when: create_unattended_installation_json.changed
   run_once: true
   async: 120
-  poll: 1  
+  poll: 1
+  become: true
+  become_user: '{{ irods_service_account }}'
+
+# TODO put later
+- name: /etc/irods/core.re to use certificates
+  become: true
+  lineinfile:
+    name: /etc/irods/core.re
+    search_string: 'acPreConnect(*OUT) { *OUT="CS_NEG_DONT_CARE"; }'
+    line: 'acPreConnect(*OUT) { *OUT="CS_NEG_REQUIRE"; }'
+
+- name: Increase systcl limits to allow longer transfers
+  copy:
+    src: '{{ role_path }}/files/irods_fix.conf'
+    dest: /etc/sysctl.d/
+    mode: 0644
+
+- name: Fix the s3 authentication by creating dummy s3auth file
+  ansible.builtin.copy:
+    content: |
+      foo
+      bar
+    dest: /etc/irods/.s3auth
+    force: true
+    mode: 0644
+    owner: '{{ irods_service_account }}'
+    group: '{{ irods_service_account }}'
+
+# TODO set core threads to 4 in /etc/irods/core.re
+
+- name: Restart irods service
+  sysvinit:
+    name: irods
+    state: restarted
+    enabled: true
+  become: true

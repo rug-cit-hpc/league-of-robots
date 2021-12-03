@@ -1,0 +1,8 @@
+#Default iRODS setup info
+server_type: 'icat'                        # iRODS Server Type
+irods_service_account: 'irods'             # serviceaccount
+irods_admin_account: 'rods'                # rods admin account
+irods_db_server: '127.0.0.1'               # iRODS Database Server
+irods_db_name: 'ICAT'                      # iRODS Database Name
+irods_db_user: 'irods'                     # iRODS Database Username
+irods_vault_path: '/var/lib/irods/Vault'   # demoResc storage location folder

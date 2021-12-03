@@ -1,0 +1,8 @@
+Role set up the iRODS iCAT server and it's PostgreSQL
+
++ increased systl TCP timeout limits for large file transfers
++ fixed: when using s3 on remote server and local .s3auth file missing 
++ increase password to 40 char random A-Za-z0-9
+-
+-
+-
