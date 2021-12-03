@@ -8,15 +8,13 @@ mailhub: '172.23.34.34'
 rewrite_domain: "imperator{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'cyberlarge'
 motd: |
-      =========================================================
-      !!! WARNING: {{ slurm_cluster_name | capitalize }} is in beta testing
-      =========================================================
-          This cluster may be redeployed from scratch, which
-          may result in complete data loss of home dirs 
-          and tmp01 group folders: You have been warned!!!
-          This does not affect prm03 group folders,
-          which are on a different (production) storage system.
-      =========================================================
+      ============================================================
+       Welcome to {{ slurm_cluster_name | capitalize }}
+      ============================================================
+       WARNING: only prm* group dirs are backupped.
+       When this cluster has to be redeployed from scratch,
+       all data in home dirs and tmp* group dirs will be lost!
+      ============================================================
 additional_etc_hosts:
   - group: all
     hosts:
