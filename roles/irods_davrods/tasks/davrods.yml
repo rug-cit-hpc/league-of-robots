@@ -72,10 +72,9 @@
 
 # Fix for a https://access.redhat.com/articles/1462323
 - name: 'Add the {{ irods_ssl_dh_params_file }} at the end of {{ irods_ssl_certificate_chain_file }}'
-  ansible.builtin.shell: "{{ item }}"
-  loop:
-    - "mv -f {{ irods_ssl_certificate_chain_file }} {{ irods_ssl_certificate_chain_file }}.orig"
-    - "cat {{ irods_ssl_certificate_chain_file }}.orig {{ irods_ssl_dh_params_file }} > {{ irods_ssl_certificate_chain_file }}"
+  ansible.builtin.command: >
+    mv -f {{ irods_ssl_certificate_chain_file }} {{ irods_ssl_certificate_chain_file }}.orig &&
+    cat {{ irods_ssl_certificate_chain_file }}.orig {{ irods_ssl_dh_params_file }} > {{ irods_ssl_certificate_chain_file }}
   args:
     chdir: '{{ davrods_user_home_path }}/{{ davrods_docker_folder }}/config/'
   register: combinecerts

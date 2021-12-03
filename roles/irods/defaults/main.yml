@@ -1,7 +1,4 @@
 # Default iRODS setup info
-server_type: 'icat'                           # iRODS Server Type
-irods_service_account: 'irods'                # serviceaccount
-irods_admin_account: 'rods'                   # rods admin account
 irods_ssl_certificate_chain_file: "default.crt"
 irods_ssl_certificate_key_file: "default.key"
 irods_ssl_dh_params_file: "default-dhparams.pem"

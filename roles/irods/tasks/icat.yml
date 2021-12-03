@@ -146,14 +146,15 @@
   become_user: '{{ irods_service_account }}'
   become: true
 
-# - name: Restart iRODS server
-#   command: /var/lib/irods/irodsctl restart
-#   become_user: '{{ irods_service_account }}'                                    
-#   become: true
-
-- name: Enable and restart iRODS service
+- name: Enable and iRODS service
   sysvinit:
     name: irods
-    state: restarted
     enabled: true
+  become: true
+
+# Start/stop/restart service call fails if with error if already in that state
+# so it's best if done via user call (as this is what the service does anyways)
+- name: Restart iRODS server manually via {{ irods_service_account }}
+  command: /var/lib/irods/irodsctl restart
+  become_user: '{{ irods_service_account }}'
   become: true
