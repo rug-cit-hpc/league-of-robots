@@ -126,6 +126,13 @@
     search_string: 'acPreConnect(*OUT) { *OUT="CS_NEG_DONT_CARE"; }'
     line: 'acPreConnect(*OUT) { *OUT="CS_NEG_REQUIRE"; }'
 
+- name: Edit /etc/irods/core.re to set number of threads to 4
+  become: true
+  lineinfile:
+    name: /etc/irods/core.re
+    search_string: 'acSetNumThreads {msiSetNumThreads("default","default","default"); }'
+    line: 'acSetNumThreads {msiSetNumThreads("default","4","default"); }'
+
 - name: Increase systcl limits to allow longer transfers
   copy:
     src: '{{ role_path }}/files/irods_fix.conf'
