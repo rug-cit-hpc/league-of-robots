@@ -25,19 +25,19 @@ Extra
 	- [ ] change the irods password
 	- [ ] test the current irods test environment
 
-### October meeting (P - implemented as the ansible role)
+### October meeting (A - implemented as the ansible role)
 
 - Physical access
   - [X] AA provide IP address and wall socket network connection number (PDS punt nummer) for 2 data processing machines.
   - [X] GCC (GvdV/SC/PN) will arrange iRODS account for Ahmed. 
 
 - Clients
-  - [X] (P) Will start with Davrods on Windows and mounted network drives (webdav)
+  - [X] (A) Will start with Davrods on Windows and mounted network drives (webdav)
   - [X] Other options for (Windows) clients are Cyberduck (also webdav) Raidrive (mounted drive)
 
 - Resource selection
-  - [X] (P) We should prevent data from ending up on the wrong storage resource -> Tell davrods to use swift S3 resource as default as opposed to some local file system.
-  - [X] ( ) In the future we may want to enforce this default storage resource with a policy on the iRODS server side to prevent a misconfigured client from filing data on the wrong storage resource.
+  - [X] (A) We should prevent data from ending up on the wrong storage resource -> Tell davrods to use swift S3 resource as default as opposed to some local file system.
+  - [X] (A) In the future we may want to enforce this default storage resource with a policy on the iRODS server side to prevent a misconfigured client from filing data on the wrong storage resource.
 
 - How to trigger workflows?
   - [X] Upload goes to disk (swift S3 bucket) first after a manual upload via davrods or another client.
