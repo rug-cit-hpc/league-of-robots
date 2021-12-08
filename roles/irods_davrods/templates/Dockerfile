@@ -51,8 +51,7 @@ RUN ( yum clean all && rm -rf *.rpm )
 ADD config/davrods-vhost.conf /config/davrods-vhost.conf
 ADD config/irods_environment.json /config/irods_environment.json
 
-#### 443 settings
-
+#### start 443 settings
 ## dhparm
 #         this is not needded anymore, as the dhparams is copied from host.
 #         This also speeds up potential docker rebuilds
@@ -61,33 +60,25 @@ ADD config/irods_environment.json /config/irods_environment.json
 # copy existing key into VM
 ADD config/{{ irods_ssl_certificate_key_file }} /config/{{ irods_ssl_certificate_key_file }}
 ADD config/{{ irods_ssl_certificate_key_file }} /etc/ssl/private/{{ irods_ssl_certificate_key_file }}
+RUN chmod 600 /config/{{ irods_ssl_certificate_key_file }}
 RUN chmod 600 /etc/ssl/private/{{ irods_ssl_certificate_key_file }}
 
 # copy existing crt into VM
 ADD config/{{ irods_ssl_certificate_chain_file }} /config/{{ irods_ssl_certificate_chain_file }}
-ADD config/{{ irods_ssl_certificate_chain_file }} /etc/ssl/certs/{{ irods_ssl_certificate_chain_file }}
-RUN chmod 644 /etc/ssl/certs/{{ irods_ssl_certificate_chain_file }}
+RUN chmod 600 /config/{{ irods_ssl_certificate_chain_file }}
 
 # copy existing dhparams into VM
 ADD config/{{ irods_ssl_dh_params_file }} /config/{{ irods_ssl_dh_params_file }}
-ADD config/{{ irods_ssl_dh_params_file }} /etc/ssl/certs/{{ irods_ssl_dh_params_file }}
-RUN chmod 644 /etc/ssl/certs/{{ irods_ssl_dh_params_file }}
+RUN chmod 600 /config/{{ irods_ssl_dh_params_file }}
+
+# FIX for https://access.redhat.com/articles/1462323
+#     it appends the dhparam at the end of the chain file
+RUN cat /config/{{ irods_ssl_certificate_chain_file }} /config/{{ irods_ssl_dh_params_file }} > /etc/ssl/certs/{{ irods_ssl_certificate_chain_file }}
+RUN chmod 644 /etc/ssl/certs/{{ irods_ssl_certificate_chain_file }}
+
 
 RUN yum install -y mod_ssl.x86_64
-
 #### end 443 settings
-# S.C. 3.12.2021 delete if works after test
-# Conditionally trust the custom DataHub Certificate Authority (CA) for iRODS-SSL-connections
-# ADD config/test_only_dev_irods_dh_ca_cert.pem /tmp/test_only_dev_irods_dh_ca_cert.pem
-# ARG SSL_ENV
-# RUN if [[ $SSL_ENV != "acc" ]] && [[ $SSL_ENV != "prod" ]]; then \
-#       echo "Adding custom DataHub iRODS-CA-certificate to the CA-rootstore (FOR DEV & TEST ONLY!)..." ; \
-#       cp /tmp/test_only_dev_irods_dh_ca_cert.pem /etc/pki/ca-trust/source/anchors/test_only_dev_irods_dh_ca_cert.pem ; \
-#       update-ca-trust ; \
-#       echo "done!" ; \
-#    else \
-#       echo "Skipping update of the CA-rootstore" ; \
-#    fi
 
 # start httpd
 COPY run-httpd.sh /opt/run-httpd.sh
