@@ -1,3 +1,3 @@
 davrods_docker_user: davrods
 davrods_docker_folder: 'davrods_docker'  # relative to the davrods_user_home
-davrods_default_resource: ''             # davrods default resource to use for uploading the files
+davrods_default_resource: 'default_res'  # davrods default resource to use for uploading the files
