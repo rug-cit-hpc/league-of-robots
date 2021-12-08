@@ -5,20 +5,20 @@
   hosts:
     - cluster
   roles:
-#    - admin_users
+    - admin_users
     - ssh_host_signer
-#    - ssh_known_hosts
-#    - swap
-#    - {role: spacewalk_client, when: repo_manager == 'spacewalk'}
-#    - {role: pulp_client, when: repo_manager == 'pulp'}
-#    - logrotate
-#    - update
-#    - logins
-#    - figlet_motd
-#    - node_exporter
-#    - static_hostname_lookup
-#    - cluster
-#    - resolver
-#    - coredumps
-#    - logrotate
+    - ssh_known_hosts
+    - swap
+    - {role: spacewalk_client, when: repo_manager == 'spacewalk'}
+    - {role: pulp_client, when: repo_manager == 'pulp'}
+    - logrotate
+    - update
+    - logins
+    - figlet_motd
+    - node_exporter
+    - static_hostname_lookup
+    - cluster
+    - resolver
+    - coredumps
+    - logrotate
 ...
