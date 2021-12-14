@@ -27,7 +27,7 @@
   ansible.builtin.hostname:
     name: '{{ irods_icat_fqdn }}'
   become: true
-  notify: irodsctl_restart 
+  notify: irodsctl_restart
 
 - name: Ensure that /etc/irods directory exists and is owned by {{ irods_service_account }}
   ansible.builtin.file:
@@ -53,7 +53,7 @@
     - name: '{{ irods_ssl_certificate_chain_file }}'
       mode: '0644'
   become: true
-  notify: irodsctl_restart 
+  notify: irodsctl_restart
 
 - name: If missing, build 4096 bit DHparam /etc/irods/{{ irods_ssl_dh_params_file }} file (takes several minues ...)
   ansible.builtin.command:
@@ -63,7 +63,7 @@
   failed_when:
     - result.rc != 0
   become: true
-  notify: irodsctl_restart 
+  notify: irodsctl_restart
 
 - name: Set ownership of {{ irods_ssl_dh_params_file }}
   ansible.builtin.file:
