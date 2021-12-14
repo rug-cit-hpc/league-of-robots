@@ -1,3 +1,4 @@
+---
 # installing the iRODS ICAT
 - name: Create {{ irods_service_account }} group
   group:
@@ -18,7 +19,7 @@
   loop:
     - irods-server
     - irods-database-plugin-postgres
-    - irods-resource-plugin-s3-4.2.10.0-1
+    - irods-resource-plugin-s3
     - irods-rule-engine-plugin-python
   become: true
 
@@ -26,6 +27,7 @@
   ansible.builtin.hostname:
     name: '{{ irods_icat_fqdn }}'
   become: true
+  notify: irodsctl_restart 
 
 - name: Ensure that /etc/irods directory exists and is owned by {{ irods_service_account }}
   ansible.builtin.file:
@@ -51,15 +53,17 @@
     - name: '{{ irods_ssl_certificate_chain_file }}'
       mode: '0644'
   become: true
+  notify: irodsctl_restart 
 
 - name: If missing, build 4096 bit DHparam /etc/irods/{{ irods_ssl_dh_params_file }} file (takes several minues ...)
   ansible.builtin.command:
-    cmd: /bin/openssl dhparam -2 -out /etc/irods/{{ irods_ssl_dh_params_file }} 4096
+    cmd: /bin/openssl dhparam -2 -out /etc/irods/{{ irods_ssl_dh_params_file }} 2048
     creates: /etc/irods/{{ irods_ssl_dh_params_file }}
   register: result
   failed_when:
     - result.rc != 0
   become: true
+  notify: irodsctl_restart 
 
 - name: Set ownership of {{ irods_ssl_dh_params_file }}
   ansible.builtin.file:
@@ -77,21 +81,14 @@
   register: create_unattended_installation_json
   become: true
 
-# - name: Check if {{ irods_db_name }} database is available
-#  postgresql_ping:
-#    db: "{{ irods_db_name }}"
-#  register: check_database
-#  become_user: postgres
-#  become: true
-#
 - name: Create a new database "{{ irods_db_name }}" if missing
   postgresql_db:
     name: "{{ irods_db_name }}"
     state: present
-#  when: check_database.is_available is false
   register: db_created
   become_user: postgres
   become: true
+  notify: irodsctl_restart
 
 - name: Creating irods sql user and granting privileges
   postgresql_user:
@@ -104,7 +101,7 @@
   become: true
 
 - name: Collect list of tables from existing {{ irods_db_name }}
-  ansible.builtin.command: psql -d ICAT -c '\dt'
+  ansible.builtin.command: 'psql -d {{ irods_db_name }} -c "\dt"'
   changed_when: false
   register: database_tables
   become_user: postgres
@@ -118,6 +115,7 @@
   poll: 1
   become_user: '{{ irods_service_account }}'
   become: true
+  notify: irodsctl_restart
 
 - name: Edit /etc/irods/core.re to enforce the use of the certificates
   become: true
@@ -132,6 +130,20 @@
     name: /etc/irods/core.re
     search_string: 'acSetNumThreads {msiSetNumThreads("default","default","default"); }'
     line: 'acSetNumThreads {msiSetNumThreads("default","4","default"); }'
+
+- name: Edit /etc/irods/core.re to set default resource to {{ irods_default_resource }}
+  become: true
+  lineinfile:
+    name: /etc/irods/core.re
+    search_string: 'acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","null"); }'
+    line: 'acSetRescSchemeForCreate {msiSetDefaultResc("{{ irods_default_resource }}","null"); }'
+
+- name: Edit /etc/irods/core.re to set default replication resource to {{ irods_default_resource }}
+  become: true
+  lineinfile:
+    name: /etc/irods/core.re
+    search_string: 'acSetRescSchemeForRepl {msiSetDefaultResc("demoResc","null"); }'
+    line: 'acSetRescSchemeForRepl {msiSetDefaultResc("{{ irods_default_resource }}","null"); }'
 
 - name: Increase systcl limits to allow longer transfers
   copy:
@@ -152,16 +164,12 @@
     group: '{{ irods_service_account }}'
   become_user: '{{ irods_service_account }}'
   become: true
+  notify: irodsctl_restart
 
-- name: Enable and iRODS service
+- name: Make sure iRODS service is enabled
   sysvinit:
     name: irods
     enabled: true
+    state: started
   become: true
-
-# Start/stop/restart service call fails if with error if already in that state
-# so it's best if done via user call (as this is what the service does anyways)
-- name: Restart iRODS server manually via {{ irods_service_account }}
-  command: /var/lib/irods/irodsctl restart
-  become_user: '{{ irods_service_account }}'
-  become: true
+...

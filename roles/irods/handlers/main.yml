@@ -1,0 +1,17 @@
+---
+- name: Restarting PGSQL and making sure it is enabled
+  ansible.builtin.systemd:
+    name: postgresql
+    state: restarted
+    enabled: true
+  become: true
+  listen: restart_postgresql
+
+# Start/stop/restart service call fails if with error if already in that state
+# so it's best if done via user call (as this is what the service does anyways)
+- name: Restart iRODS server manually as {{ irods_service_account }} user
+  command: /var/lib/irods/irodsctl restart
+  become_user: '{{ irods_service_account }}'
+  become: true
+  listen: irodsctl_restart
+...
