@@ -1,14 +1,14 @@
 ---
 - name: Installing postgresql-server
   become: true
-  yum: 
+  yum:
     name: postgresql-server
     state: latest
 
 - name: Installing python-psycopg2
   become: true
-  yum: 
-    name: python-psycopg2 
+  yum:
+    name: python-psycopg2
     state: latest
 
 - name: Initializing PGSQL database
@@ -17,26 +17,30 @@
   args:
     creates: /var/lib/pgsql/data/pg_hba.conf
 
-- name: Fixing pg_hba.conf to permit localhost password authentication
-  become: true
-  lineinfile: 
-    name: /var/lib/pgsql/data/pg_hba.conf 
-    regexp: "host    all             all             127.0.0.1/32            ident" 
+- name: Fixing pg_hba.conf to permit ipv4localhost password authentication
+  lineinfile:
+    name: /var/lib/pgsql/data/pg_hba.conf
+    regexp: "host    all             all             127.0.0.1/32            ident"
     line: "host    all             all             127.0.0.1/32            md5"
     backrefs: true
-
-- name: Starting PGSQL
+  notify:
+    - restart_postgresql
   become: true
-  systemd: name=postgresql state=restarted
 
-- name: Create a new database with name "ICAT"
+- name: Fixing pg_hba.conf to permit ipv6 localhost password authentication
+  lineinfile:
+    name: /var/lib/pgsql/data/pg_hba.conf
+    regexp: "host    all             all             ::1/128                 ident"
+    line: "host    all             all             ::1/128                 md5"
+    backrefs: true
+  notify:
+    - restart_postgresql
   become: true
-  become_user: postgres
-  postgresql_db:
-    name: "{{ irods_db_name }}"
 
-- name: Creating irods sql user and granting privileges
+- name: Enable postgresl service
+  ansible.builtin.systemd:
+    name: postgresql
+    state: started
+    enabled: true
   become: true
-  become_user: postgres
-  postgresql_user: name="{{ irods_db_user }}" password="{{ irods_db_pwd }}" db="{{ irods_db_name }}" priv=ALL
-
+...

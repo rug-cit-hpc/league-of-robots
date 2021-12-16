@@ -4,8 +4,9 @@
     name:
       - docker
       - python2-pip
+      - docker-compose
     state: latest
-    update_cache: yes
+    update_cache: true
   become: true
 
 - name: Install docker-py.

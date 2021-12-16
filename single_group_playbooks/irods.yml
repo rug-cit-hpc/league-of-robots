@@ -44,6 +44,7 @@
     - {role: geerlingguy.security, become: true}
     - {role: geerlingguy.firewall, become: true}
     - update
-    - docker	
+    - docker
     - irods
+    - irods_davrods
 ...

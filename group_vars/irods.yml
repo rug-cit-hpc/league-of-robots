@@ -1,11 +1,26 @@
 ---
-irods_icat_fqdn: "umcg-icat01.hpc.rug.nl"   # fqdn of iCAT server
 firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
   - "22"    # SSH.
+  - "443"   # davrods SSL
   - "1247"  # irods
+  - "5432"  # PostgreSQL
   - "20000:20199"  # irods
 irods_ssl_certificate_chain_file: "localhost_and_chain_umcg-icat01.crt"
 irods_ssl_certificate_key_file: "localhost-umcg01.key"
 irods_ssl_dh_params_file: "dhparams.pem"
 irods_zone: 'nlumcg'                        # default main iRODS zone name
+irods_local_resource: 'rootResc'            # local iRODS resource
+irods_vault_path: '/var/lib/irods/Vault'    # default path to store files for local resource
+irods_default_resource: 'surfObjStore'      # default resource iRODS uploads to
+irods_service_account: 'irods'              # linux account under which iRODS runs
+irods_admin_name: 'rods'                    # iRODS (and zone) account
+irods_admin_home_path: '/nlumcg/home/rods'  # iRODS admin's home path
+irods_icat_fqdn: 'umcg-icat01.hpc.rug.nl'   # iRODS iCAT external FQDN address
+server_type: 'icat'                         # iRODS Server Type  
+irods_db_user: '{{ irods_service_account }}'  # db Username, usually same as irods_service_account
+irods_db_server: '127.0.0.1'                # iRODS Database Server
+irods_db_name: 'ICAT'                       # iRODS Database Name
+davrods_install: true                       # to install davrods docker
+davrods_docker_folder: "davrods_docker"     # davrods docker folder name, relative to the user home directory
+davrods_default_resource: "surfObjStore"    # default resource to upload files via davrods
 ...

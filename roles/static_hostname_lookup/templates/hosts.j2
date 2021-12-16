@@ -10,7 +10,7 @@
 #
 # localhost
 #
-127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4{% if groups['irods'] is defined and inventory_hostname in groups['irods'] %} {{ ip_addresses[inventory_hostname].fqdn | regex_replace('^([a-z-0-9]+).*$', '\\1') }}.localdomain
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4{% if groups['irods'] is defined and inventory_hostname in groups['irods'] %} {{ irods_icat_fqdn | regex_replace('^([a-z-0-9]+).*$', '\\1')}}.localdomain
 {% endif %}
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 {% if groups['jumphost'] is defined and groups['jumphost'] | length >= 1 %}
@@ -47,7 +47,7 @@
 #
   {% for server in groups['irods'] %}
      {% set server_hostname = server | regex_replace('^' + ai_jumphost + '\\+','') %}
-{{ "%-15s" | format(ip_addresses[server_hostname].addr) }}    {{ ip_addresses[server_hostname].fqdn }}    {{ ip_addresses[server_hostname].fqdn | regex_replace('^([a-z-0-9]+).*$', '\\1')}}
+{{ "%-15s" | format(ip_addresses[server_hostname].addr) }}    {{ irods_icat_fqdn }}    {{ irods_icat_fqdn | regex_replace('^([a-z-0-9]+).*$', '\\1')}}
   {% endfor %}
 {% endif %}
 {% if groups['sys_admin_interface'] is defined and groups['sys_admin_interface'] | length >= 1 %}

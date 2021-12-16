@@ -1,22 +1,22 @@
 ## To-do until next meeting:
 - [ ] change the password
-- [ ] make davrods working
-  - [ ] add to playbook yum install irods-resource-plugin-s3
-- [ ] test the current irods test environment
-  - [ ] add users
-  - [ ] copy the files
-- [ ] test alternative clients to connect to irods and davrods
-  - [ ] cyberduck,
+- [x] make davrods working
+  - [x] add to playbook yum install irods-resource-plugin-s3
+- [x] test the current irods test environment
+  - [x] add users
+  - [x] copy the files
+- [x] test alternative clients to connect to irods and davrods
+  - [x] cyberduck,
   - [x] linux dav:// client
-  - [ ] Windows 10 default client 4GB limitation?
-- [ ] update playbook
+  - [x] Windows 10 default client 4GB limitation?
+- [x] update playbook
 - [x] update documentation
-- [ ] permanently set firewall
+- [x] permanently set firewall
   - [ ] limit 1247 port incoming connection (on the surf IP and specific client list only?)
-  - [ ] open ports 80 and 443 to docker davrods implementation
-  - [ ] check if 80 can be disabled, and if then the davrods clients can still use it webdav
+  - [x] open ports 80 and 443 to docker davrods implementation
+  - [x] check if 80 can be disabled, and if then the davrods clients can still use it webdav
   - [ ] limit port 22 to jumphost
-- [ ] remove demoResc resource and add the rootResc
+- [x] remove demoResc resource and add the rootResc
 
 Extra
 - [ ] think about the implemenation of the authentication - sRAM
@@ -25,16 +25,46 @@ Extra
 	- [ ] change the irods password
 	- [ ] test the current irods test environment
 
-Links to check:
-- [] https://github.com/irods/irods_capability_storage_tiering
-- [] https://cyberduck.io
-- [] https://github.com/MaastrichtUniversity/sram-sync
-- [] https://hub.docker.com/r/jboss/keycloak/
+### October meeting (A - implemented as the ansible role)
 
-Clients to add:
+- Physical access
+  - [X] AA provide IP address and wall socket network connection number (PDS punt nummer) for 2 data processing machines.
+  - [X] GCC (GvdV/SC/PN) will arrange iRODS account for Ahmed. 
+
+- Clients
+  - [X] (A) Will start with Davrods on Windows and mounted network drives (webdav)
+  - [X] Other options for (Windows) clients are Cyberduck (also webdav) Raidrive (mounted drive)
+
+- Resource selection
+  - [X] (A) We should prevent data from ending up on the wrong storage resource -> Tell davrods to use swift S3 resource as default as opposed to some local file system.
+  - [X] (A) In the future we may want to enforce this default storage resource with a policy on the iRODS server side to prevent a misconfigured client from filing data on the wrong storage resource.
+
+- How to trigger workflows?
+  - [X] Upload goes to disk (swift S3 bucket) first after a manual upload via davrods or another client.
+  - [ ] Next the data will need to go to the tape resources. This can be triggered manually, but it would be nice to do this automatically to make it easier for data managers like Ahmed. 
+
+- Elegant way is to use the iRODS tiering plugin. We should make an iRODS rule that:
+  - [ ] looks at last access time of a file
+  - [ ] file size (only transfer files over certain size to tape as tapes don't handle small files well.)
+  - [ ] Maastricht uses file size limit of 265 GB. We should check with with SURF if that is the advised/optimal file size limit for deciding wether to migrate a file to tape or keep it on disk.
+
+- How to add meta-data when ingesting data into iRODs?
+  - [ ] We should try to use the meta-data model that was already put in a Molgenis and use that as "web interface" for upload of meta-data.
+  - [ ] To prevent having large files in iRODS with missing meta-data:
+    - [ ] A. Upload meta-data first
+    - [ ] B. Triggers creation of folder with correct permissions on swift S3 disk resources, which allows upload of data files via davrods.
+    - [ ] C. When both meta-data and data have arrived -> ingest.
+
+### Links to check:
+- [x] https://github.com/irods/irods_capability_storage_tiering
+- [x] https://cyberduck.io
+- [x] https://github.com/MaastrichtUniversity/sram-sync
+- [x] https://hub.docker.com/r/jboss/keycloak/
+
+### Clients to add:
 - We'll start with two data processing workstations from microscopy dept.:
-  - [] 129.125.130.209 (3215.-174.T65)
-  - [] 192.168.20.37 (3215.-174.D84)
+  - [ ] 129.125.130.209 (3215.-174.T65)
+  - [ ] 192.168.20.37 (3215.-174.D84)
 
 ## For the iRODS scale-out service SURFsara needs the following from us:
 
