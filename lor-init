@@ -3,15 +3,16 @@
 # Bash code to initialize the environment / repo settings for deploying a specific HPC cluster,
 # for which the config is stored in the repo containing this script.
 #
-# This script assumes there is for each CLUSTERNAME a corresponding:
-#  1. ./group_vars/CLUSTERNAME_cluster/      Ansible group variables and secrets encrypted with Ansible vault.
-#  2. ./CLUSTERNAME_hosts.ini                Ansible inventory file in the root of this repo.
-#  3. ./.vault/vault_pass.txt.CLUSTERNAME    Ansible vault password file in the root of this repo.
+# This script assumes there is for each ${STACK_NAME} a corresponding:
+#  1. ./group_vars/${STACK_NAME}/                Ansible group_vars directory with variables and secrets encrypted with Ansible vault.
+#     ./group_vars/${STACK_NAME}/vars.yml        Ansible variables for this stack, which defines the {{ stack_prefix }} Ansible variable.
+#  2. ./static_inventories/${STACK_NAME}.ini     Ansible inventory file.
+#  3. ./.vault/vault_pass.txt.${STACK_NAME}      Ansible vault password file.
 #
 # Once this code was sourced (not executed!) like this:
 #     $> . ./lor-init
-# You can call the lor-config function for a specific cluster. E.g.:
-#     $> lor-config talos
+# You can call the lor-config function for a specific stack prefix. E.g.:
+#     $> lor-config tl
 #
 
 #
@@ -31,34 +32,35 @@ function lor-config() {
 	#
 	# Get and check input.
 	#
-	local cluster="${1-}"
-	if [[ -z "${cluster:-}" ]]; then
-		printf '%s\n' 'ERROR: must specify an HPC cluster name.'
+	local stack_prefix="${1-}"
+	if [[ -z "${stack_prefix:-}" ]]; then
+		printf '%s\n' 'ERROR: must specify an infra stack prefix.'
 		return
 	fi
+	local stack_name="$(basename "$(dirname "$(fgrep 'stack_prefix:' "${LOR_DIR}/group_vars/"*/vars.yml | fgrep "${stack_prefix}" | sed 's|:.*||')")")"
 	declare -a required_paths=(
-		"${LOR_DIR}/group_vars/${cluster}_cluster/"
-		"${LOR_DIR}/static_inventories/${cluster}_hosts.ini"
-		"${LOR_DIR}/.vault/vault_pass.txt.${cluster}"
+		"${LOR_DIR}/group_vars/${stack_name}/"
+		"${LOR_DIR}/static_inventories/${stack_name}.ini"
+		"${LOR_DIR}/.vault/vault_pass.txt.${stack_name}"
 		"${LOR_DIR}/.vault/vault_pass.txt.all"
 	)
 	for required_path in "${required_paths[@]}"; do
 		if [[ ! -e "${required_path}" ]]; then
-			printf '%s\n' "ERROR: ${required_path} does not exist for HPC cluster ${cluster}."
+			printf '%s\n' "ERROR: ${required_path} does not exist for infra stack prefix ${stack_prefix}."
 			return
 		fi
 	done
 	#
 	# Get jumphost from inventory file.
 	#
-	local jumphost=$(fgrep -A1 '[jumphost]' "${LOR_DIR}/static_inventories/${cluster}_hosts.ini" | tail -1)
+	local jumphost=$(fgrep -A1 '[jumphost]' "${LOR_DIR}/static_inventories/${stack_name}.ini" | tail -1)
 	#
 	# Init and report current setup.
 	#
-	cd ${LOR_DIR}
-	export AI_INVENTORY="static_inventories/${cluster}_hosts.ini"
+	cd "${LOR_DIR}"
+	export AI_INVENTORY="static_inventories/${stack_name}.ini"
 	export AI_PROXY="${jumphost}"
-	export ANSIBLE_VAULT_IDENTITY_LIST="all@.vault/vault_pass.txt.all, ${cluster}@.vault/vault_pass.txt.${cluster}"
+	export ANSIBLE_VAULT_IDENTITY_LIST="all@.vault/vault_pass.txt.all, ${stack_name}@.vault/vault_pass.txt.${stack_name}"
 	printf '%s\n' "Current working directory is $(pwd)"
 	printf '%s\n' "Using AI_PROXY:                    ${AI_PROXY}"
 	printf '%s\n' "Using AI_INVENTORY:                ${AI_INVENTORY}"
