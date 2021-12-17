@@ -1,6 +1,7 @@
 ---
 slurm_cluster_name: 'fender'
 slurm_cluster_domain: ''
+stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'fd'
 slurm_version: '20.11.8-1.el7.umcg'
 repo_manager: 'pulp'
