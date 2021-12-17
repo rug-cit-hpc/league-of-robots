@@ -460,7 +460,7 @@
       # openstack.cloud.floating_ip is not idempotent:
       # Succeeds only the first time and throws error on any subsequent calls.
       # Therefore we use a "when" with a silly complex jinja filter including a JMESpath query
-      # to check is the VM already has a floating IP linked to an interface in the correct VXLAN.
+      # to check if the VM already has a floating IP linked to an interface in the correct VXLAN.
       #
       when: (jumphost_vm.server.addresses | dict2items(key_name='vlan', value_name='specs') | json_query(query)) != network_private_management_id
       vars:
@@ -536,7 +536,7 @@
       # openstack.cloud.floating_ip is not idempotent:
       # Succeeds only the first time and throws error on any subsequent calls.
       # Therefore we use a "when" with a silly complex jinja filter including a JMESpath query
-      # to check is the VM already has a floating IP linked to an interface in the correct VXLAN.
+      # to check if the VM already has a floating IP linked to an interface in the correct VXLAN.
       #
       when: (ds_vm.server.addresses | dict2items(key_name='vlan', value_name='specs') | json_query(query)) != network_private_management_id
       vars:
