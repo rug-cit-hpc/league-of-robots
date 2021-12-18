@@ -19,12 +19,12 @@
 
 - name: Copy LDAP server certificate to LDAP clients.
   ansible.builtin.copy:
-    src: "{{ slurm_cluster_name }}_cluster/ldap.crt"
+    src: "{{ stack_name }}/ldap.crt"
     dest: /etc/pki/ca-trust/source/anchors/
     owner: root
     group: root
     mode: '0600'
-  when: (playbook_dir, '/files/', slurm_cluster_name, '_cluster/', 'ldap.crt') | join('') is exists
+  when: (playbook_dir, '/files/', stack_name, '/', 'ldap.crt') | join('') is exists
   become: true
   notify:
     - update-ca-trust

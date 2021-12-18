@@ -1,7 +1,9 @@
 ---
 # Slurm database user
 slurm_storage_user:
-slurm_cluster_name: talos
+slurm_cluster_name: examplebot
+stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
+stack_prefix: 'eb'
 sockets: 1
 CoresPerSocket: 9
 ThreadsPerCore: 1

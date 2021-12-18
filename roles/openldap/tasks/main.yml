@@ -1,7 +1,7 @@
 ---
 - name: Install key, certificate and dhparam files for TLS.
   ansible.builtin.copy:
-    src: "files/{{ slurm_cluster_name }}_cluster//{{ item.name }}"
+    src: "files/{{ stack_name }}/{{ item.name }}"
     dest: "/etc/pki/tls/private/{{ item.name }}"
     owner: root
     group: root

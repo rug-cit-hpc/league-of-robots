@@ -59,7 +59,7 @@
 
 - name: 'Install munge.key file.'
   copy:
-    src: "{{ slurm_cluster_name }}_cluster/munge.key"
+    src: "{{ stack_name }}/munge.key"
     owner: 'munge'
     group: 'munge'
     mode: '0600'
