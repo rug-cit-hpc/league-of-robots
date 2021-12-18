@@ -219,7 +219,7 @@
     #
     # Cluster security group.
     #
-    - name: Create security group for {{ stack_prefix }} cluster machines behind jumphost.
+    - name: "Create security group for {{ stack_prefix }} cluster machines behind jumphost."
       openstack.cloud.security_group:
         state: present
         name: "{{ stack_prefix }}_cluster"
@@ -295,7 +295,6 @@
 ##############################################################################
     - name: "Create security group for {{ stack_prefix }} IRODs machine."
       openstack.cloud.security_group:
-        hosts: irods
         state: present
         name: "{{ stack_prefix }}_irods"
         description: |
