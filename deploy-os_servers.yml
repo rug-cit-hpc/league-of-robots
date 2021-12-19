@@ -293,14 +293,14 @@
 ##############################################################################
 # Configure IRODS security group using Openstack API.
 ##############################################################################
-    - name: "Create security group for {{ stack_prefix }} IRODs machine."
+    - name: "Create security group for {{ stack_prefix }} IRODs machines."
       openstack.cloud.security_group:
         state: present
         name: "{{ stack_prefix }}_irods"
         description: |
-                     Security group for security hardened jumphosts bridging the external and internal network.
-                     Allows SSH inbound on both port 22 and 443.
-                     Allows SSH inbound on both port 1247 and range: 20000:20199 for IRODs.
+                     Security group for iRODS machines.
+                     Allows SSH inbound on ports 22 and 443.
+                     Allows iRODS inbound on ports 1247 and 20000-20199.
                      Allows ICMP inbound.
                      Allows all outbound traffic.
         wait: true
@@ -913,7 +913,7 @@
     - name: Get server info from OpenStack API.
       openstack.cloud.server_info:
       register: api_server_info
-    - name: "Add addresses to {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml"
+    - name: "Add addresses to {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
       template:
         src: "{{ playbook_dir }}/group_vars/template/ip_addresses.yml.j2"
         dest: "{{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
