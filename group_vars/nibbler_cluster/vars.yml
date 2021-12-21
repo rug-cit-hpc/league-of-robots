@@ -30,6 +30,12 @@ additional_etc_hosts:
     hosts:
       - calculon-management
       - calculon-storage
+#
+# ToDo: Fix temporary hack.
+# Required for static_hostname_lookup on jumphosts,
+# which will not parse irods_icat_fqdn from group_vars/irods.yml
+#
+irods_icat_fqdn: 'umcg-icat01.hpc.rug.nl'
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
 vcompute_sockets: 8
 vcompute_cores_per_socket: 1
