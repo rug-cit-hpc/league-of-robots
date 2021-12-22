@@ -19,7 +19,7 @@ collections:
   - name: ansible.posix
     version: '>=1.2.0'
   - name: pulp.pulp_installer
-    version: '==3.12.2'
+    version: '==3.16.0'
   - name: pulp.squeezer
     version: '>=0.0.8'
 ...

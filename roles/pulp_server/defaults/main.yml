@@ -19,7 +19,7 @@ pulp_api_host: localhost
 pulp_api_port: 24817
 pulp_api_baseurl: "http://{{ pulp_api_host }}:{{ pulp_api_port }}"
 pulp_default_admin_password: "{{ pulp_api_password }}"
-pulpcore_version: "==3.12.2"
+pulpcore_version: "3.16.1"
 pulp_install_plugins:
   # galaxy-ng: {}
   # pulp-2to3-migration: {}
@@ -34,7 +34,7 @@ pulp_install_plugins:
   # pulp-npm: {}
   # pulp-python: {}
   pulp-rpm:
-    version: "==3.10.0"
+    version: "3.16.1"
 pulp_settings:
   secret_key: "{{ pulp_secret }}"
   content_origin: "{{ pulp_webserver_disable_https | default(false) | ternary('http', 'https') }}://{{ ansible_fqdn }}"
