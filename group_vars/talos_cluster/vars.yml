@@ -25,6 +25,7 @@ additional_etc_hosts:
   - group: all
     hosts:
       - docs
+      - docs_on_merlin
   - group: boxy_cluster
     hosts:
       - boxy-management

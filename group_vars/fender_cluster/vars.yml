@@ -13,6 +13,7 @@ additional_etc_hosts:
   - group: all
     hosts:
       - docs
+      - docs_on_merlin
 vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-12]"
 vcompute_sockets: 16
 vcompute_cores_per_socket: 1
