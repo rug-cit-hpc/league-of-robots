@@ -1,6 +1,7 @@
 ---
 slurm_cluster_name: 'hyperchicken'
 slurm_cluster_domain: ''
+stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'hc'
 slurm_version: '20.11.8-1.el7.umcg'
 repo_manager: 'pulp'
@@ -12,6 +13,7 @@ additional_etc_hosts:
   - group: all
     hosts:
       - docs
+      - docs_on_merlin
 vcompute_hostnames: "{{ stack_prefix }}-vcompute01"
 vcompute_sockets: 8
 vcompute_cores_per_socket: 1

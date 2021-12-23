@@ -1,6 +1,7 @@
 ---
 slurm_cluster_name: 'talos'
 slurm_cluster_domain: 'hpc.rug.nl'
+stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'tl'
 slurm_version: '20.11.8-1.el7.umcg'
 slurm_allow_jobs_to_span_nodes: true
@@ -24,6 +25,7 @@ additional_etc_hosts:
   - group: all
     hosts:
       - docs
+      - docs_on_merlin
   - group: boxy_cluster
     hosts:
       - boxy-management

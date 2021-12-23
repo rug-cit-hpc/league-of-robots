@@ -2,7 +2,7 @@
 openstack_api_timeout: 180
 admin_ranges: "129.125.249.0/24,172.23.40.1/24"
 ssh_host_signer_ca_keypair_dir: "ssh-host-ca"
-ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/{{ slurm_cluster_name }}-ca"
+ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/{{ stack_name }}-ca"
 ssh_host_signer_key_types: '.*(rsa|ed25519).*'
 ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }}{% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}"
 spacewalk_server_url: 'http://spacewalk02.hpc.rug.nl/XMLRPC'
@@ -31,7 +31,7 @@ public_keys_of_local_admins: "{{ local_admin_users | map('extract', auth_users) 
 # Local group specs.
 # Note:
 #  * All local groups are listed here.
-#  * In ../[name]_cluster/vars.yml we list which groups are created locally on which cluster.
+#  * In ../[stack_name]/vars.yml we list which groups are created locally on which stack.
 #  * Never ever change nor recycle a GID value here unless you are in for a surprise...
 #
 auth_groups:

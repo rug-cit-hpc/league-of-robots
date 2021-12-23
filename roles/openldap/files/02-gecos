@@ -1,0 +1,27 @@
+dn: cn=schema
+changetype: modify
+delete: attributetypes
+attributetypes: ( 1.3.6.1.1.1.1.2 NAME 'gecos' DESC 'The GECOS field; the common name'
+                  EQUALITY caseIgnoreIA5Match
+                  SUBSTR caseIgnoreIA5Substrings
+                  Match SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+-
+add: attributetypes
+attributetypes: ( 1.3.6.1.1.1.1.2 NAME 'gecos' DESC 'The GECOS field; the common name'
+                  EQUALITY caseIgnoreMatch
+                  SUBSTR caseIgnoreSubstrings
+                  Match SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+
+
+#( 1.3.6.1.1.1.1.2 NAME 'gecos'
+#            DESC 'The GECOS field; the common name'
+#            EQUALITY caseIgnoreIA5Match
+#            SUBSTR caseIgnoreIA5SubstringsMatch
+#            SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+#            SINGLE-VALUE )
+#( 1.3.6.1.1.1.1.2 NAME 'gecos'
+#            DESC 'The GECOS field; the common name'
+#            EQUALITY caseIgnoreMatch
+#            SUBSTRINGS caseIgnoreSubstringsMatch
+#            SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+#            SINGLE-VALUE )

@@ -205,7 +205,7 @@ ssh tunnel+nb-repo
 #
 # repo_management_user is configured
 #   * either in roles/pulp_server/defaults/main.yml
-#   * or overruled in group_vars/[name-of-the-cluster]_cluster/vars.yml
+#   * or overruled in group_vars/[stack_name]/vars.yml
 #
 sudo -u ${repo_management_user}
 touch -m 600 ~/.netrc

@@ -111,10 +111,10 @@
     #
     # Jumphosts security group.
     #
-    - name: "Create security group for {{ slurm_cluster_name }} jumphosts."
+    - name: "Create security group for {{ stack_prefix }} jumphosts."
       openstack.cloud.security_group:
         state: present
-        name: "{{ slurm_cluster_name }}_jumphosts"
+        name: "{{ stack_prefix }}_jumphosts"
         description: |
                      Security group for security hardened jumphosts bridging the external and internal network.
                      Allows SSH inbound on both port 22 and 443.
@@ -122,9 +122,9 @@
                      Allows all outbound traffic.
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow SSH inbound on port 22."
+    - name: "Add rule to {{ stack_prefix }}_jumphosts security group: allow SSH inbound on port 22."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_jumphosts"
+        security_group: "{{ stack_prefix }}_jumphosts"
         direction: ingress
         protocol: tcp
         port_range_min: 22
@@ -132,9 +132,9 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow SSH inbound on port 443."
+    - name: "Add rule to {{ stack_prefix }}_jumphosts security group: allow SSH inbound on port 443."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_jumphosts"
+        security_group: "{{ stack_prefix }}_jumphosts"
         direction: ingress
         protocol: tcp
         port_range_min: 443
@@ -142,9 +142,9 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow LDAPS inbound on port 636."
+    - name: "Add rule to {{ stack_prefix }}_jumphosts security group: allow LDAPS inbound on port 636."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_jumphosts"
+        security_group: "{{ stack_prefix }}_jumphosts"
         direction: ingress
         protocol: tcp
         port_range_min: 636
@@ -152,9 +152,9 @@
         remote_ip_prefix: 0.0.0.0/0  # ToDo restrict to {{ ldap_uri }}
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_jumphosts security group: allow ICMP inbound."
+    - name: "Add rule to {{ stack_prefix }}_jumphosts security group: allow ICMP inbound."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_jumphosts"
+        security_group: "{{ stack_prefix }}_jumphosts"
         direction: ingress
         protocol: icmp
         port_range_min: -1  # ICMP protocol does not have any ports.
@@ -165,10 +165,10 @@
     #
     # Data staging security group.
     #
-    - name: "Create security group for {{ slurm_cluster_name }} data staging servers."
+    - name: "Create security group for {{ stack_prefix }} data staging servers."
       openstack.cloud.security_group:
         state: present
-        name: "{{ slurm_cluster_name }}_ds"
+        name: "{{ stack_prefix }}_ds"
         description: |
                      Security group for data staging severs without access to the internal network.
                      Allows SSH inbound on both port 22 and 443.
@@ -176,9 +176,9 @@
                      Allows all outbound traffic.
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_ds security group: allow SSH inbound on port 22."
+    - name: "Add rule to {{ stack_prefix }}_ds security group: allow SSH inbound on port 22."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_ds"
+        security_group: "{{ stack_prefix }}_ds"
         direction: ingress
         protocol: tcp
         port_range_min: 22
@@ -186,9 +186,9 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_ds security group: allow SSH inbound on port 443."
+    - name: "Add rule to {{ stack_prefix }}_ds security group: allow SSH inbound on port 443."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_ds"
+        security_group: "{{ stack_prefix }}_ds"
         direction: ingress
         protocol: tcp
         port_range_min: 443
@@ -196,9 +196,9 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_ds security group: allow LDAPS inbound on port 636."
+    - name: "Add rule to {{ stack_prefix }}_ds security group: allow LDAPS inbound on port 636."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_ds"
+        security_group: "{{ stack_prefix }}_ds"
         direction: ingress
         protocol: tcp
         port_range_min: 636
@@ -206,9 +206,9 @@
         remote_ip_prefix: 0.0.0.0/0  # ToDo restrict to {{ ldap_uri }}
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_ds security group: allow ICMP inbound."
+    - name: "Add rule to {{ stack_prefix }}_ds security group: allow ICMP inbound."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_ds"
+        security_group: "{{ stack_prefix }}_ds"
         direction: ingress
         protocol: icmp
         port_range_min: -1  # ICMP protocol does not have any ports.
@@ -219,10 +219,10 @@
     #
     # Cluster security group.
     #
-    - name: Create security group for {{ slurm_cluster_name }} cluster machines behind jumphost.
+    - name: "Create security group for {{ stack_prefix }} cluster machines behind jumphost."
       openstack.cloud.security_group:
         state: present
-        name: "{{ slurm_cluster_name }}_cluster"
+        name: "{{ stack_prefix }}_cluster"
         description: |
                      Security group for cluster machines behind a jumphost.
                      Allows SSH and ICMP inbound from machines in the jumphost security group.
@@ -230,19 +230,19 @@
                      Allows all outbound traffic.
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow SSH inbound on port 22 from {{ slurm_cluster_name }}_jumphosts security group."
+    - name: "Add rule to {{ stack_prefix }}_cluster security group: allow SSH inbound on port 22 from {{ stack_prefix }}_jumphosts security group."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_cluster"
+        security_group: "{{ stack_prefix }}_cluster"
         direction: ingress
         protocol: tcp
         port_range_min: 22
         port_range_max: 22
-        remote_group: "{{ slurm_cluster_name }}_jumphosts"
+        remote_group: "{{ stack_prefix }}_jumphosts"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow LDAPS inbound on port 636."
+    - name: "Add rule to {{ stack_prefix }}_cluster security group: allow LDAPS inbound on port 636."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_cluster"
+        security_group: "{{ stack_prefix }}_cluster"
         direction: ingress
         protocol: tcp
         port_range_min: 636
@@ -250,65 +250,64 @@
         remote_ip_prefix: 0.0.0.0/0  # ToDo restrict to {{ ldap_uri }}
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow ICMP inbound from {{ slurm_cluster_name }}_jumphosts security group."
+    - name: "Add rule to {{ stack_prefix }}_cluster security group: allow ICMP inbound from {{ stack_prefix }}_jumphosts security group."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_cluster"
+        security_group: "{{ stack_prefix }}_cluster"
         direction: ingress
         protocol: icmp
         port_range_min: -1  # ICMP protocol does not have any ports.
         port_range_max: -1  # ICMP protocol does not have any ports.
-        remote_group: "{{ slurm_cluster_name }}_jumphosts"
+        remote_group: "{{ stack_prefix }}_jumphosts"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow any inbound tcp traffic from machines within the same security group."
+    - name: "Add rule to {{ stack_prefix }}_cluster security group: allow any inbound tcp traffic from machines within the same security group."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_cluster"
+        security_group: "{{ stack_prefix }}_cluster"
         direction: ingress
         protocol: tcp
         port_range_min: -1  # Port range min -1 and max -1 means the same as min 1 and max 65535,
         port_range_max: -1  # but the latter is not idempotent due to a known bug.
-        remote_group: "{{ slurm_cluster_name }}_cluster"
+        remote_group: "{{ stack_prefix }}_cluster"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow any inbound udp traffic from machines within the same security group."
+    - name: "Add rule to {{ stack_prefix }}_cluster security group: allow any inbound udp traffic from machines within the same security group."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_cluster"
+        security_group: "{{ stack_prefix }}_cluster"
         direction: ingress
         protocol: udp
         port_range_min: -1  # Port range min -1 and max -1 means the same as min 1 and max 65535,
         port_range_max: -1  # but the latter is not idempotent due to a known bug.
-        remote_group: "{{ slurm_cluster_name }}_cluster"
+        remote_group: "{{ stack_prefix }}_cluster"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_cluster security group: allow any inbound icmp traffic from machines within the same security group."
+    - name: "Add rule to {{ stack_prefix }}_cluster security group: allow any inbound icmp traffic from machines within the same security group."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_cluster"
+        security_group: "{{ stack_prefix }}_cluster"
         direction: ingress
         protocol: icmp
         port_range_min: -1  # ICMP protocol does not have any ports.
         port_range_max: -1  # ICMP protocol does not have any ports.
-        remote_group: "{{ slurm_cluster_name }}_cluster"
+        remote_group: "{{ stack_prefix }}_cluster"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
 ##############################################################################
 # Configure IRODS security group using Openstack API.
 ##############################################################################
-    - name: "Create security group for {{ slurm_cluster_name }} IRODs machine."
+    - name: "Create security group for {{ stack_prefix }} IRODs machines."
       openstack.cloud.security_group:
-        hosts: irods
         state: present
-        name: "{{ slurm_cluster_name }}_irods"
+        name: "{{ stack_prefix }}_irods"
         description: |
-                     Security group for security hardened jumphosts bridging the external and internal network.
-                     Allows SSH inbound on both port 22 and 443.
-                     Allows SSH inbound on both port 1247 and range: 20000:20199 for IRODs.
+                     Security group for iRODS machines.
+                     Allows SSH inbound on ports 22 and 443.
+                     Allows iRODS inbound on ports 1247 and 20000-20199.
                      Allows ICMP inbound.
                      Allows all outbound traffic.
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_irods security group: allow SSH inbound on port 22."
+    - name: "Add rule to {{ stack_prefix }}_irods security group: allow SSH inbound on port 22."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_irods"
+        security_group: "{{ stack_prefix }}_irods"
         direction: ingress
         protocol: tcp
         port_range_min: 22
@@ -316,9 +315,9 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_irods security group: allow SSH inbound on port 1247."
+    - name: "Add rule to {{ stack_prefix }}_irods security group: allow SSH inbound on port 1247."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_irods"
+        security_group: "{{ stack_prefix }}_irods"
         direction: ingress
         protocol: tcp
         port_range_min: 1247
@@ -326,9 +325,9 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_irods security group: allow PostgreSQL inbound on port 5432."
+    - name: "Add rule to {{ stack_prefix }}_irods security group: allow PostgreSQL inbound on port 5432."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_irods"
+        security_group: "{{ stack_prefix }}_irods"
         direction: ingress
         protocol: tcp
         port_range_min: 5432
@@ -336,9 +335,9 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_irods security group: allow SSH inbound on port 20000:20199."
+    - name: "Add rule to {{ stack_prefix }}_irods security group: allow SSH inbound on port 20000:20199."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_irods"
+        security_group: "{{ stack_prefix }}_irods"
         direction: ingress
         protocol: tcp
         port_range_min: 20000
@@ -346,9 +345,9 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_irods security group: allow SSH inbound on port 443."
+    - name: "Add rule to {{ stack_prefix }}_irods security group: allow SSH inbound on port 443."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_irods"
+        security_group: "{{ stack_prefix }}_irods"
         direction: ingress
         protocol: tcp
         port_range_min: 443
@@ -356,9 +355,9 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_irods security group: allow LDAPS inbound on port 636."
+    - name: "Add rule to {{ stack_prefix }}_irods security group: allow LDAPS inbound on port 636."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_irods"
+        security_group: "{{ stack_prefix }}_irods"
         direction: ingress
         protocol: tcp
         port_range_min: 636
@@ -366,9 +365,9 @@
         remote_ip_prefix: 0.0.0.0/0  # ToDo restrict to {{ ldap_uri }}
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_irods security group: allow ICMP inbound."
+    - name: "Add rule to {{ stack_prefix }}_irods security group: allow ICMP inbound."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_irods"
+        security_group: "{{ stack_prefix }}_irods"
         direction: ingress
         protocol: icmp
         port_range_min: -1  # ICMP protocol does not have any ports.
@@ -376,34 +375,34 @@
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_irods security group: allow any inbound tcp traffic from machines within the same security group."
+    - name: "Add rule to {{ stack_prefix }}_irods security group: allow any inbound tcp traffic from machines within the same security group."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_irods"
+        security_group: "{{ stack_prefix }}_irods"
         direction: ingress
         protocol: tcp
         port_range_min: -1  # Port range min -1 and max -1 means the same as min 1 and max 65535,
         port_range_max: -1  # but the latter is not idempotent due to a known bug.
-        remote_group: "{{ slurm_cluster_name }}_cluster"
+        remote_group: "{{ stack_prefix }}_cluster"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_irods security group: allow any inbound udp traffic from machines within the same security group."
+    - name: "Add rule to {{ stack_prefix }}_irods security group: allow any inbound udp traffic from machines within the same security group."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_irods"
+        security_group: "{{ stack_prefix }}_irods"
         direction: ingress
         protocol: udp
         port_range_min: -1  # Port range min -1 and max -1 means the same as min 1 and max 65535,
         port_range_max: -1  # but the latter is not idempotent due to a known bug.
-        remote_group: "{{ slurm_cluster_name }}_irods"
+        remote_group: "{{ stack_prefix }}_irods"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ slurm_cluster_name }}_irods security group: allow any inbound icmp traffic from machines within the same security group."
+    - name: "Add rule to {{ stack_prefix }}_irods security group: allow any inbound icmp traffic from machines within the same security group."
       openstack.cloud.security_group_rule:
-        security_group: "{{ slurm_cluster_name }}_irods"
+        security_group: "{{ stack_prefix }}_irods"
         direction: ingress
         protocol: icmp
         port_range_min: -1  # ICMP protocol does not have any ports.
         port_range_max: -1  # ICMP protocol does not have any ports.
-        remote_group: "{{ slurm_cluster_name }}_irods"
+        remote_group: "{{ stack_prefix }}_irods"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
 ##############################################################################
@@ -427,7 +426,7 @@
         name: "{{ inventory_hostname }}"
         image: "{{ cloud_image }}"
         flavor: "{{ flavor_jumphost }}"
-        security_groups: "{{ slurm_cluster_name }}_jumphosts"
+        security_groups: "{{ stack_prefix }}_jumphosts"
         auto_floating_ip: false
         nics:
           - net-name: "{{ network_private_management_id }}"
@@ -460,7 +459,7 @@
       # openstack.cloud.floating_ip is not idempotent:
       # Succeeds only the first time and throws error on any subsequent calls.
       # Therefore we use a "when" with a silly complex jinja filter including a JMESpath query
-      # to check is the VM already has a floating IP linked to an interface in the correct VXLAN.
+      # to check if the VM already has a floating IP linked to an interface in the correct VXLAN.
       #
       when: (jumphost_vm.server.addresses | dict2items(key_name='vlan', value_name='specs') | json_query(query)) != network_private_management_id
       vars:
@@ -503,7 +502,7 @@
         terminate_volume: true
         boot_from_volume: true
         flavor: "{{ flavor_ds }}"
-        security_groups: "{{ slurm_cluster_name }}_ds"
+        security_groups: "{{ stack_prefix }}_ds"
         auto_floating_ip: false
         nics:
           - net-name: "{{ network_private_management_id }}"
@@ -536,7 +535,7 @@
       # openstack.cloud.floating_ip is not idempotent:
       # Succeeds only the first time and throws error on any subsequent calls.
       # Therefore we use a "when" with a silly complex jinja filter including a JMESpath query
-      # to check is the VM already has a floating IP linked to an interface in the correct VXLAN.
+      # to check if the VM already has a floating IP linked to an interface in the correct VXLAN.
       #
       when: (ds_vm.server.addresses | dict2items(key_name='vlan', value_name='specs') | json_query(query)) != network_private_management_id
       vars:
@@ -577,7 +576,7 @@
         terminate_volume: true
         boot_from_volume: true
         flavor: "{{ flavor_management }}"
-        security_groups: "{{ slurm_cluster_name }}_cluster"
+        security_groups: "{{ stack_prefix }}_cluster"
         auto_floating_ip: false
         nics:
           - net-name: "{{ network_private_management_id }}"
@@ -630,7 +629,7 @@
         name: "{{ inventory_hostname }}"
         image: "{{ cloud_image }}"
         flavor: "{{ flavor_irods }}"
-        security_groups: "{{ slurm_cluster_name }}_irods"
+        security_groups: "{{ stack_prefix }}_irods"
         auto_floating_ip: false
         nics:
           - net-name: "{{ network_private_management_id }}"
@@ -680,7 +679,7 @@
         terminate_volume: true
         boot_from_volume: true
         flavor: "{{ flavor_ui }}"
-        security_groups: "{{ slurm_cluster_name }}_cluster"
+        security_groups: "{{ stack_prefix }}_cluster"
         auto_floating_ip: false
         nics:
           - net-name: "{{ network_private_management_id }}"
@@ -738,7 +737,7 @@
         terminate_volume: true
         boot_from_volume: true
         flavor: "{{ flavor_vcompute }}"
-        security_groups: "{{ slurm_cluster_name }}_cluster"
+        security_groups: "{{ stack_prefix }}_cluster"
         auto_floating_ip: false
         nics:
           - net-name: "{{ network_private_management_id }}"
@@ -802,7 +801,7 @@
         terminate_volume: true
         boot_from_volume: true
         flavor: "{{ flavor_management }}"
-        security_groups: "{{ slurm_cluster_name }}_cluster"
+        security_groups: "{{ stack_prefix }}_cluster"
         auto_floating_ip: false
         nics:
           - net-name: "{{ network_private_management_id }}"
@@ -861,7 +860,7 @@
         terminate_volume: true
         boot_from_volume: true
         flavor: "{{ flavor_management }}"
-        security_groups: "{{ slurm_cluster_name }}_cluster"
+        security_groups: "{{ stack_prefix }}_cluster"
         auto_floating_ip: false
         nics:
           - net-name: "{{ network_private_management_id }}"
@@ -914,10 +913,10 @@
     - name: Get server info from OpenStack API.
       openstack.cloud.server_info:
       register: api_server_info
-    - name: "Add addresses to {{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml"
+    - name: "Add addresses to {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
       template:
         src: "{{ playbook_dir }}/group_vars/template/ip_addresses.yml.j2"
-        dest: "{{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml.new"
+        dest: "{{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
         mode: '0644'
       vars:
         relevant_servers_list: "{{ groups['jumphost'] | default([]) + \
@@ -930,10 +929,10 @@
              ***********************************************************************************************************
              IMPORTANT: Manual work!
                         Ansible created:
-                            {{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml.new
+                            {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new
                         Please inspect this file carefully with:
-                            diff -y {{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml{.new,}
+                            diff -y {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
                         and if Ok execute:
-                            mv {{ playbook_dir }}/group_vars/{{ slurm_cluster_name }}_cluster/ip_addresses.yml{.new,}
+                            mv {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
              ***********************************************************************************************************
 ...

@@ -19,7 +19,7 @@ pulp_api_host: localhost
 pulp_api_port: 24817
 pulp_api_baseurl: "http://{{ pulp_api_host }}:{{ pulp_api_port }}"
 pulp_default_admin_password: "{{ pulp_api_password }}"
-pulpcore_version: "==3.12.2"
+pulpcore_version: "3.16.1"
 pulp_install_plugins:
   # galaxy-ng: {}
   # pulp-2to3-migration: {}
@@ -34,10 +34,10 @@ pulp_install_plugins:
   # pulp-npm: {}
   # pulp-python: {}
   pulp-rpm:
-    version: "==3.10.0"
+    version: "3.16.1"
 pulp_settings:
   secret_key: "{{ pulp_secret }}"
   content_origin: "{{ pulp_webserver_disable_https | default(false) | ternary('http', 'https') }}://{{ ansible_fqdn }}"
 pulp_root_cert_path_on_repo_server: "/etc/pulp/certs/root.crt"
-pulp_root_cert_path_on_control_host: "{{ playbook_dir }}/files/{{ slurm_cluster_name }}_cluster/\
+pulp_root_cert_path_on_control_host: "{{ playbook_dir }}/files/{{ stack_name }}/\
                                       {{ inventory_hostname | regex_replace('^' + ai_jumphost + '\\+','') }}_pulp_root.crt"

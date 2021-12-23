@@ -9,9 +9,11 @@ firewall_allowed_tcp_ports:
 extra_jumphosts_for_docs_server:
   - 'airlock'     # Gearshift
   - 'reception'   # Talos
-  - 'portal'      # Hyperchicken/Nibbler
+  - 'portal'      # Hyperchicken
   - 'corridor'    # Fender
   - 'dockingport' # Marvin
+  - 'tunnel'      # Nibbler
+  - 'porch'       # Wingedhelix
 ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }}\
     {% for jumphost_for_this_cluster in groups['jumphost'] %}\
       ,{{ jumphost_for_this_cluster }}+{{ ansible_hostname }}\

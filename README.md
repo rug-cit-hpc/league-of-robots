@@ -2,7 +2,8 @@
 
 ## About this repo
 
-This repository contains playbooks and documentation to deploy virtual Linux HPC clusters, which can be used as *collaborative, analytical sandboxes*.
+This repository contains playbooks and documentation to deploy *stacks* of virtual machines working together.
+Most of these stacks are virtual Linux HPC clusters, which can be used as *collaborative, analytical sandboxes*.
 All production clusters were named after robots that appear in the animated sitcom [Futurama](https://en.wikipedia.org/wiki/Futurama).
 Test/development clusters were named after other robots.
 
@@ -36,7 +37,7 @@ This repo currently contains code and configs for the following clusters:
 
  * Talos: Development cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
  * Gearshift: [UMCG](https://www.umcg.nl) Research IT production cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
- * Hyperchicken: Development cluster cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
+ * Hyperchicken: Development cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
  * Fender: [Solve-RD](solve-rd.eu/) production cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
 
 Deployment and functional administration of all clusters is a joined effort of the
@@ -66,9 +67,16 @@ The clusters use the following types of storage systems / folders:
 | /local/${slurm_job_id}      | Local        | No      | CNs                  | Local storage on compute nodes only available during job execution. Hence folders are automatically created when a job starts and deleted when it finishes. |
 | /mnt/${complete_filesystem} | Shared       | Mixed   | SAIs                 | Complete file systems, which may contain various `home`, `prm`, `tmp` or `scr` dirs. |
 
+## Other stacks
+
+Some other stacks of related machines are:
+
+ * docs_library: web servers hosting documentation.
+ * ...: iRODS machines
+
 ## Deployment phases
 
-Deploying a fully functional virtual cluster from scratch involves the following steps:
+Deploying a fully functional stack of virtual machines from scratch involves the following steps:
 
  1. Configure physical machines
     * Off topic for this repo.
@@ -129,18 +137,18 @@ Note: the default location where these dependencies will get installed with the 
 
 #### 2. Create a `vault_pass.txt`.
 
-The vault password is used to encrypt/decrypt the ```secrets.yml``` file per cluster, 
+The vault password is used to encrypt/decrypt the ```secrets.yml``` file per *stack_name*, 
 which will be created in the next step if you do not already have one.
-In addition a second vault passwd is used for various files in ```group_vars/all/``` and which contain settings that are the same for all clusters.
-If you have multiple HPC clusters with their own vault passwd you will have multiple vault password files. 
+In addition a second vault passwd is used for various files in ```group_vars/all/``` and which contain settings that are the same for all *stacks*.
+If you have multiple *stacks* with their own vault passwd you will have multiple vault password files. 
 The pattern ```.vault*``` is part of ```.gitignore```, so if you put the vault passwd files in the ```.vault/``` subdir,
 they will not accidentally get committed to the repo.
 
-* To generate a new Ansible vault password and put it in ```.vault/vault_pass.txt.[name-of-the-cluster|all]```, use the following oneliner:
+* To generate a new Ansible vault password and put it in ```.vault/vault_pass.txt.[stack_name|all]```, use the following oneliner:
   ```bash
-  LC_ALL=C tr -cd '[:alnum:]' < /dev/urandom | fold -w60 | head -n1 > .vault/vault_pass.txt.[name-of-the-cluster|all]
+  LC_ALL=C tr -cd '[:alnum:]' < /dev/urandom | fold -w60 | head -n1 > .vault/vault_pass.txt.[stack_name|all]
   ```
-* Or to use an existing Ansible vault password create ```.vault/vault_pass.txt.[name-of-the-cluster|all]``` and use a text editor to add the password.
+* Or to use an existing Ansible vault password create ```.vault/vault_pass.txt.[stack_name|all]``` and use a text editor to add the password.
 * Make sure the ```.vault/``` subdir and it's content is private:
   ```bash
   chmod -R go-rwx .vault/
@@ -148,10 +156,11 @@ they will not accidentally get committed to the repo.
 
 #### 3. Configure Ansible settings including the vault.
 
-To create a new virtual cluster you will need ```group_vars``` and an static inventory for that HPC cluster:
+To create a new *stack* you will need ```group_vars``` and a static inventory for that *stack*:
 
-* See the ```static_inventories/*_hosts.ini``` files for existing clusters for examples to create a new ```[name-of-the-cluster]*_hosts.ini```.
-* Create a ```group_vars/[name-of-the-cluster]_cluster/``` folder with a ```vars.yml```.  
+* See the ```static_inventories/*.ini``` files for existing stacks for examples.  
+  Create a new ```static_inventories/[stack_name].ini```.
+* Create a ```group_vars/[stack_name]/``` folder with a ```vars.yml```.  
   You'll find and example ```vars.yml``` file in ```group_vars/template/```.  
   To generate a new ```secrets.yml``` with new random passwords for the various daemons/components and encrypt this new ```secrets.yml``` file:
   ```bash
@@ -162,23 +171,23 @@ To create a new virtual cluster you will need ```group_vars``` and an static inv
   #
   # Configure this repo for a specific cluster.
   # This will set required ENVIRONMENT variables including
-  # ANSIBLE_VAULT_IDENTITY_LIST='all@.vault/vault_pass.txt.all, [name-of-the-cluster]@.vault/vault_pass.txt.[name-of-the-cluster]'
+  # ANSIBLE_VAULT_IDENTITY_LIST='all@.vault/vault_pass.txt.all, [stack_name]@.vault/vault_pass.txt.[stack_name]'
   #
   . ./lor-init
-  lor-config [name-of-the-cluster]
+  lor-config [stack_name]
   #
   #
   # Create new secrets.yml file based on a template and encrypt it with the vault password.
   #
-  ./generate_secrets.py group_vars/template/secrets.yml group_vars/[name-of-the-cluster]_cluster/secrets.yml
-  ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] group_vars/[name-of-the-cluster]_cluster/secrets.yml 
+  ./generate_secrets.py group_vars/template/secrets.yml group_vars/[stack_name]/secrets.yml
+  ansible-vault encrypt --encrypt-vault-id [stack_name] group_vars/[stack_name]/secrets.yml 
   ```
   The encrypted ```secrets.yml``` can now safely be committed.  
-  The ```.vault/vault_pass.txt.[name-of-the-cluster]``` file is excluded from the repo using the ```.vault*``` pattern in ```.gitignore```.
+  The ```.vault/vault_pass.txt.[stack_name]``` file is excluded from the repo using the ```.vault*``` pattern in ```.gitignore```.
 
-To use use an existing encrypted ```group_vars/[name-of-the-cluster]_cluster/secrets.yml```:
+To use use an existing encrypted ```group_vars/[stack_name]/secrets.yml```:
 
-* Add a ```.vault/vault_pass.txt.[name-of-the-cluster]``` file to this repo and use a text editor to add the vault password to this file.
+* Add a ```.vault/vault_pass.txt.[stack_name]``` file to this repo and use a text editor to add the vault password to this file.
 
 #### 4. Configure the Certificate Authority (CA).
 
@@ -190,9 +199,10 @@ The authenticity of host '....' can't be established.
 ED25519 key fingerprint is ....
 Are you sure you want to continue connecting (yes/no)?
 ```
-* The filename of the CA private key is specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/[name-of-the-cluster]_cluster/vars.yml```
+* The default filename of the CA private key is ```[stack_name]-ca```
+  A different CA key file must be specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/[stack_name]/vars.yml```
 * The filename of the corresponding CA public key must be the same as the one of the private key suffixed with ```.pub```
-* The password required to decrypt the CA private key must be specified using the ```ssh_host_signer_ca_private_key_pass``` variable defined in ```group_vars/[name-of-the-cluster]_cluster/secrets.yml```,
+* The password required to decrypt the CA private key must be specified using the ```ssh_host_signer_ca_private_key_pass``` variable defined in ```group_vars/[stack_name]/secrets.yml```,
   which must be encrypted with ```ansible-vault```.
 * Each user must add the content of the CA public key to their ```~.ssh/known_hosts``` like this:
   ```
@@ -204,8 +214,8 @@ Are you sure you want to continue connecting (yes/no)?
   ```
 * Example to create a new CA key pair with the ```ed25519``` algorithm and encryption after that:
   ```bash
-  ssh-keygen -t ed25519 -a 101 -f ssh-host-ca/[name-of-the-cluster]-ca -C "CA key for [name-of-the-cluster]"
-  ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] ssh-host-ca/[name-of-the-cluster]-ca
+  ssh-keygen -t ed25519 -a 101 -f ssh-host-ca/[stack_name]-ca -C "CA key for [stack_name]"
+  ansible-vault encrypt --encrypt-vault-id [stack_name] ssh-host-ca/[stack_name]-ca
   ```
 
 #### 5. Build Prometheus Node Exporter
@@ -228,26 +238,26 @@ Are you sure you want to continue connecting (yes/no)?
 
 Execute:
 ```bash
-dd if=/dev/urandom bs=1 count=1024 > files/[name-of-the-cluster]_cluster/munge.key
-ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] files/[name-of-the-cluster]_cluster/munge.key
+dd if=/dev/urandom bs=1 count=1024 > files/[stack_name]/munge.key
+ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/munge.key
 ```
-The encrypted ```files/[name-of-the-cluster]_cluster/munge.key``` can now be committed safely.
+The encrypted ```files/[stack_name]/munge.key``` can now be committed safely.
 
 #### 7. Generate TLS certificate for the LDAP server and encrypt it using Ansible Vault.
 
-If in ```group_vars/[name-of-the-cluster]_cluster/vars.yml``` you configured:
+If in ```group_vars/[stack_name]/vars.yml``` you configured:
  * ```create_ldap: yes```: This cluster will create and run its own LDAP server. You will need to create a self-signed TLS certificate for the LDAP server.
  * ```create_ldap: no```: This cluster will use an external LDAP, that was configured & hosted elsewhere, and this step can be skipped.
 
 Execute:
    ```
-   openssl req -x509 -nodes -days 1825 -newkey rsa:4096 -keyout files/[name-of-the-cluster]_cluster/ldap.key -out files/[name-of-the-cluster]_cluster/ldap.crt
-   openssl dhparam -out files/[name-of-the-cluster]_cluster/dhparam.pem 4096
-   ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] files/[name-of-the-cluster]_cluster/ldap.key
-   ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] files/[name-of-the-cluster]_cluster/ldap.crt
-   ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] files/[name-of-the-cluster]_cluster/dhparam.pem
+   openssl req -x509 -nodes -days 1825 -newkey rsa:4096 -keyout files/[stack_name]/ldap.key -out files/[stack_name]/ldap.crt
+   openssl dhparam -out files/[stack_name]/dhparam.pem 4096
+   ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/ldap.key
+   ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/ldap.crt
+   ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/dhparam.pem
    ```
-The encrypted files in ```files/[name-of-the-cluster]_cluster/``` can now be committed safely.
+The encrypted files in ```files/[stack_name]/``` can now be committed safely.
 
 #### 8. Running playbooks.
 
@@ -279,11 +289,11 @@ There are two playbooks:
   #
   source ./[Application_Credential_Name]-openrc.sh
   #
-  # Configure this repo for deployment of a specifc HPC cluster.
+  # Configure this repo for deployment of a specifc stack.
   #
   source ./lor-init
-  lor-config [name-of-the-cluster]
-  ansible-playbook -i static_inventories/[name-of-the-cluster]_hosts.ini deploy-os_servers.yml
+  lor-config [stack_prefix]
+  ansible-playbook -i static_inventories/[stack_name].ini deploy-os_servers.yml
   ```
 
 ##### cluster.yml
@@ -316,7 +326,7 @@ Therefore the first step is to create additional local admin accounts:
 * whose home dir is not located in /home and
 * who are allowed to ```sudo su``` to the root user.
 
-Without signed host keys, SSH host key checking must be disbled for this first step.
+Without signed host keys, SSH host key checking must be disabled for this first step.
 The next step is to deploy the signed host keys.
 Once these first two steps have been deployed, the rest of the steps can be deployed with a local admin account and SSH host key checking enabled, which is the default.
 
@@ -342,15 +352,15 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
 
 * Configure the dynamic inventory and jumphost for the *Talos* test cluster:
   ```bash
-  export AI_INVENTORY='static_inventories/talos_hosts.ini'
+  export AI_INVENTORY='static_inventories/talos_cluster.ini'
   export AI_PROXY='reception'
-  export ANSIBLE_VAULT_IDENTITY_LIST='all@.vault/vault_pass.txt.all, talos@.vault/vault_pass.txt.talos'
+  export ANSIBLE_VAULT_IDENTITY_LIST='all@.vault/vault_pass.txt.all, talos@.vault/vault_pass.txt.talos_cluster'
   ```
   This can also be accomplished with less typing by sourcing an initialisation file, which provides the ```lor-config``` function 
   to configure these environment variables for a specific cluster/site:
   ```bash
   . ./lor-init
-  lor-config talos
+  lor-config tl
   ```
 * Firstly, create the jumphost, which is required to access the other machines.
 * Create local admin accounts.

@@ -66,7 +66,7 @@
 
 - name: Add pulp web server root certificate to list of trusted root certificates.
   ansible.builtin.copy:
-    src: "{{ slurm_cluster_name }}_cluster/\
+    src: "{{ stack_name }}/\
           {{ item | regex_replace('^' + ai_jumphost + '\\+','') }}_pulp_root.crt"
     dest: /etc/pki/ca-trust/source/anchors/
     owner: root
@@ -94,7 +94,7 @@
 #
 
 - name: Install packages with yum.
-  yum:
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name:
@@ -105,14 +105,14 @@
   become: true
 
 - name: "Create local private group for {{ repo_management_user }} user's home dir."
-  group:
+  ansible.builtin.group:
     name: "{{ repo_management_user }}"                 # Use same name as user's account name for user's private group.
     gid: "{{ auth_users[repo_management_user].uid }}"  # Use same GID as user's UID for user's private group.
     state: present
   become: true
 
 - name: Create /admin root dir for the home dirs of local admin users.
-  file:
+  ansible.builtin.file:
     path: '/admin'
     owner: root
     group: root
@@ -121,23 +121,26 @@
   become: true
 
 - name: "Create local {{ repo_management_user }} user."
-  user:
+  ansible.builtin.user:
     name: "{{ repo_management_user }}"
     uid: "{{ auth_users[repo_management_user].uid }}"
     comment: "{{ auth_users[repo_management_user].comment }}"
     group: "{{ repo_management_user }}"
+    groups:
+      # repo_management_user must be a member to prevent a permission denied error on '/etc/pulp/cli.toml'
+      - "{{ pulp_group }}"  # Default from pulp.pulp_installer role.
     home: "/admin/{{ repo_management_user }}"
     append: false
   become: true
 
 - name: "Initialize {{ repo_management_user }} account creating home dir if it did not exist yet."
-  command:
+  ansible.builtin.command:
     cmd: "mkhomedir_helper {{ repo_management_user }} 0077"
     creates: "/admin/{{ repo_management_user }}"
   become: true
 
 - name: "Allow passwordless sudo to the {{ repo_management_user }} account for Pulp admin users."
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: '/etc/sudoers'
     line: "%admin    ALL=({{ repo_management_user }})    NOPASSWD:ALL"
     owner: root
@@ -145,16 +148,32 @@
     mode: '0440'
   become: true
 
+- name: "Copy pulp-cli-requirements.txt to {{ repo_management_user }} user's home dir."
+  ansible.builtin.copy:
+    #
+    # Update can be created using the following commands as repo_management_user on the repo server:
+    #   repo_management_user@repo> source /admin/repo_management_user/pulp-cli.venv/bin/activate
+    #   repo_management_user@repo> pip install --upgrade pulp-cli
+    #   repo_management_user@repo> pip freeze > pulp-cli-requirements.txt
+    #
+    src: 'files/pulp-cli-requirements.txt'
+    dest: "/admin/{{ repo_management_user }}/pulp-cli-requirements.txt"
+    owner: "{{ repo_management_user }}"
+    group: "{{ repo_management_user }}"
+    mode: '0644'
+  become: true
+  become_user: "{{ repo_management_user }}"
+
 - name: "Install pulp-cli from PyPi using pip and into a dedicated virtualenv in the {{ repo_management_user }} user's home."
-  pip:
-    name: pulp-cli[pygments]>=0.8.0
+  ansible.builtin.pip:
+    requirements: "/admin/{{ repo_management_user }}/pulp-cli-requirements.txt"
     virtualenv_command: 'python3 -m venv'
     virtualenv: "/admin/{{ repo_management_user }}/pulp-cli.venv"
   become: true
   become_user: "{{ repo_management_user }}"
 
 - name: Create folders for config files.
-  file:
+  ansible.builtin.file:
     name: "{{ item }}"
     owner: "{{ repo_management_user }}"
     group: "{{ repo_management_user }}"
@@ -167,7 +186,7 @@
   become_user: "{{ repo_management_user }}"
 
 - name: "Deploy ~.netrc file for {{ repo_management_user }} user."
-  template:
+  ansible.builtin.template:
     src: templates/repo_management_user.netrc.j2
     dest: "/admin/{{ repo_management_user }}/.netrc"
     mode: 0600
@@ -177,7 +196,7 @@
   become_user: "{{ repo_management_user }}"
 
 - name: "Deploy ~.config/pulp/settings.toml file for {{ repo_management_user }} user."
-  template:
+  ansible.builtin.template:
     src: templates/repo_management_user.settings.toml.j2
     dest: "/admin/{{ repo_management_user }}/.config/pulp/settings.toml"
     mode: 0600
@@ -199,7 +218,7 @@
   no_log: true
 
 - name: Report pulp status.
-  debug:
+  ansible.builtin.debug:
     var: pulp_status
 
 - name: Create remotes.
