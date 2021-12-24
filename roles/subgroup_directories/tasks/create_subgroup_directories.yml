@@ -1,25 +1,22 @@
 ---
 - block:
-    - name: "Get list of {{ group }} subgroups with version number from the LDAP."
-      shell: |
-        ldapsearch -LLL -o ldif-wrap=no -D '{{ ldap_binddn }}' -w '{{ bindpw }}' -b '{{ ldap_base }}' -H '{{ ldap_uri }}' \
-            "(ObjectClass=GroupofNames)" dn \
-          | tr "=," "\n" \
-          | grep "^{{ group }}-.*-v[0-9][0-9]*$" \
+    - name: "Get list of {{ group }} subgroups with version number."
+      ansible.builtin.shell: |
+        getent group \
+          | grep -o "^{{ group }}-[^:]*-v[0-9][0-9]*" \
           || true
       register: versioned_subgroups
     - set_fact:  # noqa unnamed-task
         versioned_subgroups_list: "{% if versioned_subgroups.stdout | length %}{{ versioned_subgroups.stdout.split('\n') | list }}{% endif %}"
 
 - block:
-    - name: "Get list of {{ group }} subgroups without version number and excluding *-dms groups from the LDAP."
-      shell: |
-        ldapsearch -LLL -o ldif-wrap=no -D '{{ ldap_binddn }}' -w '{{ bindpw }}' -b '{{ ldap_base }}' -H '{{ ldap_uri }}' \
-            "(ObjectClass=GroupofNames)" dn \
-          | tr "=," "\n" \
-          | grep "^{{ group }}-.*$" \
-          | grep -v -- "-v[0-9][0-9]*$\|-dms$\|-owners$" \
-          || true
+    - name: "Get list of {{ group }} subgroups without version number and excluding *-dms, *owners & primary groups."
+      ansible.builtin.shell: |
+        for group in $(getent group | grep -o "^{{ group }}-[^:]*" | grep -v -- "-v[0-9][0-9]*$\|-dms$\|-owners$"); do \
+          if ! getent passwd "${group}" >/dev/null 2>&1; then \
+            echo "${group}"; \
+          fi; \
+        done
       register: unversioned_subgroups
     - set_fact:  # noqa unnamed-task
         unversioned_subgroups_list: "{% if unversioned_subgroups.stdout | length %}{{ unversioned_subgroups.stdout.split('\n') | list }}{% endif %}"
@@ -27,14 +24,14 @@
 - name: "Create directory structure for releases with version number on {{ lfs }}."
   block:
     - name: "Create /groups/{{ group }}/{{ lfs }}/releases/ directory."
-      file:
+      ansible.builtin.file:
         path: "/groups/{{ group }}/{{ lfs }}/releases/"
         owner: "{{ group }}-dm"
         group: "{{ group }}"
         mode: "{{ mode_dataset }}"
         state: 'directory'
     - name: "Create /groups/{{ group }}/{{ lfs }}/releases/${dataset} directory."
-      file:
+      ansible.builtin.file:
         path: "/groups/{{ group }}/{{ lfs }}/releases/{{ item | regex_replace('^' + group + '-(.*)-(v[0-9][0-9]*)$', '\\1') }}"
         owner: "{{ group }}-dm"
         group: "{{ group }}"
@@ -42,7 +39,7 @@
         state: 'directory'
       with_items: "{{ versioned_subgroups_list }}"
     - name: "Create /groups/{{ group }}/{{ lfs }}/releases/${dataset}/${version} directory."
-      file:
+      ansible.builtin.file:
         path: "/groups/{{ group }}/{{ lfs }}/releases/\
                {{ item | regex_replace('^' + group + '-(.*)-(v[0-9][0-9]*)$', '\\1') }}/\
                {{ item | regex_replace('^' + group + '-(.*)-(v[0-9][0-9]*)$', '\\2') }}"
@@ -60,14 +57,14 @@
 - name: "Create directory structure for projects on {{ lfs }}."
   block:
     - name: "Create /groups/{{ group }}/{{ lfs }}/projects directory."
-      file:
+      ansible.builtin.file:
         path: "/groups/{{ group }}/{{ lfs }}/projects/"
         owner: "{{ group }}-dm"
         group: "{{ group }}"
         mode: "{{ mode_project }}"
         state: 'directory'
     - name: "Create /groups/{{ group }}/{{ lfs }}/projects/${project} directory."
-      file:
+      ansible.builtin.file:
         path: "/groups/{{ group }}/{{ lfs }}/projects/{{ item | regex_replace('^' + group + '-(.*)$', '\\1') }}"
         owner: "{{ group }}-dm"
         group: "{% if item | length %}{{ item }}{% else %}{{ group }}{% endif %}"
