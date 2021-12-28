@@ -3,15 +3,33 @@
 #
 ---
 - name: 'Install NFS utils.'
-  yum:
+  ansible.builtin.yum:
     name: nfs-utils
   notify:
     - restart_nfs-server
     - export_nfs_shares
   become: true
 
+#
+# The NFS protocol is limited to sending the UID and the first 16 GIDs of the user,
+# who wants to access a file/folder. Must add --manage-gids option to rpc.mountd
+# to allow the NFS server to do GID lookups using LDAP or other identity sources
+# and overcome the infamous NFS 16 group limit.
+#
+- name: 'Patch /etc/sysconfig/nfs to add --manage-gids option to rpc.mountd.'
+  ansible.builtin.lineinfile:
+    dest: /etc/sysconfig/nfs
+    regexp: '^#?RPCMOUNTDOPTS='
+    line: 'RPCMOUNTDOPTS="--manage-gids"'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart_nfs-server
+  become: true
+
 - name: 'Enable and start nfs-server service.'
-  systemd:
+  ansible.builtin.systemd:
     name: nfs-server.service
     state: 'started'
     enabled: true
@@ -21,7 +39,7 @@
   become: true
 
 - name: 'Add NFS share to /etc/exports.'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/exports
     line: "/mnt/{{ item.pfs }} {{ network_private_storage_cidr }}(rw,sync,no_root_squash,no_subtree_check)"
   with_items: "{{ pfs_mounts | selectattr('type', 'search', 'nfs') | selectattr('device', 'defined') | list }}"
