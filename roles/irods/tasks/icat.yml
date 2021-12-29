@@ -132,24 +132,31 @@
     line: 'acSetNumThreads {msiSetNumThreads("default","4","default"); }'
 
 - name: Edit /etc/irods/core.re to set default resource to {{ irods_default_resource }}
-  become: true
   lineinfile:
     name: /etc/irods/core.re
     search_string: 'acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","null"); }'
     line: 'acSetRescSchemeForCreate {msiSetDefaultResc("{{ irods_default_resource }}","null"); }'
+  become: true
 
 - name: Edit /etc/irods/core.re to set default replication resource to {{ irods_default_resource }}
-  become: true
   lineinfile:
     name: /etc/irods/core.re
     search_string: 'acSetRescSchemeForRepl {msiSetDefaultResc("demoResc","null"); }'
     line: 'acSetRescSchemeForRepl {msiSetDefaultResc("{{ irods_default_resource }}","null"); }'
+  become: true
 
 - name: Increase systcl limits to allow longer transfers
   copy:
     src: '{{ role_path }}/files/irods_fix.conf'
     dest: /etc/sysctl.d/
     mode: 0644
+  become: true
+
+- name: Temporary bugfix of the faulty service file (to be removed in newer versions)
+  lineinfile:
+    name: /etc/init.d/irods
+    search_string: 'rm /var/lock/subsys/irods'
+    line: 'rm -f /var/lock/subsys/irods'
   become: true
 
 - name: Fix the s3 authentication by creating dummy s3auth file
@@ -165,11 +172,4 @@
   become_user: '{{ irods_service_account }}'
   become: true
   notify: irodsctl_restart
-
-- name: Make sure iRODS service is enabled
-  sysvinit:
-    name: irods
-    enabled: true
-    state: started
-  become: true
 ...

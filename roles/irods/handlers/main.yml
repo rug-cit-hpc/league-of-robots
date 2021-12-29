@@ -7,11 +7,11 @@
   become: true
   listen: restart_postgresql
 
-# Start/stop/restart service call fails if with error if already in that state
-# so it's best if done via user call (as this is what the service does anyways)
-- name: Restart iRODS server manually as {{ irods_service_account }} user
-  command: /var/lib/irods/irodsctl restart
-  become_user: '{{ irods_service_account }}'
+- name: Make sure iRODS service is enabled and restart it
+  sysvinit:
+    name: irods
+    enabled: true
+    state: restarted
   become: true
   listen: irodsctl_restart
 ...
