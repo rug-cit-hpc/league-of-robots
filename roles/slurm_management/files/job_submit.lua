@@ -226,7 +226,7 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
                     slurm.log_debug("Job's features already contained LFS %s.", tostring(lfs))
                 end
             end
-            -- Assigned job to account of group, that was defined ^ based on path
+            -- Assign job to account of group, that was defined ^ based on path.
             job_desc.account = group
             slurm.log_debug("Assigned job to account of group %s.", group)
         else
