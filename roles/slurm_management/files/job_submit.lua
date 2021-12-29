@@ -226,6 +226,9 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
                     slurm.log_debug("Job's features already contained LFS %s.", tostring(lfs))
                 end
             end
+            -- Assign job to account of group, that was defined ^ based on path.
+            job_desc.account = group
+            slurm.log_debug("Assigned job to account of group %s.", group)
         else
             slurm.log_error(
                  "Job's working dir, *.err file or *.out file is not located in /groups/${group}/tmp*/...\n" ..
