@@ -5,9 +5,7 @@ stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name
 stack_prefix: 'tl'
 slurm_version: '20.11.8-1.el7.umcg'
 slurm_allow_jobs_to_span_nodes: true
-repo_manager: 'spacewalk'
-rhn_channels:
-  - umcg2020
+repo_manager: 'pulp'
 mailhub: '172.23.34.34'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'ogre'
