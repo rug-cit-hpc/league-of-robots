@@ -129,7 +129,7 @@ See the `README.md` in the root of this repo for details.
 Next you can use
 ```bash
 . ./lor-init
-lor-config [name-of-the-cluster]
+lor-config [stack_prefix]
 ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/pulp_server.yml
 ```
 This will install Pulp, create an admin account to manage Pulp and install the Pulp CLI in a Python virtual environment
@@ -138,27 +138,6 @@ the *pulp_server* role can create _remotes_ and _repositories_, but it cannot as
 Furthermore the role cannot know when you want to sync a _repo_ with a _remote_ to update content.
 
 ### Manual work following the pulp_server role
-
-For the `pulpcore` version `3.12.2` and `pulp-rpm` version `3.10.0` you need to downgrade the package `productmd` to version `1.32` due to the [known bug](https://pulp.plan.io/issues/8825)
-
-```bash
-[root @ reposrv ] # cd /usr/local/lib/pulp/
-[root @ reposrv ] # source bin/activate
-[root @ reposrv ] # pip install 'productmd==1.32' --force-reinstall
-[root @ reposrv ] # shutdown -r now
-```
-And then check for core and plugin versions
-
-```bash
-[ repoadmin @ reposrv ] $ pulp status
-...
-- component: core
-  version: 3.12.2
-- component: rpm
-  version: 3.10.0
-- component: file
-  version: 1.7.0
-```
 
 The following steps must be performed manually for now:
 
@@ -175,7 +154,166 @@ You can use
  * Or send raw HTTP GET/PUT calls to the Pulp API using a commandline HTTP client like HTTPie or cURL
    (harder, but required where Pulp CLI support is incomplete).
 
-See the example commands below for what was initially configured manually for the ```nb-repo``` Pulp server.
+##### Upload custom RPMs to repo server.
+
+```bash
+#
+# This assumes you have the custom RPMs in a local folder named umcg-centos7
+#
+rsync -av --rsync-path 'sudo -u [repoadmin] rsync' umcg-centos7 [admin]@[jumphost]+[stack_prefix]-repo:/admin/[repoadmin]/
+```
+
+##### Login and become repoadmin user on repo server.
+
+```bash
+ssh [admin]@[jumphost]+[stack_prefix]-repo
+sudo -u [repoadmin] bash
+cd
+source source pulp-cli.venv/bin/activate
+pulp status
+```
+
+##### Add custom content (RPMs) to a the custom repo without remote.
+
+```bash
+set -u
+set -e
+#
+# pulp-cli does not have commands yet to create RPM content from artifacts and add them to a repo.
+# So we have to manually create HTTP POST/PUT/GET calls using the example code/scripts described at
+# https://docs.pulpproject.org/pulp_rpm/index.html 
+#
+export BASE_ADDR='http://localhost:24817'
+wait_until_task_finished() {
+    echo 'Polling for task status until the task has reached a final state.'
+    local task_url="${1}"
+    while true
+    do
+        response=$(http "${task_url}")
+        local response
+        state=$(jq -r .state <<< "${response}")
+        local state
+        jq . <<< "${response}"
+        case ${state} in
+            failed|canceled)
+                echo "Task in final state: ${state}"
+                exit 1
+                ;;
+            completed)
+                echo "${task_url} complete."
+                break
+                ;;
+            *)
+                echo 'Still waiting ...'
+                sleep 1
+                ;;
+        esac
+    done
+}
+#
+# Create hashes for pulp hrefs.
+#
+declare -A pulp_artifact_hrefs
+declare -A pulp_rpm_hrefs
+#
+# Create Pulp artifacts.
+#
+for rpm in $(find umcg-centos7 -name '*.rpm'); do
+    pulp artifact upload --file "${rpm}" | tee "${rpm}.pulp-artifact"
+    pulp_artifact_hrefs[$(basename "${rpm}")]=$(grep pulp_href "${rpm}.pulp-artifact" | sed 's|pulp_href: ||')
+done
+#
+# Create Pulp RPMs from artifacts.
+#
+for rpm in "${!pulp_artifact_hrefs[@]}"; do
+    echo "Creating Pulp RPM ${rpm} from Pulp artifact ${pulp_artifact_hrefs[${rpm}]} ..."
+    TASK_URL=$(http POST "$BASE_ADDR"/pulp/api/v3/content/rpm/packages/ \
+        artifact="${pulp_artifact_hrefs[${rpm}]}" relative_path="${rpm}" | jq -r '.task')
+    wait_until_task_finished "${BASE_ADDR}""${TASK_URL}"
+    echo 'Setting PACKAGE_HREF from finished task ...'
+    PACKAGE_HREF=$(http "${BASE_ADDR}""${TASK_URL}"| jq -r '.created_resources | first')
+    pulp_rpm_hrefs[${rpm}]="${PACKAGE_HREF}"
+    echo 'Inspecting Package ...'
+    http "${BASE_ADDR}""${PACKAGE_HREF}"
+done
+#
+# Add Pulp RPMs to Pulp repo.
+#
+REPO_HREF=$(pulp rpm repository show --name cpel7 | grep pulp_href | sed 's|pulp_href: ||')
+for rpm in "${!pulp_rpm_hrefs[@]}"; do
+    echo "Add Pulp RPM ${rpm} to repository ..."
+    TASK_URL=$(http POST "${BASE_ADDR}""${REPO_HREF}"'modify/' \
+        add_content_units:="[\"${pulp_rpm_hrefs[${rpm}]}\"]" | jq -r '.task')
+    wait_until_task_finished "${BASE_ADDR}""${TASK_URL}"
+done
+```
+
+##### Add remotes to repos.
+
+```bash
+pulp rpm repository update --name centos7-base    --remote centos7-base-remote
+pulp rpm repository update --name centos7-updates --remote centos7-updates-remote
+pulp rpm repository update --name centos7-extras  --remote centos7-extras-remote
+pulp rpm repository update --name epel7           --remote epel7-remote
+pulp rpm repository update --name irods7          --remote irods7-remote
+pulp rpm repository update --name lustre7         --remote lustre7-remote
+```
+
+##### Sync repos with remotes.
+
+```bash
+pulp rpm repository sync --name centos7-base
+pulp rpm repository sync --name centos7-updates
+pulp rpm repository sync --name centos7-extras
+pulp rpm repository sync --name epel7
+pulp rpm repository sync --name irods7
+pulp rpm repository sync --name lustre7
+```
+
+##### Create new publications based on new repository versions.
+
+```bash
+#
+# The "pulp rpm publication create" command will create a new publication
+# for the latest version of a repo, when no version is specified explicitly.
+# Optionally you can specify a specific version number with --version [number].
+#
+set -e
+set -u
+declare -A pulp_publication_hrefs
+pulp_publication_hrefs=(
+    [centos7-base]=''
+    [centos7-updates]=''
+    [centos7-extras]=''
+    [epel7]=''
+    [cpel7]=''
+    [irods7]=''
+    [lustre7]=''
+)
+for repo in "${!pulp_publication_hrefs[@]}"; do
+    pulp rpm publication create --repository "${repo}" | tee "${repo}.pulp-publication"
+    pulp_publication_hrefs["${repo}"]=$(grep pulp_href "${repo}.pulp-publication" | sed 's|pulp_href: ||')
+done
+```
+
+##### Create new or update existing distributions to serve the publications to clients.
+
+```bash
+#
+# Create distributions to serve the publications to clients.
+#
+set -e
+set -u
+#stack_prefix=''
+#cluster_name=''
+#pulp_action='create'
+for repo in "${!pulp_publication_hrefs[@]}"; do
+    pulp rpm distribution "${pulp_action}" \
+        --name "${stack_prefix}-${repo}" \
+        --base-path "${cluster_name}/${repo}" \
+        --publication "${pulp_publication_hrefs["${repo}"]}"
+done
+```
 
 # <a name="Configure-Manually-With-Api"/> Configure manually with API
 
@@ -287,7 +425,7 @@ done
 #
 # pulp-cli does not have commands yet to create RPM content from artifacts and add them to a repo.
 # So we have to manually create HTTP POST/PUT/GET calls using the example code/scripts described at
-# https://docs.pulpproject.org/pulp_rpm/index.html 
+# https://docs.pulpproject.org/pulp_rpm/index.html
 #
 export BASE_ADDR='http://localhost:24817'
 # Poll a Pulp task until it is finished.
@@ -545,7 +683,7 @@ The commands are listed below, but in general, these are the steps to add an rpm
 
 #### 1. upload rpm to repo server, connect to server and load pulp environment
 ```
-$ rsync -av --rsync-path 'sudo -u root repoadmin' ega-fuse-client-2.1.0-1.noarch.rpm sandi@corridor+fd-repo:/admin/repoadmin/umcg-centos7/
+$ rsync -av --rsync-path 'sudo -u repoadmin rsync' ega-fuse-client-2.1.0-1.noarch.rpm sandi@corridor+fd-repo:/admin/repoadmin/umcg-centos7/
 $ ssh sandi@corridor+fd-repo
 $ sudo su - repoadmin
 $ source pulp-cli.venv/bin/activate
