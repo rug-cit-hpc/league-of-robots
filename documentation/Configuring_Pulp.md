@@ -150,9 +150,8 @@ The following steps must be performed manually for now:
 
 You can use
 
- * Either Pulp CLI commands where possible (easier and recommended)
- * Or send raw HTTP GET/PUT calls to the Pulp API using a commandline HTTP client like HTTPie or cURL
-   (harder, but required where Pulp CLI support is incomplete).
+ * Either Pulp CLI commands where possible (easier and recommended).
+ * Or send raw HTTP GET/PUT calls to the Pulp API using a commandline HTTP client like HTTPie or cURL (harder).
 
 ##### Upload custom RPMs to repo server.
 
@@ -170,81 +169,39 @@ ssh [admin]@[jumphost]+[stack_prefix]-repo
 sudo -u [repoadmin] bash
 cd
 source source pulp-cli.venv/bin/activate
+set -u
 pulp status
 ```
 
 ##### Add custom content (RPMs) to a the custom repo without remote.
 
 ```bash
-set -u
-set -e
 #
-# pulp-cli does not have commands yet to create RPM content from artifacts and add them to a repo.
-# So we have to manually create HTTP POST/PUT/GET calls using the example code/scripts described at
-# https://docs.pulpproject.org/pulp_rpm/index.html 
-#
-export BASE_ADDR='http://localhost:24817'
-wait_until_task_finished() {
-    echo 'Polling for task status until the task has reached a final state.'
-    local task_url="${1}"
-    while true
-    do
-        response=$(http "${task_url}")
-        local response
-        state=$(jq -r .state <<< "${response}")
-        local state
-        jq . <<< "${response}"
-        case ${state} in
-            failed|canceled)
-                echo "Task in final state: ${state}"
-                exit 1
-                ;;
-            completed)
-                echo "${task_url} complete."
-                break
-                ;;
-            *)
-                echo 'Still waiting ...'
-                sleep 1
-                ;;
-        esac
-    done
-}
-#
-# Create hashes for pulp hrefs.
-#
-declare -A pulp_artifact_hrefs
-declare -A pulp_rpm_hrefs
-#
-# Create Pulp artifacts.
+# Upload RPM files to create Pulp RPMs and add them to 
+# our Custom Packges for Enterprise Linux (cpel) repo.
 #
 for rpm in $(find umcg-centos7 -name '*.rpm'); do
-    pulp artifact upload --file "${rpm}" | tee "${rpm}.pulp-artifact"
-    pulp_artifact_hrefs[$(basename "${rpm}")]=$(grep pulp_href "${rpm}.pulp-artifact" | sed 's|pulp_href: ||')
+    rpm_href=$(pulp --format json rpm content upload \
+                    --file "${rpm}" \
+                    --relative-path "$(basename "${rpm}")" \
+                 | jq -r '.pulp_href')
+    if [[ -n "${rpm_href:-}" ]]; then
+        pulp rpm repository content add \
+            --repository cpel7 \
+            --package-href "${rpm_href}"
+    fi
 done
+```
+
+```bash
 #
-# Create Pulp RPMs from artifacts.
+# Alternatively, if the RPMs were already uploaded to Pulp
+# and only need to be added to our cpel repo:
 #
-for rpm in "${!pulp_artifact_hrefs[@]}"; do
-    echo "Creating Pulp RPM ${rpm} from Pulp artifact ${pulp_artifact_hrefs[${rpm}]} ..."
-    TASK_URL=$(http POST "$BASE_ADDR"/pulp/api/v3/content/rpm/packages/ \
-        artifact="${pulp_artifact_hrefs[${rpm}]}" relative_path="${rpm}" | jq -r '.task')
-    wait_until_task_finished "${BASE_ADDR}""${TASK_URL}"
-    echo 'Setting PACKAGE_HREF from finished task ...'
-    PACKAGE_HREF=$(http "${BASE_ADDR}""${TASK_URL}"| jq -r '.created_resources | first')
-    pulp_rpm_hrefs[${rpm}]="${PACKAGE_HREF}"
-    echo 'Inspecting Package ...'
-    http "${BASE_ADDR}""${PACKAGE_HREF}"
-done
-#
-# Add Pulp RPMs to Pulp repo.
-#
-REPO_HREF=$(pulp rpm repository show --name cpel7 | grep pulp_href | sed 's|pulp_href: ||')
-for rpm in "${!pulp_rpm_hrefs[@]}"; do
-    echo "Add Pulp RPM ${rpm} to repository ..."
-    TASK_URL=$(http POST "${BASE_ADDR}""${REPO_HREF}"'modify/' \
-        add_content_units:="[\"${pulp_rpm_hrefs[${rpm}]}\"]" | jq -r '.task')
-    wait_until_task_finished "${BASE_ADDR}""${TASK_URL}"
+for rpm_href in $(pulp --format json rpm content list | jq -r '.[].pulp_href'); do
+    pulp rpm repository content add \
+        --repository cpel7 \
+        --package-href "${rpm_href}"
 done
 ```
 
@@ -306,7 +263,7 @@ set -e
 set -u
 #stack_prefix=''
 #cluster_name=''
-#pulp_action='create'
+#pulp_action='create|update'
 for repo in "${!pulp_publication_hrefs[@]}"; do
     pulp rpm distribution "${pulp_action}" \
         --name "${stack_prefix}-${repo}" \
@@ -314,6 +271,8 @@ for repo in "${!pulp_publication_hrefs[@]}"; do
         --publication "${pulp_publication_hrefs["${repo}"]}"
 done
 ```
+
+---
 
 # <a name="Configure-Manually-With-Api"/> Configure manually with API
 
