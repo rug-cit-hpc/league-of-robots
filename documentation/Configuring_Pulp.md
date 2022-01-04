@@ -178,7 +178,7 @@ pulp status
 ```bash
 #
 # Upload RPM files to create Pulp RPMs and add them to 
-# our Custom Packges for Enterprise Linux (cpel) repo.
+# our Custom Packages for Enterprise Linux (cpel) repo.
 #
 for rpm in $(find umcg-centos7 -name '*.rpm'); do
     rpm_href=$(pulp --format json rpm content upload \
