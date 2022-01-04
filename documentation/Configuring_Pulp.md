@@ -157,7 +157,7 @@ You can use
 
 ```bash
 #
-# This assumes you have the custom RPMs in a local folder named umcg-centos7
+# This assumes you have the custom RPMs in a local folder named "umcg-centos7".
 #
 rsync -av --rsync-path 'sudo -u [repoadmin] rsync' umcg-centos7 [admin]@[jumphost]+[stack_prefix]-repo:/admin/[repoadmin]/
 ```
@@ -227,48 +227,60 @@ pulp rpm repository sync --name irods7
 pulp rpm repository sync --name lustre7
 ```
 
-##### Create new publications based on new repository versions.
+##### Create/update distributions based on new publications based on new repository versions.
 
 ```bash
-#
-# The "pulp rpm publication create" command will create a new publication
-# for the latest version of a repo, when no version is specified explicitly.
-# Optionally you can specify a specific version number with --version [number].
-#
 set -e
 set -u
-declare -A pulp_publication_hrefs
-pulp_publication_hrefs=(
-    [centos7-base]=''
-    [centos7-updates]=''
-    [centos7-extras]=''
-    [epel7]=''
-    [cpel7]=''
-    [irods7]=''
-    [lustre7]=''
+
+stack_prefix='' # Must be filled in; check group_vars.
+cluster_name='' # Must be filled in; check group_vars.
+
+declare -a pulp_repos
+pulp_repos=(
+    centos7-base
+    centos7-updates
+    centos7-extras
+    epel7
+    cpel7
+    irods7
+    lustre7
 )
-for repo in "${!pulp_publication_hrefs[@]}"; do
-    pulp rpm publication create --repository "${repo}" | tee "${repo}.pulp-publication"
-    pulp_publication_hrefs["${repo}"]=$(grep pulp_href "${repo}.pulp-publication" | sed 's|pulp_href: ||')
-done
-```
 
-##### Create new or update existing distributions to serve the publications to clients.
-
-```bash
-#
-# Create distributions to serve the publications to clients.
-#
-set -e
-set -u
-#stack_prefix=''
-#cluster_name=''
-#pulp_action='create|update'
-for repo in "${!pulp_publication_hrefs[@]}"; do
-    pulp rpm distribution "${pulp_action}" \
+for repo in "${pulp_repos[@]}"; do
+    echo "INFO: Processing distribution name ${stack_prefix}-${repo} with base path ${cluster_name}/${repo} ..."
+    #
+    # Get latest repository version href for this repo.
+    #
+    latest_version_href=$(pulp --format json rpm repository show --name "${repo}" | jq -r '.latest_version_href')
+    #
+    # Check if we already have a publication for the latest repository version.
+    #
+    if pulp rpm publication list --repository-version "${latest_version_href}" >/dev/null 2>&1; then
+        echo "INFO:     Using existing publication for latest version of ${repo} repository ..."
+        publication_href=$(pulp --format json \
+            rpm publication list --repository-version "${latest_version_href}" \
+          | jq -r 'first.pulp_href')
+    else
+        echo "INFO:     Creating new publication for latest version of ${repo} repository ..."
+        publication_href=$(pulp --format json \
+            rpm publication create --repository "${repo}" \
+          | jq -r '.pulp_href')
+    fi
+    #
+    # Check if we already have a distribution for this repo.
+    #
+    if pulp rpm distribution show --name "${stack_prefix}-${repo}" >/dev/null 2>&1; then
+        pulp_distribution_action='update'
+        echo "INFO:     Updating distribution ..."
+    else
+        pulp_distribution_action='create'
+        echo "INFO:     Creating distribution ..."
+    fi
+    pulp rpm distribution "${pulp_distribution_action}" \
         --name "${stack_prefix}-${repo}" \
         --base-path "${cluster_name}/${repo}" \
-        --publication "${pulp_publication_hrefs["${repo}"]}"
+        --publication "${pulp_publication_href}"
 done
 ```
 
