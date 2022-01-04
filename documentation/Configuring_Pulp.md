@@ -150,15 +150,14 @@ The following steps must be performed manually for now:
 
 You can use
 
- * Either Pulp CLI commands where possible (easier and recommended)
- * Or send raw HTTP GET/PUT calls to the Pulp API using a commandline HTTP client like HTTPie or cURL
-   (harder, but required where Pulp CLI support is incomplete).
+ * Either Pulp CLI commands where possible (easier and recommended).
+ * Or send raw HTTP GET/PUT calls to the Pulp API using a commandline HTTP client like HTTPie or cURL (harder).
 
 ##### Upload custom RPMs to repo server.
 
 ```bash
 #
-# This assumes you have the custom RPMs in a local folder named umcg-centos7
+# This assumes you have the custom RPMs in a local folder named "umcg-centos7".
 #
 rsync -av --rsync-path 'sudo -u [repoadmin] rsync' umcg-centos7 [admin]@[jumphost]+[stack_prefix]-repo:/admin/[repoadmin]/
 ```
@@ -170,81 +169,39 @@ ssh [admin]@[jumphost]+[stack_prefix]-repo
 sudo -u [repoadmin] bash
 cd
 source source pulp-cli.venv/bin/activate
+set -u
 pulp status
 ```
 
 ##### Add custom content (RPMs) to a the custom repo without remote.
 
 ```bash
-set -u
-set -e
 #
-# pulp-cli does not have commands yet to create RPM content from artifacts and add them to a repo.
-# So we have to manually create HTTP POST/PUT/GET calls using the example code/scripts described at
-# https://docs.pulpproject.org/pulp_rpm/index.html 
-#
-export BASE_ADDR='http://localhost:24817'
-wait_until_task_finished() {
-    echo 'Polling for task status until the task has reached a final state.'
-    local task_url="${1}"
-    while true
-    do
-        response=$(http "${task_url}")
-        local response
-        state=$(jq -r .state <<< "${response}")
-        local state
-        jq . <<< "${response}"
-        case ${state} in
-            failed|canceled)
-                echo "Task in final state: ${state}"
-                exit 1
-                ;;
-            completed)
-                echo "${task_url} complete."
-                break
-                ;;
-            *)
-                echo 'Still waiting ...'
-                sleep 1
-                ;;
-        esac
-    done
-}
-#
-# Create hashes for pulp hrefs.
-#
-declare -A pulp_artifact_hrefs
-declare -A pulp_rpm_hrefs
-#
-# Create Pulp artifacts.
+# Upload RPM files to create Pulp RPMs and add them to 
+# our Custom Packages for Enterprise Linux (cpel) repo.
 #
 for rpm in $(find umcg-centos7 -name '*.rpm'); do
-    pulp artifact upload --file "${rpm}" | tee "${rpm}.pulp-artifact"
-    pulp_artifact_hrefs[$(basename "${rpm}")]=$(grep pulp_href "${rpm}.pulp-artifact" | sed 's|pulp_href: ||')
+    rpm_href=$(pulp --format json rpm content upload \
+                    --file "${rpm}" \
+                    --relative-path "$(basename "${rpm}")" \
+                 | jq -r '.pulp_href')
+    if [[ -n "${rpm_href:-}" ]]; then
+        pulp rpm repository content add \
+            --repository cpel7 \
+            --package-href "${rpm_href}"
+    fi
 done
+```
+
+```bash
 #
-# Create Pulp RPMs from artifacts.
+# Alternatively, if the RPMs were already uploaded to Pulp
+# and only need to be added to our cpel repo:
 #
-for rpm in "${!pulp_artifact_hrefs[@]}"; do
-    echo "Creating Pulp RPM ${rpm} from Pulp artifact ${pulp_artifact_hrefs[${rpm}]} ..."
-    TASK_URL=$(http POST "$BASE_ADDR"/pulp/api/v3/content/rpm/packages/ \
-        artifact="${pulp_artifact_hrefs[${rpm}]}" relative_path="${rpm}" | jq -r '.task')
-    wait_until_task_finished "${BASE_ADDR}""${TASK_URL}"
-    echo 'Setting PACKAGE_HREF from finished task ...'
-    PACKAGE_HREF=$(http "${BASE_ADDR}""${TASK_URL}"| jq -r '.created_resources | first')
-    pulp_rpm_hrefs[${rpm}]="${PACKAGE_HREF}"
-    echo 'Inspecting Package ...'
-    http "${BASE_ADDR}""${PACKAGE_HREF}"
-done
-#
-# Add Pulp RPMs to Pulp repo.
-#
-REPO_HREF=$(pulp rpm repository show --name cpel7 | grep pulp_href | sed 's|pulp_href: ||')
-for rpm in "${!pulp_rpm_hrefs[@]}"; do
-    echo "Add Pulp RPM ${rpm} to repository ..."
-    TASK_URL=$(http POST "${BASE_ADDR}""${REPO_HREF}"'modify/' \
-        add_content_units:="[\"${pulp_rpm_hrefs[${rpm}]}\"]" | jq -r '.task')
-    wait_until_task_finished "${BASE_ADDR}""${TASK_URL}"
+for rpm_href in $(pulp --format json rpm content list | jq -r '.[].pulp_href'); do
+    pulp rpm repository content add \
+        --repository cpel7 \
+        --package-href "${rpm_href}"
 done
 ```
 
@@ -270,50 +227,64 @@ pulp rpm repository sync --name irods7
 pulp rpm repository sync --name lustre7
 ```
 
-##### Create new publications based on new repository versions.
+##### Create/update distributions based on new publications based on new repository versions.
 
 ```bash
-#
-# The "pulp rpm publication create" command will create a new publication
-# for the latest version of a repo, when no version is specified explicitly.
-# Optionally you can specify a specific version number with --version [number].
-#
 set -e
 set -u
-declare -A pulp_publication_hrefs
-pulp_publication_hrefs=(
-    [centos7-base]=''
-    [centos7-updates]=''
-    [centos7-extras]=''
-    [epel7]=''
-    [cpel7]=''
-    [irods7]=''
-    [lustre7]=''
+
+stack_prefix='' # Must be filled in; check group_vars.
+cluster_name='' # Must be filled in; check group_vars.
+
+declare -a pulp_repos
+pulp_repos=(
+    centos7-base
+    centos7-updates
+    centos7-extras
+    epel7
+    cpel7
+    irods7
+    lustre7
 )
-for repo in "${!pulp_publication_hrefs[@]}"; do
-    pulp rpm publication create --repository "${repo}" | tee "${repo}.pulp-publication"
-    pulp_publication_hrefs["${repo}"]=$(grep pulp_href "${repo}.pulp-publication" | sed 's|pulp_href: ||')
-done
-```
 
-##### Create new or update existing distributions to serve the publications to clients.
-
-```bash
-#
-# Create distributions to serve the publications to clients.
-#
-set -e
-set -u
-#stack_prefix=''
-#cluster_name=''
-#pulp_action='create'
-for repo in "${!pulp_publication_hrefs[@]}"; do
-    pulp rpm distribution "${pulp_action}" \
+for repo in "${pulp_repos[@]}"; do
+    echo "INFO: Processing distribution name ${stack_prefix}-${repo} with base path ${cluster_name}/${repo} ..."
+    #
+    # Get latest repository version href for this repo.
+    #
+    latest_version_href=$(pulp --format json rpm repository show --name "${repo}" | jq -r '.latest_version_href')
+    #
+    # Check if we already have a publication for the latest repository version.
+    #
+    if pulp rpm publication list --repository-version "${latest_version_href}" >/dev/null 2>&1; then
+        echo "INFO:     Using existing publication for latest version of ${repo} repository ..."
+        publication_href=$(pulp --format json \
+            rpm publication list --repository-version "${latest_version_href}" \
+          | jq -r 'first.pulp_href')
+    else
+        echo "INFO:     Creating new publication for latest version of ${repo} repository ..."
+        publication_href=$(pulp --format json \
+            rpm publication create --repository "${repo}" \
+          | jq -r '.pulp_href')
+    fi
+    #
+    # Check if we already have a distribution for this repo.
+    #
+    if pulp rpm distribution show --name "${stack_prefix}-${repo}" >/dev/null 2>&1; then
+        pulp_distribution_action='update'
+        echo "INFO:     Updating distribution ..."
+    else
+        pulp_distribution_action='create'
+        echo "INFO:     Creating distribution ..."
+    fi
+    pulp rpm distribution "${pulp_distribution_action}" \
         --name "${stack_prefix}-${repo}" \
         --base-path "${cluster_name}/${repo}" \
-        --publication "${pulp_publication_hrefs["${repo}"]}"
+        --publication "${pulp_publication_href}"
 done
 ```
+
+---
 
 # <a name="Configure-Manually-With-Api"/> Configure manually with API
 
