@@ -1,5 +1,13 @@
 # League of Robots
 
+##### _develop_ branch CI status
+
+[![CircleCI](https://circleci.com/gh/rug-cit-hpc/league-of-robots/tree/develop.svg?style=svg)](https://circleci.com/gh/rug-cit-hpc/league-of-robots/tree/develop)
+
+##### _master_ branch CI status
+
+[![CircleCI](https://circleci.com/gh/rug-cit-hpc/league-of-robots/tree/master.svg?style=svg)](https://circleci.com/gh/rug-cit-hpc/league-of-robots/tree/master)
+
 ## About this repo
 
 This repository contains playbooks and documentation to deploy *stacks* of virtual machines working together.
