@@ -87,6 +87,34 @@
     mode: '0755'
   become: true
 
+- name: Ensure systemd will try to restart the sssd service automatically on failure.
+  ansible.builtin.lineinfile:
+    path: '/usr/lib/systemd/system/sssd.service'
+    backup: true
+    insertafter: '\[Service\]'
+    regexp: '^#?Restart='
+    line: 'Restart=on-failure'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart_sssd
+  become: true
+
+- name: Ensure sssd service will try to restart the sssd service automatically with reasonable intervals.
+  ansible.builtin.lineinfile:
+    path: '/usr/lib/systemd/system/sssd.service'
+    backup: true
+    insertafter: '\[Service\]'
+    regexp: '^#?RestartSec='
+    line: 'RestartSec=600s'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart_sssd
+  become: true
+
 - name: Enable services.
   ansible.builtin.systemd:
     name: sssd
@@ -96,7 +124,7 @@
   become: true
 
 - name: Check if we need to update authconfig.
-  command:
+  ansible.builtin.command:
     cmd: /usr/sbin/authconfig --test
   register: authconfig_test
   changed_when: ('nss_sss is disabled' in authconfig_test.stdout) or ('pam_sss is disabled' in authconfig_test.stdout)
