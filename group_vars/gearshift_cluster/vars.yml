@@ -294,7 +294,7 @@ pfs_mounts: [
     rw_options: 'defaults,_netdev,flock',
     ro_options: 'defaults,_netdev,ro' },
 #  { pfs: 'umcgst02',
-#    source: '172.23.57.203@tcp12:172.23.57.204@tcp12:/dh2',
+#    source: '172.23.57.213@tcp14:172.23.57.214@tcp14:/umcg',
 #    type: 'lustre',
 #    rw_options: 'defaults,_netdev,flock',
 #    ro_options: 'defaults,_netdev,ro' },
