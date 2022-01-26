@@ -9,6 +9,7 @@
     - ssh_host_signer
     - ssh_known_hosts
     - logrotate
+    - remove
     - update
     - {role: geerlingguy.repo-epel, become: true}
     - {role: geerlingguy.firewall, become: true}
