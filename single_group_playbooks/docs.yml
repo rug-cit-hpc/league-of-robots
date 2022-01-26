@@ -8,6 +8,7 @@
     - admin_users
     - ssh_host_signer
     - logrotate
+    - remove
     - update
     - {role: geerlingguy.repo-epel, become: true}
     - sshd
