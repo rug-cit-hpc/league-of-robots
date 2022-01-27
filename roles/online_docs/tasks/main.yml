@@ -3,7 +3,7 @@
 #
 ---
 - name: 'Check OS version of target host.'
-  fail:
+  ansible.builtin.fail:
     msg: 'This role requires RedHat/CentOS version >= 7.x'
   when: ansible_facts['os_family'] != "RedHat" or ansible_facts['distribution_major_version'] <= "6"
 
@@ -14,7 +14,7 @@
 # as you can specify only one account name with -u on the commandline when running ansible-playbook.
 #
 - name: 'Gather facts from hosts, so we can use them in the generated docs.'
-  setup:
+  ansible.builtin.setup:
   delegate_to: "{{ item }}"
   delegate_facts: true
   with_items:
@@ -22,7 +22,7 @@
     - "{{ groups['user_interface'] }}"
 
 - name: 'Get Slurm version from scontrol on UI.'
-  shell:
+  ansible.builtin.shell:
     cmd: |
       set -o pipefail
       scontrol version | head -n 1 | sed 's|^slurm *\([0-9\.]*\).*$|\1|' | tr -d '\n'
@@ -43,7 +43,7 @@
   # Modules based on Lua: Version 6.5.8  2016-09-03 13:41 -05:00 (CDT)
   #    by Robert McLay mclay@tacc.utexas.edu
   #
-  shell:
+  ansible.builtin.shell:
     cmd: |
       set -o pipefail
       unset MODULEPATH
@@ -61,7 +61,7 @@
   register: 'lmod_version'
 
 - name: 'Get host key fingeprints from dedicated data transfer server.'
-  shell:
+  ansible.builtin.shell:
     cmd: |
       set -o pipefail
       ssh-keygen -lf <(ssh-keyscan {{ dt_server_address }} 2>/dev/null) \
@@ -80,7 +80,7 @@
     - groups['data_transfer'] | first | length >= 1
 
 - name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
-  find:
+  ansible.builtin.find:
     paths: "{{ playbook_dir }}/group_vars/"
     recurse: true
     patterns: 'ip_addresses.yml'
@@ -89,7 +89,7 @@
   connection: local
 
 - name: 'Include variables from all ip_addresses.yml files.'
-  include_vars:
+  ansible.builtin.include_vars:
     file: "{{ item }}"
     name: "networking_lookup"
   with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
@@ -98,19 +98,19 @@
   connection: local
 
 - name: 'Combine network info from ip_addresses.yml files into one dict.'
-  set_fact:
+  ansible.builtin.set_fact:
     networking_lookups: "{{ networking_lookups.results | json_query('[].ansible_facts.networking_lookup.ip_addresses') | combine() }}"
   delegate_to: localhost
   connection: local
 
 - name: 'Set selinux in permissive mode.'
-  selinux:
+  ansible.posix.selinux:
     policy: 'targeted'
     state: 'permissive'
   become: true
 
 - name: 'Install EPEL repo and rsync.'
-  yum:
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name:
@@ -118,19 +118,74 @@
       - 'rsync'
   become: true
 
-- name: 'Install webserver and php.'
-  yum:
+- name: 'Install apache webserver, php and nano.'
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name:
+      - 'nano'
       - 'php'
       - 'httpd'
+      - 'mod_ssl'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+#
+# The *.pem file with crt as well as key must be copied to the server manually.
+#
+- name: 'Check if *.gcc.rug.nl wildcard certificate was installed on server.'
+  ansible.builtin.file:
+    path: '/etc/pki/tls/private/wildcard_crt_and_key.pem'
+    state: 'file'
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+- name: 'Create symlinks for Apache httpd, so it can find the cert & key in the *.gcc.rug.nl wildcard certificate file.'
+  ansible.builtin.file:  # noqa risky-file-permissions
+    src: '/etc/pki/tls/private/wildcard_crt_and_key.pem'
+    dest: "{{ item }}"
+    state: 'link'
+    owner: 'root'
+    group: 'root'
+    force: true
+  with_items:
+    - '/etc/pki/tls/private/localhost.key'
+    - '/etc/pki/tls/certs/localhost.crt'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+- name: 'Configure ServerName in /etc/httpd/conf.d/ssl.conf'
+  ansible.builtin.lineinfile:
+    path: '/etc/httpd/conf.d/ssl.conf'
+    insertafter: '^<VirtualHost.*>'
+    regexp: '^#?ServerName'
+    line: 'ServerName docs.gcc.rug.nl'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+- name: 'Configure Apache webserver to redirect HTTP to HTTPS.'
+  ansible.builtin.template:
+    src: 'templates/apache/redirect_all_http_to_https.conf'
+    dest: '/etc/httpd/conf.d/redirect_all_http_to_https.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
   notify:
     - 'restart_httpd'
   become: true
 
 - name: 'Enable webserver.'
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     enabled: true
     state: 'started'
@@ -139,12 +194,12 @@
   become: true
 
 - name: 'Install MkDocs on RedHat 7.x.'
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: mkdocs-for-redhat7.yml
   when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "7"
 
 - name: 'Create base directories for MarkDown and HTML files.'
-  file:
+  ansible.builtin.file:
     path: "{{ item.path }}"
     state: 'directory'
     owner: 'root'
@@ -198,7 +253,7 @@
   become: true
 
 - name: 'Create sub directory structure for MarkDown files.'
-  file:
+  ansible.builtin.file:
     path: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"
     state: 'directory'
     owner: 'root'
@@ -275,7 +330,7 @@
   become: true
 
 - name: 'Make sure main script of AppleScript apps are executable.'
-  file:
+  ansible.builtin.file:
     path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item }}/Contents/MacOS/applet"
     state: 'file'
     owner: 'root'
@@ -290,7 +345,7 @@
   become: true
 
 - name: 'Create files for attachments based on templates.'
-  template:
+  ansible.builtin.template:
     src: "attachments/{{ item.src }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.dest }}"
     owner: 'root'
@@ -315,7 +370,7 @@
   become: true
 
 - name: 'Create MarkDown files based on templates.'
-  template:
+  ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"
     owner: 'root'
