@@ -12,6 +12,17 @@
     cron_file: restart_logind
   become: true
 
+- name: 'Patch /etc/pam.d/sshd to allow logins from users in the admin group using ssh even when /etc/nologin is present.'
+  ansible.builtin.lineinfile:
+    path: '/etc/pam.d/sshd'
+    insertbefore: '^account(\s+)required(\s+)pam_nologin.so'
+    regexp: '^account(\s+)\[default=ignore(\s+)success=1\](\s+)pam_succeed_if.so(\s+)quiet(\s+)user(\s+)ingroup(\s+)admin'
+    line: 'account    [default=ignore success=1] pam_succeed_if.so quiet user ingroup admin'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  become: true
+
 - name: 'Install yum dependencies.'
   ansible.builtin.yum:
     state: 'latest'
