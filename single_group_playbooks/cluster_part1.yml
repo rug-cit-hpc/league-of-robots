@@ -12,6 +12,7 @@
     - {role: spacewalk_client, when: repo_manager == 'spacewalk'}
     - {role: pulp_client, when: repo_manager == 'pulp'}
     - logrotate
+    - remove
     - update
     - logins
     - figlet_motd

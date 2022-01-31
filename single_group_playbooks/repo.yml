@@ -13,6 +13,7 @@
     - static_hostname_lookup
     - sshd
     - {role: geerlingguy.security, become: true}
+    - remove
     - update
     - pulp_server
 ...

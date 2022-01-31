@@ -43,6 +43,7 @@
     - pulp_client
     - {role: geerlingguy.security, become: true}
     - {role: geerlingguy.firewall, become: true}
+    - remove
     - update
     - docker
     - irods
