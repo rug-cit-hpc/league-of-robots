@@ -168,7 +168,7 @@ rsync -av --rsync-path 'sudo -u [repoadmin] rsync' umcg-centos7 [admin]@[jumphos
 ssh [admin]@[jumphost]+[stack_prefix]-repo
 sudo -u [repoadmin] bash
 cd
-source source pulp-cli.venv/bin/activate
+source pulp-cli.venv/bin/activate
 set -u
 pulp status
 ```
@@ -271,16 +271,16 @@ for repo in "${pulp_repos[@]}"; do
     # Check if we already have a distribution for this repo.
     #
     if pulp rpm distribution show --name "${stack_prefix}-${repo}" >/dev/null 2>&1; then
-        pulp_distribution_action='update'
+        distribution_action='update'
         echo "INFO:     Updating distribution ..."
     else
-        pulp_distribution_action='create'
+        distribution_action='create'
         echo "INFO:     Creating distribution ..."
     fi
-    pulp rpm distribution "${pulp_distribution_action}" \
+    pulp rpm distribution "${distribution_action}" \
         --name "${stack_prefix}-${repo}" \
         --base-path "${cluster_name}/${repo}" \
-        --publication "${pulp_publication_href}"
+        --publication "${publication_href}"
 done
 ```
 
