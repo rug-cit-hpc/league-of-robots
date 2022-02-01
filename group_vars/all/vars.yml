@@ -5,7 +5,6 @@ ssh_host_signer_ca_keypair_dir: "ssh-host-ca"
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/{{ stack_name }}-ca"
 ssh_host_signer_key_types: '.*(rsa|ed25519).*'
 ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }}{% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}"
-spacewalk_server_url: 'http://spacewalk02.hpc.rug.nl/XMLRPC'
 slurm_database_name: "{{ stack_prefix }}_slurm_accounting"
 ai_jumphost: "{{ lookup('env','AI_PROXY') }}"
 #
@@ -59,13 +58,6 @@ auth_groups:
 # Therefore we set a default here too.
 #
 data_transfer_only_group: sftp-only
-#
-# Custom/extra yum repos
-#
-yum_repos:
-  umcg-centos7:
-    description: 'UMCG YUM repo for CentOS 7.'
-    baseurl: http://spacewalk02.hpc.rug.nl/umcg-centos7
 #
 # Pulp repos.
 #
