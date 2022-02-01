@@ -345,7 +345,9 @@ volume_group_folders: [
 #
 # Shared storage related variables
 #
-lustre_client_networks: 'tcp11(vlan???.lustre),tcp12(vlan???.lustre)'
+lustre_client_networks:
+   - name: tcp??
+     interface: eth?
 pfs_mounts: [
   { pfs: 'umcgst01',
     #source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1',
