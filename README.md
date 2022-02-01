@@ -21,7 +21,7 @@ The main ingredients for (deploying) these clusters:
 
  * [Ansible playbooks](https://github.com/ansible/ansible) for system configuration management.
  * [OpenStack](https://www.openstack.org/) for virtualization. (Note that deploying the OpenStack itself is not part of the configs/code in this repo.)
- * [Spacewalk](https://spacewalkproject.github.io/index.html) to create freezes of Linux distros.
+ * [Pulp](https://pulpproject.org/) to create freezes of Linux distros.
  * [CentOS 7](https://www.centos.org/) as OS for the virtual machines.
  * [Slurm](https://slurm.schedmd.com/) as workload/resource manager to orchestrate jobs.
 
