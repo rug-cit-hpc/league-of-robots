@@ -29,6 +29,6 @@
   become: true
   listen: restart_oddjobd
 
-- name: 'Set tiny quota for regular users on jumphosts.'
-  import_tasks: "{{ playbook_dir }}/roles/logins/handlers/jumphost-quota.yml"
+- name: 'Update GRUB.'
+  import_tasks: "{{ playbook_dir }}/roles/logins/handlers/update-grub.yml"
 ...
