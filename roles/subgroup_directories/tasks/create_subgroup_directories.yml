@@ -6,6 +6,7 @@
           | grep -o "^{{ group }}-[^:]*-v[0-9][0-9]*" \
           || true
       register: versioned_subgroups
+      changed_when: true
     - set_fact:  # noqa unnamed-task
         versioned_subgroups_list: "{% if versioned_subgroups.stdout | length %}{{ versioned_subgroups.stdout.split('\n') | list }}{% endif %}"
 
@@ -18,6 +19,7 @@
           fi; \
         done
       register: unversioned_subgroups
+      changed_when: true
     - set_fact:  # noqa unnamed-task
         unversioned_subgroups_list: "{% if unversioned_subgroups.stdout | length %}{{ unversioned_subgroups.stdout.split('\n') | list }}{% endif %}"
 
