@@ -107,7 +107,7 @@
     login_unix_socket: "/var/lib/mysql/mysql.sock"
     name: "{{ slurm_database_name }}"
     state: 'present'
-  #no_log: false
+  no_log: false
   notify:
     - 'restart_slurmdbd'
     - 'restart_slurmctld'
