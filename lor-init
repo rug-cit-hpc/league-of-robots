@@ -6,7 +6,7 @@
 # This script assumes there is for each ${STACK_NAME} a corresponding:
 #  1. ./group_vars/${STACK_NAME}/                Ansible group_vars directory with variables and secrets encrypted with Ansible vault.
 #     ./group_vars/${STACK_NAME}/vars.yml        Ansible variables for this stack, which defines the {{ stack_prefix }} Ansible variable.
-#  2. ./static_inventories/${STACK_NAME}.ini     Ansible inventory file.
+#  2. ./static_inventories/${STACK_NAME}.yml     Ansible inventory file.
 #  3. ./.vault/vault_pass.txt.${STACK_NAME}      Ansible vault password file.
 #
 # Once this code was sourced (not executed!) like this:
@@ -40,7 +40,7 @@ function lor-config() {
 	local stack_name="$(basename "$(dirname "$(fgrep 'stack_prefix:' "${LOR_DIR}/group_vars/"*/vars.yml | fgrep "${stack_prefix}" | sed 's|:.*||')")")"
 	declare -a required_paths=(
 		"${LOR_DIR}/group_vars/${stack_name}/"
-		"${LOR_DIR}/static_inventories/${stack_name}.ini"
+		"${LOR_DIR}/static_inventories/${stack_name}.yml"
 		"${LOR_DIR}/.vault/vault_pass.txt.${stack_name}"
 		"${LOR_DIR}/.vault/vault_pass.txt.all"
 	)
@@ -53,16 +53,20 @@ function lor-config() {
 	#
 	# Get jumphost from inventory file.
 	#
-	local jumphost=$(fgrep -A1 '[jumphost]' "${LOR_DIR}/static_inventories/${stack_name}.ini" | tail -1)
+	# ToDo: this is rather brittle code;
+	# install something like https://github.com/mikefarah/yq
+	# for proper parsing of YAML files.
+	#
+	local jumphost=$(fgrep -A2 'jumphost' "${LOR_DIR}/static_inventories/${stack_name}.yml" | head -3 | tail -1 | tr -d ' :')
 	#
 	# Init and report current setup.
 	#
 	cd "${LOR_DIR}"
-	export AI_INVENTORY="static_inventories/${stack_name}.ini"
 	export AI_PROXY="${jumphost}"
+	export ANSIBLE_INVENTORY="static_inventories/${stack_name}.yml"
 	export ANSIBLE_VAULT_IDENTITY_LIST="all@.vault/vault_pass.txt.all, ${stack_name}@.vault/vault_pass.txt.${stack_name}"
 	printf '%s\n' "Current working directory is $(pwd)"
 	printf '%s\n' "Using AI_PROXY:                    ${AI_PROXY}"
-	printf '%s\n' "Using AI_INVENTORY:                ${AI_INVENTORY}"
+	printf '%s\n' "Using ANSIBLE_INVENTORY:           ${ANSIBLE_INVENTORY}"
 	printf '%s\n' "Using ANSIBLE_VAULT_IDENTITY_LIST: ${ANSIBLE_VAULT_IDENTITY_LIST}"
 }

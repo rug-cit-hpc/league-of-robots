@@ -25,7 +25,7 @@
 
 - name: Make sure that the hostname is set correct FQDN name
   ansible.builtin.hostname:
-    name: '{{ irods_icat_fqdn }}'
+    name: '{{ hostvars[inventory_hostname]['fqdn'] }}'
   become: true
   notify: irodsctl_restart
 

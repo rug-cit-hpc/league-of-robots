@@ -12,11 +12,11 @@ Key ingredients of the High Performance Computing (HPC) environment of the {{ sl
 
 ## Virtual Servers
 
- * Jumphosts: _{% for server in groups['jumphost'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
- * User Interfaces (UIs): _{% for server in groups['user_interface'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
- * Deploy Admin Interfaces (DAIs): _{% for server in groups['deploy_admin_interface'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
- * Sys Admin Interfaces (SAIs): _{% for server in groups['sys_admin_interface'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
- * Compute Nodes: _{% for server in groups['compute_vm'] %}{{ server | regex_replace('^' + ai_jumphost + '\\+','')}}{% if not loop.last %}, {% endif %}{% endfor %}_
+ * Jumphosts: _{% for server in groups['jumphost'] %}{{ server}}{% if not loop.last %}, {% endif %}{% endfor %}_
+ * User Interfaces (UIs): _{% for server in groups['user_interface'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
+ * Deploy Admin Interfaces (DAIs): _{% for server in groups['deploy_admin_interface'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
+ * Sys Admin Interfaces (SAIs): _{% for server in groups['sys_admin_interface'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
+ * Compute Nodes: _{% for server in groups['compute_vm'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
 
 ## Shared Storage
 
@@ -29,12 +29,13 @@ In addition to LFS-ses for _home dirs_ and the centrally deployed _software_  an
  * Available _arc_ LFS-ses: {% if lfs_mounts | selectattr('lfs', 'search', 'arc[0-9]+$') | list | length %}{% for mount in lfs_mounts | selectattr('lfs', 'search', 'arc[0-9]+$') | list %}{{ mount.lfs }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}None{% endif %}
 
 ## Resources available to Slurm jobs
-
-| Resource            | Amount/value/name                            |
-|:------------------- | --------------------------------------------:|
-| Compute nodes       | {{ vcompute_hostnames }}                     |
-| Cores/node          | {{ vcompute_max_cpus_per_node }}             |
-| RAM/node \(MB\)     | {{ vcompute_max_mem_per_node }}              |
-| Storage/node \(MB\) | {{ vcompute_local_disk | default(0, true) }} |
-| Node features       | {{ vcompute_features }}                      |
-
+{% for partition in slurm_partitions %}
+#### {{ partition.name }} partition
+| Resource            | Amount/value                             |
+|:------------------- | ----------------------------------------:|
+| Number of nodes     | {{ groups[partition.name]|list|length }} |
+| Cores/node          | {{ partition.max_cores_per_node }}       |
+| RAM/node \(MB\)     | {{ partition.max_mem_per_node }}         |
+| Storage/node \(MB\) | {{ partition.local_disk }}               |
+| Node features       | {{ partition.features }}                 |
+{% endfor %}

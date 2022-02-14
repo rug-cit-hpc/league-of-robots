@@ -3,18 +3,18 @@
 # Order of deployment required to prevent chicken versus the egg issues:
 #  0. For all deployment phases:
 #       export AI_PROXY="${jumphost_name}"
-#       export AI_INVENTORY="static_inventories/${cluster_name}_hosts.ini"
-#       ANSIBLE_VAULT_PASSWORD_FILE=".vault_pass.txt.${cluster_name}"
+#       export ANSIBLE_INVENTORY="static_inventories/${stack_name}.yml"
+#       ANSIBLE_VAULT_PASSWORD_FILE=".vault_pass.txt.${stack_name}"
 #  1. Use standard CentOS cloud image user 'centos' or 'root' user and without host key checking:
 #       export ANSIBLE_HOST_KEY_CHECKING=False
-#       ansible-playbook -i inventory.py -u centos -l 'jumphost,cluster'  single_role_playbooks/admin_users.yml
-#       ansible-playbook -i inventory.py -u root   -l 'docs'              single_role_playbooks/admin_users.yml
+#       ansible-playbook -u centos -l 'jumphost,cluster'  single_role_playbooks/admin_users.yml
+#       ansible-playbook -u root   -l 'docs'              single_role_playbooks/admin_users.yml
 #  2. Use local admin user's account and without host key checking:
 #       export ANSIBLE_HOST_KEY_CHECKING=False
-#       ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/ssh_host_signer.yml
+#       ansible-playbook -u [admin_account] single_role_playbooks/ssh_host_signer.yml
 #  3. Use local admin user's account and with strict host key checking to deploy everything else:
 #       export ANSIBLE_HOST_KEY_CHECKING=True
-#       ansible-playbook -i inventory.py -u [admin_account] cluster.yml
+#       ansible-playbook  -u [admin_account] cluster.yml
 #     This will configure:
 #       * Jumphost first as it is required to access the other machines.
 #       * Repo management server second as it is required for version control of the packages
