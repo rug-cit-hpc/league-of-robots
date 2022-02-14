@@ -256,7 +256,8 @@ for repo in "${pulp_repos[@]}"; do
     #
     # Check if we already have a publication for the latest repository version.
     #
-    if pulp rpm publication list --repository-version "${latest_version_href}" >/dev/null 2>&1; then
+    if [[ $(pulp --format json rpm publication list --repository-version "${latest_version_href}" 2>/dev/null \
+          | jq -r 'first.pulp_href') =~ /pulp/api/ ]]; then
         echo "INFO:     Using existing publication for latest version of ${repo} repository ..."
         publication_href=$(pulp --format json \
             rpm publication list --repository-version "${latest_version_href}" \
