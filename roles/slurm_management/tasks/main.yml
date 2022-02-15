@@ -107,7 +107,7 @@
     login_unix_socket: "/var/lib/mysql/mysql.sock"
     name: "{{ slurm_database_name }}"
     state: 'present'
-  no_log: false
+  no_log: true
   notify:
     - 'restart_slurmdbd'
     - 'restart_slurmctld'
@@ -282,16 +282,16 @@
   when: functional_admin_group is defined and functional_admin_group | length >= 1
   become: true
 
-- name: 'Deploy script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
-  template:
-    src: 'templates/cron_add_missing_slurm_accounts.sh'
+- name: 'Deploy cron script for creating missing slurm group accounts in the database.'
+  ansible.builtin.copy:
+    src: 'files/cron_add_missing_slurm_accounts.sh'
     dest: '/root/cron_add_missing_slurm_accounts.sh'
     owner: 'root'
     group: 'root'
     mode: '0750'
   become: true
 
-- name: 'Deploy cron job to update/create account in the slurm database for each group, every half an hour.'
+- name: 'Deploy cron job to create missing slurm group accounts in the slurm database, run every half an hour.'
   ansible.builtin.cron:
     name: 'Add missing slurm group accounts'
     minute: '24,54'
