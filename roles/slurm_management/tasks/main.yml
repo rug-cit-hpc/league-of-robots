@@ -1,7 +1,7 @@
 # Deploy Slurm control host.
 ---
 - name: 'Add Slurm group.'
-  group:
+  ansible.builtin.group:
     name: 'slurm'
     gid: "{{ slurm_gid }}"
   notify:
@@ -10,7 +10,7 @@
   become: true
 
 - name: 'Add Munge group.'
-  group:
+  ansible.builtin.group:
     name: 'munge'
     gid: "{{ munge_gid }}"
   notify:
@@ -20,7 +20,7 @@
   become: true
 
 - name: 'Add Slurm user.'
-  user:
+  ansible.builtin.user:
     name: 'slurm'
     uid: "{{ slurm_uid }}"
     group: 'slurm'
@@ -30,7 +30,7 @@
   become: true
 
 - name: 'Add Munge user.'
-  user:
+  ansible.builtin.user:
     name: 'munge'
     uid: "{{ munge_uid }}"
     group: 'munge'
@@ -41,7 +41,7 @@
   become: true
 
 - name: 'Install munge.'
-  yum:
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name:
@@ -49,7 +49,7 @@
   become: true
 
 - name: 'Install logrotate config file for slurmctld and slurmdbd.'
-  copy:
+  ansible.builtin.copy:
     src: "files/logrotate_slurm"
     owner: 'root'
     group: 'root'
@@ -58,7 +58,7 @@
   become: true
 
 - name: 'Install munge.key file.'
-  copy:
+  ansible.builtin.copy:
     src: "{{ stack_name }}/munge.key"
     owner: 'munge'
     group: 'munge'
@@ -71,7 +71,7 @@
   become: true
 
 - name: 'Install Slurm management dependencies with yum.'
-  yum:
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name:
@@ -84,7 +84,7 @@
   become: true
 
 - name: 'Install Slurm management deamons with yum.'
-  yum:
+  ansible.builtin.yum:
     state: 'installed'
     update_cache: true
     allow_downgrade: true
@@ -100,7 +100,7 @@
   become: true
 
 - name: 'Create a database for Slurm accounting.'
-  mysql_db:
+  community.mysql.mysql_db:
     login_host: 'localhost'
     login_user: 'root'
     login_password: "{{ MYSQL_ROOT_PASSWORD }}"
@@ -113,7 +113,7 @@
     - 'restart_slurmctld'
 
 - name: 'Make sure the slurm database user is present and grant privileges on the Slurm accounting DB.'
-  mysql_user:
+  community.mysql.mysql_user:
     login_host: 'localhost'
     login_user: 'root'
     login_password: "{{ MYSQL_ROOT_PASSWORD }}"
@@ -129,7 +129,7 @@
     - 'restart_slurmctld'
 
 - name: 'Create folders for Slurm.'
-  file:
+  ansible.builtin.file:
     name: "{{ item.name }}"
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
@@ -155,7 +155,7 @@
   become: true
 
 - name: 'Install Slurm config file.'
-  template:
+  ansible.builtin.template:
     src: 'templates/slurm.conf'
     dest: '/etc/slurm/slurm.conf'
     owner: 'root'
@@ -166,7 +166,7 @@
   become: true
 
 - name: 'Install Slurm DBD config file.'
-  template:
+  ansible.builtin.template:
     src: 'templates/slurmdbd.conf'
     dest: '/etc/slurm/slurmdbd.conf'
     owner: 'slurm'
@@ -176,7 +176,7 @@
   become: true
 
 - name: 'Install Slurm scripts.'
-  copy:
+  ansible.builtin.copy:
     src: "files/{{ item }}"
     dest: "/etc/slurm/{{ item }}"
     owner: 'root'
@@ -187,7 +187,7 @@
   become: true
 
 - name: 'Make sure slurmdbd and munge services are enabled and started.'
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ item }}"
     state: 'started'
     enabled: 'yes'
@@ -198,7 +198,7 @@
   become: true
 
 - name: 'Copy Slurm DB initialization script to host running slurmdbd.'
-  template:
+  ansible.builtin.template:
     src: 'templates/configure_slurm_accounting_db.bash'
     dest: '/etc/slurm/configure_slurm_accounting_db.bash'
     owner: 'root'
@@ -214,7 +214,7 @@
   meta: flush_handlers
 
 - name: 'Execute Slurm DB initialization script on host running slurmdbd.'  # noqa no-changed-when
-  command:
+  ansible.builtin.command:
     cmd: '/etc/slurm/configure_slurm_accounting_db.bash'
   register: command_result
   retries: 3
@@ -231,7 +231,7 @@
   become: true
 
 - name: 'Make sure slurmctld service is enabled and started now that the cluster DB is present.'
-  systemd:
+  ansible.builtin.systemd:
     name: 'slurmctld.service'
     state: 'started'
     enabled: 'yes'
@@ -239,7 +239,7 @@
   become: true
 
 - name: 'Make backup dir.'
-  file:
+  ansible.builtin.file:
     path: '/root/slurm/backup'
     state: 'directory'
     owner: 'root'
@@ -259,21 +259,21 @@
   become: true
 
 - name: 'Deploy cron job to backup the Slurm accounting DB every night. Keep 7 backups.'
-  cron:
+  ansible.builtin.cron:
     name: 'Slurm database backup'
     minute: '11'
     hour: '3'
     job: >
       /bin/cp --backup=numbered /root/slurm/backup/slurm.sql /root/slurm/backup/slurm_bak.sql
-      && mysqldump --all-databases -uroot -p{{ MYSQL_ROOT_PASSWORD }} -h localhost --protocol=socket
+      && mysqldump --all-databases -uroot -p{{ MYSQL_ROOT_PASSWORD | quote }} -h localhost --protocol=socket
       > /root/slurm/backup/slurm.sql
-      && /bin/find /root/slurm/backup/slurm_bak.sql.* -mtime 7 -delete
+      && /bin/find /root/slurm/backup/slurm_bak.sql.* -mtime +7 -delete
   tags: 'backup'
   no_log: true
   become: true
 
 - name: 'Allow passwordless sudo to slurm user for users in the functional_admins_group.'
-  template:
+  ansible.builtin.template:
     src: 'templates/91-slurm'
     dest: "/etc/sudoers.d/91-slurm"
     owner: 'root'
@@ -282,4 +282,20 @@
   when: functional_admin_group is defined and functional_admin_group | length >= 1
   become: true
 
+- name: 'Deploy cron script for creating missing slurm group accounts in the database.'
+  ansible.builtin.copy:
+    src: 'files/cron_add_missing_slurm_accounts.sh'
+    dest: '/root/cron_add_missing_slurm_accounts.sh'
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+  become: true
+
+- name: 'Deploy cron job to create missing slurm group accounts in the slurm database, run every half an hour.'
+  ansible.builtin.cron:
+    name: 'Add missing slurm group accounts'
+    minute: '24,54'
+    hour: '*'
+    job: '/root/cron_add_missing_slurm_accounts.sh'
+  become: true
 ...
