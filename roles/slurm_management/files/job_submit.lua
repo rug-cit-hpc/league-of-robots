@@ -197,7 +197,7 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
     --slurm.log_debug("Path to job *.out  = %s.", tostring(job_desc.std_out))
     --slurm.log_debug("Path to job *.err  = %s.", tostring(job_desc.std_err))
     --slurm.log_debug("Job's working dir  = %s.", tostring(job_desc.work_dir))
-    local job_metadata = {job_desc.std_out, job_desc.std_err, job_desc.work_dir}
+    local job_metadata = {tostring(job_desc.std_out), tostring(job_desc.std_err), tostring(job_desc.work_dir)}
     local group = nil
     local lfs = nil
     for inx,job_metadata_value in ipairs(job_metadata) do

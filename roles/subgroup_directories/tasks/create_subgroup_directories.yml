@@ -5,6 +5,7 @@
         getent group \
           | grep -o "^{{ group }}-[^:]*-v[0-9][0-9]*" \
           || true
+      changed_when: false
       register: versioned_subgroups
       changed_when: true
     - set_fact:  # noqa unnamed-task
@@ -18,6 +19,7 @@
             echo "${group}"; \
           fi; \
         done
+      changed_when: false
       register: unversioned_subgroups
       changed_when: true
     - set_fact:  # noqa unnamed-task
