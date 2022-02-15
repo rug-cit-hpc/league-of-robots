@@ -3,7 +3,7 @@
 # Search for all existing groups inside the '/groups' folder
 # that are inside /mnt/*/ folder on the SAI machines
 for _each_pfs in /mnt/*; do
-   cd ${_each_pfs}/groups
+   cd "${_each_pfs}/groups"
    # Find should be pretty robust way, but you need to manually
    # remove the leading dot slash from from the group name: "./umcg-atd"
    _accounts_list="$(find . -maxdepth 1 -mindepth 1 -type d | sed "s/^\.\///g")"
