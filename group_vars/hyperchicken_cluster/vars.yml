@@ -4,6 +4,25 @@ slurm_cluster_domain: ''
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'hc'
 slurm_version: '20.11.8-1.el7.umcg'
+slurm_partitions:
+  - name: regular  # Must be in sync with group listed in Ansible inventory.
+    default: yes
+    nodes: "{{ stack_prefix }}-vcompute[01]"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
+  - name: user_interface  # Must be in sync with group listed in Ansible inventory.
+    default: no
+    nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: 1
+    max_cores_per_node: 1
+    max_mem_per_node: 1024
+    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
@@ -42,10 +61,6 @@ ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
 ldap_domain: hpc.rug.nl
 cloud_image: CentOS7-Cloud
 cloud_user: centos
-flavor_jumphost: 1c2m20d # s1.small
-flavor_ui: 4c8m80d # s1.large
-flavor_vcompute: 8c16m80d
-flavor_management: 4c4m60d
 network_public_external_id: public
 network_private_management_id: "{{ stack_prefix }}_internal_management"
 network_private_management_cidr: '10.10.1.0/24'
@@ -55,10 +70,6 @@ network_private_storage_cidr: '10.35.141.0/24'
 public_ip_addresses:
   portal: '45.88.81.146'
 availability_zone: nova
-local_volume_size_repo: 30
-local_volume_size_vcompute: 1   # [GB] disk of /dev/vdb -> /local
-local_volume_size_dai: 200      # used for /apps, but test server shouldn't take too much space
-local_volume_size_sai: 1
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
