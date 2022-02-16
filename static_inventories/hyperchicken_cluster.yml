@@ -73,7 +73,6 @@ hyperchicken_cluster:
     jumphost:
     repo:
     cluster:
-    data_transfer:
     docs:
 ldap_server:
   children:
