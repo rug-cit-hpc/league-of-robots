@@ -33,26 +33,6 @@ additional_etc_hosts:
     hosts:
       - docs
       - docs_on_merlin
-vcompute_hostnames: "{{ stack_prefix }}-vcompute01"
-vcompute_sockets: 8
-vcompute_cores_per_socket: 1
-vcompute_real_memory: 15884
-vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
-vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
-vcompute_local_disk: 0      # [MB] the slurm setting, how it sees the disk local_volume_size_vcompute
-vcompute_features: 'tmp09'
-vcompute_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
-ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: 4
-ui_cores_per_socket: 1
-ui_real_memory: 7820
-ui_local_disk: 0
-ui_features: 'prm09,tmp09'
-ui_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
 use_ldap: yes
 create_ldap: yes
 ldap_uri: ldaps://hc-dai

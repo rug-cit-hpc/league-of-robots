@@ -14,26 +14,6 @@ additional_etc_hosts:
     hosts:
       - docs
       - docs_on_merlin
-vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-12]"
-vcompute_sockets: 16
-vcompute_cores_per_socket: 1
-vcompute_real_memory: 64264
-vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
-vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
-vcompute_local_disk: 0      # [MB] the slurm setting, how it sees the disk local_volume_size_vcompute
-vcompute_features: 'tmp10'
-vcompute_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
-ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: 4
-ui_cores_per_socket: 1
-ui_real_memory: 7820
-ui_local_disk: 0
-ui_features: 'prm10,tmp10'
-ui_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
 use_ldap: yes
 create_ldap: yes
 ldap_uri: ldaps://fd-dai
@@ -42,10 +22,6 @@ ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
 ldap_domain: hpc.rug.nl
 cloud_image: CentOS7-Cloud
 cloud_user: centos
-flavor_jumphost: 1c2m20d # s1.small
-flavor_ui: 4c8m80d # s1.large
-flavor_vcompute: 16c64m100d # s1.gargantuan
-flavor_management: 4c4m60d
 network_public_external_id: public
 network_private_management_id: "{{ stack_prefix }}_internal_management"
 network_private_management_cidr: '10.10.1.0/24'
@@ -55,10 +31,6 @@ network_private_storage_cidr: '10.35.141.0/24'
 public_ip_addresses:
   corridor: '45.88.81.213'
 availability_zone: nova
-local_volume_size_repo: 30
-local_volume_size_vcompute: 1  # [GB] disk of /dev/vdb -> /local
-local_volume_size_dai: 2000    # used for /apps
-local_volume_size_sai: 1
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
