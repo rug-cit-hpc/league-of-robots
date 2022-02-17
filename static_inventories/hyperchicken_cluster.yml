@@ -42,7 +42,7 @@ all:
       children:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
         regular:
           hosts:
-            hc-vcompute[01:03]:
+            hc-vcompute[01]:
           vars:
             #flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
             cloud_flavor: 8c16m80d
