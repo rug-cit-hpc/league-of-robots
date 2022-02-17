@@ -6,7 +6,7 @@
 # This script assumes there is for each ${STACK_NAME} a corresponding:
 #  1. ./group_vars/${STACK_NAME}/                Ansible group_vars directory with variables and secrets encrypted with Ansible vault.
 #     ./group_vars/${STACK_NAME}/vars.yml        Ansible variables for this stack, which defines the {{ stack_prefix }} Ansible variable.
-#  2. ./static_inventories/${STACK_NAME}.ini     Ansible inventory file.
+#  2. ./static_inventories/${STACK_NAME}.yml     Ansible inventory file.
 #  3. ./.vault/vault_pass.txt.${STACK_NAME}      Ansible vault password file.
 #
 # Once this code was sourced (not executed!) like this:
@@ -15,12 +15,14 @@
 #     $> lor-config tl
 #
 
+set -u
+
 #
 ##
 ### Environment and bash sanity.
 ##
 #
-export LOR_DIR="$( cd -P "$( dirname "${BASH_SOURCE}" )" && pwd )"
+export LOR_DIR="$( cd -P "$( dirname "${BASH_SOURCE:-}" )" && pwd )"
 
 #
 ##
@@ -32,37 +34,47 @@ function lor-config() {
 	#
 	# Get and check input.
 	#
-	local stack_prefix="${1-}"
-	if [[ -z "${stack_prefix:-}" ]]; then
+	local _stack_prefix="${1-}"
+	if [[ -z "${_stack_prefix:-}" ]]; then
 		printf '%s\n' 'ERROR: must specify an infra stack prefix.'
 		return
 	fi
-	local stack_name="$(basename "$(dirname "$(fgrep 'stack_prefix:' "${LOR_DIR}/group_vars/"*/vars.yml | fgrep "${stack_prefix}" | sed 's|:.*||')")")"
-	declare -a required_paths=(
-		"${LOR_DIR}/group_vars/${stack_name}/"
-		"${LOR_DIR}/static_inventories/${stack_name}.ini"
-		"${LOR_DIR}/.vault/vault_pass.txt.${stack_name}"
+	local _group_vars="$(grep "^stack_prefix: ['\"]*${_stack_prefix}['\"]*$" "${LOR_DIR}/group_vars/"*/vars.yml | sed 's|:.*||')"
+	if [[ -z "${_group_vars:-}" ]]; then
+		printf '%s\n' "ERROR: cannot find group_vars/*/vars.yml for infra stack prefix ${_stack_prefix}."
+		return
+	fi
+	local _stack_name="$(basename "$(dirname "${_group_vars}")")"
+	declare -a _required_paths=(
+		"${LOR_DIR}/group_vars/${_stack_name}/"
+		"${LOR_DIR}/static_inventories/${_stack_name}.yml"
+		"${LOR_DIR}/.vault/vault_pass.txt.${_stack_name}"
 		"${LOR_DIR}/.vault/vault_pass.txt.all"
 	)
-	for required_path in "${required_paths[@]}"; do
-		if [[ ! -e "${required_path}" ]]; then
-			printf '%s\n' "ERROR: ${required_path} does not exist for infra stack prefix ${stack_prefix}."
+	local _required_path
+	for _required_path in "${_required_paths[@]}"; do
+		if [[ ! -e "${_required_path}" ]]; then
+			printf '%s\n' "ERROR: ${_required_path} does not exist for infra stack prefix ${_stack_prefix}."
 			return
 		fi
 	done
 	#
 	# Get jumphost from inventory file.
 	#
-	local jumphost=$(fgrep -A1 '[jumphost]' "${LOR_DIR}/static_inventories/${stack_name}.ini" | tail -1)
+	# ToDo: this is rather brittle code;
+	# install something like https://github.com/mikefarah/yq
+	# for proper parsing of YAML files.
+	#
+	local _jumphost=$(fgrep -A2 'jumphost' "${LOR_DIR}/static_inventories/${_stack_name}.yml" | head -3 | tail -1 | tr -d ' :')
 	#
 	# Init and report current setup.
 	#
 	cd "${LOR_DIR}"
-	export AI_INVENTORY="static_inventories/${stack_name}.ini"
-	export AI_PROXY="${jumphost}"
-	export ANSIBLE_VAULT_IDENTITY_LIST="all@.vault/vault_pass.txt.all, ${stack_name}@.vault/vault_pass.txt.${stack_name}"
+	export AI_PROXY="${_jumphost}"
+	export ANSIBLE_INVENTORY="static_inventories/${_stack_name}.yml"
+	export ANSIBLE_VAULT_IDENTITY_LIST="all@.vault/vault_pass.txt.all, ${_stack_name}@.vault/vault_pass.txt.${_stack_name}"
 	printf '%s\n' "Current working directory is $(pwd)"
 	printf '%s\n' "Using AI_PROXY:                    ${AI_PROXY}"
-	printf '%s\n' "Using AI_INVENTORY:                ${AI_INVENTORY}"
+	printf '%s\n' "Using ANSIBLE_INVENTORY:           ${ANSIBLE_INVENTORY}"
 	printf '%s\n' "Using ANSIBLE_VAULT_IDENTITY_LIST: ${ANSIBLE_VAULT_IDENTITY_LIST}"
 }

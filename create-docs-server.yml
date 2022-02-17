@@ -20,9 +20,9 @@
 #   8. Source lor-init from this repo. E.g.:
 #        $> source ./lor-init
 #   9. Configure League of Robots for a specific cluster. E.g.:
-#        $> lor-config nibbler
+#        $> lor-config nb
 #  10. Execute playbook to create VMs. E.g.:
-#        $> ansible-playbook -i static_inventories/nibbler_hosts.ini deploy-os_servers.yml
+#        $> ansible-playbook deploy-os_servers.yml
 #
 ---
 - name: 'Sanity checks before we start.'

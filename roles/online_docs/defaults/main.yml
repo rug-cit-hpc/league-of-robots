@@ -3,30 +3,30 @@ external_hrefs:
   spacewalk: 'https://spacewalkproject.github.io/'
   pulp: 'https://pulpproject.org/'
 known_hosts_hostnames: "{% for jumphost in groups['jumphost'] %}\
-                          {{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}*,\
+                          {{ jumphost }}*,\
                           {% if public_ip_addresses[jumphost] is defined and public_ip_addresses[jumphost] | length %}\
                             {{ public_ip_addresses[jumphost] }},\
                           {% endif %}\
                         {% endfor %}\
                         {% for dthost in groups['data_transfer'] | default([]) %}\
-                          *{{ dthost | regex_replace('^' + ai_jumphost + '\\+','')}}*,\
+                          *{{ dthost }}*,\
                           {% if public_ip_addresses[dthost] is defined and public_ip_addresses[dthost] | length %}\
                             {{ public_ip_addresses[dthost] }},\
                           {% endif %}\
                         {% endfor %}\
                         {% for adminhost in groups['administration'] %}\
-                          *{{ adminhost | regex_replace('^' + ai_jumphost + '\\+','')}},\
+                          *{{ adminhost }},\
                         {% endfor %}\
                         {% for dochost in groups['docs'] %}\
-                          *{{ dochost | regex_replace('^' + ai_jumphost + '\\+','')}},\
+                          *{{ dochost }},\
                         {% endfor %}\
                         *{{ stack_prefix }}-*"
 dt_server_address: "{% if groups['data_transfer'] is defined and groups['data_transfer'] | length %}\
-                      {% if public_ip_addresses[groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','')] is defined \
-                          and public_ip_addresses[groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','')] | length %}\
-                        {{ public_ip_addresses[groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','')] }}\
+                      {% if public_ip_addresses[groups['data_transfer'] | first] is defined \
+                          and public_ip_addresses[groups['data_transfer'] | first] | length %}\
+                        {{ public_ip_addresses[groups['data_transfer'] | first] }}\
                       {% else %}\
-                        {{ groups['data_transfer'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}\
+                        {{ groups['data_transfer'] | first }}\
                         {% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}\
                       {% endif %}\
                     {% else %}\

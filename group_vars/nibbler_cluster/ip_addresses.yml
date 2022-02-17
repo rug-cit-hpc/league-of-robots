@@ -1,11 +1,5 @@
 ---
 ip_addresses:
-  nb-transfer:
-    addr: 10.10.1.28
-    mask: /32
-    vlan: internal_management
-    fqdn:
-    desc: Data Transfer
   irods-test:
     addr: 10.10.1.182
     mask: /32
@@ -16,6 +10,12 @@ ip_addresses:
     mask: /32
     vlan: internal_management
     fqdn:
+  nb-transfer:
+    addr: 10.10.1.28
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: Data Transfer
   nb-repo:
     addr: 10.10.1.56
     mask: /32
@@ -34,6 +34,12 @@ ip_addresses:
     vlan: internal_management
     fqdn:
     desc: Deploy Admin Interface
+  nb-vcompute04:
+    addr: 10.10.1.88
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: Compute Node
   nb-vcompute03:
     addr: 10.10.1.108
     mask: /32

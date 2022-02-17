@@ -77,8 +77,8 @@ sacctmgr -i modify qos Name='regular-medium' set \
     Priority=10 \
     Preempt='leftover-short,leftover-medium,leftover-long' \
     GrpSubmit=30000 MaxSubmitJobsPU=5000  MaxWall=1-00:00:00 \
-    GrpTRES=cpu={{ [1, (cluster_cores_total | float * 0.6) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.6) | int] | max }} \
-    MaxTRESPU=cpu={{ [1, (cluster_cores_total | float * 0.4) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.4) | int] | max }}
+    GrpTRES=cpu={{ [1, (slurm_cluster_cores_total | float * 0.6) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.6) | int] | max }} \
+    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.4) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.4) | int] | max }}
 
 sacctmgr -i create qos set Name='regular-long'
 sacctmgr -i modify qos Name='regular-long' set \
@@ -86,8 +86,8 @@ sacctmgr -i modify qos Name='regular-long' set \
     Priority=10 \
     Preempt='leftover-short,leftover-medium,leftover-long' \
     GrpSubmit=3000 MaxSubmitJobsPU=1000  MaxWall=7-00:00:00 \
-    GrpTRES=cpu={{ [1, (cluster_cores_total | float * 0.3) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.3) | int] | max }} \
-    MaxTRESPU=cpu={{ [1, (cluster_cores_total | float * 0.15) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.15) | int] | max }}
+    GrpTRES=cpu={{ [1, (slurm_cluster_cores_total | float * 0.3) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.3) | int] | max }} \
+    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.15) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.15) | int] | max }}
 
 #
 # QoS priority
@@ -107,7 +107,7 @@ sacctmgr -i modify qos Name='priority-short' set \
     Preempt='leftover-short,leftover-medium,leftover-long' \
     UsageFactor=2 \
     GrpSubmit=5000  MaxSubmitJobsPU=1000   MaxWall=06:00:00 \
-    MaxTRESPU=cpu={{ [1, (cluster_cores_total | float * 0.25) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.25) | int] | max }}
+    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.25) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.25) | int] | max }}
 
 sacctmgr -i create qos set Name='priority-medium'
 sacctmgr -i modify qos Name='priority-medium' set \
@@ -116,8 +116,8 @@ sacctmgr -i modify qos Name='priority-medium' set \
     Preempt='leftover-short,leftover-medium,leftover-long' \
     UsageFactor=2 \
     GrpSubmit=2500  MaxSubmitJobsPU=500   MaxWall=1-00:00:00 \
-    GrpTRES=cpu={{ [1, (cluster_cores_total | float * 0.6) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.6) | int] | max }} \
-    MaxTRESPU=cpu={{ [1, (cluster_cores_total | float * 0.2) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.2) | int] | max }}
+    GrpTRES=cpu={{ [1, (slurm_cluster_cores_total | float * 0.6) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.6) | int] | max }} \
+    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.2) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.2) | int] | max }}
 
 sacctmgr -i create qos set Name='priority-long'
 sacctmgr -i modify qos Name='priority-long' set \
@@ -126,8 +126,8 @@ sacctmgr -i modify qos Name='priority-long' set \
     Preempt='leftover-short,leftover-medium,leftover-long' \
     UsageFactor=2 \
     GrpSubmit=250   MaxSubmitJobsPU=50   MaxWall=7-00:00:00 \
-    GrpTRES=cpu={{ [1, (cluster_cores_total | float * 0.3) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.3) | int] | max }} \
-    MaxTRESPU=cpu={{ [1, (cluster_cores_total | float * 0.1) | int] | max }},mem={{ [1000, (cluster_mem_total | float * 0.1) | int] | max }}
+    GrpTRES=cpu={{ [1, (slurm_cluster_cores_total | float * 0.3) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.3) | int] | max }} \
+    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.1) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.1) | int] | max }}
 
 #
 # QoS interactive
@@ -147,7 +147,7 @@ sacctmgr -i modify qos Name='interactive-short' set \
     Preempt='leftover-short,leftover-medium,leftover-long,regular-short' \
     UsageFactor=1 \
     MaxSubmitJobsPU=1   MaxWall=06:00:00 \
-    MaxTRESPU=cpu={{ [1, (vcompute_max_cpus_per_node | float * 0.5) | int] | max }},mem={{ [1000, (vcompute_max_mem_per_node | float * 0.5) | int] | max }}
+    MaxTRESPU=cpu={{ slurm_interactive_max_cores_per_user }},mem={{ slurm_interactive_max_mem_per_user }}
 
 #
 # QoS ds

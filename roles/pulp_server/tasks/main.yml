@@ -66,8 +66,7 @@
 
 - name: Add pulp web server root certificate to list of trusted root certificates.
   ansible.builtin.copy:
-    src: "{{ stack_name }}/\
-          {{ item | regex_replace('^' + ai_jumphost + '\\+','') }}_pulp_root.crt"
+    src: "{{ stack_name }}/{{ item }}_pulp_root.crt"
     dest: /etc/pki/ca-trust/source/anchors/
     owner: root
     group: root

@@ -130,7 +130,7 @@ Next you can use
 ```bash
 . ./lor-init
 lor-config [stack_prefix]
-ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/pulp_server.yml
+ansible-playbook -u [admin_account] single_role_playbooks/pulp_server.yml
 ```
 This will install Pulp, create an admin account to manage Pulp and install the Pulp CLI in a Python virtual environment
 for that admin account. It will also do part of the initial configuration, but this is incomplete due to missing features in _Pulp Squeezer_;

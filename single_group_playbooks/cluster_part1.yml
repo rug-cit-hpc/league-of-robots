@@ -11,13 +11,13 @@
     - swap
     - {role: spacewalk_client, when: repo_manager == 'spacewalk'}
     - {role: pulp_client, when: repo_manager == 'pulp'}
+    - static_hostname_lookup
     - logrotate
     - remove
     - update
     - logins
     - figlet_motd
     - node_exporter
-    - static_hostname_lookup
     - cluster
     - resolver
     - coredumps

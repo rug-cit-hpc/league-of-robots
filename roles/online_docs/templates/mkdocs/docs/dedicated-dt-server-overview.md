@@ -16,9 +16,9 @@ This dedicated data transfer server can only be used with _guest_ accounts, whic
 ![data-transfers](img/dedicated-dt-server.svg)
 
  * **R1**: Cluster user uses their _regular_ account with SSH key forwarding enabled to login
-    to user interface server _{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_
-    via jumphost _{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_
- * **R2**: Cluster user uses _guest_ account to transfer data from _{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_
+    to user interface server _{{ groups['user_interface'] | first }}_
+    via jumphost _{{ groups['jumphost'] | first }}_
+ * **R2**: Cluster user uses _guest_ account to transfer data from _{{ groups['user_interface'] | first }}_
     to _{{ dt_server_address }}_ or vice versa.
  * **G1**: External collaborator uses _guest_ account to transfer data to/from
     _{{ dt_server_address }}_.
