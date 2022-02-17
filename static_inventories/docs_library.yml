@@ -1,0 +1,15 @@
+---
+all:
+  children:
+    openstack_api:
+      hosts:
+        localhost:
+    docs:
+      hosts:
+        docs:
+          cloud_flavor: 4c4m60d
+docs_group:
+  children:
+    openstack_api:
+    docs:
+...

@@ -3,7 +3,6 @@ stack_prefix: 'docs'
 stack_name: "{{ stack_prefix }}_library"  # stack_name must match the name of the folder that contains this vars.yml file.
 cloud_image: CentOS 7
 cloud_user: centos
-flavor_docs: m1.small
 network_public_external_id: vlan16
 network_private_management_id: "{{ stack_prefix }}_internal_management"
 network_private_management_cidr: '10.10.1.0/24'
