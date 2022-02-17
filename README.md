@@ -166,8 +166,8 @@ they will not accidentally get committed to the repo.
 
 To create a new *stack* you will need ```group_vars``` and a static inventory for that *stack*:
 
-* See the ```static_inventories/*.ini``` files for existing stacks for examples.  
-  Create a new ```static_inventories/[stack_name].ini```.
+* See the ```static_inventories/*.yml``` files for existing stacks for examples.  
+  Create a new ```static_inventories/[stack_name].yml```.
 * Create a ```group_vars/[stack_name]/``` folder with a ```vars.yml```.  
   You'll find and example ```vars.yml``` file in ```group_vars/template/```.  
   To generate a new ```secrets.yml``` with new random passwords for the various daemons/components and encrypt this new ```secrets.yml``` file:
@@ -182,7 +182,7 @@ To create a new *stack* you will need ```group_vars``` and a static inventory fo
   # ANSIBLE_VAULT_IDENTITY_LIST='all@.vault/vault_pass.txt.all, [stack_name]@.vault/vault_pass.txt.[stack_name]'
   #
   . ./lor-init
-  lor-config [stack_name]
+  lor-config [stack_prefix]
   #
   #
   # Create new secrets.yml file based on a template and encrypt it with the vault password.
@@ -274,11 +274,11 @@ There are two playbooks:
 1. `deploy-os_servers.yml`:
    * Creates virtual resources in OpenStack: networks, subnets, routers, volumes and finally the virtual machines.
    * Interacts with the OpenstackSDK / API on localhost.
-   * Uses a static inventory from `static_inventories/*.ini`
+   * Uses a static inventory from `static_inventories/*.yaml` parsed with our custom inventory plugin `inventory_plugins/yaml_with_jumphost.py`
 1. `cluster.yml`:
    * Configures the virtual machines created with the `deploy-os_servers.yml` playbook.
    * Has no dependency on the OpenstackSDK / API.
-   * Uses the `inventory.py` dynamic inventory script.
+   * Uses a static inventory from `static_inventories/*.yaml` parsed with our custom inventory plugin `inventory_plugins/yaml_with_jumphost.py`
 
 ##### deploy-os_servers.yml
 
@@ -301,7 +301,7 @@ There are two playbooks:
   #
   source ./lor-init
   lor-config [stack_prefix]
-  ansible-playbook -i static_inventories/[stack_name].ini deploy-os_servers.yml
+  ansible-playbook deploy-os_servers.yml
   ```
 
 ##### cluster.yml
@@ -360,8 +360,8 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
 
 * Configure the dynamic inventory and jumphost for the *Talos* test cluster:
   ```bash
-  export AI_INVENTORY='static_inventories/talos_cluster.ini'
   export AI_PROXY='reception'
+  export ANSIBLE_INVENTORY='static_inventories/talos_cluster.yml'
   export ANSIBLE_VAULT_IDENTITY_LIST='all@.vault/vault_pass.txt.all, talos@.vault/vault_pass.txt.talos_cluster'
   ```
   This can also be accomplished with less typing by sourcing an initialisation file, which provides the ```lor-config``` function 
@@ -376,10 +376,10 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
 * Configure other stuff on the jumphost, which contains amongst others the settings required to access the other machines behind the jumphost.
   ```bash
   export ANSIBLE_HOST_KEY_CHECKING=False
-  ansible-playbook -i inventory.py -u centos          -l 'jumphost' single_role_playbooks/admin_users.yml
-  ansible-playbook -i inventory.py -u [admin_account] -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
+  ansible-playbook -u centos          -l 'jumphost' single_role_playbooks/admin_users.yml
+  ansible-playbook -u [admin_account] -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
   export ANSIBLE_HOST_KEY_CHECKING=True
-  ansible-playbook -i inventory.py -u [admin_account] -l 'jumphost' cluster.yml
+  ansible-playbook -u [admin_account] -l 'jumphost' cluster.yml
   ```
 * Secondly, deploy the rest of the machines in the same order.
   For creation of the local admin accounts you must (temporarily) set ```JUMPHOST_USER``` for the jumphost to _your local admin account_,
@@ -387,16 +387,16 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
   ```bash
   export ANSIBLE_HOST_KEY_CHECKING=False
   export JUMPHOST_USER=[admin_account] # Requires SSH client config as per end user documentation: see above.
-  ansible-playbook -i inventory.py -u centos          -l 'repo,cluster'      single_role_playbooks/admin_users.yml
-  ansible-playbook -i inventory.py -u root            -l 'docs'              single_role_playbooks/admin_users.yml
+  ansible-playbook -u centos          -l 'repo,cluster'      single_role_playbooks/admin_users.yml
+  ansible-playbook -u root            -l 'docs'              single_role_playbooks/admin_users.yml
   unset JUMPHOST_USER
-  ansible-playbook -i inventory.py -u [admin_account] -l 'repo,cluster,docs' single_role_playbooks/ssh_host_signer.yml
+  ansible-playbook -u [admin_account] -l 'repo,cluster,docs' single_role_playbooks/ssh_host_signer.yml
   export ANSIBLE_HOST_KEY_CHECKING=True
-  ansible-playbook -i inventory.py -u [admin_account] -l 'repo,cluster,docs' cluster.yml
+  ansible-playbook -u [admin_account] -l 'repo,cluster,docs' cluster.yml
   ```
 * (Re-)deploying only a specific role - e.g. *slurm_management* - on the previously deployed test cluster *Talos*
   ```bash
-  ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/slurm_management.yml
+  ansible-playbook -u [admin_account] single_role_playbooks/slurm_management.yml
   ```
 
 #### 9. Verify operation.

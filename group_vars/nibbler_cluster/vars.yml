@@ -4,6 +4,34 @@ slurm_cluster_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'nb'
 slurm_version: '20.11.8-1.el7.umcg'
+slurm_partitions:
+  - name: regular  # Must be in sync with group listed in Ansible inventory.
+    default: yes
+    nodes: "{{ stack_prefix }}-vcompute[01-03]"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
+  - name: gpu_a40  # Must be in sync with group listed in Ansible inventory.
+    default: no
+    nodes: "{{ stack_prefix }}-vcompute04"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['gpu_a40']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['gpu_a40'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['gpu_a40'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['gpu_a40'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['gpu_a40'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.333G" DenyQos=ds-short,ds-medium,ds-long'
+  - name: user_interface  # Must be in sync with group listed in Ansible inventory.
+    default: no
+    nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: 1
+    max_cores_per_node: 1
+    max_mem_per_node: 1024
+    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
@@ -31,33 +59,6 @@ additional_etc_hosts:
     hosts:
       - calculon-management
       - calculon-storage
-#
-# ToDo: Fix temporary hack.
-# Required for static_hostname_lookup on jumphosts,
-# which will not parse irods_icat_fqdn from group_vars/irods.yml
-#
-irods_icat_fqdn: 'umcg-icat01.hpc.rug.nl'
-vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
-vcompute_sockets: 8
-vcompute_cores_per_socket: 1
-vcompute_real_memory: 15884
-vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
-vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
-vcompute_local_disk: 975
-vcompute_features: 'tmp02'
-vcompute_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
-ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: 8
-ui_cores_per_socket: 1
-ui_real_memory: 15884
-ui_local_disk: 0
-ui_features: 'prm02,tmp02'
-ui_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
-flavor_irods: 'm1.large'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
@@ -90,12 +91,6 @@ ldap_domains:
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
 cloud_image: CentOS 7
 cloud_user: centos
-flavor_jumphost: m1.small
-flavor_ds: m1.small
-flavor_ui: m1.xlarge
-#flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
-flavor_vcompute: m1.xlarge
-flavor_management: m1.small
 network_public_external_id: vlan16
 network_private_management_id: internal_management
 network_private_management_id_13: internal_management_13
@@ -104,12 +99,6 @@ network_private_management_gw: '10.10.1.1'
 network_private_storage_id: internal_storage
 network_private_storage_cidr: '10.10.2.0/24'
 availability_zone: nova
-local_volume_size_ds: 10000
-local_volume_size_repo: 20
-local_volume_size_vcompute: 1
-local_volume_size_dai: 200 # used for /apps, but test server shouldn't take too much space
-local_volume_size_sai: 1
-local_volume_size_irods: 20
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.

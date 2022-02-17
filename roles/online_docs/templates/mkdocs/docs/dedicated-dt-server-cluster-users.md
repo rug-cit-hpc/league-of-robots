@@ -18,7 +18,7 @@ First, you will need to temporarily forward your private key with _SSH agent for
 Next, login via the jumphost on {{ slurm_cluster_name | capitalize }} using your personal, _regular_ account and with SSH _agent forwarding_ enabled.
 Verify that _agent forwarding_ worked by executing the following command to list the identities (private keys) available to your _SSH agent_:
 ```
-${{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}> ssh-add -l
+${{ groups['user_interface'] | first }}> ssh-add -l
 ```
 
 * You should get a response with at least one key fingerprint, which means you can now transfer data with ```rsync``` to/from the dedicated data transfer server.
@@ -29,7 +29,7 @@ ${{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','
 
 #### Transfer data with rsync
 
-Once you have your private key temporarily forwarded to _{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_
+Once you have your private key temporarily forwarded to _{{ groups['user_interface'] | first }}_
 you can use _rsync_ (over ssh) with the _guest_ account to transfer data to/from _{{ dt_server_address }}_.
 See below for some syntax examples.
 Note:
@@ -59,11 +59,11 @@ rsync -v --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/
 #
 # Push a file from user interface to data transfer server.
 #
-rsync -av --rsh='ssh -p 443 -l some-guest-account' path/to/file_on_{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }} {{ dt_server_address }}::home/
+rsync -av --rsh='ssh -p 443 -l some-guest-account' path/to/file_on_{{ groups['user_interface'] | first }} {{ dt_server_address }}::home/
 #
 # Reverse source and destination to pull a file from data transfer server onto user interface server.
 #
-rsync -av --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/data_on_transfer_server path/to/dir_on_{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}/
+rsync -av --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/data_on_transfer_server path/to/dir_on_{{ groups['user_interface'] | first }}/
 ```
 
 -----
