@@ -5,6 +5,25 @@ stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name
 stack_prefix: 'tl'
 slurm_version: '20.11.8-1.el7.umcg'
 slurm_allow_jobs_to_span_nodes: true
+slurm_partitions:
+  - name: regular  # Must be in sync with group listed in Ansible inventory.
+    default: yes
+    nodes: "{{ stack_prefix }}-vcompute[01-03]"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
+  - name: user_interface  # Must be in sync with group listed in Ansible inventory.
+    default: no
+    nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: 1
+    max_cores_per_node: 1
+    max_mem_per_node: 1024
+    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
 mailhub: '172.23.34.34'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
@@ -32,26 +51,6 @@ additional_etc_hosts:
     hosts:
       - calculon-management
       - calculon-storage
-vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-03]"
-vcompute_sockets: 4
-vcompute_cores_per_socket: 1
-vcompute_real_memory: 7820
-vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
-vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
-vcompute_local_disk: 270000
-vcompute_features: 'tmp08'
-vcompute_ethernet_interfaces:
-  - 'vlan983'
-  - 'vlan985.isilon'
-ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: 4
-ui_cores_per_socket: 1
-ui_real_memory: 7820
-ui_local_disk: 0
-ui_features: 'prm08,tmp08'
-ui_ethernet_interfaces:
-  - 'vlan983'
-  - 'vlan985.isilon'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
