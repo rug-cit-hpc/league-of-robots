@@ -12,7 +12,6 @@ all:
       hosts:
         fd-repo:
           cloud_flavor: 4c4m60d
-          local_volume_size_extra: 33
     docs:
       hosts:
         docs_on_merlin:
