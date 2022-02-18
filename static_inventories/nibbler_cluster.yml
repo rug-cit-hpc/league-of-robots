@@ -56,7 +56,7 @@ all:
           hosts:
             nb-vcompute[01:03]:
           vars:
-            #flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
+            # flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
             cloud_flavor: m1.xlarge
             local_volume_size_extra: 1
             slurm_sockets: 8
