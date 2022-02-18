@@ -8,7 +8,7 @@ all:
       hosts:
         docs:
           cloud_flavor: 4c4m60d
-docs_group:
+docs_library:
   children:
     openstack_api:
     docs:
