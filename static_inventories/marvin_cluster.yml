@@ -34,8 +34,8 @@ all:
             - eth0
             - eth1
     compute_vm:
-      children:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
-        regular:
+      children:
+        regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             mv-vcompute[01]:
           vars:
