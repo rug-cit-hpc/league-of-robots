@@ -33,12 +33,11 @@
     - admin_users
     - ssh_host_signer
     - ssh_known_hosts
-    - logrotate
-    - {role: geerlingguy.repo-epel, become: true}
-    - logins
-    - static_hostname_lookup
-    - sshd
     - pulp_client
+    - static_hostname_lookup
+    - logrotate
+    - logins
+    - sshd
     - {role: geerlingguy.security, become: true}
     - {role: geerlingguy.firewall, become: true}
     - remove
