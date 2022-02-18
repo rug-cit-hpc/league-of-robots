@@ -34,8 +34,8 @@ all:
             - 'vlan983'
             - 'vlan985.isilon'
     compute_vm:
-      children:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
-        regular:
+      children:
+        regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             tl-vcompute[01:03]:
           vars:
