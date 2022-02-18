@@ -19,12 +19,12 @@ all:
       hosts:
         imperator:
           cloud_flavor: 4C-8GB
-          local_volume_size_extra: 1
+          local_volume_size_extra: 2900
     deploy_admin_interface:
       hosts:
         sugarsnax:
           cloud_flavor: 4C-8GB
-          local_volume_size_extra: 200
+          local_volume_size_extra: 2900
     user_interface:
       hosts:
         gearshift:
