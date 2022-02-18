@@ -31,7 +31,6 @@ ldap_binddn: 'cn=clusteradminumcg,o=asds'
 ldap_group_object_class: 'groupofnames'
 cloud_image: CentOS 7
 cloud_user: centos
-flavor_jumphost: m1.small
 network_public_external_id: vlan16
 network_private_management_id: internal_management
 network_private_management_cidr: '10.10.1.0/24'

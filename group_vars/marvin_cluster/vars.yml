@@ -4,6 +4,25 @@ slurm_cluster_domain: ''
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'mv'
 slurm_version: '20.11.8-1.el7.umcg'
+slurm_partitions:
+  - name: regular  # Must be in sync with group listed in Ansible inventory.
+    default: yes
+    nodes: "{{ stack_prefix }}-vcompute[01]"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
+  - name: user_interface  # Must be in sync with group listed in Ansible inventory.
+    default: no
+    nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: 1
+    max_cores_per_node: 1
+    max_mem_per_node: 1024
+    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
 mailhub: '192.168.0.5'
 rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
@@ -14,26 +33,6 @@ additional_etc_hosts:
     hosts:
       - docs
       - docs_on_merlin
-vcompute_hostnames: "{{ stack_prefix }}-vcompute01"
-vcompute_sockets: 16
-vcompute_cores_per_socket: 1
-vcompute_real_memory: 64264
-vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
-vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
-vcompute_local_disk: 0
-vcompute_features: 'tmp11'
-vcompute_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
-ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: 4
-ui_cores_per_socket: 1
-ui_real_memory: 7821
-ui_local_disk: 0
-ui_features: 'prm11,tmp11'
-ui_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
 use_ldap: yes
 create_ldap: yes
 use_sssd: yes
@@ -51,9 +50,6 @@ ldap_domains:
     group_member: member
 cloud_image: centos7
 cloud_user: centos
-flavor_ui: s1.large
-flavor_vcompute: s1.gargantuan
-flavor_management: s1.small
 public_net_id: ext-net-37
 public_ip_addresses:
   dockingport: '193.62.55.244'
@@ -64,7 +60,6 @@ private_storage_subnet_id:
 security_group_id: SSH-and-ping-2
 availability_zone: AZ_1
 storage_availability_zone: nova
-local_volume_size: 1
 nameservers: [
 #  '/em-isi-3126.ebi.ac.uk/10.35.126.201',  # Local DNS lookups for shared storage.
   '8.8.4.4',  # Google DNS.

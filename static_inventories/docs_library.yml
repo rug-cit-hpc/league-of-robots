@@ -1,0 +1,15 @@
+---
+all:
+  children:
+    openstack_api:
+      hosts:
+        localhost:
+    docs:
+      hosts:
+        docs:
+          cloud_flavor: m1.small
+docs_library:
+  children:
+    openstack_api:
+    docs:
+...
