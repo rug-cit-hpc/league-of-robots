@@ -44,7 +44,6 @@ all:
           hosts:
             gs-vcompute[01:10]:
           vars:
-            # flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
             cloud_flavor: 24C-240GB
             local_volume_size_extra: 2900
             slurm_sockets: 2

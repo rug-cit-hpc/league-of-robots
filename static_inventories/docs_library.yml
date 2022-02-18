@@ -7,7 +7,7 @@ all:
     docs:
       hosts:
         docs:
-          cloud_flavor: 4c4m60d
+          cloud_flavor: m1.small
 docs_library:
   children:
     openstack_api:
