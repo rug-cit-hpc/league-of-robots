@@ -217,6 +217,82 @@
         wait: true
         timeout: "{{ openstack_api_timeout }}"
     #
+    # (Pulp) repo server security group.
+    #
+    # Note: only local admin accounts on repo machines, so no need for LDAPS traffic on port 636.
+    #
+    - name: "Create security group for {{ stack_prefix }} repo machines behind jumphost."
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ stack_prefix }}_repo"
+        description: |
+                     Security group for repo machines behind a jumphost.
+                     Allows SSH and ICMP inbound from machines in the jumphost security group.
+                     Allows HTTPS traffic inbound from machines in cluster and irods security group.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ stack_prefix }}_repo security group: allow SSH inbound on port 22 from {{ stack_prefix }}_jumphosts security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_repo"
+        direction: ingress
+        protocol: tcp
+        port_range_min: 22
+        port_range_max: 22
+        remote_group: "{{ stack_prefix }}_jumphosts"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ stack_prefix }}_repo security group: allow ICMP inbound from {{ stack_prefix }}_jumphosts security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_repo"
+        direction: ingress
+        protocol: icmp
+        port_range_min: -1  # ICMP protocol does not have any ports.
+        port_range_max: -1  # ICMP protocol does not have any ports.
+        remote_group: "{{ stack_prefix }}_jumphosts"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ stack_prefix }}_repo security group: allow HTTPS inbound from machines within the cluster security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_repo"
+        direction: ingress
+        protocol: tcp
+        port_range_min: 443
+        port_range_max: 443
+        remote_group: "{{ stack_prefix }}_cluster"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ stack_prefix }}_repo security group: allow HTTPS traffic from machines within the irods security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_repo"
+        direction: ingress
+        protocol: tcp
+        port_range_min: 443
+        port_range_max: 443
+        remote_group: "{{ stack_prefix }}_irods"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ stack_prefix }}_repo security group: allow any inbound icmp traffic from machines within the cluster security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_repo"
+        direction: ingress
+        protocol: icmp
+        port_range_min: -1  # ICMP protocol does not have any ports.
+        port_range_max: -1  # ICMP protocol does not have any ports.
+        remote_group: "{{ stack_prefix }}_cluster"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ stack_prefix }}_repo security group: allow any inbound icmp traffic from machines within the irods security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_repo"
+        direction: ingress
+        protocol: icmp
+        port_range_min: -1  # ICMP protocol does not have any ports.
+        port_range_max: -1  # ICMP protocol does not have any ports.
+        remote_group: "{{ stack_prefix }}_irods"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    #
     # Cluster security group.
     #
     - name: "Create security group for {{ stack_prefix }} cluster machines behind jumphost."
@@ -290,9 +366,9 @@
         remote_group: "{{ stack_prefix }}_cluster"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-##############################################################################
-# Configure IRODS security group using Openstack API.
-##############################################################################
+    #
+    # Configure IRODS security group using Openstack API.
+    #
     - name: "Create security group for {{ stack_prefix }} IRODs machines."
       openstack.cloud.security_group:
         state: present
@@ -576,7 +652,7 @@
         terminate_volume: true
         boot_from_volume: true
         flavor: "{{ cloud_flavor }}"
-        security_groups: "{{ stack_prefix }}_cluster"
+        security_groups: "{{ stack_prefix }}_repo"
         auto_floating_ip: false
         nics:
           - net-name: "{{ network_private_management_id }}"
