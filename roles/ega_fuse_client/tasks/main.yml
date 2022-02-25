@@ -6,6 +6,7 @@
       - fuse
       - fuse-libs
       - ega-fuse-client
+      - java-11-openjdk
   become: true
   notify: restart_ega-fuse-client
 
