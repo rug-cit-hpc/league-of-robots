@@ -8,7 +8,6 @@ network_private_management_id: "{{ stack_prefix }}_internal_management"
 network_private_management_cidr: '10.10.1.0/24'
 network_private_management_gw: '10.10.1.1'
 public_ip_addresses:
-#  jenkins: 'xxx'
 availability_zone: nova
 nameservers: [
   '8.8.4.4',  # Google DNS.
