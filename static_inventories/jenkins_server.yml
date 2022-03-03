@@ -1,0 +1,15 @@
+---
+all:
+  children:
+    openstack_api:
+      hosts:
+        localhost:
+    jenkins:
+      hosts:
+        jenkins:
+          cloud_flavor: m1.small
+jenkins_server:
+  children:
+    openstack_api:
+    jenkins:
+...
