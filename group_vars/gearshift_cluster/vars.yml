@@ -113,6 +113,7 @@ regular_groups:
   - 'umcg-griac'
   - 'umcg-gsad'
   - 'umcg-hematology'
+  - 'umcg-immunogenetics'
   - 'umcg-impact'
   - 'umcg-lifelines'
   - 'umcg-lld'
@@ -214,6 +215,9 @@ regular_users:
   - user: 'umcg-hematology-dm'
     groups: ['umcg-hematology']
     sudoers: '%umcg-hematology-dms'
+  - user: 'umcg-immunogenetics-dm'
+    groups: ['umcg-immunogenetics']
+    sudoers: '%umcg-immunogenetics-dms'
   - user: 'umcg-impact-dm'
     groups: ['umcg-impact']
     sudoers: '%umcg-impact'
@@ -318,7 +322,7 @@ lfs_mounts: [
         'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
         'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-fu', 'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
-        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
+        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-immunogenetics', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
         'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
         'umcg-ugli', 'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
@@ -334,7 +338,7 @@ lfs_mounts: [
         'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
         'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-fu', 'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
-        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
+        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-immunogenetics', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
         'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
         'umcg-ugli', 'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
@@ -345,7 +349,7 @@ lfs_mounts: [
         'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
         'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-fu', 'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
-        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
+        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-immunogenetics', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
         'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
         'umcg-ugli', 'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
@@ -362,5 +366,5 @@ lfs_mounts: [
 ega_fuse_client_mounts:
   cineca: '/groups/umcg-cineca/prm02/ega-fuse-client'
   solve_rd: '/groups/umcg-solve-rd/prm02/ega-fuse-client'
-ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
+ega_fuse_client_java_home: '/etc/alternatives/jre_11_openjdk'
 ...
