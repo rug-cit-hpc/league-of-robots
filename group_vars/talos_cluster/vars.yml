@@ -139,25 +139,31 @@ pfs_mounts: [
     source: 'gcc-storage001.stor.hpc.local:/ifs/rekencluster',
     type: 'nfs4',
     rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime',
-    ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro' },
+    ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro',
+    machines: "{{ groups['sys_admin_interface'] }}" },
 ]
 lustre_quota_type: 'group'
 lfs_mounts: [
   { lfs: 'home',
     pfs: 'umcgst11',
-    machines: "{{ groups['cluster'] }}" },
+    rw_machines: "{{ groups['cluster'] }}" },
   { lfs: 'tmp08',
     pfs: 'umcgst11',
-    groups: ['umcg-atd', 'umcg-cineca', 'umcg-endocrinology', 'umcg-gcc', 'umcg-lifelines', 'umcg-sysops'] },
+    groups: ['umcg-atd', 'umcg-cineca', 'umcg-endocrinology', 'umcg-gcc', 'umcg-lifelines', 'umcg-sysops'],
+    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}" },
   { lfs: 'rsc08',
     pfs: 'umcgst11',
-    groups: ['umcg-atd', 'umcg-lifelines', 'umcg-sysops'] },
+    groups: ['umcg-atd', 'umcg-lifelines', 'umcg-sysops'],
+    ro_machines: "{{ groups['compute_vm'] }}",
+    rw_machines: "{{ groups['user_interface'] }}" },
   { lfs: 'prm08',
     pfs: 'umcgst11',
-    groups: ['umcg-atd', 'umcg-cineca', 'umcg-gcc', 'umcg-lifelines', 'umcg-solve-rd', 'umcg-sysops'] },
+    groups: ['umcg-atd', 'umcg-cineca', 'umcg-gcc', 'umcg-lifelines', 'umcg-solve-rd', 'umcg-sysops'],
+    rw_machines: "{{ groups['user_interface'] }}" },
   { lfs: 'env08',
     pfs: 'umcgst11',
-    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
+    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}",
+    rw_machines: "{{ groups['deploy_admin_interface'] }}" },
 ]
 ega_fuse_client_mounts:
   cineca: '/groups/umcg-cineca/prm08/ega-fuse-client'

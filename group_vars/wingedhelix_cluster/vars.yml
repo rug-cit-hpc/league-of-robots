@@ -85,7 +85,7 @@ regular_groups:
   - "{{ envsync_group }}"
   - "{{ functional_admin_group }}"
   - 'umcg-atd'
-  - 'umcg-gcc'
+
   - 'umcg-gap'
   - 'umcg-gd'
   - 'umcg-genomescan'
@@ -98,9 +98,6 @@ regular_users:
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
-  - user: 'umcg-gcc-ateambot'
-    groups: ['umcg-gcc']
-    sudoers: '%umcg-gcc'
   - user: 'umcg-gap-ateambot'
     groups: ['umcg-gap']
     sudoers: '%umcg-gap'
@@ -125,17 +122,34 @@ pfs_mounts: [
     source: '10.10.2.20:/mnt',
     type: 'nfs4',    # checked with cat /proc/filesystem
     rw_options: 'defaults,_netdev,noatime,nodiratime,local_lock=flock',
-    ro_options: 'defaults,_netdev,noatime,nodiratime,ro' },
+    ro_options: 'defaults,_netdev,noatime,nodiratime,ro',
+    machines: "{{ groups['sys_admin_interface'] }}" },
+  { pfs: 'medgen_wingedhelix$',
+    source: '//storage3.umcg.nl',
+    type: 'cifs',    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640',
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640',
+    machines: "{{ groups['chaperone'] }}" },
 ]
 lfs_mounts: [
   { lfs: 'home',
     pfs: 'umcgst12',
-    machines: "{{ groups['cluster'] }}" },
+    rw_machines: "{{ groups['cluster'] }}" },
   { lfs: 'tmp07',
     pfs: 'umcgst12',
-    groups: ['umcg-atd', 'umcg-gcc', 'umcg-gap', 'umcg-gd', 'umcg-genomescan', 'umcg-gsad', 'umcg-gst', 'umcg-vipt'] },
+    groups: ['umcg-atd', 'umcg-gap', 'umcg-gd', 'umcg-genomescan', 'umcg-gsad', 'umcg-gst', 'umcg-vipt'],
+    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}" },
+  { lfs: 'prm07',
+    pfs: 'medgen_wingedhelix$',
+    groups: ['umcg-atd', 'umcg-gap', 'umcg-gd', 'umcg-genomescan', 'umcg-gsad', 'umcg-gst', 'umcg-vipt'],
+    rw_machines: "{{ groups['chaperone'] }}" },
+  { lfs: 'dat07',
+    pfs: 'medgen_wingedhelix$',
+    groups: ['umcg-atd', 'umcg-gap', 'umcg-gd', 'umcg-genomescan', 'umcg-gsad', 'umcg-gst', 'umcg-vipt'],
+    rw_machines: "{{ groups['chaperone'] }}" },
   { lfs: 'env07',
     pfs: 'umcgst12',
-    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
+    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}",
+    rw_machines: "{{ groups['deploy_admin_interface'] }}" },
 ]
 ...

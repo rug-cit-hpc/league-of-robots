@@ -134,21 +134,25 @@ pfs_mounts: [
     source: '',
     type: 'nfs',
     rw_options: 'defaults,_netdev,noatime,nodiratime',
-    ro_options: 'defaults,_netdev,noatime,nodiratime,ro' },
+    ro_options: 'defaults,_netdev,noatime,nodiratime,ro',
+    machines: "{{ groups['sys_admin_interface'] }}" },
 ]
 lfs_mounts: [
   { lfs: 'home',
     pfs: 'ecst01',
-    machines: "{{ groups['cluster'] }}" },
+    rw_machines: "{{ groups['cluster'] }}" },
   { lfs: 'tmp11',
     pfs: 'ecst01',
-    groups: ['umcg-atd', 'erknet', 'euro-nmd', 'ern-liver'] },
+    groups: ['umcg-atd', 'erknet', 'euro-nmd', 'ern-liver'],
+    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}" },
   { lfs: 'prm11',
     pfs: 'ecst01',
-    groups: ['umcg-atd', 'erknet', 'euro-nmd', 'ern-liver'] },
+    groups: ['umcg-atd', 'erknet', 'euro-nmd', 'ern-liver'],
+    rw_machines: "{{ groups['user_interface'] }}" },
   { lfs: 'env11',
     pfs: 'ecst01',
-    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
+    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}",
+    rw_machines: "{{ groups['deploy_admin_interface'] }}" },
 ]
 interfaces:
   - device: 'eth0'

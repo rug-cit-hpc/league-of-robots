@@ -342,12 +342,13 @@ pfs_mounts: [
     #source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1',
     type: 'lustre',
     rw_options: 'defaults,_netdev,flock',
-    ro_options: 'defaults,_netdev,ro' },
+    ro_options: 'defaults,_netdev,ro',
+    machines: "{{ groups['sys_admin_interface'] }}" },
 ]
 lfs_mounts: [
   { lfs: 'home',
     pfs: 'xyz',
-    machines: "{{ groups['cluster'] }}" },
+    rw_machines: "{{ groups['cluster'] }}" },
   { lfs: 'tmp02',
     pfs: 'xyz',
     groups: [
@@ -358,7 +359,8 @@ lfs_mounts: [
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
         'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
         'umcg-ugli', 'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
-      ]},
+      ],
+    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}" },
   { lfs: 'prm02',
     pfs: 'umcgst01',
     groups: [
@@ -369,9 +371,11 @@ lfs_mounts: [
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
         'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
         'umcg-ugli', 'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
-      ]},
+      ],
+    rw_machines: "{{ groups['user_interface'] }}" },
   { lfs: 'env02',
     pfs: 'xyz',
-    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
+    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}",
+    rw_machines: "{{ groups['deploy_admin_interface'] }}" },
 ]
 ...
