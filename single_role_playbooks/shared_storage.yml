@@ -1,7 +1,11 @@
 ---
 - hosts:
     - cluster
+  roles:
+    - shared_storage
+- hosts:
     - chaperone
+  connection: local
   roles:
     - shared_storage
 ...
