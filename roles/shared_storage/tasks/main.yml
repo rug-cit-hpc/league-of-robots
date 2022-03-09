@@ -39,7 +39,10 @@
     opts: "{{ item.rw_options }}{{ extra_opts }}"
     state: 'mounted'
   vars:
-    extra_opts: "{% if item.type == 'cifs' %},credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid=root,gid=root{% endif %}"
+    extra_opts: >-
+      {%- if item.type == 'cifs' -%}
+      ,credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid=root,gid=root
+      {%- endif -%}
   with_items: "{{ pfs_mounts | selectattr('device', 'undefined') | list }}"
   when: inventory_hostname in item.machines | default([])
   become: true
@@ -236,7 +239,10 @@
     opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='rw_options') | first }}{{ extra_opts }}"
     state: 'mounted'
   vars:
-    extra_opts: "{% if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' %},credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1 }},gid={{ item.1 }}{% endif %}"
+    extra_opts: >-
+      {%- if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' -%}
+      ,credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1 }},gid={{ item.1 }}
+      {%- endif -%}
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
     - 'groups'
@@ -251,7 +257,10 @@
     opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='rw_options') | first }}{{ extra_opts }}"
     state: 'mounted'
   vars:
-    extra_opts: "{% if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' %},credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1 }},gid={{ item.1 }}{% endif %}"
+    extra_opts: >-
+      {%- if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' -%}
+      ,credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1 }},gid={{ item.1 }}
+      {%- endif -%}
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'dat[0-9]+$') | list }}"
     - 'groups'
