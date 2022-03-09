@@ -27,7 +27,7 @@
     mode: '0600'
     owner: root
     group: root
-  with_items: "{{ pfs_mounts | selectattr('device', 'undefined') | selectattr('type', 'match', 'cifs') | list }}"
+  with_items: "{{ pfs_mounts | selectattr('device', 'undefined') | selectattr('type', 'equalto', 'cifs') | list }}"
   when: inventory_hostname in item.machines | default([])
   become: true
 
@@ -44,6 +44,13 @@
   when: inventory_hostname in item.machines | default([])
   become: true
 
+- name: Debugging
+  debug:
+    msg: "LFS={{ item.lfs }} xx PFS={{ item.pfs }} xx {{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) }} xx {{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='machines') }}"
+  with_items: "{{ lfs_mounts | selectattr('lfs', 'search', '((prm)|(dat))[0-9]+$') | list }}"
+
+- meta: end_play
+
 - name: 'Create "home" Logical File System (LFS) on Physical File Systems (PFSs).'
   file:
     path: "/mnt/{{ item.pfs }}/{{ item.lfs }}"
@@ -52,7 +59,7 @@
     mode: '0755'
     state: 'directory'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'home') | list }}"
-  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='machines') | first | default([])
+  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='machines') | first | default([])
   become: true
 
 - name: 'Create root groups folder for "tmp", "rsc", "prm" and "dat" Logical File Systems (LFSs) on Physical File Systems (PFSs).'
@@ -64,7 +71,7 @@
     state: 'directory'
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$') | list }}"
-  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='machines') | first | default([])
+  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='machines') | first | default([])
   become: true
 
 - name: 'Create folder for each group on Physical File Systems (PFSs).'
@@ -77,7 +84,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='machines') | first | default([])
+  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='machines') | first | default([])
   become: true
 
 - name: 'Create "tmp" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs).'
@@ -90,7 +97,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='machines') | first | default([])
+  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='machines') | first | default([])
   become: true
 
 - name: 'Create "rsc" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs).'
@@ -103,7 +110,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'rsc[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='machines') | first | default([])
+  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='machines') | first | default([])
   become: true
 
 - name: 'Create "prm" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs).'
@@ -116,7 +123,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='machines') | first | default([])
+  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='machines') | first | default([])
   become: true
 
 - name: 'Create "dat" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs).'
@@ -129,7 +136,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'dat[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='machines') | first | default([])
+  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='machines') | first | default([])
   become: true
 
 - name: 'Create "apps" Logical File Systems (LFSs) on Physical File Systems (PFSs).'
@@ -141,7 +148,7 @@
     state: 'directory'
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
-  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='machines') | first | default([])
+  when: inventory_hostname in pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='machines') | first | default([])
   become: true
 
 #
@@ -192,9 +199,9 @@
 - name: 'Mount "tmp" Logical File Systems (LFSs) per group from shared storage read-write.'
   mount:
     path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first }}"
-    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='rw_options') | first }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
@@ -205,9 +212,9 @@
 - name: 'Mount "rsc" Logical File Systems (LFSs) per group from shared storage read-write.'
   mount:
     path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first }}"
-    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='rw_options') | first }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'rsc[0-9]+$') | list }}"
@@ -218,9 +225,9 @@
 - name: 'Mount "rsc" Logical File Systems (LFSs) per group from shared storage read-only.'
   mount:
     path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first }}"
-    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='ro_options') | first }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='ro_options') | first }}"
     state: 'mounted'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'rsc[0-9]+$') | list }}"
@@ -231,12 +238,12 @@
 - name: 'Mount "prm" Logical File Systems (LFSs) per group from shared storage read-write.'
   mount:
     path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first }}"
-    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='rw_options') | first }}{{ extra_opts }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='rw_options') | first }}{{ extra_opts }}"
     state: 'mounted'
   vars:
-    extra_opts: "{% if pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first == 'cifs' %},credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1 }},gid={{ item.1 }}{% endif %}"
+    extra_opts: "{% if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' %},credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1 }},gid={{ item.1 }}{% endif %}"
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
     - 'groups'
@@ -246,12 +253,12 @@
 - name: 'Mount "dat" Logical File Systems (LFSs) per group from shared storage read-write.'
   mount:
     path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first }}"
-    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='rw_options') | first }}{{ extra_opts }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='rw_options') | first }}{{ extra_opts }}"
     state: 'mounted'
   vars:
-    extra_opts: "{% if pfs_mounts | selectattr('pfs', 'match', item.0.pfs) | map(attribute='type') | first == 'cifs' %},credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1 }},gid={{ item.1 }}{% endif %}"
+    extra_opts: "{% if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' %},credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1 }},gid={{ item.1 }}{% endif %}"
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'dat[0-9]+$') | list }}"
     - 'groups'
@@ -261,9 +268,9 @@
 - name: 'Mount "env" Logical File Systems (LFSs) from shared storage read-write.'
   mount:
     path: "/mnt/{{ item.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.pfs }}/{{ item.lfs }}"
-    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
-    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') | first }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='source') | first }}/{{ item.pfs }}/{{ item.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
   when: inventory_hostname in item.rw_machines
@@ -272,9 +279,9 @@
 - name: 'Mount "apps" from one "env" Logical File System (LFS) from shared storage read-only as /apps.'
   mount:
     path: '/apps'
-    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.pfs }}/{{ item.lfs }}/apps"
-    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
-    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='ro_options') | first }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='source') | first }}/{{ item.pfs }}/{{ item.lfs }}/apps"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='ro_options') | first }}"
     state: 'mounted'
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
