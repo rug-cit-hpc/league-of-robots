@@ -44,13 +44,6 @@
   when: inventory_hostname in item.machines | default([])
   become: true
 
-- name: Debugging
-  debug:
-    msg: "LFS={{ item.lfs }} xx PFS={{ item.pfs }} xx {{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) }} xx {{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='machines') }}"
-  with_items: "{{ lfs_mounts | selectattr('lfs', 'search', '((prm)|(dat))[0-9]+$') | list }}"
-
-- meta: end_play
-
 - name: 'Create "home" Logical File System (LFS) on Physical File Systems (PFSs).'
   file:
     path: "/mnt/{{ item.pfs }}/{{ item.lfs }}"
