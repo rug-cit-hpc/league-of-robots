@@ -1,5 +1,11 @@
 ---
-- hosts: user_interface
+- hosts:
+    - user_interface
+  roles:
+    - sudoers
+- hosts:
+    - chaperone
+  connection: local
   roles:
     - sudoers
 ...
