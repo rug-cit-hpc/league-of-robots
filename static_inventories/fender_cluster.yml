@@ -25,6 +25,9 @@ all:
         fd-dai:
           cloud_flavor: 4c4m60d
           local_volume_size_extra: 2000
+    ldap_server:
+      hosts:
+        fd-dai:
     user_interface:
       hosts:
         fender:
@@ -72,7 +75,4 @@ fender_cluster:
     repo:
     cluster:
     docs:
-ldap_server:
-  children:
-    fd-dai:
 ...
