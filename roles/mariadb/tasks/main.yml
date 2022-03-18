@@ -76,7 +76,7 @@
   become: true
 
 - name: 'Set MariaDB/MySQL root user password.'
-  mysql_user:
+  community.mysql.mysql_user:
     name: 'root'
     host: 'localhost'
     password: "{{ MYSQL_ROOT_PASSWORD }}"
