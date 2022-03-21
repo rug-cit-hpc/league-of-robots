@@ -85,7 +85,7 @@
   become: true
 
 - name: 'Install munge_keyfile.'
-  copy:
+  ansible.builtin.copy:
     src: "{{ stack_name }}/munge.key"
     owner: 'munge'
     group: 'munge'
@@ -131,7 +131,7 @@
   become: true
 
 - name: 'Deploy slurm prolog/epilog scripts.'
-  copy:
+  ansible.builtin.copy:
     src: "roles/slurm_management/files/{{ item }}"
     dest: '/etc/slurm/'
     owner: 'root'
@@ -155,7 +155,7 @@
   become: true
 
 - name: 'Configure cgroups.'
-  copy:
+  ansible.builtin.copy:
     src: 'roles/slurm_management/files/cgroup.conf'
     dest: '/etc/slurm/cgroup.conf'
     owner: 'root'
@@ -186,7 +186,7 @@
   become: true
 
 - name: 'Install logrotate config file for slurmd.'
-  copy:
+  ansible.builtin.copy:
     src: "files/logrotate_slurm"
     owner: 'root'
     group: 'root'

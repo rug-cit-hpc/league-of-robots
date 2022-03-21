@@ -45,7 +45,7 @@
   connection: local
 
 - name: 'Create temporary unvaulted copy of CA private key.'
-  copy:
+  ansible.builtin.copy:
     src: "{{ ssh_host_signer_ca_private_key }}"
     dest: "{{ temporary_directory.path }}/{{ ssh_host_signer_ca_private_key | basename }}"
     mode: '0600'
@@ -94,7 +94,7 @@
   register: certificate_comparison
 
 - name: 'Copy certificates back to server if the generated ones are different from the existing ones.'
-  copy:
+  ansible.builtin.copy:
     src: "{{ item.item.path }}"
     dest: "{{ ssh_host_signer_key_directory }}"
     owner: root

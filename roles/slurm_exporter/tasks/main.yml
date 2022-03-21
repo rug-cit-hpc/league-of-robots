@@ -13,7 +13,7 @@
   become: true
 
 - name: "Install Prometheus {{ service_name }} binary."
-  copy:
+  ansible.builtin.copy:
     src: "{{ playbook_dir }}/promtools/results/{{ service_name }}"
     dest: "/usr/local/prometheus/{{ service_name }}"
     mode: '0755'

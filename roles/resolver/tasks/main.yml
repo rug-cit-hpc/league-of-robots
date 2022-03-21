@@ -19,7 +19,7 @@
   notify: 'restart_dnsmasq'
 
 - name: 'Configure /etc/resolv.conf to use dnsmasq on localhost.'
-  copy:
+  ansible.builtin.copy:
     dest: '/etc/resolv.conf'
     content: 'nameserver 127.0.0.1'
     owner: root

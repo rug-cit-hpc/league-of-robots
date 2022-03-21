@@ -13,7 +13,7 @@
   become: true
 
 - name: 'Install settings files.'
-  copy:
+  ansible.builtin.copy:
     src: "templates/etc/{{ item }}"
     dest: "/srv/prometheus/etc/prometheus/{{ item }}"
     mode: '0644'

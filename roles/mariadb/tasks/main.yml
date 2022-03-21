@@ -39,7 +39,7 @@
   become: true
 
 - name: 'Deploy MariaDB/MySQL config files.'
-  copy:
+  ansible.builtin.copy:
     src: "files/{{ item }}"
     dest: "/etc/my.cnf.d/{{ item }}"
     mode: '0644'

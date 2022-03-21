@@ -1,6 +1,6 @@
 ---
 - name: Create /etc/ssh/ssh_known_hosts file with public key from CA that signed the host keys.
-  copy:
+  ansible.builtin.copy:
     dest: /etc/ssh/ssh_known_hosts
     mode: 0644
     owner: root

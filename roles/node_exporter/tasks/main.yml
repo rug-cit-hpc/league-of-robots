@@ -8,7 +8,7 @@
   become: true
 
 - name: 'Install Prometheus node exporter.'
-  copy:
+  ansible.builtin.copy:
     src: "{{ playbook_dir }}/promtools/results/node_exporter"
     dest: '/usr/local/prometheus/node_exporter'
     mode: '0755'

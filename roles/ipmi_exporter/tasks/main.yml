@@ -5,7 +5,7 @@
     mode: 0755
 
 - name: Install ipmi exporter
-  copy:
+  ansible.builtin.copy:
     src: "{{ playbook_dir }}/promtools/results/ipmi_exporter"
     dest: /usr/local/prometheus/ipmi_exporter
     mode: 0755

@@ -64,7 +64,7 @@
 # This depends on a correctly configured pam-script PAM plugin.
 #
 - name: 'Install set_quota.sh script.'
-  copy:
+  ansible.builtin.copy:
     src: 'set_quota.sh'
     dest: '/etc/pam-script.d/set_quota.sh'
     owner: root

@@ -84,7 +84,7 @@
       | map(attribute='value.device') | list }}"
 
 - name: 'DEBUG: List discovered IP addressess and network interfaces.'
-  debug:
+  ansible.builtin.debug:
     msg: |
          Private IP addresses: {{ private_ip_addresses }}.
          Public  IP addresses: {{ public_ip_addresses }}.

@@ -39,7 +39,7 @@
   become: true
 
 - name: 'Insert/update block into ~/.bashrc to ensure we use the correct environment for syncing.'
-  blockinfile:
+  ansible.builtin.blockinfile:
     dest: "/home/{{ envsync_user }}/.bashrc"
     block: |
       [ $(id -gn) = {{ envsync_group }} ] || exec newgrp {{ envsync_group }}

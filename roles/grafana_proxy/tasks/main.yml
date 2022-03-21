@@ -23,7 +23,7 @@
   become: true
 
 - name: copy certificate and chain files in place
-  copy:
+  ansible.builtin.copy:
     src: "tls/{{ item }}"
     dest: /etc/certificates/live/{{ item }}
     owner: root
