@@ -79,10 +79,16 @@ UsePAM yes
 PermitRootLogin no
 PasswordAuthentication no
 PermitEmptyPasswords no
-ChallengeResponseAuthentication no
 GSSAPIAuthentication no
 GSSAPICleanupCredentials no
 PubkeyAuthentication yes
+{% if inventory_hostname in totp.machines | default([]) %}
+ChallengeResponseAuthentication yes
+AuthenticationMethods publickey,keyboard-interactive
+{% else %}
+ChallengeResponseAuthentication no
+AuthenticationMethods publickey
+{% endif %}
 
 #
 # Connection settings.
