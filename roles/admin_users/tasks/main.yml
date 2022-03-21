@@ -21,14 +21,14 @@
     mode: '0440'
   become: true
 - name: "Create private groups for user's home dirs."
-  group:
+  ansible.builtin.group:
     name: "{{ item }}"                 # Use same name as user's account name for user's private group.
     gid: "{{ auth_users[item].uid }}"  # Use same GID as user's UID for user's private group.
     state: present
   with_items: "{{ local_admin_users }}"
   become: true
 - name: 'Create /admin root dir for the home dirs of local admin users.'
-  file:
+  ansible.builtin.file:
     path: '/admin'
     owner: root
     group: root
@@ -36,7 +36,7 @@
     state: directory
   become: true
 - name: Create local admin users and append them to relevant groups.
-  user:
+  ansible.builtin.user:
     name: "{{ item }}"
     uid: "{{ auth_users[item].uid }}"
     comment: "{{ auth_users[item].comment }}"
@@ -47,7 +47,7 @@
   with_items: "{{ local_admin_users }}"
   become: true
 - name: 'Deploy authorized keys for admins.'
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ item }}"
     key: "{{ auth_users[item].pub_keys }}"
     state: present

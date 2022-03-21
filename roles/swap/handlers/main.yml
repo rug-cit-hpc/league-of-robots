@@ -5,19 +5,19 @@
 # and not in the order in which they are listed in a "notify: handler_name" statement!
 #
 - name: Disable swap file using swapon.
-  command:
+  ansible.builtin.command:
     cmd: swapoff {{ swap_file_path | quote }}
   listen: disable_swap_file
   become: true
 
 - name: Format swap file.
-  command:
+  ansible.builtin.command:
     cmd: mkswap {{ swap_file_path | quote }}
   listen: format_swap_file
   become: true
 
 - name: Enable swap file using swapon.
-  command:
+  ansible.builtin.command:
     cmd: swapon {{ swap_file_path | quote }}
   listen: enable_swap_file
   become: true

@@ -7,7 +7,7 @@
           || true
       changed_when: false
       register: versioned_subgroups
-    - set_fact:  # noqa unnamed-task
+    - ansible.builtin.set_fact:  # noqa unnamed-task
         versioned_subgroups_list: "{% if versioned_subgroups.stdout | length %}{{ versioned_subgroups.stdout.split('\n') | list }}{% endif %}"
 
 - block:
@@ -20,7 +20,7 @@
         done
       changed_when: false
       register: unversioned_subgroups
-    - set_fact:  # noqa unnamed-task
+    - ansible.builtin.set_fact:  # noqa unnamed-task
         unversioned_subgroups_list: "{% if unversioned_subgroups.stdout | length %}{{ unversioned_subgroups.stdout.split('\n') | list }}{% endif %}"
 
 - name: "Create directory structure for releases with version number on {{ lfs }}."
