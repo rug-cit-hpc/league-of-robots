@@ -52,7 +52,7 @@
   become: true
 
 - name: 'Make sure the MariaDB/MySQL service is enabled and started.'
-  systemd:
+  ansible.builtin.systemd:
     name: 'mariadb.service'
     state: 'started'
     enabled: 'yes'

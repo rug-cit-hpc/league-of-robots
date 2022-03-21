@@ -29,7 +29,7 @@
   notify: restart_dnsmasq
 
 - name: 'Enable dnsmasq service.'
-  systemd:
+  ansible.builtin.systemd:
     name: 'dnsmasq.service'
     enabled: true
   become: true

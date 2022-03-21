@@ -27,7 +27,7 @@
   become: true
 
 - name: 'Enable spacewalk service.'
-  systemd:
+  ansible.builtin.systemd:
     name: 'rhnsd.service'
     enabled: true
     state: started

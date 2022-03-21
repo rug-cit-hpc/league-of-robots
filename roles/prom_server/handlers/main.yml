@@ -8,7 +8,7 @@
 # but the other way around may fail when the impact of changes was too large for a reload.
 #
 - name: Restart prometheus service.
-  systemd:
+  ansible.builtin.systemd:
     name: 'prometheus.service'
     state: restarted
     daemon_reload: true

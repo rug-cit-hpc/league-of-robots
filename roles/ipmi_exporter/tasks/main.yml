@@ -24,12 +24,12 @@
   ansible.builtin.command: systemctl daemon-reload
 
 - name: enable service at boot
-  systemd:
+  ansible.builtin.systemd:
     name: ipmi-exporter
     enabled: yes
 
 - name: make sure servcies are started.
-  systemd:
+  ansible.builtin.systemd:
     name: ipmi-exporter.service
     state: restarted
   tags:

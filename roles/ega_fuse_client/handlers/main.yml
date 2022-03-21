@@ -1,6 +1,6 @@
 ---
 - name: Restart ega-fuse-client service instances.
-  systemd:
+  ansible.builtin.systemd:
     name: "ega-fuse-client@{{ item.key }}.service"
     state: 'restarted'
     daemon_reload: 'yes'

@@ -195,7 +195,7 @@
   become: true
 
 - name: 'Start slurm and munge services.'
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: 'yes'
     state: 'started'

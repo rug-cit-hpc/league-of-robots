@@ -51,7 +51,7 @@
   become: true
 
 - name: 'Make sure prometheus service is started and enabled on (re)boot.'
-  systemd:
+  ansible.builtin.systemd:
     name: 'prometheus.service'
     enabled: true
     state: 'started'

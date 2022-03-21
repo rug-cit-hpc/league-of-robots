@@ -8,7 +8,7 @@
 # but the other way around may fail when the impact of changes was too large for a reload.
 #
 - name: 'Restart nfs-server service.'
-  systemd:
+  ansible.builtin.systemd:
     name: 'nfs-server.service'
     state: restarted
     daemon_reload: true
@@ -16,7 +16,7 @@
   listen: restart_nfs-server
 
 - name: 'Reload nfs-server service.'
-  systemd:
+  ansible.builtin.systemd:
     name: 'nfs-server.service'
     state: reloaded
     daemon_reload: true

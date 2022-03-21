@@ -25,7 +25,7 @@
   become: true
 
 - name: Make sure grafana service is started and enabled on (re)boot.
-  systemd:
+  ansible.builtin.systemd:
     name: grafana.service
     enabled: true
     state: started

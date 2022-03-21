@@ -35,7 +35,7 @@
   become: true
 
 - name: "Make sure {{ service_name }} service is enabled and started."
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ service_name }}.service"
     state: started
     enabled: true

@@ -11,7 +11,7 @@
   notify: restart_ifaces
 
 - name: enable service at boot
-  systemd:
+  ansible.builtin.systemd:
     name: network.service
     enabled: yes
     state: started

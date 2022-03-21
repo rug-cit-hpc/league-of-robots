@@ -88,7 +88,7 @@
   notify: restart_ega-fuse-client
 
 - name: Make sure ega-fuse-client service instances are enabled and started.
-  systemd:
+  ansible.builtin.systemd:
     name: "ega-fuse-client@{{ item.key }}.service"
     state: started
     enabled: true

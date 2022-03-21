@@ -23,14 +23,14 @@
   become: false
 
 - name: 'Fetch public keys.'
-  fetch:
+  ansible.builtin.fetch:
     src: "{{ item.path }}.pub"
     dest: "{{ temporary_directory.path }}/public_keys/"
   with_items: "{{ private_keys.files }}"
   changed_when: false
 
 - name: 'Fetch existing certificates.'
-  fetch:
+  ansible.builtin.fetch:
     src: "{{ item.path }}-cert.pub"
     dest: "{{ temporary_directory.path }}/existing_certificates/"
     fail_on_missing: false

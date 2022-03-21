@@ -37,7 +37,7 @@
   become: true
 
 - name: Make sure nginx is enabled and restarted.
-  systemd:
+  ansible.builtin.systemd:
     name: nginx.service
     state: 'restarted'
     enabled: 'yes'
