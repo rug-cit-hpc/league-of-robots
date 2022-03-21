@@ -27,8 +27,8 @@
   become: true
 
 - name: Deploy /etc/pam.d/totp-auth with settings for 2FA with TOTPs.
-  ansible.builtin.copy:
-    src: 'files/totp-auth'
+  ansible.builtin.template:
+    src: 'templates/totp-auth'
     dest: '/etc/pam.d/totp-auth'
     owner: root
     group: root
