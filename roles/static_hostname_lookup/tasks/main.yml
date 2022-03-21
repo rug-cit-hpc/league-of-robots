@@ -1,6 +1,6 @@
 ---
 - name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
-  find:
+  ansible.builtin.find:
     paths: "{{ playbook_dir }}/group_vars/"
     recurse: true
     patterns: 'ip_addresses.yml'
@@ -17,7 +17,7 @@
   connection: local
 
 - name: Deploy /etc/hosts file.
-  template:
+  ansible.builtin.template:
     src: templates/hosts.j2
     dest: /etc/hosts
     mode: 0644

@@ -30,7 +30,7 @@
   meta: flush_handlers
 
 - name: Find all *.repo files in /etc/yum.repos.d/.
-  find:
+  ansible.builtin.find:
     paths: '/etc/yum.repos.d/'
     use_regex: false
     patterns: '*.repo'
@@ -45,7 +45,7 @@
   become: true
 
 - name: Remove RHN/SpaceWalk if it was installed.
-  yum:
+  ansible.builtin.yum:
     state: absent
     name:
       - rhn-client-tools

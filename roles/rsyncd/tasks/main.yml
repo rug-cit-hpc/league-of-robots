@@ -10,14 +10,14 @@
 #
 ---
 - name: 'Install rsync.'
-  yum:
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name: 'rsync'
   become: true
 
 - name: 'Install rsyncd config files with "modules".'
-  template:
+  ansible.builtin.template:
     src: "templates/{{ item }}"
     dest: "/etc/{{ item }}"
     owner: 'root'

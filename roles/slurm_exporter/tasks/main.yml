@@ -23,7 +23,7 @@
   become: true
 
 - name: "Install {{ service_name }} service file."
-  template:
+  ansible.builtin.template:
     src: "templates/{{ service_name }}.service"
     dest: "/etc/systemd/system/{{ service_name }}.service"
     mode: '0644'

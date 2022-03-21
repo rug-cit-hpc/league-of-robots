@@ -47,7 +47,7 @@
   become: true
 
 - name: 'Install the Slurm client with yum.'
-  yum:
+  ansible.builtin.yum:
     state: 'installed'
     update_cache: true
     allow_downgrade: true
@@ -61,7 +61,7 @@
 
 # See: https://bugs.schedmd.com/show_bug.cgi?id=8388
 - name: 'Patch slurm daemon systemd service files to disable PID files.'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/usr/lib/systemd/system/{{ item }}.service"
     regexp: '^#?PIDFile='
     line: "#PIDFile=/var/run/slurm/{{ item }}.pid"
@@ -75,7 +75,7 @@
   become: true
 
 - name: 'Install NHC with yum.'
-  yum:
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name:
@@ -144,7 +144,7 @@
   become: true
 
 - name: 'Deploy slurm.conf.'
-  template:
+  ansible.builtin.template:
     src: 'roles/slurm_management/templates/slurm.conf'
     dest: '/etc/slurm/slurm.conf'
     owner: 'root'
@@ -166,7 +166,7 @@
   become: true
 
 - name: 'Deploy UI nhc.conf.'
-  template:
+  ansible.builtin.template:
     src: 'templates/user_interface_nhc.conf'
     dest: '/etc/nhc/nhc.conf'
     owner: 'root'
@@ -176,7 +176,7 @@
   become: true
 
 - name: 'Deploy compute_vm nhc.conf.'
-  template:
+  ansible.builtin.template:
     src: 'templates/compute_vm_nhc.conf'
     dest: '/etc/nhc/nhc.conf'
     owner: 'root'
@@ -206,7 +206,7 @@
   become: true
 
 - name: 'Allow passwordless sudo to slurm user for users in the functional_admins_group.'
-  template:
+  ansible.builtin.template:
     src: 'roles/slurm_management/templates/91-slurm'
     dest: "/etc/sudoers.d/91-slurm"
     owner: 'root'

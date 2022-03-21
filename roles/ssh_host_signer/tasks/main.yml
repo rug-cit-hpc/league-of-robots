@@ -5,7 +5,7 @@
   become: true
 
 - name: 'Find SSH host keys.'
-  find:
+  ansible.builtin.find:
     path: "{{ ssh_host_signer_key_directory }}"
     pattern: ssh_host_*_key
   register: private_keys
@@ -55,7 +55,7 @@
   become: false
 
 - name: 'Sign SSH host keys.'
-  command: >
+  ansible.builtin.command: >
     ssh-keygen -h
       -s {{ temporary_directory.path | quote }}/{{ ssh_host_signer_ca_private_key | basename | quote }}
       -P {{ ssh_host_signer_ca_private_key_pass | quote }}
@@ -69,7 +69,7 @@
   no_log: true
 
 - name: 'Find generated certificates (== signed host keys).'
-  find:
+  ansible.builtin.find:
     path: "{{ temporary_directory.path }}/public_keys/{{ inventory_hostname }}{{ ssh_host_signer_key_directory }}"
     pattern: 'ssh_host_*_key-cert.pub'
   delegate_to: localhost
@@ -77,7 +77,7 @@
   register: certificates
 
 - name: 'Compare generated certificates to existing certificates from servers.'
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     diff <(ssh-keygen -L -f {{ item.path | quote }} | tail -n +2) \
          <(ssh-keygen -L -f {{ existing_certificates_dir }}/{{ item.path | basename | quote }} | tail -n +2)
@@ -114,7 +114,7 @@
   changed_when: false
 
 - name: 'Add the signed certificates to SSH configuration file.'
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: "{{ ssh_host_signer_ssh_config }}"
     line: "HostCertificate {{ item.path }}-cert.pub"
     insertafter: "HostKey {{ item.path }}"
@@ -128,7 +128,7 @@
   become: true
 
 - name: 'Remove HostKey directives from the SSH configuration file for unused ssh host key types.'
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: "{{ ssh_host_signer_ssh_config }}"
     line: "HostCertificate {{ item.path }}-cert.pub"
     state: absent
@@ -140,7 +140,7 @@
   become: true
 
 - name: 'Remove corresponding HostCertificate directives from the SSH configuration file for unused ssh host key types.'
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: "{{ ssh_host_signer_ssh_config }}"
     line: "HostKey {{ item.path }}"
     state: absent

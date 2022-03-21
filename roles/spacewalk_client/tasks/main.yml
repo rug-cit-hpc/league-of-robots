@@ -7,14 +7,14 @@
 #  Request failed: <urlopen error [Errno -2] Name or service not known>'
 #
 - name: 'Install spacewalk client repo.'
-  yum:
+  ansible.builtin.yum:
     name: "https://copr-be.cloud.fedoraproject.org/results/@spacewalkproject/\
            spacewalk-2.8-client/epel-7-x86_64/00742644-spacewalk-repo/spacewalk-client-repo-2.8-11.el7.centos.noarch.rpm"
     state: present
   become: true
 
 - name: 'Install spacewalk client packages.'
-  yum:
+  ansible.builtin.yum:
     name:
       - 'rhn-client-tools'
       - 'rhn-check'
@@ -53,7 +53,7 @@
   become: true
 
 - name: 'Disable gpgcheck for spacewalk repo.'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: '/etc/yum/pluginconf.d/rhnplugin.conf'
     regexp: '^gpgcheck = [0-9].*'
     line: 'gpgcheck = 0'
@@ -63,7 +63,7 @@
   become: true
 
 - name: 'Remove all (non-spacewalk) repo config files from /etc/yum.repos.d/.'
-  shell: 'rm -rfv /etc/yum.repos.d/*'
+  ansible.builtin.shell: 'rm -rfv /etc/yum.repos.d/*'
   args:
     warn: false
   register: deleted_items

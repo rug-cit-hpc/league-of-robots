@@ -28,7 +28,7 @@
   become: true
 
 - name: 'Deploy authorized keys for local regular users.'
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ item.user }}"
     key: "{{ auth_users[item.user].pub_keys }}"
     state: present

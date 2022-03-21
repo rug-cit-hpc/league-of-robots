@@ -5,7 +5,7 @@
 # and not in the order in which they are listed in a "notify: handler_name" statement!
 #
 - name: Running update-ca-trust when certificates have changed.
-  command:
+  ansible.builtin.command:
     cmd: update-ca-trust extract
   become: true
   listen: update-ca-trust
@@ -25,7 +25,7 @@
   listen: restart_sshd
 
 - name: Run authconfig update to enable sssd.
-  command: "authconfig --enablesssd --enablesssdauth --update"
+  ansible.builtin.command: "authconfig --enablesssd --enablesssdauth --update"
   become: true
   listen: authconfig_enable_sssd
 ...

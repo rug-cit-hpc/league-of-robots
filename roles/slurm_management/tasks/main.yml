@@ -249,7 +249,7 @@
   become: true
 
 - name: 'Create Slurm accounting DB backup now.'  # noqa no-changed-when
-  shell: |
+  ansible.builtin.shell: |
          mysqldump --all-databases \
              -uroot -p{{ MYSQL_ROOT_PASSWORD | quote }} \
              -h localhost --protocol=socket \
