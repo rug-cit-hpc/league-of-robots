@@ -10,7 +10,7 @@
   become: true
 
 - name: 'Install MkDocs and deps using pip on CentOS 7.'
-  pip:
+  ansible.builtin.pip:
     name: 'mkdocs'
     executable: 'pip3'
     state: 'latest'

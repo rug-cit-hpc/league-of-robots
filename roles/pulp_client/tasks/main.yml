@@ -27,7 +27,7 @@
   notify: update-ca-trust
 
 - name: Flush handlers.
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Find all *.repo files in /etc/yum.repos.d/.
   ansible.builtin.find:

@@ -8,7 +8,7 @@
   notify: disable_swap_file
 
 - name: Flush handlers.
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Remove swap file entry from fstab.
   ansible.posix.mount:

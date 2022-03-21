@@ -1,6 +1,6 @@
 ---
 - name: 'Set hostname to fqdn if defined or default to inventory_hostname.'
-  hostname:
+  ansible.builtin.hostname:
     name: "{{ hostvars[inventory_hostname].fqdn | default(inventory_hostname) }}"
   become: true
 
@@ -13,7 +13,7 @@
   become: true
 
 - name: 'Create local temporary directory.'
-  tempfile:
+  ansible.builtin.tempfile:
     suffix: 'ssh_host_signer'
     state: directory
   delegate_to: localhost

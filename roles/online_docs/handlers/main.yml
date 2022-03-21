@@ -5,7 +5,7 @@
 # and not in the order in which they are listed in a "notify: handler_name" statement!
 #
 - name: 'Restart services and their dependencies.'
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     state: restarted
   with_items:

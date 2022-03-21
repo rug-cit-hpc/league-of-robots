@@ -76,7 +76,7 @@
   notify: update-ca-trust
 
 - name: Flush handlers.
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 #
 ## IMPORTANT:

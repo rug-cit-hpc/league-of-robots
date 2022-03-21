@@ -11,14 +11,14 @@
   listen: update-ca-trust
 
 - name: Restart nslcd service.
-  service:
+  ansible.builtin.service:
     name: nslcd
     state: restarted
   become: true
   listen: restart_nslcd
 
 - name: Restart sshd service.
-  service:
+  ansible.builtin.service:
     name: sshd
     state: restarted
   become: true

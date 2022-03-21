@@ -1,6 +1,6 @@
 ---
 - name: Reboot machine with new kernel.
-  reboot:
+  ansible.builtin.reboot:
   become: true
   listen: reboot
 ...

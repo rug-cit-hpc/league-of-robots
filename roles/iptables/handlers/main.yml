@@ -1,6 +1,6 @@
 ---
 - name: 'Restart iptables based firewall deamons (IPv4 and IPv6).'
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     state: 'restarted'
     daemon_reload: 'yes'

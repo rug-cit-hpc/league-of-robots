@@ -9,7 +9,7 @@
   when: ansible_os_family == "RedHat" and firewall_disable_firewalld
 
 - name: Disable the firewalld service on RedHat.
-  service:
+  ansible.builtin.service:
     name: firewalld
     state: stopped
     enabled: no
@@ -26,7 +26,7 @@
   notify: Disable ufw firewall.
 
 - name: Disable ufw firewall.
-  service:
+  ansible.builtin.service:
     name: ufw
     state: stopped
     enabled: no

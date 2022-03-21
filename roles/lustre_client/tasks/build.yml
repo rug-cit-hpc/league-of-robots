@@ -1,8 +1,9 @@
 ---
 - name: Fetch the lustre client source code.
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ lustre_repo_url }}/{{ lustre_src_rpm_name }}.src.rpm"
     dest: "/tmp/{{ lustre_src_rpm_name }}.src.rpm"
+    mode: "0755"
 
 - name: Rebuild the lustre client.
   ansible.builtin.command:

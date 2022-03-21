@@ -73,7 +73,7 @@
   become: true
 
 - name: 'Enable set_quota.sh script for certain PAM states.'
-  file:  # noqa risky-file-permissions
+  ansible.builtin.file:  # noqa risky-file-permissions
     src: "{{ item }}"
     dest: "/etc/pam-script.d/{{ item }}_ses_open"
     state: link

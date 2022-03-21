@@ -7,7 +7,7 @@
   become: true
 
 - name: 'Get generated figlet ASCII art for hostname.'
-  slurp:
+  ansible.builtin.slurp:
     src: "/etc/{{ ansible_hostname }}.figlet.{{ figlet_cmd | checksum }}"
   register: figlet
 

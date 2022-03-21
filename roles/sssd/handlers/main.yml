@@ -11,14 +11,14 @@
   listen: update-ca-trust
 
 - name: Restart sssd service.
-  service:
+  ansible.builtin.service:
     name: sssd
     state: restarted
   become: true
   listen: restart_sssd
 
 - name: Restart sshd service.
-  service:
+  ansible.builtin.service:
     name: sshd
     state: restarted
   become: true

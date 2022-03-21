@@ -15,7 +15,7 @@
   listen: rebuild_grub_config
 
 - name: 'Reboot to activate updated GRUB config.'
-  reboot:
+  ansible.builtin.reboot:
     msg: 'Reboot initiated by Ansible role logins from League of Robots playbook/repo.'
   become: true
   listen: rebuild_grub_config
