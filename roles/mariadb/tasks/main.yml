@@ -11,7 +11,7 @@
   become: true
 
 - name: 'Create/check dirs used by MariaDB/MySQL.'
-  file:
+  ansible.builtin.file:
     path: "{{ item.path }}"
     state: 'directory'
     mode: "{{ item.mode }}"

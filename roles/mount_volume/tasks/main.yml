@@ -47,7 +47,7 @@
   loop: "{{ volumes }}"
 
 - name: 'Configure permissions for mounted file system.'
-  file:
+  ansible.builtin.file:
     path: "{{ item.item.mount_point }}"
     state: directory
     owner: "{{ item.item.mounted_owner }}"

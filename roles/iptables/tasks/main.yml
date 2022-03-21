@@ -62,7 +62,7 @@
 #  become: true
 
 - name: 'Create lists of private and of public IP addresses.'
-  set_fact:
+  ansible.builtin.set_fact:
     private_ip_addresses: "{{ ansible_facts | dict2items
       | json_query('[*].value.ipv4.address')
       | map('ipaddr', 'private') | list
@@ -73,7 +73,7 @@
       | reject('==', None) | list }}"
 
 - name: 'Create lists of internal and external network interfaces.'
-  set_fact:
+  ansible.builtin.set_fact:
     internal_interfaces: "{{ ansible_facts | dict2items
       | selectattr('value.ipv4.address', 'defined')
       | selectattr('value.ipv4.address', 'in', private_ip_addresses)

@@ -5,13 +5,13 @@
 # it must have been created earlier on in the play.
 #
 - name: 'Check if envsync group is present (without creating one if not existing yet).'
-  group:
+  ansible.builtin.group:
     name: "{{ envsync_group }}"
     state: present
   become: false
 
 - name: 'Check if envsync user is present (without creating one if not existing yet).'
-  user:
+  ansible.builtin.user:
     name: "{{ envsync_user }}"
     group: "{{ envsync_user }}"
     groups: "{{ envsync_group }}"

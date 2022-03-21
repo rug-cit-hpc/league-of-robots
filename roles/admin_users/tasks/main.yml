@@ -6,7 +6,7 @@
     state: permissive
   become: true
 - name: Create admin groups for local admin users.
-  group:
+  ansible.builtin.group:
     name: "{{ item }}"
     gid: "{{ auth_groups[item].gid }}"
     state: present

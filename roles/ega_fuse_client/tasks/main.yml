@@ -22,7 +22,7 @@
   become: true
 
 - name: Create /etc/ega-fuse-client.d/ directory.
-  file:
+  ansible.builtin.file:
     path: /etc/ega-fuse-client.d/
     state: directory
     mode: '0750'
@@ -40,7 +40,7 @@
   become: true
 
 - name: Create mount points.
-  file:
+  ansible.builtin.file:
     path: "{{ item.value }}"
     state: directory
     mode: '0550'

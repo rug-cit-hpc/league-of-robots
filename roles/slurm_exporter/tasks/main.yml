@@ -1,10 +1,10 @@
 ---
 - name: 'Setting service_name fact.'
-  set_fact:
+  ansible.builtin.set_fact:
     service_name: prometheus-slurm-exporter
 
 - name: 'Create directory for Prometheus.'
-  file:
+  ansible.builtin.file:
     path: '/usr/local/prometheus'
     state: directory
     mode: '0755'

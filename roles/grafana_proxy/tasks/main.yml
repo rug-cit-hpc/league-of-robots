@@ -16,7 +16,7 @@
   become: true
 
 - name: create tls certs directory
-  file:
+  ansible.builtin.file:
     path: /etc/certificates/live/airlock.hpc.rug.nl
     state: directory
     mode: 0751

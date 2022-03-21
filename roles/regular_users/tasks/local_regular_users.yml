@@ -1,6 +1,6 @@
 ---
 - name: 'Check if required groups are present.'
-  group:
+  ansible.builtin.group:
     name: "{{ item }}"
     gid: "{{ auth_groups[item].gid }}"
     state: present
@@ -8,7 +8,7 @@
   become: true
 
 - name: "Check if required private groups for user's home dir are present."
-  group:
+  ansible.builtin.group:
     name: "{{ item.user }}"                 # Use same name as user's account name for user's private group.
     gid: "{{ auth_users[item.user].uid }}"  # Use same GID as user's UID for user's private group.
     state: present
@@ -16,7 +16,7 @@
   become: true
 
 - name: 'Create local regular users and append them to relevant groups.'
-  user:
+  ansible.builtin.user:
     name: "{{ item.user }}"
     uid: "{{ auth_users[item.user].uid }}"
     comment: "{{ auth_users[item.user].comment }}"

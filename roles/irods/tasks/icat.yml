@@ -1,13 +1,13 @@
 ---
 # installing the iRODS ICAT
 - name: Create {{ irods_service_account }} group
-  group:
+  ansible.builtin.group:
     name: "{{ irods_service_account }}"
     state: present
   become: true
 
 - name: Creating {{ irods_service_account }} user
-  user:
+  ansible.builtin.user:
     name: "{{ irods_service_account }}"
     groups: "{{ irods_service_account }},admin"
   become: true

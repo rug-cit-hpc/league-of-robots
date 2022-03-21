@@ -11,7 +11,7 @@
     name: 'slurm'
 
 - name: 'Add Slurm group.'
-  group:
+  ansible.builtin.group:
     name: 'slurm'
     gid: "{{ slurm['slurm_gid'] }}"
   notify:
@@ -19,7 +19,7 @@
   become: true
 
 - name: 'Add Munge group.'
-  group:
+  ansible.builtin.group:
     name: 'munge'
     gid: "{{ slurm['munge_gid'] }}"
   notify:
@@ -28,7 +28,7 @@
   become: true
 
 - name: 'Add Slurm user.'
-  user:
+  ansible.builtin.user:
     name: 'slurm'
     uid: "{{ slurm['slurm_uid'] }}"
     group: 'slurm'
@@ -37,7 +37,7 @@
   become: true
 
 - name: 'Add Munge user.'
-  user:
+  ansible.builtin.user:
     name: 'munge'
     uid: "{{ slurm['munge_uid'] }}"
     group: 'munge'
@@ -97,7 +97,7 @@
   become: true
 
 - name: 'Create folders for Slurm and NHC.'
-  file:
+  ansible.builtin.file:
     name: "{{ item.name }}"
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"

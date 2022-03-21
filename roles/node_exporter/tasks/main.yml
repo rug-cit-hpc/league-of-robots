@@ -1,6 +1,6 @@
 ---
 - name: 'Create dir for Prometheus.'
-  file:
+  ansible.builtin.file:
     path: '/usr/local/prometheus'
     state: directory
     mode: '0755'

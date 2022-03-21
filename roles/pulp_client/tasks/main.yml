@@ -37,7 +37,7 @@
   register: yum_repo_configs
 
 - name: Remove *.repo files from /etc/yum.repos.d/ that do not correspond to our Pulp repos.
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   with_items: "{{ yum_repo_configs.files | map (attribute='path') | list }}"

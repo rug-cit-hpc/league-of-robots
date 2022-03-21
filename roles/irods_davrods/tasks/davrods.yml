@@ -1,5 +1,5 @@
 - name: 'Ensure that /etc/irods directory exists'
-  file:
+  ansible.builtin.file:
     dest: "/etc/irods"
     mode: '0755'
     state: directory
@@ -22,13 +22,13 @@
   become: true
 
 - name: 'Create {{ davrods_docker_user }} group'
-  group:
+  ansible.builtin.group:
     name: '{{ davrods_docker_user }}'
     state: present
   become: true
 
 - name: 'Creating {{ davrods_docker_user }} user'
-  user:
+  ansible.builtin.user:
     name: '{{ davrods_docker_user }}'
     groups: '{{ davrods_docker_user }},docker'
   become: true
@@ -40,11 +40,11 @@
   become: true
 
 - name: Store davrods_user_home_path
-  set_fact:
+  ansible.builtin.set_fact:
     davrods_user_home_path: "{{ getent_output.stdout }}"
 
 - name: Create davrods docker directories inside {{ davrods_docker_folder }} folder
-  file:
+  ansible.builtin.file:
     path: '{{ davrods_user_home_path }}/{{ davrods_docker_folder }}/{{ item.path }}'
     state: directory
     mode: '{{ item.mode }}'

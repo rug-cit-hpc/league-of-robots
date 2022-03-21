@@ -38,7 +38,7 @@
   changed_when: false
 
 - name: 'Check if we have a CA private key with correct permissions.'
-  file:
+  ansible.builtin.file:
     path: "{{ ssh_host_signer_ca_private_key }}"
     mode: '0600'
   delegate_to: localhost
@@ -106,7 +106,7 @@
   become: true
 
 - name: 'Remove local temporary directory.'
-  file:
+  ansible.builtin.file:
     name: "{{ temporary_directory.path }}"
     state: absent
   delegate_to: localhost
