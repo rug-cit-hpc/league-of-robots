@@ -1,6 +1,6 @@
 ---
 - name: Install TOTP tools
-  yum:
+  ansible.builtin.yum:
     state: latest
     update_cache: true
     name:

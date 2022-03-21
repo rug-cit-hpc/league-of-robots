@@ -1,6 +1,6 @@
 ---
 - name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
-  find:
+  ansible.builtin.find:
     paths: "{{ playbook_dir }}/group_vars/"
     recurse: true
     patterns: 'ip_addresses.yml'
@@ -9,7 +9,7 @@
   connection: local
 
 - name: Include variables from all ip_addresses.yml files.
-  include_vars:
+  ansible.builtin.include_vars:
     file: "{{ item }}"
     name: "{{ item | dirname | basename }}"
   with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
@@ -17,7 +17,7 @@
   connection: local
 
 - name: Check if system has /etc/pam.d/sshd
-  ansible.builtin.stat: 
+  ansible.builtin.stat:
     path: /etc/pam.d/sshd
   register: pam_sshd_status
   when: inventory_hostname in totp.machines | default([])
