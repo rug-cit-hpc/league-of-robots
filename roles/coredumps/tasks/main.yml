@@ -1,6 +1,6 @@
 ---
 - name: 'Install sysctl config file to manage coredumps upon next reboot.'
-  template:
+  ansible.builtin.template:
     src: 'templates/50-ansible-managed-coredumps.conf'
     dest: '/etc/sysctl.d/50-ansible-managed-coredumps.conf'
     owner: 'root'
@@ -9,7 +9,7 @@
   become: true
 
 - name: 'Modify sysctl kernel parameter to manage coredumps right now.'
-  sysctl:
+  ansible.posix.sysctl:
     name: kernel.core_pattern
     value: "{{ coredumps_pattern }}"
     sysctl_set: true

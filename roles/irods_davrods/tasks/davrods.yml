@@ -87,7 +87,7 @@
 ###### TODO fix templates to variables from secrets (done)
 
 - name: 'Deploy docker template files into {{ davrods_docker_folder }}'
-  template:
+  ansible.builtin.template:
     src: '{{ item.src }}'
     dest: '{{ davrods_user_home_path }}/{{ davrods_docker_folder }}/{{ item.path }}'
     mode: '{{ item.mode }}'

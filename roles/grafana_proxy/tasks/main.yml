@@ -1,13 +1,13 @@
 ---
 - name: Install nginx.
-  yum:
+  ansible.builtin.yum:
     name: nginx
     state: latest
     update_cache: true
   become: true
 
 - name: Deploy nginx.conf.
-  template:
+  ansible.builtin.template:
     src: templates/nginx.conf
     dest: /etc/nginx/nginx.conf
     mode: 0644

@@ -92,7 +92,7 @@
          External interfaces:  {{ external_interfaces }}.
 
 - name: 'Deploy firewall configuration script.'
-  template:
+  ansible.builtin.template:
     src: 'configure-iptables-firewall.bash.j2'
     dest: '/root/configure-iptables-firewall.bash'
     owner: root

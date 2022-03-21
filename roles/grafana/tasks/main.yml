@@ -12,7 +12,7 @@
   become: true
 
 - name: Install service files.
-  template:
+  ansible.builtin.template:
     src: 'templates/grafana.service'
     dest: '/etc/systemd/system/grafana.service'
     mode: 0644

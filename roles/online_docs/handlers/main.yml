@@ -32,7 +32,7 @@
   listen: 'zip_attachments'
 
 - name: '(Re)build webpages.'
-  shell: |
+  ansible.builtin.shell: |
          cd /srv/mkdocs/{{ slurm_cluster_name }}/
          umask 0022
          export LC_ALL='en_US.utf8'

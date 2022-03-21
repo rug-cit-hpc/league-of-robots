@@ -27,7 +27,7 @@
   become: true
 
 - name: 'Install settings files based on templates.'
-  template:
+  ansible.builtin.template:
     src: 'templates/etc/prometheus.yml'
     dest: '/srv/prometheus/etc/prometheus/prometheus.yml'
     mode: '0644'
@@ -38,7 +38,7 @@
   become: true
 
 - name: 'Install service files.'
-  template:
+  ansible.builtin.template:
     src: 'templates/prometheus.service'
     dest: '/etc/systemd/system/prometheus.service'
     mode: '0644'

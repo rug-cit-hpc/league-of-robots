@@ -11,7 +11,7 @@
     mode: 0755
 
 - name: Install service files.
-  template:
+  ansible.builtin.template:
     src: templates/ipmi-exporter.service
     dest: /etc/systemd/system/ipmi-exporter.service
     mode: 644
@@ -21,7 +21,7 @@
       - service-files
 
 - name: install service files
-  command: systemctl daemon-reload
+  ansible.builtin.command: systemctl daemon-reload
 
 - name: enable service at boot
   systemd:

@@ -16,7 +16,7 @@
   become: true
 
 - name: 'Install node exporter service file.'
-  template:
+  ansible.builtin.template:
     src: 'templates/node-exporter.service'
     dest: '/etc/systemd/system/node-exporter.service'
     mode: '0644'

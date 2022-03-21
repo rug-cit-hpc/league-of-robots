@@ -5,7 +5,7 @@
 # and not in the order in which they are listed in a "notify: handler_name" statement!
 #
 - name: 'Rebuild GRUB config.'
-  shell: |
+  ansible.builtin.shell: |
          timestamp="$(date '+%Y-%m-%dT%H:%M:%S%z')"
          cp -v '/boot/grub2/grub.cfg' "/boot/grub2/grub.cfg.ansible_backup_${timestamp}"
          grub2-mkconfig -o '/boot/grub2/grub.cfg'

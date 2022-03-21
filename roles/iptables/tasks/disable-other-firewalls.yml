@@ -1,6 +1,6 @@
 ---
 - name: Check if firewalld package is installed on RedHat.
-  shell: yum list installed firewalld
+  ansible.builtin.shell: yum list installed firewalld
   args:
     warn: no
   register: firewalld_installed
@@ -16,7 +16,7 @@
   when: ansible_os_family == "RedHat" and firewall_disable_firewalld and firewalld_installed.rc == 0
 
 - name: Check if ufw package is installed (on Ubuntu).
-  shell: service ufw status
+  ansible.builtin.shell: service ufw status
   args:
     warn: no
   register: ufw_installed

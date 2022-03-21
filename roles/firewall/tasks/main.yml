@@ -22,7 +22,7 @@
 
 
 - name: Kernel tweaks
-  sysctl:
+  ansible.posix.sysctl:
     name: "{{ item.key }}"
     value: "{{ item.value }}"
     sysctl_set: yes

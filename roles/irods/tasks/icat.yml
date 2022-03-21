@@ -13,7 +13,7 @@
   become: true
 
 - name: Installing the iRODS Package(s)
-  yum:
+  ansible.builtin.yum:
     name: '{{ item }}'
     state: present
   loop:
@@ -74,7 +74,7 @@
   become: true
 
 - name: create_unattended_installation_json
-  template:
+  ansible.builtin.template:
     src: unattended_install.json.j2
     dest: /root/unattended_install.json
     mode: '0600'
@@ -119,27 +119,27 @@
 
 - name: Edit /etc/irods/core.re to enforce the use of the certificates
   become: true
-  lineinfile:
+  ansible.builtin.lineinfile:
     name: /etc/irods/core.re
     search_string: 'acPreConnect(*OUT) { *OUT="CS_NEG_DONT_CARE"; }'
     line: 'acPreConnect(*OUT) { *OUT="CS_NEG_REQUIRE"; }'
 
 - name: Edit /etc/irods/core.re to set number of threads to 4
   become: true
-  lineinfile:
+  ansible.builtin.lineinfile:
     name: /etc/irods/core.re
     search_string: 'acSetNumThreads {msiSetNumThreads("default","default","default"); }'
     line: 'acSetNumThreads {msiSetNumThreads("default","4","default"); }'
 
 - name: Edit /etc/irods/core.re to set default resource to {{ irods_default_resource }}
-  lineinfile:
+  ansible.builtin.lineinfile:
     name: /etc/irods/core.re
     search_string: 'acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","null"); }'
     line: 'acSetRescSchemeForCreate {msiSetDefaultResc("{{ irods_default_resource }}","null"); }'
   become: true
 
 - name: Edit /etc/irods/core.re to set default replication resource to {{ irods_default_resource }}
-  lineinfile:
+  ansible.builtin.lineinfile:
     name: /etc/irods/core.re
     search_string: 'acSetRescSchemeForRepl {msiSetDefaultResc("demoResc","null"); }'
     line: 'acSetRescSchemeForRepl {msiSetDefaultResc("{{ irods_default_resource }}","null"); }'
@@ -153,7 +153,7 @@
   become: true
 
 - name: Temporary bugfix of the faulty service file (to be removed in newer versions)
-  lineinfile:
+  ansible.builtin.lineinfile:
     name: /etc/init.d/irods
     search_string: 'rm /var/lock/subsys/irods'
     line: 'rm -f /var/lock/subsys/irods'

@@ -1,6 +1,6 @@
 ---
 - name: 'Install cadvisor service file.'
-  template:
+  ansible.builtin.template:
     src: 'templates/cadvisor.service'
     dest: '/etc/systemd/system/cadvisor.service'
     mode: '0644'
