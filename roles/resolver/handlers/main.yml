@@ -5,7 +5,7 @@
 # and not in the order in which they are listed in a "notify: handler_name" statement!
 #
 - name: 'Restart dnsmasq service.'
-  service:
+  ansible.builtin.service:
     name: dnsmasq
     state: restarted
   become: true

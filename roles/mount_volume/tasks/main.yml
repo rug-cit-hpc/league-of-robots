@@ -15,7 +15,7 @@
   with_items: "{{ pfs_mounts | selectattr('type', 'search', 'nfs') | selectattr('device', 'defined') | list }}"
 
 - name: 'Check the mount point.'
-  command: "mountpoint {{ item.mount_point }}"
+  ansible.builtin.command: "mountpoint {{ item.mount_point }}"
   register: mount_point_status
   failed_when: false
   changed_when: false
@@ -30,7 +30,7 @@
   loop: "{{ mount_point_status.results }}"
 
 - name: 'Mount the volume.'
-  mount:
+  ansible.posix.mount:
     path: "{{ item.mount_point }}"
     src: "{{ item.device }}"
     fstype: "{{ item.type }}"
@@ -40,14 +40,14 @@
   loop: "{{ volumes }}"
 
 - name: 'Recheck the mount point.'
-  command: "mountpoint {{ item.mount_point }}"
+  ansible.builtin.command: "mountpoint {{ item.mount_point }}"
   register: mount_point_status
   failed_when: false
   changed_when: false
   loop: "{{ volumes }}"
 
 - name: 'Configure permissions for mounted file system.'
-  file:
+  ansible.builtin.file:
     path: "{{ item.item.mount_point }}"
     state: directory
     owner: "{{ item.item.mounted_owner }}"

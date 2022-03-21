@@ -1,6 +1,6 @@
 ---
 - name: Install extra build depedencies for Deploy Admin Interfaces (DAIs).
-  yum:
+  ansible.builtin.yum:
     state: latest
     update_cache: true
     name:

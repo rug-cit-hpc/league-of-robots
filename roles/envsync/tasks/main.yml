@@ -5,13 +5,13 @@
 # it must have been created earlier on in the play.
 #
 - name: 'Check if envsync group is present (without creating one if not existing yet).'
-  group:
+  ansible.builtin.group:
     name: "{{ envsync_group }}"
     state: present
   become: false
 
 - name: 'Check if envsync user is present (without creating one if not existing yet).'
-  user:
+  ansible.builtin.user:
     name: "{{ envsync_user }}"
     group: "{{ envsync_user }}"
     groups: "{{ envsync_group }}"
@@ -24,13 +24,13 @@
 # Configure environment synchronization account.
 #
 - name: 'Initialize envsync account creating home dir if it did not exist yet.'
-  command:
+  ansible.builtin.command:
     cmd: "mkhomedir_helper {{ envsync_user }} 0077"
     creates: "/home/{{ envsync_user }}"
   become: true
 
 - name: 'Allow passwordless sudo to the environment synchronization account for deploy admin users.'
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: '/etc/sudoers'
     line: "%{{ envsync_group }}    ALL=({{ envsync_user }})    NOPASSWD:ALL"
     owner: root
@@ -39,7 +39,7 @@
   become: true
 
 - name: 'Insert/update block into ~/.bashrc to ensure we use the correct environment for syncing.'
-  blockinfile:
+  ansible.builtin.blockinfile:
     dest: "/home/{{ envsync_user }}/.bashrc"
     block: |
       [ $(id -gn) = {{ envsync_group }} ] || exec newgrp {{ envsync_group }}
@@ -53,7 +53,7 @@
   become: true
 
 - name: 'Deploy script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
-  template:
+  ansible.builtin.template:
     src: 'templates/hpc-environment-permissions.bash'
     dest: '/root/hpc-environment-permissions.bash'
     owner: 'root'
@@ -62,7 +62,7 @@
   become: true
 
 - name: 'Create cron job to execute script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
-  cron:
+  ansible.builtin.cron:
     name: Verify and fix permissions for HPC environment.
     weekday: '*'
     hour: '04'
@@ -73,7 +73,7 @@
   become: true
 
 - name: 'Create cron job to synchronise the environment managed by the envsync account.'
-  cron:
+  ansible.builtin.cron:
     name: Synchronise HPC environment.
     weekday: '*'
     hour: '05'

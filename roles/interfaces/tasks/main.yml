@@ -1,6 +1,6 @@
 ---
 - name: template network devices' files
-  template:
+  ansible.builtin.template:
     src: "interface_template.j2"
     dest: "/etc/sysconfig/network-scripts/{{network_device_file_prefix}}{{ item.device }}"
     mode: 0644
@@ -11,7 +11,7 @@
   notify: restart_ifaces
 
 - name: enable service at boot
-  systemd:
+  ansible.builtin.systemd:
     name: network.service
     enabled: yes
     state: started

@@ -1,12 +1,12 @@
 ---
 - name: 'Install yum-utils, which provides the "needs-restarting" utility.'
-  yum:
+  ansible.builtin.yum:
     name: yum-utils
     state: latest
     update_cache: true
   become: true
 - name: 'Update all installed packages (except Slurm).'
-  yum:
+  ansible.builtin.yum:
     name: '*'
     state: latest
     update_cache: true
@@ -14,7 +14,7 @@
   notify: reboot_for_kernel_update
   become: true
 - name: 'Install cron job to reboot server regularly to activate kernel updates.'
-  cron:
+  ansible.builtin.cron:
     name: 'Reboot to load new kernel.'
     weekday: '1'
     minute: '45'

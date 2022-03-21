@@ -1,6 +1,6 @@
 ---
 - name: 'Install figlet.'
-  yum:
+  ansible.builtin.yum:
     state: latest
     update_cache: true
     name: figlet

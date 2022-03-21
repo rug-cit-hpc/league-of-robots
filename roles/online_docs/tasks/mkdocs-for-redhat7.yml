@@ -1,6 +1,6 @@
 ---
 - name: 'Install Python 3 for CentOS 7.'
-  yum:
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name:
@@ -10,7 +10,7 @@
   become: true
 
 - name: 'Install MkDocs and deps using pip on CentOS 7.'
-  pip:
+  ansible.builtin.pip:
     name: 'mkdocs'
     executable: 'pip3'
     state: 'latest'

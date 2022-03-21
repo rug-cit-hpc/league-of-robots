@@ -27,17 +27,17 @@
   notify: update-ca-trust
 
 - name: Flush handlers.
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Find all *.repo files in /etc/yum.repos.d/.
-  find:
+  ansible.builtin.find:
     paths: '/etc/yum.repos.d/'
     use_regex: false
     patterns: '*.repo'
   register: yum_repo_configs
 
 - name: Remove *.repo files from /etc/yum.repos.d/ that do not correspond to our Pulp repos.
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   with_items: "{{ yum_repo_configs.files | map (attribute='path') | list }}"
@@ -45,7 +45,7 @@
   become: true
 
 - name: Remove RHN/SpaceWalk if it was installed.
-  yum:
+  ansible.builtin.yum:
     state: absent
     name:
       - rhn-client-tools

@@ -5,27 +5,27 @@
 # and not in the order in which they are listed in a "notify: handler_name" statement!
 #
 - name: Running update-ca-trust when certificates have changed.
-  command:
+  ansible.builtin.command:
     cmd: update-ca-trust extract
   become: true
   listen: update-ca-trust
 
 - name: Restart nslcd service.
-  service:
+  ansible.builtin.service:
     name: nslcd
     state: restarted
   become: true
   listen: restart_nslcd
 
 - name: Restart sshd service.
-  service:
+  ansible.builtin.service:
     name: sshd
     state: restarted
   become: true
   listen: restart_sshd
 
 - name: Run authconfig update to enable ldap.
-  command: "authconfig --enableldap --enableldapauth --update"
+  ansible.builtin.command: "authconfig --enableldap --enableldapauth --update"
   become: true
   listen: authconfig_enable_ldap
 ...

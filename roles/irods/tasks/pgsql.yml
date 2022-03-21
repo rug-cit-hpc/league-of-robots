@@ -1,24 +1,24 @@
 ---
 - name: Installing postgresql-server
   become: true
-  yum:
+  ansible.builtin.yum:
     name: postgresql-server
     state: latest
 
 - name: Installing python-psycopg2
   become: true
-  yum:
+  ansible.builtin.yum:
     name: python-psycopg2
     state: latest
 
 - name: Initializing PGSQL database
   become: true
-  command: "/usr/bin/postgresql-setup initdb"
+  ansible.builtin.command: "/usr/bin/postgresql-setup initdb"
   args:
     creates: /var/lib/pgsql/data/pg_hba.conf
 
 - name: Fixing pg_hba.conf to permit ipv4localhost password authentication
-  lineinfile:
+  ansible.builtin.lineinfile:
     name: /var/lib/pgsql/data/pg_hba.conf
     regexp: "host    all             all             127.0.0.1/32            ident"
     line: "host    all             all             127.0.0.1/32            md5"
@@ -28,7 +28,7 @@
   become: true
 
 - name: Fixing pg_hba.conf to permit ipv6 localhost password authentication
-  lineinfile:
+  ansible.builtin.lineinfile:
     name: /var/lib/pgsql/data/pg_hba.conf
     regexp: "host    all             all             ::1/128                 ident"
     line: "host    all             all             ::1/128                 md5"

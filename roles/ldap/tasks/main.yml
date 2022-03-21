@@ -91,7 +91,7 @@
   become: true
 
 - name: Check if we need to update authconfig.
-  command:
+  ansible.builtin.command:
     cmd: /usr/sbin/authconfig --test
   register: authconfig_test
   changed_when: ('nss_ldap is disabled' in authconfig_test.stdout) or ('pam_ldap is disabled' in authconfig_test.stdout)

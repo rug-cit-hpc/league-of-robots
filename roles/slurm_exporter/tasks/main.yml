@@ -1,10 +1,10 @@
 ---
 - name: 'Setting service_name fact.'
-  set_fact:
+  ansible.builtin.set_fact:
     service_name: prometheus-slurm-exporter
 
 - name: 'Create directory for Prometheus.'
-  file:
+  ansible.builtin.file:
     path: '/usr/local/prometheus'
     state: directory
     mode: '0755'
@@ -13,7 +13,7 @@
   become: true
 
 - name: "Install Prometheus {{ service_name }} binary."
-  copy:
+  ansible.builtin.copy:
     src: "{{ playbook_dir }}/promtools/results/{{ service_name }}"
     dest: "/usr/local/prometheus/{{ service_name }}"
     mode: '0755'
@@ -23,7 +23,7 @@
   become: true
 
 - name: "Install {{ service_name }} service file."
-  template:
+  ansible.builtin.template:
     src: "templates/{{ service_name }}.service"
     dest: "/etc/systemd/system/{{ service_name }}.service"
     mode: '0644'
@@ -35,7 +35,7 @@
   become: true
 
 - name: "Make sure {{ service_name }} service is enabled and started."
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ service_name }}.service"
     state: started
     enabled: true
