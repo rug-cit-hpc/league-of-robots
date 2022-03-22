@@ -1,4 +1,44 @@
 ---
+- name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
+  ansible.builtin.find:
+    paths: "{{ playbook_dir }}/group_vars/"
+    recurse: true
+    patterns: 'ip_addresses.yml'
+  register: ip_addresses_files
+  delegate_to: localhost
+  connection: local
+
+- name: Include variables from all ip_addresses.yml files.
+  ansible.builtin.include_vars:
+    file: "{{ item }}"
+    name: "{{ item | dirname | basename }}"
+  with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
+  delegate_to: localhost
+  connection: local
+
+- name: Check if system has /etc/pam.d/sshd
+  ansible.builtin.stat:
+    path: /etc/pam.d/sshd
+  register: pam_sshd_status
+  when: inventory_hostname in totp.machines | default([])
+
+- name: Fail if host does not have /etc/pam.d/sshd.
+  ansible.builtin.fail:
+    msg: This host does not have a /etc/pam.d/sshd file. We cannot configure the PAM stack. Check the sshd setup.
+  when:
+    - inventory_hostname in totp.machines | default([])
+    - pam_sshd_status.stat.exists is false
+
+- name: Enable TOTPs for MFA.
+  ansible.builtin.include_tasks:
+    file: enable_totps.yml
+  when: inventory_hostname in totp.machines | default([])
+
+- name: Disable TOTPs for MFA.
+  ansible.builtin.include_tasks:
+    file: disable_totps.yml
+  when: inventory_hostname not in totp.machines | default([])
+
 - name: Deploy sshd config.
   ansible.builtin.template:
     src: templates/sshd_config

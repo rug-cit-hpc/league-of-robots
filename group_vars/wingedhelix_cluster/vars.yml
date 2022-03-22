@@ -44,6 +44,13 @@ ldap_binddn: 'cn=clusteradminGD,o=asds'
 ldap_group_object_class: 'groupofnames'
 ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
 ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
+totp:
+  machines: "{{ groups['jumphost'] }}"
+  excluded:
+    - 'LOCAL'
+    - "{{ all.ip_addresses['umcg_net1']['addr'] }}{{ all.ip_addresses['umcg_net1']['mask'] }}"
+    - "{{ all.ip_addresses['umcg_net2']['addr'] }}{{ all.ip_addresses['umcg_net2']['mask'] }}"
+    - "{{ all.ip_addresses['umcg_net3']['addr'] }}{{ all.ip_addresses['umcg_net3']['mask'] }}"
 cloud_image: CentOS 7
 cloud_user: centos
 network_public_external_id: vlan16
