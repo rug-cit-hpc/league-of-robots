@@ -53,5 +53,4 @@ elif [[ "$(whoami)" != "$(logname)" ]]; then
 	: # No direct (SSH) login; sudo perhaps.
 else
 	totp-configure
-	totp-show-QR-code
 fi
