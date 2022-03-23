@@ -1,0 +1,34 @@
+---
+- name: Remove /etc/profile.d/totp_config.sh.
+  ansible.builtin.file:
+    path: /etc/profile.d/totp_config.sh
+    state: absent
+  become: true
+
+- name: 'Update /etc/pam.d/sshd: Disable totp-auth.'
+  ansible.builtin.lineinfile:
+    path: '/etc/pam.d/sshd'
+    owner: root
+    group: root
+    mode: '0644'
+    state: absent
+    regexp: '^#?auth(\s+)([a-z]+)(\s+)totp-auth'
+  become: true
+
+- name: 'Update /etc/pam.d/sshd: Enable password-auth.'
+  ansible.builtin.lineinfile:
+    path: '/etc/pam.d/sshd'
+    owner: root
+    group: root
+    mode: '0644'
+    insertafter: '^#%PAM'
+    regexp: '^#?auth(\s+)([a-z]+)(\s+)password-auth'
+    line: 'auth       substack     password-auth'
+  become: true
+
+- name: Remove /etc/pam.d/totp-auth.
+  ansible.builtin.file:
+    path: '/etc/pam.d/totp-auth'
+    state: absent
+  become: true
+...

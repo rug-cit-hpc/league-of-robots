@@ -30,7 +30,7 @@
   connection: local
   pre_tasks:
     - name: 'Verify Ansible version meets requirements.'
-      assert:
+      ansible.builtin.assert:
         that: "ansible_version.full is version_compare('2.10', '>=')"
         msg: 'You must update Ansible to at least 2.10.x to use this playbook.'
 ##############################################################################
@@ -990,7 +990,7 @@
       openstack.cloud.server_info:
       register: api_server_info
     - name: "Add addresses to {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
-      template:
+      ansible.builtin.template:
         src: "{{ playbook_dir }}/group_vars/template/ip_addresses.yml.j2"
         dest: "{{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
         mode: '0644'
@@ -1000,7 +1000,7 @@
                                    groups['repo'] | default([]) + groups['cluster'] | default([]) }}"
         relevant_servers_info: "{{ api_server_info.openstack_servers | selectattr('name', 'in', relevant_servers_list) | list }}"
     - name: "ToDo"
-      debug:
+      ansible.builtin.debug:
         msg: |
              ***********************************************************************************************************
              IMPORTANT: Manual work!

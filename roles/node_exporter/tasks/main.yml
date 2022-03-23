@@ -1,6 +1,6 @@
 ---
 - name: 'Create dir for Prometheus.'
-  file:
+  ansible.builtin.file:
     path: '/usr/local/prometheus'
     state: directory
     mode: '0755'
@@ -8,7 +8,7 @@
   become: true
 
 - name: 'Install Prometheus node exporter.'
-  copy:
+  ansible.builtin.copy:
     src: "{{ playbook_dir }}/promtools/results/node_exporter"
     dest: '/usr/local/prometheus/node_exporter'
     mode: '0755'
@@ -16,7 +16,7 @@
   become: true
 
 - name: 'Install node exporter service file.'
-  template:
+  ansible.builtin.template:
     src: 'templates/node-exporter.service'
     dest: '/etc/systemd/system/node-exporter.service'
     mode: '0644'
@@ -28,7 +28,7 @@
   become: true
 
 - name: 'Make sure node exporter service is enabled and started.'
-  systemd:
+  ansible.builtin.systemd:
     name: 'node-exporter.service'
     state: started
     enabled: true

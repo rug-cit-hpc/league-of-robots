@@ -1,6 +1,6 @@
 ---
 - name: 'Create directories for Prometheus.'
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: '0755'
@@ -13,7 +13,7 @@
   become: true
 
 - name: 'Install settings files.'
-  copy:
+  ansible.builtin.copy:
     src: "templates/etc/{{ item }}"
     dest: "/srv/prometheus/etc/prometheus/{{ item }}"
     mode: '0644'
@@ -27,7 +27,7 @@
   become: true
 
 - name: 'Install settings files based on templates.'
-  template:
+  ansible.builtin.template:
     src: 'templates/etc/prometheus.yml'
     dest: '/srv/prometheus/etc/prometheus/prometheus.yml'
     mode: '0644'
@@ -38,7 +38,7 @@
   become: true
 
 - name: 'Install service files.'
-  template:
+  ansible.builtin.template:
     src: 'templates/prometheus.service'
     dest: '/etc/systemd/system/prometheus.service'
     mode: '0644'
@@ -51,7 +51,7 @@
   become: true
 
 - name: 'Make sure prometheus service is started and enabled on (re)boot.'
-  systemd:
+  ansible.builtin.systemd:
     name: 'prometheus.service'
     enabled: true
     state: 'started'

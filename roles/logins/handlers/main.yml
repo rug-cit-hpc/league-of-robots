@@ -5,7 +5,7 @@
 # and not in the order in which they are listed in a "notify: handler_name" statement!
 #
 - name: 'Run authconfig update.'
-  command: "authconfig --enablemkhomedir --update"
+  ansible.builtin.command: "authconfig --enablemkhomedir --update"
   become: true
   listen: authconfig_enable_mkhomedir
 
@@ -19,7 +19,7 @@
 #   Is fixed in DBus 1.11.x, but that is not available yet for CentOS 7.x.
 #
 - name: 'Restart oddjobd service and its dependencies.'
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     state: restarted
   with_items:

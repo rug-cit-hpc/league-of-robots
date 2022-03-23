@@ -1,13 +1,13 @@
 ---
 - name: Install logrotate.
-  yum:
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name: logrotate
   become: true
 
 - name: Enable compression for old logs.
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/logrotate.conf
     regexp: '^#?compress'
     line: 'compress'

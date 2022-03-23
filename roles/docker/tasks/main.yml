@@ -1,6 +1,6 @@
 ---
 - name: Install docker comunity edition.
-  yum:
+  ansible.builtin.yum:
     name:
       - docker
       - python2-pip

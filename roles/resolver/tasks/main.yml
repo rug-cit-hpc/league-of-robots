@@ -1,6 +1,6 @@
 ---
 - name: 'Install dnsmasq.'
-  yum:
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name:
@@ -9,7 +9,7 @@
   notify: 'restart_dnsmasq'
 
 - name: 'Configure /etc/dnsmasq.conf to use nameservers as listed in group_vars for this cluster.'
-  template:
+  ansible.builtin.template:
     dest: '/etc/dnsmasq.conf'
     src: 'templates/dnsmasq.conf.j2'
     owner: root
@@ -19,7 +19,7 @@
   notify: 'restart_dnsmasq'
 
 - name: 'Configure /etc/resolv.conf to use dnsmasq on localhost.'
-  copy:
+  ansible.builtin.copy:
     dest: '/etc/resolv.conf'
     content: 'nameserver 127.0.0.1'
     owner: root
@@ -29,12 +29,12 @@
   notify: restart_dnsmasq
 
 - name: 'Enable dnsmasq service.'
-  systemd:
+  ansible.builtin.systemd:
     name: 'dnsmasq.service'
     enabled: true
   become: true
   notify: 'restart_dnsmasq'
 
 - name: 'Flush handlers.'
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 ...

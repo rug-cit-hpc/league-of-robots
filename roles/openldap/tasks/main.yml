@@ -26,7 +26,7 @@
 # Note that this bug did not occur on all VMs with identical config, so it was hit or miss.
 #
 - name: 'Workaround for openldap docker image bug: create symlink for LDAP_TLS_CA_CRT.'
-  file:  # noqa risky-file-permissions
+  ansible.builtin.file:  # noqa risky-file-permissions
     src: ldap.crt
     dest: /etc/pki/tls/private/ca.crt
     owner: root

@@ -24,4 +24,6 @@ collections:
     version: '==3.16.0'
   - name: pulp.squeezer
     version: '>=0.0.8'
+  - name: community.mysql
+    version: '>=2.3.5'
 ...

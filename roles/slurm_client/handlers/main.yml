@@ -8,7 +8,7 @@
 # but the other way around may fail when the impact of changes was too large for a reload.
 #
 - name: Restart munge service.
-  systemd:
+  ansible.builtin.systemd:
     name: 'munge.service'
     state: 'restarted'
     daemon_reload: true
@@ -16,7 +16,7 @@
   listen: restart_munge
 
 - name: Restart slurmd service.
-  systemd:
+  ansible.builtin.systemd:
     name: 'slurmd.service'
     state: 'restarted'
     daemon_reload: true
@@ -26,14 +26,14 @@
 # Service reloads after restarts.
 #
 - name: Reload munge service.
-  systemd:
+  ansible.builtin.systemd:
     name: 'munge.service'
     state: 'reloaded'
   become: true
   listen: reload_munge
 
 - name: Reload slurmd service.
-  systemd:
+  ansible.builtin.systemd:
     name: 'slurmd.service'
     state: 'reloaded'
   become: true

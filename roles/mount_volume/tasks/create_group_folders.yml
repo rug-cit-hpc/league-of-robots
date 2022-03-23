@@ -1,6 +1,6 @@
 ---
 - name: Create group folders in {{ mount_point }} with mode {{ mode }}.
-  file:
+  ansible.builtin.file:
     path: "/groups/{{ folder }}"
     owner: 'root'
     group: "{{ folder }}"

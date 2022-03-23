@@ -211,7 +211,7 @@
 # Flush handlers to make sure Slurm DB is present and connection settings have been updated.
 #
 - name: 'Flush handlers.'
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: 'Execute Slurm DB initialization script on host running slurmdbd.'  # noqa no-changed-when
   ansible.builtin.command:
@@ -249,7 +249,7 @@
   become: true
 
 - name: 'Create Slurm accounting DB backup now.'  # noqa no-changed-when
-  shell: |
+  ansible.builtin.shell: |
          mysqldump --all-databases \
              -uroot -p{{ MYSQL_ROOT_PASSWORD | quote }} \
              -h localhost --protocol=socket \

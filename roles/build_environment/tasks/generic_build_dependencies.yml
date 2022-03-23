@@ -1,6 +1,6 @@
 ---
 - name: Install generic build depedencies.
-  yum:
+  ansible.builtin.yum:
     state: latest
     update_cache: true
     name:

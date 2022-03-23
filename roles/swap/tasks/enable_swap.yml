@@ -4,7 +4,7 @@
 # https://unix.stackexchange.com/questions/294600/i-cant-enable-swap-space-on-centos-7
 #
 - name: "Create swap file {{ swap_file_path }}."
-  command:
+  ansible.builtin.command:
     cmd: |
       dd if=/dev/zero bs=1MiB count={{ swap_file_size * 1024 }} of={{ swap_file_path | quote }}
     creates: "{{ swap_file_path | quote }}"
@@ -14,7 +14,7 @@
   become: true
 
 - name: Set permissions on swap file.
-  file:
+  ansible.builtin.file:
     path: "{{ swap_file_path }}"
     owner: root
     group: root
@@ -22,7 +22,7 @@
   become: true
 
 - name: Add swap file entry to fstab.
-  mount:
+  ansible.posix.mount:
     path: none
     src: "{{ swap_file_path }}"
     fstype: swap
@@ -31,7 +31,7 @@
   become: true
 
 - name: Check if swap is active.
-  command:
+  ansible.builtin.command:
     cmd: /usr/bin/grep "{{ swap_file_path }}" /proc/swaps
   register: proc_swaps
   changed_when: swap_file_path not in proc_swaps.stdout
@@ -41,7 +41,7 @@
     - enable_swap_file
 
 - name: Set swapiness.
-  sysctl:
+  ansible.posix.sysctl:
     name: vm.swappiness
     value: "{{ swap_swappiness | int }}"
   become: true

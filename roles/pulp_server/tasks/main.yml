@@ -15,21 +15,21 @@
 # the {{ repo_management_user }} and outside the scope for this pulp_server role.
 ---
 - name: Get checksum of Pulp root certificate on repo server.
-  stat:
+  ansible.builtin.stat:
     path: "{{ pulp_root_cert_path_on_repo_server }}"
     checksum_algorithm: sha1
   register: repo_server_pulp_root_certificate
   become: true
 
 - name: Check the Pulp root certificate on local machine
-  stat:
+  ansible.builtin.stat:
     path: "{{ pulp_root_cert_path_on_control_host }}"
   register: file_details
   delegate_to: localhost
   connection: local
 
 - name: Exit with warning if Pulp root certificate is missing on local machine.
-  debug:
+  ansible.builtin.debug:
     msg: |
          ***********************************************************************************************************
          IMPORTANT: Manual work!
@@ -48,7 +48,7 @@
   failed_when: not file_details.stat.exists
 
 - name: Checking if Pulp root certificate must be updated.
-  debug:
+  ansible.builtin.debug:
     msg: |
          ***********************************************************************************************************
          IMPORTANT: Manual work!
@@ -76,7 +76,7 @@
   notify: update-ca-trust
 
 - name: Flush handlers.
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 #
 ## IMPORTANT:
@@ -250,7 +250,7 @@
   no_log: true
 
 - name: Incomplete pulp squeezer support notification.
-  debug:
+  ansible.builtin.debug:
     msg: |
          ***********************************************************************************************************
          IMPORTANT: Manual work!

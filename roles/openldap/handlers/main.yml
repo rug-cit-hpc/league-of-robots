@@ -1,6 +1,6 @@
 ---
 - name: Restart openldap service.
-  systemd:
+  ansible.builtin.systemd:
     name: openldap.service
     state: restarted
     daemon_reload: true
@@ -8,7 +8,7 @@
   listen: restart_openldap
 
 - name: Restart phpldapadmin service.
-  systemd:
+  ansible.builtin.systemd:
     name: phpldapadmin.service
     state: restarted
     daemon_reload: true

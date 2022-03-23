@@ -1,17 +1,17 @@
 ---
 - name: 'Gather facts from servers in "sys_admin_interface" group.'
-  setup:
+  ansible.builtin.setup:
   delegate_to: "{{ item }}"
   delegate_facts: true
   with_items: "{{ groups['sys_admin_interface'] }}"
 
 - name: 'Include Slurm defaults from "slurm_management" role.'
-  include_vars:
+  ansible.builtin.include_vars:
     file: '../../slurm_management/defaults/main.yml'
     name: 'slurm'
 
 - name: 'Add Slurm group.'
-  group:
+  ansible.builtin.group:
     name: 'slurm'
     gid: "{{ slurm['slurm_gid'] }}"
   notify:
@@ -19,7 +19,7 @@
   become: true
 
 - name: 'Add Munge group.'
-  group:
+  ansible.builtin.group:
     name: 'munge'
     gid: "{{ slurm['munge_gid'] }}"
   notify:
@@ -28,7 +28,7 @@
   become: true
 
 - name: 'Add Slurm user.'
-  user:
+  ansible.builtin.user:
     name: 'slurm'
     uid: "{{ slurm['slurm_uid'] }}"
     group: 'slurm'
@@ -37,7 +37,7 @@
   become: true
 
 - name: 'Add Munge user.'
-  user:
+  ansible.builtin.user:
     name: 'munge'
     uid: "{{ slurm['munge_uid'] }}"
     group: 'munge'
@@ -47,7 +47,7 @@
   become: true
 
 - name: 'Install the Slurm client with yum.'
-  yum:
+  ansible.builtin.yum:
     state: 'installed'
     update_cache: true
     allow_downgrade: true
@@ -61,7 +61,7 @@
 
 # See: https://bugs.schedmd.com/show_bug.cgi?id=8388
 - name: 'Patch slurm daemon systemd service files to disable PID files.'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/usr/lib/systemd/system/{{ item }}.service"
     regexp: '^#?PIDFile='
     line: "#PIDFile=/var/run/slurm/{{ item }}.pid"
@@ -75,7 +75,7 @@
   become: true
 
 - name: 'Install NHC with yum.'
-  yum:
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name:
@@ -85,7 +85,7 @@
   become: true
 
 - name: 'Install munge_keyfile.'
-  copy:
+  ansible.builtin.copy:
     src: "{{ stack_name }}/munge.key"
     owner: 'munge'
     group: 'munge'
@@ -97,7 +97,7 @@
   become: true
 
 - name: 'Create folders for Slurm and NHC.'
-  file:
+  ansible.builtin.file:
     name: "{{ item.name }}"
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
@@ -131,7 +131,7 @@
   become: true
 
 - name: 'Deploy slurm prolog/epilog scripts.'
-  copy:
+  ansible.builtin.copy:
     src: "roles/slurm_management/files/{{ item }}"
     dest: '/etc/slurm/'
     owner: 'root'
@@ -144,7 +144,7 @@
   become: true
 
 - name: 'Deploy slurm.conf.'
-  template:
+  ansible.builtin.template:
     src: 'roles/slurm_management/templates/slurm.conf'
     dest: '/etc/slurm/slurm.conf'
     owner: 'root'
@@ -155,7 +155,7 @@
   become: true
 
 - name: 'Configure cgroups.'
-  copy:
+  ansible.builtin.copy:
     src: 'roles/slurm_management/files/cgroup.conf'
     dest: '/etc/slurm/cgroup.conf'
     owner: 'root'
@@ -166,7 +166,7 @@
   become: true
 
 - name: 'Deploy UI nhc.conf.'
-  template:
+  ansible.builtin.template:
     src: 'templates/user_interface_nhc.conf'
     dest: '/etc/nhc/nhc.conf'
     owner: 'root'
@@ -176,7 +176,7 @@
   become: true
 
 - name: 'Deploy compute_vm nhc.conf.'
-  template:
+  ansible.builtin.template:
     src: 'templates/compute_vm_nhc.conf'
     dest: '/etc/nhc/nhc.conf'
     owner: 'root'
@@ -186,7 +186,7 @@
   become: true
 
 - name: 'Install logrotate config file for slurmd.'
-  copy:
+  ansible.builtin.copy:
     src: "files/logrotate_slurm"
     owner: 'root'
     group: 'root'
@@ -195,7 +195,7 @@
   become: true
 
 - name: 'Start slurm and munge services.'
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: 'yes'
     state: 'started'
@@ -206,7 +206,7 @@
   become: true
 
 - name: 'Allow passwordless sudo to slurm user for users in the functional_admins_group.'
-  template:
+  ansible.builtin.template:
     src: 'roles/slurm_management/templates/91-slurm'
     dest: "/etc/sudoers.d/91-slurm"
     owner: 'root'

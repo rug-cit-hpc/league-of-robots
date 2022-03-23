@@ -62,7 +62,7 @@
 #  become: true
 
 - name: 'Create lists of private and of public IP addresses.'
-  set_fact:
+  ansible.builtin.set_fact:
     private_ip_addresses: "{{ ansible_facts | dict2items
       | json_query('[*].value.ipv4.address')
       | map('ipaddr', 'private') | list
@@ -73,7 +73,7 @@
       | reject('==', None) | list }}"
 
 - name: 'Create lists of internal and external network interfaces.'
-  set_fact:
+  ansible.builtin.set_fact:
     internal_interfaces: "{{ ansible_facts | dict2items
       | selectattr('value.ipv4.address', 'defined')
       | selectattr('value.ipv4.address', 'in', private_ip_addresses)
@@ -84,7 +84,7 @@
       | map(attribute='value.device') | list }}"
 
 - name: 'DEBUG: List discovered IP addressess and network interfaces.'
-  debug:
+  ansible.builtin.debug:
     msg: |
          Private IP addresses: {{ private_ip_addresses }}.
          Public  IP addresses: {{ public_ip_addresses }}.
@@ -92,7 +92,7 @@
          External interfaces:  {{ external_interfaces }}.
 
 - name: 'Deploy firewall configuration script.'
-  template:
+  ansible.builtin.template:
     src: 'configure-iptables-firewall.bash.j2'
     dest: '/root/configure-iptables-firewall.bash'
     owner: root

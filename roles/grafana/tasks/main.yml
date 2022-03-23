@@ -1,6 +1,6 @@
 ---
 - name: Create directories for grafana.
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: 0755
@@ -12,7 +12,7 @@
   become: true
 
 - name: Install service files.
-  template:
+  ansible.builtin.template:
     src: 'templates/grafana.service'
     dest: '/etc/systemd/system/grafana.service'
     mode: 0644
@@ -25,7 +25,7 @@
   become: true
 
 - name: Make sure grafana service is started and enabled on (re)boot.
-  systemd:
+  ansible.builtin.systemd:
     name: grafana.service
     enabled: true
     state: started
