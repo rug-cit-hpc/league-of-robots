@@ -51,6 +51,7 @@ additional_etc_hosts:
     hosts:
       - docs
       - docs_on_merlin
+      - jenkins
   - group: boxy_cluster
     hosts:
       - boxy-management
