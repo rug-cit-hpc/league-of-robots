@@ -30,3 +30,9 @@ Configure your SSH client with the instructions for your operating system:
  * Configuration instructions for [macOS clients](../logins-macos-config/).
  * Configuration instructions for [Linux/Unix clients](../logins-linux-config/).
  * Login instructions for [macOS/Linux/Unix clients](../logins-macos-linux/).
+
+{% if totp.machines is defined %}
+## Configure 2-Factor-Authentication for secure-enhanced jumphost
+
+Make sure you have working account and configured SSH client first, then [follow 2-factor-authentication instructions](../2FA/)
+{% endif %}     
