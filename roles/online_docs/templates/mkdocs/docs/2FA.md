@@ -1,6 +1,6 @@
-{% if totp is defined %}
-
 #jinja2: trim_blocks:False
+
+{% if totp is defined %}
 
 # Configure 2-Factor-Authentication to use secure-enhanced jumphost
 
