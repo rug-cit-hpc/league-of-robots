@@ -34,5 +34,5 @@ Configure your SSH client with the instructions for your operating system:
 {% if totp.machines is defined %}
 ## Configure 2-Factor-Authentication
 
-Make sure you have working account and configured SSH client first, then [follow 2-factor-authentication instructions](../2FA/)
+Make sure you have working account and configured SSH client first, then [follow 2-factor-authentication instructions](../2FA/).
 {% endif %}     

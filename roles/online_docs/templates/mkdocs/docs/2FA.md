@@ -14,9 +14,9 @@
 
     - user needs to have working access to the *UMCG WOM Citrix environment* (or similar trusted system)
 
-    - already generated public/private key pair on *UMCG WOM environment* by the user, and public key needs to be added to the appropriate user databases by the hpc.helpdesk@umcg.nl personnel
+    - already created public/private key pair on *UMCG WOM environment* by the user, and public key has already been added by the hpc.helpdesk@umcg.nl personnel to the appropriate user databases 
 
-    Look at the section *Generate a public/private key pair for ...* for instructions on how to create one.
+    If you are missing there two steps, take a look at the section *Generate a public/private key pair for ...* for instructions on how to create everything that is needed for the 2FA.
 
 2. Generating 2FA time-based key for the first time (example for MobaXterm on Windows):
 
