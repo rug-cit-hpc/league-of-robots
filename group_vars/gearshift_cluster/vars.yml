@@ -366,6 +366,7 @@ lfs_mounts:
       - name: umcg-immunogenetics
       - name: umcg-impact
       - name: umcg-lifelines
+        mode: '2750'
       - name: umcg-lld
       - name: umcg-llnext
       - name: umcg-mic
