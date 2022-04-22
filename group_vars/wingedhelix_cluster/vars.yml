@@ -92,7 +92,6 @@ regular_groups:
   - "{{ envsync_group }}"
   - "{{ functional_admin_group }}"
   - 'umcg-atd'
-
   - 'umcg-gap'
   - 'umcg-gd'
   - 'umcg-genomescan'
@@ -105,21 +104,42 @@ regular_users:
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
+  - user: 'umcg-atd-dm'
+    groups: ['umcg-atd']
+    sudoers: '%umcg-atd'
   - user: 'umcg-gap-ateambot'
+    groups: ['umcg-gap']
+    sudoers: '%umcg-gap'
+  - user: 'umcg-gap-dm'
     groups: ['umcg-gap']
     sudoers: '%umcg-gap'
   - user: 'umcg-gd-ateambot'
     groups: ['umcg-gd']
     sudoers: '%umcg-gd'
+  - user: 'umcg-gd-dm'
+    groups: ['umcg-gd']
+    sudoers: '%umcg-gd'
   - user: 'umcg-genomescan-ateambot'
+    groups: ['umcg-genomescan']
+    sudoers: '%umcg-genomescan'
+  - user: 'umcg-genomescan-dm'
     groups: ['umcg-genomescan']
     sudoers: '%umcg-genomescan'
   - user: 'umcg-gsad-ateambot'
     groups: ['umcg-gsad']
     sudoers: '%umcg-gsad'
+  - user: 'umcg-gsad-dm'
+    groups: ['umcg-gsad']
+    sudoers: '%umcg-gsad'
   - user: 'umcg-gst-ateambot'
     groups: ['umcg-gst']
     sudoers: '%umcg-gst'
+  - user: 'umcg-gst-dm'
+    groups: ['umcg-gst']
+    sudoers: '%umcg-gst'
+  - user: 'umcg-vipt-dm'
+    groups: ['umcg-vipt']
+    sudoers: '%umcg-vipt'
 #
 # Shared storage related variables
 #
@@ -152,7 +172,7 @@ pfs_mounts:
 lfs_mounts:
   - lfs: home
     pfs: umcgst12
-    rw_machines: "{{ groups['cluster'] }}" }
+    rw_machines: "{{ groups['cluster'] }}"
   - lfs: tmp07
     pfs: umcgst12
     groups:
