@@ -1,0 +1,7 @@
+# If the sister role of 'rsyslog_client' will also be run on the, then it is
+# higly suggested for this variables to be defined in the group variables
+rsyslog_local_dir: "{{ playbook_dir }}/files/{{ stack_name }}/"
+rsyslog_ca_key_file: "rsyslog-CA.key"
+rsyslog_ca_cert_file: "rsyslog-CA.pem"
+rsyslog_remote_path_key_dir: "/etc/pki/tls/private/"
+rsyslog_remote_path_cert_dir: "/etc/pki/tls/certs/"

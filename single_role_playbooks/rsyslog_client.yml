@@ -1,0 +1,9 @@
+---
+- hosts:
+    - jumphost
+    - cluster
+    - docs
+    - rsyslog # remove it
+  roles:
+    - roles/rsyslog_client
+...

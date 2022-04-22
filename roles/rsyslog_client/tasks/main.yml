@@ -1,0 +1,181 @@
+---
+- name: 'Install rsyslog and gnutls, with all the plugins'
+  ansible.builtin.yum:
+    name:
+      - rsyslog
+      - rsyslog-gnutls
+      - gnutls
+      - gnutls-utils
+    state: latest
+    update_cache: true
+  become: true
+
+
+# TODO parameter to use SSL or not
+# and only if group['ryslog'] servers exist
+#
+- name: Check key {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
+  ansible.builtin.stat:
+    path: "{{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key"
+  register: key_status
+
+- name: Generate private key on client {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
+  ansible.builtin.command:
+    certtool --generate-privkey --outfile {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key --bits 2048
+  # TODO change the algorithm or check the size
+  when: not key_status.stat.exists
+  register: server_key_generate_result
+  failed_when: server_key_generate_result.rc != 0
+  become: true
+
+- name: Check certificate on client {{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem
+  ansible.builtin.stat:
+    path: "{{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem"
+  register: cert_status
+
+- name: Copy client temporary template to
+  ansible.builtin.template:
+    src: templates/client.request.template
+    dest: /tmp/client.request.template
+    force: true
+    mode: 0600
+#  when: not remote_rsyslog_server_cert.stat.exists
+
+- name: Create certificate request
+  ansible.builtin.command: >
+    certtool --generate-request
+    --load-privkey {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
+    --template /tmp/client.request.template
+    --outfile /tmp/{{ inventory_hostname }}.request.pem
+  # TODO change the algorithm or check the size
+  when: not cert_status.stat.exists
+  register: client_request_generate_result
+  failed_when: client_request_generate_result.rc != 0
+  become: true
+
+- name: Create local temporary directory for requests and certificates transfer
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: tmp_certs_dir
+  register: temp_certs_dir
+  connection: local
+  when: not cert_status.stat.exists
+
+- name: Fetch certificate request
+  ansible.builtin.fetch:
+    src: /tmp/{{ inventory_hostname }}.request.pem
+    dest: "{{ temp_certs_dir.path }}/"
+    flat: true
+  become: true
+  when: not cert_status.stat.exists
+#  connection: local
+#  delegate_to: local
+
+- name: Copy certificate request to server
+  ansible.builtin.copy:
+    src: "{{ temp_certs_dir.path }}/{{ inventory_hostname }}.request.pem"
+    dest: "/tmp/{{ inventory_hostname }}.request.pem"
+    owner: root
+    group: root
+    mode: '0600'
+    force: true
+  when: not cert_status.stat.exists
+#  become: true
+#  connection: local
+  delegate_to: "{{ groups['rsyslog'] | first }}"
+
+# - name: Check all certificates
+#   ansible.builtin.stat:
+#     path: "{{ rsyslog_remote_path_collection }}/{{ item }}.pem"
+#   loop: "{{ groups['all'] }}"
+#   register: certificates
+
+- name: Copy client temporary template to rsyslog server
+  ansible.builtin.template:
+    src: templates/client.request.template
+    dest: /tmp/client.request.template
+    force: true
+    mode: 0600
+  become: true
+  delegate_to: "{{ groups['rsyslog'] | first }}"
+
+- name: Generate certificate on rsyslog server
+  ansible.builtin.command: >
+    certtool --generate-certificate
+      --load-request /tmp/{{ inventory_hostname }}.request.pem
+      --load-ca-certificate {{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}
+      --load-ca-privkey {{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}
+      --template /tmp/client.request.template
+      --outfile {{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem
+  when: not cert_status.stat.exists
+  register: client_certificates_generate_results
+  failed_when: client_certificates_generate_results.rc != 0
+  become: true
+#  connection: local
+  delegate_to: "{{ groups['rsyslog'] | first }}"
+
+- name: Fetch certificates from rsyslog server
+  ansible.builtin.fetch:
+    src: "{{ rsyslog_remote_path_cert_dir }}/{{ item }}"
+    dest: "{{ temp_certs_dir.path }}/"
+    flat: true
+  when: not cert_status.stat.exists
+  with_items:
+    - "{{ inventory_hostname }}.pem"
+    - "{{ rsyslog_ca_cert_file }}"
+  delegate_to: "{{ groups['rsyslog'] | first }}"
+
+- name: Copy certificate to client
+  ansible.builtin.copy:
+    src: "{{ temp_certs_dir.path }}/{{ item }}"
+    dest: "/{{ rsyslog_remote_path_cert_dir }}/"
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+    force: true
+  when: not cert_status.stat.exists
+  with_items:
+    - "{{ inventory_hostname }}.pem"
+    - "{{ rsyslog_ca_cert_file }}"
+  become: true
+
+- name: Remove local temporary directory
+  ansible.builtin.file:
+    name: "{{ temp_certs_dir.path }}"
+    state: absent
+  when: temp_certs_dir.changed
+  connection: local
+  delegate_to: localhost
+  changed_when: false
+
+# - name: Configure rsyslog.conf to use {{ stack_prefix }} cluster's group syslog server
+#   ansible.builtin.lineinfile:
+#     dest: /etc/rsyslog.conf
+#     line: "*.* @{{ item }}:{{ hostvars[item].rsyslog_port }}"
+#   with_items:
+#     - "{{ groups['rsyslog'] }}"
+#   when: groups['rsyslog'] is defined and (groups["rsyslog"] | length>0) and not inventory_hostname in groups['rsyslog']
+#   become: true
+# 
+# - name: Configure rsyslog.conf to also use remote server(s)
+#   ansible.builtin.lineinfile:
+#     dest: /etc/rsyslog.conf
+#     line: "*.* @{{ item.hostname }}:{{ item.port | default('514') }}"
+#   with_items: "{{ rsyslog_remote_servers }}"
+#   when: rsyslog_remote_servers is defined
+#   become: true
+
+- name: Copy client /etc/rsyslog.conf template file
+  ansible.builtin.template:
+    src: templates/rsyslog.conf
+    dest: /etc/rsyslog.conf
+    force: true
+    mode: 0644
+  become: true
+  when: inventory_hostname not in groups['rsyslog']
+
+- name: restart rsyslog
+  ansible.builtin.systemd: name=rsyslog state=restarted
+  become: true
+...

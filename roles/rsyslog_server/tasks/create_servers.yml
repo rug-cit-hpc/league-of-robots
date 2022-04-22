@@ -1,0 +1,65 @@
+---
+# - name: Create directory with all the servers keys and certs
+#   ansible.builtin.file:
+#     state: directory
+#     path: "{{ rsyslog_remote_path_collection }}"
+#     mode: 0700
+#   become: true
+#
+# - name: Check all keys
+#   ansible.builtin.stat:
+#     path: "{{ rsyslog_remote_path_collection }}/{{ item }}.key"
+#   loop: "{{ groups['all'] }}"
+#   register: keys
+#
+# - name: Generate all keys on rsyslog server
+#   ansible.builtin.command:
+#     certtool --generate-privkey --outfile {{ rsyslog_remote_path_collection }}/{{ item.item }}.key --bits 2048
+#   # TODO change the algorithm or check the size
+#   loop: "{{ keys.results }}"
+#   when: not item.stat.exists
+#   register: server_keys_generate_result
+#   failed_when: server_keys_generate_result.rc != 0
+#   become: true
+#
+# - name: Copy server template to the rsyslog server
+#   ansible.builtin.template: # TODO WRONG. Do it again
+#     src: templates/server.template
+#     dest: /tmp/server.template
+#     mode: 0600
+#   when: not remote_rsyslog_server_cert.stat.exists
+#
+# - name: Check all certificates
+#   ansible.builtin.stat:
+#     path: "{{ rsyslog_remote_path_collection }}/{{ item }}.pem"
+#   loop: "{{ groups['all'] }}"
+#   register: certificates
+#
+# - name: Generate all certificates on rsyslog server
+#   ansible.builtin.command: >
+#     certtool --generate-certificate --load-privkey {{ rsyslog_remote_path_collection }}/{{ item.item }}.key
+#       --load-ca-certificate {{ rsyslog_remote_path_ca_cert }}
+#       --load-ca-privkey {{ rsyslog_remote_path_ca_key }}
+#       --template /tmp/server.template
+#       --outfile {{ rsyslog_remote_path_collection }}/{{ item.item }}.pem
+#   loop: "{{ certificates.results }}"
+#   when: not item.stat.exists
+#   register: server_certificates_generate_results
+#   failed_when: server_certificates_generate_results.rc != 0
+#   become: true
+#
+# # - name: Results
+# #   ansible.builtin.debug:
+# #     msg: "{{ item }}"
+# #   loop: "{{ server_certificates_generate_results.results }}"
+#
+# - name: Copy local server key to {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
+#   ansible.builtin.copy:
+#     src: "{{ rsyslog_remote_path_collection }}/{{ inventory_hostname }}.key"
+#     dest: "{{ rsyslog_remote_path_key_dir }}"
+#     remote_src: yes
+#     force: no
+#   become: true
+#
+#   # TODO make sure the key is 0600 and cert 0755
+...

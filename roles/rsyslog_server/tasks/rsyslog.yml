@@ -1,0 +1,193 @@
+---
+# - name: 'Create local temporary directory.'
+#   ansible.builtin.tempfile:
+#     suffix: 'tmp_certificate_folder'
+#     state: directory
+#   delegate_to: localhost
+#   connection: local
+#   changed_when: false
+#   register: temporary_directory
+#   become: false
+#
+# - name: Print variable and exit
+#   ansible.builtin.debug:
+#     msg:
+#       - "***********************************************************************************************************"
+#       - "          hostname: {{ inventory_hostname }} "
+#       - "          rsyslog_port: {{ rsyslog_port }} "
+#       - " ***********************************************************************************************************"
+#   when: true
+#   failed_when: true
+
+- name: Get information on CA key from local machine
+  ansible.builtin.stat:
+    path: "{{ rsyslog_local_dir }}/{{ rsyslog_ca_key_file }}"
+    checksum_algorithm: sha1
+  register: local_rsyslog_ca_key
+  delegate_to: localhost
+  connection: local
+
+- name: Get information on CA certificate from local machine
+  ansible.builtin.stat:
+    path: "{{ rsyslog_local_dir }}/{{ rsyslog_ca_cert_file }}"
+    checksum_algorithm: sha1
+  register: local_rsyslog_ca_cert
+  delegate_to: localhost
+  connection: local
+
+- name: Get information on CA key on rsyslog server
+  ansible.builtin.stat:
+    path: "{{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}"
+    checksum_algorithm: sha1
+  register: remote_rsyslog_ca_key
+  become: true
+
+- name: Get information on CA cert on rsyslog server
+  ansible.builtin.stat:
+    path: "{{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_key_file }}"
+    checksum_algorithm: sha1
+  register: remote_rsyslog_ca_cert
+
+- name: If remote CA key is missing, then copy local one to rsyslog server
+  ansible.builtin.copy:
+    src: "{{ rsyslog_local_dir }}/{{ rsyslog_ca_key_file }}"
+    dest: "{{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}"
+    mode: '0600'
+    decrypt: true
+  become: true
+  when: local_rsyslog_ca_key.stat.exists and not remote_rsyslog_ca_key.stat.exists
+  notify: restart-rsyslog.service
+
+- name: If remote CA certificate is missing, then copy local one to rsyslog server
+  ansible.builtin.copy:
+    src: "{{ rsyslog_local_dir }}/{{ rsyslog_ca_cert_file }}"
+    dest: "{{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}"
+    mode: '0644'
+    decrypt: false
+  become: true
+  when: local_rsyslog_ca_cert.stat.exists and not remote_rsyslog_ca_cert.stat.exists
+  notify: restart-rsyslog.service
+
+- name: 'Install rsyslog and gnutls, with all the plugins'
+  ansible.builtin.yum:
+    name:
+      - rsyslog
+      - rsyslog-gnutls
+      - gnutls
+      - gnutls-utils
+    state: latest # TODO check
+    update_cache: true
+  become: true
+
+- name: If local and remote keys and certificate are missing, then create CA
+  ansible.builtin.include: create_ca.yml
+  when:
+    ( not local_rsyslog_ca_key.stat.exists and not remote_rsyslog_ca_key.stat.exists ) or
+    ( not local_rsyslog_ca_cert.stat.exists and not remote_rsyslog_ca_cert.stat.exists)
+  notify: restart-rsyslog.service
+
+# - name: Generate server key and CA signed certificate
+#   ansible.builtin.include: create_servers.yml
+#   when: ( groups['cluster'] | length>1 )
+# #    ( not remote_rsyslog_server_key.stat.exists ) or ( not remote_rsyslog_server_cert.stat.exists )
+#   notify: restart-rsyslog.service
+# 
+# - name: Open firewall port {{ rsyslog_port }}
+#   ansible.builtin.command: >
+#     iptables -A INPUT -p tcp --dport {{ rsyslog_port }} -j ACCEPT
+# #  when:
+# #    ( not local_rsyslog_ca_key.stat.exists ) or ( not remote_rsyslog_ca_key.stat.exists )
+#   become: true
+# 
+- name: Open firewall port {{ rsyslog_port }}
+  ansible.builtin.iptables:
+    chain: INPUT
+    action: insert
+    jump: ACCEPT
+    protocol: tcp
+    destination_port: "{{ rsyslog_port }}"
+  become: true
+
+- name: Copy rsyslog.conf file into remote system /etc/
+  ansible.builtin.template:
+    src: roles/rsyslog_server/templates/rsyslog.conf
+    dest: /etc/rsyslog.conf
+    force: true
+    mode: 0644
+  become: true
+  notify: restart-rsyslog.service
+
+- name: Start and enable rsyslog service if they are not
+  ansible.builtin.systemd:
+    name: rsyslog.service
+    state: started
+    enabled: true
+  become: true
+
+# - name: "Check if files are same"
+#   ansible.builtin.copy:
+#     src: "{{ playbook_dir }}/{{ rsyslog_local_path_ca_key }}"
+#     dest: "{{ rsyslog_remote_path_ca_key }}"
+#     force: true
+#   register: both_keys_same
+#   become: true
+#
+# - name: "Check if files are same"
+#   ansible.builtin.copy:
+#     src: "{{ playbook_dir }}/{{ rsyslog_local_path_ca_cert }}"
+#     dest: "{{ rsyslog_remote_path_ca_cert }}"
+#     force: true
+#   register: both_certs_same
+#   become: true
+#
+# - name: Exit if local and remote key differ
+#   ansible.builtin.debug:
+#     msg:
+#       - "***********************************************************************************************************"
+#       - "            The CA certificate and key files on local machine path:"
+#       - "                {{ rsyslog_local_path_ca_key }}"
+#       - "                {{ rsyslog_local_path_ca_cert }}"
+#       - "            and remote rsyslog server:"
+#       - "                {{ rsyslog_remote_path_ca_key }}"
+#       - "                {{ rsyslog_remote_path_ca_cert }}"
+#       - "            are not the same. Please fix the issue and re-run this script."
+#       - " ***********************************************************************************************************"
+#   when: local_key_checksum <> remote_key_checksum
+#   failed_when: local_cert_checksum <> remote_cert_checksum
+#
+# - name: 'Create temporary unvaulted copy of CA private key.'
+#   ansible.builtin.copy:
+#     src: "{{ ssh_host_signer_ca_private_key }}"
+#     dest: "{{ temporary_directory.path }}/{{ ssh_host_signer_ca_private_key | basename }}"
+#     mode: '0600'
+#   delegate_to: localhost
+#   connection: local
+#   become: false
+#
+# - name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
+#   community.crypto.openssl_privatekey:
+#     path: /etc/ssl/private/ansible.com.pem
+#
+# - name: Generate a Self Signed OpenSSL certificate
+#   community.crypto.x509_certificate:
+#     path: /etc/ssl/crt/ansible.com.crt
+#     privatekey_path: /etc/ssl/private/ansible.com.pem
+#     csr_path: /etc/ssl/csr/ansible.com.csr
+#     provider: selfsigned
+#
+# - name: Generate an OpenSSL certificate signed with your own CA certificate
+#   community.crypto.x509_certificate:
+#     path: /etc/ssl/crt/ansible.com.crt
+#     csr_path: /etc/ssl/csr/ansible.com.csr
+#     ownca_path: /etc/ssl/crt/ansible_CA.crt
+#     ownca_privatekey_path: /etc/ssl/private/ansible_CA.pem
+#     provider: ownca
+#
+# - name: 'Remove local temporary directory.'
+#   ansible.builtin.file:
+#     name: "{{ temporary_directory.path }}"
+#     state: absent
+#   delegate_to: localhost
+#   connection: local
+#   changed_when: false
+...

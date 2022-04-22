@@ -1,0 +1,5 @@
+---
+- hosts: rsyslog
+  roles:
+    - role: rsyslog_server
+...
