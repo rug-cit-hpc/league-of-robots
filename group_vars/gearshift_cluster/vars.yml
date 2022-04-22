@@ -123,6 +123,7 @@ regular_groups:
   - 'umcg-micompany'
   - 'umcg-mmbimg'
   - 'umcg-msb'
+  - 'umcg-nawijn'
   - 'umcg-oncogenetics'
   - 'umcg-pmb'
   - 'umcg-pub'
@@ -248,6 +249,9 @@ regular_users:
   - user: 'umcg-msb-dm'
     groups: ['umcg-msb']
     sudoers: '%umcg-msb'
+  - user: 'umcg-nawijn-dm'
+    groups: ['umcg-nawijn']
+    sudoers: '%umcg-nawijn-dms'
   - user: 'umcg-oncogenetics-dm'
     groups: ['umcg-oncogenetics']
     sudoers: '%umcg-oncogenetics'
@@ -339,7 +343,7 @@ lfs_mounts: [
         'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-fg', 'umcg-fu', 'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-immunogenetics', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
-        'umcg-llnext', 'umcg-mic', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
+        'umcg-llnext', 'umcg-mic', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-nawijn', 'umcg-oncogenetics',
         'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
         'umcg-ugli', 'umcg-verbeek', 'umcg-vdakker', 'umcg-weersma', 'umcg-wijmenga'
       ],
@@ -357,7 +361,7 @@ lfs_mounts: [
         'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-fg', 'umcg-fu', 'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-immunogenetics', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
-        'umcg-llnext', 'umcg-mic', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
+        'umcg-llnext', 'umcg-mic', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb','umcg-nawijn', 'umcg-oncogenetics',
         'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
         'umcg-ugli', 'umcg-verbeek', 'umcg-vdakker', 'umcg-weersma', 'umcg-wijmenga'
       ],
@@ -369,7 +373,7 @@ lfs_mounts: [
         'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-fg', 'umcg-fu', 'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-immunogenetics', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
-        'umcg-llnext', 'umcg-mic', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
+        'umcg-llnext', 'umcg-mic', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-nawijn', 'umcg-oncogenetics',
         'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
         'umcg-ugli', 'umcg-verbeek', 'umcg-vdakker', 'umcg-weersma', 'umcg-wijmenga'
       ],
