@@ -6,7 +6,8 @@ data_transfer_only_group: sftp-only
 # and reduce the number of opened but not yet authenticated connections consumeing resources.
 #
 sshd_login_grace_time: "\
-    {% if inventory_hostname in groups['jumphost'] | default([]) or inventory_hostname in groups['data_transfer'] | default([]) %}\
+    {% if inventory_hostname in groups['jumphost'] | default([]) 
+       or inventory_hostname in groups['data_transfer'] | default([]) %}\
         30\
     {% else %}\
         120 # default\
@@ -25,7 +26,7 @@ sshd_login_grace_time: "\
 # See also https://bugs.launchpad.net/openstack-ansible/+bug/1479812
 # A connection is is no longer in unauthenticated state untill
 #   * either authentication succeeds
-#   * or the LoginGraceTime expires and to connection is dropped.
+#   * or the LoginGraceTime expires and the connection is dropped.
 # Therefore we also lower LoginGraceTime (see above) to reduce the amount of connections in unauthenticated state
 # and hence lower the chance of hitting the MaxStartups limits.
 #
