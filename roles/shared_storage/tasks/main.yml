@@ -72,9 +72,9 @@
 
 - name: 'Create folder for each group on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1 }}"
+    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1.name }}"
     owner: 'root'
-    group: "{{ item.1 }}"
+    group: "{{ item.1.name }}"
     mode: '2750'
     state: 'directory'
   with_subelements:
@@ -85,10 +85,10 @@
 
 - name: 'Create "tmp" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    owner: 'root'
-    group: "{{ item.1 }}"
-    mode: '2770'
+    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    owner: "{{ item.1.name }}-dm"
+    group: "{{ item.1.name }}"
+    mode: "{{ item.1.mode | default('2770', true) }}"
     state: 'directory'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
@@ -98,10 +98,10 @@
 
 - name: 'Create "rsc" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    owner: "{{ item.1 }}-dm"
-    group: "{{ item.1 }}"
-    mode: '2750'
+    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    owner: "{{ item.1.name }}-dm"
+    group: "{{ item.1.name }}"
+    mode: "{{ item.1.mode | default('2750', true) }}"
     state: 'directory'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'rsc[0-9]+$') | list }}"
@@ -111,10 +111,10 @@
 
 - name: 'Create "prm" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    owner: "{{ item.1 }}-dm"
-    group: "{{ item.1 }}"
-    mode: '2750'
+    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    owner: "{{ item.1.name }}-dm"
+    group: "{{ item.1.name }}"
+    mode: "{{ item.1.mode | default('2750', true) }}"
     state: 'directory'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
@@ -124,10 +124,10 @@
 
 - name: 'Create "dat" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    owner: "{{ item.1 }}-dm"
-    group: "{{ item.1 }}"
-    mode: '2770'
+    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    owner: "{{ item.1.name }}-dm"
+    group: "{{ item.1.name }}"
+    mode: "{{ item.1.mode | default('2770', true) }}"
     state: 'directory'
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'dat[0-9]+$') | list }}"
@@ -156,7 +156,8 @@
 - name: 'Mount "home" Logical File System (LFS) from shared storage read-write.'
   ansible.posix.mount:
     path: "/home"
-    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/{{ item.pfs }}/{{ item.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/\
+          {{ item.pfs }}/{{ item.lfs }}"
     fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
@@ -185,7 +186,9 @@
     mode: '0755'
     state: 'directory'
   with_items:
-    - "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$') | map(attribute='groups') | list | flatten | unique }}"
+    - "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$')
+          | map(attribute='groups') | list | flatten
+          | map(attribute='name') | list | unique }}"
   when: inventory_hostname in groups['compute_vm'] | default([]) or
         inventory_hostname in groups['user_interface'] | default([]) or
         inventory_hostname in groups['deploy_admin_interface'] | default([]) or
@@ -194,8 +197,9 @@
 
 - name: 'Mount "tmp" Logical File Systems (LFSs) per group from shared storage read-write.'
   ansible.posix.mount:
-    path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    path: "/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/\
+          {{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
     fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
@@ -207,8 +211,9 @@
 
 - name: 'Mount "rsc" Logical File Systems (LFSs) per group from shared storage read-write.'
   ansible.posix.mount:
-    path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    path: "/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/\
+          {{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
     fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
@@ -220,8 +225,9 @@
 
 - name: 'Mount "rsc" Logical File Systems (LFSs) per group from shared storage read-only.'
   ansible.posix.mount:
-    path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    path: "/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/\
+          {{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
     fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='ro_options') | first }}"
     state: 'mounted'
@@ -233,15 +239,16 @@
 
 - name: 'Mount "prm" Logical File Systems (LFSs) per group from shared storage read-write.'
   ansible.posix.mount:
-    path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    path: "/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/\
+          {{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
     fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='rw_options') | first }}{{ extra_opts }}"
     state: 'mounted'
   vars:
     extra_opts: >-
       {%- if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' -%}
-      ,credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1 }},gid={{ item.1 }}
+      ,credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1.name }},gid={{ item.1.name }}
       {%- endif -%}
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
@@ -251,15 +258,16 @@
 
 - name: 'Mount "dat" Logical File Systems (LFSs) per group from shared storage read-write.'
   ansible.posix.mount:
-    path: "/groups/{{ item.1 }}/{{ item.0.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/{{ item.0.pfs }}/groups/{{ item.1 }}/{{ item.0.lfs }}"
+    path: "/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/\
+          {{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
     fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='rw_options') | first }}{{ extra_opts }}"
     state: 'mounted'
   vars:
     extra_opts: >-
       {%- if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' -%}
-      ,credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1 }},gid={{ item.1 }}
+      ,credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1.name }},gid={{ item.1.name }}
       {%- endif -%}
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'dat[0-9]+$') | list }}"
@@ -270,7 +278,8 @@
 - name: 'Mount "env" Logical File Systems (LFSs) from shared storage read-write.'
   ansible.posix.mount:
     path: "/mnt/{{ item.lfs }}"
-    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='source') | first }}/{{ item.pfs }}/{{ item.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='source') | first }}/\
+          {{ item.pfs }}/{{ item.lfs }}"
     fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
@@ -281,7 +290,8 @@
 - name: 'Mount "apps" from one "env" Logical File System (LFS) from shared storage read-only as /apps.'
   ansible.posix.mount:
     path: '/apps'
-    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='source') | first }}/{{ item.pfs }}/{{ item.lfs }}/apps"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='source') | first }}/\
+          {{ item.pfs }}/{{ item.lfs }}/apps"
     fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='type') | first }}"
     opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='ro_options') | first }}"
     state: 'mounted'
