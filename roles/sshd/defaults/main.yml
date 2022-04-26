@@ -6,7 +6,7 @@ data_transfer_only_group: sftp-only
 # and reduce the number of opened but not yet authenticated connections consumeing resources.
 #
 sshd_login_grace_time: "\
-    {% if inventory_hostname in groups['jumphost'] | default([]) 
+    {% if inventory_hostname in groups['jumphost'] | default([])
        or inventory_hostname in groups['data_transfer'] | default([]) %}\
         30\
     {% else %}\
