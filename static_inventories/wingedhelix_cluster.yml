@@ -60,6 +60,10 @@ all:
       hosts:
         wh-chaperone:
           ansible_host: ouzkh1016.zkh.umcg.intra
+    rsyslog:
+      hosts:
+        wh-repo:
+          rsyslog_port: 41514
 administration:
   children:
     sys_admin_interface:
@@ -77,4 +81,5 @@ wingedhelix_cluster:
     cluster:
     chaperone:
     docs:
+    rsyslog:
 ...

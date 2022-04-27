@@ -67,16 +67,6 @@ nameservers: [
   '8.8.8.8',  # Google DNS.
 ]
 
-# rsyslog variables
-rsyslog_remote_servers:
-  - hostname: 172.23.47.250
-    port: 514
-rsyslog_local_dir: "{{ playbook_dir }}/files/{{ stack_name }}/"
-rsyslog_ca_key_file: "rsyslog-CA.key"
-rsyslog_ca_cert_file: "rsyslog-CA.pem"
-rsyslog_remote_path_key_dir: "/etc/pki/tls/private/"
-rsyslog_remote_path_cert_dir: "/etc/pki/tls/certs/"
-
 local_admin_groups:
   - 'admin'
   - 'docker'

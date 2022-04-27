@@ -8,14 +8,14 @@
 
 - name: Get information on CA cert on rsyslog server
   ansible.builtin.stat:
-    path: "{{ rsyslog_remote_path_ca_cert }}"
+    path: "{{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}"
     checksum_algorithm: sha1
   register: remote_ca_cert_info
   become: true
 
 - name: Generate CA key on rsyslog server
   ansible.builtin.command:
-    certtool --generate-privkey --bits 2048
+    certtool --generate-privkey --bits 4096
     --outfile {{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}
   register: ca_key_generate_result
   when: not remote_ca_key_info.stat.exists  or remote_ca_key_info.stat.size == 0
@@ -38,97 +38,22 @@
   when: not remote_ca_cert_info.stat.exists or remote_ca_cert_info.stat.size == 0
   failed_when: "'FAILED' in ca_cert_generate_result.stderr"
   become: true
-#
-# - debug:
-#     msg:
-#       - "rsyslog_remote_path_ca_key = {{ rsyslog_remote_path_ca_key }}"
-#       - "rsyslog_local_path_ca_key = {{ rsyslog_local_path_ca_key }}"
-#
-# - meta: end_play
-#  when: true
 
 - name: Fetch remote CA key to local machine
   ansible.builtin.fetch:
     src: "{{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}"
     dest: "{{ rsyslog_local_dir }}/"
     flat: true
-  when: ca_cert_generate_result.changed
+  when: not remote_ca_cert_info.stat.exists or remote_ca_cert_info.stat.size == 0
   register: ca_key_copied
   become: true
 
 - name: Fetch remote CA cert to local machine
   ansible.builtin.fetch:
-    src: "{{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_cert_file }}"
+    src: "{{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}"
     dest: "{{ rsyslog_local_dir }}/"
     flat: true
-  when: ca_cert_generate_result.changed
+  when: not remote_ca_cert_info.stat.exists or remote_ca_cert_info.stat.size == 0
   register: ca_cert_copied
   become: true
-
-# AT THE END
-- name: If local key was missing, stop the playbook and warn user to do manual work
-  ansible.builtin.debug:
-    msg:
-      - "***********************************************************************************************************"
-      - "IMPORTANT: Manual work!"
-      - "***********************************************************************************************************"
-      - "      The CA certificate and key files are missing on local machine inside path:"
-      - "                 {{ rsyslog_local_dir }}/{{ rsyslog_ca_key_file }}"
-      - "                 {{ rsyslog_local_dir }}/{{ rsyslog_ca_cert_file }}"
-      - "             But they exists on remote rsyslog server:"
-      - "                 {{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}"
-      - "                 {{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_cert_file }}"
-      - "             please copy them manually, ENCRYPT it with ansible vault, and then re-run this playbook."
-      - "***********************************************************************************************************"
-  when: ca_cert_copied.rc == 0
-  failed_when: ca_cert_copied.rc != 0
-
-- name: Stop to encrypt
-  ansible.builtin.meta: end
-  when: ca_cert_copied.rc == 0
-
-
-# - name: If local key is missing, stop the playbook.
-#   ansible.builtin.debug:
-#     msg:
-#       - "***********************************************************************************************************"
-#       - "IMPORTANT: Manual work!"
-#       - "***********************************************************************************************************"
-#       - "           The CA key has been copied to local machine inside path:"
-#       - "               {{ rsyslog_local_path_ca_key }}"
-#       - "           please ENCRYPT it with ansible vault, and then re-run this playbook."
-#       - "***********************************************************************************************************"
-#   when: ca_cert_generate_result.changed and ca_key_copied.changed
-#   failed_when: ca_cert_generate_result.changed or ca_key_copied.changed
-
-# # following tutorial
-# # https://docs.ansible.com/ansible/latest/collections/community/crypto/docsite/guide_ownca.html
-# # but since it depends on yet another community module, I will skipp it for now
-#
-# - name: Create private key with password protection
-#   community.crypto.openssl_privatekey:
-#     path: /path/to/ca-certificate.key
-#     # passphrase: "{{ secret_ca_passphrase }}"
-#
-# - name: Create certificate signing request (CSR) for CA certificate
-#   community.crypto.openssl_csr_pipe:
-#     privatekey_path: /path/to/ca-certificate.key
-#     # privatekey_passphrase: "{{ secret_ca_passphrase }}"
-#     common_name: syslog's CA
-#     use_common_name_for_san: false  # since we do not specify SANs, don't use CN as a SAN
-#     basic_constraints:
-#       - 'CA:TRUE'
-#     basic_constraints_critical: yes
-#     key_usage:
-#       - keyCertSign
-#     key_usage_critical: true
-#   register: ca_csr
-#
-# - name: Create self-signed CA certificate from CSR
-#   community.crypto.x509_certificate:
-#     path: /path/to/ca-certificate.pem
-#     csr_content: "{{ ca_csr.csr }}"
-#     privatekey_path: /path/to/ca-certificate.key
-#     privatekey_passphrase: "{{ secret_ca_passphrase }}"
-#     provider: selfsigned
 ...
