@@ -395,7 +395,7 @@ lfs_mounts:
   - lfs: prm01
     pfs: umcgst10
     groups:
-      - umcg-atd
+      - name: umcg-atd
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: prm02
     pfs: umcgst01
