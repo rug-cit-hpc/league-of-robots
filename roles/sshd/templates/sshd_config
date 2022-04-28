@@ -1,4 +1,14 @@
+#jinja2: trim_blocks:True, lstrip_blocks: True
+{% if inventory_hostname in groups['jumphost'] | default([]) or inventory_hostname in groups['data_transfer'] | default([]) %}
+#
+# Extra ports where sshd will listen in addition to the default 22 must be listed before the default of 22,
+# because the geerlingly.security role will modify the last listed Port value
+# and we use the geerlingly.security role with the default of 22.
+#
+Port 443
+{% endif %}
 Port 22
+
 UseDNS no
 
 #
@@ -69,31 +79,101 @@ UsePAM yes
 PermitRootLogin no
 PasswordAuthentication no
 PermitEmptyPasswords no
-ChallengeResponseAuthentication no
 GSSAPIAuthentication no
 GSSAPICleanupCredentials no
 PubkeyAuthentication yes
+{% if inventory_hostname in totp.machines | default([]) %}
+ChallengeResponseAuthentication yes
+AuthenticationMethods publickey,keyboard-interactive
+{% else %}
+ChallengeResponseAuthentication no
+AuthenticationMethods publickey
+{% endif %}
 
 #
 # Connection settings.
 #
 X11Forwarding no
 ClientAliveInterval 300
+LoginGraceTime {{ sshd_login_grace_time }}
+MaxSessions {{ sshd_max_sessions }}
 
 #
 # Override default of no subsystems
 # and log sftp level file access that would not be easily logged otherwise.
 #
-Subsystem sftp /usr/libexec/openssh/sftp-server -f AUTHPRIV -l INFO
+Subsystem sftp /usr/libexec/openssh/sftp-server -f AUTHPRIV -l INFO -u 0027
 
-{% if use_ldap %}
-AuthorizedKeysCommand /usr/libexec/openssh/ssh_ldap_wrapper.py
-AuthorizedKeysCommandUser root
+{% if use_ldap | default(true, true) | bool %}
+#
+# Get public keys for regular users from LDAP.
+#
+  {% if use_sssd | default(false, true) | bool%}
+AuthorizedKeysCommand /usr/libexec/openssh/get_public_keys_from_ldap.bash
+  {% else %}
+AuthorizedKeysCommand /usr/libexec/openssh/ssh-ldap-wrapper.bash
+  {% endif %}
+AuthorizedKeysCommandUser nobody
 AuthorizedKeysFile /dev/null
 
+#
+# Get public keys for admins from local authorized_keys file.
+#
 Match Group admin
     AuthorizedKeysFile .ssh/authorized_keys
-
 {% else %}
+#
+# Get public keys for all users from local authorized_keys file.
+#
 AuthorizedKeysFile .ssh/authorized_keys
+{% endif %}
+
+{% if inventory_hostname in groups['cluster'] | default([]) %}
+#
+# Disable guest and data staging accounts on cluster machines (SAI, DAI, UI, compute nodes).
+#
+Match all
+    DenyGroups {{ data_transfer_only_group }} *guest*
+{% elif inventory_hostname in groups['repo'] | default([]) %}
+#
+# Only allow (local) admin users on repo servers.
+#
+Match all
+    AllowGroups admin
+{% elif inventory_hostname in groups['docs'] | default([]) %}
+#
+# Only allow (local) admin users on documentation servers.
+#
+Match all
+    AllowGroups admin
+
+{% elif inventory_hostname in groups['data_transfer'] | default([]) %}
+#
+# On data staging servers: Restrict regular users to sftp-only on port 22.
+#
+Match Group *,!admin,!{{ data_transfer_only_group }} LocalPort 22
+    AllowAgentForwarding no
+    AllowTcpForwarding no
+    PermitTTY no
+    ChrootDirectory /groups/
+    ForceCommand internal-sftp -f AUTHPRIV -l INFO -u 0027
+Match Group {{ data_transfer_only_group }} LocalPort 22
+    AllowAgentForwarding no
+    AllowTcpForwarding no
+    PermitTTY no
+    ChrootDirectory /groups/{{ data_transfer_only_group }}/
+    ForceCommand internal-sftp -f AUTHPRIV -l INFO -u 0077 -d %u
+#
+# On data staging servers: Restrict regular users to rsync-only on port 443.
+#
+Match Group *,!admin,!{{ data_transfer_only_group }} LocalPort 443
+    AllowAgentForwarding no
+    AllowTcpForwarding no
+    PermitTTY no
+    ForceCommand /bin/rsync --server --daemon --config=/etc/rsyncd_all_groups.conf .
+Match Group {{ data_transfer_only_group }} LocalPort 443
+    AllowAgentForwarding no
+    AllowTcpForwarding no
+    PermitTTY no
+    ForceCommand /bin/rsync --server --daemon --config=/etc/rsyncd_data_transfer_only_group.conf .
 {% endif %}

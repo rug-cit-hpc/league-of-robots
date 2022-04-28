@@ -2,18 +2,27 @@
 #
 # Important: maintain correct handler order.
 # Handlers are executed in the order in which they are defined 
-# and not in the order in whch they are listed in a "notify: handler_name" statement!
+# and not in the order in which they are listed in a "notify: handler_name" statement!
 #
 # Restart before reload: an reload after a restart may be redundant but should not fail,
 # but the other way around may fail when the impact of changes was too large for a reload.
 #
 # Currently restart only: mysql.service does not support reloads yet :(.
 #
-- name: Restart MariaDB/MySQL service.
-  systemd:
-    name: 'mysql.service'
-    state: restarted
+- name: 'Restart MariaDB/MySQL service.'
+  ansible.builtin.systemd:
+    name: 'mariadb.service'
+    state: 'restarted'
     daemon_reload: yes
   become: true
-  listen: restart_mysql
+  listen: restart_mariadb
+
+- name: 'Start MariaDB/MySQL service.'
+  ansible.builtin.systemd:
+    name: 'mariadb.service'
+    state: 'started'
+    enabled: yes
+    daemon_reload: yes
+  become: true
+  listen: start_mariadb
 ...

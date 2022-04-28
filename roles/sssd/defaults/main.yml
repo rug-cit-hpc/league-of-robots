@@ -1,0 +1,25 @@
+---
+use_ldap: true  # needed for the sshd template
+#
+# Example of structure of ldap_domains variable in group_vars/.../vars.yml
+#
+# ldap_domains:
+#  default_domain:
+#    uri: ''
+#    search_base: ''
+#    schema: rfc2307
+#    min_id: 10000
+#    max_id: ''
+#    user_object_class: posixAccount
+#    user_ssh_public_key_attr: sshPublicKey
+#    group_object_class: ''
+#    group_quota_soft_limit_template: ''
+#    group_quota_hard_limit_template: ''
+#
+# Example of structure of ldap_credentials variable in group_vars/.../secrets.yml
+#
+# ldap_credentials:
+#   default_domain:
+#     bind_dn: some-read-only-user
+#     bind_pw: some-password
+...

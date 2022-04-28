@@ -1,6 +1,6 @@
 ---
 - name: 'Restart iptables based firewall deamons (IPv4 and IPv6).'
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     state: 'restarted'
     daemon_reload: 'yes'
@@ -11,7 +11,8 @@
   listen: restart_iptables
 
 - name: 'Configure iptables based firewalls (IPv4 and IPv6).'
-  command: '/etc/sysconfig/iptables-init.bash'
+  ansible.builtin.command:
+    cmd: '/etc/sysconfig/iptables-init.bash'
   become: true
   listen: initialize_iptables
 ...

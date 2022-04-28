@@ -1,0 +1,134 @@
+---
+- name: Install packages for build environment to support Dynamic Kernel Module Support (DKMS).
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - asciidoc
+      - audit-libs-devel
+      - automake
+      - bc
+      - binutils-devel
+      - bison
+      - device-mapper-devel
+      - elfutils-devel
+      - elfutils-libelf-devel
+      - expect
+      - flex
+      - gcc
+      - gcc-c++
+      - git
+      - glib2
+      - glib2-devel
+      - hmaccalc
+      - keyutils-libs-devel
+      - krb5-devel
+      - ksh
+      - libattr-devel
+      - libblkid-devel
+      - libselinux-devel
+      - libtool
+      - libuuid-devel
+      - libyaml-devel
+      - lsscsi
+      - make
+      - ncurses-devel
+      - net-snmp-devel
+      - net-tools
+      - newt-devel
+      - numactl-devel
+      - parted
+      - patchutils
+      - pciutils-devel
+      - perl-ExtUtils-Embed
+      - pesign
+      - python-devel
+      - redhat-rpm-config
+      - rpm-build
+      - systemd-devel
+      - tcl
+      - tcl-devel
+      - tk
+      - tk-devel
+      - wget
+      - xmlto
+      - yum-utils
+      - zlib-devel
+  become: true
+
+- name: Install kernel tools/extras required for compiling kernel modules.
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - kernel
+      - kernel-devel
+      - kernel-headers
+      - kernel-abi-whitelists
+      - kernel-tools
+      - kernel-tools-libs
+      - kernel-tools-libs-devel
+  become: true
+  notify: reboot
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Install the Lustre client.
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - lustre-client-dkms
+      - lustre-client
+  become: true
+
+- name: Load the Lustre kernel modules.
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - lnet
+    - lustre
+  become: true
+
+- name: Remove old style /etc/modprobe.d/lustre.conf.
+  ansible.builtin.file:
+    path: /etc/modprobe.d/lustre.conf
+    state: absent
+  become: true
+
+- name: 'Create lustre lnet config: part 1.'
+  ansible.builtin.command:
+    cmd: |
+         lnetctl lnet configure
+  changed_when: true
+  become: true
+
+- name: 'Create lustre lnet config: part 2.'
+  ansible.builtin.command:
+    cmd: |
+         lnetctl net add --net "{{ item.name }}" --if "{{ item.interface }}"
+  register: lnetctl_status
+  changed_when:
+    - lnetctl_status.rc == 0
+  failed_when:
+    - lnetctl_status.rc > 0
+    - '"errno: -17" not in lnetctl_status.stderr'
+  with_items: "{{ lustre_client_networks }}"
+  become: true
+
+- name: Save lustre lnet config to /etc/lnet.conf
+  ansible.builtin.shell:
+    cmd: |
+         checksum_old=$(md5sum /etc/lnet.conf)
+         lnetctl export /etc/lnet.conf
+         checksum_new=$(md5sum /etc/lnet.conf)
+         if [[ "${checksum_old}" != "${checksum_new}" ]]; then
+             echo 'lnet.conf has changed.'
+         fi
+  register: lnetconf_status
+  changed_when:
+    - '"lnet.conf has changed." in lnetconf_status.stdout'
+  become: true
+...

@@ -1,5 +1,0 @@
----
-- hosts: jumphost
-  roles:
-     - prom_proxy
-...

@@ -1,25 +1,33 @@
 # Register a machine to our ldap
 ---
 - name: Install yum dependencies
-  yum:
+  ansible.builtin.yum:
     state: latest
-    update_cache: yes
+    update_cache: true
     name:
       - openldap-clients
       - nss-pam-ldapd
       - openssh-ldap
-      - python36
-      - python36-devel
-      - python36-PyYAML
-      - openssl-devel
-      - python36-sshpubkeys
   notify:
     - restart_nslcd
     - restart_sshd
   become: true
 
-- name: Deploy nslcd.conf
-  template:
+- name: Copy LDAP server certificate to LDAP clients.
+  ansible.builtin.copy:
+    src: "{{ stack_name }}/ldap.crt"
+    dest: /etc/pki/ca-trust/source/anchors/
+    owner: root
+    group: root
+    mode: '0600'
+  when: (playbook_dir, '/files/', stack_name, '/', 'ldap.crt') | join('') is exists
+  become: true
+  notify:
+    - update-ca-trust
+    - restart_nslcd
+
+- name: Deploy /etc/nslcd.conf
+  ansible.builtin.template:
     src: nslcd.conf
     dest: /etc/nslcd.conf
     owner: root
@@ -29,9 +37,9 @@
     - restart_nslcd
   become: true
 
-- name: Deploy ldap.conf
-  template:
-    src: ldap.conf
+- name: Deploy /etc/ssh/ldap.conf
+  ansible.builtin.template:
+    src: ssh-ldap.conf
     dest: /etc/ssh/ldap.conf
     owner: root
     group: root
@@ -40,8 +48,22 @@
     - restart_nslcd
   become: true
 
+#
+# Note that /etc/openldap/ldap.conf is not required to make SSH logins work,
+# but is used for tools like the ldapsearch command,
+# which may be used for debugging and by scripts on the cluster: e.g. for fetching quota values.
+#
+- name: Deploy /etc/openldap/ldap.conf
+  ansible.builtin.template:
+    src: openldap-ldap.conf
+    dest: /etc/openldap/ldap.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
 - name: Deploy nsswitch.conf
-  copy:
+  ansible.builtin.copy:
     src: nsswitch.conf
     dest: /etc/nsswitch.conf
     owner: root
@@ -52,41 +74,40 @@
   become: true
 
 - name: Deploy custom ssh-ldap-wrapper.
-  copy:
-    src: ssh_ldap_wrapper.py
-    dest: /usr/libexec/openssh/ssh_ldap_wrapper.py
+  ansible.builtin.template:
+    src: ssh-ldap-wrapper.bash
+    dest: /usr/libexec/openssh/ssh-ldap-wrapper.bash
     owner: root
     group: root
     mode: '0755'
   become: true
 
-- name: Deploy config file for custom ssh-ldap-wrapper.
-  template:
-    src: templates/ssh_ldap_wrapper.yml
-    dest: /usr/libexec/openssh/ssh_ldap_wrapper.yml
-    owner: root
-    group: root
-    mode: '0644'
+- name: Enable services.
+  ansible.builtin.systemd:
+    name: nslcd
+    state: started
+    enabled: true
+    daemon_reload: true
   become: true
 
-- name: Enable services.
-  systemd:
-    name: "{{ item }}"
-    enabled: yes
-    state: started
-  with_items:
-    - nslcd
-  notify:
-    - restart_nslcd
-  become: true
+- name: Check if we need to update authconfig.
+  ansible.builtin.command:
+    cmd: /usr/sbin/authconfig --test
+  register: authconfig_test
+  changed_when: ('nss_ldap is disabled' in authconfig_test.stdout) or ('pam_ldap is disabled' in authconfig_test.stdout)
+  notify: authconfig_enable_ldap
 
 - name: Redeploy sshd config.
-  template:
+  ansible.builtin.template:
     src: "{{ playbook_dir }}/roles/sshd/templates/sshd_config"
     dest: /etc/ssh/sshd_config
     validate: '/usr/sbin/sshd -T -f %s'
+    owner: root
+    group: root
+    mode: '0644'
   notify: restart_sshd
   become: true
 
-- meta: flush_handlers
+- name: Flush handlers.
+  ansible.builtin.meta: flush_handlers
 ...

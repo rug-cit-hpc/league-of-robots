@@ -2,50 +2,40 @@
 # Install webserver and deploy cluster specific documentation on that web server.
 #
 ---
-- name: 'Check if rsync >= 3.1.2 is installed on the control host.'
-  shell: |
-         rsync --version  2>&1 | head -n 1 | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|' | tr -d '\n'
-  args:
-    warn: no
-  changed_when: false
-  failed_when: false
-  check_mode: no
-  register: rsync_version
-  delegate_to: localhost
-- name: 'Abort when modern rsync >= 3.1.2 is missing on control host.'
-  debug:
-    msg: "FATAL: Need rsync >= 3.1.2 on the control host, but detected {{ rsync_version.stdout }}."
-  when:         'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
-  failed_when: 'rsync_version is failed or (rsync_version.stdout is version_compare("3.1.2", operator="<"))'
-  delegate_to: localhost
+- name: 'Check OS version of target host.'
+  ansible.builtin.fail:
+    msg: 'This role requires RedHat/CentOS version >= 7.x'
+  when: ansible_facts['os_family'] != "RedHat" or ansible_facts['distribution_major_version'] <= "6"
 
 #
 # This is currently problematic when
-# * the default user used to login to the cluster is different from 
+# * the default user used to login to the cluster is different from
 # * the default user used to login on the webserver where the docs are hosted
-# as you van specify only one account name with -u on the commandline when running ansible-playbook.
+# as you can specify only one account name with -u on the commandline when running ansible-playbook.
 #
 - name: 'Gather facts from hosts, so we can use them in the generated docs.'
-  setup:
+  ansible.builtin.setup:
   delegate_to: "{{ item }}"
   delegate_facts: true
   with_items:
     - "{{ groups['jumphost'] }}"
-    - "{{ groups['user-interface'] }}"
+    - "{{ groups['user_interface'] }}"
 
 - name: 'Get Slurm version from scontrol on UI.'
-  shell: |
-         scontrol version | head -n 1 | sed 's|^slurm *\([0-9\.]*\).*$|\1|' | tr -d '\n'
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      scontrol version | head -n 1 | sed 's|^slurm *\([0-9\.]*\).*$|\1|' | tr -d '\n'
   args:
-    executable: /bin/bash
-    warn: no
+    executable: '/bin/bash'
+    warn: false
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
-  delegate_to: "{{ groups['user-interface'] | first }}"
+  delegate_to: "{{ groups['user_interface'] | first }}"
   changed_when: false
   failed_when: false
-  check_mode: no
-  register: slurm_version
+  check_mode: false
+  register: 'slurm_version'
 
 - name: 'Get Lmod version from UI.'
   #
@@ -53,94 +43,191 @@
   # Modules based on Lua: Version 6.5.8  2016-09-03 13:41 -05:00 (CDT)
   #    by Robert McLay mclay@tacc.utexas.edu
   #
-  shell: |
-         unset MODULEPATH
-         source ~/.modulesrc >/dev/null 2>&1
-         lmod -v | sed '/^$/d' | sed 's|^.*Version \([0-9\.]*\).*$|\1|' | head -1
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      unset MODULEPATH
+      source ~/.modulesrc >/dev/null 2>&1
+      lmod -v | sed '/^$/d' | sed 's|^.*Version \([0-9\.]*\).*$|\1|' | head -1
   args:
-    executable: /bin/bash
-    warn: no
+    executable: '/bin/bash'
+    warn: false
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
-  delegate_to: "{{ groups['user-interface'] | first }}"
+  delegate_to: "{{ groups['user_interface'] | first }}"
   changed_when: false
   failed_when: false
-  check_mode: no
-  register: lmod_version
+  check_mode: false
+  register: 'lmod_version'
 
-- name: 'Install libselinux-python.'
-  yum:
-    state: latest
-    update_cache: yes
-    name:
-      - libselinux-python
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
-  become: true
+- name: 'Get host key fingeprints from dedicated data transfer server.'
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      ssh-keygen -lf <(ssh-keyscan {{ dt_server_address }} 2>/dev/null) \
+        | awk '{print $2,$4}'
+  args:
+    executable: '/bin/bash'
+    warn: false
+  delegate_to: localhost
+  connection: local
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  register: 'data_transfer_host_key_fingerprints'
+  when:
+    - groups['data_transfer'] is defined
+    - groups['data_transfer'] | first | length >= 1
+
+- name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
+  ansible.builtin.find:
+    paths: "{{ playbook_dir }}/group_vars/"
+    recurse: true
+    patterns: 'ip_addresses.yml'
+  register: ip_addresses_files
+  delegate_to: localhost
+  connection: local
+
+- name: 'Include variables from all ip_addresses.yml files.'
+  ansible.builtin.include_vars:
+    file: "{{ item }}"
+    name: "networking_lookup"
+  with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
+  register: networking_lookups
+  delegate_to: localhost
+  connection: local
+
+- name: 'Combine network info from ip_addresses.yml files into one dict.'
+  ansible.builtin.set_fact:
+    networking_lookups: "{{ networking_lookups.results | json_query('[].ansible_facts.networking_lookup.ip_addresses') | combine() }}"
+  delegate_to: localhost
+  connection: local
 
 - name: 'Set selinux in permissive mode.'
-  selinux:
-    policy: targeted
-    state: permissive
+  ansible.posix.selinux:
+    policy: 'targeted'
+    state: 'permissive'
   become: true
 
 - name: 'Install EPEL repo and rsync.'
-  yum:
-    state: latest
-    update_cache: yes
+  ansible.builtin.yum:
+    state: 'latest'
+    update_cache: true
     name:
-      - epel-release
-      - rsync
+      - 'epel-release'
+      - 'rsync'
   become: true
 
-- name: 'Install webserver and php.'
-  yum:
-    state: latest
-    update_cache: yes
+- name: 'Install apache webserver, php and nano.'
+  ansible.builtin.yum:
+    state: 'latest'
+    update_cache: true
     name:
-      - php
-      - httpd
+      - 'nano'
+      - 'php'
+      - 'httpd'
+      - 'mod_ssl'
   notify:
-    - restart_httpd
+    - 'restart_httpd'
+  become: true
+
+#
+# The *.pem file with crt as well as key must be copied to the server manually.
+#
+- name: 'Check if *.gcc.rug.nl wildcard certificate was installed on server.'
+  ansible.builtin.file:
+    path: '/etc/pki/tls/private/wildcard_crt_and_key.pem'
+    state: 'file'
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+- name: 'Create symlinks for Apache httpd, so it can find the cert & key in the *.gcc.rug.nl wildcard certificate file.'
+  ansible.builtin.file:  # noqa risky-file-permissions
+    src: '/etc/pki/tls/private/wildcard_crt_and_key.pem'
+    dest: "{{ item }}"
+    state: 'link'
+    owner: 'root'
+    group: 'root'
+    force: true
+  with_items:
+    - '/etc/pki/tls/private/localhost.key'
+    - '/etc/pki/tls/certs/localhost.crt'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+- name: 'Configure ServerName in /etc/httpd/conf.d/ssl.conf'
+  ansible.builtin.lineinfile:
+    path: '/etc/httpd/conf.d/ssl.conf'
+    insertafter: '^<VirtualHost.*>'
+    regexp: '^#?ServerName'
+    line: 'ServerName docs.gcc.rug.nl'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+- name: 'Configure Apache webserver to redirect HTTP to HTTPS.'
+  ansible.builtin.template:
+    src: 'templates/apache/redirect_all_http_to_https.conf'
+    dest: '/etc/httpd/conf.d/redirect_all_http_to_https.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - 'restart_httpd'
   become: true
 
 - name: 'Enable webserver.'
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
-    enabled: yes
-    state: started
+    enabled: true
+    state: 'started'
   with_items:
-    - httpd
+    - 'httpd'
   become: true
-
-- name: 'Install MkDocs on RedHat 6.x.'
-  include_tasks:
-    file: "{{ playbook_dir }}/roles/online_docs/tasks/mkdocs-for-redhat6.yml"
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "6"
 
 - name: 'Install MkDocs on RedHat 7.x.'
-  include_tasks:
-    file: "{{ playbook_dir }}/roles/online_docs/tasks/mkdocs-for-redhat7.yml"
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "7"
+  ansible.builtin.include_tasks:
+    file: mkdocs-for-redhat7.yml
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "7"
 
-- name: 'Create base directories for MarkDown and HTML files on webserver.'
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
+- name: 'Create base directories for MarkDown and HTML files.'
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: "{{ item.mode }}"
   with_items:
-    - "/srv/mkdocs/{{ slurm_cluster_name }}/"
-    - "/var/www/html/{{ slurm_cluster_name }}/"
+    - path: "/srv/mkdocs/{{ slurm_cluster_name }}/"
+      mode: '0750'
+    - path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/"
+      mode: '0750'
+    - path: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
+      mode: '0750'
+    - path: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/attachments"
+      mode: '0750'
+    - path: "/var/www/html/{{ slurm_cluster_name }}/"
+      mode: '0755'
+    - path: "/var/www/html/{{ slurm_cluster_name }}/attachments/"
+      mode: '0755'
   become: true
 
-- name: 'Create static files for MarkDown on webserver.'
-  synchronize:
+- name: 'Create static files for index in document root.'
+  ansible.posix.synchronize:
     src: "{{ playbook_dir }}/roles/online_docs/files/index//./{{ item.src }}"
     dest: "/var/www/html/"
     owner: 'no'
     group: 'no'
-    use_ssh_args: 'yes'
+    use_ssh_args: true
+    ssh_connection_multiplexing: true
     rsync_opts:
       # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
       #                   for file systems like NFS mounts that cannot handle setting dir times properly.
@@ -165,61 +252,27 @@
     - src: 'sitemap.php'
   become: true
 
-- name: 'Create sub directory structure for MarkDown files on webserver.'
-  file:
+- name: 'Create sub directory structure for MarkDown files.'
+  ansible.builtin.file:
     path: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0700'
-  with_filetree: 'templates/mkdocs'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+  with_filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
   when: item.state == 'directory'
   notify:
-    - build_mkdocs
+    - 'build_mkdocs'
   become: true
 
-- name: 'Create static files for MarkDown on webserver.'
-  synchronize:
+- name: 'Create static files for MarkDown.'
+  ansible.posix.synchronize:
     src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/docs/./{{ item.src }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
     owner: 'no'
     group: 'no'
-    use_ssh_args: 'yes'
-    rsync_opts:
-      # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
-      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
-      # --omit-link-times Is required to prevent "sync error: some files/attrs were not transferred"
-      #                   for file systems like NFS mounts that cannot handle setting dir times properly.
-      #                   Requires rsync >= 3.1.2 (default on Enterprise Linux >= 7.x).
-      # --chmod           Is required to prevent errors when the perms on the source are not what is required/expected on the destination.
-      #                   Fixing perms on the source would be good, but that may be out of our control.
-      #                   In that case --chmod ensures we get what we want on the destination.
-      #                   Works only when combined with --perms.
-      # --force           Is required when symlinks have changed into dirs/files or vice versa.
-      #                   In that case the wrong outdated stuff has to be deleted on the destination first before the new stuff can be created.
-      #                   Deleting the outdated stuff may fail without --force.
-      # --relative        In combination with a "source_server:some/path/not/created/on/destination/./path/created/on/destination/some_file" (dot dir)
-      #                   recreates a partial dir structure on the destination relative to the /./ dir, when it does not already exist.
-      #                   Without this combination of --relative and dot dir rsync will error when the path does not exist on the destination.
-      #                   IMPORTANT: src and dest paths must be absolute paths. Otherwise Ansible will expand the path itself which will remove the /./ dir.
-      - '--relative'
-      - '--omit-dir-times'
-      #- '--omit-link-times'
-      - '--chmod=Du=rwx,Dgo-rwx,Fu=rw,Fgo-rwx'
-      - '--perms'
-      - '--force'
-  with_items:
-    - src: 'img'
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] < "7"
-  become: true
-
-- name: 'Create static files for MarkDown on webserver.'
-  synchronize:
-    src: "{{ playbook_dir }}/roles/online_docs/files/mkdocs/docs/./{{ item.src }}"
-    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
-    owner: 'no'
-    group: 'no'
-    use_ssh_args: 'yes'
+    use_ssh_args: true
+    ssh_connection_multiplexing: true
     rsync_opts:
       # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
       #                   for file systems like NFS mounts that cannot handle setting dir times properly.
@@ -240,24 +293,93 @@
       - '--relative'
       - '--omit-dir-times'
       - '--omit-link-times'
-      - '--chmod=Du=rwx,Dgo-rwx,Fu=rw,Fgo-rwx'
+      - '--chmod=Du=rwx,Dg=rx,Do-rwx,Fu=rwX,Fug=rX,Fo-rwx'
       - '--perms'
       - '--force'
   with_items:
+    - src: 'css'
     - src: 'img'
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "7"
+  notify:
+    - 'build_mkdocs'
   become: true
 
-- name: 'Create MarkDown files based on templates on webserver.'
-  template:
+- name: 'Create skeleton for AppleScript apps.'
+  ansible.posix.synchronize:
+    src: "{{ playbook_dir }}/roles/online_docs/files/attachments/{{ item.src }}/./"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.dest }}"
+    owner: 'no'
+    group: 'no'
+    use_ssh_args: true
+    ssh_connection_multiplexing: true
+    recursive: 'yes'
+    rsync_opts:
+      - '--relative'
+      - '--omit-dir-times'
+      - '--omit-link-times'
+      - '--chmod=Du=rwx,Dg=rx,Do-rwx,Fu=rwX,Fg=rX,Fo-rwx'
+      - '--perms'
+      - '--force'
+  with_items:
+    - src: 'ssh-client-config.app'
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}.app"
+    - src: 'mount-cluster-drives.app'
+      dest: 'mount-cluster-drives.app'
+  notify:
+    - 'zip_attachments'
+    - 'build_mkdocs'
+  become: true
+
+- name: 'Make sure main script of AppleScript apps are executable.'
+  ansible.builtin.file:
+    path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item }}/Contents/MacOS/applet"
+    state: 'file'
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+  with_items:
+    - "ssh-client-config-for-{{ slurm_cluster_name }}.app"
+    - 'mount-cluster-drives.app'
+  notify:
+    - 'zip_attachments'
+    - 'build_mkdocs'
+  become: true
+
+- name: 'Create files for attachments based on templates.'
+  ansible.builtin.template:
+    src: "attachments/{{ item.src }}"
+    dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.dest }}"
+    owner: 'root'
+    group: 'root'
+    mode: "{{ item.mode }}"
+  with_items:
+    #
+    # For macOS users we inject the configuration script for this cluster into the AppleScript app skeleton.
+    #
+    - src: 'ssh-client-config.bash'
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}.app/Contents/MacOS/ssh-client-config.command"
+      mode: '0750'
+    #
+    # For Linux/Unix users: just generate a bare Bash script.
+    #
+    - src: 'ssh-client-config.bash'
+      dest: "ssh-client-config-for-{{ slurm_cluster_name }}.bash"
+      mode: '0750'
+  notify:
+    - 'zip_attachments'
+    - 'build_mkdocs'
+  become: true
+
+- name: 'Create MarkDown files based on templates.'
+  ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/{{ item.path }}"
-    owner: root
-    group: root
-    mode: '0600'
-  with_filetree: 'templates/mkdocs'
-  when: item.state == 'file'
+    owner: 'root'
+    group: 'root'
+    mode: '0640'
+  with_filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
+  # Exclude temporary *.html preview files, which are also exlcuded in .gitignore and should not be transferred.
+  when: item.state == 'file' and '.md.html' not in item.path
   notify:
-    - build_mkdocs
+    - 'build_mkdocs'
   become: true
 ...

@@ -1,0 +1,107 @@
+---
+all:
+  children:
+    openstack_api:
+      hosts:
+        localhost:
+    jumphost:
+      hosts:
+        tunnel:
+          cloud_flavor: m1.small
+    repo:
+      hosts:
+        nb-repo:
+          cloud_flavor: m1.small
+    data_transfer:
+      hosts:
+        nb-transfer:
+          cloud_flavor: m1.small
+          local_volume_size_extra: 10000
+    irods:
+      hosts:
+        irods-catalogus:
+        irods-test:
+      vars:
+        cloud_flavor: m1.large
+        local_volume_size_extra: 20
+        fqdn: umcg-icat01.hpc.rug.nl
+    docs:
+      hosts:
+        docs_on_merlin:
+    sys_admin_interface:
+      hosts:
+        nb-sai:
+          cloud_flavor: m1.small
+          local_volume_size_extra: 1
+    deploy_admin_interface:
+      hosts:
+        nb-dai:
+          cloud_flavor: m1.small
+          local_volume_size_extra: 200
+    user_interface:
+      hosts:
+        nibbler:
+          cloud_flavor: m1.xlarge
+          slurm_sockets: 8
+          slurm_cores_per_socket: 1
+          slurm_real_memory: 15884
+          slurm_local_disk: 0
+          slurm_features: 'prm02,tmp02'
+          slurm_ethernet_interfaces:
+            - eth0
+            - eth1
+    compute_vm:
+      children:
+        regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
+          hosts:
+            nb-vcompute[01:03]:
+          vars:
+            # flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
+            cloud_flavor: m1.xlarge
+            local_volume_size_extra: 1
+            slurm_sockets: 8
+            slurm_cores_per_socket: 1
+            slurm_real_memory: 15884
+            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
+            slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
+            slurm_local_disk: 975
+            slurm_features: 'tmp02'
+            slurm_ethernet_interfaces:
+              - eth0
+              - eth1
+        gpu_a40:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
+          hosts:
+            nb-vcompute04:
+          vars:
+            cloud_flavor: gpu.A40
+            local_volume_size_extra: 1
+            slurm_sockets: 32
+            slurm_cores_per_socket: 1
+            slurm_real_memory: 98304
+            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
+            slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
+            slurm_local_disk: 975
+            slurm_features: 'tmp02,gpu,A40'
+            slurm_ethernet_interfaces:
+              - eth0
+              - eth1
+administration:
+  children:
+    sys_admin_interface:
+    deploy_admin_interface:
+    user_interface:
+cluster:
+  children:
+    compute_vm:
+    administration:
+    irods:
+nibbler_cluster:
+  children:
+    openstack_api:
+    irods:
+    jumphost:
+    repo:
+    cluster:
+    data_transfer:
+    docs:
+...

@@ -1,11 +1,11 @@
 ---
 #
 # Important: maintain correct handler order.
-# Handlers are executed in the order in which they are defined 
-# and not in the order in whch they are listed in a "notify: handler_name" statement!
+# Handlers are executed in the order in which they are defined
+# and not in the order in which they are listed in a "notify: handler_name" statement!
 #
-- name: Restart dnsmasq service.
-  service:
+- name: 'Restart dnsmasq service.'
+  ansible.builtin.service:
     name: dnsmasq
     state: restarted
   become: true

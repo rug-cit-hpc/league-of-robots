@@ -1,0 +1,38 @@
+---
+ip_addresses:
+  hc-dai:
+    addr: 10.10.1.252
+    mask: /32
+    vlan: hc_internal_management
+    fqdn:
+    desc: Deploy Admin Interface
+  hc-sai:
+    addr: 10.10.1.111
+    mask: /32
+    vlan: hc_internal_management
+    fqdn:
+    desc: Sys Admin Interface
+  hc-vcompute01:
+    addr: 10.10.1.18
+    mask: /32
+    vlan: hc_internal_management
+    fqdn:
+    desc: Compute Node
+  hyperchicken:
+    addr: 10.10.1.54
+    mask: /32
+    vlan: hc_internal_management
+    fqdn:
+    desc: User Interface
+  hc-repo:
+    addr: 10.10.1.87
+    mask: /32
+    vlan: hc_internal_management
+    fqdn:
+  portal:
+    addr: 10.10.1.37
+    mask: /32
+    vlan: hc_internal_management
+    fqdn:
+    desc: Jumphost
+...

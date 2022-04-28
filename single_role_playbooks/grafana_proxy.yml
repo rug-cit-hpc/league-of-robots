@@ -1,0 +1,5 @@
+---
+- hosts: jumphost
+  roles:
+     - grafana_proxy
+...

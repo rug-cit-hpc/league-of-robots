@@ -1,20 +1,63 @@
 ---
+- name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
+  ansible.builtin.find:
+    paths: "{{ playbook_dir }}/group_vars/"
+    recurse: true
+    patterns: 'ip_addresses.yml'
+  register: ip_addresses_files
+  delegate_to: localhost
+  connection: local
+
+- name: Include variables from all ip_addresses.yml files.
+  ansible.builtin.include_vars:
+    file: "{{ item }}"
+    name: "{{ item | dirname | basename }}"
+  with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
+  delegate_to: localhost
+  connection: local
+
+- name: Check if system has /etc/pam.d/sshd
+  ansible.builtin.stat:
+    path: /etc/pam.d/sshd
+  register: pam_sshd_status
+  when: inventory_hostname in totp.machines | default([])
+
+- name: Fail if host does not have /etc/pam.d/sshd.
+  ansible.builtin.fail:
+    msg: This host does not have a /etc/pam.d/sshd file. We cannot configure the PAM stack. Check the sshd setup.
+  when:
+    - inventory_hostname in totp.machines | default([])
+    - pam_sshd_status.stat.exists is false
+
+- name: Enable TOTPs for MFA.
+  ansible.builtin.include_tasks:
+    file: enable_totps.yml
+  when: inventory_hostname in totp.machines | default([])
+
+- name: Disable TOTPs for MFA.
+  ansible.builtin.include_tasks:
+    file: disable_totps.yml
+  when: inventory_hostname not in totp.machines | default([])
+
 - name: Deploy sshd config.
-  template:
+  ansible.builtin.template:
     src: templates/sshd_config
     dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0644'
     validate: '/usr/sbin/sshd -T -f %s'
   notify: restart_sshd
   become: true
 
 - name: Check if /etc/ssh/moduli contains weak (small) values.
-  shell: awk '$5 < {{ sshd_moduli_minimum }}' /etc/ssh/moduli
+  ansible.builtin.shell: awk '$5 < {{ sshd_moduli_minimum }}' /etc/ssh/moduli
   register: sshd_register_moduli
   changed_when: false
-  check_mode: no
+  check_mode: false
 
 - name: Remove weak (small) values from /etc/ssh/moduli.
-  shell: awk '$5 >= {{ sshd_moduli_minimum }}' /etc/ssh/moduli > /etc/ssh/moduli.new ;
+  ansible.builtin.shell: awk '$5 >= {{ sshd_moduli_minimum }}' /etc/ssh/moduli > /etc/ssh/moduli.new ;
          [ -r /etc/ssh/moduli.new -a -s /etc/ssh/moduli.new ] && mv /etc/ssh/moduli.new /etc/ssh/moduli || true
   when: sshd_register_moduli.stdout
   notify: restart_sshd

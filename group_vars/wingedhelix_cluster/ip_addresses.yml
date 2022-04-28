@@ -1,0 +1,44 @@
+---
+ip_addresses:
+  wh-dai:
+    addr: 10.10.1.155
+    mask: /32
+    vlan: wh_internal_management
+    fqdn:
+    desc: Deploy Admin Interface
+  wh-sai:
+    addr: 10.10.1.36
+    mask: /32
+    vlan: wh_internal_management
+    fqdn:
+    desc: Sys Admin Interface
+  wh-vcompute02:
+    addr: 10.10.1.230
+    mask: /32
+    vlan: wh_internal_management
+    fqdn:
+    desc: Compute Node
+  wh-vcompute01:
+    addr: 10.10.1.219
+    mask: /32
+    vlan: wh_internal_management
+    fqdn:
+    desc: Compute Node
+  wingedhelix:
+    addr: 10.10.1.245
+    mask: /32
+    vlan: wh_internal_management
+    fqdn:
+    desc: User Interface
+  wh-repo:
+    addr: 10.10.1.107
+    mask: /32
+    vlan: wh_internal_management
+    fqdn:
+  porch:
+    addr: 10.10.1.148
+    mask: /32
+    vlan: wh_internal_management
+    fqdn:
+    desc: Jumphost
+...

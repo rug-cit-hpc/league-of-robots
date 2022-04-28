@@ -1,0 +1,16 @@
+filebeat.inputs:
+  - type: log
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.overwrite_keys: true
+    enabled: true
+    paths:
+      - /var/log/httpd/access.log
+      - /var/log/httpd/error.log
+    tags: ["DAVRODS"]
+
+# Disable filebeat monitoring  
+logging.metrics.enabled: false
+
+output.logstash:
+  hosts: ["elk.dh.local:5044"]

@@ -1,4 +1,0 @@
----
-- hosts: user-interface
-  roles:
-    - fuse-layer

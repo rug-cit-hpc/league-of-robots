@@ -1,0 +1,48 @@
+#
+#   1.   $> cd git/league-of-robots
+#   2. Create VM for irods with deploy-os_servers.yml playbook.
+#   3. Fetch Ansible dependencies
+#        $> ansible-galaxy install -r galaxy-requirements.yml
+# Configure this repo for deployment of a specifc HPC cluster.
+#   4. Source lor-init from this repo. E.g.:
+#        $> source ./lor-init
+#   5. Configure League of Robots for a specific cluster. E.g.:
+#        $> lor-config nb
+#   6. Execute playbook to deploy machines. E.g.:
+#        $> ansible-playbook deploy-os_servers.yml -l 'irods,localhost'
+#        $> export ANSIBLE_HOST_KEY_CHECKING=False
+#  Assosiate floating ip to the machine.
+#        $> ansible-playbook -u centos -l 'irods' single_role_playbooks/admin_users.yml
+#        $> ansible-playbook -u <adminuser> single_role_playbooks/static_hostname_lookup.yml -l 'jumphost'
+#        $> ansible-playbook -u <adminuser> ssh_host_signer.yml -l 'irods'
+#        $> export ANSIBLE_HOST_KEY_CHECKING=True
+#        $> ansible-playbook -u <adminuser> deploy-irods.yml -vvv
+---
+- import_playbook: pre_deploy_checks.yml
+
+- name: 'Sanity checks before we start.'
+  hosts: irods
+  pre_tasks:
+    - name: 'Verify Ansible version meets requirements.'
+      assert:
+        that: "ansible_version.full is version_compare('2.10', '>=')"
+        msg: 'You must update Ansible to at least 2.10.x to use this playbook.'
+- name: 'Satisfy dependencies for and install Pulp.'
+  hosts: irods
+  roles:
+    - admin_users
+    - ssh_host_signer
+    - ssh_known_hosts
+    - pulp_client
+    - static_hostname_lookup
+    - logrotate
+    - logins
+    - sshd
+    - {role: geerlingguy.security, become: true}
+    - {role: geerlingguy.firewall, become: true}
+    - remove
+    - update
+    - docker
+    - irods
+    - irods_davrods
+...

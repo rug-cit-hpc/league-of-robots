@@ -1,0 +1,460 @@
+---
+slurm_cluster_name: 'nibbler'
+slurm_cluster_domain: 'hpc.rug.nl'
+stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
+stack_prefix: 'nb'
+slurm_version: '20.11.8-1.el7.umcg'
+slurm_partitions:
+  - name: regular  # Must be in sync with group listed in Ansible inventory.
+    default: yes
+    nodes: "{{ stack_prefix }}-vcompute[01-03]"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
+  - name: gpu_a40  # Must be in sync with group listed in Ansible inventory.
+    default: no
+    nodes: "{{ stack_prefix }}-vcompute04"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['gpu_a40']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['gpu_a40'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['gpu_a40'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['gpu_a40'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['gpu_a40'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.333G" DenyQos=ds-short,ds-medium,ds-long'
+  - name: user_interface  # Must be in sync with group listed in Ansible inventory.
+    default: no
+    nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: 1
+    max_cores_per_node: 1
+    max_mem_per_node: 1024
+    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
+repo_manager: 'pulp'
+mailhub: '192.168.0.5'
+rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
+figlet_font: 'ogre'
+motd: |
+      =========================================================
+      !!! WARNING: {{ slurm_cluster_name | capitalize }} is in beta testing
+      =========================================================
+          This cluster may be redeployed from scratch, which
+          may result in complete data loss of home dirs 
+          and tmp0* group folders: You have been warned!!!
+          This does not affect prm0* group folders,
+          which are on a different (production) storage system.
+      =========================================================
+additional_etc_hosts:
+  - group: all
+    hosts:
+      - docs
+      - docs_on_merlin
+      - jenkins
+  - group: boxy_cluster
+    hosts:
+      - boxy-management
+      - boxy-storage
+  - group: calculon_cluster
+    hosts:
+      - calculon-management
+      - calculon-storage
+ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
+use_ldap: yes
+create_ldap: no
+use_sssd: yes
+ldap_domains:
+  sram:
+    uri: ldaps://sv-sram.id.rug.nl
+    search_base: ou=sram-umcg,ou=users,o=id
+    schema: rfc2307bis
+    min_id: 70000000
+    max_id: 72999999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: groupMembership
+    group_member: member
+  grunn:
+    uri: ldaps://svrs.id.rug.nl
+    search_base: ou=umcg,o=asds
+    schema: rfc2307
+    min_id: 50100000
+    max_id: 55999999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: groupMembership
+    group_member: memberUid
+    group_object_class: groupofnames
+    group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
+    group_quota_hard_limit_template: ruggroupumcgquotaLFS
+cloud_image: CentOS 7
+cloud_user: centos
+network_public_external_id: vlan16
+network_private_management_id: internal_management
+network_private_management_id_13: internal_management_13
+network_private_management_cidr: '10.10.1.0/24'
+network_private_management_gw: '10.10.1.1'
+network_private_storage_id: internal_storage
+network_private_storage_cidr: '10.10.2.0/24'
+availability_zone: nova
+nameservers: [
+  '8.8.4.4',  # Google DNS.
+  '8.8.8.8',  # Google DNS.
+]
+local_admin_groups:
+  - 'admin'
+  - 'docker'
+local_admin_users:
+  - 'egon'
+  - 'ger'
+  - 'gerben'
+  - 'henkjan'
+  - 'kim'
+  - 'marieke'
+  - 'marlies'
+  - 'marloes'
+  - 'morris'
+  - 'pieter'
+  - 'robin'
+  - 'sandi'
+  - 'wim'
+data_transfer_only_group: 'umcg-sftp-only'
+envsync_user: 'umcg-envsync'
+envsync_group: 'umcg-depad'
+functional_admin_group: 'umcg-funad'
+hpc_env_prefix: '/apps'
+regular_groups:
+  - "{{ data_transfer_only_group }}"
+  - "{{ envsync_group }}"
+  - "{{ functional_admin_group }}"
+  - 'umcg-aad'
+  - 'umcg-as'
+  - 'umcg-atd'
+  - 'umcg-biogen'
+  - 'umcg-bionic-mdd-gwama'
+  - 'umcg-bios'
+  - 'umcg-cineca'
+  - 'umcg-dag3'
+  - 'umcg-datateam'
+  - 'umcg-ejp-rd'
+  - 'umcg-endocrinology'
+  - 'umcg-franke-scrna'
+  - 'umcg-gaf'
+  - 'umcg-gap'
+  - 'umcg-gastrocol'
+  - 'umcg-gcc'
+  - 'umcg-gdio'
+  - 'umcg-gonl'
+  - 'umcg-griac'
+  - 'umcg-gsad'
+  - 'umcg-hematology'
+  - 'umcg-impact'
+  - 'umcg-lifelines'
+  - 'umcg-lld'
+  - 'umcg-llnext'
+  - 'umcg-micompany'
+  - 'umcg-mmbimg'
+  - 'umcg-msb'
+  - 'umcg-oncogenetics'
+  - 'umcg-pmb'
+  - 'umcg-pub'
+  - 'umcg-radicon'
+  - 'umcg-rehabilitation'
+  - 'umcg-solve-rd'
+  - 'umcg-sysops'
+  - 'umcg-tifn'
+  - 'umcg-ukb'
+  - 'umcg-ugli'
+  - 'umcg-verbeek'
+  - 'umcg-weersma'
+  - 'umcg-wijmenga'
+regular_users:
+  - user: "{{ envsync_user }}"
+    groups: ["{{ envsync_group }}"]
+  - user: 'umcg-aad-dm'
+    groups: ['umcg-aad']
+    sudoers: '%umcg-aad'
+  - user: 'umcg-capicebot'
+    groups: ['umcg-as']
+    sudoers: '%umcg-as'
+  - user: 'umcg-as-dm'
+    groups: ['umcg-as']
+    sudoers: '%umcg-as'
+  - user: 'umcg-atd-ateambot'
+    groups: ['umcg-atd']
+    sudoers: '%umcg-atd'
+  - user: 'umcg-atd-dm'
+    groups: ['umcg-atd']
+    sudoers: '%umcg-atd'
+  - user: 'umcg-biogen-dm'
+    groups: ['umcg-biogen']
+    sudoers: '%umcg-biogen-dms'
+  - user: 'umcg-bionic-mdd-gwama-dm'
+    groups: ['umcg-bionic-mdd-gwama']
+    sudoers: '%umcg-bionic-mdd-gwama-dms'
+  - user: 'umcg-bios-dm'
+    groups: ['umcg-bios']
+    sudoers: '%umcg-bios'
+  - user: 'umcg-cineca-dm'
+    groups: ['umcg-cineca']
+    sudoers: '%umcg-cineca-dms'
+  - user: 'umcg-dag3-dm'
+    groups: ['umcg-dag3']
+    sudoers: '%umcg-dag3-dms'
+  - user: 'umcg-datateam-dm'
+    groups: ['umcg-datateam']
+    sudoers: '%umcg-datateam'
+  - user: 'umcg-ejp-rd-dm'
+    groups: ['umcg-ejp-rd']
+    sudoers: '%umcg-ejp-rd-dms'
+  - user: 'umcg-endocrinology-dm'
+    groups: ['umcg-endocrinology']
+    sudoers: '%umcg-endocrinology-dms'
+  - user: 'umcg-franke-scrna-dm'
+    groups: ['umcg-franke-scrna']
+    sudoers: '%umcg-franke-scrna-dms'
+  - user: 'umcg-gaf-ateambot'
+    groups: ['umcg-gaf']
+    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-gaf-dm'
+    groups: ['umcg-gaf']
+    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-gap-ateambot'
+    groups: ['umcg-gap']
+    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-gap-dm'
+    groups: ['umcg-gap']
+    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-gastrocol-dm'
+    groups: ['umcg-gastrocol']
+    sudoers: '%umcg-gastrocol-dms'
+  - user: 'umcg-gcc-dm'
+    groups: ['umcg-gcc']
+    sudoers: '%umcg-gcc'
+  - user: 'umcg-gdio-dm'
+    groups: ['umcg-gdio']
+    sudoers: '%umcg-gdio-dms'
+  - user: 'umcg-gonl-dm'
+    groups: ['umcg-gonl']
+    sudoers: '%umcg-gonl-dms'
+  - user: 'umcg-griac-dm'
+    groups: ['umcg-griac']
+    sudoers: '%umcg-griac-dms'
+  - user: 'umcg-gsad-dm'
+    groups: ['umcg-gsad']
+    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-hematology-dm'
+    groups: ['umcg-hematology']
+    sudoers: '%umcg-hematology-dms'
+  - user: 'umcg-impact-dm'
+    groups: ['umcg-impact']
+    sudoers: '%umcg-impact'
+  - user: 'umcg-lifelines-dm'
+    groups: ['umcg-lifelines']
+    sudoers: '%umcg-lifelines-dms'
+  - user: 'umcg-lld-dm'
+    groups: ['umcg-lld']
+    sudoers: '%umcg-lld-dms'
+  - user: 'umcg-llnext-dm'
+    groups: ['umcg-llnext']
+    sudoers: '%umcg-llnext-dms'
+  - user: 'umcg-micompany-dm'
+    groups: ['umcg-micompany']
+    sudoers: '%umcg-micompany-dms'
+  - user: 'umcg-mmbimg-dm'
+    groups: ['umcg-mmbimg']
+    sudoers: '%umcg-mmbimg-dms'
+  - user: 'umcg-msb-dm'
+    groups: ['umcg-msb']
+    sudoers: '%umcg-msb'
+  - user: 'umcg-oncogenetics-dm'
+    groups: ['umcg-oncogenetics']
+    sudoers: '%umcg-oncogenetics'
+  - user: 'umcg-pmb-dm'
+    groups: ['umcg-pmb']
+    sudoers: '%umcg-pmb-dms'
+  - user: 'umcg-pub-dm'
+    groups: ['umcg-pub']
+    sudoers: '%umcg-pub-dms'
+  - user: 'umcg-radicon-dm'
+    groups: ['umcg-radicon']
+    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
+  - user: 'umcg-rehabilitation-dm'
+    groups: ['umcg-rehabilitation']
+    sudoers: '%umcg-rehabilitation-dms'
+  - user: 'umcg-solve-rd-dm'
+    groups: ['umcg-solve-rd']
+    sudoers: '%umcg-solve-rd-dms'
+  - user: 'umcg-sysops-dm'
+    groups: ['umcg-sysops']
+    sudoers: '%umcg-sysops'
+  - user: 'umcg-tifn-dm'
+    groups: ['umcg-tifn']
+    sudoers: '%umcg-tifn-dms'
+  - user: 'umcg-ukb-dm'
+    groups: ['umcg-ukb']
+    sudoers: '%umcg-ukb-dms'
+  - user: 'umcg-ugli-dm'
+    groups: ['umcg-ugli']
+    sudoers: '%umcg-ugli-dms'
+  - user: 'umcg-verbeek-dm'
+    groups: ['umcg-verbeek']
+    sudoers: '%umcg-verbeek'
+  - user: 'umcg-weersma-dm'
+    groups: ['umcg-weersma']
+    sudoers: '%umcg-weersma-dms'
+  - user: 'umcg-wijmenga-dm'
+    groups: ['umcg-wijmenga']
+    sudoers: '%umcg-wijmenga-dms'
+#
+# Local storage variables.
+#
+volume_group_folders: [
+  { mount_point: '/groups',
+    machines: "{{ groups['data_transfer'] }}",
+    mode: '2750',
+    groups: [
+        "{{ data_transfer_only_group }}"
+      ]},
+  { mount_point: '/groups',
+    machines: "{{ groups['data_transfer'] }}",
+    mode: '2770',
+    groups: [
+        'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
+        'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
+        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
+        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
+        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
+        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
+        'umcg-ugli', 'umcg-verbeek', 'umcg-weersma', 'umcg-wijmenga'
+      ]},
+]
+#
+# Shared storage related variables
+#
+lustre_client_networks:
+   - name: tcp??
+     interface: eth?
+pfs_mounts:
+  - pfs: umcgst01
+    #source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1'
+    type: lustre
+    rw_options: 'defaults,_netdev,flock'
+    ro_options: 'defaults,_netdev,ro'
+    machines: "{{ groups['sys_admin_interface'] }}"
+lfs_mounts:
+  - lfs: home
+    pfs: xyz
+    rw_machines: "{{ groups['cluster'] }}"
+  - lfs: tmp02
+    pfs: xyz
+    groups:
+      - name: umcg-aad
+      - name: umcg-as
+      - name: umcg-atd
+      - name: umcg-biogen
+      - name: umcg-bionic-mdd-gwama
+      - name: umcg-bios
+      - name: umcg-cineca
+      - name: umcg-dag3
+      - name: umcg-datateam
+      - name: umcg-ejp-rd
+      - name: umcg-endocrinology
+      - name: umcg-franke-scrna
+      - name: umcg-fg
+        mode: '2750'
+      - name: umcg-fu
+      - name: umcg-gaf
+      - name: umcg-gap
+      - name: umcg-gastrocol
+      - name: umcg-gcc
+      - name: umcg-gdio
+      - name: umcg-gonl
+        mode: '2750'
+      - name: umcg-griac
+      - name: umcg-gsad
+      - name: umcg-hematology
+      - name: umcg-immunogenetics
+      - name: umcg-impact
+      - name: umcg-lifelines
+      - name: umcg-lld
+      - name: umcg-llnext
+      - name: umcg-mic
+      - name: umcg-micompany
+      - name: umcg-mmbimg
+      - name: umcg-msb
+      - name: umcg-oncogenetics
+      - name: umcg-pmb
+      - name: umcg-pub
+        mode: '2750'
+      - name: umcg-radicon
+      - name: umcg-rehabilitation
+      - name: umcg-solve-rd
+      - name: umcg-sysops
+      - name: umcg-tifn
+      - name: umcg-ukb
+        mode: '2750'
+      - name: umcg-ugli
+      - name: umcg-verbeek
+      - name: umcg-vdakker
+      - name: umcg-weersma
+      - name: umcg-wijmenga
+    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}"
+  - lfs: prm02
+    pfs: umcgst01
+    groups:
+      - name: umcg-aad
+      - name: umcg-as
+      - name: umcg-atd
+      - name: umcg-biogen
+      - name: umcg-bionic-mdd-gwama
+      - name: umcg-bios
+      - name: umcg-cineca
+      - name: umcg-dag3
+      - name: umcg-datateam
+      - name: umcg-ejp-rd
+      - name: umcg-endocrinology
+      - name: umcg-franke-scrna
+      - name: umcg-fg
+      - name: umcg-fu
+      - name: umcg-gaf
+      - name: umcg-gap
+      - name: umcg-gastrocol
+      - name: umcg-gcc
+      - name: umcg-gdio
+      - name: umcg-gonl
+      - name: umcg-griac
+      - name: umcg-gsad
+      - name: umcg-hematology
+      - name: umcg-immunogenetics
+      - name: umcg-impact
+      - name: umcg-lifelines
+      - name: umcg-lld
+      - name: umcg-llnext
+      - name: umcg-mic
+      - name: umcg-micompany
+      - name: umcg-mmbimg
+      - name: umcg-msb
+      - name: umcg-oncogenetics
+      - name: umcg-pmb
+      - name: umcg-pub
+      - name: umcg-radicon
+      - name: umcg-rehabilitation
+      - name: umcg-solve-rd
+      - name: umcg-sysops
+      - name: umcg-tifn
+      - name: umcg-ukb
+      - name: umcg-ugli
+      - name: umcg-verbeek
+      - name: umcg-vdakker
+      - name: umcg-weersma
+      - name: umcg-wijmenga
+    rw_machines: "{{ groups['user_interface'] }}"
+  - lfs: env02
+    pfs: xyz
+    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    rw_machines: "{{ groups['deploy_admin_interface'] }}"
+...

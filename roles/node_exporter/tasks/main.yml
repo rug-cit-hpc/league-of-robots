@@ -1,42 +1,38 @@
 ---
-- file:
-    path: /usr/local/prometheus
+- name: 'Create dir for Prometheus.'
+  ansible.builtin.file:
+    path: '/usr/local/prometheus'
     state: directory
-    mode: 0755
+    mode: '0755'
+  notify: restart_node_exporter
   become: true
 
-- name: Install node exporter
-  copy:
+- name: 'Install Prometheus node exporter.'
+  ansible.builtin.copy:
     src: "{{ playbook_dir }}/promtools/results/node_exporter"
-    dest: /usr/local/prometheus/node_exporter
-    mode: 0755
+    dest: '/usr/local/prometheus/node_exporter'
+    mode: '0755'
+  notify: restart_node_exporter
   become: true
 
-- name: Install service files.
-  template:
-    src: templates/node-exporter.service
-    dest: /etc/systemd/system/node-exporter.service
-    mode: 644
+- name: 'Install node exporter service file.'
+  ansible.builtin.template:
+    src: 'templates/node-exporter.service'
+    dest: '/etc/systemd/system/node-exporter.service'
+    mode: '0644'
     owner: root
     group: root
   tags:
-      - service-files
+    - service-files
+  notify: restart_node_exporter
   become: true
 
-- name: install service files
-  command: systemctl daemon-reload
-  become: true
-
-- name: enable service at boot
-  systemd:
-    name: node-exporter
-    enabled: yes
-  become: true
-
-- name: make sure servcies are started.
-  systemd:
-    name: node-exporter.service
-    state: restarted
+- name: 'Make sure node exporter service is enabled and started.'
+  ansible.builtin.systemd:
+    name: 'node-exporter.service'
+    state: started
+    enabled: true
   tags:
-      - start-service
+    - start-service
   become: true
+...

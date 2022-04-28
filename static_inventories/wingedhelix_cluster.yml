@@ -1,0 +1,80 @@
+---
+all:
+  children:
+    openstack_api:
+      hosts:
+        localhost:
+    jumphost:
+      hosts:
+        porch:
+          cloud_flavor: m1.small
+    repo:
+      hosts:
+        wh-repo:
+          cloud_flavor: m1.small
+    docs:
+      hosts:
+        docs_on_merlin:
+    sys_admin_interface:
+      hosts:
+        wh-sai:
+          cloud_flavor: m1.large
+          local_volume_size_extra: 10000
+    deploy_admin_interface:
+      hosts:
+        wh-dai:
+          cloud_flavor: m1.large
+          local_volume_size_extra: 200
+    user_interface:
+      hosts:
+        wingedhelix:
+          cloud_flavor: m1.xlarge
+          slurm_sockets: 8
+          slurm_cores_per_socket: 1
+          slurm_real_memory: 15884
+          slurm_local_disk: 0
+          slurm_features: 'prm02,tmp07'
+          slurm_ethernet_interfaces:
+            - eth0
+            - eth1
+    compute_vm:
+      children:
+        regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
+          hosts:
+            wh-vcompute[01:02]:
+          vars:
+            # flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
+            cloud_flavor: m1.huge
+            local_volume_size_extra: 1
+            slurm_sockets: 16
+            slurm_cores_per_socket: 1
+            slurm_real_memory: 64264
+            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
+            slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
+            slurm_local_disk: 0
+            slurm_features: 'tmp07'
+            slurm_ethernet_interfaces:
+              - eth0
+              - eth1
+    chaperone:
+      hosts:
+        wh-chaperone:
+          ansible_host: ouzkh1016.zkh.umcg.intra
+administration:
+  children:
+    sys_admin_interface:
+    deploy_admin_interface:
+    user_interface:
+cluster:
+  children:
+    compute_vm:
+    administration:
+wingedhelix_cluster:
+  children:
+    openstack_api:
+    jumphost:
+    repo:
+    cluster:
+    chaperone:
+    docs:
+...

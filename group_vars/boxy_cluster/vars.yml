@@ -1,0 +1,28 @@
+---
+slurm_cluster_name: 'boxy'
+slurm_cluster_domain: 'hpc.rug.nl'
+stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
+stack_prefix: 'bx'
+ldap_uri: ldap://172.23.40.249
+ldap_base: ou=umcg,o=asds
+ldap_binddn: cn=clusteradminumcg,o=asds
+regular_groups:
+  - 'umcg-atd'
+  - 'umcg-lifelines'
+regular_users:
+  - user: 'umcg-lifelines-dm'
+    groups: ['umcg-lifelines']
+    sudoers: '%umcg-lifelines-dms'
+pfs_mounts:
+  - pfs: umcgst08
+    source: '172.23.34.213@tcp:172.23.34.214@tcp:'
+    type: lustre
+    rw_options: 'defaults'
+    ro_options: 'defaults,ro'
+lfs_mounts:
+  - lfs: tmp03
+    pfs: umcgst08
+    groups:
+      - name: umcg-atd
+      - name: umcg-lifelines
+...

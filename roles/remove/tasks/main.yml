@@ -1,0 +1,9 @@
+---
+- name: 'Remove packages we do not need.'
+  ansible.builtin.yum:
+    state: absent
+    name:
+      - tuned
+      - polkit  # Security risk due to bug and we don't need it!
+  become: true
+...

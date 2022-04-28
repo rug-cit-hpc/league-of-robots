@@ -1,0 +1,168 @@
+---
+slurm_cluster_name: 'marvin'
+slurm_cluster_domain: ''
+stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
+stack_prefix: 'mv'
+slurm_version: '20.11.8-1.el7.umcg'
+slurm_partitions:
+  - name: regular  # Must be in sync with group listed in Ansible inventory.
+    default: yes
+    nodes: "{{ stack_prefix }}-vcompute[01]"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
+  - name: user_interface  # Must be in sync with group listed in Ansible inventory.
+    default: no
+    nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: 1
+    max_cores_per_node: 1
+    max_mem_per_node: 1024
+    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
+repo_manager: 'pulp'
+mailhub: '192.168.0.5'
+rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
+figlet_font: 'speed'
+motd: "It is rare, but not unheard of."
+additional_etc_hosts:
+  - group: all
+    hosts:
+      - docs
+      - docs_on_merlin
+use_ldap: yes
+create_ldap: yes
+use_sssd: yes
+ldap_domains:
+  default_domain:
+    uri: ldaps://mv-dai
+    search_base: dc=marvin,dc=cluster,o=id
+    schema: rfc2307bis
+    min_id: 1000
+    max_id: 5000
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: groupMembership
+    group_member: member
+cloud_image: centos7
+cloud_user: centos
+public_net_id: ext-net-37
+public_ip_addresses:
+  dockingport: '193.62.55.244'
+private_net_id: EJP-RD-network
+private_subnet_id: EJP-RD-subnet
+private_storage_net_id: 
+private_storage_subnet_id: 
+security_group_id: SSH-and-ping-2
+availability_zone: AZ_1
+storage_availability_zone: nova
+nameservers: [
+#  '/em-isi-3126.ebi.ac.uk/10.35.126.201',  # Local DNS lookups for shared storage.
+  '8.8.4.4',  # Google DNS.
+  '8.8.8.8',  # Google DNS.
+]
+local_admin_groups:
+  - 'admin'
+  - 'docker'
+local_admin_users:
+  - 'egon'
+  - 'gerben'
+  - 'henkjan'
+  - 'marieke'
+  - 'marloes'
+  - 'morris'
+  - 'pieter'
+  - 'wim'
+envsync_user: 'envsync'
+envsync_group: 'depad'
+functional_admin_group: 'funad'
+hpc_env_prefix: '/apps'
+regular_groups:
+  - "{{ envsync_group }}"
+  - "{{ functional_admin_group }}"
+  - 'users'
+  - 'erknet'
+  - 'euro-nmd'
+  - 'ern-liver'
+  - 'umcg-atd'
+regular_users:
+  - user: "{{ envsync_user }}"
+    groups: ["{{ envsync_group }}"]
+  - user: 'erknet-dm'
+    groups: ['erknet']
+    sudoers: '%erknet'
+  - user: 'euro-nmd-dm'
+    groups: ['euro-nmd']
+    sudoers: '%euro-nmd'
+  - user: 'ern-liver-dm'
+    groups: ['ern-liver']
+    sudoers: '%ern-liver'
+  - user: 'umcg-atd-dm'
+    groups: ['umcg-atd']
+    sudoers: '%umcg-atd'
+  - user: 'gvdvries'
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+  - user: 'mbijlsma'
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+  - user: 'mswertz'
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+  - user: 'pneerincx'
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+  - user: 'rkanninga'
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+  - user: 'umcg-atd-dm'
+    groups: ['users', 'umcg-atd']
+    sudoers: 'pieter,gerben'
+  - user: 'erknet-dm'
+    groups: ['users', 'erknet']
+    sudoers: '%erknet'
+  - user: 'euro-nmd-dm'
+    groups: ['users', 'euro-nmd']
+    sudoers: '%euro-nmd'
+  - user: 'ern-liver-dm'
+    groups: ['users', 'ern-liver']
+    sudoers: '%ern-liver'
+#
+# Shared storage related variables
+#
+pfs_mounts:
+  - pfs: ecst01
+    source: ''
+    type: nfs
+    rw_options: 'defaults,_netdev,noatime,nodiratime'
+    ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
+    machines: "{{ groups['sys_admin_interface'] }}"
+lfs_mounts:
+  - lfs: home
+    pfs: ecst01
+    rw_machines: "{{ groups['cluster'] }}"
+  - lfs: tmp11
+    pfs: ecst01
+    groups:
+      - name: umcg-atd
+      - name: erknet
+      - name: euro-nmd
+      - name: ern-liver
+    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}"
+  - lfs: prm11
+    pfs: ecst01
+    groups:
+      - name: umcg-atd
+      - name: erknet
+      - name: euro-nmd
+      - name: ern-liver
+    rw_machines: "{{ groups['user_interface'] }}"
+  - lfs: env11
+    pfs: ecst01
+    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    rw_machines: "{{ groups['deploy_admin_interface'] }}"
+interfaces:
+  - device: 'eth0'
+    bootproto: 'dhcp'
+  - device: 'eth1' 
+    bootproto: 'dhcp'
+...

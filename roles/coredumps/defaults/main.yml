@@ -1,0 +1,10 @@
+---
+#
+# For disabling coredumps:
+#
+coredumps_pattern: '|/bin/false'
+#
+# For enabling coredumps:
+#
+# coredumps_pattern: 'core'
+...

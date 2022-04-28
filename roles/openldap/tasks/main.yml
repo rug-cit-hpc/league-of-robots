@@ -1,51 +1,94 @@
 ---
-- name: install service file.
-  template:
-    src: templates/{{ item }}
-    dest: /etc/systemd/system/{{ item }}
-    mode: 644
+- name: Install key, certificate and dhparam files for TLS.
+  ansible.builtin.copy:
+    src: "files/{{ stack_name }}/{{ item.name }}"
+    dest: "/etc/pki/tls/private/{{ item.name }}"
     owner: root
     group: root
+    mode: "{{ item.mode }}"
   with_items:
-      - openldap.service
-      - phpldapadmin.service
+    - name: ldap.key
+      mode: '0600'
+    - name: ldap.crt
+      mode: '0644'
+    - name: dhparam.pem
+      mode: '0644'
+  notify: restart_openldap
   become: true
 
-- name: make directory for the openldap ldif volume.
-  file:
-    path: /srv/openldap/custom
+#
+# On some systems we got:
+#     TLS: could not use CA certificate file `/container/run/service/slapd/assets/certs/ca.crt': Error while reading file.
+# despite specifying:
+#     --env LDAP_TLS_CA_CRT_FILENAME=ldap.crt
+# in the openldap.service file for systemd.
+# Hence it should not try to use any ca.crt, but this silly symlink prevents slapd from from failing to start.
+# Note that this bug did not occur on all VMs with identical config, so it was hit or miss.
+#
+- name: 'Workaround for openldap docker image bug: create symlink for LDAP_TLS_CA_CRT.'
+  ansible.builtin.file:  # noqa risky-file-permissions
+    src: ldap.crt
+    dest: /etc/pki/tls/private/ca.crt
+    owner: root
+    group: root
+    state: link
+  notify:
+    - restart_openldap
+  become: true
+
+- name: Install service files.
+  ansible.builtin.template:
+    src: "templates/{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: '0600'
+  with_items:
+    - openldap.service
+    - phpldapadmin.service
+  notify:
+    - restart_openldap
+    - restart_phpldapadmin
+  become: true
+
+- name: Make directory for the openldap ldif volume.
+  ansible.builtin.file:
+    path: "/srv/openldap/custom"
     state: directory
     owner: root
     group: root
+    mode: '0755'
   become: true
 
-- name: install ldif file for "member of"
-  copy:
-    src: files/01-overlay-memberof
-    dest: /srv/openldap/custom/01-overlay-memberof
-    mode: 644
+- name: Install ldif files for overlays.
+  ansible.builtin.copy:
+    src: "files/{{ item }}"
+    dest: "/srv/openldap/custom/{{ item }}"
     owner: root
     group: root
+    mode: '0644'
+  with_items:
+    - 01-overlay-memberof
+  notify:
+    - restart_openldap
   become: true
 
-- name: Daemon reload (the inplicit doesn't work)
-  command: bash -c "systemctl daemon-reload"
-  become: true
-
-- name: make sure service is started
-  systemd:
+- name: Make sure services are started.
+  ansible.builtin.systemd:
     name: "{{ item }}"
     state: started
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
   with_items:
-      - openldap.service
-      - phpldapadmin.service
+    - openldap.service
+    - phpldapadmin.service
   become: true
 
-- name: start service at boot.
-  command: systemctl reenable "{{ item }}"
-  with_items:
-      - openldap.service
-      - phpldapadmin.service
+- name: Install python-ldap depedencies for Deploy Admin Interfaces (DAIs).
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - 'python-ldap'
   become: true
 ...

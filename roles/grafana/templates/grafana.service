@@ -1,0 +1,14 @@
+[Unit]
+Description=Grafana monitoring dashboard
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker kill grafana
+ExecStartPre=-/usr/bin/docker rm grafana
+ExecStart=/usr/bin/docker run --rm --name=grafana --network host \
+     -v /srv/grafana/lib:/var/lib/grafana \
+     -e GF_PATHS_DATA=/var/lib/grafana  \
+     grafana/grafana

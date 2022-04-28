@@ -1,0 +1,28 @@
+---
+- import_playbook: pre_deploy_checks.yml
+
+- name: '###==-> Roles for data transfer servers. <-==###'
+  hosts:
+    - data_transfer
+  roles:
+    - admin_users
+    - ssh_host_signer
+    - logrotate
+    - update
+    - {role: geerlingguy.repo-epel, become: true}
+    - {role: geerlingguy.firewall, become: true}
+    - logins
+    - role: ldap
+      when:
+        - use_ldap | default(true) | bool
+        - not use_sssd | default(false) | bool
+    - role: sssd
+      when:
+        - use_ldap | default(true) | bool
+        - use_sssd | default(false) | bool
+    - sshd
+    - {role: geerlingguy.security, become: true}
+    - rsyncd
+    - regular_users
+    - mount_volume
+...

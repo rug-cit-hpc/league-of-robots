@@ -1,0 +1,21 @@
+---
+- import_playbook: pre_deploy_checks.yml
+
+- name: '###==-> Basic roles for all cluster machines part 2. <-==###'
+  hosts:
+    - cluster
+  roles:
+    - role: ldap
+      when:
+        - use_ldap | default(true) | bool
+        - not use_sssd | default(false) | bool
+    - role: sssd
+      when:
+        - use_ldap | default(true) | bool
+        - use_sssd | default(false) | bool
+    - sshd
+    - regular_users
+    - lustre_client
+    - nfs_client
+    - shared_storage
+...

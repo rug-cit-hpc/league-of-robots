@@ -1,0 +1,73 @@
+---
+ip_addresses:
+  irods-test:
+    addr: 10.10.1.182
+    mask: /32
+    vlan: internal_management
+    fqdn:
+  irods-catalogus:
+    addr: 10.10.1.121
+    mask: /32
+    vlan: internal_management
+    fqdn:
+  nb-transfer:
+    addr: 10.10.1.28
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: Data Transfer
+  nb-repo:
+    addr: 10.10.1.56
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: Repository Management
+  nb-sai:
+    addr: 10.10.1.106
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: Sys Admin Interface
+  nb-dai:
+    addr: 10.10.1.75
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: Deploy Admin Interface
+  nb-vcompute04:
+    addr: 10.10.1.88
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: Compute Node
+  nb-vcompute03:
+    addr: 10.10.1.108
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: Compute Node
+  nb-vcompute02:
+    addr: 10.10.1.140
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: Compute Node
+  nb-vcompute01:
+    addr: 10.10.1.199
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: Compute Node
+  nibbler:
+    addr: 10.10.1.112
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: User Interface
+  tunnel:
+    addr: 10.10.1.188
+    mask: /32
+    vlan: internal_management
+    fqdn:
+    desc: Jumphost
+...

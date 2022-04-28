@@ -1,39 +1,40 @@
 ---
-- name: Install dnsmasq
-  yum:
-    state: latest
-    update_cache: yes
+- name: 'Install dnsmasq.'
+  ansible.builtin.yum:
+    state: 'latest'
+    update_cache: true
     name:
-      - dnsmasq
+      - 'dnsmasq'
   become: true
-  notify: restart_dnsmasq
+  notify: 'restart_dnsmasq'
 
-- name: Configure /etc/dnsmasq.conf to use nameservers as listed in group_vars for this cluster.
-  template:
+- name: 'Configure /etc/dnsmasq.conf to use nameservers as listed in group_vars for this cluster.'
+  ansible.builtin.template:
     dest: '/etc/dnsmasq.conf'
     src: 'templates/dnsmasq.conf.j2'
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
   become: true
-  notify: restart_dnsmasq
+  notify: 'restart_dnsmasq'
 
-- name: Configure /etc/resolv.conf to use dnsmasq on localhost.
-  copy:
+- name: 'Configure /etc/resolv.conf to use dnsmasq on localhost.'
+  ansible.builtin.copy:
     dest: '/etc/resolv.conf'
-    content: nameserver 127.0.0.1
+    content: 'nameserver 127.0.0.1'
     owner: root
     group: root
-    mode: 0644
-  become: true
-  notify: restart_dnsmasq
-  
-- name: Enable dnsmasq service.
-  systemd:
-    name: 'dnsmasq.service'
-    enabled: yes
+    mode: '0644'
   become: true
   notify: restart_dnsmasq
 
-- meta: flush_handlers
+- name: 'Enable dnsmasq service.'
+  ansible.builtin.systemd:
+    name: 'dnsmasq.service'
+    enabled: true
+  become: true
+  notify: 'restart_dnsmasq'
+
+- name: 'Flush handlers.'
+  ansible.builtin.meta: flush_handlers
 ...

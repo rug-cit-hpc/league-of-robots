@@ -1,0 +1,104 @@
+---
+ip_addresses:
+  fd-dai:
+    addr: 10.10.1.63
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Deploy Admin Interface
+  fd-repo:
+    addr: 10.10.1.217
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+  fd-sai:
+    addr: 10.10.1.25
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Sys Admin Interface
+  fd-vcompute12:
+    addr: 10.10.1.213
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute11:
+    addr: 10.10.1.97
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute09:
+    addr: 10.10.1.195
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute10:
+    addr: 10.10.1.253
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute08:
+    addr: 10.10.1.59
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute07:
+    addr: 10.10.1.105
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute06:
+    addr: 10.10.1.96
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute01:
+    addr: 10.10.1.191
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute02:
+    addr: 10.10.1.234
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute04:
+    addr: 10.10.1.173
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute05:
+    addr: 10.10.1.117
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fd-vcompute03:
+    addr: 10.10.1.254
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Compute Node
+  fender:
+    addr: 10.10.1.100
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: User Interface
+  corridor:
+    addr: 10.10.1.3
+    mask: /32
+    vlan: fd_internal_management
+    fqdn:
+    desc: Jumphost
+...

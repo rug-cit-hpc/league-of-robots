@@ -1,5 +1,10 @@
 ---
-- hosts: all
+- hosts:
+    - jumphost
+    - data_transfer
+    - repo
+    - cluster
+    - docs
   roles:
     - ssh_host_signer
     - ssh_known_hosts

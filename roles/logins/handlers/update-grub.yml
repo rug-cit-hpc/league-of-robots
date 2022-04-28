@@ -1,0 +1,22 @@
+---
+#
+# Important: maintain correct handler order.
+# Handlers are executed in the order in which they are defined
+# and not in the order in which they are listed in a "notify: handler_name" statement!
+#
+- name: 'Rebuild GRUB config.'
+  ansible.builtin.shell: |
+         timestamp="$(date '+%Y-%m-%dT%H:%M:%S%z')"
+         cp -v '/boot/grub2/grub.cfg' "/boot/grub2/grub.cfg.ansible_backup_${timestamp}"
+         grub2-mkconfig -o '/boot/grub2/grub.cfg'
+  args:
+    executable: '/bin/bash'
+  become: true
+  listen: rebuild_grub_config
+
+- name: 'Reboot to activate updated GRUB config.'
+  ansible.builtin.reboot:
+    msg: 'Reboot initiated by Ansible role logins from League of Robots playbook/repo.'
+  become: true
+  listen: rebuild_grub_config
+...

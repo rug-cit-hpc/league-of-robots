@@ -1,5 +1,12 @@
 ---
-- hosts: cluster
+- hosts:
+    - jumphost
+  roles:
+    - logins
+- hosts:
+    - repo
+    - cluster
+    - data_transfer
   roles:
     - logins
 ...

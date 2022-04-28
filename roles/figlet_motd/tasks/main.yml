@@ -1,0 +1,35 @@
+---
+- name: 'Install figlet.'
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name: figlet
+  become: true
+
+- name: 'Install custom figlet fonts.'
+  ansible.posix.synchronize:
+    src: "files/{{ item }}"
+    dest: "/usr/share/figlet/{{ item }}"
+    owner: false
+    group: false
+    use_ssh_args: true
+    ssh_connection_multiplexing: true
+    rsync_opts:
+      - '--chmod=Fu=rw,Fgo=r'
+      - '--perms'
+      - '--force'
+  with_items:
+    - 'cyberlarge.flf'
+    - 'doh.flf'
+    - 'lockergnome.flf'
+    - 'ogre.flf'
+    - 'slant.flf'
+    - 'speed.flf'
+  become: true
+
+- name: 'Create MOTD.'
+  include_tasks:
+    file: 'create_motd.yml'
+  vars:
+    figlet_cmd: 'figlet -w 120 -f "{{ figlet_font }}" "{{ ansible_hostname }}"'
+...

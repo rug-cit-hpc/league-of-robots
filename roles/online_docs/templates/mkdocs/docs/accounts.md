@@ -24,7 +24,7 @@ The cluster uses your public key on the server side to decrypt the login request
 The benefit of using key pairs as opposed to passwords is that the secret used to login can remain private if you create the key pair yourself and send _**only**_ the public key to the helpdesk.
 Hence we do not have a copy/record/backup of your private key on the server side: if you loose the private key, you have to create a new pair and send the new public key to the helpdesk.
 
-#### Security & Privacy 
+#### Security & Privacy
 
 * When you request an account your email address will be added automatically to a low volume mailinglist, 
   which is used for information regarding the clusters like maintenance announcements.
@@ -33,128 +33,14 @@ Hence we do not have a copy/record/backup of your private key on the server side
     This requires setting the desired permissions for files or folders, which is your own responsibility. When you specify wrong permissions, data may be accessible for others.
   * You **cannot** secure the meta data of files/folders.
     * Hence things like file or folder names, time stamps, size, owner, group, etc. can always be seen by anyone who is logged in.
-    * This also applies to the name of and resources requested for job script files: all users can see the meta-data of all queued and all running jobs.  
-  Therefore **never ever put privacy sensitive data in the meta-data of files or folders**!
+    * This also applies to the name of and resources requested for job script files: all users can see the meta-data for all queued and all running jobs.  
+  Therefore **never ever put privacy sensitive data in the meta-data of files nor of folders**!
   * Your full name, email address, group memberships and role in a group (regular user or data manager or group owner) are visible to all other users.
 
 ## 2. Generate a public/private key pair
 
-#### 2.A On Linux / Unix / macOS
+Use the instructions for your operating system:
 
-###### Open a terminal/shell
-
- * On **macOS**: A terminal app is already part of the OS by default. Optionally you may want to install the [XQuartz X server](http://xquartz.macosforge.org/) for graphical apps.  
-   Open the Terminal application, which is located in _**Applications**_ -> _**Utilities**_ -> _**Terminal.app**_.
- * On **Linux / Unix**: A terminal app is already part of the OS by default and usually you also already have an X window server installed for graphical apps. Consult your distro documentation for details.
-
-###### Generate key pair
-
-To generate an RSA key pair with OpenSSH, type the following command:
-```no-highlight
-ssh-keygen -t ed25519 -C "your_comment_see_below"
-```
-As comment/label for your keys please use **your first initial followed by (optionally your middle name followed by) your family name** all in lowercase and without any separators like spaces, dots or underscores. 
-So if your name is _**Jack the Hippo**_, please use _**jthehippo**_ as comment, so we can easily identify the key as yours.
-
-###### Select where to store the key pair
-
-The ssh-keygen application will now ask you where you want to save the private key:
-```no-highlight
-Enter file in which to save the key (/path/to/your/home_dir/.ssh/id_ed25519): <return>
-```
-By default it will be stored in your ```~/.ssh/``` folder where ```~``` is your home directory.
-The public key will be stored in the same location as the private key, start with the same name as the private key and have a ```.pub``` suffix.  
-WARNING:
- 1. Accepting the default may overwrite existing keys, so check first if you already have a key in that location!  
-    Only accept the default by pressing the *\<return\>* key if you have no key in the default location.
- 2. OpenSSH will by default use the key from the default location. 
-    If you create the key in a non-default location, you will need to explicitly specify which key file to use when connecting via ssh or sftp.
-
-###### Secure the private key
-
-Secure your private key with a good password. DO NOT choose a simple password or even worse an empty one!
-```no-highlight
-Enter passphrase (empty for no passphrase): <Type the passphrase>
-```
-Note: this is a password to encrypt your private key. It is not a password for you account. 
-The ssh-keygen command will now generate two files. In case you chose the default location these will be:
-
- * Your private key in ```~/.ssh/id_ed25519```
- * Your public key in ```~/.ssh/id_ed25519.pub```
-
-If you forgot to add a password to your private key or if you want to change the password later on, you can add a (new) password to your existing private key with:
-```no-highlight
-ssh-keygen -p -f ~/.ssh/id_ed25519
-```
-
-[Proceed to step 3. Request account and have the public key linked to your account](#request-account)
-
-#### 2.B On Windows
-
-###### Get a terminal and key generator application
-
-Your OS does not come with a default terminal and key generator application, so you will need to download and install one. 
-There are many options all of which have their own pros and cons; we suggest you give [MobaXterm](https://mobaxterm.mobatek.net) version >= 12.3 a try 
-as it features a key generator, terminal and graphical user interface for data transfers all-in-one.
-The following steps use the *portable* version of *MobaXterm Home Edition*, which is free and does not need to be installed with an installer;
-just download, unpack and execute.
-If you want to use another terminal, key generator or data transfer app please consult their manuals...
-
- * 1: Launch MobaXterm and choose the ```MobaKeyGen (SSH key generator)``` from the tools as shown in the screenshot below.
-
-![launch MobaKeyGen](img/MobaXterm1.png)
-
-###### Configure
-
-![Select key type](img/MobaXterm2.png)
-
- * 2: From the **parameters** section at the bottom of the window choose: ```Type of key to generate:``` **ED25519**
- * 3: Click the **Generate** button...
-
-###### Generate key pair
-
-![Generate randomness and subsequently key pair](img/MobaXterm3.png)
-
- * 4: Yes you really have to move the mouse now: computers are pretty bad at generating random numbers and MobaKeyGen uses the coordinates of your mouse movement as a seed to generate a random number.
-
-###### Secure private key and save pair to disk
-
-Your key pair was generated.
-
-![Save keys](img/MobaXterm4.png)
-
-Now make sure you:
-
- * 5:  Replace the comment in **Key comment** with  
-       **your first initial followed by (optionally your middle name followed by) your family name** all in lowercase and without any separators like spaces, dots or underscores.  
-       So if your name is _**Jack the Hippo**_, please use _**jthehippo**_ as comment, so we can easily identify the key as yours.
- * 6:  Secure your private key with a good password **before** saving the private key. DO NOT choose a simple password or even worse an empty one!
- * 7:  Confirm the password
- * 8:  Click the **Save public key** button.
- * 9:  Click the **Save private key** button.
- * 10: Select and copy all the text in the text box at the top of the window underneath **Public key for pasting into OpenSSH authorized_keys file**.
-       You can paste it in the email you'll send in the next step.
-
-<a name="request-account"></a>
-
-## 3. Request account and have the public key linked to your account
-
-To request an account, [contact the helpdesk via email](../contact/) and
-
- * 3.A If on Linux / Unix / macOS:  
-   Attach the id_rsa.pub public key file generated with ssh-keygen.  
-   If you cannot see / find the key file, you most likely stored the file in a folder starting with a ```.```; e.g. in your ```~/.ssh``` folder which is the default.
-   Folders and files that start with a ```.``` are *hidden* files and not displayed by default.
-   On macOS you can press ```<Shift>+<Cmd>+<.>``` to toggle the visibility of hidden files in *Open...* and *Save...* dialog windows.
-   Please use a search engine for a solution to display hidden files in other situations like Finder windows or on other platforms.
- * 3.B If on Windows:  
-   Paste the contents of the public key as displayed in MobaKeyGen's *Public key for pasting into OpenSSH authorized_keys file* field in the email.
- * Motivate your account request by specifying the project your are working on and by adding your collaborators on CC.
- * Never ever email/give anyone your private key! If you do, the key is no longer private and useless for security: trash the key pair and start over by generating a new pair.
- * If you ever suspect that your private key may have been compromised (laptop got stolen, computer got infected with a virus/trojan/malware, etc.): 
-    * [notify the helpdesk](../contact/) immediately, so we can revoke the public key for the compromised private key
-    * and start over by generating a new pair
-
-## 4. Start using servers/services
-
-Once you get notified by email that your account is ready you can proceed to [login](../logins/)
+ * Instructions for [Windows clients](../generate-key-pair-mobaxterm/).
+ * Instructions for [macOS clients](../generate-key-pair-openssh/).
+ * Instructions for [Linux/Unix clients](../generate-key-pair-openssh/).

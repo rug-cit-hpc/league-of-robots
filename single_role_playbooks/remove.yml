@@ -1,0 +1,14 @@
+---
+- hosts:
+    - jumphost
+  roles:
+    - remove
+
+- hosts:
+    - repo
+    - cluster
+    - docs
+    - irods
+  roles:
+    - remove
+...
