@@ -65,7 +65,7 @@ nameservers: [
   '8.8.4.4',       # Google DNS.
   '8.8.8.8',       # Google DNS.
 ]
-rsyslog_remote_servers:
+rsyslog_external_servers:
   - hostname: 172.23.47.250
     port: 514
 nameserver_domain_overrides:

@@ -57,7 +57,6 @@
     decrypt: true
     force: true
   become: true
-  # when: local_rsyslog_ca_key.stat.exists and not remote_rsyslog_ca_key.stat.exists
   notify: restart-rsyslog.service
 
 - name: If local CA certificate exists, then deploy it
@@ -68,7 +67,6 @@
     decrypt: false
     force: true
   become: true
-  # when: local_rsyslog_ca_cert.stat.exists and not remote_rsyslog_ca_cert.stat.exists
   notify: restart-rsyslog.service
 
 - name: Deploy rsyslog.conf file into remote system /etc/

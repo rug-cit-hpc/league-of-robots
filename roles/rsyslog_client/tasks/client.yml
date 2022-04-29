@@ -23,7 +23,7 @@
     path: "{{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem"
   register: cert_status
 
-- name: Check if certificate was signed with current CA certificate
+- name: Checking certificate was signed with current CA certificate
   ansible.builtin.command: >
     certtool --verify
       --load-ca-certificate {{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}
@@ -32,6 +32,7 @@
   register: verify_certificate_result
   ignore_errors: true # Needed: return value defines validity of certificate and not command success
   changed_when: false
+  no_log: true
   become: true
 
 - name: Check key {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
