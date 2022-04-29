@@ -106,7 +106,7 @@
   when: not cert_status.stat.exists or verify_certificate_result.rc != 0
   delegate_to: "{{ groups['rsyslog'] | first }}"
 
-- name: Generate certificate on rsyslog server
+- name: Sign rsyslog client certificate on rsyslog server with rsyslog CA certificate
   ansible.builtin.command: >
     certtool --generate-certificate
       --load-request /tmp/{{ inventory_hostname }}.request.pem
