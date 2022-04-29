@@ -69,7 +69,7 @@
   become: true
   notify: restart-rsyslog.service
 
-- name: Deploy rsyslog.conf file into remote system /etc/
+- name: Deploy rsyslog.conf
   ansible.builtin.template:
     src: roles/rsyslog_server/templates/rsyslog.conf
     dest: /etc/rsyslog.conf
