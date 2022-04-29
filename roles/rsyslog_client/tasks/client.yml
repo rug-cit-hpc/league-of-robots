@@ -7,7 +7,7 @@
   delegate_to: localhost
   connection: local
 
-- name: Deploy local CA certificate
+- name: Deploy rsyslog CA certificate
   ansible.builtin.copy:
     src: "{{ rsyslog_local_dir }}/{{ rsyslog_ca_cert_file }}"
     dest: "{{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}"
