@@ -48,7 +48,7 @@
   failed_when: server_key_generate_result.rc != 0
   become: true
 
-- name: Copy temporary template to client
+- name: Copy certificate signing request template to client
   ansible.builtin.template:
     src: templates/client.request.template
     dest: /tmp/client.request.template
