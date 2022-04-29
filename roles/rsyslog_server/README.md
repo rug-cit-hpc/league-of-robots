@@ -29,7 +29,9 @@ Playbook
 2. Check if CA key exists
     - on local inside `{{ rsyslog_local_dir }}`
     - and on remote system inside
+
       `{{ rsyslog_remote_cert_dir }}/{{ rsyslog_ca_cert_file }}`
+
       `{{ rsyslog_remote_key_dir }}/{{ rsyslog_ca_key_file }}`
 3. If local key and certificate exist, but are note on server, then it will simply
    deploy them.
@@ -57,4 +59,4 @@ By default on remote they are at the
    `/etc/pki/tls/private/rsyslog-ca.key`
 
 and on the local machine at the
-   `files/[stack or library name]/rsyslog-ca.[key and pem]
+   `files/{{stack or library name}}/rsyslog-ca.[key and pem]`
