@@ -95,6 +95,8 @@ AuthenticationMethods publickey
 #
 X11Forwarding no
 ClientAliveInterval 300
+LoginGraceTime {{ sshd_login_grace_time }}
+MaxSessions {{ sshd_max_sessions }}
 
 #
 # Override default of no subsystems
