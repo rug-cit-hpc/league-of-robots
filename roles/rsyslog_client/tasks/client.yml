@@ -57,7 +57,7 @@
     mode: 0600
   when: not key_status.stat.exists or verify_certificate_result.rc != 0
 
-- name: Create certificate signing request
+- name: Create certificate signing request on rsyslog client
   ansible.builtin.command: >
     certtool --generate-request
     --load-privkey {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
