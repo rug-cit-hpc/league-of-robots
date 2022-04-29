@@ -75,7 +75,7 @@
   connection: local
   when: not cert_status.stat.exists or verify_certificate_result.rc != 0
 
-- name: Fetch certificate request
+- name: Fetch certificate signing request
   ansible.builtin.fetch:
     src: /tmp/{{ inventory_hostname }}.request.pem
     dest: "{{ temp_certs_dir.path }}/"
