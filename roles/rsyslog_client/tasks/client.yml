@@ -40,7 +40,7 @@
     path: "{{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key"
   register: key_status
 
-- name: Generate private key on client {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
+- name: Generate private {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key on rsyslog client
   ansible.builtin.command: >
     certtool --generate-privkey --bits 4096
       --outfile {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
