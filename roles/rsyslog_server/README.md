@@ -45,7 +45,7 @@ Playbook
 6. Opens a port based on defined port under static inventory rsyslog server's
    rsyslog_port value or `514` by default
 
-## III. Recreating rsyslog's CA
+## IV. Recreating rsyslog's CA
 
 Remove the local and remote system's ca key and ca certificate file and rerun the
 `single_group_playbooks/rsyslog.yml` (or just part for server `rsyslog_server.yml`
