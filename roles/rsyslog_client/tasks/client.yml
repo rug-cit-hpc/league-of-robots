@@ -18,7 +18,7 @@
   when: local_rsyslog_ca_cert.stat.exists
   notify: client_restart_rsyslog
 
-- name: Check certificate on client {{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem
+- name: Get information on rsyslog client certificate {{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem
   ansible.builtin.stat:
     path: "{{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem"
   register: cert_status
