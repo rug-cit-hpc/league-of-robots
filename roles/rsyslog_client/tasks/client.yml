@@ -120,7 +120,7 @@
   become: true
   delegate_to: "{{ groups['rsyslog'] | first }}"
 
-- name: Fetch certificates from rsyslog server
+- name: Fetch rsyslog client certificates from rsyslog server
   ansible.builtin.fetch:
     src: "{{ rsyslog_remote_path_cert_dir }}/{{ item }}"
     dest: "{{ temp_certs_dir.path }}/"
