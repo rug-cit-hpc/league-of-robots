@@ -1,5 +1,5 @@
 ---
-- name: 'Install rsyslog and gnutls, with all the plugins'
+- name: 'Install rsyslog and gnutls with all plugins'
   ansible.builtin.yum:
     name:
       - rsyslog
