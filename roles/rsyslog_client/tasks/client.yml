@@ -84,7 +84,7 @@
   become: true
   when: not cert_status.stat.exists or verify_certificate_result.rc != 0
 
-- name: Copy certificate signing request to server
+- name: Copy rsyslog client certificate signing request to rsyslog server
   ansible.builtin.copy:
     src: "{{ temp_certs_dir.path }}/{{ inventory_hostname }}.request.pem"
     dest: "/tmp/{{ inventory_hostname }}.request.pem"
