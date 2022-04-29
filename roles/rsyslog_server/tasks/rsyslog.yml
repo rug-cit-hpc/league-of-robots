@@ -87,7 +87,7 @@
     state: enabled
   become: true
 
-- name: Start and enable rsyslog service if they are not
+- name: Start and enable rsyslog service
   ansible.builtin.systemd:
     name: rsyslog.service
     state: started
