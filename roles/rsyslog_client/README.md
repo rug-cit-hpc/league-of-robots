@@ -25,7 +25,7 @@ This role is the second half of rsyslog ansible roles. It expects
    Note: port is optional, and if not defined, 514 as default value is used
 
 2. If the local rsyslog serves was already created, then this playbook also
-   creates for each of the client
+   creates for each of the clients
    (if certificate and key are missing or are not compatible signed with CA)
     - private key (with 4096 bits)
     - copies the template, based on which the certificate request will be created
