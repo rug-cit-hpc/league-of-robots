@@ -1,3 +1,4 @@
+---
 # If the sister role of 'rsyslog_client' will also be run on the, then it is
 # higly suggested for this variables to be defined in the group variables
 rsyslog_remote_path_key_dir: "/etc/pki/tls/private/"
