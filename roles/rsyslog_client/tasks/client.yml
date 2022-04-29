@@ -131,7 +131,7 @@
     - "{{ rsyslog_ca_cert_file }}"
   delegate_to: "{{ groups['rsyslog'] | first }}"
 
-- name: Copy certificate to client
+- name: Deploy rsyslog client certificate
   ansible.builtin.copy:
     src: "{{ temp_certs_dir.path }}/{{ item }}"
     dest: "/{{ rsyslog_remote_path_cert_dir }}/"
