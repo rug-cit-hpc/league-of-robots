@@ -1,5 +1,5 @@
 ---
-- name: Get information on local CA certificate
+- name: Get information on rsyslog CA certificate on Ansible control host.
   ansible.builtin.stat:
     path: "{{ rsyslog_local_dir }}/{{ rsyslog_ca_cert_file }}"
     checksum_algorithm: sha1
