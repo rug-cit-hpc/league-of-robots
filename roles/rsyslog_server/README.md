@@ -56,6 +56,7 @@ playbook).
 By default on remote they are at the
 
    `/etc/pki/tls/certs/rsyslog-ca.pem`
+
    `/etc/pki/tls/private/rsyslog-ca.key`
 
 and on the local machine at the
