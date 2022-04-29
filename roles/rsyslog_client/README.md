@@ -29,8 +29,7 @@ This role is the second of the rsyslog ansible playbooks. It expects predefined
    of the client machine.
    Note: port is optional and, if not defined, 514 as default value is used.
 
-2. If list of rsyslog servers was defined (ones that are managed by Ansible roles
-   from this repo)  defined in the inventories), then playbook configures on each
+2. If a list of rsyslog servers (managed by Ansible roles from this repo) was defined in the inventory, then the playbook configures on each
    of the client machines:
    (if certificate and key are missing or are not compatible signed with CA)
     - private key (with 4096 bits)
