@@ -9,7 +9,7 @@ This role is the second half of rsyslog ansible roles. It expects
       - hostname: 123.45.6.789
         port: 514
      ```
- - and/or more servers defined in static_inventory list, inside group named 'rsyslog',
+ - and/or more servers defined in ```static_inventory/{{ stack_name }}/vars.yml``` in the inventory group named ```rsyslog```,
    and that those servers have been alread already deployed with (first) playbook
    named ```rsyslog_server```.
    Each of those _rsyslog_ servers have created a CA key and certificates.
