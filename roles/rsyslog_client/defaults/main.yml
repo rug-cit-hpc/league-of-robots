@@ -5,3 +5,4 @@ rsyslog_remote_path_cert_dir: "/etc/pki/tls/certs/"
 rsyslog_ca_key_file: "rsyslog-ca.key"
 rsyslog_ca_cert_file: "rsyslog-ca.pem"
 rsyslog_local_dir: "{{ playbook_dir }}/files/{{ stack_name }}/"
+...
