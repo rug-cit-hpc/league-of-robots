@@ -35,7 +35,7 @@
   no_log: true
   become: true
 
-- name: Check key {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
+- name: Check rsyslog client key {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
   ansible.builtin.stat:
     path: "{{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key"
   register: key_status
