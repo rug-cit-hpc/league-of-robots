@@ -67,7 +67,7 @@
   failed_when: client_request_generate_result.rc != 0
   become: true
 
-- name: Create local temporary directory for requests and certificates transfer
+- name: Create local temporary directory for certificate signing requests and certificates
   ansible.builtin.tempfile:
     state: directory
     suffix: tmp_certs_dir
