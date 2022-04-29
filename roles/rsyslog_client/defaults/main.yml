@@ -1,6 +1,6 @@
 ---
-# If the sister role of 'rsyslog_client' will also be run on the, then it is
-# higly suggested for this variables to be defined in the group variables
+# If possible (higly recommended), define this variables in the group variables,
+# since both playbooks 'rsyslog_server' and 'rsyslog_client' are both using it
 rsyslog_remote_path_key_dir: "/etc/pki/tls/private/"
 rsyslog_remote_path_cert_dir: "/etc/pki/tls/certs/"
 rsyslog_ca_key_file: "rsyslog-ca.key"

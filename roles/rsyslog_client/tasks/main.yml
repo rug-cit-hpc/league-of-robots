@@ -10,11 +10,11 @@
     update_cache: true
   become: true
 
-- name: Create client keys and certificates only if rsyslog servers are present
+- name: Create client keys and certificates if managed rsyslog servers are present
   ansible.builtin.include: client.yml
   when: groups['rsyslog'] is defined and ( groups['rsyslog']|length>0 )
 
-- name: Deploy template rsyslog.conf onto client /etc/rsyslog.conf
+- name: Deploy rsyslog.conf template on the client
   ansible.builtin.template:
     src: templates/rsyslog.conf
     dest: /etc/rsyslog.conf

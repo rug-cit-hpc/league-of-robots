@@ -2,8 +2,7 @@
 - name: Get information on rsyslog CA certificate on Ansible control host.
   ansible.builtin.stat:
     path: "{{ rsyslog_local_dir }}/{{ rsyslog_ca_cert_file }}"
-    checksum_algorithm: sha1
-  register: local_rsyslog_ca_cert
+  register: repo_rsyslog_ca_cert
   delegate_to: localhost
   connection: local
 
@@ -15,20 +14,20 @@
     decrypt: false
     force: true
   become: true
-  when: local_rsyslog_ca_cert.stat.exists
+  when: repo_rsyslog_ca_cert.stat.exists
   notify: client_restart_rsyslog
 
 - name: Get information on rsyslog client certificate {{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem
   ansible.builtin.stat:
     path: "{{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem"
-  register: cert_status
+  register: remote_client_cert_status
 
 - name: Check if rsyslog client certificate was signed with rsyslog CA certificate.
   ansible.builtin.command: >
     certtool --verify
       --load-ca-certificate {{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}
       --infile {{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem
-  when: local_rsyslog_ca_cert.stat.exists and cert_status.stat.exists
+  when: repo_rsyslog_ca_cert.stat.exists and remote_client_cert_status.stat.exists
   register: verify_certificate_result
   ignore_errors: true # Needed: return value defines validity of certificate and not command success
   changed_when: false
@@ -38,15 +37,15 @@
 - name: Check rsyslog client key {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
   ansible.builtin.stat:
     path: "{{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key"
-  register: key_status
+  register: remote_client_key_status
 
 - name: Generate private {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key on rsyslog client
   ansible.builtin.command: >
     certtool --generate-privkey --bits 4096
       --outfile {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
-  when: not key_status.stat.exists or verify_certificate_result.rc != 0
-  register: server_key_generate_result
-  failed_when: server_key_generate_result.rc != 0
+  when: not remote_client_key_status.stat.exists or verify_certificate_result.rc != 0
+  register: remote_client_key_generate
+  failed_when: remote_client_key_generate.rc != 0
   become: true
 
 - name: Copy certificate signing request template to rsyslog client
@@ -55,7 +54,7 @@
     dest: /tmp/client.request.template
     force: true
     mode: 0600
-  when: not key_status.stat.exists or verify_certificate_result.rc != 0
+  when: not remote_client_key_status.stat.exists or verify_certificate_result.rc != 0
 
 - name: Create certificate signing request on rsyslog client
   ansible.builtin.command: >
@@ -63,7 +62,7 @@
     --load-privkey {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
     --template /tmp/client.request.template
     --outfile /tmp/{{ inventory_hostname }}.request.pem
-  when: not cert_status.stat.exists or verify_certificate_result.rc != 0
+  when: not remote_client_cert_status.stat.exists or verify_certificate_result.rc != 0
   register: client_request_generate_result
   failed_when: client_request_generate_result.rc != 0
   become: true
@@ -74,7 +73,7 @@
     suffix: tmp_certs_dir
   register: temp_certs_dir
   connection: local
-  when: not cert_status.stat.exists or verify_certificate_result.rc != 0
+  when: not remote_client_cert_status.stat.exists or verify_certificate_result.rc != 0
 
 - name: Fetch rsyslog client certificate signing request
   ansible.builtin.fetch:
@@ -82,7 +81,7 @@
     dest: "{{ temp_certs_dir.path }}/"
     flat: true
   become: true
-  when: not cert_status.stat.exists or verify_certificate_result.rc != 0
+  when: not remote_client_cert_status.stat.exists or verify_certificate_result.rc != 0
 
 - name: Copy rsyslog client certificate signing request to rsyslog server
   ansible.builtin.copy:
@@ -93,7 +92,7 @@
     mode: '0600'
     force: true
   become: true
-  when: not cert_status.stat.exists or verify_certificate_result.rc != 0
+  when: not remote_client_cert_status.stat.exists or verify_certificate_result.rc != 0
   delegate_to: "{{ groups['rsyslog'] | first }}"
 
 - name: Copy client temporary template to rsyslog server
@@ -103,7 +102,7 @@
     force: true
     mode: 0600
   become: true
-  when: not cert_status.stat.exists or verify_certificate_result.rc != 0
+  when: not remote_client_cert_status.stat.exists or verify_certificate_result.rc != 0
   delegate_to: "{{ groups['rsyslog'] | first }}"
 
 - name: Sign rsyslog client certificate on rsyslog server with rsyslog CA certificate
@@ -114,7 +113,7 @@
       --load-ca-privkey {{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}
       --template /tmp/client.request.template
       --outfile {{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem
-  when: not cert_status.stat.exists or verify_certificate_result.rc != 0
+  when: not remote_client_cert_status.stat.exists or verify_certificate_result.rc != 0
   register: client_certificates_generate_results
   failed_when: client_certificates_generate_results.rc != 0
   become: true
@@ -125,7 +124,7 @@
     src: "{{ rsyslog_remote_path_cert_dir }}/{{ item }}"
     dest: "{{ temp_certs_dir.path }}/"
     flat: true
-  when: not cert_status.stat.exists or verify_certificate_result.rc != 0
+  when: not remote_client_cert_status.stat.exists or verify_certificate_result.rc != 0
   with_items:
     - "{{ inventory_hostname }}.pem"
     - "{{ rsyslog_ca_cert_file }}"
@@ -140,7 +139,7 @@
     mode: '0644'
     backup: true
     force: true
-  when: not cert_status.stat.exists or verify_certificate_result.rc != 0
+  when: not remote_client_cert_status.stat.exists or verify_certificate_result.rc != 0
   with_items:
     - "{{ inventory_hostname }}.pem"
     - "{{ rsyslog_ca_cert_file }}"

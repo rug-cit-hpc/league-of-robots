@@ -1,41 +1,39 @@
 ---
-- name: Get information on CA key on rsyslog server
+- name: Get information on CA key on managed rsyslog server
   ansible.builtin.stat:
     path: "{{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}"
-    checksum_algorithm: sha1
-  register: remote_ca_key_info
+  register: ca_key_on_server
   become: true
 
-- name: Get information on CA cert on rsyslog server
+- name: Get information on CA cert on managed rsyslog server
   ansible.builtin.stat:
     path: "{{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}"
-    checksum_algorithm: sha1
-  register: remote_ca_cert_info
+  register: ca_cert_on_server
   become: true
 
-- name: Generate CA key on rsyslog server
+- name: Generate CA key on managed rsyslog server
   ansible.builtin.command:
     certtool --generate-privkey --bits 4096
     --outfile {{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}
   register: ca_key_generate_result
-  when: not remote_ca_key_info.stat.exists  or remote_ca_key_info.stat.size == 0
+  when: not ca_key_on_server.stat.exists  or ca_key_on_server.stat.size == 0
   failed_when: "'FAILED' in ca_key_generate_result.stderr"
   become: true
 
-- name: Copy CA template to the rsyslog server
+- name: Copy CA template to the managed rsyslog server
   ansible.builtin.template:
     src: roles/rsyslog_server/templates/ca.template
     dest: /tmp/ca.template
     mode: 0600
-  when: not remote_ca_key_info.stat.exists
+  when: not ca_key_on_server.stat.exists
 
-- name: Generate CA cert on rsyslog server
+- name: Generate CA cert on managed rsyslog server
   ansible.builtin.command: >
     certtool --generate-self-signed --template /tmp/ca.template
      --load-privkey {{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}
      --outfile {{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}
   register: ca_cert_generate_result
-  when: not remote_ca_cert_info.stat.exists or remote_ca_cert_info.stat.size == 0
+  when: not ca_cert_on_server.stat.exists or ca_cert_on_server.stat.size == 0
   failed_when: "'FAILED' in ca_cert_generate_result.stderr"
   become: true
 
@@ -44,7 +42,7 @@
     src: "{{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}"
     dest: "{{ rsyslog_local_dir }}/"
     flat: true
-  when: not remote_ca_cert_info.stat.exists or remote_ca_cert_info.stat.size == 0
+  when: not ca_cert_on_server.stat.exists or ca_cert_on_server.stat.size == 0
   register: ca_key_copied
   become: true
 
@@ -53,7 +51,7 @@
     src: "{{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}"
     dest: "{{ rsyslog_local_dir }}/"
     flat: true
-  when: not remote_ca_cert_info.stat.exists or remote_ca_cert_info.stat.size == 0
+  when: not ca_cert_on_server.stat.exists or ca_cert_on_server.stat.size == 0
   register: ca_cert_copied
   become: true
 ...
