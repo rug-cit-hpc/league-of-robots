@@ -27,7 +27,7 @@ Playbook
 
 1. Installing rsyslog server, gnutls and some of their plugins
 2. Check if CA key exists
-    - on local inside `{{ rsyslog_local_dir }}`
+    - on local inside `{{ rsyslog_repository_dir }}`
     - and on remote system inside
 
       `{{ rsyslog_remote_cert_dir }}/{{ rsyslog_ca_cert_file }}`

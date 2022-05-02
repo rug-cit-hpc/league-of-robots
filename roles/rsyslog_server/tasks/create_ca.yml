@@ -36,22 +36,4 @@
   when: not ca_cert_on_server.stat.exists or ca_cert_on_server.stat.size == 0
   failed_when: "'FAILED' in ca_cert_generate_result.stderr"
   become: true
-
-- name: Fetch remote CA key to local machine
-  ansible.builtin.fetch:
-    src: "{{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}"
-    dest: "{{ rsyslog_local_dir }}/"
-    flat: true
-  when: not ca_cert_on_server.stat.exists or ca_cert_on_server.stat.size == 0
-  register: ca_key_copied
-  become: true
-
-- name: Fetch remote CA cert to local machine
-  ansible.builtin.fetch:
-    src: "{{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}"
-    dest: "{{ rsyslog_local_dir }}/"
-    flat: true
-  when: not ca_cert_on_server.stat.exists or ca_cert_on_server.stat.size == 0
-  register: ca_cert_copied
-  become: true
 ...
