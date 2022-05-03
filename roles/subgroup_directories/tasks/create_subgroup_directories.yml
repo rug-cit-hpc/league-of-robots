@@ -30,7 +30,7 @@
         path: "/groups/{{ group }}/{{ lfs }}/releases/"
         owner: "{{ group }}-dm"
         group: "{{ group }}"
-        mode: "{{ mode_dataset }}"
+        mode: '2750'
         state: 'directory'
     - name: "Create /groups/{{ group }}/{{ lfs }}/releases/${dataset} directory."
       ansible.builtin.file:
@@ -63,7 +63,7 @@
         path: "/groups/{{ group }}/{{ lfs }}/projects/"
         owner: "{{ group }}-dm"
         group: "{{ group }}"
-        mode: "{{ mode_project }}"
+        mode: '2750'
         state: 'directory'
     - name: "Create /groups/{{ group }}/{{ lfs }}/projects/${project} directory."
       ansible.builtin.file:
