@@ -1,10 +1,46 @@
 ---
+- name: "Get list of all subgroups with version number."
+  ansible.builtin.shell: |
+    getent group \
+      | grep -o "^{{ main_group }}-[^:]*-v[0-9][0-9]*" \
+      || true
+  vars:
+    main_groups: "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$')
+                                | map(attribute='groups') | list | flatten
+                                | map(attribute='name') | list | unique }}"
+  with_items: "{{ main_groups }}"
+  loop_control:
+    loop_var: main_group
+  changed_when: false
+  register: getent_versioned_subgroups
+  when: inventory_hostname in groups['user_interface']
+
+- name: "Get list of all subgroups without version number and excluding *-dms, *owners & primary groups."
+  ansible.builtin.shell: |
+    for group in $(getent group | grep -o "^{{ main_group }}-[^:]*" | grep -v -- "-v[0-9][0-9]*$\|-dms$\|-owners$"); do \
+      if ! getent passwd "${group}" >/dev/null 2>&1; then \
+        echo "${group}"; \
+      fi; \
+    done
+  vars:
+    main_groups: "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$')
+                                | map(attribute='groups') | list | flatten
+                                | map(attribute='name') | list | unique }}"
+  with_items: "{{ main_groups }}"
+  loop_control:
+    loop_var: main_group
+  changed_when: false
+  register: getent_unversioned_subgroups
+  when: inventory_hostname in groups['user_interface']
+
 - name: 'Loop over "prm" file systems.'
   include_tasks:
     file: create_subgroup_directories.yml
   vars:
     lfs: "{{ lfs_item.0.lfs }}"
-    group: "{{ lfs_item.1.name }}"
+    main_group: "{{ lfs_item.1.name }}"
+    versioned_sub_groups: "{{ getent_versioned_subgroups.results | selectattr('main_group', 'equalto', lfs_item.1.name) | map(attribute='stdout_lines') | flatten }}"
+    unversioned_sub_groups: "{{ getent_unversioned_subgroups.results | selectattr('main_group', 'equalto', lfs_item.1.name) | map(attribute='stdout_lines') | flatten }}"
     mode_project: '2750'
     mode_version: '2750'
     mode_dataset: '2750'
@@ -13,14 +49,18 @@
     - 'groups'
   loop_control:
     loop_var: lfs_item
-  when: inventory_hostname in groups['user_interface']
+  when:
+    - inventory_hostname in groups['user_interface']
+    - (versioned_sub_groups | length > 0) or (unversioned_sub_groups | length > 0)
 
 - name: 'Loop over "rsc" file systems.'
   include_tasks:
     file: create_subgroup_directories.yml
   vars:
     lfs: "{{ lfs_item.0.lfs }}"
-    group: "{{ lfs_item.1.name }}"
+    main_group: "{{ lfs_item.1.name }}"
+    versioned_sub_groups: "{{ getent_versioned_subgroups.results | selectattr('main_group', 'equalto', lfs_item.1.name) | map(attribute='stdout_lines') | flatten }}"
+    unversioned_sub_groups: "{{ getent_unversioned_subgroups.results | selectattr('main_group', 'equalto', lfs_item.1.name) | map(attribute='stdout_lines') | flatten }}"
     mode_project: '2750'
     mode_version: '2750'
     mode_dataset: '2750'
@@ -29,14 +69,18 @@
     - 'groups'
   loop_control:
     loop_var: lfs_item
-  when: inventory_hostname in groups['user_interface']
+  when:
+    - inventory_hostname in groups['user_interface']
+    - (versioned_sub_groups | length > 0) or (unversioned_sub_groups | length > 0)
 
 - name: 'Loop over "tmp" file systems.'
   include_tasks:
     file: create_subgroup_directories.yml
   vars:
     lfs: "{{ lfs_item.0.lfs }}"
-    group: "{{ lfs_item.1.name }}"
+    main_group: "{{ lfs_item.1.name }}"
+    versioned_sub_groups: "{{ getent_versioned_subgroups.results | selectattr('main_group', 'equalto', lfs_item.1.name) | map(attribute='stdout_lines') | flatten }}"
+    unversioned_sub_groups: "{{ getent_unversioned_subgroups.results | selectattr('main_group', 'equalto', lfs_item.1.name) | map(attribute='stdout_lines') | flatten }}"
     mode_project: '2770'
     mode_version: '2770'
     mode_dataset: '2750'
@@ -45,5 +89,7 @@
     - 'groups'
   loop_control:
     loop_var: lfs_item
-  when: inventory_hostname in groups['user_interface']
+  when:
+    - inventory_hostname in groups['user_interface']
+    - (versioned_sub_groups | length > 0) or (unversioned_sub_groups | length > 0)
 ...
