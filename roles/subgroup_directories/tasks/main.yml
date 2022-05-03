@@ -39,8 +39,14 @@
   vars:
     lfs: "{{ lfs_item.0.lfs }}"
     main_group: "{{ lfs_item.1.name }}"
-    versioned_sub_groups: "{{ getent_versioned_subgroups.results | selectattr('main_group', 'equalto', lfs_item.1.name) | map(attribute='stdout_lines') | flatten }}"
-    unversioned_sub_groups: "{{ getent_unversioned_subgroups.results | selectattr('main_group', 'equalto', lfs_item.1.name) | map(attribute='stdout_lines') | flatten }}"
+    versioned_sub_groups: "{{ getent_versioned_subgroups.results
+                              | selectattr('main_group', 'equalto', lfs_item.1.name)
+                              | map(attribute='stdout_lines')
+                              | flatten }}"
+    unversioned_sub_groups: "{{ getent_unversioned_subgroups.results
+                                | selectattr('main_group', 'equalto', lfs_item.1.name)
+                                | map(attribute='stdout_lines')
+                                | flatten }}"
     mode_project: '2750'
     mode_version: '2750'
     mode_dataset: '2750'
@@ -59,8 +65,14 @@
   vars:
     lfs: "{{ lfs_item.0.lfs }}"
     main_group: "{{ lfs_item.1.name }}"
-    versioned_sub_groups: "{{ getent_versioned_subgroups.results | selectattr('main_group', 'equalto', lfs_item.1.name) | map(attribute='stdout_lines') | flatten }}"
-    unversioned_sub_groups: "{{ getent_unversioned_subgroups.results | selectattr('main_group', 'equalto', lfs_item.1.name) | map(attribute='stdout_lines') | flatten }}"
+    versioned_sub_groups: "{{ getent_versioned_subgroups.results
+                              | selectattr('main_group', 'equalto', lfs_item.1.name)
+                              | map(attribute='stdout_lines')
+                              | flatten }}"
+    unversioned_sub_groups: "{{ getent_unversioned_subgroups.results
+                                | selectattr('main_group', 'equalto', lfs_item.1.name)
+                                | map(attribute='stdout_lines')
+                                | flatten }}"
     mode_project: '2750'
     mode_version: '2750'
     mode_dataset: '2750'
@@ -79,8 +91,14 @@
   vars:
     lfs: "{{ lfs_item.0.lfs }}"
     main_group: "{{ lfs_item.1.name }}"
-    versioned_sub_groups: "{{ getent_versioned_subgroups.results | selectattr('main_group', 'equalto', lfs_item.1.name) | map(attribute='stdout_lines') | flatten }}"
-    unversioned_sub_groups: "{{ getent_unversioned_subgroups.results | selectattr('main_group', 'equalto', lfs_item.1.name) | map(attribute='stdout_lines') | flatten }}"
+    versioned_sub_groups: "{{ getent_versioned_subgroups.results
+                              | selectattr('main_group', 'equalto', lfs_item.1.name)
+                              | map(attribute='stdout_lines')
+                              | flatten }}"
+    unversioned_sub_groups: "{{ getent_unversioned_subgroups.results
+                                | selectattr('main_group', 'equalto', lfs_item.1.name)
+                                | map(attribute='stdout_lines')
+                                | flatten }}"
     mode_project: '2770'
     mode_version: '2770'
     mode_dataset: '2750'
