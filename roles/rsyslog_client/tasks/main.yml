@@ -27,7 +27,7 @@
 - name: Deploy configuration for managed remote rsyslog servers
   ansible.builtin.template:
     src: templates/rsyslog_managed.conf
-    dest: /etc/rsyslog.d/rsyslog_managed.conf
+    dest: /etc/rsyslog.d/managed.conf
     force: true
     mode: 0644
   become: true
@@ -37,7 +37,7 @@
 - name: Deploy configuration for unmanaged remote rsyslog servers
   ansible.builtin.template:
     src: templates/rsyslog_unmanaged.conf
-    dest: /etc/rsyslog.d/rsyslog_unmanaged.conf
+    dest: /etc/rsyslog.d/unmanaged.conf
     force: true
     mode: 0644
   become: true
