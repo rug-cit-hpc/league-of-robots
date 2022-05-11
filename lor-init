@@ -81,8 +81,9 @@ function lor-config() {
 	# Enable ansible_mitogen strategy plugin for improved speed of plays when available.
 	#
 	_ansible_mitogen_search_path='.*/lib/python.*/site-packages/ansible_mitogen/plugins/strategy'
-	if find . -regex "${_ansible_mitogen_search_path}" 1>/dev/null; then
-		export ANSIBLE_STRATEGY_PLUGINS=$(find . -regex "${_ansible_mitogen_search_path}" | sort -V | tail -1)
+	_ansible_mitogen_path=$(find . -regex "${_ansible_mitogen_search_path}" | sort -V | tail -1)
+	if [[ -n "${_ansible_mitogen_path}" ]]; then
+		export ANSIBLE_STRATEGY_PLUGINS="${_ansible_mitogen_path}"
 		export ANSIBLE_STRATEGY='mitogen_linear'
 		printf 'INFO: Found Mitogen strategy plugin in:  %s\n' "${ANSIBLE_STRATEGY_PLUGINS}"
 		printf 'INFO: Using Ansible strategy:            %s.\n' "${ANSIBLE_STRATEGY}"
