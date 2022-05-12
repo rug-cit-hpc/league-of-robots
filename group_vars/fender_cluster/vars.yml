@@ -122,7 +122,9 @@ regular_users:
   - user: 'gdemidov'
     groups: ['users', 'solve-rd']
   - user: 'amohan'
-    groups: ['users', 'solve-rd']
+    groups: ['users']
+  - user: 'dspalding'
+    groups: ['users']
   - user: 'cthomas'
     groups: ['users', 'solve-rd']
   - user: 'mbenjamins'

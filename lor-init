@@ -73,8 +73,22 @@ function lor-config() {
 	export AI_PROXY="${_jumphost}"
 	export ANSIBLE_INVENTORY="static_inventories/${_stack_name}.yml"
 	export ANSIBLE_VAULT_IDENTITY_LIST="all@.vault/vault_pass.txt.all, ${_stack_name}@.vault/vault_pass.txt.${_stack_name}"
-	printf '%s\n' "Current working directory is $(pwd)"
-	printf '%s\n' "Using AI_PROXY:                    ${AI_PROXY}"
-	printf '%s\n' "Using ANSIBLE_INVENTORY:           ${ANSIBLE_INVENTORY}"
-	printf '%s\n' "Using ANSIBLE_VAULT_IDENTITY_LIST: ${ANSIBLE_VAULT_IDENTITY_LIST}"
+	printf 'INFO: Current working directory is:      %s\n' "$(pwd)"
+	printf 'INFO: Using AI_PROXY:                    %s\n' "${AI_PROXY}"
+	printf 'INFO: Using ANSIBLE_INVENTORY:           %s\n' "${ANSIBLE_INVENTORY}"
+	printf 'INFO: Using ANSIBLE_VAULT_IDENTITY_LIST: %s\n' "${ANSIBLE_VAULT_IDENTITY_LIST}"
+	#
+	# Enable ansible_mitogen strategy plugin for improved speed of plays when available.
+	#
+	_ansible_mitogen_search_path='.*/lib/python.*/site-packages/ansible_mitogen/plugins/strategy'
+	_ansible_mitogen_path=$(find . -regex "${_ansible_mitogen_search_path}" | sort -V | tail -1)
+	if [[ -n "${_ansible_mitogen_path}" ]]; then
+		export ANSIBLE_STRATEGY_PLUGINS="${_ansible_mitogen_path}"
+		export ANSIBLE_STRATEGY='mitogen_linear'
+		printf 'INFO: Found Mitogen strategy plugin in:  %s\n' "${ANSIBLE_STRATEGY_PLUGINS}"
+		printf 'INFO: Using Ansible strategy:            %s.\n' "${ANSIBLE_STRATEGY}"
+	else
+		printf 'WARNING: Could not find Mitogen strategy plugin in %s\n' "${_ansible_mitogen_search_path}"
+		printf 'INFO: Mitogen strategy plugin is:        %s.\n' 'disabled (default)'
+	fi
 }
