@@ -60,7 +60,7 @@
   become: true
 
 - name: Get a list of currently existing services.
-  service_facts:  # Results in "services" variable.
+  ansible.builtin.service_facts:  # Results in "services" variable.
 
 - name: Disable conflicting services.
   ansible.builtin.systemd:
