@@ -97,17 +97,6 @@
   changed_when: ('nss_ldap is disabled' in authconfig_test.stdout) or ('pam_ldap is disabled' in authconfig_test.stdout)
   notify: authconfig_enable_ldap
 
-- name: Redeploy sshd config.
-  ansible.builtin.template:
-    src: "{{ playbook_dir }}/roles/sshd/templates/sshd_config"
-    dest: /etc/ssh/sshd_config
-    validate: '/usr/sbin/sshd -T -f %s'
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart_sshd
-  become: true
-
 - name: Flush handlers.
   ansible.builtin.meta: flush_handlers
 ...

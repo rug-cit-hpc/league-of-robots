@@ -59,12 +59,17 @@
     - /usr/libexec/openssh/ssh-ldap-wrapper.bash
   become: true
 
+- name: Get a list of currently existing services.
+  service_facts:  # Results in "services" variable.
+
 - name: Disable conflicting services.
   ansible.builtin.systemd:
     name: nslcd
     state: stopped
     enabled: false
     daemon_reload: true
+  register: nslcd_status
+  when: "'nslcd.service' in services"
   become: true
 
 - name: Deploy nsswitch.conf
@@ -129,17 +134,6 @@
   register: authconfig_test
   changed_when: ('nss_sss is disabled' in authconfig_test.stdout) or ('pam_sss is disabled' in authconfig_test.stdout)
   notify: authconfig_enable_sssd
-
-- name: Redeploy sshd config.
-  ansible.builtin.template:
-    src: "{{ playbook_dir }}/roles/sshd/templates/sshd_config"
-    dest: /etc/ssh/sshd_config
-    validate: '/usr/sbin/sshd -T -f %s'
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart_sshd
-  become: true
 
 - name: Flush handlers.
   ansible.builtin.meta: flush_handlers

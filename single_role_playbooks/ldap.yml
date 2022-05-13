@@ -1,8 +1,9 @@
 ---
-- name: Install ldap role.
+- name: Install ldap client role.
   hosts:
     - jumphost
     - cluster
   roles:
      - ldap
+     - sshd  # Always re-run sshd role after potentially changing the logic to fetch public keys.
 ...
