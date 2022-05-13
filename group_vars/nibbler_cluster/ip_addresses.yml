@@ -11,7 +11,7 @@ ip_addresses:
     vlan: internal_management
     fqdn:
   nb-transfer:
-    addr: 10.10.1.28
+    addr: 10.10.1.12
     mask: /32
     vlan: internal_management
     fqdn:
@@ -35,7 +35,7 @@ ip_addresses:
     fqdn:
     desc: Deploy Admin Interface
   nb-vcompute04:
-    addr: 10.10.1.88
+    addr: 10.10.1.152
     mask: /32
     vlan: internal_management
     fqdn:
