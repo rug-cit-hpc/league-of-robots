@@ -70,18 +70,18 @@
       mode: '0644'
   become: true
 
-## Fix for a https://access.redhat.com/articles/1462323
-#- name: 'Add the {{ irods_ssl_dh_params_file }} at the end of {{ irods_ssl_certificate_chain_file }}'
-#  ansible.builtin.command: '{{ item }}'
-#  with_items:
-#    - "mv -f {{ irods_ssl_certificate_chain_file }} {{ irods_ssl_certificate_chain_file }}.orig"
-#    - "cat {{ irods_ssl_certificate_chain_file }}.orig {{ irods_ssl_dh_params_file }} > {{ irods_ssl_certificate_chain_file }}"
-#  args:
-#    chdir: '{{ davrods_user_home_path }}/{{ davrods_docker_folder }}/config/'
-#  register: combinecerts
-#  changed_when: combinecerts is succeeded
-#  become_user: '{{ davrods_docker_user }}'
-#  become: true
+# # Fix for a https://access.redhat.com/articles/1462323
+# - name: 'Add the {{ irods_ssl_dh_params_file }} at the end of {{ irods_ssl_certificate_chain_file }}'
+#   ansible.builtin.command: '{{ item }}'
+#   with_items:
+#     - "mv -f {{ irods_ssl_certificate_chain_file }} {{ irods_ssl_certificate_chain_file }}.orig"
+#     - "cat {{ irods_ssl_certificate_chain_file }}.orig {{ irods_ssl_dh_params_file }} > {{ irods_ssl_certificate_chain_file }}"
+#   args:
+#     chdir: '{{ davrods_user_home_path }}/{{ davrods_docker_folder }}/config/'
+#   register: combinecerts
+#   changed_when: combinecerts is succeeded
+#   become_user: '{{ davrods_docker_user }}'
+#   become: true
 
 ###### TODO change password irods psql for username (perhaps we don't need to)
 ###### TODO fix templates to variables from secrets (done)

@@ -84,7 +84,11 @@
                    "db_odbc_driver": "PostgreSQL",
                    "db_password": "{{ irods_db_pwd }}",
                    "db_port": 5432,
-                   "db_username": "{{ irods_db_user }}"
+                   "db_username": "{{ irods_db_user }}"{% if pgsql_server == "remote" %},
+                   "db_sslcert": "/etc/irods/{{ irods_ssl_certificate_chain_file }}",
+                   "db_sslkey": "/etc/irods/{{ irods_ssl_certificate_key_file }}",
+                   {% if remote_psql_server_ca is defined  %}"db_sslrootcert": "/etc/irods/{{ remote_psql_server_ca }}",{% endif %}
+                   "db_sslmode": "require"{% endif %}
                }
            },
            "network": {},

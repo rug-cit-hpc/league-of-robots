@@ -1,4 +1,12 @@
 ---
+- name: Install and configure local PostgreSQL hosting service
+  include: pgsql_local.yml
+  when: pgsql_server == "local"
 
-- include: pgsql.yml
-- include: icat.yml
+- name: Configure remote PostgreSQL server access
+  include: pgsql_remote.yml
+  when: pgsql_server == "remote"
+
+- name: Install and configure iCAT server
+  include: icat.yml
+...

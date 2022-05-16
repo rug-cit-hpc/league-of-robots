@@ -1,0 +1,82 @@
+---
+- name: 'Get {{ irods_service_account }} home directory'
+  ansible.builtin.shell: "set -o pipefail && getent passwd {{ irods_service_account }}  | awk -F: '{ print $6 }'"
+  changed_when: false
+  register: getent_output
+  become: true
+
+- name: Store davrods_user_home_path
+  ansible.builtin.set_fact:
+    irods_home_path: "{{ getent_output.stdout }}"
+
+# Configuring according to the https://www.postgresql.org/docs/current/libpq-ssl.html
+- name: Ensure that {{ irods_home_path }}/.postgresql directory exists and is owned by {{ irods_service_account }}
+  ansible.builtin.file:
+    path: "{{ irods_home_path }}/.postgresql"
+    state: directory
+    owner: "{{ irods_service_account }}"
+    group: "{{ irods_service_account }}"
+    mode: '0700'
+  become_user: "{{ irods_service_account }}"
+  become: true
+
+- name: Create empty remote server's CA revocation list file inside .postgresql folder 
+  ansible.builtin.copy:
+    content: ""
+    dest: "{{ irods_home_path }}/.postgresql/root.crl"
+    force: false
+    owner: "{{ irods_service_account }}"
+    group: "{{ irods_service_account }}"
+    mode: "0644"
+  become_user: '{{ irods_service_account }}'
+  become: true
+
+- name: Deploy remote server's CA signing certificate as root.crt into .postgresql folder
+  ansible.builtin.copy:
+    src: files/remote_psql_server_ca.crt
+    dest: "{{ irods_home_path }}/.postgresql/root.crt"
+    owner: "{{ irods_service_account }}"
+    group: "{{ irods_service_account }}"
+    mode: '0644'
+  become_user: '{{ irods_service_account }}'
+  become: true
+
+- name: Deploy remote server's CA signing certificate into /etc/irods folder
+  ansible.builtin.copy:
+    src: "files/{{ remote_psql_server_ca }}"
+    dest: "/etc/irods/{{ remote_psql_server_ca }}"
+    owner: "{{ irods_service_account }}"
+    group: "{{ irods_service_account }}"
+    mode: '0644'
+  become_user: '{{ irods_service_account }}'
+  become: true
+  when: remote_psql_server_ca is defined
+
+- name: Deploy certificate and key to be used for psql client calls
+  ansible.builtin.copy:
+    src: 'files/{{ stack_name }}/nemi_irods/{{ item.name }}'
+    dest: '{{ irods_home_path }}/.postgresql/{{ item.dest }}'
+    owner: '{{ irods_service_account }}'
+    group: '{{ irods_service_account }}'
+    mode: '{{ item.mode }}'
+    decrypt: true
+    force: true
+  with_items:
+    - name: "{{ irods_ssl_certificate_key_file }}"
+      dest: "postgresql.key"
+      mode: "0600"
+    - name: "{{ irods_ssl_certificate_chain_file }}"
+      dest: "postgresql.crt"
+      mode: "0644"
+  become: true
+  notify: irodsctl_restart
+
+- name: Temporary fix for iRODS to access remote PostgreSQL over SSL
+  ansible.builtin.template:
+    src: database_connect.py
+    dest: /var/lib/irods/scripts/irods/database_connect.py
+    mode: '0644'
+  become_user: '{{ irods_service_account }}'
+  become: true
+
+...

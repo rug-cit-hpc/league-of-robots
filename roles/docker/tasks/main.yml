@@ -10,7 +10,7 @@
   become: true
 
 - name: Install docker-py.
-  pip:
+  ansible.builtin.pip:
     name: docker
   become: true
 ...

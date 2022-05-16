@@ -159,6 +159,13 @@
     line: 'rm -f /var/lock/subsys/irods'
   become: true
 
+- name: Temporary bugfix of the irods python script for the remote psql over ssl
+  ansible.builtin.lineinfile:
+    name: /etc/init.d/irods
+    search_string: 'rm /var/lock/subsys/irods'
+    line: 'rm -f /var/lock/subsys/irods'
+  become: true
+
 - name: Fix the s3 authentication by creating dummy s3auth file
   ansible.builtin.copy:
     content: |

@@ -13,3 +13,4 @@ server_type: 'icat'                         # iRODS Server Type
 irods_db_user: '{{ irods_service_account }}'  # db Username, usually same as irods_service_account
 irods_db_server: '127.0.0.1'                  # iRODS Database Server
 irods_db_name: 'ICAT'                         # iRODS Database Name
+remote_psql_server_ca: "remote_psql_server_ca.crt"   # (optional) remote servers's CA certificate

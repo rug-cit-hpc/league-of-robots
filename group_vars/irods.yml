@@ -2,9 +2,11 @@
 firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
   - "22"    # SSH.
   - "443"   # davrods SSL
-  - "1247"  # irods
+  - "1248"  # Control Plane Port
   - "5432"  # PostgreSQL
   - "20000:20199"  # irods
+firewall_additional_rules:
+  - "iptables -A INPUT -p tcp --dport 1247 -s umcg-resc1.irods.surfsara.nl -j ACCEPT"
 irods_ssl_certificate_chain_file: "localhost_and_chain_umcg-icat01.crt"
 irods_ssl_certificate_key_file: "localhost-umcg01.key"
 irods_ssl_dh_params_file: "dhparams.pem"
@@ -15,11 +17,12 @@ irods_default_resource: 'surfObjStore'      # default resource iRODS uploads to
 irods_service_account: 'irods'              # linux account under which iRODS runs
 irods_admin_name: 'rods'                    # iRODS (and zone) account
 irods_admin_home_path: '/nlumcg/home/rods'  # iRODS admin's home path
-server_type: 'icat'                         # iRODS Server Type  
+server_type: 'icat'                         # iRODS Server Type
 irods_db_user: '{{ irods_service_account }}'  # db Username, usually same as irods_service_account
 irods_db_server: '127.0.0.1'                # iRODS Database Server
 irods_db_name: 'ICAT'                       # iRODS Database Name
 davrods_install: true                       # to install davrods docker
 davrods_docker_folder: "davrods_docker"     # davrods docker folder name, relative to the user home directory
 davrods_default_resource: "surfObjStore"    # default resource to upload files via davrods
+pgsql_server: "remote"                      # "local" or "remote" PostgreSQL server
 ...
