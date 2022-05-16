@@ -85,4 +85,5 @@ wingedhelix_cluster:
     chaperone:
     docs:
     rsyslog:
+    nfs_server:
 ...
