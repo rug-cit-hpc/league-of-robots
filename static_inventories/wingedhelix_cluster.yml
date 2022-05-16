@@ -64,6 +64,9 @@ all:
       hosts:
         wh-repo:
           rsyslog_port: 41514
+    nfs_server:
+      hosts:
+        wh-sai:
 administration:
   children:
     sys_admin_interface:
