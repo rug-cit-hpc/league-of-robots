@@ -38,12 +38,22 @@ additional_etc_hosts:
       - docs_on_merlin
 use_ldap: yes
 create_ldap: no
-ldap_uri: 'ldaps://svrs.id.rug.nl'
-ldap_base: 'ou=gd,o=asds'
-ldap_binddn: 'cn=clusteradminGD,o=asds'
-ldap_group_object_class: 'groupofnames'
-ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
-ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
+use_sssd: yes
+ldap_domains:
+  grunn:
+    uri: ldaps://svrs.id.rug.nl
+    search_base: ou=gd,o=asds
+    schema: rfc2307
+    min_id: 50100000
+    max_id: 55999999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: groupMembership
+    group_member: memberUid
+    group_object_class: groupofnames
+    group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
+    group_quota_hard_limit_template: ruggroupumcgquotaLFS
 totp:
   machines: "{{ groups['jumphost'] }}"
   excluded:
