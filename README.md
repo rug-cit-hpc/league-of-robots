@@ -252,6 +252,7 @@ Are you sure you want to continue connecting (yes/no)?
 
 Execute:
 ```bash
+mkdir -p files/[stack_name]
 dd if=/dev/urandom bs=1 count=1024 > files/[stack_name]/munge.key
 ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/munge.key
 ```
