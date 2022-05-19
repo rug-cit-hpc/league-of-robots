@@ -61,6 +61,7 @@ totp:
     - "{{ all.ip_addresses['umcg_net1']['addr'] }}{{ all.ip_addresses['umcg_net1']['mask'] }}"
     - "{{ all.ip_addresses['umcg_net2']['addr'] }}{{ all.ip_addresses['umcg_net2']['mask'] }}"
     - "{{ all.ip_addresses['umcg_net3']['addr'] }}{{ all.ip_addresses['umcg_net3']['mask'] }}"
+    - "{{ all.ip_addresses['umcg_net4']['addr'] }}{{ all.ip_addresses['umcg_net4']['mask'] }}"
 cloud_image: CentOS 7
 cloud_user: centos
 network_public_external_id: vlan16
