@@ -5,6 +5,7 @@
     - repo
     - cluster
     - docs
+    - jenkins
   roles:
     - ssh_host_signer
     - ssh_known_hosts

@@ -1,0 +1,99 @@
+#
+# Install webserver.
+#
+---
+- name: 'Check OS version of target host.'
+  ansible.builtin.fail:
+    msg: 'This role requires RedHat/CentOS version >= 7.x'
+  when: ansible_facts['os_family'] != "RedHat" or ansible_facts['distribution_major_version'] <= "6"
+
+- name: 'Set selinux in permissive mode.'
+  ansible.posix.selinux:
+    policy: 'targeted'
+    state: 'permissive'
+  become: true
+
+- name: 'Install EPEL repo and rsync.'
+  ansible.builtin.yum:
+    state: 'latest'
+    update_cache: true
+    name:
+      - 'epel-release'
+      - 'rsync'
+  become: true
+
+- name: 'Install apache webserver, php and nano.'
+  ansible.builtin.yum:
+    state: 'latest'
+    update_cache: true
+    name:
+      - 'nano'
+      - 'php'
+      - 'httpd'
+      - 'mod_ssl'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+#
+# The *.pem file with crt as well as key must be copied to the server manually.
+#
+- name: 'Check if *.gcc.rug.nl wildcard certificate was installed on server.'
+  ansible.builtin.file:
+    path: '/etc/pki/tls/private/wildcard_crt_and_key.pem'
+    state: 'file'
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+- name: 'Create symlinks for Apache httpd, so it can find the cert & key in the *.gcc.rug.nl wildcard certificate file.'
+  ansible.builtin.file:  # noqa risky-file-permissions
+    src: '/etc/pki/tls/private/wildcard_crt_and_key.pem'
+    dest: "{{ item }}"
+    state: 'link'
+    owner: 'root'
+    group: 'root'
+    force: true
+  with_items:
+    - '/etc/pki/tls/private/localhost.key'
+    - '/etc/pki/tls/certs/localhost.crt'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+- name: 'Configure ServerName in /etc/httpd/conf.d/ssl.conf'
+  ansible.builtin.lineinfile:
+    path: '/etc/httpd/conf.d/ssl.conf'
+    insertafter: '^<VirtualHost.*>'
+    regexp: '^#?ServerName'
+    line: 'ServerName jenkins.gcc.rug.nl'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+- name: 'Configure Apache webserver to redirect HTTP to HTTPS.'
+  ansible.builtin.template:
+    src: 'templates/apache/redirect_all_http_to_https.conf'
+    dest: '/etc/httpd/conf.d/redirect_all_http_to_https.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+- name: 'Enable webserver.'
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: true
+    state: 'started'
+  with_items:
+    - 'httpd'
+  become: true
+...

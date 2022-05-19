@@ -4,6 +4,7 @@
     - jumphost
     - cluster
     - docs
+    - jenkins
   roles:
   - { role: geerlingguy.firewall, become: true }
 ...
