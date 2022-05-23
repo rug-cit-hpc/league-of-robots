@@ -67,8 +67,7 @@
 
 - name: Generate 4096 bit DHparam /etc/irods/{{ irods_ssl_dh_params_file }} file (takes several minues) ...
   ansible.builtin.command:
-#    cmd: /bin/openssl dhparam -2 -out /etc/irods/{{ irods_ssl_dh_params_file }} 4096
-    cmd: /bin/openssl dhparam -2 -out /etc/irods/{{ irods_ssl_dh_params_file }} 1024
+    cmd: /bin/openssl dhparam -2 -out /etc/irods/{{ irods_ssl_dh_params_file }} 4096
     creates: /etc/irods/{{ irods_ssl_dh_params_file }}
   register: result
   failed_when:
