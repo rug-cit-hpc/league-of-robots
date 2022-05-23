@@ -2,6 +2,7 @@
 firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
   - "22"    # SSH.
   - "443"   # davrods SSL
+  - "1247"  # irods
   - "1248"  # Control Plane Port
   - "5432"  # PostgreSQL
   - "20000:20199"  # irods
@@ -24,5 +25,5 @@ irods_db_name: 'ICAT'                       # iRODS Database Name
 davrods_install: true                       # to install davrods docker
 davrods_docker_folder: "davrods_docker"     # davrods docker folder name, relative to the user home directory
 davrods_default_resource: "surfObjStore"    # default resource to upload files via davrods
-pgsql_server: "remote"                      # "local" or "remote" PostgreSQL server
+pgsql_server: "local"                      # "local" or "remote" PostgreSQL server
 ...
