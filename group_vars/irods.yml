@@ -6,8 +6,6 @@ firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
   - "1248"  # Control Plane Port
   - "5432"  # PostgreSQL
   - "20000:20199"  # irods
-firewall_additional_rules:
-  - "iptables -A INPUT -p tcp --dport 1247 -s umcg-resc1.irods.surfsara.nl -j ACCEPT"
 irods_ssl_certificate_chain_file: "localhost_and_chain_umcg-icat01.crt"
 irods_ssl_certificate_key_file: "localhost-umcg01.key"
 irods_ssl_dh_params_file: "dhparams.pem"
