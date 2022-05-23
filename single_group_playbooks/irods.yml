@@ -20,7 +20,7 @@
 ---
 - import_playbook: pre_deploy_checks.yml
 
-- name: 'Satisfy dependencies for and install Pulp.'
+- name: 'Satisfy dependencies for and install iCAT'
   hosts: irods
   roles:
     - admin_users

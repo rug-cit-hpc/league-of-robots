@@ -71,12 +71,4 @@
   become: true
   notify: irodsctl_restart
 
-- name: Temporary fix for iRODS to access remote PostgreSQL over SSL
-  ansible.builtin.template:
-    src: database_connect.py
-    dest: /var/lib/irods/scripts/irods/database_connect.py
-    mode: '0644'
-  become_user: '{{ irods_service_account }}'
-  become: true
-
 ...

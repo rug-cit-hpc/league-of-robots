@@ -1,4 +1,7 @@
 ---
+- name: Install and configure iCAT server
+  include: icat_pre.yml
+
 - name: Install and configure local PostgreSQL hosting service
   include: pgsql_local.yml
   when: pgsql_server == "local"

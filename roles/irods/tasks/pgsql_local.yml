@@ -43,4 +43,23 @@
     state: started
     enabled: true
   become: true
+
+- name: Create a new database "{{ irods_db_name }}" if missing
+  postgresql_db:
+    name: "{{ irods_db_name }}"
+    state: present
+  register: db_created
+  become_user: postgres
+  become: true
+  notify: irodsctl_restart
+
+- name: Creating irods sql user and granting privileges
+  postgresql_user:
+    name: "{{ irods_db_user }}"
+    password: "{{ irods_db_pwd }}"
+    db: "{{ irods_db_name }}"
+    priv: ALL
+    state: present
+  become_user: postgres
+  become: true
 ...

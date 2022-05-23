@@ -103,7 +103,7 @@
     enabled: true
   become: true
 
-- name: Build the davrods docker instance ... (this will a minute)
+- name: Build the davrods docker instance ... (this will take a minute)
   ansible.builtin.command:
     chdir: '{{ davrods_user_home_path }}/{{ davrods_docker_folder }}'
     cmd: docker-compose build davrods

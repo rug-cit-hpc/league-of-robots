@@ -1,4 +1,13 @@
-Role set up the iRODS iCAT server and it's PostgreSQL database
+# Prerequisites
+ - a Centos 7 server with preinstalled epel-release
+ - admin access to this machine, for installing packages
+ - 
+
+# About the iRODS and PostgreSQL database
+
+Role sets up the iRODS iCAT server and (optionally) a local PostgreSQL database.
+The iCAT server can also access to the remote PostgreSQL server. The selection 
+of local or remote PostgreSQL server is definder with the `pgsql_server` variable.
 
 The installation file can be either assebmled from the set role variables, or
 by copying the new installation file onto the
@@ -48,3 +57,18 @@ Files needed:
 
 More information about [PostgreSQL variables](https://jdbc.postgresql.org/documentation/head/ssl-client.html)
 used in the playbooks.
+
+# Important folders on the iCAT server
+
+```
+/etc/irods/               # all iCAT settings & certificates
+/home/irods/              # home folder of irods admin user
+            .irods/       # configuration and password of irods admin user
+            .postgresql/  # root.[crt,crl], postgresql.[crt,key]
+                          # for remote postgresql ssl connection
+/var/lib/
+         irods/           # irods main installation directory
+               Vault      # local unix resource directory for uploaded files
+         pgsql/           # installation directory of local PostgreSQL server,
+                          # local database storage folder and PSQL home folder
+```

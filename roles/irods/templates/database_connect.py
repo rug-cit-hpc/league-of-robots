@@ -77,10 +77,14 @@ def get_odbc_entry(db_config, catalog_database_type):
             'FakeOidIndex': 'No',
             'ConnSettings': ''{% if pgsql_server == "remote" %},
             'SSL': 'on',
-            'SSLMode': 'require',
-            {% if remote_psql_server_ca is defined  %}'SSLRootCert': '/etc/irods/{{ remote_psql_server_ca }}',{% endif %}
+            'SSLMode': 'require',{% if remote_psql_server_ca is defined  %}
+
+            'SSLRootCert': '/etc/irods/{{ remote_psql_server_ca }}',{% endif %}
+
             'SSLKey': '/etc/irods/{{ irods_ssl_certificate_key_file }}',
+
             'SSLCert': '/etc/irods/{{ irods_ssl_certificate_chain_file }}'{% endif %}
+
         }
     elif catalog_database_type == 'mysql':
         return {
@@ -185,11 +189,13 @@ def get_connection_string(db_config, irods_config):
         odbc_dict['sslmode'] = 'require'
         odbc_dict['ssl'] = 'true'
     {% if pgsql_server == "remote" %}odbc_dict['sslkey'] = '/etc/irods/{{ irods_ssl_certificate_key_file }}'
-    odbc_dict['sslcert'] = '/etc/irods/{{ irods_ssl_certificate_key_file }}'
-    {% if remote_psql_server_ca is defined  %}odbc_dict['sslrootcert'] = '/etc/irods/{{ remote_psql_server_ca }}'{% endif %}
+    odbc_dict['sslcert'] = '/etc/irods/{{ irods_ssl_certificate_key_file }}'{% if remote_psql_server_ca is defined  %}
+
+    odbc_dict['sslrootcert'] = '/etc/irods/{{ remote_psql_server_ca }}'{% endif %}
+
     odbc_dict['sslmode'] = 'require'
     odbc_dict['ssl'] = 'true'{% endif %}
-
+    
     keys = [k for k in odbc_dict.keys()]
 
     return ';'.join(itertools.chain(['DSN=iRODS Catalog'], ['%s=%s' % (k, odbc_dict[k]) for k in keys]))

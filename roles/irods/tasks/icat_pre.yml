@@ -1,0 +1,101 @@
+---
+# installing the iRODS ICAT
+- name: Create {{ irods_service_account }} group
+  ansible.builtin.group:
+    name: "{{ irods_service_account }}"
+    state: present
+  become: true
+
+- name: Creating {{ irods_service_account }} user
+  ansible.builtin.user:
+    name: "{{ irods_service_account }}"
+    groups: "{{ irods_service_account }},admin"
+  become: true
+
+- name: Installing the iRODS Package(s)
+  ansible.builtin.yum:
+    name: '{{ item }}'
+    state: present
+  loop:
+    - irods-server
+    - irods-database-plugin-postgres
+    - irods-resource-plugin-s3
+    - irods-rule-engine-plugin-python
+    - irods-rule-engine-plugin-unified-storage-tiering
+  become: true
+
+- name: Make sure that the hostname is set correct FQDN name
+  ansible.builtin.hostname:
+    name: "{{ hostvars[inventory_hostname]['fqdn'] }}"
+  become: true
+  notify: irodsctl_restart
+
+- name: Ensure that /etc/irods directory exists and is owned by {{ irods_service_account }}
+  ansible.builtin.file:
+    path: '/etc/irods'
+    state: directory
+    owner: '{{ irods_service_account }}'
+    group: '{{ irods_service_account }}'
+    mode: '0755'
+  become: true
+
+- name: Ensure that the /var/lib/irods directory exists and is owned by {{ irods_service_account }}
+  ansible.builtin.file:
+    path: '/var/lib/irods'
+    state: directory
+    owner: '{{ irods_service_account }}'
+    group: '{{ irods_service_account }}'
+    recurse: yes
+  become: true
+
+- name: Install certificate key and chain files for iRODS
+  ansible.builtin.copy:
+    src: 'files/{{ stack_name }}/nemi_irods/{{ item.name }}'
+    dest: '/etc/irods/{{ item.name }}'
+    owner: '{{ irods_service_account }}'
+    group: '{{ irods_service_account }}'
+    mode: '{{ item.mode }}'
+    decrypt: true
+    force: true
+  with_items:
+    - name: '{{ irods_ssl_certificate_key_file }}'
+      mode: '0600'
+    - name: '{{ irods_ssl_certificate_chain_file }}'
+      mode: '0644'
+  become: true
+  notify: irodsctl_restart
+
+- name: Generate 4096 bit DHparam /etc/irods/{{ irods_ssl_dh_params_file }} file (takes several minues) ...
+  ansible.builtin.command:
+#    cmd: /bin/openssl dhparam -2 -out /etc/irods/{{ irods_ssl_dh_params_file }} 4096
+    cmd: /bin/openssl dhparam -2 -out /etc/irods/{{ irods_ssl_dh_params_file }} 1024
+    creates: /etc/irods/{{ irods_ssl_dh_params_file }}
+  register: result
+  failed_when:
+    - result.rc != 0
+  become: true
+  notify: irodsctl_restart
+
+- name: Set ownership of {{ irods_ssl_dh_params_file }}
+  ansible.builtin.file:
+    path: '/etc/irods/{{ irods_ssl_dh_params_file }}'
+    owner: '{{ irods_service_account }}'
+    group: '{{ irods_service_account }}'
+    mode: '0644'
+  become: true
+
+- name: Get irods version
+  ansible.builtin.command: "rpm -q irods-server"
+  changed_when: false
+  register: irods_version
+  become: true
+
+- name: Temporary fix for iRODS to access remote PostgreSQL over SSL
+  ansible.builtin.template:
+    src: database_connect.py
+    dest: /var/lib/irods/scripts/irods/database_connect.py
+    mode: '0644'
+  become_user: '{{ irods_service_account }}'
+  become: true
+  when: '"irods-server-4.2.11-1" in irods_version.stdout'
+...
