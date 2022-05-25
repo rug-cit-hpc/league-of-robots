@@ -22,8 +22,8 @@
       connection: local
     - name: 'Verify that the group_vars were parsed.'
       ansible.builtin.assert:
-        that: slurm_cluster_name is defined
-        msg: "FATAL: the slurm_cluster_name Ansible variable is undefined, which suggests that the group_vars were not parsed."
+        that: stack_name is defined
+        msg: "FATAL: the stack_name Ansible variable is undefined, which suggests that the group_vars were not parsed."
       run_once: true
       delegate_to: localhost
       connection: local
