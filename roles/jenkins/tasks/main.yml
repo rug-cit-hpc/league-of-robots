@@ -9,91 +9,216 @@
 
 - name: 'Set selinux in permissive mode.'
   ansible.posix.selinux:
-    policy: 'targeted'
-    state: 'permissive'
+    policy: targeted
+    state: permissive
   become: true
 
-- name: 'Install EPEL repo and rsync.'
+- name: 'Install EPEL repo.'
   ansible.builtin.yum:
-    state: 'latest'
+    state: latest
     update_cache: true
     name:
-      - 'epel-release'
-      - 'rsync'
+      - epel-release
   become: true
 
-- name: 'Install apache webserver, php and nano.'
+- name: 'Install apache webserver.'
   ansible.builtin.yum:
-    state: 'latest'
+    state: latest
     update_cache: true
     name:
-      - 'nano'
-      - 'php'
-      - 'httpd'
-      - 'mod_ssl'
+      - php
+      - httpd
+      - mod_ssl
+      # Do not install 'ShellCheck' from EPEL: too old
   notify:
-    - 'restart_httpd'
+    - restart_httpd
+  become: true
+
+- name: 'Install extra RPMs.'
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - curl
+      - git
+      - java-11-openjdk
+      - nano
+      - rsync
+      - "{{ 'libselinux-python' if ansible_python['version']['major'] < 3 else 'python3-libselinux' }}"
+      # Do not install 'ShellCheck' via RPM from EPEL repo: too old
+  become: true
+
+- name: "Install pre-compiled portable ShellCheck {{ jenkins_shellcheck_version }} binary from GitHub."
+  ansible.builtin.shell:
+    executable: /bin/bash
+    chdir: /opt/
+    creates: "/opt/shellcheck-v{{ jenkins_shellcheck_version }}/shellcheck"
+    cmd: |
+         set -e
+         set -u
+         set -o pipefail
+         SC_VERSION="{{ jenkins_shellcheck_version }}"
+         SC_URL="https://github.com/koalaman/shellcheck/releases/download/v${SC_VERSION}"
+         SC_ARCHIVE="shellcheck-v${SC_VERSION}.linux.x86_64.tar.xz"
+         curl "${SC_URL}/${SC_ARCHIVE}" -L | tar -xJf -
+         cd "shellcheck-v${SC_VERSION}/"
+         cp "/opt/shellcheck-v${SC_VERSION}/shellcheck" /usr/local/bin/
+  become: true
+
+- name: 'Ensure Jenkins repo is installed.'
+  ansible.builtin.get_url:
+    url: "{{ jenkins_repo_url }}"
+    dest: /etc/yum.repos.d/jenkins.repo
+  when: jenkins_repo_url | default(false)
+  become: true
+
+- name: 'Add Jenkins repo GPG key.'
+  ansible.builtin.rpm_key:
+    state: present
+    key: "{{ jenkins_repo_key_url }}"
+  when: jenkins_repo_url | default(false)
+  become: true
+
+- name: 'Install Jenkins.'
+  ansible.builtin.yum:
+    name: jenkins
+    state: "{{ jenkins_package_state }}"
+    update_cache: true
+  notify:
+    - configure_jenkins_users
+    - restart_jenkins
+  become: true
+
+- name: 'Create /etc/systemd/system/jenkins.service.d/ dir.'
+  ansible.builtin.file:
+    path: /etc/systemd/system/jenkins.service.d
+    state: directory
+    mode: '0700'
+    owner: root
+    group: root
+  notify:
+    - restart_jenkins
+  become: true
+
+- name: 'Add custom Jenkins systemd config.'
+  ansible.builtin.template:
+    src: systemd/jenkins.conf.j2
+    dest: /etc/systemd/system/jenkins.service.d/custom.conf
+    mode: '0600'
+    owner: root
+    group: root
+  notify:
+    - restart_jenkins
+  become: true
+
+- name: 'Ensure Jenkins is started on boot.'
+  ansible.builtin.systemd:
+    name: jenkins
+    state: started
+    enabled: true
+    daemon_reload: true
+  become: true
+
+- name: 'Wait for Jenkins to start up before proceeding.'
+  ansible.builtin.uri:
+    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/cli/"
+    method: GET
+    return_content: "yes"
+    timeout: 5
+    body_format: raw
+    follow_redirects: "no"
+    status_code: 200,403
+  register: result
+  until: (result.status == 403 or result.status == 200) and (result.content.find("Please wait while") == -1)
+  retries: "{{ jenkins_connection_retries }}"
+  delay: "{{ jenkins_connection_delay }}"
+  changed_when: false
+  check_mode: false
+
+- name: 'Get the jenkins-cli jarfile from the Jenkins server.'
+  ansible.builtin.get_url:
+    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/jnlpJars/jenkins-cli.jar"
+    dest: "{{ jenkins_jar_location }}"
+  register: jarfile_get
+  until: "'OK' in jarfile_get.msg or '304' in jarfile_get.msg or 'file already exists' in jarfile_get.msg"
+  retries: 5
+  delay: 10
+  check_mode: false
+
+- name: 'Remove Jenkins security init scripts after first startup.'
+  ansible.builtin.file:
+    path: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
+    state: absent
+  become: true
+
+- name: 'Install Jenkins plugins.'
+  community.general.jenkins_plugin:
+    name: "{{ item.name | default(item) }}"
+    version: "{{ item.version | default(omit) }}"
+    jenkins_home: "{{ jenkins_home }}"
+    url_username: "{{ jenkins_admin_username }}"
+    url_password: "{{ jenkins_admin_password }}"
+    state: "{{ 'present' if item.version is defined else jenkins_plugins_state }}"
+    timeout: "{{ jenkins_plugin_timeout }}"
+    updates_expiration: "{{ jenkins_plugin_updates_expiration }}"
+    updates_url: "{{ jenkins_updates_url }}"
+    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+    with_dependencies: "{{ jenkins_plugins_install_dependencies }}"
+  with_items: "{{ jenkins_plugins }}"
+  notify: restart_jenkins
+  register: plugin_result
+  until: plugin_result is success
+  retries: 3
+  delay: 2
   become: true
 
 #
 # The *.pem file with crt as well as key must be copied to the server manually.
 #
-- name: 'Check if *.gcc.rug.nl wildcard certificate was installed on server.'
+- name: 'Check if SSL certificate was installed on server.'
   ansible.builtin.file:
     path: '/etc/pki/tls/private/wildcard_crt_and_key.pem'
-    state: 'file'
-    owner: 'root'
-    group: 'root'
+    state: file
+    owner: root
+    group: root
     mode: '0600'
   notify:
-    - 'restart_httpd'
+    - restart_httpd
   become: true
 
-- name: 'Create symlinks for Apache httpd, so it can find the cert & key in the *.gcc.rug.nl wildcard certificate file.'
+- name: 'Create symlinks for Apache httpd, so it can find the cert & key in the SSL certificate file.'
   ansible.builtin.file:  # noqa risky-file-permissions
     src: '/etc/pki/tls/private/wildcard_crt_and_key.pem'
     dest: "{{ item }}"
-    state: 'link'
-    owner: 'root'
-    group: 'root'
+    state: link
+    owner: root
+    group: root
     force: true
   with_items:
     - '/etc/pki/tls/private/localhost.key'
     - '/etc/pki/tls/certs/localhost.crt'
   notify:
-    - 'restart_httpd'
+    - restart_httpd
   become: true
 
-- name: 'Configure ServerName in /etc/httpd/conf.d/ssl.conf'
-  ansible.builtin.lineinfile:
-    path: '/etc/httpd/conf.d/ssl.conf'
-    insertafter: '^<VirtualHost.*>'
-    regexp: '^#?ServerName'
-    line: 'ServerName jenkins.gcc.rug.nl'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-  notify:
-    - 'restart_httpd'
-  become: true
-
-- name: 'Configure Apache webserver to redirect HTTP to HTTPS.'
+- name: 'Configure Apache webserver.'
   ansible.builtin.template:
-    src: 'templates/apache/redirect_all_http_to_https.conf'
-    dest: '/etc/httpd/conf.d/redirect_all_http_to_https.conf'
-    owner: 'root'
-    group: 'root'
+    src: "templates/apache/{{ item }}"
+    dest: "/etc/httpd/conf.d/{{ item }}"
+    owner: root
+    group: root
     mode: '0644'
+  with_items:
+    - redirect_all_http_to_https.conf
+    - ssl.conf
   notify:
-    - 'restart_httpd'
+    - restart_httpd
   become: true
 
-- name: 'Enable webserver.'
+- name: Enable webserver.
   ansible.builtin.service:
-    name: "{{ item }}"
+    name: httpd
     enabled: true
-    state: 'started'
-  with_items:
-    - 'httpd'
+    state: started
   become: true
 ...

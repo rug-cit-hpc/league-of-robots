@@ -1,13 +1,5 @@
 ---
-- hosts: jenkins  
-  vars:
-    java_packages:
-      - java-1.8.0-openjdk
-
+- hosts: jenkins
   roles:
-    - role: geerlingguy.java
-      when: "ansible_os_family == 'RedHat'"
-    - role: geerlingguy.jenkins
-      become: yes
     - jenkins
 ...
