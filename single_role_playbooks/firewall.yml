@@ -1,9 +1,10 @@
 ---
-- name: Install the common role from the hpc-cloud repo.
+- name: Deploy the geerlingguy.firewall role.
   hosts:
     - jumphost
     - cluster
     - docs
+    - jenkins
   roles:
   - { role: geerlingguy.firewall, become: true }
 ...
