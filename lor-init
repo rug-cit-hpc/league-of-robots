@@ -70,12 +70,16 @@ function lor-config() {
 	# Init and report current setup.
 	#
 	cd "${LOR_DIR}"
-	export AI_PROXY="${_jumphost}"
+	if [[ -n "${_jumphost:-}" ]]; then
+		export AI_PROXY="${_jumphost}"
+	else
+		unset AI_PROXY
+	fi
 	export ANSIBLE_INVENTORY="static_inventories/${_stack_name}.yml"
 	export ANSIBLE_VAULT_IDENTITY_LIST="all@.vault/vault_pass.txt.all, ${_stack_name}@.vault/vault_pass.txt.${_stack_name}"
 	printf 'INFO: Current working directory is:      %s\n' "$(pwd)"
-	printf 'INFO: Using AI_PROXY:                    %s\n' "${AI_PROXY}"
 	printf 'INFO: Using ANSIBLE_INVENTORY:           %s\n' "${ANSIBLE_INVENTORY}"
+	printf 'INFO: Using AI_PROXY:                    %s\n' "${AI_PROXY:-None: no jumphost specified in ANSIBLE_INVENTORY}"
 	printf 'INFO: Using ANSIBLE_VAULT_IDENTITY_LIST: %s\n' "${ANSIBLE_VAULT_IDENTITY_LIST}"
 	#
 	# Enable ansible_mitogen strategy plugin for improved speed of plays when available.

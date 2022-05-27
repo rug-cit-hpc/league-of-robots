@@ -36,4 +36,9 @@ jumphosts:
   - 'corridor'    # Fender
   - 'tunnel'      # Nibbler
   - 'porch'       # Wingedhelix
+jenkins_plugins:
+  - warnings-ng
+jenkins_plugins_install_dependencies: true
+jenkins_prefer_lts: true
+jenkins_shellcheck_version: 0.8.0
 ...

@@ -1,0 +1,33 @@
+---
+jenkins_prefer_lts: true
+jenkins_repo_url: https://pkg.jenkins.io/redhat{{ '-stable' if (jenkins_prefer_lts | bool) else '' }}/jenkins.repo
+jenkins_repo_key_url: https://pkg.jenkins.io/redhat{{ '-stable' if (jenkins_prefer_lts | bool) else '' }}/jenkins.io.key
+jenkins_pkg_url: https://pkg.jenkins.io/redhat
+jenkins_package_state: present  # Change to `latest` to update Jenkins if a newer release is available.
+jenkins_connection_delay: 5
+jenkins_connection_retries: 60
+jenkins_home: /var/lib/jenkins
+jenkins_hostname: localhost
+jenkins_http_port: 8080
+jenkins_http_listen_address: 127.0.0.1
+jenkins_jar_location: /opt/jenkins-cli.jar
+jenkins_url_prefix: ''
+jenkins_java_options: "-Djenkins.install.runSetupWizard=false"
+#
+# Plugin list can use the plugin name or optionally a name + version dict.
+#
+jenkins_plugins: []
+#  - warnings-ng
+#  - name: warnings-ng
+#    version: "9.12.0"
+jenkins_plugins_state: latest
+jenkins_plugin_updates_expiration: 86400
+jenkins_plugin_timeout: 30
+jenkins_plugins_install_dependencies: true
+jenkins_updates_url: https://updates.jenkins.io
+#jenkins_admin_username: admin
+#jenkins_admin_password: admin
+jenkins_admin_password_file: ''
+jenkins_process_user: jenkins
+jenkins_process_group: "{{ jenkins_process_user }}"
+...
