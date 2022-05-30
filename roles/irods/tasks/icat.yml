@@ -87,16 +87,6 @@
   become: true
   notify: irodsctl_restart
 
-- name: Copy tiering script into {{ ir_service_account }} home folder
-  ansible.builtin.copy:
-    src: '{{ role_path }}/files/tiering.sh'
-    dest: '/tmp/'
-    mode: 0755
-    owner: '{{ ir_service_account }}'
-    group: '{{ ir_service_account }}'
-  become_user: '{{ ir_service_account }}'
-  become: true
-
 - name: Force all services to restart, before we start using iRODS imeta commands
   ansible.builtin.meta: flush_handlers
 
