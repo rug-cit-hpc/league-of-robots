@@ -7,20 +7,20 @@
   register: create_unattended_installation_json
   become: true
 
-- name: Collect list of tables from existing {{ irods_db_name }}
-  ansible.builtin.command: 'psql -d {{ irods_db_name }} -c "\dt"'
+- name: Collect list of tables from existing {{ ir_db_name }}
+  ansible.builtin.command: 'psql -d {{ ir_db_name }} -c "\dt"'
   changed_when: false
   register: database_tables
   become_user: postgres
   become: true
 
-- name: Install iRODS, if {{ irods_db_name }} is empty (no tables exist)
+- name: Install iRODS, if {{ ir_db_name }} is empty (no tables exist)
   ansible.builtin.command: sudo python /var/lib/irods/scripts/setup_irods.py --json_configuration_file=/root/unattended_install.json
   when: '"No relations found." in database_tables.stdout'
   run_once: true
   async: 120
   poll: 1
-  become_user: '{{ irods_service_account }}'
+  become_user: '{{ ir_service_account }}'
   become: true
   notify: irodsctl_restart
 
@@ -38,18 +38,18 @@
     search_string: 'acSetNumThreads {msiSetNumThreads("default","default","default"); }'
     line: 'acSetNumThreads {msiSetNumThreads("default","4","default"); }'
 
-- name: Edit /etc/irods/core.re to set default resource to {{ irods_default_resource }}
+- name: Edit /etc/irods/core.re to set default resource to {{ ir_default_res }}
   ansible.builtin.lineinfile:
     name: /etc/irods/core.re
     search_string: 'acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","null"); }'
-    line: 'acSetRescSchemeForCreate {msiSetDefaultResc("{{ irods_default_resource }}","null"); }'
+    line: 'acSetRescSchemeForCreate {msiSetDefaultResc("{{ ir_default_res }}","null"); }'
   become: true
 
-- name: Edit /etc/irods/core.re to set default replication resource to {{ irods_default_resource }}
+- name: Edit /etc/irods/core.re to set default replication resource to {{ ir_default_res }}
   ansible.builtin.lineinfile:
     name: /etc/irods/core.re
     search_string: 'acSetRescSchemeForRepl {msiSetDefaultResc("demoResc","null"); }'
-    line: 'acSetRescSchemeForRepl {msiSetDefaultResc("{{ irods_default_resource }}","null"); }'
+    line: 'acSetRescSchemeForRepl {msiSetDefaultResc("{{ ir_default_res }}","null"); }'
   become: true
 
 - name: Increase systcl limits to allow longer transfers
@@ -81,35 +81,23 @@
     dest: /etc/irods/.s3auth
     force: true
     mode: 0644
-    owner: '{{ irods_service_account }}'
-    group: '{{ irods_service_account }}'
-  become_user: '{{ irods_service_account }}'
+    owner: '{{ ir_service_account }}'
+    group: '{{ ir_service_account }}'
+  become_user: '{{ ir_service_account }}'
   become: true
   notify: irodsctl_restart
 
-- name: Copy tiering script into {{ irods_service_account }} home folder
+- name: Copy tiering script into {{ ir_service_account }} home folder
   ansible.builtin.copy:
     src: '{{ role_path }}/files/tiering.sh'
     dest: '/tmp/'
     mode: 0755
-    owner: '{{ irods_service_account }}'
-    group: '{{ irods_service_account }}'
-  become_user: '{{ irods_service_account }}'
+    owner: '{{ ir_service_account }}'
+    group: '{{ ir_service_account }}'
+  become_user: '{{ ir_service_account }}'
   become: true
 
-- name: Check if tiering is installed
-  ansible.builtin.command: 'iqstat'
-  register: check_if_tiering_installed
-  become_user: '{{ irods_service_account }}'
-  become: true
-  changed_when: false
-  failed_when: check_if_tiering_installed.rc != 0
-  
-- name: Install tiering plugin
-  ansible.builtin.command: '/tmp/tiering.sh'
-  register: tiering_install
-  become_user: '{{ irods_service_account }}'
-  become: true
-  when: 'check_if_tiering_installed.stdout is not search("irods_policy_storage_tiering.*storage-tier-groups.*example_group_g2")'
-  failed_when: tiering_install.rc != 0
+- name: Force all services to restart, before we start using iRODS imeta commands
+  ansible.builtin.meta: flush_handlers
+
 ...

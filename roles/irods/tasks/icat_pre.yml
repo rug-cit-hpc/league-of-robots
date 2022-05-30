@@ -1,15 +1,15 @@
 ---
 # installing the iRODS ICAT
-- name: Create {{ irods_service_account }} group
+- name: Create {{ ir_service_account }} group
   ansible.builtin.group:
-    name: "{{ irods_service_account }}"
+    name: '{{ ir_service_account }}'
     state: present
   become: true
 
-- name: Creating {{ irods_service_account }} user
+- name: Creating {{ ir_service_account }} user
   ansible.builtin.user:
-    name: "{{ irods_service_account }}"
-    groups: "{{ irods_service_account }},admin"
+    name: '{{ ir_service_account }}'
+    groups: '{{ ir_service_account }},admin'
   become: true
 
 - name: Installing the iRODS Package(s)
@@ -30,71 +30,69 @@
   become: true
   notify: irodsctl_restart
 
-- name: Ensure that /etc/irods directory exists and is owned by {{ irods_service_account }}
+- name: Ensure that /etc/irods directory exists and is owned by {{ ir_service_account }}
   ansible.builtin.file:
     path: '/etc/irods'
     state: directory
-    owner: '{{ irods_service_account }}'
-    group: '{{ irods_service_account }}'
+    owner: '{{ ir_service_account }}'
+    group: '{{ ir_service_account }}'
     mode: '0755'
   become: true
 
-- name: Ensure that the /var/lib/irods directory exists and is owned by {{ irods_service_account }}
+- name: Ensure that the /var/lib/irods directory exists and is owned by {{ ir_service_account }}
   ansible.builtin.file:
     path: '/var/lib/irods'
     state: directory
-    owner: '{{ irods_service_account }}'
-    group: '{{ irods_service_account }}'
-    recurse: yes
+    owner: '{{ ir_service_account }}'
+    group: '{{ ir_service_account }}'
+    recurse: true
   become: true
 
 - name: Install certificate key and chain files for iRODS
   ansible.builtin.copy:
     src: 'files/{{ stack_name }}/nemi_irods/{{ item.name }}'
     dest: '/etc/irods/{{ item.name }}'
-    owner: '{{ irods_service_account }}'
-    group: '{{ irods_service_account }}'
+    owner: '{{ ir_service_account }}'
+    group: '{{ ir_service_account }}'
     mode: '{{ item.mode }}'
     decrypt: true
     force: true
   with_items:
-    - name: '{{ irods_ssl_certificate_key_file }}'
+    - name: '{{ ir_ssl_certificate_key_file }}'
       mode: '0600'
-    - name: '{{ irods_ssl_certificate_chain_file }}'
+    - name: '{{ ir_ssl_certificate_chain_file }}'
       mode: '0644'
   become: true
   notify: irodsctl_restart
 
-- name: Generate 4096 bit DHparam /etc/irods/{{ irods_ssl_dh_params_file }} file (takes several minues) ...
+- name: Generate 4096 bit DHparam /etc/irods/{{ ir_ssl_dh_params_file }} file (takes several minues) ...
   ansible.builtin.command:
-    cmd: /bin/openssl dhparam -2 -out /etc/irods/{{ irods_ssl_dh_params_file }} 4096
-    creates: /etc/irods/{{ irods_ssl_dh_params_file }}
+    cmd: /bin/openssl dhparam -2 -out /etc/irods/{{ ir_ssl_dh_params_file }} 4096
+    creates: /etc/irods/{{ ir_ssl_dh_params_file }}
   register: result
   failed_when:
     - result.rc != 0
   become: true
   notify: irodsctl_restart
 
-- name: Set ownership of {{ irods_ssl_dh_params_file }}
+- name: Set ownership of {{ ir_ssl_dh_params_file }}
   ansible.builtin.file:
-    path: '/etc/irods/{{ irods_ssl_dh_params_file }}'
-    owner: '{{ irods_service_account }}'
-    group: '{{ irods_service_account }}'
+    path: '/etc/irods/{{ ir_ssl_dh_params_file }}'
+    owner: '{{ ir_service_account }}'
+    group: '{{ ir_service_account }}'
     mode: '0644'
   become: true
 
-- name: Get irods version
-  ansible.builtin.command: "rpm -q irods-server"
-  changed_when: false
-  register: irods_version
-  become: true
+- name: Get iRODS version
+  ansible.builtin.package_facts:
+    manager: auto
 
-- name: Temporary fix for iRODS to access remote PostgreSQL over SSL
+- name: Fix iRODS to use SSL when access remote PostgreSQL (temporary until upstream fix)
   ansible.builtin.template:
     src: database_connect.py
     dest: /var/lib/irods/scripts/irods/database_connect.py
     mode: '0644'
-  become_user: '{{ irods_service_account }}'
+  become_user: '{{ ir_service_account }}'
   become: true
-  when: '"irods-server-4.2.11-1" in irods_version.stdout'
+  when: '"irods-server-4.2.11-1" in ansible_facts.packages'
 ...

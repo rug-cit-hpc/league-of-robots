@@ -1,18 +1,19 @@
 # Prerequisites
  - a Centos 7 server with preinstalled epel-release
- - admin access to this machine, for installing packages
- - 
+ - preconfigured irods repository
+ - and administrative privileges on the machine
 
 # About the iRODS and PostgreSQL database
 
 Role sets up the iRODS iCAT server and (optionally) a local PostgreSQL database.
-The iCAT server can also access to the remote PostgreSQL server. The selection 
-of local or remote PostgreSQL server is definder with the `pgsql_server` variable.
+The iCAT server can also access to the PostgreSQL server on remote server. This
+can be selected, by assigning `pgsql_server` variable to values `local` or
+ `remote`.
 
-The installation file can be either assebmled from the set role variables, or
-by copying the new installation file onto the
-templates/unattended_install.json.j2. The new `unattended_install.json.j2` can
-be created from existing iCAT server, by
+The iCAT is installed with use of `unattended_install.json.j2` file. It can be
+created either the set role variables, or by you can copying custom file on the
+`templates/unattended_install.json.j2`. The `unattended_install.json.j2` can be
+also created from existing iCAT server, by
 - login to the existing iCAT server, under irods service account and run
    `izonereport > unattended_install.json`
 - the unattended_install.json.j2 will contain two json groups: "icat_server" and
@@ -31,29 +32,30 @@ This role also sets
 * fixed: when using s3 on remote server and local .s3auth file missing 
 * increase password to 40 char random A-Za-z0-9
 
-## Server hosting local PostgreSQL server
+## PostgreSQL server 
 
-Configured with task `tasks/pgsql_local.yml`
+### Local server installation
 
-## Configuring remote PostgreSQL server over ssl
+is done with the task `tasks/pgsql_local.yml`
 
-Configured with task `pgsql_remote.yml`
+### Remote PostgreSQL server over ssl
 
-Check the [PostgreSQL instructions](https://www.postgresql.org/docs/current/libpq-ssl.html)
+Is configured with task `pgsql_remote.yml`
 
-`To allow server certificate verification, one or more root certificates must be placed in the file ~/.postgresql/root.crt in the user's home directory.`
+For detailed variable explanation, check the [PostgreSQL instructions](https://www.postgresql.org/docs/current/libpq-ssl.html)
 
-Files needed:
-  - `~/.postgresql` folder with files
+`To allow server certificate verification, one or more root certificates must be
+placed in the file ~/.postgresql/root.crt in the user's home directory.`
+
+The role configures following files on the iCAT server:
+  - `~irods/.postgresql` folder
     - `root.crt` remote server's root certificate
     - `root.crl` remote server's certificate revocation list
-    - `postgresql.crt` is the client's certificate (same as `{{ irods_ssl_certificate_chain_file }}` certificate
+    - `postgresql.crt` is the client's certificate (same as `{{ ir_ssl_certificate_chain_file }}` certificate
     - `postgresql.key` matching private key of `postgresql.crt` - make sure it is protected `chmod 0600`
   - /etc/irods/{{ remote_psql_server_ca }}
     - if remote server certificate is signed by trusted CA that has not been yet trusted by iCAT server
     - (optional) if file is missing, just remove the variable
-
-
 
 More information about [PostgreSQL variables](https://jdbc.postgresql.org/documentation/head/ssl-client.html)
 used in the playbooks.
@@ -71,4 +73,19 @@ used in the playbooks.
                Vault      # local unix resource directory for uploaded files
          pgsql/           # installation directory of local PostgreSQL server,
                           # local database storage folder and PSQL home folder
+```
+
+# Tiering plugin
+
+Is defined if the variable `tiering_install` is set to `True`. 
+
+The tiering settings are defined in the static_inventories/[cluster_name].ini
+under the machine variables:
+
+```
+   tiering_install: True                      # True / False
+   ir_local_stage_res: 'demoRescStage'        # Staging resource, before data moved to permanent resource
+   ir_local_stage_res_fol: '/tmp/irods/{{ ir_local_stage_res }}'
+   ir_local_perm_res: 'demoRescPerm'          # Permanent resource, where it will keep data indefinitely
+   ir_local_perm_res_fol: '/tmp/irods/{{ ir_local_perm_res }}'
 ```
