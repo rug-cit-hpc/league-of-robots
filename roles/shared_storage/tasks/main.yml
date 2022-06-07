@@ -33,7 +33,7 @@
 
 - name: 'Mount complete Physical File Systems (PFS-ses).'
   ansible.posix.mount:
-    path: "/mnt/{{ item.pfs }}"
+    path: "/mnt/{{ item.pfs | regex_replace('\\$$', '') }}"
     src: "{{ item.source }}/{{ item.pfs }}"
     fstype: "{{ item.type }}"
     opts: "{{ item.rw_options }}{{ extra_opts }}"
