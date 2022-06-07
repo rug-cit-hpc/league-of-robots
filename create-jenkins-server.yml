@@ -47,6 +47,8 @@
     # which would fail to use the interpretor from an activated virtual environment.
     #
     - ansible_python_interpreter: python
+  roles:
+    - include_vars_from_other_groups
   tasks:
     - name: "Create {{ network_private_management_id }} network."
       openstack.cloud.network:
@@ -104,48 +106,39 @@
                      Allows all outbound traffic.
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ stack_prefix }}_webservers security group: allow SSH inbound from external jumphost on port 22."
+    - name: "Add rules to {{ stack_prefix }}_webservers security group: allow inbound SSH from jumphosts."
       openstack.cloud.security_group_rule:
         security_group: "{{ stack_prefix }}_webservers"
         direction: ingress
         protocol: tcp
         port_range_min: 22
         port_range_max: 22
-        remote_ip_prefix: "{{ ip_addresses[item].addr }}{{ ip_addresses[item].mask }}"
+        remote_ip_prefix: "{{ remote_ip_address }}{{ remote_ip_netmask }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-      with_items: "{{ jumphosts }}"
-    - name: "Add rule to {{ stack_prefix }}_webservers security group: allow HTTP inbound on port 80."
+      vars:
+        remote_ip_address: "{{ lookup('vars', item.0.group)['ip_addresses'][item.1.hostname][item.1.network]['address'] }}"
+        remote_ip_netmask: "{{ lookup('vars', item.0.group)['ip_addresses'][item.1.hostname][item.1.network]['netmask'] }}"
+      with_subelements:
+        - "{{ jumphosts }}"
+        - hosts
+    - name: "Add rules to {{ stack_prefix }}_webservers security group: allow inbound HTTP(S) and ICMP."
       openstack.cloud.security_group_rule:
         security_group: "{{ stack_prefix }}_webservers"
         direction: ingress
-        protocol: tcp
-        port_range_min: 80
-        port_range_max: 80
+        protocol: "{{ item.protocol }}"
+        port_range_min: "{{ item.port }}"
+        port_range_max: "{{ item.port }}"
         remote_ip_prefix: 0.0.0.0/0
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ stack_prefix }}_webservers security group: allow HTTPS inbound on port 443."
-      openstack.cloud.security_group_rule:
-        security_group: "{{ stack_prefix }}_webservers"
-        direction: ingress
-        protocol: tcp
-        port_range_min: 443
-        port_range_max: 443
-        remote_ip_prefix: 0.0.0.0/0
-        wait: true
-        timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rule to {{ stack_prefix }}_webservers security group: allow ICMP inbound."
-      openstack.cloud.security_group_rule:
-        security_group: "{{ stack_prefix }}_webservers"
-        direction: ingress
-        protocol: icmp
-        port_range_min: -1  # ICMP protocol does not have any ports.
-        port_range_max: -1  # ICMP protocol does not have any ports.
-        remote_ip_prefix: 0.0.0.0/0
-        wait: true
-        timeout: "{{ openstack_api_timeout }}"
-
+      with_items:
+        - protocol: tcp
+          port: 80  # HTTP
+        - protocol: tcp
+          port: 443  # HTTPS
+        - protocol: icmp
+          port: -1  # ICMP protocol does not have any ports.
 ##############################################################################
 # Configure Jenkins server(s) from inventory using Openstack API.
 ##############################################################################
@@ -230,18 +223,33 @@
     # as filtering directly during the API call is problematic.
     # Will filter the results for the relevant servers later on.
     #
+    - name: Get info on floating IPs from OpenStack API.
+      openstack.cloud.floating_ip_info:
+      register: api_fip_info
+    - name: Get info on networks from OpenStack API.
+      openstack.cloud.networks_info:
+      register: api_network_info
     - name: Get server info from OpenStack API.
       openstack.cloud.server_info:
       register: api_server_info
-    - name: "ToDo"
-      debug:
+    - name: "Add addresses to {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/group_vars/template/ip_addresses.yml.j2"
+        dest: "{{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
+        mode: '0644'
+      vars:
+        relevant_servers_list: "{{ groups['jenkins'] | default([]) }}"
+        relevant_servers_info: "{{ api_server_info.openstack_servers | selectattr('name', 'in', relevant_servers_list) | list }}"
+    - name: ToDo
+      ansible.builtin.debug:
         msg: |
              ***********************************************************************************************************
              IMPORTANT: Manual work!
+                        Ansible created:
+                            {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new
+                        Please inspect this file carefully with:
+                            diff -y {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
+                        and if Ok execute:
+                            mv {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
              ***********************************************************************************************************
-             Check if public IP address "{{ api_server_info.openstack_servers | selectattr('name', 'equalto', item) | map(attribute='accessIPv4') | first }}" for server "{{ item }}"
-             needs to be updated in:
-                 {{ playbook_dir }}/group_vars/all/ip_addresses.yml
-             ***********************************************************************************************************
-      with_items: "{{ groups['docs'] | default([]) }}"
 ...

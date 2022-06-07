@@ -64,7 +64,7 @@
   ansible.builtin.shell:
     cmd: |
       set -o pipefail
-      ssh-keygen -lf <(ssh-keyscan {{ dt_server_address }} 2>/dev/null) \
+      ssh-keygen -lf <(ssh-keyscan {{ first_dt_server_address }} 2>/dev/null) \
         | awk '{print $2,$4}'
   args:
     executable: '/bin/bash'
@@ -78,30 +78,6 @@
   when:
     - groups['data_transfer'] is defined
     - groups['data_transfer'] | first | length >= 1
-
-- name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
-  ansible.builtin.find:
-    paths: "{{ playbook_dir }}/group_vars/"
-    recurse: true
-    patterns: 'ip_addresses.yml'
-  register: ip_addresses_files
-  delegate_to: localhost
-  connection: local
-
-- name: 'Include variables from all ip_addresses.yml files.'
-  ansible.builtin.include_vars:
-    file: "{{ item }}"
-    name: "networking_lookup"
-  with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
-  register: networking_lookups
-  delegate_to: localhost
-  connection: local
-
-- name: 'Combine network info from ip_addresses.yml files into one dict.'
-  ansible.builtin.set_fact:
-    networking_lookups: "{{ networking_lookups.results | json_query('[].ansible_facts.networking_lookup.ip_addresses') | combine() }}"
-  delegate_to: localhost
-  connection: local
 
 - name: 'Set selinux in permissive mode.'
   ansible.posix.selinux:

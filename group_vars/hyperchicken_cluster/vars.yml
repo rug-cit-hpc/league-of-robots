@@ -1,6 +1,6 @@
 ---
 slurm_cluster_name: 'hyperchicken'
-slurm_cluster_domain: ''
+stack_domain: ''
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'hc'
 slurm_version: '20.11.8-1.el7.umcg'
@@ -24,15 +24,13 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
-mailhub: '192.168.0.5'
-rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'lockergnome'
 motd: "To solve or not to solve, that's the question."
 additional_etc_hosts:
-  - group: all
-    hosts:
-      - docs
-      - docs_on_merlin
+  - group: docs_library
+    nodes:
+      - name: docs_on_merlin
+        network: vlan16
 use_ldap: yes
 create_ldap: yes
 ldap_uri: ldaps://hc-dai
@@ -47,8 +45,6 @@ network_private_management_cidr: '10.10.1.0/24'
 network_private_management_gw: '10.10.1.1'
 network_private_storage_id: "subnet-nfs-data-2541"
 network_private_storage_cidr: '10.35.141.0/24'
-public_ip_addresses:
-  portal: '45.88.81.146'
 availability_zone: nova
 nameservers: [
   '8.8.4.4',  # Google DNS.

@@ -1,5 +1,5 @@
 #jinja2: trim_blocks:False
-# Data transfers - How to move data to / from {{ dt_server_address }}
+# Data transfers - How to move data to / from {{ first_dt_server_address }}
 
 Firstly and independent of technical options: make sure you are familiar with the _code of conduct_ / _terms and conditions_ / _license_ or whatever it is called and that you are allowed to upload/download a data set!
 When in doubt contact your supervisor / principal investigator and the group/institute that created the data set.
@@ -30,7 +30,7 @@ ${{ groups['user_interface'] | first }}> ssh-add -l
 #### Transfer data with rsync
 
 Once you have your private key temporarily forwarded to _{{ groups['user_interface'] | first }}_
-you can use _rsync_ (over ssh) with the _guest_ account to transfer data to/from _{{ dt_server_address }}_.
+you can use _rsync_ (over ssh) with the _guest_ account to transfer data to/from _{{ first_dt_server_address }}_.
 See below for some syntax examples.
 Note:
 
@@ -46,11 +46,11 @@ Note:
 #
 # Request a list of rsync modules available for user some-guest-account.
 #
-rsync -v --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::
+rsync -v --rsh='ssh -p 443 -l some-guest-account' {{ first_dt_server_address }}::
 #
 # List contents in the "home" module.
 #
-rsync -v --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/
+rsync -v --rsh='ssh -p 443 -l some-guest-account' {{ first_dt_server_address }}::home/
 #
 ##
 ### Specify both a source as well as a destination to transfer data.
@@ -59,11 +59,11 @@ rsync -v --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/
 #
 # Push a file from user interface to data transfer server.
 #
-rsync -av --rsh='ssh -p 443 -l some-guest-account' path/to/file_on_{{ groups['user_interface'] | first }} {{ dt_server_address }}::home/
+rsync -av --rsh='ssh -p 443 -l some-guest-account' path/to/file_on_{{ groups['user_interface'] | first }} {{ first_dt_server_address }}::home/
 #
 # Reverse source and destination to pull a file from data transfer server onto user interface server.
 #
-rsync -av --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/data_on_transfer_server path/to/dir_on_{{ groups['user_interface'] | first }}/
+rsync -av --rsh='ssh -p 443 -l some-guest-account' {{ first_dt_server_address }}::home/data_on_transfer_server path/to/dir_on_{{ groups['user_interface'] | first }}/
 ```
 
 -----
