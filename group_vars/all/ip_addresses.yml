@@ -29,15 +29,15 @@ ip_addresses:
     bwp_net:
       address: '129.125.249.0'
       netmask: '/24'
-      desc: 'RUG BWP (BeheersWerkPlekken)'
+      desc: 'RUG BWP'
     operator:
       address: '129.125.50.41'
       netmask: '/32'
-      desc: 'operator.service.rug.nl / Nagios+Stealth'
+      desc: 'operator.service.rug.nl / monitoring'
     f5:
       address: '129.125.2.0'
       netmask: '/24'
-      desc: 'RUG F5 load balancers, which includes ssh.webhosting.rug.nl and Kubernetes Docker farm/cloud.'
+      desc: 'RUG F5 load balancers.'
   #
   # RUG research cluster UIs.
   #
@@ -68,7 +68,7 @@ ip_addresses:
     cloud_net:
       address: '195.169.22.1'
       netmask: '/23'
-      desc: 'Includes many molgenis[0-9]+.gcc.rug.nl VMs, but not all IPs in range belong to GCC cloud. Listing them all individually would get messy...'
+      desc: 'Includes many molgenis[0-9]+.gcc.rug.nl VMs, but not all IPs in range belong to GCC cloud.'
     tnt1:
       address: '195.169.23.126'
       netmask: '/32'
@@ -96,17 +96,17 @@ ip_addresses:
     ds:
       address: '129.125.161.80'
       netmask: '/32'
-      desc: 'Victor''s SFTP server @ ERIBA'
+      desc: 'SFTP server @ ERIBA'
   lumc:
     shark_ui:
       address: '145.88.35.10'
       netmask: '/32'
       desc: 'Jumphost for LUMC Shark cluster.'
   #
-  # EBI / Sanger servers.
+  # EBI & Sanger servers.
   #
-  # These institutes share a campus and data centers.
-  # Services are frequently moved to other machines and in addition most services are behind load balancers 
+  # Services are frequently moved to other machines and
+  # in addition most services are behind load balancers 
   # resulting in frequently changing IP addresses: -> allow their entire subnets.
   #   Services include:
   #    * ftp.ensembl.org        (FTP)
