@@ -81,13 +81,14 @@ all:
 ```
 
 To find a specific item you will need 3 keys:
+
  * `{{ stack_name }}`
  * `{{ node_name }}` (a machine or institute)`
  * `{{ network_name }}`
 
-E.g.:
+E.g. for the example data structure listed above:
 ```
-{{ lookup('vars', item[stack_name])['ip_addresses'][node_name][network_name]['address'] }}
+{{ lookup('vars', item['stack_name'])['ip_addresses']['my_machine']['public_network_name']['address'] }}
 ```
 
 
@@ -96,8 +97,8 @@ E.g.:
 This can be used for lookups by the name of an item when you do not know in which stack an item was located.
 
 ```
-ip_addresses:
-  machine:
+all_ip_addresses:
+  my_machine:
     some_internal_network_name:
       address: 10.10.1.1
       netmask: /32
@@ -109,7 +110,7 @@ ip_addresses:
       address: 123.1.2.3
       netmask: /32
       fqdn: 'machine.some.domain'
-  institute:
+  other_institute:
     some_network_range_name:
       address: 123.321.123.0
       netmask: /24
@@ -119,6 +120,13 @@ ip_addresses:
       desc: 'a description of what this subnet is used for.'
 ```
 
+To find a specific item you will need 2 keys:
 
+ * `{{ node_name }}` (a machine or institute)`
+ * `{{ network_name }}`
 
+E.g. for the example data structure listed above:
+```
+{{ all_ip_addresses['other_institute']['some_network_range_name']['address'] }}"
+```
 
