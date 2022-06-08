@@ -22,7 +22,7 @@ jobs:
             python -m venv venv
             . venv/bin/activate
             pip install ansible-lint
-            ansible-galaxy install -r galaxy-requirements.yml
+            ansible-galaxy install -r requirements.yml
       - run:
           name: run tests
           shell: /bin/bash

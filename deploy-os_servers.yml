@@ -1,28 +1,5 @@
 #
-#   1.   $> cd git/league-of-robots
-# Create Python virtual environment (once)
-#   2.   $> python3 -m venv openstacksdk.venv
-# Activate virtual environment.
-#   3.   $> source openstacksdk.venv/bin/activate
-# Install OpenStack SDK (once).
-#   4.   $> pip3 install openstacksdk
-#        $> pip3 install ruamel.yaml
-# NOTE: Openstack RC file must be sourced first to be able to use Openstack API from SDK:
-#   5. Login to OpenStack web interface -> "Identity" -> "Application Credentials" -> click the "Create Application Credential" button.
-#      This will result in a popup window: specify "Name", "Expiration Date", "Expiration Time", leave the rest empty / use defaults and
-#      click the "Create Application Credential" button.
-#      In the new popup window click the "Download openrc file" button and save the generated *-openrc.sh file in the root of the repo.
-#   6. Source the downloaded file. E.g.:
-#        $> source ./[Application_Credential_Name]-openrc.sh
-#   7. Fetch Ansible dependencies
-#        $> ansible-galaxy install -r galaxy-requirements.yml
-# Configure this repo for deployment of a specifc HPC cluster.
-#   8. Source lor-init from this repo. E.g.:
-#        $> source ./lor-init
-#   9. Configure League of Robots for a specific cluster. E.g.:
-#        $> lor-config nb
-#  10. Execute playbook to create VMs. E.g.:
-#        $> ansible-playbook deploy-os_servers.yml
+# See README.md for instructins how to use this playbook.
 #
 ---
 - name: 'Sanity checks before we start.'
