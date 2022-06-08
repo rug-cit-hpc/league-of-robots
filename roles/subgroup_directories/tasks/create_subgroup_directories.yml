@@ -1,81 +1,57 @@
 ---
-- block:
-    - name: "Get list of {{ group }} subgroups with version number."
-      ansible.builtin.shell: |
-        getent group \
-          | grep -o "^{{ group }}-[^:]*-v[0-9][0-9]*" \
-          || true
-      changed_when: false
-      register: versioned_subgroups
-    - ansible.builtin.set_fact:  # noqa unnamed-task
-        versioned_subgroups_list: "{% if versioned_subgroups.stdout | length %}{{ versioned_subgroups.stdout.split('\n') | list }}{% endif %}"
-
-- block:
-    - name: "Get list of {{ group }} subgroups without version number and excluding *-dms, *owners & primary groups."
-      ansible.builtin.shell: |
-        for group in $(getent group | grep -o "^{{ group }}-[^:]*" | grep -v -- "-v[0-9][0-9]*$\|-dms$\|-owners$"); do \
-          if ! getent passwd "${group}" >/dev/null 2>&1; then \
-            echo "${group}"; \
-          fi; \
-        done
-      changed_when: false
-      register: unversioned_subgroups
-    - ansible.builtin.set_fact:  # noqa unnamed-task
-        unversioned_subgroups_list: "{% if unversioned_subgroups.stdout | length %}{{ unversioned_subgroups.stdout.split('\n') | list }}{% endif %}"
-
 - name: "Create directory structure for releases with version number on {{ lfs }}."
   block:
-    - name: "Create /groups/{{ group }}/{{ lfs }}/releases/ directory."
+    - name: "Create /groups/{{ main_group }}/{{ lfs }}/releases/ directory."
       ansible.builtin.file:
-        path: "/groups/{{ group }}/{{ lfs }}/releases/"
-        owner: "{{ group }}-dm"
-        group: "{{ group }}"
+        path: "/groups/{{ main_group }}/{{ lfs }}/releases/"
+        owner: "{{ main_group }}-dm"
+        group: "{{ main_group }}"
+        mode: '2750'
+        state: 'directory'
+    - name: "Create /groups/{{ main_group }}/{{ lfs }}/releases/${dataset} directory."
+      ansible.builtin.file:
+        path: "/groups/{{ main_group }}/{{ lfs }}/releases/{{ item }}"
+        owner: "{{ main_group }}-dm"
+        group: "{{ main_group }}"
         mode: "{{ mode_dataset }}"
         state: 'directory'
-    - name: "Create /groups/{{ group }}/{{ lfs }}/releases/${dataset} directory."
+      with_items: "{{ versioned_sub_groups | map('regex_replace', '^' + main_group + '-(.*)-(v[0-9][0-9]*)$', '\\1') | unique }}"
+    - name: "Create /groups/{{ main_group }}/{{ lfs }}/releases/${dataset}/${version} directory."
       ansible.builtin.file:
-        path: "/groups/{{ group }}/{{ lfs }}/releases/{{ item | regex_replace('^' + group + '-(.*)-(v[0-9][0-9]*)$', '\\1') }}"
-        owner: "{{ group }}-dm"
-        group: "{{ group }}"
-        mode: "{{ mode_dataset }}"
-        state: 'directory'
-      with_items: "{{ versioned_subgroups_list }}"
-    - name: "Create /groups/{{ group }}/{{ lfs }}/releases/${dataset}/${version} directory."
-      ansible.builtin.file:
-        path: "/groups/{{ group }}/{{ lfs }}/releases/\
-               {{ item | regex_replace('^' + group + '-(.*)-(v[0-9][0-9]*)$', '\\1') }}/\
-               {{ item | regex_replace('^' + group + '-(.*)-(v[0-9][0-9]*)$', '\\2') }}"
-        owner: "{{ group }}-dm"
-        group: "{% if item | length %}{{ item }}{% else %}{{ group }}{% endif %}"
+        path: "/groups/{{ main_group }}/{{ lfs }}/releases/\
+               {{ item | regex_replace('^' + main_group + '-(.*)-(v[0-9][0-9]*)$', '\\1') }}/\
+               {{ item | regex_replace('^' + main_group + '-(.*)-(v[0-9][0-9]*)$', '\\2') }}"
+        owner: "{{ main_group }}-dm"
+        group: "{% if item | length %}{{ item }}{% else %}{{ main_group }}{% endif %}"
         mode: "{{ mode_version }}"
         state: 'directory'
-      with_items: "{{ versioned_subgroups_list }}"
+      with_items: "{{ versioned_sub_groups }}"
       # Continue if this specific subgroup failed and try to create other subgroup folders.
       ignore_errors: true  # noqa ignore-errors
-  when: versioned_subgroups_list | length > 0
+  when: versioned_sub_groups | length > 0
   become: true
-  become_user: "{{ group }}-dm"
+  become_user: "{{ main_group }}-dm"
 
 - name: "Create directory structure for projects on {{ lfs }}."
   block:
-    - name: "Create /groups/{{ group }}/{{ lfs }}/projects directory."
+    - name: "Create /groups/{{ main_group }}/{{ lfs }}/projects directory."
       ansible.builtin.file:
-        path: "/groups/{{ group }}/{{ lfs }}/projects/"
-        owner: "{{ group }}-dm"
-        group: "{{ group }}"
+        path: "/groups/{{ main_group }}/{{ lfs }}/projects/"
+        owner: "{{ main_group }}-dm"
+        group: "{{ main_group }}"
+        mode: '2750'
+        state: 'directory'
+    - name: "Create /groups/{{ main_group }}/{{ lfs }}/projects/${project} directory."
+      ansible.builtin.file:
+        path: "/groups/{{ main_group }}/{{ lfs }}/projects/{{ item | regex_replace('^' + main_group + '-(.*)$', '\\1') }}"
+        owner: "{{ main_group }}-dm"
+        group: "{% if item | length %}{{ item }}{% else %}{{ main_group }}{% endif %}"
         mode: "{{ mode_project }}"
         state: 'directory'
-    - name: "Create /groups/{{ group }}/{{ lfs }}/projects/${project} directory."
-      ansible.builtin.file:
-        path: "/groups/{{ group }}/{{ lfs }}/projects/{{ item | regex_replace('^' + group + '-(.*)$', '\\1') }}"
-        owner: "{{ group }}-dm"
-        group: "{% if item | length %}{{ item }}{% else %}{{ group }}{% endif %}"
-        mode: "{{ mode_project }}"
-        state: 'directory'
-      with_items: "{{ unversioned_subgroups_list }}"
+      with_items: "{{ unversioned_sub_groups }}"
       # Continue if this specific subgroup failed and try to create other subgroup folders.
       ignore_errors: true  # noqa ignore-errors
-  when: unversioned_subgroups_list | length > 0
+  when: unversioned_sub_groups | length > 0
   become: true
-  become_user: "{{ group }}-dm"
+  become_user: "{{ main_group }}-dm"
 ...

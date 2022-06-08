@@ -8,6 +8,8 @@ all:
       hosts:
         jenkins:
           cloud_flavor: m1.small
+          ansible_host: tunnel+jenkins
+          fqdn: jenkins.gcc.rug.nl
 jenkins_server:
   children:
     openstack_api:

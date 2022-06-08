@@ -1,0 +1,17 @@
+---
+- import_playbook: pre_deploy_checks.yml
+
+- name: Configure rsyslog servers
+  hosts: rsyslog
+  roles:
+    - rsyslog_server
+
+- name: Configure rsyslog clients
+  hosts:
+    - jumphost
+    - cluster
+    - repo
+    - rsyslog
+  roles:
+    - rsyslog_client
+...

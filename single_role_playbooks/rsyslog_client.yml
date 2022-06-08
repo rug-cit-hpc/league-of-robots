@@ -1,0 +1,9 @@
+---
+- hosts:
+    - jumphost
+    - cluster
+    - repo
+    - rsyslog
+  roles:
+    - roles/rsyslog_client
+...

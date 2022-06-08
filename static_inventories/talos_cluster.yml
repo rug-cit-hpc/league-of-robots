@@ -8,6 +8,10 @@ all:
       hosts:
         reception:
           cloud_flavor: 2C-4GB
+    repo:
+      hosts:
+        tl-repo:
+          cloud_flavor: 2C-4GB
     docs:
       hosts:
         docs_on_merlin:
@@ -64,6 +68,7 @@ talos_cluster:
   children:
     openstack_api:
     jumphost:
+    repo:
     cluster:
     docs:
 ...

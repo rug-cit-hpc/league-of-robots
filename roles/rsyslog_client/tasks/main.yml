@@ -1,0 +1,53 @@
+---
+- name: 'Install rsyslog and gnutls with all plugins'
+  ansible.builtin.yum:
+    name:
+      - rsyslog
+      - rsyslog-gnutls
+      - gnutls
+      - gnutls-utils
+    state: latest
+    update_cache: true
+  become: true
+
+- name: Create client keys and certificates if managed rsyslog servers are present
+  ansible.builtin.include: client.yml
+  when: groups['rsyslog'] is defined and ( groups['rsyslog']|length>0 )
+
+- name: Deploy rsyslog.conf template on the client
+  ansible.builtin.template:
+    src: templates/rsyslog.conf
+    dest: /etc/rsyslog.conf
+    force: true
+    mode: 0644
+  become: true
+  when: inventory_hostname not in groups['rsyslog']
+  notify: client_restart_rsyslog
+
+- name: Deploy configuration for managed remote rsyslog servers
+  ansible.builtin.template:
+    src: templates/rsyslog_managed.conf
+    dest: /etc/rsyslog.d/managed.conf
+    force: true
+    mode: 0644
+  become: true
+  when: inventory_hostname not in groups['rsyslog']
+  notify: client_restart_rsyslog
+
+- name: Deploy configuration for unmanaged remote rsyslog servers
+  ansible.builtin.template:
+    src: templates/rsyslog_unmanaged.conf
+    dest: /etc/rsyslog.d/unmanaged.conf
+    force: true
+    mode: 0644
+  become: true
+  when: inventory_hostname not in groups['rsyslog']
+  notify: client_restart_rsyslog
+
+- name: Start and enable rsyslog service if they are not
+  ansible.builtin.systemd:
+    name: rsyslog.service
+    state: started
+    enabled: true
+  become: true
+...

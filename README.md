@@ -133,6 +133,12 @@ pip3 install ruamel.yaml
 # E.g. with HomeBrew on macOS, with yum or dnf on Linux, etc.
 #
 pip3 install ansible
+#
+# Optional: install Mitogen with pip.
+# Mitogen provides an optional strategy plugin that makes playbooks a lot (up to 7 times!) faster.
+# See https://mitogen.networkgenomics.com/ansible_detailed.html
+#
+pip3 install mitogen
 ```
 
 #### 1. First import the required roles and collections for the playbooks:
@@ -246,6 +252,7 @@ Are you sure you want to continue connecting (yes/no)?
 
 Execute:
 ```bash
+mkdir -p files/[stack_name]
 dd if=/dev/urandom bs=1 count=1024 > files/[stack_name]/munge.key
 ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/munge.key
 ```

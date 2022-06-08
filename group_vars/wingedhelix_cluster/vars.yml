@@ -38,12 +38,22 @@ additional_etc_hosts:
       - docs_on_merlin
 use_ldap: yes
 create_ldap: no
-ldap_uri: 'ldaps://svrs.id.rug.nl'
-ldap_base: 'ou=gd,o=asds'
-ldap_binddn: 'cn=clusteradminGD,o=asds'
-ldap_group_object_class: 'groupofnames'
-ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
-ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
+use_sssd: yes
+ldap_domains:
+  grunn:
+    uri: ldaps://svrs.id.rug.nl
+    search_base: ou=gd,o=asds
+    schema: rfc2307
+    min_id: 50100000
+    max_id: 55999999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: groupMembership
+    group_member: memberUid
+    group_object_class: groupofnames
+    group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
+    group_quota_hard_limit_template: ruggroupumcgquotaLFS
 totp:
   machines: "{{ groups['jumphost'] }}"
   excluded:
@@ -92,7 +102,6 @@ regular_groups:
   - "{{ envsync_group }}"
   - "{{ functional_admin_group }}"
   - 'umcg-atd'
-
   - 'umcg-gap'
   - 'umcg-gd'
   - 'umcg-genomescan'
@@ -105,86 +114,151 @@ regular_users:
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']
     sudoers: '%umcg-atd'
+  - user: 'umcg-atd-dm'
+    groups: ['umcg-atd']
+    sudoers: '%umcg-atd'
   - user: 'umcg-gap-ateambot'
+    groups: ['umcg-gap']
+    sudoers: '%umcg-gap'
+  - user: 'umcg-gap-dm'
     groups: ['umcg-gap']
     sudoers: '%umcg-gap'
   - user: 'umcg-gd-ateambot'
     groups: ['umcg-gd']
     sudoers: '%umcg-gd'
+  - user: 'umcg-gd-dm'
+    groups: ['umcg-gd']
+    sudoers: '%umcg-gd'
   - user: 'umcg-genomescan-ateambot'
+    groups: ['umcg-genomescan']
+    sudoers: '%umcg-genomescan'
+  - user: 'umcg-genomescan-dm'
     groups: ['umcg-genomescan']
     sudoers: '%umcg-genomescan'
   - user: 'umcg-gsad-ateambot'
     groups: ['umcg-gsad']
     sudoers: '%umcg-gsad'
+  - user: 'umcg-gsad-dm'
+    groups: ['umcg-gsad']
+    sudoers: '%umcg-gsad'
   - user: 'umcg-gst-ateambot'
     groups: ['umcg-gst']
     sudoers: '%umcg-gst'
+  - user: 'umcg-gst-dm'
+    groups: ['umcg-gst']
+    sudoers: '%umcg-gst'
+  - user: 'umcg-vipt-dm'
+    groups: ['umcg-vipt']
+    sudoers: '%umcg-vipt'
 #
 # Shared storage related variables
 #
-pfs_mounts: [
-  { pfs: 'umcgst12',
-    device: '/dev/vdb',
-    source: '10.10.2.20:/mnt',
-    type: 'nfs4',    # checked with cat /proc/filesystem
-    rw_options: 'defaults,_netdev,noatime,nodiratime,local_lock=flock',
-    ro_options: 'defaults,_netdev,noatime,nodiratime,ro',
-    machines: "{{ groups['sys_admin_interface'] }}" },
-  { pfs: 'medgen_zincfinger$',
-    source: '//storage3.umcg.nl',
-    type: 'cifs',    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640',
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640',
-    machines: "{{ groups['chaperone'] }}" },
-  { pfs: 'medgen_leucinezipper$',
-    source: '//storage3.umcg.nl',
-    type: 'cifs',    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640',
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640',
-    machines: "{{ groups['chaperone'] }}" },
-  { pfs: 'medgen_wingedhelix$',
-    source: '//storage3.umcg.nl',
-    type: 'cifs',    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640',
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640',
-    machines: "{{ groups['chaperone'] }}" },
-]
-lfs_mounts: [
-  { lfs: 'home',
-    pfs: 'umcgst12',
-    rw_machines: "{{ groups['cluster'] }}" },
-  { lfs: 'tmp07',
-    pfs: 'umcgst12',
-    groups: ['umcg-atd', 'umcg-gap', 'umcg-gd', 'umcg-genomescan', 'umcg-gsad', 'umcg-gst', 'umcg-vipt'],
-    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}" },
-  { lfs: 'prm05',
-    pfs: 'medgen_zincfinger$',
-    groups: ['umcg-atd', 'umcg-gap', 'umcg-gd', 'umcg-genomescan', 'umcg-gsad', 'umcg-gst', 'umcg-vipt'],
-    rw_machines: "{{ groups['chaperone'] }}" },
-  { lfs: 'dat05',
-    pfs: 'medgen_zincfinger$',
-    groups: ['umcg-atd', 'umcg-gap', 'umcg-gd', 'umcg-genomescan', 'umcg-gsad', 'umcg-gst', 'umcg-vipt'],
-    rw_machines: "{{ groups['chaperone'] }}" },
-  { lfs: 'prm06',
-    pfs: 'medgen_leucinezipper$',
-    groups: ['umcg-atd', 'umcg-gap', 'umcg-gd', 'umcg-genomescan', 'umcg-gsad', 'umcg-gst', 'umcg-vipt'],
-    rw_machines: "{{ groups['chaperone'] }}" },
-  { lfs: 'dat06',
-    pfs: 'medgen_leucinezipper$',
-    groups: ['umcg-atd', 'umcg-gap', 'umcg-gd', 'umcg-genomescan', 'umcg-gsad', 'umcg-gst', 'umcg-vipt'],
-    rw_machines: "{{ groups['chaperone'] }}" },
-  { lfs: 'prm07',
-    pfs: 'medgen_wingedhelix$',
-    groups: ['umcg-atd', 'umcg-gap', 'umcg-gd', 'umcg-genomescan', 'umcg-gsad', 'umcg-gst', 'umcg-vipt'],
-    rw_machines: "{{ groups['chaperone'] }}" },
-  { lfs: 'dat07',
-    pfs: 'medgen_wingedhelix$',
-    groups: ['umcg-atd', 'umcg-gap', 'umcg-gd', 'umcg-genomescan', 'umcg-gsad', 'umcg-gst', 'umcg-vipt'],
-    rw_machines: "{{ groups['chaperone'] }}" },
-  { lfs: 'env07',
-    pfs: 'umcgst12',
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}",
-    rw_machines: "{{ groups['deploy_admin_interface'] }}" },
-]
+pfs_mounts:
+  - pfs: umcgst12
+    device: /dev/vdb
+    source: '10.10.2.20:/mnt'
+    type: nfs4    # checked with cat /proc/filesystem
+    rw_options: 'defaults,_netdev,noatime,nodiratime,local_lock=flock'
+    ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
+    machines: "{{ groups['sys_admin_interface'] }}"
+  - pfs: 'medgen_zincfinger$'
+    source: '//storage3.umcg.nl'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    machines: "{{ groups['chaperone'] }}"
+  - pfs: 'medgen_leucinezipper$'
+    source: '//storage3.umcg.nl'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    machines: "{{ groups['chaperone'] }}"
+  - pfs: 'medgen_wingedhelix$'
+    source: '//storage3.umcg.nl'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    machines: "{{ groups['chaperone'] }}"
+lfs_mounts:
+  - lfs: home
+    pfs: umcgst12
+    rw_machines: "{{ groups['cluster'] }}"
+  - lfs: tmp07
+    pfs: umcgst12
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}"
+  - lfs: prm05
+    pfs: 'medgen_zincfinger$'
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat05
+    pfs: 'medgen_zincfinger$'
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm06
+    pfs: 'medgen_leucinezipper$'
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat06
+    pfs: 'medgen_leucinezipper$'
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm07
+    pfs: 'medgen_wingedhelix$'
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat07
+    pfs: 'medgen_wingedhelix$'
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: env07
+    pfs: umcgst12
+    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ...
