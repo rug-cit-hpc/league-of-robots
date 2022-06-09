@@ -1,6 +1,6 @@
 ---
 slurm_cluster_name: 'nibbler'
-slurm_cluster_domain: 'hpc.rug.nl'
+stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'nb'
 slurm_version: '20.11.8-1.el7.umcg'
@@ -33,8 +33,6 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
-mailhub: '192.168.0.5'
-rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'ogre'
 motd: |
       =========================================================
@@ -47,19 +45,14 @@ motd: |
           which are on a different (production) storage system.
       =========================================================
 additional_etc_hosts:
-  - group: all
-    hosts:
-      - docs
-      - docs_on_merlin
-      - jenkins
-  - group: boxy_cluster
-    hosts:
-      - boxy-management
-      - boxy-storage
-  - group: calculon_cluster
-    hosts:
-      - calculon-management
-      - calculon-storage
+  - group: docs_library
+    nodes:
+      - name: docs_on_merlin
+        network: vlan16
+  - group: jenkins_server
+    nodes:
+      - name: jenkins
+        network: vlan16
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
@@ -93,11 +86,11 @@ ldap_domains:
 cloud_image: CentOS 7
 cloud_user: centos
 network_public_external_id: vlan16
-network_private_management_id: internal_management
-network_private_management_id_13: internal_management_13
+network_private_management_id: "{{ stack_prefix }}_internal_management"
+network_private_management_id_13: "{{ stack_prefix }}_internal_management_13"
 network_private_management_cidr: '10.10.1.0/24'
 network_private_management_gw: '10.10.1.1'
-network_private_storage_id: internal_storage
+network_private_storage_id: "{{ stack_prefix }}_internal_storage"
 network_private_storage_cidr: '10.10.2.0/24'
 availability_zone: nova
 nameservers: [

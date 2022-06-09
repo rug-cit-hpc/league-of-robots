@@ -1,5 +1,5 @@
 #jinja2: trim_blocks:False
-# Data transfers - How to move data to / from {{ dt_server_address }}
+# Data transfers - How to move data to / from {{ first_dt_server_address }}
 
 Firstly and independent of technical options: make sure you are familiar with the _code of conduct_ / _terms and conditions_ / _license_ or whatever it is called and that you are allowed to upload/download a data set!
 When in doubt contact your supervisor / principal investigator and the group/institute that created the data set.
@@ -28,16 +28,16 @@ as opposed to the FileZilla _installer_ (filename of the download ends in _.exe_
 
 ![Start FileZilla and open the Site Manager](img/FileZilla-Windows-1.png)
 
- * 1: Click the _**Site Manager**_ button to configure the connection to {{ dt_server_address }}
+ * 1: Click the _**Site Manager**_ button to configure the connection to {{ first_dt_server_address }}
 
-###### Create new site with connection details for {{ dt_server_address }}
+###### Create new site with connection details for {{ first_dt_server_address }}
 
 ![FileZilla Site Manager](img/FileZilla-Windows-2.png)
 
  * 2: Click the _**New Site**_ button.
  * 3: Provide a name for the new site.
  * 4: Select the _**SFTP**_ protocol.
- * 5: Enter the address **{{ dt_server_address }}** in the _**Host**_ field.
+ * 5: Enter the address **{{ first_dt_server_address }}** in the _**Host**_ field.
  * 6: Use _**Port**_ **22** (default).
  * 7: Select _**Logon Type**_ **Key File**.
  * 8: Enter the guest **accountname** you received from the helpdesk in the _**User**_ field.
@@ -53,7 +53,7 @@ as opposed to the FileZilla _installer_ (filename of the download ends in _.exe_
 
 ###### Unknown host key
 
-If this is the first time you connect to {{ dt_server_address }},
+If this is the first time you connect to {{ first_dt_server_address }},
 FileZilla will show you the _**fingerprint**_ of the server's host key. 
 
 ![FileZilla Site Manager](img/FileZilla-Windows-4.png)
@@ -74,7 +74,7 @@ FileZilla will show you the _**fingerprint**_ of the server's host key.
 ###### Drag and drop files or folders to start a transfer
 
 FileZilla will login and start a session.
-You can browse files/folders on your local machine in the left column and on {{ dt_server_address }} in the right column.
+You can browse files/folders on your local machine in the left column and on {{ first_dt_server_address }} in the right column.
 Drag files/folder from the left column to the right one to upload or vice versa to download.
 
 ![FileZilla Site Manager](img/FileZilla-Windows-6.png)
@@ -87,16 +87,16 @@ Drag files/folder from the left column to the right one to upload or vice versa 
 
 ![Start FileZilla and open the Site Manager](img/FileZilla-macOS-1.png)
 
- * 1: Click the _**Site Manager**_ button to configure the connection to {{ dt_server_address }}
+ * 1: Click the _**Site Manager**_ button to configure the connection to {{ first_dt_server_address }}
 
-###### Create new site with connection details for {{ dt_server_address }}
+###### Create new site with connection details for {{ first_dt_server_address }}
 
 ![FileZilla Site Manager](img/FileZilla-macOS-2.png)
 
  * 2: Click the _**New Site**_ button.
  * 3: Provide a name for the new site.
  * 4: Select the _**SFTP**_ protocol.
- * 5: Enter the address **{{ dt_server_address }}** in the _**Host**_ field.
+ * 5: Enter the address **{{ first_dt_server_address }}** in the _**Host**_ field.
  * 6: Use _**Port**_ **22** (default).
  * 7: Select _**Logon Type**_ **Key File**.
  * 8: Enter the guest **accountname** you received from the helpdesk in the _**User**_ field.
@@ -136,7 +136,7 @@ It cannot use private keys in OpenSSH format, but can convert a private key gene
 
 ###### Unknown host key
 
-If this is the first time you connect to {{ dt_server_address }},
+If this is the first time you connect to {{ first_dt_server_address }},
 FileZilla will show you the _**fingerprint**_ of the server's host key.
 
 ![FileZilla Site Manager](img/FileZilla-macOS-7.png)
@@ -150,7 +150,7 @@ FileZilla will show you the _**fingerprint**_ of the server's host key.
 ###### Drag and drop files or folders to start a transfer
 
 FileZilla will login and start a session.
-You can browse files/folders on your local machine in the left column and on {{ dt_server_address }} in the right column.
+You can browse files/folders on your local machine in the left column and on {{ first_dt_server_address }} in the right column.
 Drag files/folder from the left column to the right one to upload or vice versa to download.
 
 ![FileZilla Site Manager](img/FileZilla-macOS-8.png)
@@ -159,7 +159,7 @@ Drag files/folder from the left column to the right one to upload or vice versa 
 
 <a name="rsync-commandline"></a>
 
-You can use rsync (over ssh) to transfer data to/from _{{ dt_server_address }}_.
+You can use rsync (over ssh) to transfer data to/from _{{ first_dt_server_address }}_.
 Note that the data transfer uses _rsync modules_, which uses double colon syntax (::) to separate the name/address of the server from the path on the server.
 The rsync protocol is more efficient for large data sets and easier to automate, but unfortunately there are no free and good rsync client apps with a Graphical User Interface (GUI).
 See below for some syntax examples.
@@ -172,11 +172,11 @@ See below for some syntax examples.
 #
 # Request a list of rsync modules available for user some-guest-account.
 #
-rsync -v --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::
+rsync -v --rsh='ssh -p 443 -l some-guest-account' {{ first_dt_server_address }}::
 #
 # List contents in the home module.
 #
-rsync -v --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/
+rsync -v --rsh='ssh -p 443 -l some-guest-account' {{ first_dt_server_address }}::home/
 #
 ##
 ### Specify both a source as well as a destination to transfer data.
@@ -184,11 +184,11 @@ rsync -v --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/
 #
 # Push a file from user interface to data transfer server.
 #
-rsync -av --rsh='ssh -p 443 -l some-guest-account' path/to/file_on_local_computer {{ dt_server_address }}::home/
+rsync -av --rsh='ssh -p 443 -l some-guest-account' path/to/file_on_local_computer {{ first_dt_server_address }}::home/
 #
 # Reverse source and destination to pull a file from data transfer server onto user interface server.
 #
-rsync -av --rsh='ssh -p 443 -l some-guest-account' {{ dt_server_address }}::home/data_on_transfer_server path/to/dir_on_local_computer/
+rsync -av --rsh='ssh -p 443 -l some-guest-account' {{ first_dt_server_address }}::home/data_on_transfer_server path/to/dir_on_local_computer/
 ```
 
 -----

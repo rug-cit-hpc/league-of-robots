@@ -1,56 +1,43 @@
 ---
 ip_addresses:
-  tl-repo:
-    addr: 172.23.40.99
-    mask: /32
-    vlan: vlan983
-    fqdn:
-    desc: Repository Management
-  tl-dai:
-    addr: 172.23.40.94
-    mask: /32
-    vlan: vlan983
-    fqdn:
-    desc: Deploy Admin Interface
-  tl-sai:
-    addr: 172.23.40.93
-    mask: /32
-    vlan: vlan983
-    fqdn:
-    desc: Sys Admin Interface
-  tl-vcompute03:
-    addr: 172.23.40.97
-    mask: /32
-    vlan: vlan983
-    fqdn:
-    desc: Compute Node
-  tl-vcompute02:
-    addr: 172.23.40.96
-    mask: /32
-    vlan: vlan983
-    fqdn:
-    desc: Compute Node
-  tl-vcompute01:
-    addr: 172.23.40.95
-    mask: /32
-    vlan: vlan983
-    fqdn:
-    desc: Compute Node
-  talos:
-    addr: 172.23.40.92
-    mask: /32
-    vlan: vlan983
-    fqdn:
-    desc: User Interface
-  talos-storage:
-    addr: 172.23.34.92
-    mask: /32
-    vlan: vlan985
-    desc: User Interface - Storage VLAN
   reception:
-    addr: 172.23.40.100
-    mask: /32
-    vlan: vlan983
-    fqdn:
-    desc: Jumphost
+    vlan983:
+      address: 172.23.40.100
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    vlan16:
+      address: 129.125.60.18
+      netmask: /32
+      fqdn: 'reception.hpc.rug.nl'
+  talos:
+    vlan983:
+      address: 172.23.40.92
+      netmask: /32
+    vlan985:
+      address: 172.23.34.92
+      netmask: /32
+  tl-dai:
+    vlan983:
+      address: 172.23.40.94
+      netmask: /32
+  tl-repo:
+    vlan983:
+      address: 172.23.40.99
+      netmask: /32
+  tl-sai:
+    vlan983:
+      address: 172.23.40.93
+      netmask: /32
+  tl-vcompute01:
+    vlan983:
+      address: 172.23.40.95
+      netmask: /32
+  tl-vcompute02:
+    vlan983:
+      address: 172.23.40.96
+      netmask: /32
+  tl-vcompute03:
+    vlan983:
+      address: 172.23.40.97
+      netmask: /32
 ...

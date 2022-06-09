@@ -12,16 +12,18 @@ roles:
   - src: geerlingguy.postgresql
     version: 3.1.1
 collections:
-  - name: community.general
-    version: '>=3.0.2'
-  - name: openstack.cloud
-    version: '>=1.5.0'
+  - name: ansible.utils
+    version: '>=2.0.1'
   - name: ansible.posix
     version: '>=1.2.0'
+  - name: community.general
+    version: '>=3.0.2'
+  - name: community.mysql
+    version: '>=2.3.5'
+  - name: openstack.cloud
+    version: '>=1.5.0'
   - name: pulp.pulp_installer
     version: '==3.16.0'
   - name: pulp.squeezer
     version: '>=0.0.8'
-  - name: community.mysql
-    version: '>=2.3.5'
 ...

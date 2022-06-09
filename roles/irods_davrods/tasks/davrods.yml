@@ -1,3 +1,4 @@
+---
 - name: 'Ensure that /etc/irods directory exists'
   ansible.builtin.file:
     dest: "/etc/irods"
@@ -124,3 +125,4 @@
   changed_when: false
   become_user: '{{ davrods_docker_user }}'
   become: true
+...

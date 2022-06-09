@@ -1,6 +1,6 @@
 ---
 slurm_cluster_name: 'boxy'
-slurm_cluster_domain: 'hpc.rug.nl'
+stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'bx'
 ldap_uri: ldap://172.23.40.249

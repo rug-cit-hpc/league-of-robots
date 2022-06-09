@@ -123,7 +123,7 @@ See the `README.md` in the root of this repo for details.
 Make sure the requirements/dependencies from Ansible Galaxy were installed.
 The exec summary:
 ```bash
-ansible-galaxy install -r galaxy-requirements.yml
+ansible-galaxy install -r requirements.yml
 ```
 See the `README.md` in the root of this repo for details.
 Next you can use
