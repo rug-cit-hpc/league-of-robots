@@ -53,6 +53,7 @@ all:
         cloud_flavor: m1.large
         local_volume_size_extra: 20
         fqdn: umcg-icat01.hpc.rug.nl
+        davrods_icat_ip: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
     docs:
       hosts:
         docs_on_merlin:

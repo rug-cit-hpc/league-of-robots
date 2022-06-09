@@ -1,6 +1,6 @@
 ---
 slurm_cluster_name: 'marvin'
-slurm_cluster_domain: ''
+stack_domain: ''
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'mv'
 slurm_version: '20.11.8-1.el7.umcg'
@@ -24,16 +24,13 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
-mailhub: '192.168.0.5'
-rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'speed'
 motd: "It is rare, but not unheard of."
 additional_etc_hosts:
-  - group: all
-    hosts:
-      - docs
-      - docs_on_merlin
-use_ldap: yes
+  - group: docs_library
+    nodes:
+      - name: docs_on_merlin
+        network: vlan16
 create_ldap: yes
 use_sssd: yes
 ldap_domains:
@@ -51,8 +48,6 @@ ldap_domains:
 cloud_image: centos7
 cloud_user: centos
 public_net_id: ext-net-37
-public_ip_addresses:
-  dockingport: '193.62.55.244'
 private_net_id: EJP-RD-network
 private_subnet_id: EJP-RD-subnet
 private_storage_net_id: 

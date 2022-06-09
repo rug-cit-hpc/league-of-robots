@@ -61,7 +61,7 @@ Some of these can be accessed directly by users, whereas others cannot be access
    Test/development clusters are named after other robots.  
    E.g.: {{ slurm_cluster_name | capitalize }} UI = _{{ groups['user_interface'] | first }}_
  * Jumphosts are named after rooms preceding other rooms.  
-   E.g.: {{ slurm_cluster_name | capitalize }} Jumphost = _{{ groups['jumphost'] | first }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}_
+   E.g.: {{ slurm_cluster_name | capitalize }} Jumphost = _{{ groups['jumphost'] | first }}{% if stack_domain | length %}.{{ stack_domain }}{% endif %}_
  * Other machines that are part of the cluster and only accessible using internal network interfaces (schedulers, compute nodes, account servers, etc.)  
    will use a two character prefix _{{ stack_prefix }}_ followed by a dash and the function of the machine.  
    E.g. {{ slurm_cluster_name | capitalize }} compute node = _{{ groups['compute_vm'] | first }}_

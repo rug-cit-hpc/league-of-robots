@@ -1,9 +1,7 @@
 ---
 ip_addresses:
   betabarrel:
-    addr: 172.23.41.225
-    mask: /32
-    vlan: VLAN 983
-    fqdn:
-    desc: Slurm in a box
+    vlan983:
+      address: 172.23.41.225
+      netmask: /32
 ...
