@@ -6,7 +6,7 @@
 # About the iRODS and PostgreSQL database
 
 Role sets up the iRODS iCAT server and (optionally) a local PostgreSQL database.
-The iCAT server can also access to the PostgreSQL server on remote server. This
+The iCAT server can also access a PostgreSQL database on a remote server. This
 can be selected, by assigning `pgsql_server` variable to values `local` or
  `remote`.
 
