@@ -230,7 +230,7 @@
     mode: 0755
   become: true
   become_user: '{{ ir_service_account }}'
-  when: 'check_iqstat.stdout is not search("example_group_g2")'
+  when: 'check_iqstat.stdout is not search("example_group_2")'
 
 - name: Start tiering rule
   ansible.builtin.command: >-
@@ -239,7 +239,7 @@
   become: true
   register: run_tiering_rule
   failed_when: run_tiering_rule.rc != 0
-  when: 'check_iqstat.stdout is not search("example_group_g2")'
+  when: 'check_iqstat.stdout is not search("example_group_2")'
 
 - name: Get all pending rules from the iRODS rule execution list
   ansible.builtin.command: iqstat
@@ -247,5 +247,5 @@
   become_user: '{{ ir_service_account }}'
   become: true
   register: recheck_iqstat
-  failed_when: 'recheck_iqstat.rc != 0 or recheck_iqstat.stdout is not search("example_group_g2")'
+  failed_when: 'recheck_iqstat.rc != 0 or recheck_iqstat.stdout is not search("example_group_2")'
 ...
