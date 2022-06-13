@@ -36,7 +36,7 @@ This role also sets
 
 ### Local server installation
 
-is done with the task `tasks/pgsql_local.yml`
+Is done with the task `tasks/pgsql_local.yml`.
 
 ### Remote PostgreSQL server over ssl
 
