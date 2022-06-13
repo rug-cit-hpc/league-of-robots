@@ -126,7 +126,6 @@
   failed_when: make_local_perm_tiering_group.rc != 0
   when: 'check_imeta_tiering_perm_group.stdout is not search("attribute: irods::storage_tiering::group")'
 
-
 - name: Check if storage_tiering time was defined for {{ ir_local_res }} resource
   ansible.builtin.command: >-
     imeta ls -R {{ ir_local_res }} irods::storage_tiering::time
