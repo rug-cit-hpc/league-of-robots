@@ -44,7 +44,7 @@
     enabled: true
   become: true
 
-- name: Create a new database {{ irods_db_name }} if missing
+- name: Create {{ irods_db_name }} database.
   postgresql_db:
     name: '{{ ir_db_name }}'
     state: present
