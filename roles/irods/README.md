@@ -40,7 +40,7 @@ Is done with the task `tasks/pgsql_local.yml`.
 
 ### Remote PostgreSQL server over ssl
 
-Is configured with task `pgsql_remote.yml`
+Is configured with task `pgsql_remote.yml`.
 
 For detailed variable explanation, check the [PostgreSQL instructions](https://www.postgresql.org/docs/current/libpq-ssl.html)
 
