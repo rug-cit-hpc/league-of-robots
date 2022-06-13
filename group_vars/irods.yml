@@ -7,8 +7,8 @@ firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
   - "5432"  # PostgreSQL
   - "20000:20199"  # irods
 ir_server_type: 'icat'                  # iRODS Server Type
-ir_ssl_certificate_chain_file: 'localhost_and_chain_umcg-icat01.crt' # iRODS server certificate
-ir_ssl_certificate_key_file: 'localhost-umcg01.key' # iRODS server certificate's key
+ir_ssl_certificate_chain_file: 'nemi_irods/localhost_and_chain_umcg-icat01.crt' # iRODS server certificate
+ir_ssl_certificate_key_file: 'nemi_irods/localhost-umcg01.key' # iRODS server certificate's key
 ir_ssl_dh_params_file: 'dhparams.pem'   # DHparam filename 
 
 ir_zone: 'nlumcg'                       # default main iRODS zone name
@@ -37,5 +37,5 @@ ir_local_perm_res: 'demoRescPerm'       # Permanent resource, where it will keep
 ir_local_perm_res_fol: '/tmp/irods/{{ ir_local_perm_res }}' # optional, only if it is local resource
 
 pgsql_server: "local"                   # "local" or "remote" PostgreSQL server
-remote_psql_server_ca: "remote_psql_server_ca.crt"   # (optional) remote servers's CA certificate
+remote_psql_server_ca: "nemi_irods/remote_psql_server_ca.crt"   # (optional) remote servers's CA certificate
 ...

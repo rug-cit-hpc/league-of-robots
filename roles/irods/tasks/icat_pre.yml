@@ -50,7 +50,7 @@
 
 - name: Install certificate key and chain files for iRODS
   ansible.builtin.copy:
-    src: 'files/{{ stack_name }}/nemi_irods/{{ item.name }}'
+    src: 'files/{{ stack_name }}/{{ item.name }}'
     dest: '/etc/irods/{{ item.name }}'
     owner: '{{ ir_service_account }}'
     group: '{{ ir_service_account }}'

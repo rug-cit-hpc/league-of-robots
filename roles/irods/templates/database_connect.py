@@ -80,7 +80,7 @@ def get_odbc_entry(db_config, catalog_database_type):
             'SSL': 'on',
             'SSLMode': 'require',{% if remote_psql_server_ca is defined  %}
 
-            'SSLRootCert': '/etc/irods/{{ remote_psql_server_ca }}',{% endif %}
+            'SSLRootCert': '/etc/irods/{{ remote_psql_server_ca | basename }}',{% endif %}
 
             'SSLKey': '/etc/irods/{{ ir_ssl_certificate_key_file }}',
 
@@ -192,7 +192,7 @@ def get_connection_string(db_config, irods_config):
     {% if pgsql_server == "remote" %}odbc_dict['sslkey'] = '/etc/irods/{{ ir_ssl_certificate_key_file }}'
     odbc_dict['sslcert'] = '/etc/irods/{{ ir_ssl_certificate_chain_file }}'{% if remote_psql_server_ca is defined  %}
 
-    odbc_dict['sslrootcert'] = '/etc/irods/{{ remote_psql_server_ca }}'{% endif %}
+    odbc_dict['sslrootcert'] = '/etc/irods/{{ remote_psql_server_ca | basename }}'{% endif %}
 
     odbc_dict['sslmode'] = 'require'
     odbc_dict['ssl'] = 'true'{% endif %}

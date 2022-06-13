@@ -4,19 +4,19 @@
 - name: 'Satisfy dependencies for and install iCAT'
   hosts: irods
   roles:
-    - admin_users
-    - ssh_host_signer
-    - ssh_known_hosts
-    - pulp_client
-    - static_hostname_lookup
-    - logrotate
-    - logins
-    - sshd
-    - {role: geerlingguy.security, become: true}
-    - {role: geerlingguy.firewall, become: true}
-    - remove
-    - update
-    - docker
+#    - admin_users
+#    - ssh_host_signer
+#    - ssh_known_hosts
+#    - pulp_client
+#    - static_hostname_lookup
+#    - logrotate
+#    - logins
+#    - sshd
+#    - {role: geerlingguy.security, become: true}
+##    - {role: geerlingguy.firewall, become: true}
+#    - remove
+#    - update
+#    - docker
     - irods
-    - irods_davrods
+#    - irods_davrods
 ...

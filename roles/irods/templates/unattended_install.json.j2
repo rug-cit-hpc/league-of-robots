@@ -87,7 +87,7 @@
                    "db_username": "{{ ir_db_user }}"{% if pgsql_server == "remote" %},
                    "db_sslcert": "/etc/irods/{{ ir_ssl_certificate_chain_file }}",
                    "db_sslkey": "/etc/irods/{{ ir_ssl_certificate_key_file }}",
-                   {% if remote_psql_server_ca is defined  %}"db_sslrootcert": "/etc/irods/{{ remote_psql_server_ca }}",{% endif %}
+                   {% if remote_psql_server_ca is defined  %}"db_sslrootcert": "/etc/irods/{{ remote_psql_server_ca | basename }}",{% endif %}
                    "db_sslmode": "require"{% endif %}
                }
            },

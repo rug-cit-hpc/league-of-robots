@@ -13,4 +13,10 @@
   ansible.builtin.pip:
     name: docker
   become: true
+
+- name: Create docker group
+  ansible.builtin.group:
+    name: docker
+    state: present
+
 ...

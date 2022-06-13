@@ -54,7 +54,7 @@ The role configures following files on the iCAT server:
     - `root.crl` remote server's certificate revocation list
     - `postgresql.crt` is the client's certificate (same as `{{ ir_ssl_certificate_chain_file }}` certificate
     - `postgresql.key` matching private key of `postgresql.crt` - make sure it is protected `chmod 0600`
-  - /etc/irods/{{ remote_psql_server_ca }}
+  - /etc/irods/{{ remote_psql_server_ca | basename }}
     - if remote server certificate is signed by trusted CA that has not been yet trusted by iCAT server
     - (optional) if file is missing, just remove the variable
 
