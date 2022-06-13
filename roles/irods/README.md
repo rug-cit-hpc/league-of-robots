@@ -10,12 +10,13 @@ The iCAT server can also access a PostgreSQL database on a remote server. This
 can be selected, by assigning `pgsql_server` variable to values `local` or
  `remote`.
 
-The iCAT is installed with use of `unattended_install.json.j2` file. It can be
-created either the set role variables, or by you can copying custom file on the
-`templates/unattended_install.json.j2`. The `unattended_install.json.j2` can be
-also created from existing iCAT server, by
-- login to the existing iCAT server, under irods service account and run
-   `izonereport > unattended_install.json`
+The iCAT is installed with use of an `unattended_install.json.j2` file.
+This file can either be created by setting role variables,
+or by copying a custom file to `templates/unattended_install.json.j2`.
+The `unattended_install.json.j2` file can be created from an existing iCAT server using the following procedure:
+ - Login to the existing iCAT server,
+ - Switch to the `irods` _service account_ and run
+ - `izonereport > unattended_install.json`
 - the unattended_install.json.j2 will contain two json groups: "icat_server" and
 the "servers"
 - keep only the icat_server part and remove everything from within except the
