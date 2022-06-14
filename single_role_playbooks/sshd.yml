@@ -9,6 +9,7 @@
     - cluster
     - data_transfer
     - docs
+    - jenkins
   roles:
     - sshd
 ...
