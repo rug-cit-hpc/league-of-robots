@@ -4,12 +4,12 @@ all:
     openstack_api:
       hosts:
         localhost:
-    docs:
+    jumphost:
       hosts:
-        docs_on_merlin:
+        lobby:
           cloud_flavor: m1.small
-docs_library:
+calculon_cluster:
   children:
     openstack_api:
-    docs:
+    jumphost:
 ...

@@ -144,7 +144,7 @@ pip3 install mitogen
 #### 1. First import the required roles and collections for the playbooks:
 
 ```bash
-ansible-galaxy install -r galaxy-requirements.yml
+ansible-galaxy install -r requirements.yml
 ```
 
 Note: the default location where these dependencies will get installed with the above command is ```${HOME}/.ansible/```.

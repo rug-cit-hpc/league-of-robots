@@ -1,39 +1,7 @@
+#
+# See README.md for instructins how to use this playbook.
+#
 ---
-#
-# Order of deployment required to prevent chicken versus the egg issues:
-#  0. For all deployment phases:
-#       export AI_PROXY="${jumphost_name}"
-#       export ANSIBLE_INVENTORY="static_inventories/${stack_name}.yml"
-#       ANSIBLE_VAULT_PASSWORD_FILE=".vault_pass.txt.${stack_name}"
-#  1. Use standard CentOS cloud image user 'centos' or 'root' user and without host key checking:
-#       export ANSIBLE_HOST_KEY_CHECKING=False
-#       ansible-playbook -u centos -l 'jumphost,cluster'  single_role_playbooks/admin_users.yml
-#       ansible-playbook -u root   -l 'docs'              single_role_playbooks/admin_users.yml
-#  2. Use local admin user's account and without host key checking:
-#       export ANSIBLE_HOST_KEY_CHECKING=False
-#       ansible-playbook -u [admin_account] single_role_playbooks/ssh_host_signer.yml
-#  3. Use local admin user's account and with strict host key checking to deploy everything else:
-#       export ANSIBLE_HOST_KEY_CHECKING=True
-#       ansible-playbook  -u [admin_account] cluster.yml
-#     This will configure:
-#       * Jumphost first as it is required to access the other machines.
-#       * Repo management server second as it is required for version control of the packages
-#         installed on all other machines except for the jumphost, which will always get the latest updates for security.
-#       * Basic roles for all cluster machines part 1:
-#           * Roles that do NOT require regular accounts or groups to be present.
-#       * An LDAP with regular user accounts, which may be required for additional roles.
-#             (E.g. a chmod or chgrp for a file/folder requires the corresponding user or group to be present.)
-#       * Basic roles for all cluster machines part 2:
-#           * Roles that DO depend on regular accounts and groups.
-#       * SAI as it is required to:
-#           * Configure layout on shared storage devices used by other machines.
-#           * Configure Slurm control and Slurm database.
-#       * DAI
-#       * UI
-#       * Compute nodes
-#       * Documentation server
-#
-
 #
 # Dummy play to ping jumphosts and establish a persisting SSH connection
 # before trying to connect to the machines behind the jumphost,

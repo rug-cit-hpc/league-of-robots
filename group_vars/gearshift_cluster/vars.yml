@@ -1,6 +1,6 @@
 ---
 slurm_cluster_name: 'gearshift'
-slurm_cluster_domain: 'hpc.rug.nl'
+stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'gs'
 slurm_version: '20.11.8-1.el7.umcg'
@@ -24,8 +24,6 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
-mailhub: '172.23.34.34'
-rewrite_domain: "imperator{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'cyberlarge'
 motd: |
       ============================================================
@@ -36,18 +34,10 @@ motd: |
        all data in home dirs and tmp* group dirs will be lost!
       ============================================================
 additional_etc_hosts:
-  - group: all
-    hosts:
-      - docs
-      - docs_on_merlin
-  - group: boxy_cluster
-    hosts:
-      - boxy-management
-      - boxy-storage
-  - group: calculon_cluster
-    hosts:
-      - calculon-management
-      - calculon-storage
+  - group: docs_library
+    nodes:
+      - name: docs_on_merlin
+        network: vlan16
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-ca"
 use_ldap: yes
 create_ldap: no

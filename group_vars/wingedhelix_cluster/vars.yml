@@ -1,6 +1,6 @@
 ---
 slurm_cluster_name: 'wingedhelix'
-slurm_cluster_domain: ''  # Only add hpc.rug.nl domain when jumphost is registered in DNS.
+stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'wh'
 slurm_version: '20.11.8-1.el7.umcg'
@@ -24,18 +24,22 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
-mailhub: '192.168.0.5'     # we need to check or remove, as it looks like it is not used anywhere
-rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'ogre'
 motd: |
       =========================================================
           Welcome to {{ slurm_cluster_name | capitalize }}
       =========================================================
 additional_etc_hosts:
+  - group: docs_library
+    nodes:
+      - name: docs_on_merlin
+        network: vlan16
   - group: all
-    hosts:
-      - docs
-      - docs_on_merlin
+    nodes:
+      - name: gattaca01
+        network: public
+      - name: gattaca02
+        network: public
 use_ldap: yes
 create_ldap: no
 use_sssd: yes
@@ -58,19 +62,18 @@ totp:
   machines: "{{ groups['jumphost'] }}"
   excluded:
     - 'LOCAL'
-    - "{{ all.ip_addresses['umcg_net1']['addr'] }}{{ all.ip_addresses['umcg_net1']['mask'] }}"
-    - "{{ all.ip_addresses['umcg_net2']['addr'] }}{{ all.ip_addresses['umcg_net2']['mask'] }}"
-    - "{{ all.ip_addresses['umcg_net3']['addr'] }}{{ all.ip_addresses['umcg_net3']['mask'] }}"
+    - "{{ all.ip_addresses['umcg']['net1']['address'] }}{{ all.ip_addresses['umcg']['net1']['netmask'] }}"
+    - "{{ all.ip_addresses['umcg']['net2']['address'] }}{{ all.ip_addresses['umcg']['net2']['netmask'] }}"
+    - "{{ all.ip_addresses['umcg']['net3']['address'] }}{{ all.ip_addresses['umcg']['net3']['netmask'] }}"
+    - "{{ all.ip_addresses['umcg']['net4']['address'] }}{{ all.ip_addresses['umcg']['net4']['netmask'] }}"
 cloud_image: CentOS 7
 cloud_user: centos
 network_public_external_id: vlan16
-network_private_management_id: wh_internal_management
+network_private_management_id: "{{ stack_prefix }}_internal_management"
 network_private_management_cidr: '10.10.1.0/24'
 network_private_management_gw: '10.10.1.1'
-network_private_storage_id: wh_internal_storage
+network_private_storage_id: "{{ stack_prefix }}_internal_storage"
 network_private_storage_cidr: '10.10.2.0/24'
-public_ip_addresses:
-  porch: '195.169.22.170'
 availability_zone: nova
 nameservers: [
   '8.8.4.4',  # Google DNS.

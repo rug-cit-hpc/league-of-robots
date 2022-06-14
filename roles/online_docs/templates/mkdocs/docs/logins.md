@@ -16,7 +16,7 @@ In order to access the UI you will need to hop via a _**Jumphost**_,
 which is a security hardened machine that is not in any way involved in the processing of jobs nor in storing data and does receive daily (security) updates.
 In order to apply/activate security patches the _Jumphost_ may be temporarily unavailable, which means you cannot login to the _UI_ and hence cannot manage jobs nor create new ones, 
 but existing jobs (running or queued) won't be affected and the cluster will continue to process those.
-The _**Jumphost**_ for the {{ slurm_cluster_name | capitalize }} HPC cluster is named _**{{ groups['jumphost'] | first }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}**_
+The _**Jumphost**_ for the {{ slurm_cluster_name | capitalize }} HPC cluster is named _**{{ groups['jumphost'] | first }}{% if stack_domain | length %}.{{ stack_domain }}{% endif %}**_
 
 ## Request an account
 
@@ -35,4 +35,4 @@ Configure your SSH client with the instructions for your operating system:
 ## Configure 2-Factor-Authentication
 
 Make sure you have working account and configured SSH client first, then [follow 2-factor-authentication instructions](../2FA/).
-{% endif %}     
+{% endif %}

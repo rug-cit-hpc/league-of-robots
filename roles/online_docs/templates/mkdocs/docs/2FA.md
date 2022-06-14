@@ -28,11 +28,11 @@
 
     2.1. Connect to the trusted system (f.e. to UMCG WOM, or use your laptop from within UMCG network) and start the MobaXTerm
 
-    2.2. Create the session to connect to Jumphost {% for jumphost in groups['jumphost'] %}{{ jumphost }}{% endfor %} only
+    2.2. Create the session to connect to Jumphost {{ first_jumphost_name }} only
 
     2.3. **Create session** > **SSH**
 
-    2.4. **Remote host**: {% for jumphost in groups['jumphost'] %}{{ public_ip_addresses[jumphost] }}{% endfor %} 
+    2.4. **Remote host**: {{ first_jumphost_address }}
 
     2.5. **Specify username**: your-username
 
@@ -81,7 +81,7 @@
           
     When user (with already created 2FA key) connects from untrusted IP to the 2FA enhanced jumphost, prompt will appear:
 
-    `(your-username@{% for jumphost in groups['jumphost'] %}{{ public_ip_addresses[jumphost] }}{% endfor %}) Your verification code for {% for jumphost in groups['jumphost'] %}{{ jumphost }}{% endfor %}:`
+    `(your-username@{{ first_jumphost_address }}) Your verification code for {{ first_jumphost_address }}:`
 
     Users mobile app generates 2FA code that is valid for short (30 seconds) time, after it expires and another one is generated. Codes are also different for each username on each server, so in case you have more than one, make sure you are using the correct one.
 
@@ -91,7 +91,7 @@
 
     When connecting to server you get
 
-    `your-username@{% for jumphost in groups['jumphost'] %}{{ public_ip_addresses[jumphost] }}{% endfor %}: Permission denied (keyboard-interactive).`
+    `your-username@{{ first_jumphost_address }}: Permission denied (keyboard-interactive).`
 
     **Solution**:
 
