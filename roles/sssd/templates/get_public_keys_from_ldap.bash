@@ -120,12 +120,12 @@ function getPublicKeysFromLDAP() {
       while read -r _public_key; do
         test -z "${_public_key:-}" && continue
         filterKeys "${_public_key}"
-      done < <(printf '%s\n' "${_user_ssh_public_key_value}")
+      done < <(printf '%s\n' "${_user_ssh_public_key_value}" && echo)
     elif [[ "${_separator}" == '::' ]]; then
       while read -r _public_key; do
         test -z "${_public_key:-}" && continue
         filterKeys "${_public_key}"
-      done < <(printf '%s\n' "${_user_ssh_public_key_value}" | "${base64}" -di)
+      done < <(printf '%s\n' "${_user_ssh_public_key_value}" | "${base64}" -di && echo)
     else
       echo "ERROR: Got an unsupported key value separator ${_separator} for LDAP attribute: ${_user_ssh_public_key_value:-}." 1>&2
       continue
