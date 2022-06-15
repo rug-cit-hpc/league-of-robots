@@ -312,7 +312,7 @@ for pfs in "${pfss[@]}"; do
 					continue
 				fi
 				if [[ -n "${soft:-}" && -n "${hard:-}" ]]; then
-					setIisilonDirectoryQuota "${group_dir}" "${soft}" "${hard}" '14D' 'false'
+					setIisilonDirectoryQuota "${group_dir}" "${soft}" "${hard}" '14D' 'true'
 				else
 					log4Zsh 'WARN' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Skipping setting quota limits for ${group_dir}, because ${quota_cache_file} was malformed."
 				fi
