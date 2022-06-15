@@ -6,7 +6,11 @@ firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
   - "1248"  # Control Plane Port
   - "5432"  # PostgreSQL
   - "20000:20199"  # irods
+
+ir_version: '-4.2.11*'                  # if defined (empty): version will be installed (must start with '-' and end with '*')
 ir_server_type: 'icat'                  # iRODS Server Type
+ir_client_server_policy: 'CS_NEG_REQUIRE'  # communicating using SSL (CS_NEG_REQUIRE) or without (CS_NEG_REFUSE
+
 ir_ssl_certificate_chain_file: 'nemi_irods/localhost_and_chain_umcg-icat01.crt' # iRODS server certificate
 ir_ssl_certificate_key_file: 'nemi_irods/localhost-umcg01.key' # iRODS server certificate's key
 ir_ssl_dh_params_file: 'dhparams.pem'   # DHparam filename 

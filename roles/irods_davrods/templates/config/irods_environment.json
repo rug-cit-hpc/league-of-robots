@@ -1,6 +1,6 @@
 {
     "irods_client_server_negotiation": "request_server_negotiation",
-    "irods_client_server_policy": "CS_NEG_REQUIRE",
+    "irods_client_server_policy": "{{ ir_client_server_policy }}",
     "irods_connection_pool_refresh_time_in_seconds": 300, 
     "irods_cwd": "/{{ ir_zone }}/home/rods",
     "irods_default_hash_scheme": "SHA256",

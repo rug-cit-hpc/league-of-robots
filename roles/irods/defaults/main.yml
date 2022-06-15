@@ -8,6 +8,8 @@ firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
   - "5432"  # PostgreSQL
   - "20000:20199"  # irods
 ir_server_type: 'icat'                      # iRODS Server Type
+ir_client_server_policy: 'CS_NEG_REQUIRE'   # communicating using (default) SSL (CS_NEG_REQUIRE) or without (CS_NEG_REFUSE)
+
 ir_ssl_certificate_chain_file: 'mycertificate.crt' # filename of iRODS server certificate
 ir_ssl_certificate_key_file: 'mycertificates.key' # filename of iRODS server certificate's key
 ir_ssl_dh_params_file: 'mydhparams.pem'     # DHparam filename

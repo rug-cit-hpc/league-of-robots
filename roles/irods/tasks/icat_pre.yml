@@ -17,11 +17,12 @@
     name: '{{ item }}'
     state: present
   loop:
-    - irods-server
-    - irods-database-plugin-postgres
-    - irods-resource-plugin-s3
-    - irods-rule-engine-plugin-python
-    - irods-rule-engine-plugin-unified-storage-tiering
+    - irods-server{{ ir_version }}
+    - irods-database-plugin-postgres{{ ir_version }}
+    - irods-runtime{{ ir_version }}
+    - irods-resource-plugin-s3{{ ir_version }}
+    - irods-rule-engine-plugin-python{{ ir_version }}
+    - irods-rule-engine-plugin-unified-storage-tiering{{ ir_version }}
   become: true
 
 - name: Make sure that the hostname is set correct FQDN name
@@ -51,7 +52,7 @@
 - name: Install certificate key and chain files for iRODS
   ansible.builtin.copy:
     src: 'files/{{ stack_name }}/{{ item.name }}'
-    dest: '/etc/irods/{{ item.name }}'
+    dest: '/etc/irods/{{ item.name | basename }}'
     owner: '{{ ir_service_account }}'
     group: '{{ ir_service_account }}'
     mode: '{{ item.mode }}'
