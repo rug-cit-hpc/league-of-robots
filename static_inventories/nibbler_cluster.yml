@@ -37,6 +37,7 @@ all:
           # ir_local_perm_res_fol: '/tmp/irods/{{ ir_local_perm_res }}'
         irods-test:
           fqdn: umcg-icat01.hpc.rug.nl
+          ir_client_server_policy: 'CS_NEG_REFUSE'         # communicating using (default) SSL (CS_NEG_REQUIRE) or without (CS_NEG_REFUSE
           pgsql_server: "local"                            # "local" or "remote" PostgreSQL server
           ir_local_res: 'demoResc'                         # Staging resource, before data moved to permanent resource
           ir_default_res: 'demoResc'                       # default resource iRODS uploads to
