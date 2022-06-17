@@ -60,6 +60,7 @@ all:
       hosts:
         wh-chaperone:
           ansible_host: ouzkh1016.zkh.umcg.intra
+          use_ldap: false
     rsyslog:
       hosts:
         wh-repo:
