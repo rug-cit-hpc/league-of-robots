@@ -48,6 +48,18 @@ auth_groups:
     gid: 20005
   funad:
     gid: 20006
+  umcg-gap:
+    gid: 20007
+  umcg-gd:
+    gid: 20008
+  umcg-genomescan:
+    gid: 20009
+  umcg-gsad:
+    gid: 20010
+  umcg-gst:
+    gid: 20011
+  umcg-vipt:
+    gid: 20012
 #
 # Default for a group of users that are only allowd to transfer data.
 # Is used by the sshd role and listed in
