@@ -47,7 +47,7 @@ all:
     chaperone:
       hosts:
         bb-chaperone:
-          #ansible_host: ouzkh[0-9].zkh.umcg.intra
+          #ansible_host: uozkh[0-9].zkh.umcg.intra
 administration:
   children:
     sys_admin_interface:
