@@ -40,9 +40,9 @@ additional_etc_hosts:
         network: public
       - name: gattaca02
         network: public
-use_ldap: yes
-create_ldap: no
-use_sssd: yes
+use_ldap: true
+create_ldap: false
+use_sssd: true
 ldap_domains:
   grunn:
     uri: ldaps://svrs.id.rug.nl
