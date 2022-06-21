@@ -9,8 +9,12 @@
     update_cache: true
   become: true
 
-- name: Install docker-py.
-  pip:
-    name: docker
+- name: Upgrade pip to latest version that still supports Python 2.7
+  ansible.builtin.command: pip install pip==20.3.4
+  become: true
+
+- name: Install docker-py (supported by python 2.7)
+  ansible.builtin.pip:
+    name: docker==4.4.4
   become: true
 ...
