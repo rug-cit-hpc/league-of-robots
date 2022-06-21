@@ -6,6 +6,7 @@
     - chaperone
   connection: local
   roles:
+    - regular_users
     - shared_storage
     - sudoers
 ...
