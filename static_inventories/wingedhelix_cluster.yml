@@ -24,7 +24,7 @@ all:
       hosts:
         wh-dai:
           cloud_flavor: m1.large
-          local_volume_size_extra: 200
+          local_volume_size_extra: 2000
     user_interface:
       hosts:
         wingedhelix:
