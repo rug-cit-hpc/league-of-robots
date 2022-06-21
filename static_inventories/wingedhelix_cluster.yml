@@ -59,7 +59,7 @@ all:
     chaperone:
       hosts:
         wh-chaperone:
-          ansible_host: ouzkh1016.zkh.umcg.intra
+          ansible_host: uozkh1016.zkh.umcg.intra
           use_ldap: false
           functional_admin_group: 'MEDGEN-NFG\ GCC\ Analyse\ Team'
     rsyslog:
