@@ -1,0 +1,5 @@
+---
+- name: Create a repository directory
+  ansible.builtin.include: lyr.yml
+  when: lyr_enabled == true
+...

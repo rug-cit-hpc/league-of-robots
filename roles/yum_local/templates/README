@@ -1,0 +1,23 @@
+To make a new version of repository, copy file into this folder and then rerun
+the createrepo command, f.e.:
+
+Download the package to folder /var/local/repo:
+    yum reinstall --downloadonly --downloaddir=/var/local/repo/ vim
+  or
+    yum install --downloadonly --downloaddir=/var/local/repo/ vim
+
+To create/recreate a repository's metadata:
+    createrepo /var/local/repo
+
+Testing
+    yum install vim
+  and check where it has been downloaded from (note local):
+   
+    ==============================================================
+     Package         Arch      Version              Repository  Size
+    ==============================================================
+    Installing:
+     vim-enhanced    x86_64    2:7.4.629-8.el7_9       local    1.1 M
+
+Bypasing local repository
+   yum install --disablerepo="local" vim
