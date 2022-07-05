@@ -75,7 +75,7 @@
     flat: true
     fail_on_missing: true
     validate_checksum: true
-  when: not repo_rsyslog_ca_key.stat.exists or created_ca.changed
+  when: not repo_rsyslog_ca_key.stat.exists or created_ca.changed # noqa 503
   become: true
 
 - name: Fetch servers CA cert to repository
@@ -85,7 +85,7 @@
     flat: true
     fail_on_missing: true
     validate_checksum: true
-  when: not repo_rsyslog_ca_cert.stat.exists or created_ca.changed
+  when: not repo_rsyslog_ca_cert.stat.exists or created_ca.changed # noqa 503
   become: true
 
 - name: Deploy rsyslog.conf
