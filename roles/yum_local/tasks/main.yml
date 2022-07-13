@@ -1,5 +1,9 @@
 ---
-- name: Create a repository directory
+- name: Create a local yum repository
   ansible.builtin.include: lyr.yml
   when: lyr_enabled == true
+
+- name: Remove a local yum repository
+  ansible.builtin.include: lyr_remove.yml
+  when: lyr_enabled == false
 ...

@@ -1,75 +1,126 @@
 # Local directory yum repository
 
-This playbook does following steps:
+## Deploying playbook
 
-# Create repository directory
+Playbook is part of cluster.yml and gets executed automatically, but gets deplo-
+yed on individual server only when it has variable
+```
+   lyr_enabled == true
+```
+
+When the variable is set to `false`, the playbook will remove the repository co-
+nfiguration file. The playbook gets skipped if the variable is not set.
+
+## Playbook steps:
+
+### 1.1. Create repository directory
 
 ```
     # mkdir /var/local/repo/
     # chown -R root:root /var/local/repo/
 ```
 
-## Install system packages
+### 1.2. Install system packages
 
 You need a createrepo for making repository's common metadata information and
 yum-plugin-priorities for making sure that local repository is used first - this
 is defined by priority=1
 
-    # yum install -y createrepo yum-plugin-priorities
+    `# yum install -y createrepo yum-plugin-priorities`
 
-## create .repo configuration file
+## 1.3. Deploy .repo configuration file
 ```
-# cat << EOF > /etc/yum.repos.d/local.repo
-# an integer from 1 to 99. The default priority for repositories is 99.
-# The repositories with the lowest numerical priority number have the highest priority.
-[local]
-name=My RPM System Package Repo
-baseurl=file:///var/local/repo/
-enabled=1
-gpgcheck=0
-priority=1
-EOF
+    # cat << EOF > /etc/yum.repos.d/local.repo
+    # an integer from 1 to 99. The default priority for repositories is 99.
+    # The repositories with the lowest numerical priority number have the highest priority.
+    [local]
+    name=My RPM System Package Repo
+    baseurl=file:///var/local/repo/
+    enabled=1
+    gpgcheck=0
+    priority=1
+    EOF
 ```
 
-## make repository metadata
+### 1.4. Create repository metadata
+
 ```
-# createrepo /var/local/repo/
-# chmod -R o-w+r /var/local/repo/
+    # createrepo /var/local/repo/
+    # chmod -R o-w+r /var/local/repo/
 ```
-## adding packages
+
+## 2. Manual steps
+
+### 2.1. adding packages
 
  - download the package to local folder - for already installed packages
-`# yum reinstall --downloadonly --downloaddir=/var/local/repo/ vim`
+    `# yum reinstall --downloadonly --downloaddir=/var/local/repo/ vim`
 
  - and if package has not been yet installed, use
 
-`# yum install --downloadonly --downloaddir=/var/local/repo/ vim`
+    `# yum install --downloadonly --downloaddir=/var/local/repo/ vim`
 
  - to create/recreate a repository's metadata
 
-`# createrepo /var/local/repo`
+    `# createrepo /var/local/repo`
 
-## Testing
+### 2.2. Testing
 
-`# yum install vim`
+    `# yum install vim`
 
 and check where it has been downloaded from (note local):
 
 ```
-==============================================================
- Package         Arch      Version              Repository  Size
-==============================================================
-Installing:
- vim-enhanced    x86_64    2:7.4.629-8.el7_9       local    1.1 M
+    ==============================================================
+     Package         Arch      Version              Repository  Size
+    ==============================================================
+    Installing:
+     vim-enhanced    x86_64    2:7.4.629-8.el7_9       local    1.1 M
 ```
 
-## To bypass `local` repository when installing package
+### 2.3. Getting epository info
 
 ```
-   yum install --disablerepo="local" vim
+   [root@wh-chaperone ~]# yum repoinfo local
+   Loaded plugins: fastestmirror, priorities
+   Loading mirror speeds from cached hostfile
+    * base: mirror.proserve.nl
+    * centos-sclo-rh: nl.mirrors.clouvider.net
+    * centos-sclo-sclo: centos.mirror.transip.nl
+    * epel: ftp.nluug.nl
+    * extras: nl.mirrors.clouvider.net
+    * updates: nl.mirrors.clouvider.net
+   2 packages excluded due to repository priority protections
+   Repo-id      : local
+   Repo-name    : Local yum RPM repository
+   Repo-status  : enabled
+   Repo-revision: 1657714420
+   Repo-updated : Wed Jul 13 12:13:41 2022
+   Repo-pkgs    : 1
+   Repo-size    : 1.1 M
+   Repo-baseurl : file:///var/local/repo/
+   Repo-expire  : 21,600 second(s) (last: Wed Jul 13 12:14:52 2022)
+     Filter     : read-only:present
+   Repo-filename: /etc/yum.repos.d/local_yum.repo
+   
+   repolist: 1
+   [root@wh-chaperone ~]#
+
 ```
 
-## List all packages from `local` repository
+## Extra
+
+### 3.1. To bypass `local` repository
+
+To install package and not use local repository you can use
+
+```
+    yum install --disablerepo="local" vim
+```
+
+### 3.2. List `local` packages
+
+To list all packages from `local` repository
 
 ```
     yum  --disablerepo='*' --enablerepo='local' list available
