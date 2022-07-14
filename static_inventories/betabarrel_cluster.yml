@@ -28,6 +28,7 @@ all:
           slurm_ethernet_interfaces:
             - eth0
             - eth1
+          lyr_enabled: true # local yum repository enabled
     compute_vm:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
