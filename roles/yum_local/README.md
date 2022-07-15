@@ -78,7 +78,7 @@ and check where it has been downloaded from (note local):
      vim-enhanced    x86_64    2:7.4.629-8.el7_9       local    1.1 M
 ```
 
-### 2.3. Getting epository info
+### 2.3. Getting repository info
 
 ```
    [root@wh-chaperone ~]# yum repoinfo local
