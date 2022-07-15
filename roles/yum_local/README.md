@@ -5,7 +5,7 @@
 Playbook is part of cluster.yml and gets executed automatically, but gets deplo-
 yed on individual server only when it has variable
 ```
-   lyr_enabled == true
+   local_yum_repository == true
 ```
 
 When the variable is set to `false`, the playbook will remove the repository co-

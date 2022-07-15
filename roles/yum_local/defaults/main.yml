@@ -1,4 +1,4 @@
 ---
-  lyr_enabled: "false"
+  local_yum_repository: "false"
   lyr_dir_path: "/var/local/repo/"
 ...
