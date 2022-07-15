@@ -14,7 +14,7 @@ all:
     sys_admin_interface:
       hosts:
         betabarrel:
-          local_yum_repository: true # true/false : enable local yum repository
+          local_yum_repository: true # enable local yum repository
     deploy_admin_interface:
       hosts:
         betabarrel:
