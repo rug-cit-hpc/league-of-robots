@@ -1,6 +1,6 @@
 ---
 - hosts:
-   - chaperone
+   - cluster
   roles:
    - yum_local
 ...

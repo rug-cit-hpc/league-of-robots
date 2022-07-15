@@ -14,6 +14,7 @@ all:
     sys_admin_interface:
       hosts:
         betabarrel:
+          local_yum_repository: true # true/false : enable local yum repository
     deploy_admin_interface:
       hosts:
         betabarrel:
@@ -28,7 +29,6 @@ all:
           slurm_ethernet_interfaces:
             - eth0
             - eth1
-          local_yum_repository: true # true/false : enable local yum repository
     compute_vm:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
