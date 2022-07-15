@@ -49,6 +49,13 @@ is defined by priority=1
     # chmod -R o-w+r /var/local/repo/
 ```
 
+## 1.5 Disabling the local yum repository
+
+Setting the `local_yum_repository` to `false` and running the playbook, will remove
+the `.repo` file from /etc/yum.repos.d` folder, but will keep the folder of repository
+and its content intact.
+In case needed: cleanup needs to be done manually.
+
 ## 2. Manual steps
 
 ### 2.1. adding packages
