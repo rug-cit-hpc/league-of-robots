@@ -70,7 +70,7 @@ In case needed: cleanup needs to be done manually.
 
 ## 2. Manual steps
 
-### 2.1. adding packages
+### 2.1. Adding packages
 
  - download the package to local folder - for already installed packages
     `# yum reinstall --downloadonly --downloaddir=/var/local/repo/ vim`
