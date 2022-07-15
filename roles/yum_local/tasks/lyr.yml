@@ -13,8 +13,8 @@
     name: "{{ packages }}"
   vars:
     packages:
-    - createrepo
-    - yum-plugin-priorities
+      - createrepo
+      - yum-plugin-priorities
   become: true
 
 - name: Deploy configuration .repo file into /etc/yum.repos.d/
@@ -25,12 +25,14 @@
     group: root
     mode: '0644'
   with_items:
-    - { src: 'templates/local_yum.repo', dest: '/etc/yum.repos.d/' }
-    - { src: 'templates/README', dest: '{{ lyr_dir_path }}' }
+    - {src: 'templates/local_yum.repo', dest: '/etc/yum.repos.d/'}
+    - {src: 'templates/README', dest: '{{ lyr_dir_path }}'}
   become: true
 
-- name: Run command if /path/to/database does not exist (with 'args' keyword)
-  ansible.builtin.command: /usr/bin/createrepo {{ lyr_dir_path }}
+- name: Build repository for the first time
+  ansible.builtin.command:
+    cmd: /usr/bin/createrepo {{ lyr_dir_path }}
+    creates: '{{ lyr_dir_path }}/repodata/repomd.xml'
   register: cr_result
   failed_when:
     - cr_result.rc != 0
