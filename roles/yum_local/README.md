@@ -1,5 +1,17 @@
 # Local directory yum repository
 
+## Info
+
+This playbook deploys local yum repository on particular machine. It creates a folder
+where user can store custom rpm's. Then creates repository file on the system (that
+uses this local folder), sets the priority of the repository to the maximum (the local
+repository will be looked first when installing a package with `yum` command and only
+then the other repositories will be checked), and will run initial `createrepo` command
+(albeit on a empty folder).
+
+The local yum repository is added to the other repositories, and therefore it works
+together with Spacewals, Pulp and regular system repositories.
+
 ## Deploying playbook
 
 Playbook is part of cluster.yml and gets executed automatically, but gets deplo-
