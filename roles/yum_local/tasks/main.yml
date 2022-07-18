@@ -1,0 +1,9 @@
+---
+- name: Create a local yum repository
+  ansible.builtin.include: lyr.yml
+  when: local_yum_repository == true
+
+- name: Remove a local yum repository
+  ansible.builtin.include: lyr_remove.yml
+  when: local_yum_repository == false
+...
