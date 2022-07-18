@@ -8,6 +8,7 @@ all:
       hosts:
         porch:
           cloud_flavor: m1.small
+          security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
     repo:
       hosts:
         wh-repo:

@@ -33,4 +33,6 @@
 - import_playbook: single_group_playbooks/compute_vm.yml
 
 - import_playbook: single_group_playbooks/docs.yml
+
+- import_playbook: single_group_playbooks/rsyslog.yml
 ...
