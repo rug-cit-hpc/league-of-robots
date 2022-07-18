@@ -54,7 +54,7 @@
 
 - name: Increase systcl limits to allow longer transfers
   ansible.builtin.copy:
-    src: '{{ role_path }}/files/irods_fix.conf'
+    src: '{{ role_path }}/files/tcp_keepalive.conf'
     dest: /etc/sysctl.d/
     mode: 0644
   become: true

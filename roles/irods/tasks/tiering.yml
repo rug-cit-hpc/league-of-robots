@@ -81,7 +81,7 @@
 
 - name: Make storage_tiering group for {{ ir_local_res }}
   ansible.builtin.command: >-
-    imeta add -R {{ ir_local_res }} irods::storage_tiering::group example_group 0
+    imeta add -R {{ ir_local_res }} irods::storage_tiering::group tiergroup 0
   become_user: '{{ ir_service_account }}'
   become: true
   register: make_local_tiering_group
@@ -101,7 +101,7 @@
 
 - name: Make storage_tiering group for {{ ir_local_stage_res }}
   ansible.builtin.command: >-
-    imeta add -R {{ ir_local_stage_res }} irods::storage_tiering::group example_group 1
+    imeta add -R {{ ir_local_stage_res }} irods::storage_tiering::group tiergroup 1
   become_user: '{{ ir_service_account }}'
   become: true
   register: make_local_stage_tiering_group
@@ -119,7 +119,7 @@
 
 - name: Make storage_tiering group for {{ ir_local_perm_res }}
   ansible.builtin.command: >-
-    imeta add -R {{ ir_local_perm_res }} irods::storage_tiering::group example_group 2
+    imeta add -R {{ ir_local_perm_res }} irods::storage_tiering::group tiergroup 2
   become_user: '{{ ir_service_account }}'
   become: true
   register: make_local_perm_tiering_group
@@ -224,13 +224,13 @@
   failed_when: check_iqstat.rc != 0
 
 - name: Copy tiering rule to /tmp/
-  ansible.builtin.copy:
-    src: '{{ role_path }}/files/start_tiering_loop.r'
+  ansible.builtin.template:
+    src: 'start_tiering_loop.r'
     dest: /tmp/
     mode: 0755
   become: true
   become_user: '{{ ir_service_account }}'
-  when: 'check_iqstat.stdout is not search("example_group_2")'
+  when: 'check_iqstat.stdout is not search("tiergroup_2")'
 
 - name: Start tiering rule
   ansible.builtin.command: >-
@@ -239,7 +239,7 @@
   become: true
   register: run_tiering_rule
   failed_when: run_tiering_rule.rc != 0
-  when: 'check_iqstat.stdout is not search("example_group_2")'
+  when: 'check_iqstat.stdout is not search("tiergroup_2")'
 
 - name: Get all pending rules from the iRODS rule execution list
   ansible.builtin.command: iqstat
@@ -247,5 +247,5 @@
   become_user: '{{ ir_service_account }}'
   become: true
   register: recheck_iqstat
-  failed_when: 'recheck_iqstat.rc != 0 or recheck_iqstat.stdout is not search("example_group_2")'
+  failed_when: 'recheck_iqstat.rc != 0 or recheck_iqstat.stdout is not search("tiergroup_2")'
 ...
