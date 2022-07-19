@@ -17,6 +17,6 @@
     - remove
     - update
     - docker
-   - irods
+    - irods
     - irods_davrods
 ...
