@@ -11,7 +11,8 @@
     - swap
     - {role: spacewalk_client, when: repo_manager == 'spacewalk'}
     - {role: pulp_client, when: repo_manager == 'pulp'}
-    - {role: yum_local, when: local_yum_repository == 'true' }
+    - {role: yum_repos, when: repo_manager == 'none'}
+    - {role: yum_local, when: local_yum_repository is defined}
     - static_hostname_lookup
     - logrotate
     - remove

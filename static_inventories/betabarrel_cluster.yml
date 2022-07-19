@@ -15,6 +15,7 @@ all:
       hosts:
         betabarrel:
           local_yum_repository: true # enable local yum repository
+          ansible_host: 192.168.122.193
     deploy_admin_interface:
       hosts:
         betabarrel:

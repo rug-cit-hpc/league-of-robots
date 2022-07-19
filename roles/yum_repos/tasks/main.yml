@@ -1,9 +1,26 @@
 ---
-- name: "Add custom yum repos."
+- name: Remove default system packages
+  ansible.builtin.file:
+    path: "/etc/yum.repos.d/{{ item }}"
+    state: absent
+  with_items:
+    - CentOS-CR.repo
+    - CentOS-fasttrack.repo
+    - CentOS-Sources.repo
+    - CentOS-x86_64-kernel.repo 
+    - CentOS-Base.repo
+    - CentOS-Debuginfo.repo
+    - CentOS-Media.repo
+    - CentOS-Vault.repo
+    - epel.repo
+    - epel-testing.repo
+  become: true
+
+- name: Add custom yum repos.
   yum_repository:
-    name: "{{ item }}"
-    description: "{{ yum_repos[item].description }}"
-    baseurl: "{{ yum_repos[item].baseurl }}"
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: "{{ item.baseurl }}"
     gpgcheck: false
   with_items: "{{ yum_repos }}"
   become: true

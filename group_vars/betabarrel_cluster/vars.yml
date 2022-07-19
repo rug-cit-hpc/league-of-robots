@@ -29,7 +29,7 @@ use_ldap: yes
 create_ldap: no
 use_sssd: yes
 ldap_domains:
-  grunn:
+  default_domain:
     uri: ldaps://svrs.id.rug.nl
     search_base: ou=gd,o=asds
     schema: rfc2307
@@ -55,6 +55,11 @@ nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
+network_private_management_id: "{{ stack_prefix }}_internal_management"
+network_private_management_cidr: '10.10.1.0/24'
+network_private_management_gw: '10.10.1.1'
+#network_private_storage_id: "{{ stack_prefix }}_internal_storage"
+#network_private_storage_cidr: '10.10.2.0/24'
 local_admin_groups:
   - 'admin'
   - 'docker'
@@ -134,10 +139,11 @@ regular_users:
 #
 pfs_mounts:
   - pfs: local_raid
-    source:
-    type:
-    rw_options:
-    ro_options:
+    device: /dev/sdb1
+    source: 'localhost:/mnt'
+    type: nfs4
+    rw_options: 'defaults,_netdev,noatime,nodiratime,local_lock=flock'
+    ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: 'medgen_zincfinger$'
     source: '//storage3.umcg.nl'
