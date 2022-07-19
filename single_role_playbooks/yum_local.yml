@@ -1,0 +1,6 @@
+---
+- hosts:
+   - cluster
+  roles:
+   - yum_local
+...

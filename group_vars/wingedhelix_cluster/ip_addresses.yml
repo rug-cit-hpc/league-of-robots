@@ -11,41 +11,41 @@ ip_addresses:
       fqdn: 'NXDOMAIN'
   wh-dai:
     wh_internal_management:
-      address: 10.10.1.155
+      address: 10.10.1.222
       netmask: /32
     wh_internal_storage:
-      address: 10.10.2.192
+      address: 10.10.2.218
       netmask: /32
   wh-repo:
     wh_internal_management:
-      address: 10.10.1.107
+      address: 10.10.1.153
       netmask: /32
   wh-sai:
     wh_internal_management:
-      address: 10.10.1.36
+      address: 10.10.1.71
       netmask: /32
     wh_internal_storage:
-      address: 10.10.2.20
+      address: 10.10.2.99
       netmask: /32
   wh-vcompute01:
     wh_internal_management:
-      address: 10.10.1.219
+      address: 10.10.1.65
       netmask: /32
     wh_internal_storage:
-      address: 10.10.2.67
+      address: 10.10.2.64
       netmask: /32
   wh-vcompute02:
     wh_internal_management:
-      address: 10.10.1.230
+      address: 10.10.1.110
       netmask: /32
     wh_internal_storage:
-      address: 10.10.2.185
+      address: 10.10.2.73
       netmask: /32
   wingedhelix:
     wh_internal_management:
-      address: 10.10.1.245
+      address: 10.10.1.229
       netmask: /32
     wh_internal_storage:
-      address: 10.10.2.77
+      address: 10.10.2.245
       netmask: /32
 ...

@@ -5,5 +5,7 @@
     - repo
     - rsyslog
   roles:
-    - roles/rsyslog_client
+    - role: rsyslog_client
+      when: (rsyslog_external_servers is defined and ( rsyslog_external_servers|length>0 )) or
+        ( groups['rsyslog'] is defined and ( groups['rsyslog']|length>0 ) )
 ...
