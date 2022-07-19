@@ -1,14 +1,7 @@
 ---
 - import_playbook: pre_deploy_checks.yml
 
-- name: 'Sanity checks before we start.'
-  hosts: irods
-  pre_tasks:
-    - name: 'Verify Ansible version meets requirements.'
-      assert:
-        that: "ansible_version.full is version_compare('2.10', '>=')"
-        msg: 'You must update Ansible to at least 2.10.x to use this playbook.'
-- name: 'Satisfy dependencies for and install Pulp.'
+- name: 'Satisfy dependencies and install iCAT'
   hosts: irods
   roles:
     - admin_users

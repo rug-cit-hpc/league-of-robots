@@ -7,8 +7,8 @@
   become: true
   listen: restart_postgresql
 
-- name: Make sure iRODS service is enabled and restart it
-  sysvinit:
+- name: Make sure iRODS service is enabled and restarted.
+  ansible.builtin.sysvinit:
     name: irods
     enabled: true
     state: restarted

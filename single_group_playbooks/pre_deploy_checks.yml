@@ -35,4 +35,19 @@
       connection: local
       changed_when: "'installed successfully' in resolved_dependencies.stdout"
       register: resolved_dependencies
+    - name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
+      ansible.builtin.find:
+        paths: "{{ playbook_dir }}/group_vars/"
+        recurse: true
+        patterns: 'ip_addresses.yml'
+      delegate_to: localhost
+      connection: local
+      register: ip_addresses_files
+    - name: Include variables from all ip_addresses.yml files.
+      ansible.builtin.include_vars:
+        file: "{{ item }}"
+        name: "{{ item | dirname | basename }}"
+      with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
+      delegate_to: localhost
+      connection: local
 ...

@@ -43,4 +43,23 @@
     state: started
     enabled: true
   become: true
+
+- name: Create {{ irods_db_name }} database.
+  postgresql_db:
+    name: '{{ ir_db_name }}'
+    state: present
+  register: db_created
+  become_user: postgres
+  become: true
+  notify: irodsctl_restart
+
+- name: Creating irods sql user and granting privileges
+  postgresql_user:
+    name: '{{ ir_db_user }}'
+    password: '{{ ir_db_pwd }}'
+    db: '{{ ir_db_name }}'
+    priv: ALL
+    state: present
+  become_user: postgres
+  become: true
 ...

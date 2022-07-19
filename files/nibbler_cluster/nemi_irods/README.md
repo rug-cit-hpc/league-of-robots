@@ -74,7 +74,7 @@ Extra
 
 2. Three keys
    They are configured in /etc/irods/server_config.json
-		1. one_key
+		1. zone_key
 		2. 32byte_negotiation_key
 		3. 32byte_ctrl_plane_key
    Can be shared using www.onetimesecret.com with colleagues from SURFsara.
