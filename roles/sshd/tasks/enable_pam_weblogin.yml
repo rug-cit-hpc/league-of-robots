@@ -1,0 +1,58 @@
+---
+- name: Install weblogin PAM plugin.
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - pam_weblogin
+  become: true
+
+- name: Deploy /etc/pam_weblogin.conf to configure weblogins for SSH.
+  ansible.builtin.template:
+    src: pam_weblogin.conf
+    dest: /etc/pam_weblogin.conf
+    owner: root
+    group: root
+    mode: '0640'
+  become: true
+
+- name: Deploy /etc/security/exclude-pam_weblogin.conf to allow skipping the weblogin for trusted subnets.
+  ansible.builtin.template:
+    src: exclude-pam_weblogin.conf
+    dest: /etc/security/exclude-pam_weblogin.conf
+    owner: root
+    group: root
+    mode: '0440'
+  become: true
+
+- name: Deploy /etc/pam.d/pam_weblogin-auth.
+  ansible.builtin.template:
+    src: totp-auth
+    dest: /etc/pam.d/totp-auth
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: 'Update /etc/pam.d/sshd: Disable password-auth'
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/sshd
+    owner: root
+    group: root
+    mode: '0644'
+    insertafter: '^#%PAM'
+    regexp: '^#?auth(\s+)([a-z]+)(\s+)password-auth'
+    line: '#auth       substack     password-auth # Disabled in favor of pam_weblogin-auth.'
+  become: true
+
+- name: 'Update /etc/pam.d/sshd: Include pam_weblogin-auth.'
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/sshd
+    owner: root
+    group: root
+    mode: '0644'
+    insertafter: '^#?auth(\s+)substack(\s+)password-auth'
+    regexp: '^#?auth(\s+)([a-z]+)(\s+)pam_weblogin-auth'
+    line: 'auth       include      pam_weblogin-auth'
+  become: true
+...

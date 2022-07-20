@@ -1,0 +1,34 @@
+---
+- name: 'Update /etc/pam.d/sshd: Disable pam_weblogin-auth.'
+  ansible.builtin.lineinfile:
+    path: '/etc/pam.d/sshd'
+    owner: root
+    group: root
+    mode: '0644'
+    state: absent
+    regexp: '^#?auth(\s+)([a-z]+)(\s+)pam_weblogin-auth'
+  become: true
+
+- name: 'Update /etc/pam.d/sshd: Enable password-auth.'
+  ansible.builtin.lineinfile:
+    path: '/etc/pam.d/sshd'
+    owner: root
+    group: root
+    mode: '0644'
+    insertafter: '^#%PAM'
+    regexp: '^#?auth(\s+)([a-z]+)(\s+)password-auth'
+    line: 'auth       substack     password-auth'
+  become: true
+
+- name: Remove /etc/pam.d/pam_weblogin-auth.
+  ansible.builtin.file:
+    path: '/etc/pam.d/pam_weblogin-auth'
+    state: absent
+  become: true
+
+- name: Remove /etc/pam_weblogin.conf
+  ansible.builtin.file:
+    path: /etc/pam_weblogin.conf
+    state: absent
+  become: true
+...

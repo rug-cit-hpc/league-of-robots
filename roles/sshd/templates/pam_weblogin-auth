@@ -1,0 +1,13 @@
+#
+# Configure PAM weblogin plugin for auth.
+#
+auth       required     pam_env.so
+auth       requisite    pam_succeed_if.so uid >= 500 quiet
+#
+# Skip pam-weblogin plugin if
+#   * subnet is listed in /etc/security/exclude-pam_weblogin.conf.
+#   * or user is a local admin users, that does not have a federated ID.
+#
+auth [success=2 default=ignore] pam_access.so accessfile=/etc/security/exclude-pam_weblogin.conf
+auth [success=1 default=ignore] pam_succeed_if.so quiet user ingroup admin
+auth       required     /usr/local/lib/security/pam_weblogin.so /etc/pam_weblogin.conf

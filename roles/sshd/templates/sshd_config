@@ -82,7 +82,8 @@ PermitEmptyPasswords no
 GSSAPIAuthentication no
 GSSAPICleanupCredentials no
 PubkeyAuthentication yes
-{% if inventory_hostname in totp.machines | default([]) %}
+{% if inventory_hostname in totp.machines | default([]) or
+   if inventory_hostname in pam_weblogin.machines | default([]) %}
 ChallengeResponseAuthentication yes
 AuthenticationMethods publickey,keyboard-interactive
 {% else %}
