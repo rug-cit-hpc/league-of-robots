@@ -21,7 +21,7 @@
     - inventory_hostname in totp.machines | default([])
     - inventory_hostname in pam_weblogin.machines | default([])
 
-#- meta: end_play
+- meta: end_play
 
 - name: Disable TOTPs for MFA.
   ansible.builtin.include_tasks:
