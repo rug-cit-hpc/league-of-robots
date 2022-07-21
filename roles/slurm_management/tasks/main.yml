@@ -89,10 +89,10 @@
     update_cache: true
     allow_downgrade: true
     name:
-      - "slurm*{{ slurm_version }}"
-      - "slurm-slurmctld*{{ slurm_version }}"
-      - "slurm-slurmdbd*{{ slurm_version }}"
-      - "slurm-perlapi*{{ slurm_version }}"
+      - "slurm-{{ slurm_version }}"
+      - "slurm-slurmctld-{{ slurm_version }}"
+      - "slurm-slurmdbd-{{ slurm_version }}"
+      - "slurm-perlapi-{{ slurm_version }}"
   notify:
     - 'restart_munge'
     - 'restart_slurmdbd'
@@ -156,7 +156,7 @@
 
 - name: 'Install Slurm config file.'
   ansible.builtin.template:
-    src: 'templates/slurm.conf'
+    src: "templates/slurm.conf.{{ slurm_version }}"
     dest: '/etc/slurm/slurm.conf'
     owner: 'root'
     group: 'root'
