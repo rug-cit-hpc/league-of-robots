@@ -70,6 +70,9 @@ all:
     nfs_server:
       hosts:
         wh-sai:
+    smb_server:
+      hosts:
+        wh-sai:
 administration:
   children:
     sys_admin_interface:
@@ -89,4 +92,5 @@ wingedhelix_cluster:
     docs:
     rsyslog:
     nfs_server:
+    smb_server:
 ...
