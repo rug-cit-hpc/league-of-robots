@@ -45,4 +45,7 @@
     name: vm.swappiness
     value: "{{ swap_swappiness | int }}"
   become: true
+
+- name: Flush handlers to enable swap.
+  ansible.builtin.meta: flush_handlers
 ...
