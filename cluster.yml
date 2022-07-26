@@ -12,7 +12,7 @@
 
 - import_playbook: single_group_playbooks/pre_deploy_checks.yml
 
-- import_playbook: single_group_playbooks/jumphost.yml
+#- import_playbook: single_group_playbooks/jumphost.yml
 
 - import_playbook: single_group_playbooks/repo.yml
 
