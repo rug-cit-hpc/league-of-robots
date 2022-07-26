@@ -13,6 +13,7 @@ all:
       hosts:
         wh-repo:
           cloud_flavor: m1.small
+          swap_file_size: 2
     docs:
       hosts:
         docs_on_merlin:

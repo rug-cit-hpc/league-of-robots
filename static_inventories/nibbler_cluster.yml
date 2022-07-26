@@ -12,6 +12,7 @@ all:
       hosts:
         nb-repo:
           cloud_flavor: m1.small
+          swap_file_size: 2
     data_transfer:
       hosts:
         nb-transfer:
