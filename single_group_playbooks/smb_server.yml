@@ -1,0 +1,13 @@
+#
+# This play depends on:
+#   * cluster_part1.yml
+#
+---
+- import_playbook: pre_deploy_checks.yml
+
+- name: '###==-> Extra roles for SMB server. <-==###'
+  hosts:
+    - smb_server
+  roles:
+    - smb_server
+...

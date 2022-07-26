@@ -1,0 +1,94 @@
+---
+- name: Install Samba.
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - samba
+      - samba-common
+      - samba-client
+      - cifs-utils
+  notify: restart_smb
+  become: true
+
+- name: Deploy /etc/samba/smb.conf.
+  ansible.builtin.template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: '0755'
+  notify: restart_smb
+  become: true
+
+- name: Create local groups for local linux user, which will be mapped to samba user.
+  ansible.builtin.group:
+    name: "{{ item.name }}"
+    gid: "{{item.gid }}"
+    state: present
+    local: true
+  with_items: "{{ smb_server_users | map(attribute='groups') | list | flatten | unique }}"
+  become: true
+
+- name: Create local private group for local linux user, which will be mapped to samba user.
+  ansible.builtin.group:
+    name: "{{ item.name }}"  # Use same name as user's account name for user's private group.
+    gid: "{{ item.uid }}"    # Use same GID as user's UID for user's private group.
+    state: present
+  with_items: "{{ smb_server_users }}"
+  become: true
+
+- name: Create local linux users for smb users and append them to relevant groups.
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    comment: "Local linux account only used for corresponding smb account"
+    group: "{{ item.name }}"
+    groups: "{{ item.groups | map(attribute='name') | list }}"
+    home: /dev/null
+    shell: /bin/false
+    append: false
+  with_items: "{{ smb_server_users }}"
+  become: true
+
+- name: Create samba users.
+  ansible.builtin.shell: |
+    set -e
+    set -u
+    set -o pipefail
+    pdbedit --user='{{ item.name }}' 2>&1 > /dev/null \
+     || (echo '{{ smb_server_credentials[item.name] }}'; echo '{{ smb_server_credentials[item.name] }}') \
+        | smbpasswd -s -a '{{ item.name }}'
+  args:
+    executable: /bin/bash
+  register: smb_server_create_users
+  changed_when: "'Added user' in smb_server_create_users.stdout"
+  loop: "{{ smb_server_users }}"
+  become: true
+  no_log: true
+
+- name: Configure passwords for samba users.
+  ansible.builtin.shell: |
+    set -e
+    set -u 
+    set -o pipefail
+    smbclient -U '{{ item.name }}%{{ smb_server_credentials[item.name] }}' -L 127.0.0.1 2>&1 > /dev/null \
+      || (echo '{{ smb_server_credentials[item.name] }}'; echo '{{ smb_server_credentials[item.name] }}') \
+         | smbpasswd '{{ item.name }}'
+  args:
+    executable: /bin/bash
+  register: smb_server_check_users
+  changed_when: "'New SMB password' in smb_server_check_users.stdout"
+  loop: "{{ smb_server_users }}"
+  become: true
+  no_log: true
+
+- name: Enable services.
+  ansible.builtin.systemd:
+    name: smb
+    state: started
+    enabled: true
+    daemon_reload: true
+  become: true
+...
+
