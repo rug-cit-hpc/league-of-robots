@@ -28,8 +28,8 @@ nfiguration file. The playbook gets skipped if the variable is not set.
 ### 1.1. Create repository directory
 
 ```
-    # mkdir /var/local/repo/
-    # chown -R root:root /var/local/repo/
+    # mkdir /usr/local/repo/
+    # chown -R root:root /usr/local/repo/
 ```
 
 ### 1.2. Install system packages
@@ -47,7 +47,7 @@ is defined by priority=1
     # The repositories with the lowest numerical priority number have the highest priority.
     [local]
     name=My RPM System Package Repo
-    baseurl=file:///var/local/repo/
+    baseurl=file:///usr/local/repo/
     enabled=1
     gpgcheck=0
     priority=1
@@ -57,8 +57,8 @@ is defined by priority=1
 ### 1.4. Create repository metadata
 
 ```
-    # createrepo /var/local/repo/
-    # chmod -R o-w+r /var/local/repo/
+    # createrepo /usr/local/repo/
+    # chmod -R o-w+r /usr/local/repo/
 ```
 
 ## 1.5 Disabling the local yum repository
@@ -73,15 +73,15 @@ In case needed: cleanup needs to be done manually.
 ### 2.1. Adding packages
 
  - download the package to local folder - for already installed packages
-    `# yum reinstall --downloadonly --downloaddir=/var/local/repo/ vim`
+    `# yum reinstall --downloadonly --downloaddir=/usr/local/repo/ vim`
 
  - and if package has not been yet installed, use
 
-    `# yum install --downloadonly --downloaddir=/var/local/repo/ vim`
+    `# yum install --downloadonly --downloaddir=/usr/local/repo/ vim`
 
  - to create/recreate a repository's metadata
 
-    `# createrepo /var/local/repo`
+    `# createrepo /usr/local/repo`
 
 ### 2.2. Testing
 
@@ -117,7 +117,7 @@ and check where it has been downloaded from (note local):
    Repo-updated : Wed Jul 13 12:13:41 2022
    Repo-pkgs    : 1
    Repo-size    : 1.1 M
-   Repo-baseurl : file:///var/local/repo/
+   Repo-baseurl : file:///usr/local/repo/
    Repo-expire  : 21,600 second(s) (last: Wed Jul 13 12:14:52 2022)
      Filter     : read-only:present
    Repo-filename: /etc/yum.repos.d/local_yum.repo
