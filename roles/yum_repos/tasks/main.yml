@@ -22,6 +22,6 @@
     description: "{{ item.description }}"
     baseurl: "{{ item.baseurl }}"
     gpgcheck: false
-  with_items: "{{ yum_repos }}"
+  with_list: "{{ yum_repos }}"
   become: true
 ...
