@@ -3,7 +3,7 @@ slurm_cluster_name: 'talos'
 stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'tl'
-slurm_version: '20.11.8-1.el7.umcg'
+slurm_version: '22.05.2-1.el7.umcg'
 slurm_allow_jobs_to_span_nodes: true
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.

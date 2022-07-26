@@ -83,6 +83,15 @@
     - 'restart_slurmctld'
   become: true
 
+- name: 'Delete deprecated/unused Slurm packages.'
+  ansible.builtin.yum:
+    state: 'removed'
+    name:
+      - 'slurm-libpmi'
+      - 'slurm-openlava'
+      - 'slurm-torque'
+  become: true
+
 - name: 'Install Slurm management deamons with yum.'
   ansible.builtin.yum:
     state: 'installed'
