@@ -1,0 +1,23 @@
+---
+- name: 'Update /etc/pam.d/sshd: Disable pam_weblogin-auth.'
+  ansible.builtin.lineinfile:
+    path: '/etc/pam.d/sshd'
+    owner: root
+    group: root
+    mode: '0644'
+    state: absent
+    regexp: '^#?auth(\s+)([a-z]+)(\s+)pam-weblogin-auth'
+  become: true
+
+- name: Remove /etc/pam.d/pam-weblogin-auth.
+  ansible.builtin.file:
+    path: '/etc/pam.d/pam-weblogin-auth'
+    state: absent
+  become: true
+
+- name: Remove /etc/pam-weblogin.conf
+  ansible.builtin.file:
+    path: /etc/pam-weblogin.conf
+    state: absent
+  become: true
+...
