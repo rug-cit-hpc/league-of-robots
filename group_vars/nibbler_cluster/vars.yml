@@ -83,6 +83,20 @@ ldap_domains:
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
+pam_weblogin:
+  machines: "{{ groups['jumphost'] }}"
+  excluded:
+    - 'LOCAL'
+    - "{{ all.ip_addresses['umcg']['net1']['address'] }}{{ all.ip_addresses['umcg']['net1']['netmask'] }}"
+    - "{{ all.ip_addresses['umcg']['net2']['address'] }}{{ all.ip_addresses['umcg']['net2']['netmask'] }}"
+    - "{{ all.ip_addresses['umcg']['net3']['address'] }}{{ all.ip_addresses['umcg']['net3']['netmask'] }}"
+    - "{{ all.ip_addresses['umcg']['net4']['address'] }}{{ all.ip_addresses['umcg']['net4']['netmask'] }}"
+  url: https://sram.surf.nl/pam-weblogin
+  user_name: email
+  min_uid: "{{ ldap_domains['sram']['min_id'] }}"
+  max_uid: "{{ ldap_domains['sram']['max_id'] }}"
+  retries: 3
+  cache_duration: 3600  # seconds
 cloud_image: CentOS 7
 cloud_user: centos
 network_public_external_id: vlan16
