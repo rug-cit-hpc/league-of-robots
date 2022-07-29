@@ -1,5 +1,6 @@
 ---
 stack_prefix: 'docs'
+stack_domain: 'gcc.rug.nl'
 stack_name: "{{ stack_prefix }}_library"  # stack_name must match the name of the folder that contains this vars.yml file.
 cloud_image: CentOS 7
 cloud_user: centos
@@ -7,8 +8,6 @@ network_public_external_id: vlan16
 network_private_management_id: "{{ stack_prefix }}_internal_management"
 network_private_management_cidr: '10.10.1.0/24'
 network_private_management_gw: '10.10.1.1'
-public_ip_addresses:
-#  docs: 'xxx'
 availability_zone: nova
 nameservers: [
   '8.8.4.4',  # Google DNS.
@@ -31,10 +30,28 @@ local_admin_users:
 # We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
 #
 jumphosts:
-  - 'airlock'     # Gearshift
-  - 'reception'   # Talos
-  - 'portal'      # Hyperchicken
-  - 'corridor'    # Fender
-  - 'tunnel'      # Nibbler
-  - 'porch'       # Wingedhelix
+  - group: gearshift_cluster
+    hosts:
+    - hostname: airlock
+      network: vlan16
+  - group: talos_cluster
+    hosts:
+      - hostname: reception
+        network: vlan16
+  - group: hyperchicken_cluster
+    hosts:
+      - hostname: portal
+        network: public
+  - group: fender_cluster
+    hosts:
+      - hostname: corridor
+        network: public
+  - group: nibbler_cluster
+    hosts:
+      - hostname: tunnel
+        network: vlan16
+  - group: wingedhelix_cluster
+    hosts:
+      - hostname: porch
+        network: vlan16
 ...

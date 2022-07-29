@@ -38,8 +38,8 @@ If you prefer another terminal application consult the corresponding manual.
 ![Configure MobaXterm session](img/MobaXterm7b.png)
 
  * SSH jump hosts popup window
-    * 5: _Gateway host_ field: Use the _Jumphost_ {% if public_ip_addresses is defined and public_ip_addresses | length %}IP address _**{{ public_ip_addresses[groups['jumphost'] | first] }}**_{% else %}address _**{{ groups['jumphost'] | first }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}**_{% endif %}.
-    * Optional: _Port_ field: The default port for SSH is 22 and this is usually fine. 
+    * 5: _Gateway host_ field: Use _**{{ first_jumphost_address }}**_ for the _Jumphost_ address.
+    * Optional: _Port_ field: The default port for SSH is _**22**_ and this is usually fine. 
       However if you encounter a network where port 22 is blocked, you can try port 443. (Normally used for HTTPS, but our Jumposts can use it for SSH too.)
     * 6: _Username_ field: Use your _**account name**_ as you received it by email from the helpdesk (same as for 3).
     * 7: Select _Use SSH key_ and

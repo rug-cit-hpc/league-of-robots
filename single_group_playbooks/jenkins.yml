@@ -10,7 +10,6 @@
     - logrotate
     - remove
     - update
-    - {role: geerlingguy.repo-epel, become: true}
     - sshd
-    - {role: geerlingguy.jenkins, become: true}
+    - jenkins
 ...

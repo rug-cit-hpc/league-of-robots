@@ -8,10 +8,12 @@ all:
       hosts:
         porch:
           cloud_flavor: m1.small
+          security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
     repo:
       hosts:
         wh-repo:
           cloud_flavor: m1.small
+          swap_file_size: 2
     docs:
       hosts:
         docs_on_merlin:
@@ -24,7 +26,7 @@ all:
       hosts:
         wh-dai:
           cloud_flavor: m1.large
-          local_volume_size_extra: 200
+          local_volume_size_extra: 2000
     user_interface:
       hosts:
         wingedhelix:
@@ -59,7 +61,19 @@ all:
     chaperone:
       hosts:
         wh-chaperone:
-          ansible_host: ouzkh1016.zkh.umcg.intra
+          ansible_host: uozkh1016.zkh.umcg.intra
+          use_ldap: false
+          functional_admin_group: 'MEDGEN-NFG\ GCC\ Analyse\ Team'
+    rsyslog:
+      hosts:
+        wh-repo:
+          rsyslog_port: 41514
+    nfs_server:
+      hosts:
+        wh-sai:
+    smb_server:
+      hosts:
+        wh-sai:
 administration:
   children:
     sys_admin_interface:
@@ -77,4 +91,7 @@ wingedhelix_cluster:
     cluster:
     chaperone:
     docs:
+    rsyslog:
+    nfs_server:
+    smb_server:
 ...

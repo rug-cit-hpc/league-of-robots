@@ -1,0 +1,65 @@
+---
+- name: Installing postgresql-server
+  become: true
+  ansible.builtin.yum:
+    name: postgresql-server
+    state: latest
+
+- name: Installing python-psycopg2
+  become: true
+  ansible.builtin.yum:
+    name: python-psycopg2
+    state: latest
+
+- name: Initializing PGSQL database
+  become: true
+  ansible.builtin.command: "/usr/bin/postgresql-setup initdb"
+  args:
+    creates: /var/lib/pgsql/data/pg_hba.conf
+
+- name: Fixing pg_hba.conf to permit ipv4localhost password authentication
+  ansible.builtin.lineinfile:
+    name: /var/lib/pgsql/data/pg_hba.conf
+    regexp: "host    all             all             127.0.0.1/32            ident"
+    line: "host    all             all             127.0.0.1/32            md5"
+    backrefs: true
+  notify:
+    - restart_postgresql
+  become: true
+
+- name: Fixing pg_hba.conf to permit ipv6 localhost password authentication
+  ansible.builtin.lineinfile:
+    name: /var/lib/pgsql/data/pg_hba.conf
+    regexp: "host    all             all             ::1/128                 ident"
+    line: "host    all             all             ::1/128                 md5"
+    backrefs: true
+  notify:
+    - restart_postgresql
+  become: true
+
+- name: Enable postgresl service
+  ansible.builtin.systemd:
+    name: postgresql
+    state: started
+    enabled: true
+  become: true
+
+- name: Create {{ irods_db_name }} database.
+  postgresql_db:
+    name: '{{ ir_db_name }}'
+    state: present
+  register: db_created
+  become_user: postgres
+  become: true
+  notify: irodsctl_restart
+
+- name: Creating irods sql user and granting privileges
+  postgresql_user:
+    name: '{{ ir_db_user }}'
+    password: '{{ ir_db_pwd }}'
+    db: '{{ ir_db_name }}'
+    priv: ALL
+    state: present
+  become_user: postgres
+  become: true
+...

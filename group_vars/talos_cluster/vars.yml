@@ -1,9 +1,9 @@
 ---
 slurm_cluster_name: 'talos'
-slurm_cluster_domain: 'hpc.rug.nl'
+stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'tl'
-slurm_version: '20.11.8-1.el7.umcg'
+slurm_version: '22.05.2-1.el7.umcg'
 slurm_allow_jobs_to_span_nodes: true
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
@@ -25,8 +25,6 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
-mailhub: '172.23.34.34'
-rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'ogre'
 motd: |
       =========================================================
@@ -39,18 +37,10 @@ motd: |
           which are on a different (production) storage system.
       =========================================================
 additional_etc_hosts:
-  - group: all
-    hosts:
-      - docs
-      - docs_on_merlin
-  - group: boxy_cluster
-    hosts:
-      - boxy-management
-      - boxy-storage
-  - group: calculon_cluster
-    hosts:
-      - calculon-management
-      - calculon-storage
+  - group: docs_library
+    nodes:
+      - name: docs_on_merlin
+        network: vlan16
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
@@ -70,6 +60,9 @@ ldap_domains:
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
+network_public_external_id: vlan16
+network_private_management_id: vlan983
+network_private_storage_id: vlan985
 nameservers: [
   '/gcc-storage001.stor.hpc.local/172.23.40.244',  # Local DNS lookups for shared storage.
   '8.8.4.4',  # Google DNS.
@@ -196,10 +189,10 @@ iptables_allow_icmp_inbound:
   - 'calculon'
   - 'flexo'
   - 'gate'
-  - 'zinc-finger'
+  - 'zinc_finger'
   - 'coenzyme'
   - 'passage'
-  - 'leucine-zipper'
+  - 'leucine_zipper'
   - 'chaperone'
   - 'airlock'
   - 'jenkins1'
@@ -217,10 +210,10 @@ iptables_allow_ssh_inbound:
   - 'calculon'
   - 'flexo'
   - 'gate'
-  - 'zinc-finger'
+  - 'zinc_finger'
   - 'coenzyme'
   - 'passage'
-  - 'leucine-zipper'
+  - 'leucine_zipper'
   - 'chaperone'
   - 'airlock'
   - 'jenkins1'

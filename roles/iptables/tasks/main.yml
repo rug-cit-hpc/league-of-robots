@@ -93,12 +93,12 @@
 
 - name: 'Deploy firewall configuration script.'
   ansible.builtin.template:
-    src: 'configure-iptables-firewall.bash.j2'
-    dest: '/root/configure-iptables-firewall.bash'
+    src: 'iptables-init.bash.j2'
+    dest: '/etc/sysconfig/iptables-init.bash'
     owner: root
     group: root
-    mode: 0740
-#  notify: reconfigure_iptables
+    mode: 0700
+#  notify: initialize_iptables
   become: true
 
 #

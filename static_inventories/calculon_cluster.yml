@@ -1,0 +1,15 @@
+---
+all:
+  children:
+    openstack_api:
+      hosts:
+        localhost:
+    jumphost:
+      hosts:
+        lobby:
+          cloud_flavor: m1.small
+calculon_cluster:
+  children:
+    openstack_api:
+    jumphost:
+...

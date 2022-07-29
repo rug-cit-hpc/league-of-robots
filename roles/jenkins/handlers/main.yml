@@ -1,0 +1,31 @@
+---
+#
+# Important: maintain correct handler order.
+# Handlers are executed in the order in which they are defined
+# and not in the order in which they are listed in a "notify: handler_name" statement!
+#
+- name: Restart httpd service.
+  ansible.builtin.systemd:
+    name: httpd
+    state: restarted
+    daemon_reload: true
+  become: true
+  listen: restart_httpd
+
+- name: Configure Jenkins users.
+  ansible.builtin.template:
+    src: basic-security.groovy.j2
+    dest: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
+    owner: "{{ jenkins_process_user }}"
+    group: "{{ jenkins_process_group }}"
+    mode: 0775
+  register: configure_jenkins_users
+
+- name: Restart jenkins service.
+  ansible.builtin.systemd:
+    name: jenkins
+    state: restarted
+    daemon_reload: true
+  become: true
+  listen: restart_jenkins
+...

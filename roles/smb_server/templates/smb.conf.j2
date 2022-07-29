@@ -1,0 +1,39 @@
+#
+# smb.conf is the main Samba configuration file.
+#
+[global]
+    workgroup = WORKGROUP
+    passdb backend = tdbsam
+    map to guest = Bad User
+    usershare allow guests = No
+    server string = {{ inventory_hostname }}
+    dns proxy = no
+    log file = /var/log/samba/log.%m
+    log level = 1 passdb:2 auth:2 winbind:2
+    max log size = 5000
+    interfaces = 127.0.0.1 {{ smb_server_interfaces }}
+    bind interfaces only = yes
+    security = user
+    encrypt passwords = true
+    obey pam restrictions = yes
+    unix password sync = yes
+    passwd program = /usr/bin/passwd %u
+    passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccesfully* .
+    pam password change = yes
+    load printers = no
+    printing = bsd
+    printcap name = /dev/null
+    disable spoolss = yes
+    max protocol = SMB2
+{% for smb_share in smb_server_shares %}
+
+[{{ inventory_hostname }}-{{ smb_share['name'] }}]
+    comment = {{ smb_share['comment'] }}
+    path = {{ smb_share['path'] }}
+    valid users = {{ smb_share['users'] }}
+    read only = no
+    create mask = {{ smb_share['file_mode'] }}
+    directory mask = {{ smb_share['dir_mode'] }}
+    force create mode = {{ smb_share['file_mode'] }}
+    force directory mode = {{ smb_share['dir_mode'] }}
+{% endfor %}

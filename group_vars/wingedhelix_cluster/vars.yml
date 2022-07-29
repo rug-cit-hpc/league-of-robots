@@ -1,9 +1,9 @@
 ---
 slurm_cluster_name: 'wingedhelix'
-slurm_cluster_domain: ''  # Only add hpc.rug.nl domain when jumphost is registered in DNS.
+stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'wh'
-slurm_version: '20.11.8-1.el7.umcg'
+slurm_version: '22.05.2-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
@@ -24,43 +24,56 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
-mailhub: '192.168.0.5'     # we need to check or remove, as it looks like it is not used anywhere
-rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'ogre'
 motd: |
       =========================================================
           Welcome to {{ slurm_cluster_name | capitalize }}
       =========================================================
 additional_etc_hosts:
+  - group: docs_library
+    nodes:
+      - name: docs_on_merlin
+        network: vlan16
   - group: all
-    hosts:
-      - docs
-      - docs_on_merlin
-use_ldap: yes
-create_ldap: no
-ldap_uri: 'ldaps://svrs.id.rug.nl'
-ldap_base: 'ou=gd,o=asds'
-ldap_binddn: 'cn=clusteradminGD,o=asds'
-ldap_group_object_class: 'groupofnames'
-ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
-ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
+    nodes:
+      - name: gattaca01
+        network: public
+      - name: gattaca02
+        network: public
+use_ldap: true
+create_ldap: false
+use_sssd: true
+ldap_domains:
+  grunn:
+    uri: ldaps://svrs.id.rug.nl
+    search_base: ou=gd,o=asds
+    schema: rfc2307
+    min_id: 50100000
+    max_id: 55999999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: groupMembership
+    group_member: memberUid
+    group_object_class: groupofnames
+    group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
+    group_quota_hard_limit_template: ruggroupumcgquotaLFS
 totp:
   machines: "{{ groups['jumphost'] }}"
   excluded:
     - 'LOCAL'
-    - "{{ all.ip_addresses['umcg_net1']['addr'] }}{{ all.ip_addresses['umcg_net1']['mask'] }}"
-    - "{{ all.ip_addresses['umcg_net2']['addr'] }}{{ all.ip_addresses['umcg_net2']['mask'] }}"
-    - "{{ all.ip_addresses['umcg_net3']['addr'] }}{{ all.ip_addresses['umcg_net3']['mask'] }}"
+    - "{{ all.ip_addresses['umcg']['net1']['address'] }}{{ all.ip_addresses['umcg']['net1']['netmask'] }}"
+    - "{{ all.ip_addresses['umcg']['net2']['address'] }}{{ all.ip_addresses['umcg']['net2']['netmask'] }}"
+    - "{{ all.ip_addresses['umcg']['net3']['address'] }}{{ all.ip_addresses['umcg']['net3']['netmask'] }}"
+    - "{{ all.ip_addresses['umcg']['net4']['address'] }}{{ all.ip_addresses['umcg']['net4']['netmask'] }}"
 cloud_image: CentOS 7
 cloud_user: centos
 network_public_external_id: vlan16
-network_private_management_id: wh_internal_management
+network_private_management_id: "{{ stack_prefix }}_internal_management"
 network_private_management_cidr: '10.10.1.0/24'
 network_private_management_gw: '10.10.1.1'
-network_private_storage_id: wh_internal_storage
+network_private_storage_id: "{{ stack_prefix }}_internal_storage"
 network_private_storage_cidr: '10.10.2.0/24'
-public_ip_addresses:
-  porch: '195.169.22.170'
 availability_zone: nova
 nameservers: [
   '8.8.4.4',  # Google DNS.
@@ -96,6 +109,7 @@ regular_groups:
   - 'umcg-genomescan'
   - 'umcg-gsad'
   - 'umcg-gst'
+  - 'umcg-lab'
   - 'umcg-vipt'
 regular_users:
   - user: "{{ envsync_user }}"
@@ -145,7 +159,7 @@ regular_users:
 pfs_mounts:
   - pfs: umcgst12
     device: /dev/vdb
-    source: '10.10.2.20:/mnt'
+    source: '10.10.2.99:/mnt'
     type: nfs4    # checked with cat /proc/filesystem
     rw_options: 'defaults,_netdev,noatime,nodiratime,local_lock=flock'
     ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
@@ -181,73 +195,97 @@ lfs_mounts:
       - name: umcg-genomescan
       - name: umcg-gsad
       - name: umcg-gst
+      - name: umcg-lab
+        mode: '2750'
       - name: umcg-vipt
     rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}"
   - lfs: prm05
     pfs: 'medgen_zincfinger$'
     groups:
       - name: umcg-atd
-      - name: umcg-gap
-      - name: umcg-gd
+      #- name: umcg-gap         Do not use production groups while still in development phase.
+      #- name: umcg-gd          Do not use production groups while still in development phase.
       - name: umcg-gsad
-      - name: umcg-gst
-      - name: umcg-vipt
+      #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat05
     pfs: 'medgen_zincfinger$'
     groups:
       - name: umcg-atd
-      - name: umcg-gap
-      - name: umcg-gd
-      - name: umcg-genomescan
+      #- name: umcg-gap         Do not use production groups while still in development phase.
+      #- name: umcg-gd          Do not use production groups while still in development phase.
+      #- name: umcg-genomescan  Do not use production groups while still in development phase.
       - name: umcg-gsad
       - name: umcg-gst
-      - name: umcg-vipt
+      #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm06
     pfs: 'medgen_leucinezipper$'
     groups:
       - name: umcg-atd
-      - name: umcg-gap
-      - name: umcg-gd
+      #- name: umcg-gap         Do not use production groups while still in development phase.
+      #- name: umcg-gd          Do not use production groups while still in development phase.
       - name: umcg-gsad
-      - name: umcg-gst
-      - name: umcg-vipt
+      #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat06
     pfs: 'medgen_leucinezipper$'
     groups:
       - name: umcg-atd
-      - name: umcg-gap
-      - name: umcg-gd
-      - name: umcg-genomescan
+      #- name: umcg-gap         Do not use production groups while still in development phase.
+      #- name: umcg-gd          Do not use production groups while still in development phase.
+      #- name: umcg-genomescan  Do not use production groups while still in development phase.
       - name: umcg-gsad
       - name: umcg-gst
-      - name: umcg-vipt
+      #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm07
     pfs: 'medgen_wingedhelix$'
     groups:
       - name: umcg-atd
-      - name: umcg-gap
-      - name: umcg-gd
+      #- name: umcg-gap         Do not use production groups while still in development phase.
+      #- name: umcg-gd          Do not use production groups while still in development phase.
       - name: umcg-gsad
-      - name: umcg-gst
-      - name: umcg-vipt
+      #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat07
     pfs: 'medgen_wingedhelix$'
     groups:
       - name: umcg-atd
-      - name: umcg-gap
-      - name: umcg-gd
-      - name: umcg-genomescan
+      #- name: umcg-gap         Do not use production groups while still in development phase.
+      #- name: umcg-gd          Do not use production groups while still in development phase.
+      #- name: umcg-genomescan  Do not use production groups while still in development phase.
       - name: umcg-gsad
       - name: umcg-gst
-      - name: umcg-vipt
+      #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env07
     pfs: umcgst12
     ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
+smb_server_users:
+  - name: sbsuser
+    uid: 501
+    groups:
+      - name: umcg-lab
+        gid: 55100194
+  - name: illumina
+    uid: 502
+    groups:
+      - name: umcg-gap
+        gid: 55100225
+smb_server_interfaces: 192.168.1.0/24  # in addition to 127.0.0.1, which must always be present.
+smb_server_shares:
+  - name: ngs
+    comment: Share for sequencers
+    path: /mnt/umcgst12/groups/umcg-lab/tmp07/sequencers
+    users: sbsuser
+    file_mode: 0640
+    dir_mode: 0750
+  - name: array
+    comment: Share for array scanners
+    path: /mnt/umcgst12/groups/umcg-gap/tmp07/rawdata/array/IDAT/
+    users: illumina
+    file_mode: 0660
+    dir_mode: 0770
 ...

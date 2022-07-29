@@ -6,7 +6,7 @@ all:
         localhost:
     docs:
       hosts:
-        docs:
+        docs_on_merlin:
           cloud_flavor: m1.small
 docs_library:
   children:

@@ -83,16 +83,25 @@
     - 'restart_slurmctld'
   become: true
 
+- name: 'Delete deprecated/unused Slurm packages.'
+  ansible.builtin.yum:
+    state: 'removed'
+    name:
+      - 'slurm-libpmi'
+      - 'slurm-openlava'
+      - 'slurm-torque'
+  become: true
+
 - name: 'Install Slurm management deamons with yum.'
   ansible.builtin.yum:
     state: 'installed'
     update_cache: true
     allow_downgrade: true
     name:
-      - "slurm*{{ slurm_version }}"
-      - "slurm-slurmctld*{{ slurm_version }}"
-      - "slurm-slurmdbd*{{ slurm_version }}"
-      - "slurm-perlapi*{{ slurm_version }}"
+      - "slurm-{{ slurm_version }}"
+      - "slurm-slurmctld-{{ slurm_version }}"
+      - "slurm-slurmdbd-{{ slurm_version }}"
+      - "slurm-perlapi-{{ slurm_version }}"
   notify:
     - 'restart_munge'
     - 'restart_slurmdbd'
@@ -156,7 +165,7 @@
 
 - name: 'Install Slurm config file.'
   ansible.builtin.template:
-    src: 'templates/slurm.conf'
+    src: "templates/slurm.conf.{{ slurm_version }}"
     dest: '/etc/slurm/slurm.conf'
     owner: 'root'
     group: 'root'

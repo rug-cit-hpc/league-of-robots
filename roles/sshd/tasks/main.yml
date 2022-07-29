@@ -1,21 +1,4 @@
 ---
-- name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
-  ansible.builtin.find:
-    paths: "{{ playbook_dir }}/group_vars/"
-    recurse: true
-    patterns: 'ip_addresses.yml'
-  register: ip_addresses_files
-  delegate_to: localhost
-  connection: local
-
-- name: Include variables from all ip_addresses.yml files.
-  ansible.builtin.include_vars:
-    file: "{{ item }}"
-    name: "{{ item | dirname | basename }}"
-  with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
-  delegate_to: localhost
-  connection: local
-
 - name: Check if system has /etc/pam.d/sshd
   ansible.builtin.stat:
     path: /etc/pam.d/sshd
@@ -26,18 +9,51 @@
   ansible.builtin.fail:
     msg: This host does not have a /etc/pam.d/sshd file. We cannot configure the PAM stack. Check the sshd setup.
   when:
-    - inventory_hostname in totp.machines | default([])
+    - (inventory_hostname in totp.machines | default([])) or
+      (inventory_hostname in pam_weblogin.machines | default([]))
     - pam_sshd_status.stat.exists is false
+
+- name: Fail if both MFA with TOTPs and pam plugin for web logins are configured.
+  ansible.builtin.fail:
+    msg: "MFA with TOTPs and the pam plugin for web logins are both configured, but mutually exclusive:
+         check the sshd setup for the {{ stack_name }} stack."
+  when:
+    - inventory_hostname in totp.machines | default([])
+    - inventory_hostname in pam_weblogin.machines | default([])
+
+- name: 'Update /etc/pam.d/sshd: Enable password-auth.'
+  ansible.builtin.lineinfile:
+    path: '/etc/pam.d/sshd'
+    owner: root
+    group: root
+    mode: '0644'
+    insertafter: '^#%PAM'
+    regexp: '^#?auth(\s+)([a-z]+)(\s+)password-auth'
+    line: 'auth       substack     password-auth'
+  when:
+    - inventory_hostname not in totp.machines | default([])
+    - inventory_hostname not in pam_weblogin.machines | default([])
+  become: true
+
+- name: Disable TOTPs for MFA.
+  ansible.builtin.include_tasks:
+    file: disable_totps.yml
+  when: inventory_hostname not in totp.machines | default([])
+
+- name: Disable pam plugin for web logins.
+  ansible.builtin.include_tasks:
+    file: disable_pam_weblogin.yml
+  when: inventory_hostname not in pam_weblogin.machines | default([])
 
 - name: Enable TOTPs for MFA.
   ansible.builtin.include_tasks:
     file: enable_totps.yml
   when: inventory_hostname in totp.machines | default([])
 
-- name: Disable TOTPs for MFA.
+- name: Enable pam plugin for web logins.
   ansible.builtin.include_tasks:
-    file: disable_totps.yml
-  when: inventory_hostname not in totp.machines | default([])
+    file: enable_pam_weblogin.yml
+  when: inventory_hostname in pam_weblogin.machines | default([])
 
 - name: Deploy sshd config.
   ansible.builtin.template:

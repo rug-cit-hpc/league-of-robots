@@ -1,0 +1,7 @@
+---
+ip_addresses:
+  betabarrel:
+    vlan983:
+      address: 172.23.41.225
+      netmask: /32
+...

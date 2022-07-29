@@ -11,7 +11,8 @@
   listen: restart_iptables
 
 - name: 'Configure iptables based firewalls (IPv4 and IPv6).'
-  ansible.builtin.command: '/root/configure-iptables-firewall.bash'
+  ansible.builtin.command:
+    cmd: '/etc/sysconfig/iptables-init.bash'
   become: true
-  listen: configure_iptables
+  listen: initialize_iptables
 ...

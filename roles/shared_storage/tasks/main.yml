@@ -23,7 +23,7 @@
 - name: 'Create credential files for mounting cifs shares.'
   ansible.builtin.template:
     src: 'templates/credentials.cifs'
-    dest: "/etc/sysconfig/{{ item.pfs }}.cifs"
+    dest: "/etc/sysconfig/{{ item.pfs | regex_replace('\\$$', '') }}.cifs"
     mode: '0600'
     owner: root
     group: root
@@ -33,7 +33,7 @@
 
 - name: 'Mount complete Physical File Systems (PFS-ses).'
   ansible.posix.mount:
-    path: "/mnt/{{ item.pfs }}"
+    path: "/mnt/{{ item.pfs | regex_replace('\\$$', '') }}"
     src: "{{ item.source }}/{{ item.pfs }}"
     fstype: "{{ item.type }}"
     opts: "{{ item.rw_options }}{{ extra_opts }}"
@@ -41,7 +41,7 @@
   vars:
     extra_opts: >-
       {%- if item.type == 'cifs' -%}
-      ,credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid=root,gid=root
+      ,credentials=/etc/sysconfig/{{ item.pfs | regex_replace('\$$', '') }}.cifs,uid=root,gid=root
       {%- endif -%}
   with_items: "{{ pfs_mounts | selectattr('device', 'undefined') | list }}"
   when: inventory_hostname in item.machines | default([])
@@ -49,7 +49,7 @@
 
 - name: 'Create "home" Logical File System (LFS) on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.pfs }}/{{ item.lfs }}"
+    path: "/mnt/{{ item.pfs | regex_replace('\\$$', '') }}/{{ item.lfs }}"
     owner: 'root'
     group: 'root'
     mode: '0755'
@@ -60,7 +60,7 @@
 
 - name: 'Create root groups folder for "tmp", "rsc", "prm" and "dat" Logical File Systems (LFSs) on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.pfs }}/groups"
+    path: "/mnt/{{ item.pfs | regex_replace('\\$$', '') }}/groups"
     owner: 'root'
     group: 'root'
     mode: '0755'
@@ -72,7 +72,7 @@
 
 - name: 'Create folder for each group on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1.name }}"
+    path: "/mnt/{{ item.0.pfs | regex_replace('\\$$', '') }}/groups/{{ item.1.name }}"
     owner: 'root'
     group: "{{ item.1.name }}"
     mode: '2750'
@@ -85,7 +85,7 @@
 
 - name: 'Create "tmp" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    path: "/mnt/{{ item.0.pfs | regex_replace('\\$$', '') }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
     owner: "{{ item.1.name }}-dm"
     group: "{{ item.1.name }}"
     mode: "{{ item.1.mode | default('2770', true) }}"
@@ -98,7 +98,7 @@
 
 - name: 'Create "rsc" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    path: "/mnt/{{ item.0.pfs | regex_replace('\\$$', '') }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
     owner: "{{ item.1.name }}-dm"
     group: "{{ item.1.name }}"
     mode: "{{ item.1.mode | default('2750', true) }}"
@@ -111,7 +111,7 @@
 
 - name: 'Create "prm" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    path: "/mnt/{{ item.0.pfs | regex_replace('\\$$', '') }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
     owner: "{{ item.1.name }}-dm"
     group: "{{ item.1.name }}"
     mode: "{{ item.1.mode | default('2750', true) }}"
@@ -124,7 +124,7 @@
 
 - name: 'Create "dat" Logical File Systems (LFSs) for each group on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    path: "/mnt/{{ item.0.pfs | regex_replace('\\$$', '') }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
     owner: "{{ item.1.name }}-dm"
     group: "{{ item.1.name }}"
     mode: "{{ item.1.mode | default('2770', true) }}"
@@ -137,7 +137,7 @@
 
 - name: 'Create "apps" Logical File Systems (LFSs) on Physical File Systems (PFSs).'
   ansible.builtin.file:
-    path: "/mnt/{{ item.pfs }}/{{ item.lfs }}/apps"
+    path: "/mnt/{{ item.pfs | regex_replace('\\$$', '') }}/{{ item.lfs }}/apps"
     owner: "{{ envsync_user }}"
     group: "{{ envsync_group }}"
     mode: '2755'
@@ -248,7 +248,7 @@
   vars:
     extra_opts: >-
       {%- if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' -%}
-      ,credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1.name }},gid={{ item.1.name }}
+      ,credentials=/etc/sysconfig/{{ item.0.pfs | regex_replace('\$$', '') }}.cifs,uid={{ item.1.name }}-dm,gid={{ item.1.name }}
       {%- endif -%}
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
@@ -267,7 +267,7 @@
   vars:
     extra_opts: >-
       {%- if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' -%}
-      ,credentials=/etc/sysconfig/{{ item.pfs }}.cifs,uid={{ item.1.name }},gid={{ item.1.name }}
+      ,credentials=/etc/sysconfig/{{ item.0.pfs | regex_replace('\$$', '') }}.cifs,uid={{ item.1.name }}-dm,gid={{ item.1.name }}
       {%- endif -%}
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'dat[0-9]+$') | list }}"

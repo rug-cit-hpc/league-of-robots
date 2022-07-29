@@ -1,6 +1,6 @@
 ---
 slurm_cluster_name: 'gearshift'
-slurm_cluster_domain: 'hpc.rug.nl'
+stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'gs'
 slurm_version: '20.11.8-1.el7.umcg'
@@ -24,8 +24,6 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
-mailhub: '172.23.34.34'
-rewrite_domain: "imperator{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'cyberlarge'
 motd: |
       ============================================================
@@ -36,18 +34,10 @@ motd: |
        all data in home dirs and tmp* group dirs will be lost!
       ============================================================
 additional_etc_hosts:
-  - group: all
-    hosts:
-      - docs
-      - docs_on_merlin
-  - group: boxy_cluster
-    hosts:
-      - boxy-management
-      - boxy-storage
-  - group: calculon_cluster
-    hosts:
-      - calculon-management
-      - calculon-storage
+  - group: docs_library
+    nodes:
+      - name: docs_on_merlin
+        network: vlan16
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-ca"
 use_ldap: yes
 create_ldap: no
@@ -60,11 +50,17 @@ ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
 filter_passwd: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
 filter_shadow: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
 pam_authz_search: '(|(&(objectClass=posixGroup)(cn=co_bbmri_g-GRP_Gearshift)(memberUid=$username))(&(cn=$username)(rugpersonentitlementvalue=umcg)))'
+network_public_external_id: vlan16
+network_private_management_id: vlan983
+network_private_storage_id: vlan985
 nameservers: [
   '172.23.40.244', # Order is important: local DNS for Isilon storage first!
   '8.8.4.4',       # Google DNS.
   '8.8.8.8',       # Google DNS.
 ]
+rsyslog_external_servers:
+  - hostname: 172.23.47.250
+    port: 514
 nameserver_domain_overrides:
   - domain: hpc.local
     nameserver: 172.23.40.244
