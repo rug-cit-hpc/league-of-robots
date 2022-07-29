@@ -1,5 +1,6 @@
 ---
 - hosts:
+   - jumphost
    - cluster
   roles:
    - yum_local

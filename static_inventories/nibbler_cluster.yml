@@ -8,6 +8,7 @@ all:
       hosts:
         tunnel:
           cloud_flavor: m1.small
+          local_yum_repository: true
     repo:
       hosts:
         nb-repo:
