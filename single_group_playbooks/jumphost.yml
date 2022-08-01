@@ -8,6 +8,7 @@
     - admin_users
     - ssh_host_signer
     - ssh_known_hosts
+    - {role: yum_local, when: local_yum_repository is defined}
     - logrotate
     - remove
     - update
