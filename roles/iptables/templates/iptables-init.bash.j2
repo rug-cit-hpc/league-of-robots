@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:True, lstrip_blocks: True
 #!/bin/bash
 
 #
@@ -37,44 +38,71 @@ declare -a EXTERNAL_INTERFACES=(
 # Network addresses and ranges.
 #
 LOOPBACK='127.0.0.0/8'
-
 declare -a ALLOW_ICMP_INBOUND=(
-{% for ip in iptables_allow_icmp_inbound %}
-	'{{ ip_addresses[ip].addr }}'	# {{ ip_addresses[ip].desc }}
-{% endfor %}
+{% if iptables_allow_icmp_inbound is defined %}{% for ip in iptables_allow_icmp_inbound %}
+	{% if ip == 'ANY'%}
+	'{{ ip }}'
+	{% else %}
+	'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+	{% endif %}
+{% endfor %}{% endif%}
 )
 declare -a ALLOW_SSH_INBOUND=(
-{% for ip in iptables_allow_ssh_inbound %}
-	'{{ ip_addresses[ip].addr }}'	# {{ ip_addresses[ip].desc }}
-{% endfor %}
+{% if iptables_allow_ssh_inbound is defined %}{% for ip in iptables_allow_ssh_inbound %}
+	{% if ip == 'ANY'%}
+	'{{ ip }}'
+	{% else %}
+	'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+	{% endif %}
+{% endfor %}{% endif%}
 )
 declare -a ALLOW_SSH_OUTBOUND=(
-{% for ip in iptables_allow_ssh_outbound %}
-	'{{ ip_addresses[ip].addr }}'	# {{ ip_addresses[ip].desc }}
-{% endfor %}
+{% if iptables_allow_ssh_outbound is defined %}{% for ip in iptables_allow_ssh_outbound %}
+	{% if ip == 'ANY'%}
+	'{{ ip }}'
+	{% else %}
+	'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+	{% endif %}
+{% endfor %}{% endif%}
 )
 declare -a ALLOW_EBI_MYSQL_OUTBOUND=(
-{% for ip in iptables_allow_ebi_mysql_outbound %}
-	'{{ ip_addresses[ip].addr }}'	# {{ ip_addresses[ip].desc }}
-{% endfor %}
+{% if iptables_allow_ebi_mysql_outbound is defined %}{% for ip in iptables_allow_ebi_mysql_outbound %}
+	{% if ip == 'ANY'%}
+	'{{ ip }}'
+	{% else %}
+	'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+	{% endif %}
+{% endfor %}{% endif%}
 )
 declare -a ALLOW_FTP_OUTBOUND=(
-{% for ip in iptables_allow_ftp_outbound %}
-	'{{ ip_addresses[ip].addr }}'	# {{ ip_addresses[ip].desc }}
-{% endfor %}
+{% if iptables_allow_ftp_outbound is defined %}{% for ip in iptables_allow_ftp_outbound %}
+	{% if ip == 'ANY'%}
+	'{{ ip }}'
+	{% else %}
+	'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+	{% endif %}
+{% endfor %}{% endif%}
 )
 declare -a ALLOW_ASPERA_OUTBOUND=(
-{% for ip in iptables_allow_aspera_outbound %}
-	'{{ ip_addresses[ip].addr }}'	# {{ ip_addresses[ip].desc }}
-{% endfor %}
+{% if iptables_allow_aspera_outbound is defined %}{% for ip in iptables_allow_aspera_outbound %}
+	{% if ip == 'ANY'%}
+	'{{ ip }}'
+	{% else %}
+	'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+	{% endif %}
+{% endfor %}{% endif%}
 )
 declare -a ALLOW_GLOBUS_OUTBOUND=(
-{% for ip in iptables_allow_globus_outbound %}
-	'{{ ip_addresses[ip].addr }}'	# {{ ip_addresses[ip].desc }}
-{% endfor %}
+{% if iptables_allow_globus_outbound is defined %}{% for ip in iptables_allow_globus_outbound %}
+	{% if ip == 'ANY'%}
+	'{{ ip }}'
+	{% else %}
+	'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+	{% endif %}
+{% endfor %}{% endif%}
 )
-declare GLOBUS_ORG_NET='{{ ip_addresses.globus_org_net.addr }}'	# {{ ip_addresses.globus_org_net.desc }}
-declare GOOGLE_STUN='{{ ip_addresses.google_stun.addr }}'		# {{ ip_addresses.google_stun.desc }}
+declare GLOBUS_ORG_NET='{{ all.ip_addresses['globus_org']['net']['address'] }}{{ all.ip_addresses['globus_org']['net']['netmask'] }}'	# {{ all.ip_addresses['globus_org']['net']['desc'] }}
+declare GOOGLE_STUN='{{ all.ip_addresses['google']['stun']['address'] }}{{ all.ip_addresses['google']['stun']['netmask'] }}'		# {{ all.ip_addresses['google']['stun']['desc'] }}
 
 #
 ##
@@ -88,15 +116,14 @@ declare GOOGLE_STUN='{{ ip_addresses.google_stun.addr }}'		# {{ ip_addresses.goo
 #  * Remove any -mgmt suffixes
 #
 SERVER_NAME="$(hostname -s)"
-SERVER_NAME="$(echo ${SERVER_NAME} | sed 's/-mgmt//')"
 
 #
 # Check if we have a config valid for this server.
 #
-if [[ "${SERVER_NAME}" == "${TARGET_SERVER}" ]]; then
+if [[ "${SERVER_NAME%-mgmt}" == "${TARGET_SERVER}" ]]; then
 	echo "INFO: Hostname check passed. Will configure iptables firewall..."
 else
-	echo "ERROR: This config file is for \"${TARGET_SERVER}\", but this is \"${SERVER_NAME}\"."
+	echo "ERROR: This config file is for \"${TARGET_SERVER}\", but this is \"${SERVER_NAME%-mgmt}\"."
 	echo 'FATAL: Cannot configure firewall on this server.'
 	exit 1
 fi
@@ -219,13 +246,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 done
 
 #
-# Allow loopback.
-#
-iptables -A INPUT  -i lo -j ACCEPT
-iptables -A OUTPUT -o lo -j ACCEPT
-
-#
-# Allow anything over internal interfaces.
+# Allow anything over internal interfaces including the loopback interface.
 #
 for INT_INTERFACE in "${INTERNAL_INTERFACES[@]:-}"; do
 	[[ -z "${INT_INTERFACE}" ]] && continue
@@ -251,60 +272,66 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 	#              The Time To Live (TTL) for the datagram has been exceeded.
 	#              Required for traceroute.
 	#
-	iptables -A OUTPUT -o ${EXT_INTERFACE} -p icmp -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-	iptables -A INPUT  -i ${EXT_INTERFACE} -p icmp -m state --state ESTABLISHED,RELATED     -j ACCEPT
-	for IP_ADDRESS in ${ALLOW_ICMP_INBOUND[@]}; do
-		iptables -A INPUT  -i ${EXT_INTERFACE} -p icmp --icmp-type 3  -s ${IP_ADDRESS} -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-		iptables -A INPUT  -i ${EXT_INTERFACE} -p icmp --icmp-type 8  -s ${IP_ADDRESS} -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-		iptables -A INPUT  -i ${EXT_INTERFACE} -p icmp --icmp-type 11 -s ${IP_ADDRESS} -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+	iptables -A OUTPUT -o "${EXT_INTERFACE}" -p icmp -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+	iptables -A INPUT  -i "${EXT_INTERFACE}" -p icmp -m state --state ESTABLISHED,RELATED     -j ACCEPT
+	for IP_ADDRESS in "${ALLOW_ICMP_INBOUND[@]}"; do
+		if [[ "${IP_ADDRESS}" == 'ANY' ]]; then
+			iptables -A INPUT  -i "${EXT_INTERFACE}" -p icmp --icmp-type 3  -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+			iptables -A INPUT  -i "${EXT_INTERFACE}" -p icmp --icmp-type 8  -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+			iptables -A INPUT  -i "${EXT_INTERFACE}" -p icmp --icmp-type 11 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+		else
+			iptables -A INPUT  -i "${EXT_INTERFACE}" -p icmp --icmp-type 3  -s "${IP_ADDRESS}" -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+			iptables -A INPUT  -i "${EXT_INTERFACE}" -p icmp --icmp-type 8  -s "${IP_ADDRESS}" -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+			iptables -A INPUT  -i "${EXT_INTERFACE}" -p icmp --icmp-type 11 -s "${IP_ADDRESS}" -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+		fi
 	done
 	#
 	# Allow outbound NTP.
 	#
-	iptables -A OUTPUT -o ${EXT_INTERFACE} -p udp --dport 123 -m state --state NEW,ESTABLISHED -j ACCEPT
-	iptables -A INPUT  -i ${EXT_INTERFACE} -p udp --sport 123 -m state --state ESTABLISHED     -j ACCEPT
+	iptables -A OUTPUT -o "${EXT_INTERFACE}" -p udp --dport 123 -m state --state NEW,ESTABLISHED -j ACCEPT
+	iptables -A INPUT  -i "${EXT_INTERFACE}" -p udp --sport 123 -m state --state ESTABLISHED     -j ACCEPT
 	#
 	# Allow outbound SMTP.
 	#
-	iptables -A OUTPUT -o ${EXT_INTERFACE} -p tcp -m multiport --dport 25,587 -m state --state NEW,ESTABLISHED -j ACCEPT
-	iptables -A INPUT  -i ${EXT_INTERFACE} -p tcp -m multiport --sport 25,587 -m state --state ESTABLISHED     -j ACCEPT
+	iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp -m multiport --dport 25,587 -m state --state NEW,ESTABLISHED -j ACCEPT
+	iptables -A INPUT  -i "${EXT_INTERFACE}" -p tcp -m multiport --sport 25,587 -m state --state ESTABLISHED     -j ACCEPT
 	#
 	# Allow outbound DNS.
 	#
-	iptables -A OUTPUT -o ${EXT_INTERFACE} -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
-	iptables -A INPUT  -i ${EXT_INTERFACE} -p udp --sport 53 -m state --state ESTABLISHED     -j ACCEPT
-	iptables -A OUTPUT -o ${EXT_INTERFACE} -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
-	iptables -A INPUT  -i ${EXT_INTERFACE} -p tcp --sport 53 -m state --state ESTABLISHED     -j ACCEPT
+	iptables -A OUTPUT -o "${EXT_INTERFACE}" -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+	iptables -A INPUT  -i "${EXT_INTERFACE}" -p udp --sport 53 -m state --state ESTABLISHED     -j ACCEPT
+	iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+	iptables -A INPUT  -i "${EXT_INTERFACE}" -p tcp --sport 53 -m state --state ESTABLISHED     -j ACCEPT
 	#
 	# Allow outbound HTTP.
 	#
-	iptables -A OUTPUT -o ${EXT_INTERFACE} -p tcp --dport 80 -m state --state NEW,ESTABLISHED -j ACCEPT
-	iptables -A INPUT  -i ${EXT_INTERFACE} -p tcp --sport 80 -m state --state ESTABLISHED     -j ACCEPT
+	iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp --dport 80 -m state --state NEW,ESTABLISHED -j ACCEPT
+	iptables -A INPUT  -i "${EXT_INTERFACE}" -p tcp --sport 80 -m state --state ESTABLISHED     -j ACCEPT
 	#
 	# Allow outbound HTTPS.
 	#
-	iptables -A OUTPUT -o ${EXT_INTERFACE} -p tcp --dport 443 -m state --state NEW,ESTABLISHED -j ACCEPT
-	iptables -A INPUT  -i ${EXT_INTERFACE} -p tcp --sport 443 -m state --state ESTABLISHED     -j ACCEPT
+	iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp --dport 443 -m state --state NEW,ESTABLISHED -j ACCEPT
+	iptables -A INPUT  -i "${EXT_INTERFACE}" -p tcp --sport 443 -m state --state ESTABLISHED     -j ACCEPT
 	#
 	# Allow SSH inbound and outbound.
 	#
-	for IP_ADDRESS in ${ALLOW_SSH_INBOUND[@]}; do
-		iptables -A INPUT  -i ${EXT_INTERFACE} -p tcp -s ${IP_ADDRESS} --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+	for IP_ADDRESS in "${ALLOW_SSH_INBOUND[@]}"; do
+		iptables -A INPUT  -i "${EXT_INTERFACE}" -p tcp -s "${IP_ADDRESS}" --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
 	done
-	for IP_ADDRESS in ${ALLOW_SSH_OUTBOUND[@]}; do
-		iptables -A OUTPUT -o ${EXT_INTERFACE} -p tcp -d ${IP_ADDRESS} --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+	for IP_ADDRESS in "${ALLOW_SSH_OUTBOUND[@]}"; do
+		iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp -d "${IP_ADDRESS}" --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
 	done
-	iptables   -A OUTPUT -o ${EXT_INTERFACE} -p tcp                    --sport 22 -m state --state ESTABLISHED     -j ACCEPT
-	iptables   -A INPUT  -i ${EXT_INTERFACE} -p tcp                    --sport 22 -m state --state ESTABLISHED     -j ACCEPT
+	iptables   -A OUTPUT -o "${EXT_INTERFACE}" -p tcp                    --sport 22 -m state --state ESTABLISHED     -j ACCEPT
+	iptables   -A INPUT  -i "${EXT_INTERFACE}" -p tcp                    --sport 22 -m state --state ESTABLISHED     -j ACCEPT
 	#
 	# Allow MySQL outbound.
 	#
-	# Required a.o. for conncections to the public Ensembl databases via the Ensembl Perl API
+	# Required a.o. for connections to the public Ensembl databases via the Ensembl Perl API
 	#
-	for IP_ADDRESS in ${ALLOW_EBI_MYSQL_OUTBOUND[@]}; do
-		iptables -A OUTPUT -o ${EXT_INTERFACE} -p tcp -d ${IP_ADDRESS} -m multiport --dports 3306,5306,5316 -m state --state NEW,ESTABLISHED -j ACCEPT
+	for IP_ADDRESS in "${ALLOW_EBI_MYSQL_OUTBOUND[@]}"; do
+		iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp -d "${IP_ADDRESS}" -m multiport --dports 3306,5306,5316 -m state --state NEW,ESTABLISHED -j ACCEPT
 	done
-	iptables -A INPUT  -i ${EXT_INTERFACE} -p tcp                      -m multiport --sports 3306,5306,5316 -m state --state ESTABLISHED     -j ACCEPT
+	iptables -A INPUT  -i "${EXT_INTERFACE}" -p tcp                      -m multiport --sports 3306,5306,5316 -m state --state ESTABLISHED     -j ACCEPT
 	#
 	# Allow FTP outbound.
 	#
@@ -318,10 +345,10 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 	#
 	# Firstly, allow FTP control initiated by the client.
 	#
-	for IP_ADDRESS in ${ALLOW_FTP_OUTBOUND[@]}; do
-		iptables -A OUTPUT -o ${EXT_INTERFACE} -p tcp -d ${IP_ADDRESS} --dport 21 -m state --state NEW,ESTABLISHED -j ACCEPT
+	for IP_ADDRESS in "${ALLOW_FTP_OUTBOUND[@]}"; do
+		iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp -d "${IP_ADDRESS}" --dport 21 -m state --state NEW,ESTABLISHED -j ACCEPT
 	done
-	iptables   -A INPUT  -i ${EXT_INTERFACE} -p tcp                    --sport 21 -m state --state ESTABLISHED     -j ACCEPT
+	iptables   -A INPUT  -i "${EXT_INTERFACE}" -p tcp                    --sport 21 -m state --state ESTABLISHED     -j ACCEPT
 	#
 	# Secondly, allow FTP data connections.
 	#  * For Active Mode FTP the client must accept RELATED connections from the server on port 20 
@@ -331,10 +358,10 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 	#  * For both Active and Passive Mode FTP, the nf_conntrack_ftp kernel module is required at the FTP client 
 	#    to pick up the negotiated port number from the FTP control packet payloads.
 	#
-	iptables -A INPUT  -i ${EXT_INTERFACE} -p tcp --sport 20                  -m state --state ESTABLISHED,RELATED -j ACCEPT # Active Mode
-	iptables -A OUTPUT -o ${EXT_INTERFACE} -p tcp --dport 20                  -m state --state ESTABLISHED         -j ACCEPT # Active Mode
-	iptables -A OUTPUT -o ${EXT_INTERFACE} -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED,RELATED -j ACCEPT # Passive Mode
-	iptables -A INPUT  -i ${EXT_INTERFACE} -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED         -j ACCEPT # Passive Mode
+	iptables -A INPUT  -i "${EXT_INTERFACE}" -p tcp --sport 20                  -m state --state ESTABLISHED,RELATED -j ACCEPT # Active Mode
+	iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp --dport 20                  -m state --state ESTABLISHED         -j ACCEPT # Active Mode
+	iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED,RELATED -j ACCEPT # Passive Mode
+	iptables -A INPUT  -i "${EXT_INTERFACE}" -p tcp --sport 1024: --dport 1024: -m state --state ESTABLISHED         -j ACCEPT # Passive Mode
 	#
 	# Allow Aspera outbound.
 	#
@@ -344,12 +371,12 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 	#    In case the server OS doesn't allow UDP port sharing a range of UDP ports is used
 	#    where the number of ports determines the max number of concurrent connections/clients.
 	#
-	for IP_ADDRESS in ${ALLOW_ASPERA_OUTBOUND[@]}; do
-		iptables -A OUTPUT -o ${EXT_INTERFACE} -p tcp -d ${IP_ADDRESS} -m multiport --dports 22,33001    -m state --state NEW,ESTABLISHED -j ACCEPT
-		iptables -A OUTPUT -o ${EXT_INTERFACE} -p udp -d ${IP_ADDRESS} -m multiport --dports 33001:33100 -m state --state NEW,ESTABLISHED -j ACCEPT
+	for IP_ADDRESS in "${ALLOW_ASPERA_OUTBOUND[@]}"; do
+		iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp -d "${IP_ADDRESS}" -m multiport --dports 22,33001    -m state --state NEW,ESTABLISHED -j ACCEPT
+		iptables -A OUTPUT -o "${EXT_INTERFACE}" -p udp -d "${IP_ADDRESS}" -m multiport --dports 33001:33100 -m state --state NEW,ESTABLISHED -j ACCEPT
 	done
-	iptables   -A INPUT  -i ${EXT_INTERFACE} -p tcp                    -m multiport --sports 22,33001    -m state --state ESTABLISHED     -j ACCEPT
-	iptables   -A INPUT  -i ${EXT_INTERFACE} -p udp                    -m multiport --sports 33001:33100 -m state --state ESTABLISHED     -j ACCEPT
+	iptables   -A INPUT  -i "${EXT_INTERFACE}" -p tcp                    -m multiport --sports 22,33001    -m state --state ESTABLISHED     -j ACCEPT
+	iptables   -A INPUT  -i "${EXT_INTERFACE}" -p udp                    -m multiport --sports 33001:33100 -m state --state ESTABLISHED     -j ACCEPT
 	#
 	# Allow Globus outbound.
 	#
@@ -362,11 +389,11 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 	#  * TCP ports 50000-51000 outbound for data channel for transfers with Globus Connect Server endpoints.
 	#  * UDP ports 32768-65535 outbound for data channel for transfers with other Globus Connect Personal endpoints.
 	#
-	iptables   -A OUTPUT -o ${EXT_INTERFACE} -p tcp -d ${GLOBUS_ORG_NET}            --dport 2223  -m state --state NEW,ESTABLISHED -j ACCEPT
-	iptables   -A OUTPUT -o ${EXT_INTERFACE} -p udp -d ${GOOGLE_STUN}               --dport 19302 -m state --state NEW,ESTABLISHED -j ACCEPT
-	for IP_ADDRESS in ${ALLOW_GLOBUS_OUTBOUND[@]}; do
-		iptables -A OUTPUT -o ${EXT_INTERFACE} -p tcp -d ${IP_ADDRESS} -m multiport --dports 50000:51000 -m state --state NEW,ESTABLISHED -j ACCEPT
-		iptables -A OUTPUT -o ${EXT_INTERFACE} -p udp -d ${IP_ADDRESS} -m multiport --dports 32678:65535 -m state --state NEW,ESTABLISHED -j ACCEPT
+	iptables   -A OUTPUT -o "${EXT_INTERFACE}" -p tcp -d "${GLOBUS_ORG_NET}"            --dport 2223  -m state --state NEW,ESTABLISHED -j ACCEPT
+	iptables   -A OUTPUT -o "${EXT_INTERFACE}" -p udp -d "${GOOGLE_STUN}"               --dport 19302 -m state --state NEW,ESTABLISHED -j ACCEPT
+	for IP_ADDRESS in "${ALLOW_GLOBUS_OUTBOUND[@]}"; do
+		iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp -d "${IP_ADDRESS}" -m multiport --dports 50000:51000 -m state --state NEW,ESTABLISHED -j ACCEPT
+		iptables -A OUTPUT -o "${EXT_INTERFACE}" -p udp -d "${IP_ADDRESS}" -m multiport --dports 32678:65535 -m state --state NEW,ESTABLISHED -j ACCEPT
 	done
 done
 
