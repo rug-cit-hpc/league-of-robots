@@ -10,7 +10,7 @@
     name: '*'
     state: latest
     update_cache: true
-    exclude: 'slurm*,irods*' # there packages are version locked, and we don't want to change that
+    exclude: 'slurm*,irods*' # These packages are version locked and we don't want to change that.
   notify: reboot_for_kernel_update
   become: true
 - name: 'Install cron job to reboot server regularly to activate kernel updates.'
