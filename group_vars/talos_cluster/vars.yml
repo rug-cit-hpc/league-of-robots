@@ -190,10 +190,6 @@ iptables_allow_icmp_inbound:
   - "{{ hyperchicken_cluster.ip_addresses['portal']['public'] }}"
   - "{{ nibbler_cluster.ip_addresses['tunnel']['vlan16'] }}"
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
-  #
-  # ToDo: need to include the external IPs for the default routers of all clusters with something like this.
-  #
-  #- "{{ nibbler_cluster.ip_addresses['default_router']['vlan16'] }}"
 iptables_allow_ssh_inbound:
   - ANY
 iptables_allow_ssh_outbound:
