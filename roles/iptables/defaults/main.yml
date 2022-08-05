@@ -5,8 +5,9 @@
 iptables_allow_icmp_inbound:
   - ANY
 #
-# HTTPS
+# HTTP and HTTPS inbound. (HTTP and HTTPS always allowed by default to fetch packages from repos.)
 #
+iptables_allow_http_inbound: []
 iptables_allow_https_inbound: []
 #
 # SSH.
@@ -20,6 +21,10 @@ iptables_allow_ssh_outbound:
 #
 iptables_allow_ebi_mysql_outbound: []
 #
+# PostgreSQL (only outbound). 
+#
+iptables_allow_postgresql_outbound: []
+#
 # FTP (only outbound).
 #
 iptables_allow_ftp_outbound: []
@@ -27,6 +32,10 @@ iptables_allow_ftp_outbound: []
 # Aspera (only outbound). 
 #
 iptables_allow_aspera_outbound: []
+#
+# iRODS: by definition both inbound and outbound.
+#
+iptables_allow_irods: []
 #
 # Globus ToolKit (only outbound).
 #
@@ -36,8 +45,7 @@ iptables_allow_globus_outbound: []
 #
 iptables_log_dropped_packets: false
 #
-# Set to true to ensure other iptables management software is disabled.
+# Set to true (default) to ensure other iptables management software is disabled.
 #
 iptables_disable_firewalld: true
-iptables_disable_ufw: true
 ...
