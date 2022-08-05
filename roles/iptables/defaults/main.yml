@@ -2,12 +2,19 @@
 #
 # ICMP (only inbound; outbound ICMP is allowed without restrictions).
 # 
-iptables_allow_icmp_inbound: []
+iptables_allow_icmp_inbound:
+  - ANY
+#
+# HTTPS
+#
+iptables_allow_https_inbound: []
 #
 # SSH.
 #
-iptables_allow_ssh_inbound: []
-iptables_allow_ssh_outbound: []
+iptables_allow_ssh_inbound:
+  - ANY
+iptables_allow_ssh_outbound:
+  - ANY
 #
 # Public MySQL databases @ EBI (only outbound).
 #
@@ -31,6 +38,6 @@ iptables_log_dropped_packets: false
 #
 # Set to true to ensure other iptables management software is disabled.
 #
-iptables_disable_firewalld: false
-iptables_disable_ufw: false
+iptables_disable_firewalld: true
+iptables_disable_ufw: true
 ...
