@@ -1,7 +1,7 @@
 ---
 #
 # ICMP (only inbound; outbound ICMP is allowed without restrictions).
-# 
+#
 iptables_allow_icmp_inbound:
   - ANY
 #
@@ -20,7 +20,7 @@ iptables_allow_ssh_outbound: []
 #
 iptables_allow_ebi_mysql_outbound: []
 #
-# PostgreSQL (only outbound). 
+# PostgreSQL (only outbound).
 #
 iptables_allow_postgresql_outbound: []
 #
@@ -28,7 +28,7 @@ iptables_allow_postgresql_outbound: []
 #
 iptables_allow_ftp_outbound: []
 #
-# Aspera (only outbound). 
+# Aspera (only outbound).
 #
 iptables_allow_aspera_outbound: []
 #

@@ -1,10 +1,11 @@
 ---
 - name: Check if firewalld package is installed on RedHat.
-  ansible.builtin.shell: yum list installed firewalld
-  args:
-    warn: no
+  ansible.builtin.command:
+    cmd: yum list installed firewalld
   register: firewalld_installed
-  ignore_errors: true
+  failed_when:
+    - firewalld_installed.rc != 0
+    - ('No matching Packages to list' not in firewalld_installed.stderr)
   changed_when: false
   when: ansible_os_family == "RedHat" and iptables_disable_firewalld
 

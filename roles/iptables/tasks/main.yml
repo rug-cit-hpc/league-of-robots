@@ -2,7 +2,7 @@
 - name: Install iptables with yum.
   ansible.builtin.yum:
     state: latest
-    update_cache: yes
+    update_cache: true
     name:
       - 'iptables'
       - 'iptables-services'
@@ -72,8 +72,8 @@
     enabled: 'yes'
     daemon_reload: 'yes'
   with_items:
-     - 'iptables'
-     - 'ip6tables'
+    - 'iptables'
+    - 'ip6tables'
   notify: configure_iptables
   become: true
 
