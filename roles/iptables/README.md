@@ -1,95 +1,41 @@
-# Ansible Role: Firewall (iptables)
+# Ansible Role: iptables
 
-https://www.digitalocean.com/community/tutorials/how-to-migrate-from-firewalld-to-iptables-on-centos-7
-
-[![Build Status](https://travis-ci.org/geerlingguy/ansible-role-firewall.svg?branch=master)](https://travis-ci.org/geerlingguy/ansible-role-firewall)
-
-Installs an iptables-based firewall for Linux. Supports both IPv4 (`iptables`) and IPv6 (`ip6tables`).
-
-This firewall aims for simplicity over complexity, and only opens a few specific ports for incoming traffic (configurable through Ansible variables). If you have a rudimentary knowledge of `iptables` and/or firewalls in general, this role should be a good starting point for a secure system firewall.
-
-After the role is run, a `firewall` init service will be available on the server. You can use `service firewall [start|stop|restart|status]` to control the firewall.
-
-## Requirements
-
-None.
+This role configures host-based firewalls using iptables: both for IPv4 (`iptables`) and for IPv6 (`ip6tables`).
+After deployment, `iptables` and `ip6tables` init services will be available on the server.
+Use `service ip[6]tables [start|stop|restart|status]` to control the firewall.
 
 ## Role Variables
 
-Available variables are listed below, along with default values (see `defaults/main.yml`):
+See `defaults/main.yml`. All role variables are prefixed with` iptables_`
 
-    firewall_state: started
-    firewall_enabled_at_boot: true
+## Logic
 
-Controls the state of the firewall service; whether it should be running (`firewall_state`) and/or enabled on system boot (`firewall_enabled_at_boot`).
+#### IPv4
 
-    firewall_allowed_tcp_ports:
-      - "22"
-      - "80"
-      ...
-    firewall_allowed_udp_ports: []
+We first create a list of IPv4 addresses used by a host and determine if these addresses are publicly exposed.
+This role considers an IP _publicly exposed_ when it 
 
-A list of TCP or UDP ports (respectively) to open to incoming traffic.
+ * either a _public_ IP address
+ * or a private address and traffic from a _floating_, _public_ IP is routed to this private IP. 
 
-    firewall_forwarded_tcp_ports:
-      - { src: "22", dest: "2222" }
-      - { src: "80", dest: "8080" }
-    firewall_forwarded_udp_ports: []
+Next we fetch the network interface names for all _publicly exposed_ IP addresses:
 
-Forward `src` port to `dest` port, either TCP or UDP (respectively).
+ * **internal** interfaces = those who do **not** use a _publicly exposed_ IP address.
+ * **external** interfaces = those who do use a _publicly exposed_ IP address.
 
-    firewall_additional_rules: []
-    firewall_ip6_additional_rules: []
+Finally we configure the IPv4 firewall to:
 
-Any additional (custom) rules to be added to the firewall (in the same format you would add them via command line, e.g. `iptables [rule]`/`ip6tables [rule]`). A few examples of how this could be used:
+ * **internal** interfaces (including loopback interfaces): Allow anything.
+ * **external** interfaces:
+   * Disable anything by default
+   * Allow specific services on specific ports to/from specific subnets.
+   * A subnet is specified with mask as [0-9].[0-9].[0-9].[0-9]/[0-9] and may contain one or more IP addresses.
+     E.g. 111.111.111.111/32 is the single machine 111.111.111.111
+     and 111.111.111.0/24 is the range from 111.111.111.1 up to and including 111.111.111.254.
+   * Defaults for supported services for which this role can configure the firewall are listed in `defaults/main.yml`.
 
-    # Allow only the IP 167.89.89.18 to access port 4949 (Munin).
-    firewall_additional_rules:
-      - "iptables -A INPUT -p tcp --dport 4949 -s 167.89.89.18 -j ACCEPT"
-    
-    # Allow only the IP 214.192.48.21 to access port 3306 (MySQL).
-    firewall_additional_rules:
-      - "iptables -A INPUT -p tcp --dport 3306 -s 214.192.48.21 -j ACCEPT"
+#### IPv6
 
-See [Iptables Essentials: Common Firewall Rules and Commands](https://www.digitalocean.com/community/tutorials/iptables-essentials-common-firewall-rules-and-commands) for more examples.
-
-    firewall_log_dropped_packets: true
-
-Whether to log dropped packets to syslog (messages will be prefixed with "Dropped by firewall: ").
-
-    firewall_disable_firewalld: false
-    firewall_disable_ufw: false
-
-Set to `true` to disable firewalld (installed by default on RHEL/CentOS) or ufw (installed by default on Ubuntu), respectively.
-
-## Dependencies
-
-None.
-
-## Example Playbook
-
-    - hosts: server
-      vars_files:
-        - vars/main.yml
-      roles:
-        - { role: geerlingguy.firewall }
-
-*Inside `vars/main.yml`*:
-
-    firewall_allowed_tcp_ports:
-      - "22"
-      - "25"
-      - "80"
-
-## TODO
-
-  - Make outgoing ports more configurable.
-  - Make other firewall features (like logging) configurable.
-
-## License
-
-MIT / BSD
-
-## Author Information
-
-This role was created in 2014 by [Jeff Geerling](https://www.jeffgeerling.com/), author of [Ansible for DevOps](https://www.ansiblefordevops.com/).
+We do not use IPv6 and configure the IPv6 firewall to:
+ * Allow anything over the loopback interface.
+ * Disable anything else over any other interface both internal and external.
