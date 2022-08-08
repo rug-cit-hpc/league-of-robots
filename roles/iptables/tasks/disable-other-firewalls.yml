@@ -10,7 +10,7 @@
     name: firewalld
     state: stopped
     enabled: false
-    daemon_reload : true
+    daemon_reload: true
   when: yum_list_installed.results | selectattr('name', 'equalto', 'firewalld') | list | length > 0
   become: true
 ...
