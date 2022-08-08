@@ -23,7 +23,6 @@ iptables_allow_ssh_inbound:
   - "{{ nibbler_cluster.ip_addresses['tunnel']['vlan16'] }}"
   - "{{ talos_cluster.ip_addresses['reception']['vlan16'] }}"
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
-iptables_allow_ssh_outbound: []
 iptables_allow_http_inbound:
   - ANY
 iptables_allow_https_inbound:

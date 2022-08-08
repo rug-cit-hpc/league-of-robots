@@ -3,8 +3,6 @@
 #
 ---
 roles:
-  - src: geerlingguy.firewall
-    version: 2.5.0
   - src: geerlingguy.repo-epel
     version: 3.0.0
   - src: geerlingguy.security

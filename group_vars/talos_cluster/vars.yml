@@ -176,47 +176,4 @@ ega_fuse_client_mounts:
   cineca: '/groups/umcg-cineca/prm08/ega-fuse-client'
   solve_rd: '/groups/umcg-solve-rd/prm08/ega-fuse-client'
 ega_fuse_client_java_home: '/etc/alternatives/jre_11_openjdk'
-iptables_allow_icmp_inbound:
-  - "{{ all.ip_addresses['umcg']['net1'] }}"
-  - "{{ all.ip_addresses['umcg']['net2'] }}"
-  - "{{ all.ip_addresses['umcg']['net3'] }}"
-  - "{{ all.ip_addresses['umcg']['net4'] }}"
-  - "{{ all.ip_addresses['rug']['bwp_net'] }}"
-  - "{{ all.ip_addresses['rug']['operator'] }}"
-  - "{{ all.ip_addresses['gcc']['cloud_net'] }}"
-  - "{{ calculon_cluster.ip_addresses['lobby']['vlan16'] }}"
-  - "{{ fender_cluster.ip_addresses['corridor']['public'] }}"
-  - "{{ gearshift_cluster.ip_addresses['airlock']['vlan16'] }}"
-  - "{{ hyperchicken_cluster.ip_addresses['portal']['public'] }}"
-  - "{{ nibbler_cluster.ip_addresses['tunnel']['vlan16'] }}"
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
-iptables_allow_ssh_inbound:
-  - ANY
-iptables_allow_ssh_outbound:
-  - ANY
-#iptables_allow_ebi_mysql_outbound:
-#  - 'ebi_sanger_net1'
-#  - 'ebi_sanger_net2'
-#iptables_allow_ftp_outbound:
-#  - 'ebi_sanger_net1'
-#  - 'ebi_sanger_net2'
-#  - 'broad_ftp'
-#  - 'ncbi_net1'
-#  - 'ncbi_net2'
-#iptables_allow_aspera_outbound:
-#  - 'ebi_sanger_net1'
-#  - 'ebi_sanger_net2'
-#  - 'broad_aspera_1'
-#  - 'broad_aspera_2'
-#  - 'broad_aspera_3'
-#  - 'broad_aspera_4'
-#  - 'broad_aspera_5'
-#  - 'broad_aspera_6'
-#  - 'broad_aspera_7'
-#  - 'broad_aspera_8'
-#  - 'broad_aspera_9'
-#  - 'ncbi_net1'
-#  - 'ncbi_net2'
-#iptables_allow_globus_outbound:
-#  - 'sanger_globus'
 ...

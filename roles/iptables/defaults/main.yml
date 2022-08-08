@@ -14,8 +14,7 @@ iptables_allow_https_inbound: []
 #
 iptables_allow_ssh_inbound:
   - ANY
-iptables_allow_ssh_outbound:
-  - ANY
+iptables_allow_ssh_outbound: []
 #
 # Public MySQL databases @ EBI (only outbound).
 #

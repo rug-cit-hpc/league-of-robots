@@ -6,6 +6,7 @@
   roles:
     - admin_users
     - ssh_host_signer
+    - iptables
     - ssh_known_hosts
     - pulp_client
     - static_hostname_lookup
@@ -13,7 +14,6 @@
     - logins
     - sshd
     - {role: geerlingguy.security, become: true}
-    - {role: geerlingguy.firewall, become: true}
     - remove
     - update
     - docker
