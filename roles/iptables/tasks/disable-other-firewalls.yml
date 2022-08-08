@@ -1,20 +1,16 @@
 ---
-- name: Check if firewalld package is installed on RedHat.
+- name: List installed packages.
   ansible.builtin.yum:
-    list: installed firewalld
-  register: firewalld_installed
-  failed_when:
-    - firewalld_installed.rc != 0
-    - ('No matching Packages to list' not in firewalld_installed.stderr)
+    list: installed
+  register: yum_list_installed
   changed_when: false
-  when: ansible_os_family == "RedHat" and iptables_disable_firewalld
 
-- name: Disable the firewalld service on RedHat.
+- name: Disable the firewalld service if the firewalld package was installed.
   ansible.builtin.systemd:
     name: firewalld
     state: stopped
     enabled: false
-    daemon_reload: true
-  when: ansible_os_family == "RedHat" and iptables_disable_firewalld and firewalld_installed.rc == 0
+    daemon_reload : true
+  when: yum_list_installed.results | selectattr('name', 'equalto', 'firewalld') | list | length > 0
   become: true
 ...

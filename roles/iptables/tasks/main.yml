@@ -82,5 +82,5 @@
 
 - name: Disable other firewalls.
   ansible.builtin.import_tasks: disable-other-firewalls.yml
-  when: iptables_disable_firewalld or iptables_disable_ufw
+  when: iptables_disable_firewalld
 ...
