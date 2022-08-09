@@ -2,7 +2,7 @@ version: '2'
 services:
   davrods:
     ports:
-      - '443'
+      - '443:443'
     build:
       context: ./
       args:

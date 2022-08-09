@@ -88,12 +88,34 @@
   ansible.builtin.package_facts:
     manager: auto
 
-- name: Fix iRODS to use SSL when access remote PostgreSQL (temporary until upstream fix)
+- name: Get version of irods-server
+  ansible.builtin.shell: |
+    set -o pipefail
+    grep "irods_version" /var/lib/irods/version.json.dist | grep -oE "[0-9]\.[0-9]+\.[0-9]+"
+  register: irods_version
+  changed_when: false
+  args:
+    warn: true
+
+- name: Fix iRODS v4.2.11 to use SSL when access remote PostgreSQL (temporary until upstream fix)
   ansible.builtin.template:
-    src: database_connect.py
+    src: database_connect.py.4.2.11
     dest: /var/lib/irods/scripts/irods/database_connect.py
     mode: '0644'
+    backup: true
   become_user: '{{ ir_service_account }}'
   become: true
-  when: '"irods-server-4.2.11-1" in ansible_facts.packages'
+  when: '"4.2.11" in irods_version.stdout'
+
+- name: Fix iRODS v4.3.0 to use SSL when access remote PostgreSQL (temporary until upstream fix)
+  ansible.builtin.copy:
+    src: database_connect.py.4.3.0
+    dest: /var/lib/irods/scripts/irods/database_connect.py
+    owner: '{{ ir_service_account }}'
+    group: '{{ ir_service_account }}'
+    mode: '0644'
+    backup: true
+  become_user: '{{ ir_service_account }}'
+  become: true
+  when: '"4.3.0" in irods_version.stdout'
 ...

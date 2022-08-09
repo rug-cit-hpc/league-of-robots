@@ -3,6 +3,7 @@
   ansible.builtin.template:
     src: unattended_install.json.j2
     dest: /root/unattended_install.json
+    backup: true
     mode: '0600'
   register: create_unattended_installation_json
   become: true
@@ -25,24 +26,27 @@
   notify: irodsctl_restart
 
 - name: Edit /etc/irods/core.re to enforce the use of the certificates
-  become: true
   ansible.builtin.lineinfile:
     name: /etc/irods/core.re
     search_string: 'acPreConnect(*OUT) { *OUT="CS_NEG_DONT_CARE"; }'
     line: 'acPreConnect(*OUT) { *OUT="{{ ir_client_server_policy }}"; }'
+    backup: true
+  become: true
 
 - name: Edit /etc/irods/core.re to set number of threads to 4
-  become: true
   ansible.builtin.lineinfile:
     name: /etc/irods/core.re
     search_string: 'acSetNumThreads {msiSetNumThreads("default","default","default"); }'
     line: 'acSetNumThreads {msiSetNumThreads("default","4","default"); }'
+    backup: true
+  become: true
 
 - name: Edit /etc/irods/core.re to set default resource to {{ ir_default_res }}
   ansible.builtin.lineinfile:
     name: /etc/irods/core.re
     search_string: 'acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","null"); }'
     line: 'acSetRescSchemeForCreate {msiSetDefaultResc("{{ ir_default_res }}","null"); }'
+    backup: true
   become: true
 
 - name: Edit /etc/irods/core.re to set default replication resource to {{ ir_default_res }}
@@ -50,6 +54,7 @@
     name: /etc/irods/core.re
     search_string: 'acSetRescSchemeForRepl {msiSetDefaultResc("demoResc","null"); }'
     line: 'acSetRescSchemeForRepl {msiSetDefaultResc("{{ ir_default_res }}","null"); }'
+    backup: true
   become: true
 
 - name: Increase systcl limits to allow longer transfers
@@ -64,6 +69,7 @@
     name: /etc/init.d/irods
     search_string: 'rm /var/lock/subsys/irods'
     line: 'rm -f /var/lock/subsys/irods'
+    backup: true
   become: true
 
 - name: Temporary bugfix of the irods python script for the remote psql over ssl
@@ -71,6 +77,7 @@
     name: /etc/init.d/irods
     search_string: 'rm /var/lock/subsys/irods'
     line: 'rm -f /var/lock/subsys/irods'
+    backup: true
   become: true
 
 - name: Fix the s3 authentication by creating dummy s3auth file
@@ -89,5 +96,4 @@
 
 - name: Force all services to restart, before we start using iRODS imeta commands
   ansible.builtin.meta: flush_handlers
-
 ...

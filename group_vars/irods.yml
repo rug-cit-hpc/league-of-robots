@@ -7,7 +7,7 @@ firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
   - "5432"  # PostgreSQL
   - "20000:20199"  # irods
 
-ir_version: '-4.2.11*'                  # if defined (empty): version will be installed (must start with '-' and end with '*')
+ir_version: '-4.3.0*'                  # if defined (empty): version will be installed (must start with '-' and end with '*')
 ir_server_type: 'icat'                  # iRODS Server Type
 ir_client_server_policy: 'CS_NEG_REQUIRE'  # communicating using SSL (CS_NEG_REQUIRE) or without (CS_NEG_REFUSE
 
@@ -15,20 +15,22 @@ ir_ssl_certificate_chain_file: 'nemi_irods/localhost_and_chain_umcg-icat01.crt' 
 ir_ssl_certificate_key_file: 'nemi_irods/localhost-umcg01.key' # iRODS server certificate's key
 ir_ssl_dh_params_file: 'dhparams.pem'   # DHparam filename 
 
-ir_zone: 'nlumcg'                       # default main iRODS zone name
-ir_local_res: 'rootResc'                # local iRODS resource
-ir_vault_path: '/var/lib/irods/Vault'   # default path to store files for local resource
-ir_default_res: 'surfObjStore'          # default resource iRODS uploads to
-ir_service_account: 'irods'             # linux account under which iRODS runs
+ir_service_account: 'irods'             # iRODS linux account under which iRODS runs
 ir_admin_name: 'rods'                   # iRODS (and zone) account
+ir_admin_pwd: '{{ icatV_admin_pwd }}'  # iRODS Vaulte main administrator password
 ir_admin_home_path: '/{{ ir_zone }}/home/{{ ir_admin_name }}' # iRODS admin's home path
-ir_db_user: '{{ ir_service_account }}'  # db Username, usually same as irods_service_account
-ir_db_server: '{{ icat_db_server }}'    # iRODS Database Server
-ir_db_name: 'ICAT'                      # iRODS Database Name
-ir_negotiation_key: '{{ icat_negotiation_key }}'
-ir_ctrl_plane_key: '{{ icat_ctrl_plane_key }}'
-ir_zone_key: '{{ icat_zone_key }}'
-ir_salt: '{{ icat_salt }}'              # iRODS salt
+ir_db_user: '{{ icatV_db_user }}'       # iRODS Vaulted database username
+ir_db_pwd: '{{ icatV_db_pwd }}'         # iRODS Vaulted database password
+ir_db_name: '{{ icatV_db_name }}'       # iRODS Vaulted database name
+ir_db_server: '{{ icatV_db_server }}'   # iRODS Vaulted database server
+ir_salt: '{{ icatV_salt }}'             # iRODS Vaulted salt
+ir_zone: 'nlumcg'                       # iRODS default main iRODS zone name
+ir_zone_key: '{{ icatV_zone_key }}'     # iRODS Vaulted zone key 
+ir_negotiation_key: '{{ icatV_negotiation_key }}' # iRODS Vaulted negotiation key
+ir_ctrl_plane_key: '{{ icatV_ctrl_plane_key }}' # iRODS Vaulted control plane key
+ir_local_res: 'rootResc'                # iRODS local iRODS resource
+ir_vault_path: '/var/lib/irods/Vault'   # iRODS default path to store files for local resource
+ir_default_res: 'surfObjStore'          # iRODS default resource iRODS uploads to
 
 davrods_install: true                   # to install davrods docker
 davrods_docker_folder: 'davrods_docker' # davrods docker folder name, relative to the user home directory
