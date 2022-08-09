@@ -3,7 +3,7 @@
  - preconfigured irods repository
  - and administrative privileges on the machine
 
-# Variables naming
+# Variable naming
 
 `ir_` are all the variables that are used within this playbook
 
