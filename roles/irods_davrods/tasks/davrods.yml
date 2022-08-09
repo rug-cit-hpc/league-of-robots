@@ -22,13 +22,13 @@
   when: not item.stat.exists or not item.stat.rusr
   become: true
 
-- name: 'Create {{ davrods_docker_user }} group'
+- name: 'Create davrods docker group'
   ansible.builtin.group:
     name: '{{ davrods_docker_user }}'
     state: present
   become: true
 
-- name: 'Creating {{ davrods_docker_user }} user'
+- name: 'Create davrods docker user'
   ansible.builtin.user:
     name: '{{ davrods_docker_user }}'
     groups: '{{ davrods_docker_user }},docker'
@@ -55,7 +55,7 @@
   become_user: '{{ davrods_docker_user }}'
   notify: davrods_build_up
 
-- name: Copy a certificates into {{ davrods_docker_folder }}/config
+- name: Copy a certificates into davrods docker folder
   ansible.builtin.copy:
     src: '/etc/irods/{{ item.name }}'
     dest: '{{ davrods_user_home_path }}/{{ davrods_docker_folder }}/config'
@@ -73,7 +73,7 @@
   become: true
   notify: davrods_build_up
 
-- name: 'Deploy docker template files into {{ davrods_docker_folder }}'
+- name: Deploy docker template files into davrods docker folder
   ansible.builtin.template:
     src: '{{ item.src }}'
     dest: '{{ davrods_user_home_path }}/{{ davrods_docker_folder }}/{{ item.path }}'
@@ -91,5 +91,13 @@
     enabled: true
   become: true
   notify: davrods_build_up
+
+- name: Prune unused davrods docker images
+  ansible.builtin.command: 'docker image prune -af'
+  changed_when: false
+  register: prune_result
+  failed_when: 'prune_result.rc > 1'
+  become_user: '{{ davrods_docker_user }}'
+  become: true
 
 ...
