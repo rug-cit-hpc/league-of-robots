@@ -53,7 +53,7 @@
   notify: irodsctl_restart
   become: true
 
-- name: Creating irods sql user and granting privileges
+- name: Create sql user with correct permissions
   postgresql_user:
     name: '{{ ir_db_user }}'
     password: '{{ ir_db_pwd }}'

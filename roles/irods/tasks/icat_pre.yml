@@ -10,6 +10,7 @@
   ansible.builtin.user:
     name: '{{ ir_service_account }}'
     groups: '{{ ir_service_account }},admin'
+    home: '{{ ir_service_account_home }}'
   become: true
 
 - name: Installing the iRODS Package(s)
@@ -91,7 +92,7 @@
 - name: Get version of irods-server
   ansible.builtin.shell: |
     set -o pipefail
-    grep "irods_version" /var/lib/irods/version.json.dist | grep -oE "[0-9]\.[0-9]+\.[0-9]+"
+    yum list installed | grep irods-server
   register: irods_version
   changed_when: false
   args:
@@ -118,4 +119,15 @@
   become_user: '{{ ir_service_account }}'
   become: true
   when: '"4.3.0" in irods_version.stdout'
+
+- name: Create .pgpass file
+  ansible.builtin.template:
+    src: pgpass
+    dest: '{{ ir_service_account_home }}/.pgpass'
+    owner: '{{ ir_service_account }}'
+    group: '{{ ir_service_account }}'
+    mode: '0600'
+  become_user: '{{ ir_service_account }}'
+  become: true
+
 ...

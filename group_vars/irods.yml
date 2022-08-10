@@ -8,6 +8,7 @@ firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
   - "20000:20199"  # irods
 
 ir_version: '-4.3.0*'                  # if defined (empty): version will be installed (must start with '-' and end with '*')
+                                       # first install v4.2.11 and then upgrade to 4.3.0
 ir_server_type: 'icat'                  # iRODS Server Type
 ir_client_server_policy: 'CS_NEG_REQUIRE'  # communicating using SSL (CS_NEG_REQUIRE) or without (CS_NEG_REFUSE
 
@@ -16,13 +17,12 @@ ir_ssl_certificate_key_file: 'nemi_irods/localhost-umcg01.key' # iRODS server ce
 ir_ssl_dh_params_file: 'dhparams.pem'   # DHparam filename 
 
 ir_service_account: 'irods'             # iRODS linux account under which iRODS runs
+ir_service_account_home: '/home/{{ ir_service_account }}' # iRODS service account user's home folder
 ir_admin_name: 'rods'                   # iRODS (and zone) account
 ir_admin_pwd: '{{ icatV_admin_pwd }}'  # iRODS Vaulte main administrator password
 ir_admin_home_path: '/{{ ir_zone }}/home/{{ ir_admin_name }}' # iRODS admin's home path
 ir_db_user: '{{ icatV_db_user }}'       # iRODS Vaulted database username
 ir_db_pwd: '{{ icatV_db_pwd }}'         # iRODS Vaulted database password
-ir_db_name: '{{ icatV_db_name }}'       # iRODS Vaulted database name
-ir_db_server: '{{ icatV_db_server }}'   # iRODS Vaulted database server
 ir_salt: '{{ icatV_salt }}'             # iRODS Vaulted salt
 ir_zone: 'nlumcg'                       # iRODS default main iRODS zone name
 ir_zone_key: '{{ icatV_zone_key }}'     # iRODS Vaulted zone key 

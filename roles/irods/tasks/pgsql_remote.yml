@@ -1,18 +1,8 @@
 ---
-- name: 'Get {{ ir_service_account }} home directory'
-  ansible.builtin.shell: "set -o pipefail && getent passwd {{ ir_service_account }}  | awk -F: '{ print $6 }'"
-  changed_when: false
-  register: getent_output
-  become: true
-
-- name: Store davrods_user_home_path
-  ansible.builtin.set_fact:
-    irods_home_path: "{{ getent_output.stdout }}"
-
 # Configuring according to the https://www.postgresql.org/docs/current/libpq-ssl.html
 - name: Ensure that .postgresql directory exists in home and is owned by irods service user
   ansible.builtin.file:
-    path: '{{ irods_home_path }}/.postgresql'
+    path: '{{ ir_service_account_home }}/.postgresql'
     state: directory
     owner: '{{ ir_service_account }}'
     group: '{{ ir_service_account }}'
@@ -23,7 +13,7 @@
 - name: Create empty remote server's CA revocation list file inside .postgresql folder
   ansible.builtin.copy:
     content: ''
-    dest: '{{ irods_home_path }}/.postgresql/root.crl'
+    dest: '{{ ir_service_account_home }}/.postgresql/root.crl'
     force: false
     owner: '{{ ir_service_account }}'
     group: '{{ ir_service_account }}'
@@ -34,7 +24,7 @@
 - name: Deploy remote server's CA signing certificate as root.crt into .postgresql folder
   ansible.builtin.copy:
     src: 'files/{{ stack_name }}/{{ remote_psql_server_ca }}'
-    dest: "{{ irods_home_path }}/.postgresql/root.crt"
+    dest: "{{ ir_service_account_home }}/.postgresql/root.crt"
     owner: "{{ ir_service_account }}"
     group: "{{ ir_service_account }}"
     mode: '0644'
@@ -55,7 +45,7 @@
 - name: Deploy certificate and key to be used for psql client calls
   ansible.builtin.copy:
     src: 'files/{{ stack_name }}/{{ item.name }}'
-    dest: '{{ irods_home_path }}/.postgresql/{{ item.dest }}'
+    dest: '{{ ir_service_account_home }}/.postgresql/{{ item.dest }}'
     owner: '{{ ir_service_account }}'
     group: '{{ ir_service_account }}'
     mode: '{{ item.mode }}'
@@ -88,4 +78,5 @@
     executable: pip3
   become: true
   become_user: '{{ ir_service_account }}'
+
 ...
