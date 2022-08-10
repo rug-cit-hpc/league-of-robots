@@ -72,7 +72,6 @@
     name: /etc/init.d/irods
     search_string: 'rm /var/lock/subsys/irods'
     line: 'rm -f /var/lock/subsys/irods'
-    backup: true
   become: true
   notify: irodsctl_restart
 
