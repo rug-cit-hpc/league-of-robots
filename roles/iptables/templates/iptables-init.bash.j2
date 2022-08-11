@@ -122,7 +122,6 @@ ip6tables -P INPUT   LOGDROP
 {% else %}
 ip6tables -P INPUT   DROP
 {% endif %}
-ip6tables -P INPUT DROP
 ip6tables -P OUTPUT DROP
 ip6tables -P FORWARD DROP
 
