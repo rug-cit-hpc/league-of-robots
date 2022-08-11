@@ -57,6 +57,9 @@ all:
         local_volume_size_extra: 20
         fqdn: umcg-icat01.hpc.rug.nl
         davrods_icat_ip: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
+        iptables_allow_ssh_outbound: []
+        iptables_allow_irods:
+          - "{{ all.ip_addresses['surfsara']['umcg-resc1'] }}"
     docs:
       hosts:
         docs_on_merlin:
