@@ -7,6 +7,9 @@ firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
   - "1248"  # Control Plane Port
   - "5432"  # PostgreSQL
   - "20000:20199"  # irods
+
+ir_version: '4.3.0'                         # first install v4.2.11 and then upgrade to 4.3.0
+ir_version_plugin: '4.3.0.0'                # iRODS plugin resource version (f.e. 4.3.0.0)
 ir_server_type: 'icat'                      # iRODS Server Type
 ir_client_server_policy: 'CS_NEG_REQUIRE'   # communicating using (default) SSL (CS_NEG_REQUIRE) or without (CS_NEG_REFUSE)
 

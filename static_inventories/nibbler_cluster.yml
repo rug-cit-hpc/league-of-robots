@@ -45,8 +45,8 @@ all:
           # ir_local_perm_res_fol: '/tmp/irods/{{ ir_local_perm_res }}'
         irods-test:
           fqdn: umcg-icat01.hpc.rug.nl
-          ir_version: '-4.3.0*'                            # if defined (empty): version will be installed (must start with '-' and end with '*')
-                                                           # first install v4.2.11 and then upgrade to 4.3.0
+          ir_version: '4.3.0'                              # test! iRODS first install v4.2.11 and then upgrade to 4.3.0
+          ir_version_plugin: '4.3.0.0'                     # test! iRODS plugin resource version (f.e. 4.3.0.0)
           ir_client_server_policy: 'CS_NEG_REFUSE'         # test! iRODS communicating using (default) SSL (CS_NEG_REQUIRE) or without (CS_NEG_REFUSE
           pgsql_server: "local"                            # test! iRODS PostgreSQL "local" or "remote" server
           ir_local_res: 'demoResc'                         # test! iRODS Staging resource, before data moved to permanent resource
@@ -58,9 +58,9 @@ all:
           ir_admin_pwd: '{{ icatV_test_admin_pwd }}'       # test! iRODS Vaulted irods admin password
           ir_zone: 'tstzone'                               # test! iRODS default main zone name
           ir_salt: 'sA+dwq_dk29DJ1'                        # test! iRODS salt
-          tiering_install: True                            # True / False - if the playbook tiering.yml should be executed
+          tiering_install: True                            # test! iRODS True / False - if the playbook tiering.yml should be executed
           ir_local_stage_res: 'demoRescStage'              # test! iRODS staging resource, before data moved to permanent resource
-          ir_local_stage_res_fol: '/tmp/irods/{{ ir_local_stage_res }}' #  test! iRODS staging resource folder path
+          ir_local_stage_res_fol: '/tmp/irods/{{ ir_local_stage_res }}' # test! iRODS staging resource folder path
           ir_local_perm_res: 'demoRescPerm'                # test! iRODS permanent resource, where it will keep data indefinitely
           ir_local_perm_res_fol: '/tmp/irods/{{ ir_local_perm_res }}' # test! iRODS permanent resource folder path
       vars:

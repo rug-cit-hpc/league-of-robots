@@ -11,7 +11,7 @@
   register: check_unified_storage
 
 - name: Get status of local stage resource
-  ansible.builtin.command: 'ilsresc {{ ir_local_stage_res }} '
+  ansible.builtin.command: 'ilsresc {{ ir_local_stage_res }}'
   changed_when: false
   register: check_local_stage_resc
   failed_when: 'check_local_stage_resc.rc > 1'
@@ -41,7 +41,7 @@
   when: check_local_stage_resc.rc == 1
 
 - name: Get status of local permanent resource
-  ansible.builtin.command: 'ilsresc {{ ir_local_perm_res }} '
+  ansible.builtin.command: 'ilsresc {{ ir_local_perm_res }}'
   changed_when: false
   failed_when: check_local_perm_res.rc != 0 and check_local_perm_res.rc != 1
   become_user: '{{ ir_service_account }}'
