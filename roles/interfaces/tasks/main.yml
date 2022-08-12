@@ -1,16 +1,15 @@
 ---
-- name: template network devices' files
+- name: Create network device configuration file based on template.
   ansible.builtin.template:
-    src: "interface_template.j2"
+    src: interface_template.j2
     dest: "/etc/sysconfig/network-scripts/{{network_device_file_prefix}}{{ item.device }}"
     mode: 0644
-  become: true  
+  become: true
   with_items: "{{ interfaces }}"
   when: interfaces is defined
-  register: changed_devices
-  notify: restart_ifaces
+  notify: restart_network
 
-- name: enable service at boot
+- name: Enable network.ervice at boot.
   ansible.builtin.systemd:
     name: network.service
     enabled: yes
