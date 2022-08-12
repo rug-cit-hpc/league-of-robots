@@ -131,28 +131,24 @@
     #
     - ansible_python_interpreter: python
   tasks:
-    - name: "Create network port: use pre-defined address from group_vars/{{stack_name}}/ip_addresses.yml."
+    - name: "Create network port: use pre-defined address from group_vars/{{ stack_name }}/ip_addresses.yml."
       openstack.cloud.port:
         state: present
-        name: "{{ inventory_hostname }}-{{ item }}"
-        network: "{{ item }}"
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
         fixed_ips:
-          - ip_address: "{{ ip_addresses[inventory_hostname][item]['address'] }}"
+          - ip_address: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-      when: ip_addresses[inventory_hostname][item]['address'] is defined
-      loop:
-        - "{{ network_private_management_id }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is defined
     - name: "Create network port: use new random address from defined subnet."
       openstack.cloud.port:
         state: present
-        name: "{{ inventory_hostname }}-{{ item }}"
-        network: "{{ item }}"
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-      when: ip_addresses[inventory_hostname][item]['address'] is not defined
-      loop:
-        - "{{ network_private_management_id }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is not defined
     - name: Create documentation webserver.
       openstack.cloud.server:
         state: present
