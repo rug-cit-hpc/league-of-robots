@@ -131,6 +131,24 @@
     #
     - ansible_python_interpreter: python
   tasks:
+    - name: "Create network port: use pre-defined address from group_vars/{{ stack_name }}/ip_addresses.yml."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
+        fixed_ips:
+          - ip_address: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is defined
+    - name: "Create network port: use new random address from defined subnet."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is not defined
     - name: Create Jenkins webserver.
       openstack.cloud.server:
         state: present
@@ -140,7 +158,7 @@
         security_groups: "{{ stack_prefix }}_webservers"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_private_management_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"

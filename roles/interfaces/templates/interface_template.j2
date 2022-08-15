@@ -1,21 +1,11 @@
 DEVICE="{{ item.device }}"
-{% if (item.bootproto is undefined) or (item.bootproto == 'dhcp') %}
-BOOTPROTO="dhcp"
-{% endif %}
-{% if (item.bootproto is defined) and (item.bootproto == 'static' or item.bootproto == 'none') %}
-BOOTPROTO="{{ item.bootproto }}"
-IPADDR="{{ item.ipaddr|default(default_ip) }}"
-NETMASK="{{ item.netmask|default(netmask) }}"
-GATEWAY="{{ item.gateway|default(default_ip) }}"
-{% endif %}
-ONBOOT="{{ item.onboot|default(network_onboot) }}"
-{# device type #}
-{% if item.type is not defined %}
-TYPE="{{ item.type|default(network_device_type) }}"
-{% elif (item.type is defined) and (item.type|lower == 'static') %}
-TYPE="static"
-{% endif %}
-USERCTL="{{ item.userctl|default(default_yes) }}"
-PEERDNS="{{ item.peerdns|default(default_yes) }}"
-IPV6INIT="{{ item.ipv6init|default(default_no) }}"
-PERSISTENT_DHCLIENT="{{ item.persistent_dhclient|default(persistent_dhclient) }}"
+BOOTPROTO="{{ item.bootproto | default('dhcp') }}"
+IPADDR="{{ item.ipaddr | default('0.0.0.0') }}"
+NETMASK="{{ item.netmask | default('255.255.255.0') }}"
+GATEWAY="{{ item.gateway | default('0.0.0.0') }}"
+ONBOOT="{{ item.onboot | default('yes') }}"
+TYPE="{{ item.type|default('Ethernet') }}"
+USERCTL="{{ item.userctl | default('no') }}"
+PEERDNS="{{ item.peerdns | default('yes') }}"
+IPV6INIT="{{ item.ipv6init | default('no') }}"
+PERSISTENT_DHCLIENT="{{ item.persistent_dhclient | default('1') }}"
