@@ -27,7 +27,7 @@
     value: "{{ item.value }}"
     sysctl_set: true
     state: present
-    reload: yes
+    reload: true
   loop: "{{ kernel_network_tweaks }}"
   become: true
 
