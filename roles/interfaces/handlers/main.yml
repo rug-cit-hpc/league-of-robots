@@ -1,6 +1,6 @@
-- name: restart_ifaces
+- name: Restart network.service
   ansible.builtin.systemd:
     name: 'network.service'
     state: restarted
   become: true
-  listen: restart_ifaces
+  listen: restart_network
