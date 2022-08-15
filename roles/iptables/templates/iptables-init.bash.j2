@@ -55,48 +55,6 @@ fi
 
 #
 ##
-### Kernel tweaks.
-##
-#
-
-#
-# Disable redirects and forwarding, which are only required on routers.
-#
-echo '0' > /proc/sys/net/ipv4/conf/all/forwarding
-echo '0' > /proc/sys/net/ipv6/conf/all/forwarding
-echo '0' > /proc/sys/net/ipv4/conf/all/accept_redirects
-echo '0' > /proc/sys/net/ipv6/conf/all/accept_redirects
-
-#
-# Prevent SYNC-floods.
-#
-echo '1' > /proc/sys/net/ipv4/tcp_syncookies # confusing name, but applies to IP version 6 as well.
-
-#
-# Limit response to ICMP packets.
-#
-echo '1' > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-echo '1' > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
-
-#
-# Disable logging of spoofed packets, source routed packets, 
-# and redirect packets to prevent flooding the logs.
-#
-echo '0' > /proc/sys/net/ipv4/conf/all/log_martians
-
-#
-# Disable source routed packets, which should only be required for debugging network issues.
-#
-echo '0' > /proc/sys/net/ipv4/conf/all/accept_source_route
-echo '0' > /proc/sys/net/ipv6/conf/all/accept_source_route
-
-#
-# Enable IP spoofing protection.
-#
-echo '1' > /proc/sys/net/ipv4/conf/all/rp_filter
-
-#
-##
 ### IPv6: disable all and log.
 ##
 #

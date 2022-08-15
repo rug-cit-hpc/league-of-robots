@@ -20,6 +20,17 @@
     - configure_iptables
   become: true
 
+- name: Add kernel network tweaks to /etc/sysctl.d/60-ansible-managed-network.conf.
+  ansible.posix.sysctl:
+    sysctl_file: '/etc/sysctl.d/60-ansible-managed-network.conf'
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_set: true
+    state: present
+    reload: yes
+  loop: "{{ kernel_network_tweaks }}"
+  become: true
+
 - name: Create lists of public IP addresses.
   ansible.builtin.set_fact:
     public_ip_addresses: "{{ ansible_facts | dict2items
@@ -48,7 +59,7 @@
       | selectattr('value.ipv4.address', 'in', all_publicly_exposed_ip_addresses)
       | map(attribute='value.device') | list }}"
 
-- name: 'INFO: List discovered IP addressess and network interfaces.'
+- name: List discovered IP addressess and network interfaces.
   ansible.builtin.debug:
     msg: |
          All publicly exposed IP addresses: {{ all_publicly_exposed_ip_addresses }}.
