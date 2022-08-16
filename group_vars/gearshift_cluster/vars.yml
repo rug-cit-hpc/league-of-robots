@@ -75,7 +75,7 @@ local_admin_users:
   - 'henkjan'
   - 'hopko'
   - 'kees'
-  - 'marlies'
+  - 'pieter'
   - 'robin'
   - 'wim'
 data_transfer_only_group: umcg-sftp-only

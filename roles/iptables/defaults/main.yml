@@ -1,25 +1,63 @@
 ---
+kernel_network_tweaks:
+  - name: net.ipv4.conf.all.forwarding
+    value: 0  # Disable forwarding, which is only required on routers.
+  - name: net.ipv6.conf.all.forwarding
+    value: 0  # Disable forwarding, which is only required on routers.
+  - name: net.ipv4.conf.all.accept_redirects
+    value: 0  # Disable redirects, which are only required on routers.
+  - name: net.ipv6.conf.all.accept_redirects
+    value: 0  # Disable redirects, which are only required on routers.
+  - name: net.ipv4.tcp_syncookies  # Confusing name, but applies to IP version 6 as well.
+    value: 1  # Prevent SYNC-floods.
+  - name: net.ipv4.icmp_echo_ignore_broadcasts
+    value: 1  # Limit response to ICMP packets.
+  - name: net.ipv4.icmp_ignore_bogus_error_responses
+    value: 1  # Limit response to ICMP packets.
+  - name: net.ipv4.conf.all.accept_source_route
+    value: 0  # Disable source routed packets, which should only be required for debugging network issues.
+  - name: net.ipv6.conf.all.accept_source_route
+    value: 0  # Disable source routed packets, which should only be required for debugging network issues.
+  - name: net.ipv4.conf.all.rp_filter
+    value: 1  # Enable IP spoofing protection.
+  - name: net.ipv4.conf.all.log_martians
+    value: 0  # Disable logging of spoofed, source routed and redirect packets to prevent flooding the logs.
 #
 # ICMP (only inbound; outbound ICMP is allowed without restrictions).
-# 
-iptables_allow_icmp_inbound: []
+#
+iptables_allow_icmp_inbound:
+  - ANY
+#
+# HTTP and HTTPS inbound. (HTTP and HTTPS always allowed by default to fetch packages from repos.)
+#
+iptables_allow_http_inbound: []
+iptables_allow_https_inbound: []
 #
 # SSH.
 #
-iptables_allow_ssh_inbound: []
+iptables_allow_ssh_inbound:
+  - ANY
 iptables_allow_ssh_outbound: []
 #
 # Public MySQL databases @ EBI (only outbound).
 #
 iptables_allow_ebi_mysql_outbound: []
 #
+# PostgreSQL (only outbound).
+#
+iptables_allow_postgresql_outbound: []
+#
 # FTP (only outbound).
 #
 iptables_allow_ftp_outbound: []
 #
-# Aspera (only outbound). 
+# Aspera (only outbound).
 #
 iptables_allow_aspera_outbound: []
+#
+# iRODS: by definition both inbound and outbound.
+#
+iptables_allow_irods: []
 #
 # Globus ToolKit (only outbound).
 #
@@ -29,8 +67,7 @@ iptables_allow_globus_outbound: []
 #
 iptables_log_dropped_packets: false
 #
-# Set to true to ensure other iptables management software is disabled.
+# Set to true (default) to ensure other iptables management software is disabled.
 #
-iptables_disable_firewalld: false
-iptables_disable_ufw: false
+iptables_disable_firewalld: true
 ...

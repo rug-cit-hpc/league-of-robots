@@ -8,13 +8,6 @@ ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }}{% for host
 slurm_database_name: "{{ stack_prefix }}_slurm_accounting"
 ai_jumphost: "{{ lookup('env','AI_PROXY') }}"
 #
-# Configure allowed network ports for geerlingguy.firewall role
-#
-firewall_allowed_tcp_ports:
-  - '22'   # SSH
-  - '9100'   # Node Exporter
-
-#
 # Local volume size (root partition) for all instances
 #
 local_volume_size_root: 33
