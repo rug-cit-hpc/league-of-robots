@@ -1,11 +1,19 @@
 ---
-firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
-  - "22"    # SSH.
-  - "443"   # davrods SSL
-  - "1247"  # irods
-  - "1248"  # Control Plane Port
-  - "5432"  # PostgreSQL
-  - "20000:20199"  # irods
+#
+# Firewall configuration.
+#
+iptables_allow_icmp_inbound:
+  - ANY
+iptables_allow_ssh_inbound:
+  - ANY
+iptables_allow_ssh_outbound:
+  - ANY
+iptables_allow_https_inbound:
+  - ANY  # For DAVRODS.
+iptables_allow_irods:
+  - ANY
+iptables_allow_postgres_outbound:
+  - ANY
 
 ir_version: '4.3.0'                     # iRODS server most of packages - first install 4.2.11 and then upgrade to 4.3.0
 ir_version_plugin: '4.3.0.0'            # iRODS plugin resource version (f.e. 4.3.0.0)

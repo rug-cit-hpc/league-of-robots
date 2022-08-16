@@ -85,6 +85,7 @@
           #   portip: 10.10.1.1
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+      when: false
     #
     # Jumphosts security group.
     #
@@ -216,12 +217,30 @@
         name: "{{ stack_prefix }}_irods"
         description: |
                      Security group for iRODS machines.
-                     Allows SSH inbound on ports 22 and 443.
+                     Allows SSH and ICMP inbound from jumphosts.
+                     Allows DAVRODS on port 443.
                      Allows iRODS inbound on ports 1247 and 20000-20199.
-                     Allows ICMP inbound.
                      Allows all outbound traffic.
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+      when: groups['irods'] | default([]) | length >= 1
+    - name: "Add rules to {{ stack_prefix }}_irods security group: allow inbound traffic from {{ stack_prefix }}_jumphosts security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_irods"
+        direction: ingress
+        protocol: "{{ item.protocol }}"
+        port_range_min: "{{ item.port_min }}"
+        port_range_max: "{{ item.port_max }}"
+        remote_group: "{{ stack_prefix }}_jumphosts"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - protocol: tcp
+          port_min: 22  # SSH
+          port_max: 22  # SSH
+        - protocol: icmp
+          port_min: -1  # ICMP protocol does not have any ports.
+          port_max: -1  # ICMP protocol does not have any ports.
       when: groups['irods'] | default([]) | length >= 1
     - name: "Add rules to {{ stack_prefix }}_irods security group."
       openstack.cloud.security_group_rule:
@@ -235,11 +254,8 @@
         timeout: "{{ openstack_api_timeout }}"
       with_items:
         - protocol: tcp
-          port_min: 22  # SSH
-          port_max: 22  # SSH
-        - protocol: tcp
-          port_min: 443  # SSH
-          port_max: 443  # SSH
+          port_min: 443  # DAVRODS
+          port_max: 443  # DAVRODS
         - protocol: tcp
           port_min: 636  # LDAPS
           port_max: 636  # LDAPS
@@ -252,9 +268,6 @@
         - protocol: tcp
           port_min: 20000  # iRODS
           port_max: 20199  # iRODS
-        - protocol: icmp
-          port_min: -1  # ICMP protocol does not have any ports.
-          port_max: -1  # ICMP protocol does not have any ports.
       when: groups['irods'] | default([]) | length >= 1
     - name: "Add rules to {{ stack_prefix }}_irods security group: allow inbound traffic from machines in the same security group."
       openstack.cloud.security_group_rule:
