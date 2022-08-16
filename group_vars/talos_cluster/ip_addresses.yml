@@ -4,7 +4,6 @@ ip_addresses:
     vlan983:
       address: 172.23.40.100
       netmask: /32
-      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
     vlan16:
       address: 129.125.60.18
       netmask: /32

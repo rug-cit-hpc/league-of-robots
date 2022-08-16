@@ -1,10 +1,12 @@
 ---
-firewall_allowed_tcp_ports:
-  - 22    # SSH.
-  - 443   # SSH fallback when 22 is blocked.
-  - 3000  # Grafana server.
-firewall_additional_rules:
-  - "iptables -A INPUT -i eth1 -p tcp -s 129.125.2.233,129.125.2.225,129.125.2.226 --dport 9090 -j ACCEPT -m comment --comment 'prometheus server'"
+iptables_allow_icmp_inbound:
+  - ANY
+iptables_allow_https_inbound:
+  - ANY  # Port 443 is used as fallback for SSH on jumphosts. Port 443 outbound is allowed by default.
+iptables_allow_ssh_inbound:
+  - ANY
+iptables_allow_ssh_outbound:
+  - ANY
 ssh_host_signer_hostnames: "{{ ansible_hostname }}\
   {% for network_id in ip_addresses[ansible_hostname] %}\
     {% if ip_addresses[ansible_hostname][network_id]['fqdn'] is defined and

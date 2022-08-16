@@ -1,11 +1,3 @@
 ---
 ansible_python_interpreter: /usr/bin/python2.7
-#
-# Configure allowed network ports for geerlingguy.firewall role
-#
-firewall_allowed_tcp_ports:
-  - '22'   # SSH
-  - '6817' # Slurm
-  - '6818' # Slurm
-  - '6819' # Slurm
 ...

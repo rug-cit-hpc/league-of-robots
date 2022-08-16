@@ -14,5 +14,5 @@
   ansible.builtin.command:
     cmd: '/etc/sysconfig/iptables-init.bash'
   become: true
-  listen: initialize_iptables
+  listen: configure_iptables
 ...

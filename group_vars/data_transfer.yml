@@ -1,7 +1,10 @@
 ---
-firewall_allowed_tcp_ports:
-  - 22   # SSH.
-  - 443  # SSH.
+iptables_allow_icmp_inbound:
+  - ANY
+iptables_allow_https_inbound:
+  - ANY  # On data_transfer servers port 443 is used for SSH too.
+iptables_allow_ssh_inbound:
+  - ANY
 ssh_host_signer_hostnames: "{{ ansible_hostname }}\
   {% for network_id in ip_addresses[ansible_hostname] %}\
     {% if ip_addresses[ansible_hostname][network_id]['fqdn'] is defined and
