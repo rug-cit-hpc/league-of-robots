@@ -13,7 +13,7 @@ See `defaults/main.yml`. All role variables are prefixed with` iptables_`
 #### IPv4
 
 We first create a list of IPv4 addresses used by a host and determine if these addresses are publicly exposed.
-This role considers an IP _publicly exposed_ when it 
+This role considers an IP _publicly exposed_ when it is
 
  * either a _public_ IP address
  * or a private address and traffic from a _floating_, _public_ IP is routed to this private IP. 
