@@ -545,7 +545,7 @@
         wait: true
         timeout: "{{ openstack_api_timeout }}"
       when: ip_addresses[inventory_hostname][network_private_storage_id]['address'] is not defined
-- name: "Create network ports for machines with {{ network_private_management_id_13 }} network interfacein {{ stack_prefix }}_irods security group."
+- name: "Create network ports for machines with {{ network_private_management_id_13 }} network interface in {{ stack_prefix }}_irods security group."
   hosts:
     - irods
   connection: local
