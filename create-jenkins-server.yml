@@ -136,6 +136,7 @@
         state: present
         name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
         network: "{{ network_private_management_id }}"
+        security_groups: "{{ stack_prefix }}_webservers"
         fixed_ips:
           - ip_address: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
         wait: true
@@ -146,6 +147,7 @@
         state: present
         name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
         network: "{{ network_private_management_id }}"
+        security_groups: "{{ stack_prefix }}_webservers"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
       when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is not defined
