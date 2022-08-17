@@ -1,5 +1,5 @@
 ---
-- hosts: jumphost
+- hosts: all,!openstack_api
   roles:
   - 'iptables'
 ...

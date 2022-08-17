@@ -1,11 +1,19 @@
 ---
-firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
-  - "22"    # SSH.
-  - "443"   # davrods SSL
-  - "1247"  # irods
-  - "1248"  # Control Plane Port
-  - "5432"  # PostgreSQL
-  - "20000:20199"  # irods
+#
+# Firewall configuration.
+#
+iptables_allow_icmp_inbound:
+  - ANY
+iptables_allow_ssh_inbound:
+  - ANY
+iptables_allow_ssh_outbound:
+  - ANY
+iptables_allow_https_inbound:
+  - ANY  # For DAVRODS.
+iptables_allow_irods:
+  - ANY
+iptables_allow_postgres_outbound:
+  - ANY
 
 yum_packages: '{{ yum_packages_4_3_0 }}'  # List of packages are defined in role defaults
 ir_server_type: 'icat'                     # iRODS Server Type
