@@ -7,12 +7,13 @@
   roles:
     - admin_users
     - ssh_host_signer
+    - iptables
     - ssh_known_hosts
+    - {role: yum_local, when: local_yum_repository is defined}
     - logrotate
     - remove
     - update
     - {role: geerlingguy.repo-epel, become: true}
-    - {role: geerlingguy.firewall, become: true}
     - logins
     - role: ldap
       when:

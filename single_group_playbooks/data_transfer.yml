@@ -7,10 +7,11 @@
   roles:
     - admin_users
     - ssh_host_signer
+    - iptables
     - logrotate
+    - remove
     - update
     - {role: geerlingguy.repo-epel, become: true}
-    - {role: geerlingguy.firewall, become: true}
     - logins
     - role: ldap
       when:

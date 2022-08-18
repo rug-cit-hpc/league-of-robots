@@ -85,6 +85,7 @@
           #   portip: 10.10.1.1
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+      when: false
     #
     # Jumphosts security group.
     #
@@ -216,12 +217,30 @@
         name: "{{ stack_prefix }}_irods"
         description: |
                      Security group for iRODS machines.
-                     Allows SSH inbound on ports 22 and 443.
+                     Allows SSH and ICMP inbound from jumphosts.
+                     Allows DAVRODS on port 443.
                      Allows iRODS inbound on ports 1247 and 20000-20199.
-                     Allows ICMP inbound.
                      Allows all outbound traffic.
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+      when: groups['irods'] | default([]) | length >= 1
+    - name: "Add rules to {{ stack_prefix }}_irods security group: allow inbound traffic from {{ stack_prefix }}_jumphosts security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_irods"
+        direction: ingress
+        protocol: "{{ item.protocol }}"
+        port_range_min: "{{ item.port_min }}"
+        port_range_max: "{{ item.port_max }}"
+        remote_group: "{{ stack_prefix }}_jumphosts"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - protocol: tcp
+          port_min: 22  # SSH
+          port_max: 22  # SSH
+        - protocol: icmp
+          port_min: -1  # ICMP protocol does not have any ports.
+          port_max: -1  # ICMP protocol does not have any ports.
       when: groups['irods'] | default([]) | length >= 1
     - name: "Add rules to {{ stack_prefix }}_irods security group."
       openstack.cloud.security_group_rule:
@@ -235,11 +254,8 @@
         timeout: "{{ openstack_api_timeout }}"
       with_items:
         - protocol: tcp
-          port_min: 22  # SSH
-          port_max: 22  # SSH
-        - protocol: tcp
-          port_min: 443  # SSH
-          port_max: 443  # SSH
+          port_min: 443  # DAVRODS
+          port_max: 443  # DAVRODS
         - protocol: tcp
           port_min: 636  # LDAPS
           port_max: 636  # LDAPS
@@ -252,9 +268,6 @@
         - protocol: tcp
           port_min: 20000  # iRODS
           port_max: 20199  # iRODS
-        - protocol: icmp
-          port_min: -1  # ICMP protocol does not have any ports.
-          port_max: -1  # ICMP protocol does not have any ports.
       when: groups['irods'] | default([]) | length >= 1
     - name: "Add rules to {{ stack_prefix }}_irods security group: allow inbound traffic from machines in the same security group."
       openstack.cloud.security_group_rule:
@@ -332,6 +345,240 @@
           remote_group: "{{ stack_prefix }}_irods"
       when: groups['irods'] | default([]) | length >= 1
 ##############################################################################
+# Create network ports for all machines from inventory using Openstack API.
+##############################################################################
+- name: "Create network port for machines with {{ network_private_management_id }} network interface in {{ stack_prefix }}_jumphosts security group."
+  hosts:
+    - jumphost
+  connection: local
+  gather_facts: false
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+    - name: "Use pre-defined address from group_vars/{{ stack_name }}/ip_addresses.yml."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
+        security_groups: "{{ stack_prefix }}_jumphosts"
+        fixed_ips:
+          - ip_address: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is defined
+    - name: "Use new random address from defined subnet."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
+        security_groups: "{{ stack_prefix }}_jumphosts"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is not defined
+- name: "Create network port for machines with {{ network_private_management_id }} network interface in {{ stack_prefix }}_ds security group."
+  hosts:
+    - data_transfer
+  connection: local
+  gather_facts: false
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+    - name: "Use pre-defined address from group_vars/{{ stack_name }}/ip_addresses.yml."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
+        security_groups: "{{ stack_prefix }}_ds"
+        fixed_ips:
+          - ip_address: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is defined
+    - name: "Use new random address from defined subnet."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
+        security_groups: "{{ stack_prefix }}_ds"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is not defined
+- name: "Create network port for machines with {{ network_private_management_id }} network interface in {{ stack_prefix }}_repo security group."
+  hosts:
+    - repo
+  connection: local
+  gather_facts: false
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+    - name: "Use pre-defined address from group_vars/{{ stack_name }}/ip_addresses.yml."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
+        security_groups: "{{ stack_prefix }}_repo"
+        fixed_ips:
+          - ip_address: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is defined
+    - name: "Use new random address from defined subnet."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
+        security_groups: "{{ stack_prefix }}_repo"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is not defined
+- name: "Create network port for machines with {{ network_private_management_id }} network interface in {{ stack_prefix }}_irods security group."
+  hosts:
+    - irods
+  connection: local
+  gather_facts: false
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+    - name: "Use pre-defined address from group_vars/{{ stack_name }}/ip_addresses.yml."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
+        security_groups: "{{ stack_prefix }}_irods"
+        fixed_ips:
+          - ip_address: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is defined
+    - name: "Use new random address from defined subnet."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
+        security_groups: "{{ stack_prefix }}_irods"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is not defined
+- name: "Create network port for machines with {{ network_private_management_id }} network interface in {{ stack_prefix }}_cluster security group."
+  hosts:
+    - cluster
+  connection: local
+  gather_facts: false
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+    - name: "Use pre-defined address from group_vars/{{ stack_name }}/ip_addresses.yml."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
+        security_groups: "{{ stack_prefix }}_cluster"
+        fixed_ips:
+          - ip_address: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is defined
+    - name: "Use new random address from defined subnet."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+        network: "{{ network_private_management_id }}"
+        security_groups: "{{ stack_prefix }}_cluster"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is not defined
+- name: "Create network ports for machines with {{ network_private_storage_id }} network interface in {{ stack_prefix }}_cluster security group."
+  hosts:
+    - cluster
+  connection: local
+  gather_facts: false
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+    - name: "Use pre-defined address from group_vars/{{ stack_name }}/ip_addresses.yml."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_storage_id }}"
+        network: "{{ network_private_storage_id }}"
+        security_groups: "{{ stack_prefix }}_cluster"
+        fixed_ips:
+          - ip_address: "{{ ip_addresses[inventory_hostname][network_private_storage_id]['address'] }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_storage_id]['address'] is defined
+    - name: "Use new random address from defined subnet."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_storage_id }}"
+        network: "{{ network_private_storage_id }}"
+        security_groups: "{{ stack_prefix }}_cluster"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_storage_id]['address'] is not defined
+- name: "Create network ports for machines with {{ network_private_management_id_13 }} network interface in {{ stack_prefix }}_irods security group."
+  hosts:
+    - irods
+  connection: local
+  gather_facts: false
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which fails to use the interpretor from an activated virtual environment
+    # and hence fails to find the OpenStackSDK if it was installed in a virtual environment.
+    #
+    - ansible_python_interpreter: python
+  tasks:
+    - name: "Use pre-defined address from group_vars/{{ stack_name }}/ip_addresses.yml."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id_13 }}"
+        network: "{{ network_private_management_id_13 }}"
+        security_groups: "{{ stack_prefix }}_irods"
+        fixed_ips:
+          - ip_address: "{{ ip_addresses[inventory_hostname][network_private_management_id_13]['address'] }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id_13]['address'] is defined
+    - name: "Use new random address from defined subnet."
+      openstack.cloud.port:
+        state: present
+        name: "{{ inventory_hostname }}-{{ network_private_management_id_13 }}"
+        network: "{{ network_private_management_id_13 }}"
+        security_groups: "{{ stack_prefix }}_irods"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: ip_addresses[inventory_hostname][network_private_management_id_13]['address'] is not defined
+##############################################################################
 # Configure jumphosts from inventory using Openstack API.
 ##############################################################################
 - name: Create jumphosts.
@@ -355,7 +602,7 @@
         security_groups: "{{ stack_prefix }}_jumphosts"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_private_management_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"
@@ -431,7 +678,7 @@
         security_groups: "{{ stack_prefix }}_ds"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_private_management_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"
@@ -505,7 +752,7 @@
         security_groups: "{{ stack_prefix }}_repo"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_private_management_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"
@@ -558,8 +805,8 @@
         security_groups: "{{ stack_prefix }}_irods"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_private_management_id }}"
-          - net-name: "{{ network_private_management_id_13 }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_management_id_13 }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"
@@ -608,8 +855,8 @@
         security_groups: "{{ stack_prefix }}_cluster"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_private_management_id }}"
-          - net-name: "{{ network_private_storage_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_storage_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"
@@ -666,8 +913,8 @@
         security_groups: "{{ stack_prefix }}_cluster"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_private_management_id }}"
-          - net-name: "{{ network_private_storage_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_storage_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"
@@ -730,8 +977,8 @@
         security_groups: "{{ stack_prefix }}_cluster"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_private_management_id }}"
-          - net-name: "{{ network_private_storage_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_storage_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"
@@ -788,8 +1035,8 @@
         security_groups: "{{ stack_prefix }}_cluster"
         auto_floating_ip: false
         nics:
-          - net-name: "{{ network_private_management_id }}"
-          - net-name: "{{ network_private_storage_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
+          - port-name: "{{ inventory_hostname }}-{{ network_private_storage_id }}"
         userdata: |
           #cloud-config
           password: "{{ cloud_console_pass }}"

@@ -1,128 +1,97 @@
-###############################################################################################################################################
-# Query tests
-#- name: 'List hostinfo 1.'
-#  debug:
-#    msg: "allNetworkInterfaces: {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | map(attribute='value.device') | list }}"
-#
-#- name: 'List hostinfo 2.'
-#  debug:
-#    msg: "allNetworkInterfaces: {{ ansible_facts | json_query(_query) }}"
-#  vars:
-#    _query: "*.ipv4.address"
-#
-#- name: 'List hostinfo 3.'
-#  debug:
-#    msg: "allNetworkInterfaces: {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | list }}"
-#
-#- name: 'List hostinfo 3.q'
-#  debug:
-#    msg: "allNetworkInterfaces: {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | list | json_query(_query) }}"
-#  vars:
-#    _query: '[].{Name: value.device, IPv4: value.ipv4, IPv6: value.ipv6, Type: value.type}'
-###############################################################################################################################################
-
-#
-# This role configures host-based firewalls using iptables.
-# We first create a list of IPv4 addresses used by a host and determine if these addresses are public or private.
-# Next we fetch the network interface names for the public and private addresses:
-#  * internal interfaces = those who use a private IPv4 address.
-#  * external interfaces = those who use a public IPv4 address.
-# Finally we configure the IPv4 firewall to:
-#  * allow anything over the loopback interface.
-#  * allow anything over internal interfaces.
-#  * disable anything by default except for specific services on specific ports to/from specific subnets.
-#    A subnet is specified with mask as [0-9].[0-9].[0-9].[0-9]/[0-9] and may contain one or more IP addresses.
-#    E.g. 111.111.111.111/32 is the single machine 111.111.111.111
-#    and 111.111.111.111/24 is the range from 111.111.111.1 up to and including 111.111.111.254.
-# Finally we configure the IPv6 firewall to:
-#  * allow anything over the loopback interface.
-#  * disable anything else over any other interface both internal and external.
-#
-
 ---
-#- name: 'Install iptables with yum.'
-#  yum:
-#    state: latest
-#    update_cache: yes
-#    name:
-#      - 'iptables'
-#      - 'iptables-services'
-#      #### ToDo: fail2ban
-#  notify: restart_iptables
-#  become: true
+- name: Install iptables with yum.
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - 'iptables'
+      - 'iptables-services'
+      #### ToDo: fail2ban
+  notify: restart_iptables
+  become: true
 
-#- name: 'Enable netfilter kernel module for FTP connection tracking.'
-#  lineinfile:
-#    path: '/etc/sysconfig/iptables-config'
-#    regexp: '^IPTABLES_MODULES='
-#    line: 'IPTABLES_MODULES="nf_conntrack_ftp"'
-#  notify:
-#    - restart_iptables
-#    - reconfigure_iptables
-#  become: true
+- name: Enable netfilter kernel module for FTP connection tracking.
+  ansible.builtin.lineinfile:
+    path: '/etc/sysconfig/iptables-config'
+    regexp: '^IPTABLES_MODULES='
+    line: 'IPTABLES_MODULES="nf_conntrack_ftp"'
+  notify:
+    - restart_iptables
+    - configure_iptables
+  become: true
 
-- name: 'Create lists of private and of public IP addresses.'
+- name: Add kernel network tweaks to /etc/sysctl.d/60-ansible-managed-network.conf.
+  ansible.posix.sysctl:
+    sysctl_file: '/etc/sysctl.d/60-ansible-managed-network.conf'
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_set: true
+    state: present
+    reload: true
+  loop: "{{ kernel_network_tweaks }}"
+  become: true
+
+- name: Create lists of public IP addresses.
   ansible.builtin.set_fact:
-    private_ip_addresses: "{{ ansible_facts | dict2items
-      | json_query('[*].value.ipv4.address')
-      | map('ipaddr', 'private') | list
-      | reject('==', None) | list }}"
     public_ip_addresses: "{{ ansible_facts | dict2items
       | json_query('[*].value.ipv4.address')
-      | map('ipaddr', 'public') | list
+      | map('ansible.utils.ipaddr', 'public') | list
       | reject('==', None) | list }}"
 
-- name: 'Create lists of internal and external network interfaces.'
+- name: Create lists of publicly exposed, private IP addresses.
+  ansible.builtin.set_fact:
+    publicly_exposed_internal_ip_addresses: "{{ all_ip_addresses[inventory_hostname] | dict2items
+      | json_query('[?value.publicly_exposed].value.address')
+      | list }}"
+
+- name: Create lists of all publicly exposed IP addresses that need to be firewalled.
+  ansible.builtin.set_fact:
+    all_publicly_exposed_ip_addresses: "{{ public_ip_addresses | default([]) }} + {{ publicly_exposed_internal_ip_addresses | default([]) }}"
+
+- name: Create lists of internal and external network interfaces.
   ansible.builtin.set_fact:
     internal_interfaces: "{{ ansible_facts | dict2items
       | selectattr('value.ipv4.address', 'defined')
-      | selectattr('value.ipv4.address', 'in', private_ip_addresses)
+      | rejectattr('value.ipv4.address', 'in', all_publicly_exposed_ip_addresses)
       | map(attribute='value.device') | list }}"
     external_interfaces: "{{ ansible_facts | dict2items
       | selectattr('value.ipv4.address', 'defined')
-      | selectattr('value.ipv4.address', 'in', public_ip_addresses)
+      | selectattr('value.ipv4.address', 'in', all_publicly_exposed_ip_addresses)
       | map(attribute='value.device') | list }}"
 
-- name: 'DEBUG: List discovered IP addressess and network interfaces.'
+- name: List discovered IP addressess and network interfaces.
   ansible.builtin.debug:
     msg: |
-         Private IP addresses: {{ private_ip_addresses }}.
-         Public  IP addresses: {{ public_ip_addresses }}.
+         All publicly exposed IP addresses: {{ all_publicly_exposed_ip_addresses }}.
          Internal interfaces:  {{ internal_interfaces }}.
          External interfaces:  {{ external_interfaces }}.
 
-- name: 'Deploy firewall configuration script.'
+- name: Deploy firewall configuration script.
   ansible.builtin.template:
     src: 'iptables-init.bash.j2'
     dest: '/etc/sysconfig/iptables-init.bash'
     owner: root
     group: root
     mode: 0700
-#  notify: initialize_iptables
+  notify: configure_iptables
   become: true
 
-#
-#- name: 'Configure the firewall service.'
-#  service:
-#    name: "{{ item }}"
-#    state: 'started'
-#    enabled: 'yes'
-#    daemon_reload: 'yes'
-#  with_items:
-#     - 'iptables'
-#     - 'ip6tables'
-#  notify: reconfigure_iptables
-#  become: true
+- name: Configure the firewall service.
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: 'started'
+    enabled: 'yes'
+    daemon_reload: 'yes'
+  with_items:
+    - 'iptables'
+    - 'ip6tables'
+  notify: configure_iptables
+  become: true
 
-#- import_tasks: disable-other-firewalls.yml
-#  when: iptables_disable_firewalld or iptables_disable_ufw
+- name: Flush handlers for iptables role.
+  ansible.builtin.meta: flush_handlers
+
+- name: Disable other firewalls.
+  ansible.builtin.import_tasks: disable-other-firewalls.yml
+  when: iptables_disable_firewalld
 ...
-
-
-#	systemctl disable firewalld
-#	yum install iptables-services
-#	systemctl enable iptables
-#	systemctl enable ip6tables
-#	systemctl start iptables
-#	systemctl start ip6tables
-#	/root/firewall/firewall.sh

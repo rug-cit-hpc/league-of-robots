@@ -24,4 +24,7 @@
     path: "{{ swap_file_path }}"
     state: absent
   become: true
+
+- name: Flush handlers to disable swap.
+  ansible.builtin.meta: flush_handlers
 ...

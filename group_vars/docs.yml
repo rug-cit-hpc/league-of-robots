@@ -1,11 +1,32 @@
 ---
 #
-# Configure allowed network ports for geerlingguy.firewall role
+# Firewall configuration.
 #
-firewall_allowed_tcp_ports:
-  - '22'   # SSH
-  - '80'   # HTTP
-  - '443'  # HTTPS
+iptables_allow_icmp_inbound:
+  - "{{ all.ip_addresses['umcg']['net1'] }}"
+  - "{{ all.ip_addresses['umcg']['net2'] }}"
+  - "{{ all.ip_addresses['umcg']['net3'] }}"
+  - "{{ all.ip_addresses['umcg']['net4'] }}"
+  - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+  - "{{ all.ip_addresses['rug']['operator'] }}"
+  - "{{ all.ip_addresses['gcc']['cloud_net'] }}"
+  - "{{ fender_cluster.ip_addresses['corridor']['public'] }}"
+  - "{{ gearshift_cluster.ip_addresses['airlock']['vlan16'] }}"
+  - "{{ hyperchicken_cluster.ip_addresses['portal']['public'] }}"
+  - "{{ nibbler_cluster.ip_addresses['tunnel']['vlan16'] }}"
+  - "{{ talos_cluster.ip_addresses['reception']['vlan16'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+iptables_allow_ssh_inbound:
+  - "{{ fender_cluster.ip_addresses['corridor']['public'] }}"
+  - "{{ gearshift_cluster.ip_addresses['airlock']['vlan16'] }}"
+  - "{{ hyperchicken_cluster.ip_addresses['portal']['public'] }}"
+  - "{{ nibbler_cluster.ip_addresses['tunnel']['vlan16'] }}"
+  - "{{ talos_cluster.ip_addresses['reception']['vlan16'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+iptables_allow_http_inbound:
+  - ANY
+iptables_allow_https_inbound:
+  - ANY
 extra_jumphosts_for_docs_server:
   - 'airlock'     # Gearshift
   - 'reception'   # Talos

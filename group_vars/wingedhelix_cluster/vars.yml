@@ -3,7 +3,7 @@ slurm_cluster_name: 'wingedhelix'
 stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'wh'
-slurm_version: '20.11.8-1.el7.umcg'
+slurm_version: '22.05.2-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
@@ -89,7 +89,6 @@ local_admin_users:
   - 'henkjan'
   - 'kim'
   - 'marieke'
-  - 'marlies'
   - 'marloes'
   - 'morris'
   - 'pieter'
@@ -110,6 +109,7 @@ regular_groups:
   - 'umcg-genomescan'
   - 'umcg-gsad'
   - 'umcg-gst'
+  - 'umcg-lab'
   - 'umcg-vipt'
 regular_users:
   - user: "{{ envsync_user }}"
@@ -195,6 +195,8 @@ lfs_mounts:
       - name: umcg-genomescan
       - name: umcg-gsad
       - name: umcg-gst
+      - name: umcg-lab
+        mode: '2750'
       - name: umcg-vipt
     rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}"
   - lfs: prm05
@@ -261,4 +263,29 @@ lfs_mounts:
     pfs: umcgst12
     ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
+smb_server_users:
+  - name: sbsuser
+    uid: 501
+    groups:
+      - name: umcg-lab
+        gid: 55100194
+  - name: illumina
+    uid: 502
+    groups:
+      - name: umcg-gap
+        gid: 55100225
+smb_server_interfaces: 192.168.1.0/24  # in addition to 127.0.0.1, which must always be present.
+smb_server_shares:
+  - name: ngs
+    comment: Share for sequencers
+    path: /mnt/umcgst12/groups/umcg-lab/tmp07/sequencers
+    users: sbsuser
+    file_mode: 0640
+    dir_mode: 0750
+  - name: array
+    comment: Share for array scanners
+    path: /mnt/umcgst12/groups/umcg-gap/tmp07/rawdata/array/IDAT/
+    users: illumina
+    file_mode: 0660
+    dir_mode: 0770
 ...
