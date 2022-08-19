@@ -5,11 +5,15 @@
 # so it will get sourced upon login.
 #
 
+totp_config="{{ sshd_user_totp_config_path }}"
+
+{% raw %}
+
 function totp-configure() {
 	export HISTCONTROL=ignorespace:ignoredups
-	if [[ -e "${HOME}/.totp" ]]; then
+	if [[ -e "${totp_config}" ]]; then
 		echo
-		printf 'ERROR: %s\n' "${HOME}/.totp already exists."
+		printf 'ERROR: %s\n' "${totp_config} already exists."
 		printf '       %s\n' '  * Either delete this file and try again to reconfigure TOTPs generating a new secret.'
 		printf '       %s\n' '  * Or use the "totp-show-QR-code" command to configure a new device reuseing the existing secret.'
 		echo
@@ -22,7 +26,7 @@ function totp-configure() {
 	 echo
 	 printf 'INFO: %s\n' 'Two factor authentication was not yet configured; generating new secret and recovery codes ...'
 	 echo
-	 google-authenticator -tdfu -w3 -Q none -s "${HOME}/.totp"
+	 google-authenticator -tdfu -w3 -Q none -s "${totp_config}"
 	 echo
 	 printf 'INFO: %s\n' 'Make sure you save the recovery codes and optionally the secret in a secure location;'
 	 printf '      %s\n' ' * You will not see these codes again upon next login!'
@@ -38,7 +42,7 @@ function totp-show-QR-code() {
 	# IMPORTANT: Each command below is prefixed with a space,
 	# so secrets/credentials are NOT logged in your bash history.
 	#
-	 qr "otpauth://totp/${USER}?secret=$(head -1 "${HOME}/.totp")&issuer=$(hostname -s)"
+	 qr "otpauth://totp/${USER}?secret=$(head -1 "${totp_config}")&issuer=$(hostname -s)"
 	 echo
 	 printf 'INFO: %s\n' 'Scan the QR code above using an app for generating Time-based One-Time Passwords (TOTPs).'
 	 echo
@@ -47,10 +51,12 @@ function totp-show-QR-code() {
 #
 # Check if 2FA was already configured.
 #
-if [[ -e "${HOME}/.totp" ]]; then
+if [[ -e "${totp_config}" ]]; then
 	: # TOTP already configured
 elif [[ "$(whoami)" != "$(logname)" ]]; then
 	: # No direct (SSH) login; sudo perhaps.
 else
 	totp-configure
 fi
+
+{% endraw %}
