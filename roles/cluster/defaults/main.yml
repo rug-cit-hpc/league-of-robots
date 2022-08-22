@@ -1,0 +1,40 @@
+---
+cluster_common_packages:
+  - bash-completion
+  - bc
+  - bcc-tools
+  - bind-utils
+  - bzip2
+  - cargo
+  - curl
+  - dos2unix
+  - figlet
+  - git
+  - git-core
+  - gnutls
+  - irods-icommands
+  - libsodium
+  - lsof
+  - nano
+  - ncdu
+  - ncurses-static
+  - net-tools
+  - openssl
+  - qt5-qtbase
+  - qt5-qtxmlpatterns
+  - readline-static
+  - rsync
+  - screen
+  - singularity-runtime
+  - singularity
+  - strace
+  - tcl-devel
+  - telnet
+  - tmux
+  - tree
+  - unzip
+  - urw-base35-fonts
+  - vim
+  - wget
+
+...

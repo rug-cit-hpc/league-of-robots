@@ -45,4 +45,5 @@ sshd_max_sessions: "\
     {% else %}\
         10 # default\
     {% endif %}"
+sshd_user_totp_config_path: "${HOME}/.ssh/totp"
 ...

@@ -9,7 +9,7 @@
   ansible.builtin.yum:
     state: latest
     update_cache: true
-    name: '{{ cluster_packages }}'
+    name: '{{ cluster_common_packages }}'
   tags:
     - software
   become: true
