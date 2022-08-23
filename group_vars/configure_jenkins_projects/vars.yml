@@ -1,8 +1,0 @@
----
-jenkins.cli_dest: "/opt/jenkins-cli.jar"
-jenkins.username: "admin"
-jenkins.token: ""
-jenkins.projects:
-  - GAP
-  - NGS_DNA
-...

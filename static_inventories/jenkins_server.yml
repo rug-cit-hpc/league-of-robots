@@ -14,5 +14,4 @@ jenkins_server:
   children:
     openstack_api:
     jenkins:
-      configure_jenkins_projects
 ...

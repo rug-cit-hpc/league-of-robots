@@ -12,4 +12,5 @@
     - update
     - sshd
     - jenkins
+    - configure_jenkins_projects
 ...
