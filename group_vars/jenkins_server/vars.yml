@@ -63,4 +63,11 @@ jenkins_plugins:
 jenkins_plugins_install_dependencies: true
 jenkins_prefer_lts: true
 jenkins_shellcheck_version: 0.8.0
+jenkins_url: 'http://localhost:8080/'
+jenkins_cli_dest: '/opt/jenkins-cli.jar'
+jenkins_xml_dest: '/var/lib/jenkins/xml_files/'
+jenkins_projects: 
+  - 'GAP'
+  - 'NGS_DNA'
+  - 'NGS_Demultiplexing'
 ...

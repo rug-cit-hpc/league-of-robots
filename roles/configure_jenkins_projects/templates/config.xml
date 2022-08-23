@@ -1,0 +1,69 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin="workflow-multibranch@716.vc692a_e52371b_">
+  <actions/>
+  <description>{{ item }} pipeline</description>
+  <properties>
+    <com.cloudbees.hudson.plugins.folder.properties.AuthorizationMatrixProperty>
+      <inheritanceStrategy class="org.jenkinsci.plugins.matrixauth.inheritance.InheritParentStrategy"/>
+      <permission>GROUP:com.cloudbees.plugins.credentials.CredentialsProvider.Create:authenticated</permission>
+      <permission>GROUP:com.cloudbees.plugins.credentials.CredentialsProvider.Delete:authenticated</permission>
+      <permission>GROUP:com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains:authenticated</permission>
+      <permission>GROUP:com.cloudbees.plugins.credentials.CredentialsProvider.Update:authenticated</permission>
+      <permission>GROUP:com.cloudbees.plugins.credentials.CredentialsProvider.View:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Build:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Cancel:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Configure:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Create:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Delete:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Discover:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Move:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Read:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Workspace:authenticated</permission>
+      <permission>GROUP:hudson.model.Run.Delete:authenticated</permission>
+      <permission>GROUP:hudson.model.Run.Replay:authenticated</permission>
+      <permission>GROUP:hudson.model.Run.Update:authenticated</permission>
+      <permission>GROUP:hudson.model.View.Configure:authenticated</permission>
+      <permission>GROUP:hudson.model.View.Create:authenticated</permission>
+      <permission>GROUP:hudson.model.View.Delete:authenticated</permission>
+      <permission>GROUP:hudson.model.View.Read:authenticated</permission>
+      <permission>GROUP:hudson.scm.SCM.Tag:authenticated</permission>
+    </com.cloudbees.hudson.plugins.folder.properties.AuthorizationMatrixProperty>
+  </properties>
+  <folderViews class="jenkins.branch.MultiBranchProjectViewHolder" plugin="branch-api@2.1046.v0ca_37783ecc5">
+    <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+  </folderViews>
+  <healthMetrics/>
+  <icon class="jenkins.branch.MetadataActionFolderIcon" plugin="branch-api@2.1046.v0ca_37783ecc5">
+    <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+  </icon>
+  <orphanedItemStrategy class="com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy" plugin="cloudbees-folder@6.722.v8165b_a_cf25e9">
+    <pruneDeadBranches>true</pruneDeadBranches>
+    <daysToKeep>14</daysToKeep>
+    <numToKeep>10</numToKeep>
+    <abortBuilds>false</abortBuilds>
+  </orphanedItemStrategy>
+  <triggers/>
+  <disabled>false</disabled>
+  <sources class="jenkins.branch.MultiBranchProject$BranchSourceList" plugin="branch-api@2.1046.v0ca_37783ecc5">
+    <data>
+      <jenkins.branch.BranchSource>
+        <source class="jenkins.plugins.git.GitSCMSource" plugin="git@4.11.4">
+          <id>9c2251d7-713e-433b-a3de-f0a8ea981bf3</id>
+          <remote>https://github.com/molgenis/{{ item }}.git</remote>
+          <credentialsId></credentialsId>
+          <traits>
+            <jenkins.plugins.git.traits.BranchDiscoveryTrait/>
+          </traits>
+        </source>
+        <strategy class="jenkins.branch.DefaultBranchPropertyStrategy">
+          <properties class="empty-list"/>
+        </strategy>
+      </jenkins.branch.BranchSource>
+    </data>
+    <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+  </sources>
+  <factory class="org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory">
+    <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+    <scriptPath>Jenkinsfile</scriptPath>
+  </factory>
+</org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>
