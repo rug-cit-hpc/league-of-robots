@@ -9,10 +9,18 @@ all:
         porch:
           cloud_flavor: m1.small
           security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
+          iptables_allow_icmp_inbound:
+            - "{{ all.ip_addresses['umcg']['net1'] }}"
+            - "{{ all.ip_addresses['umcg']['net2'] }}"
+            - "{{ all.ip_addresses['umcg']['net3'] }}"
+            - "{{ all.ip_addresses['umcg']['net4'] }}"
+            - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+            - "{{ all.ip_addresses['rug']['operator'] }}"
     repo:
       hosts:
         wh-repo:
           cloud_flavor: m1.small
+          swap_file_size: 2
     docs:
       hosts:
         docs_on_merlin:
@@ -70,6 +78,9 @@ all:
     nfs_server:
       hosts:
         wh-sai:
+    smb_server:
+      hosts:
+        wh-sai:
 administration:
   children:
     sys_admin_interface:
@@ -89,4 +100,5 @@ wingedhelix_cluster:
     docs:
     rsyslog:
     nfs_server:
+    smb_server:
 ...

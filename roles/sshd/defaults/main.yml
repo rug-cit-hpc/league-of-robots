@@ -4,9 +4,14 @@ data_transfer_only_group: sftp-only
 #
 # Reduce LoginGraceTime on machines with direct internet connection to increase security
 # and reduce the number of opened but not yet authenticated connections consuming resources.
+# When MFA authentication is enabled either with TOTPs or the SRAM PAM web-login plugin,
+# users may need some extra time for the additional steps.
 #
 sshd_login_grace_time: "\
-    {% if inventory_hostname in groups['jumphost'] | default([])
+    {% if inventory_hostname in totp.machines | default([])
+       or inventory_hostname in pam_weblogin.machines | default([]) %}\
+        60\
+    {% elif inventory_hostname in groups['jumphost'] | default([])
        or inventory_hostname in groups['data_transfer'] | default([]) %}\
         30\
     {% else %}\
@@ -40,4 +45,5 @@ sshd_max_sessions: "\
     {% else %}\
         10 # default\
     {% endif %}"
+sshd_user_totp_config_path: "${HOME}/.ssh/totp"
 ...

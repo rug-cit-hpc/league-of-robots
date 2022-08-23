@@ -1,4 +1,3 @@
-# Register a machine to our ldap
 ---
 - name: Install yum dependencies
   ansible.builtin.yum:

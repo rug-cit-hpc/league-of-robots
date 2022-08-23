@@ -1,0 +1,10 @@
+# this file should be put to f.e. /etc/yum.repos.d/local_yum.repo
+
+
+[local]
+name=Local yum RPM repository
+baseurl=file://{{ lyr_dir_path }}
+enabled=1
+gpgcheck=0
+priority=1
+# priority: an integer from 1 to 99 (default), lower numerical value, higher repository priority

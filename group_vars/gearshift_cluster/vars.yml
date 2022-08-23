@@ -50,6 +50,9 @@ ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
 filter_passwd: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
 filter_shadow: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
 pam_authz_search: '(|(&(objectClass=posixGroup)(cn=co_bbmri_g-GRP_Gearshift)(memberUid=$username))(&(cn=$username)(rugpersonentitlementvalue=umcg)))'
+network_public_external_id: vlan16
+network_private_management_id: vlan983
+network_private_storage_id: vlan985
 nameservers: [
   '172.23.40.244', # Order is important: local DNS for Isilon storage first!
   '8.8.4.4',       # Google DNS.
@@ -72,8 +75,10 @@ local_admin_users:
   - 'henkjan'
   - 'hopko'
   - 'kees'
-  - 'marlies'
+  - 'marieke'
+  - 'pieter'
   - 'robin'
+  - 'sandi'
   - 'wim'
 data_transfer_only_group: umcg-sftp-only
 envsync_user: 'umcg-envsync'

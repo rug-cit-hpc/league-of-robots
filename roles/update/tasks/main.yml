@@ -5,12 +5,12 @@
     state: latest
     update_cache: true
   become: true
-- name: 'Update all installed packages (except Slurm).'
+- name: 'Update all installed packages (except Slurm and iRODS).'
   ansible.builtin.yum:
     name: '*'
     state: latest
     update_cache: true
-    exclude: 'slurm*'  # Specific Slurm versions configured in slurm-* roles, because we use a custom patched version.
+    exclude: 'slurm*,irods*' # These packages are version locked and we don't want to change that.
   notify: reboot_for_kernel_update
   become: true
 - name: 'Install cron job to reboot server regularly to activate kernel updates.'
