@@ -182,6 +182,12 @@ pfs_mounts:
     rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
     ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
     machines: "{{ groups['chaperone'] }}"
+  - pfs: 'GCC'
+    source: '//storage1.umcg.nl/algemenedata$/appdata/AdLas'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home
     pfs: umcgst12
@@ -209,7 +215,7 @@ lfs_mounts:
       #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat05
-    pfs: 'medgen_zincfinger$'
+    pfs: 'GCC'
     groups:
       - name: umcg-atd
       #- name: umcg-gap         Do not use production groups while still in development phase.
@@ -229,7 +235,7 @@ lfs_mounts:
       #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat06
-    pfs: 'medgen_leucinezipper$'
+    pfs: 'GCC'
     groups:
       - name: umcg-atd
       #- name: umcg-gap         Do not use production groups while still in development phase.
@@ -249,7 +255,7 @@ lfs_mounts:
       #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat07
-    pfs: 'medgen_wingedhelix$'
+    pfs: 'GCC'
     groups:
       - name: umcg-atd
       #- name: umcg-gap         Do not use production groups while still in development phase.
