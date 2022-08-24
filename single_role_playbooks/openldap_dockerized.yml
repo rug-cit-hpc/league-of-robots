@@ -1,0 +1,11 @@
+---
+- name: Install openldap_dockerized role.
+  hosts: ldap_server
+  tasks:
+  roles:
+    - role: openldap_dockerized
+      when:
+        - use_ldap | default(true, true) | bool
+        - create_ldap | default(false, true) | bool
+        - dockerized_ldap | default(false, true) | bool
+...

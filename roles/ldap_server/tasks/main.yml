@@ -1,0 +1,45 @@
+---
+- name: 'DEBUG: role got triggered.'
+  ansible.builtin.debug:
+    msg: "{{ item }}"
+  loop: "{{ ldap_domains | default([])
+                         | dict2items
+                         | selectattr('value.create_ldap', 'defined')
+                         | selectattr('value.create_ldap')
+                         | list }}"
+
+- meta: end_play
+
+- name: Install openldap.
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - openldap
+  become: true
+
+- name: Install key, certificate and dhparam files for TLS.
+  ansible.builtin.copy:
+    src: "files/{{ stack_name }}/{{ item.name }}"
+    dest: "/etc/pki/tls/private/{{ item.name }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  with_items:
+    - name: ldap.key
+      mode: '0600'
+    - name: ldap.crt
+      mode: '0644'
+    - name: dhparam.pem
+      mode: '0644'
+  notify: restart_openldap
+  become: true
+
+- name: Make sure openldap.service is started.
+  ansible.builtin.systemd:
+    name: openldap.service
+    state: started
+    enabled: true
+    daemon_reload: true
+  become: true
+...
