@@ -1,0 +1,9 @@
+---
+- name: Restart openldap service.
+  ansible.builtin.systemd:
+    name: openldap.service
+    state: restarted
+    daemon_reload: true
+  become: true
+  listen: restart_openldap
+...

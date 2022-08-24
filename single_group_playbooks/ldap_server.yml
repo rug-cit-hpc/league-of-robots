@@ -9,8 +9,14 @@
   hosts:
     - ldap_server
   roles:
-    - role: openldap
+    - role: openldap_dockerized
       when:
         - use_ldap | default(true, true) | bool
         - create_ldap | default(false, true) | bool
+        - dockerized_ldap | default(false, true) | bool
+    - role: ldap_server
+      when:
+        - use_ldap | default(true, true) | bool
+        - ldap_domains | default([]) | dict2items
+          | selectattr('value.create_ldap', 'defined') | selectattr('value.create_ldap') | length >= 1
 ...

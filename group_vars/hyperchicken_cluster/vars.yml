@@ -31,8 +31,9 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
-use_ldap: yes
-create_ldap: yes
+use_ldap: true
+create_ldap: true
+dockerized_ldap: true
 ldap_uri: ldaps://hc-dai
 ldap_base: dc=hpc,dc=rug,dc=nl
 ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
