@@ -52,8 +52,8 @@ use_ldap: true
 use_sssd: true
 ldap_domains:
   sram:
-    uri: ldaps://wh-dai
-    #search_base: ou=sram-umcg,ou=users,o=id
+    uri: "ldaps://{{ stack_prefix }}-dai"
+    search_base: dc=umcg-hpc-gd,dc=services,dc=sram,dc=surf,dc=nl
     schema: rfc2307bis
     #min_id: 70000000
     #max_id: 72999999
@@ -62,6 +62,13 @@ ldap_domains:
     #user_ssh_public_key: sshPublicKey
     #user_member_of: groupMembership
     #group_member: member
+    create_ldap: true
+    replication_provider_uri: ldaps://ldap.sram.surf.nl
+    replication_provider_search_base: dc=umcg-hpc-gd,dc=services,dc=sram,dc=surf,dc=nl
+  stack:
+    uri: "ldaps://{{ stack_prefix }}-dai"
+    search_base: "dc={{ stack_name }},dc=local"
+    schema: rfc2307bis
     create_ldap: true
   grunn:
     uri: ldaps://svrs.id.rug.nl
