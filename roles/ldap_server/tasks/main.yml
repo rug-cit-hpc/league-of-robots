@@ -8,14 +8,12 @@
                          | selectattr('value.create_ldap')
                          | list }}"
 
-- meta: end_play
-
-- name: Install openldap.
+- name: Install OpenLDAP server.
   ansible.builtin.yum:
     state: latest
     update_cache: true
     name:
-      - openldap
+      - openldap-servers
   become: true
 
 - name: Install key, certificate and dhparam files for TLS.
@@ -32,14 +30,38 @@
       mode: '0644'
     - name: dhparam.pem
       mode: '0644'
-  notify: restart_openldap
+  notify: restart_slapd
   become: true
 
-- name: Make sure openldap.service is started.
+# - name: Make directory for custom LDIF files.
+#   ansible.builtin.file:
+#     path: "/srv/openldap/custom"
+#     state: directory
+#     owner: root
+#     group: root
+#     mode: '0755'
+#   become: true
+# 
+# - name: Install LDIF files for overlays.
+#   ansible.builtin.copy:
+#     src: "files/{{ item }}"
+#     dest: "/srv/openldap/custom/{{ item }}"
+#     owner: root
+#     group: root
+#     mode: '0644'
+#   with_items:
+#     - 01-overlay-memberof
+#   notify:
+#     - restart_openldap
+#   become: true
+
+- name: Make sure slapd.service (OpenLDAP server) is started.
   ansible.builtin.systemd:
-    name: openldap.service
+    name: slapd.service
     state: started
     enabled: true
     daemon_reload: true
   become: true
+
+- name: 
 ...
