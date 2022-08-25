@@ -15,11 +15,16 @@ Cron jobs are defined and deployed, based on the naming of the backups. Make
 sure you do not deploy the backup and then redeploy it with the changed name, as  
 it will result in duplicated cron jobs!
 
+# Backup size growth
+
 All the backup increments are hardlinked against last backup, in order to save  
 space. The hardlinking mechanism uses rsync's internal mechanism to do so.
 
 The cron will keep number of backups of individual folder, the oldest ones will  
 be automatically deleted upon execution of the new backup.
+
+For each `frequency` there will be one **full** copy, **plus** the differential backups for
+number of `keep` backups.
 
 ## Data structure
 
