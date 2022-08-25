@@ -60,6 +60,8 @@ jumphosts:
         network: vlan16
 jenkins_plugins:
   - warnings-ng
+  - name: git
+    version: 4.11.4
 jenkins_plugins_install_dependencies: true
 jenkins_prefer_lts: true
 jenkins_shellcheck_version: 0.8.0

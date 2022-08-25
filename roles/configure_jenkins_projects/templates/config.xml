@@ -47,7 +47,7 @@
   <sources class="jenkins.branch.MultiBranchProject$BranchSourceList" plugin="branch-api@2.1046.v0ca_37783ecc5">
     <data>
       <jenkins.branch.BranchSource>
-        <source class="jenkins.plugins.git.GitSCMSource" plugin="git@4.11.4">
+        <source class="jenkins.plugins.git.GitSCMSource" plugin="git@{{ jenkins_plugins | selectattr('name', 'defined') | selectattr('name', 'equalto', 'git') | map(attribute='version') | first }}">
           <id>9c2251d7-713e-433b-a3de-f0a8ea981bf3</id>
           <remote>https://github.com/molgenis/{{ item }}.git</remote>
           <credentialsId></credentialsId>
