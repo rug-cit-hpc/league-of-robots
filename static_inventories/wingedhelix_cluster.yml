@@ -71,7 +71,12 @@ all:
           ansible_host: uozkh1016.zkh.umcg.intra
           use_ldap: false
           functional_admin_group: 'MEDGEN-NFG GCC Analyse Team'
-          regular_groups:  # Overruled compared to rest of Winged Helix: do not create local functional_admin_group, which comes from UMCG AD.
+          #
+          # Overrule regular_groups compared to rest of Winged Helix:
+          # * Do not create local functional_admin_group, which comes from UMCG AD.
+          # * Do not create umcg-lab, which is not used on a chaperone.
+          #
+          regular_groups:
             - "{{ envsync_group }}"
             - "{{ functional_users_group }}"
             - 'umcg-atd'
@@ -80,7 +85,6 @@ all:
             - 'umcg-genomescan'
             - 'umcg-gsad'
             - 'umcg-gst'
-            - 'umcg-lab'
             - 'umcg-vipt'
     rsyslog:
       hosts:
