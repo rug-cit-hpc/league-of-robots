@@ -1,0 +1,6 @@
+---
+
+- name: Install and configure local backup cron
+  ansible.builtin.include_tasks: crons.yml
+
+...

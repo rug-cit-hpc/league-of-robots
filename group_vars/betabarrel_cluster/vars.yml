@@ -60,6 +60,19 @@ network_private_management_cidr: '10.10.1.0/24'
 network_private_management_gw: '10.10.1.1'
 #network_private_storage_id: "{{ stack_prefix }}_internal_storage"
 #network_private_storage_cidr: '10.10.2.0/24'
+
+backup_clist: # list of folders for cron to make daily backup
+  - name: apps # don't modify after once deployed!
+    src_path: '/apps'
+    frequency:
+     - { name: 'daily', hour: '5', minute: '47', day: '*', weekday: '*', month: '*', keep: '60', disabled: 'false' }
+     - { name: 'weekly', hour: '3', minute: '24', day: '*', weekday: '6', month: '*', keep: '20', disabled: 'false' }
+  - name: log # don't modify after once deployed!
+    src_path: '/var/log'
+    frequency:
+     - { name: 'daily', hour: '5', minute: '51', day: '*', weekday: '*', month: '*', keep: '60', disabled: 'false' }
+     - { name: 'weekly', hour: '3', minute: '17', day: '*', weekday: '6', month: '*', keep: '20', disabled: 'false' }
+
 local_admin_groups:
   - 'admin'
   - 'docker'
