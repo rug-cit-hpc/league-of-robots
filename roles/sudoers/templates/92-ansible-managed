@@ -6,4 +6,4 @@
 #
 # Allow specific users or group to become the {{ item.user }} user.
 #
-{% if functional_admin_group is defined and functional_admin_group | length %}%{{ functional_admin_group }},{% endif %}{{ item.sudoers }}    ALL=({{ item.user }})    NOPASSWD:ALL
+{% if functional_admin_group is defined and functional_admin_group | length %}%{{ functional_admin_group | regex_replace(' ', '\\ ') }},{% endif %}{{ item.sudoers }}    ALL=({{ item.user }})    NOPASSWD:ALL
