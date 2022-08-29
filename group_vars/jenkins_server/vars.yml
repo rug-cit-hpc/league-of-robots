@@ -62,6 +62,12 @@ jenkins_plugins:
   - warnings-ng
   - name: git
     version: 4.11.4
+  - name: workflow-multibranch
+    version: 716.vc692a_e52371b_
+  - name: branch-api
+    version: 2.1046.v0ca_37783ecc5
+  - name: cloudbees-folder
+    version: 6.722.v8165b_a_cf25e9
 jenkins_plugins_install_dependencies: true
 jenkins_prefer_lts: true
 jenkins_shellcheck_version: 0.8.0
