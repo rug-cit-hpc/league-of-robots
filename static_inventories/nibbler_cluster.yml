@@ -73,7 +73,9 @@ all:
       vars:
         cloud_flavor: m1.large
         local_volume_size_extra: 20
-        fqdn: umcg-icat01.hpc.rug.nl
+        ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }},{{ inventory_hostname }}\
+          {% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}\
+          {% for host in groups['jumphost'] %},{{ host }}+{{ inventory_hostname }}{% endfor %}"
         davrods_icat_ip: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
         iptables_allow_ssh_outbound: []
         iptables_allow_irods:

@@ -1,6 +1,6 @@
 # Create local admin groups & users and allow admin group to use sudo on all hosts.
 ---
-- name: Set selinux in permissive mode
+- name: Put SELinux in permissive mode
   ansible.posix.selinux:
     policy: targeted
     state: permissive
@@ -12,7 +12,7 @@
     state: present
   with_items: "{{ local_admin_groups }}"
   become: true
-- name: 'Allow passwordless sudo for local admin users.'
+- name: Allow passwordless sudo for local admin users.
   ansible.builtin.lineinfile:
     path: '/etc/sudoers'
     line: "%admin  ALL=(ALL:ALL) NOPASSWD:ALL"
@@ -27,13 +27,31 @@
     state: present
   with_items: "{{ local_admin_users }}"
   become: true
-- name: 'Create /admin root dir for the home dirs of local admin users.'
+- name: Create /admin root dir for the home dirs of local admin users.
   ansible.builtin.file:
     path: '/admin'
     owner: root
     group: root
     mode: '0755'
     state: directory
+  become: true
+- name: Make sure home dirs for admin users are correctly labelled for SELinux.
+  community.general.sefcontext:
+    target: "{{ item.target }}"
+    ftype: "{{ item.ftype }}"
+    setype: ssh_home_t
+    state: present
+  loop:
+    - target: '/admin/[^/]+/\.ssh(/.*)?'
+      ftype: a  # All types.
+    - target: '/admin/[^/]+/\.ansible/cp/.*'
+      ftype: s  # Sockets only.
+  become: true
+- name: Apply new SELinux file contexts to filesystem.
+  ansible.builtin.command:
+    cmd: restorecon -irv /admin
+  register: restorecon_admin_homes
+  changed_when: ('reset' in restorecon_admin_homes.stdout)
   become: true
 - name: Create local admin users and append them to relevant groups.
   ansible.builtin.user:
