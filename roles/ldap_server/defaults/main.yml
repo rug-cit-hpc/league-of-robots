@@ -1,0 +1,8 @@
+---
+ldap_server_tls_ciphers: SECURE256:+SECURE128:-VERS-TLS-ALL:+VERS-TLS1.2+VERS-TLS1.3:-RSA:-DHE-DSS:-CAMELLIA
+ldap_server_tls_dir: /etc/pki/tls/private
+ldap_server_tls_crt: ldap.crt
+ldap_server_tls_key: ldap.key
+ldap_server_tls_dh_params: dhparam.pem
+ldap_server_tls_ca_cert: ca.crt
+...
