@@ -8,24 +8,29 @@
                          | selectattr('value.create_ldap')
                          | list }}"
 
-- name: Install OpenLDAP server.
+- name: Install OpenLDAP server and dependencies.
   ansible.builtin.yum:
     state: latest
     update_cache: true
     name:
-      - openldap-servers
+      - curl
+      - cracklib
+      - openldap-ltb
+      - openldap-ltb-contrib-overlays
+      - openldap-ltb-mdb-utils
+  notify: restart_slapd
   become: true
 
 - name: Install key, certificate and dhparam files for TLS.
   ansible.builtin.copy:
     src: "files/{{ stack_name }}/{{ item.name }}"
-    dest: "/etc/pki/tls/private/{{ item.name }}"
+    dest: "{{ ldap_server_tls_dir }}/{{ item.name }}"
     owner: root
-    group: root
+    group: ldap
     mode: "{{ item.mode }}"
   with_items:
     - name: ldap.key
-      mode: '0600'
+      mode: '0640'
     - name: ldap.crt
       mode: '0644'
     - name: dhparam.pem
@@ -33,35 +38,56 @@
   notify: restart_slapd
   become: true
 
-# - name: Make directory for custom LDIF files.
-#   ansible.builtin.file:
-#     path: "/srv/openldap/custom"
-#     state: directory
-#     owner: root
-#     group: root
-#     mode: '0755'
-#   become: true
-# 
-# - name: Install LDIF files for overlays.
-#   ansible.builtin.copy:
-#     src: "files/{{ item }}"
-#     dest: "/srv/openldap/custom/{{ item }}"
-#     owner: root
-#     group: root
-#     mode: '0644'
-#   with_items:
-#     - 01-overlay-memberof
-#   notify:
-#     - restart_openldap
-#   become: true
+- name: 'Workaround for self signed certs: create symlink for ca.crt -> ldap.crt.'
+  ansible.builtin.file:  # noqa risky-file-permissions
+    src: ldap.crt
+    dest: "{{ ldap_server_tls_dir }}/ca.crt"
+    owner: root
+    group: root
+    state: link
+  become: true
 
-- name: Make sure slapd.service (OpenLDAP server) is started.
+
+- name: Make directory for custom LDIF files.
+  ansible.builtin.file:
+    path: '/usr/local/openldap/etc/openldap/custom'
+    state: directory
+    owner: root
+    group: ldap
+    mode: '0750'
+  become: true
+# 
+- name: Install custom LDIF files.
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "/usr/local/openldap/etc/openldap/custom/{{ item }}"
+    owner: root
+    group: ldap
+    mode: '0640'
+  with_items:
+    #- 01-overlay-memberof
+    - tls.ldif
+  register: ldap_server_config
+  become: true
+
+- name: Make sure slapd-ltb.service (OpenLDAP server) is started.
   ansible.builtin.systemd:
-    name: slapd.service
+    name: slapd-ltb.service
     state: started
     enabled: true
     daemon_reload: true
   become: true
 
-- name: 
+- name: Load config from LDIF file.
+  ansible.builtin.command:
+    cmd: ldapmodify -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi -f "/usr/local/openldap/etc/openldap/custom/{{ item }}"
+    #ldapmodify -n0 -F $SLAPD_CONF_DIR -l $file"
+    #ldapmodify -Y EXTERNAL  -H ldapi:/// -f db.ldif
+  with_items:
+    #- 01-overlay-memberof
+    - tls.ldif
+  become: true
+
+
+
 ...

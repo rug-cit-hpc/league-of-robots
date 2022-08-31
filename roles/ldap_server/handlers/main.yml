@@ -1,7 +1,7 @@
 ---
-- name: Restart slapd.service (OpenLDAP server).
+- name: Restart slapd-ltb.service (OpenLDAP server).
   ansible.builtin.systemd:
-    name: slapd.service
+    name: slapd-ltb.service
     state: restarted
     daemon_reload: true
   become: true
