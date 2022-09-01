@@ -12,9 +12,11 @@ iptables_allow_https_inbound:
   - ANY  # For DAVRODS.
 iptables_allow_irods:
   - ANY
-iptables_allow_postgres_outbound:
+iptables_allow_postgresql_outbound:
   - ANY
-
+ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }},{{ inventory_hostname }}\
+  {% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}\
+  {% for host in groups['jumphost'] %},{{ host }}+{{ inventory_hostname }}{% endfor %}"
 ir_version: '4.3.0'                     # iRODS server most of packages - first install 4.2.11 and then upgrade to 4.3.0
 ir_version_plugin: '4.3.0.0'            # iRODS plugin resource version (f.e. 4.3.0.0)
 ir_server_type: 'icat'                  # iRODS Server Type

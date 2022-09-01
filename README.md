@@ -125,7 +125,7 @@ source openstacksdk.venv/bin/activate
 #
 pip3 install --upgrade pip
 pip3 install wheel
-pip3 install openstacksdk
+pip3 install 'openstacksdk<0.99'
 pip3 install ruamel.yaml
 #
 # Optional: install Ansible with pip.

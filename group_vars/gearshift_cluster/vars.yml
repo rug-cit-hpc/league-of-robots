@@ -75,8 +75,10 @@ local_admin_users:
   - 'henkjan'
   - 'hopko'
   - 'kees'
+  - 'marieke'
   - 'pieter'
   - 'robin'
+  - 'sandi'
   - 'wim'
 data_transfer_only_group: umcg-sftp-only
 envsync_user: 'umcg-envsync'
