@@ -44,6 +44,9 @@ all:
           # ir_local_stage_res_fol: '/tmp/irods/{{ ir_local_stage_res }}'
           # ir_local_perm_res: 'demoRescPerm'                # Permanent resource, where it will keep data indefinitely
           # ir_local_perm_res_fol: '/tmp/irods/{{ ir_local_perm_res }}'
+          iptables_allow_ssh_outbound: []
+          iptables_allow_irods:
+            - "{{ all.ip_addresses['surfsara']['umcg-resc1'] }}"
         irods-test:
           fqdn: irods-test.hpc.rug.nl
           yum_packages: '{{ yum_packages_4_2_11 }}'         # test iRODS List of packages are defined in role defaults
@@ -74,13 +77,7 @@ all:
       vars:
         cloud_flavor: m1.large
         local_volume_size_extra: 20
-        ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }},{{ inventory_hostname }}\
-          {% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}\
-          {% for host in groups['jumphost'] %},{{ host }}+{{ inventory_hostname }}{% endfor %}"
         davrods_icat_ip: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
-        iptables_allow_ssh_outbound: []
-        iptables_allow_irods:
-          - "{{ all.ip_addresses['surfsara']['umcg-resc1'] }}"
     docs:
       hosts:
         docs_on_merlin:
