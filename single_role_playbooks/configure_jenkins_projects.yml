@@ -1,0 +1,5 @@
+---
+- hosts: jenkins
+  roles:
+    - configure_jenkins_projects
+...

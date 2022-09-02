@@ -481,7 +481,8 @@
       when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is not defined
 - name: "Create network port for machines with {{ network_private_management_id }} network interface in {{ stack_prefix }}_cluster security group."
   hosts:
-    - cluster
+    - administration
+    - compute_vm
   connection: local
   gather_facts: false
   vars:
@@ -514,7 +515,8 @@
       when: ip_addresses[inventory_hostname][network_private_management_id]['address'] is not defined
 - name: "Create network ports for machines with {{ network_private_storage_id }} network interface in {{ stack_prefix }}_cluster security group."
   hosts:
-    - cluster
+    - administration
+    - compute_vm
   connection: local
   gather_facts: false
   vars:
