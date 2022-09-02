@@ -83,3 +83,10 @@ Successful backup has no output. The output appears only when errors occur. In
 the current configuration, the failed backup output is reported only in the mails
 for the `root` user (at the moment that is in the `/var/spool/mail/root` or
 `/var/mail/root`).
+
+Do not use this backup methods for
+
+  - the backup of the files, whose content change just slightly (f.e. appended
+    new line at the end of large file (f.e. backup of large database dumps)
+  - folder who has regular newly created files, that get later deleted (f.e. the
+    ones in the /tmp folder)
