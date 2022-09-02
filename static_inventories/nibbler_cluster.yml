@@ -23,6 +23,7 @@ all:
       hosts:
         irods-catalogus:
           fqdn: umcg-icat01.hpc.rug.nl
+          ir_yum_packages: '{{ ir_yum_packages_4_3_0 }}'   # test iRODS List of packages are defined in role defaults
           pgsql_server: "remote"                            # PostgreSQL "local" or "remote" server
           ir_local_res: 'rootResc'                          # iRODS local resource
           ir_default_res: 'surfObjStore'                    # iRODS default resource for uploads

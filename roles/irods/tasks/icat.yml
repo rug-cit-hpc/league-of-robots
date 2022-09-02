@@ -2,10 +2,11 @@
 - name: create_unattended_installation_json
   ansible.builtin.template:
     src: unattended_install.json.j2
-    dest: /root/unattended_install.json
+    dest: '{{ ir_service_account_home }}/unattended_install.json'
     backup: true
     mode: '0600'
   register: create_unattended_installation_json
+  become_user: '{{ ir_service_account }}'
   become: true
 
 - name: Collect list of tables from existing irods database
@@ -17,14 +18,13 @@
   become: true
 
 - name: Install iRODS, if no tables exist in the database
-  ansible.builtin.command: sudo python /var/lib/irods/scripts/setup_irods.py --json_configuration_file=/root/unattended_install.json
-  when: database_tables.stdout_lines | default([]) | length > 0 and database_tables.stdout is search(".*No relations found.*")
+  ansible.builtin.command: 'python /var/lib/irods/scripts/setup_irods.py --json_configuration_file=/{{ ir_service_account_home }}/unattended_install.json'
+#  when: database_tables.stdout_lines | default([]) | length > 0 and database_tables.stdout is search(".*No relations found.*")
   register: install_status
-  failed_when: install_status.rc > 0
+  failed_when: install_status.rc > 0 and "Database specified already in use by iRODS." not in install_status.stderr
   run_once: true
   async: 120
   poll: 1
-  become_user: '{{ ir_service_account }}'
   become: true
   notify: irodsctl_restart
 
@@ -34,6 +34,7 @@
     search_string: 'acPreConnect(*OUT) { *OUT="CS_NEG_DONT_CARE"; }'
     line: 'acPreConnect(*OUT) { *OUT="{{ ir_client_server_policy }}"; }'
     backup: true
+  become_user: '{{ ir_service_account }}'
   become: true
 
 - name: Edit /etc/irods/core.re to set number of threads to 4
@@ -42,6 +43,7 @@
     search_string: 'acSetNumThreads {msiSetNumThreads("default","default","default"); }'
     line: 'acSetNumThreads {msiSetNumThreads("default","4","default"); }'
     backup: true
+  become_user: '{{ ir_service_account }}'
   become: true
 
 - name: Edit /etc/irods/core.re to set default resource
@@ -50,6 +52,7 @@
     search_string: 'acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","null"); }'
     line: 'acSetRescSchemeForCreate {msiSetDefaultResc("{{ ir_default_res }}","null"); }'
     backup: true
+  become_user: '{{ ir_service_account }}'
   become: true
 
 - name: Edit /etc/irods/core.re to set default replication resource
@@ -58,6 +61,7 @@
     search_string: 'acSetRescSchemeForRepl {msiSetDefaultResc("demoResc","null"); }'
     line: 'acSetRescSchemeForRepl {msiSetDefaultResc("{{ ir_default_res }}","null"); }'
     backup: true
+  become_user: '{{ ir_service_account }}'
   become: true
 
 - name: Increase systcl limits to allow longer transfers
@@ -87,6 +91,7 @@
     group: '{{ ir_service_account }}'
   become_user: '{{ ir_service_account }}'
   become: true
+  become_user: '{{ ir_service_account }}'
   notify: irodsctl_restart
 
 - name: Force all services to restart, before we start using iRODS imeta commands

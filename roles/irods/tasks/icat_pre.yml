@@ -15,7 +15,7 @@
 
 - name: Installing the iRODS Package(s)
   ansible.builtin.yum:
-    name: '{{ yum_packages }}'
+    name: '{{ ir_yum_packages }}'
     state: present
   become: true
 

@@ -15,7 +15,7 @@ iptables_allow_irods:
 iptables_allow_postgres_outbound:
   - ANY
 
-yum_packages: '{{ yum_packages_4_3_0 }}'  # List of packages are defined in role defaults
+ir_yum_packages: '{{ ir_yum_packages_4_3_0 }}' # Picked version of packages (defined in role defaults)
 ir_server_type: 'icat'                     # iRODS Server Type
 ir_client_server_policy: 'CS_NEG_REQUIRE'  # communicating using SSL (CS_NEG_REQUIRE) or without (CS_NEG_REFUSE
 
