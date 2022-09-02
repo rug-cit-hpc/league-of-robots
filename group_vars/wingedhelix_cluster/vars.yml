@@ -112,6 +112,8 @@ regular_groups:
   - 'umcg-gsad'
   - 'umcg-gst'
   - 'umcg-lab'
+  - 'umcg-labgnkbh'
+  - 'umcg-patho'
   - 'umcg-vipt'
 regular_users:
   - user: "{{ envsync_user }}"
@@ -152,6 +154,18 @@ regular_users:
   - user: 'umcg-gst-dm'
     groups: ['umcg-gst', "{{ functional_users_group }}"]
     sudoers: '%umcg-gst'
+  - user: 'umcg-labgnkbh-ateambot'
+    groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
+    sudoers: '%umcg-labgnkbh'
+  - user: 'umcg-labgnkbh-dm'
+    groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
+    sudoers: '%umcg-labgnkbh'
+  - user: 'umcg-patho-ateambot'
+    groups: ['umcg-patho', "{{ functional_users_group }}"]
+    sudoers: '%umcg-patho'
+  - user: 'umcg-patho-dm'
+    groups: ['umcg-patho', "{{ functional_users_group }}"]
+    sudoers: '%umcg-patho'
   - user: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
     sudoers: '%umcg-vipt'

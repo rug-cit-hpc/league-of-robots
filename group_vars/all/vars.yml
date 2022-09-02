@@ -59,6 +59,10 @@ auth_groups:
     gid: 20014
   umcg-funus:
     gid: 20015
+  umcg-labgnkbh:
+    gid: 20016
+  umcg-patho:
+    gid: 20017
 #
 # Default for a group of users that are only allowd to transfer data.
 # Is used by the sshd role and listed in
