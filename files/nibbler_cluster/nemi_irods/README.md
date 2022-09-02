@@ -336,6 +336,12 @@ openssl dhparam -2 -out dhparams.pem 2048
 
 #### DEBUGGING
 
+Viewing irods log file in new >4.3.0 json format
+```bash
+   $ sudo jq '[.server_timestamp,.log_message] | join(" ")' /var/log/irods/irods.log | tail -n 15
+
+```
+
 * irods service
   to start/restart/stop irods service, use  
   `service irods restart`  
@@ -355,8 +361,8 @@ net.ipv4.tcp_keepalive_probes = 6
 ```
 
 * check logs
-```
-tail -50 /var/lib/irods/log/rods.Log.2021...
+```bash
+   $ tail -50 /var/lib/irods/log/rods.Log.2021...
 ```
 
 * restart service

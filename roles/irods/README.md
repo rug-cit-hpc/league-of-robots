@@ -3,6 +3,20 @@
  - preconfigured irods repository
  - and administrative privileges on the machine
 
+# Variable naming
+
+`ir_` are all the variables that are used within this playbook
+
+`icatV_` are the variables that are saved in the **Vault**, and can be accessed when
+ individual `ir_` variable is mapped to the appropriate `icatV_` variable.
+
+Mapping is done with one of following files:
+   1. `static_inventory/[clustername].yml`
+   2. `group/irods.yml`
+   3. `roles/irods/defaults/main.yml`
+
+When the playbook deployed, the variables are over written, 1. will have priority over 2.
+
 # About the iRODS and PostgreSQL database
 
 Role sets up the iRODS iCAT server and (optionally) a local PostgreSQL database.

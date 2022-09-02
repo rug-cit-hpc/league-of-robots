@@ -7,6 +7,25 @@ firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
   - "1248"  # Control Plane Port
   - "5432"  # PostgreSQL
   - "20000:20199"  # irods
+
+ir_yum_packages_4_2_11:
+  - irods-server-4.2.11-1
+  - irods-database-plugin-postgres-4.2.11-1
+  - irods-runtime-4.2.11-1
+  - irods-resource-plugin-s3-4.2.11.2-1
+  - irods-rule-engine-plugin-python-4.2.11.1-1
+  - irods-rule-engine-plugin-unified-storage-tiering-4.2.11.0-1
+
+ir_yum_packages_4_3_0:
+  - irods-server-4.3.0-1
+  - irods-database-plugin-postgres-4.3.0-1
+  - irods-runtime-4.3.0-1
+  - irods-resource-plugin-s3-4.3.0.0-1
+  - irods-rule-engine-plugin-python-4.3.0.0-1
+  - irods-rule-engine-plugin-unified-storage-tiering-4.3.0.0-1
+
+ir_yum_packages: '{{ ir_yum_packages_4_3_0 }}'
+
 ir_server_type: 'icat'                      # iRODS Server Type
 ir_client_server_policy: 'CS_NEG_REQUIRE'   # communicating using (default) SSL (CS_NEG_REQUIRE) or without (CS_NEG_REFUSE)
 
