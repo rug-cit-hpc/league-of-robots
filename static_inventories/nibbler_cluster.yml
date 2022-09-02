@@ -23,16 +23,23 @@ all:
       hosts:
         irods-catalogus:
           fqdn: umcg-icat01.hpc.rug.nl
-          pgsql_server: "remote"                           # "local" or "remote" PostgreSQL server
-          ir_local_res: 'rootResc'                         # local iRODS resource
-          ir_default_res: 'surfObjStore'                   # default resource iRODS uploads to
-          ir_zone: 'nlumcg'                                # default main iRODS zone name
-          ir_db_user: '{{ ir_service_account }}'           # db Username, usually same as irods_service_account
-          ir_db_pwd: '{{ icat_db_pwd }}'                   # production! vaulted pgsql password
-          ir_db_name: '{{ icat_db_name }}'                 # iRODS Database Name
-          ir_db_server: '{{ icat_db_server }}'             # iRODS Database Server
-          ir_admin_name: 'rods'                            # iRODS (and zone) account
-          tiering_install: False                           # True / False - if the playbook tiering.yml should be executed
+          ir_yum_packages: '{{ ir_yum_packages_4_3_0 }}'   # test iRODS List of packages are defined in role defaults
+          pgsql_server: "remote"                            # PostgreSQL "local" or "remote" server
+          ir_local_res: 'rootResc'                          # iRODS local resource
+          ir_default_res: 'surfObjStore'                    # iRODS default resource for uploads
+          ir_zone: 'nlumcg'                                 # iRODS default main zone name
+          ir_negotiation_key: '{{ icatV_negotiation_key }}' # iRODS Vaulted negotiation key
+          ir_ctrl_plane_key: '{{ icatV_ctrl_plane_key }}'   # iRODS Vaulted control plane key
+          ir_zone_key: '{{ icatV_zone_key }}'               # iRODS Vaulted zone key
+          ir_db_user: '{{ icatV_db_user }}'                 # iRODS Vaulted db username
+          ir_db_pwd: '{{ icatV_db_pwd }}'                   # iRODS Vaulted pgsql password
+          ir_db_name: '{{ icatV_db_name }}'                 # iRODS Vaulted database name
+          ir_db_server: '{{ icatV_db_server }}'             # iRODS Vaulted database server
+          ir_db_port: '{{ icatV_db_port }}'                 # iRODS Vaulted database port
+          ir_salt: '{{ icatV_salt }}'                       # iRODS Vaulted salt key
+          ir_admin_name: 'rods'                             # iRODS (and zone) account
+          ir_admin_pwd: '{{ icatV_admin_pwd }}'             # iRODS Vaulted main admin password
+          tiering_install: False                            # True / False - if the playbook tiering.yml should be executed
           # ir_local_stage_res: 'demoRescStage'              # Staging resource, before data moved to permanent resource
           # ir_local_stage_res_fol: '/tmp/irods/{{ ir_local_stage_res }}'
           # ir_local_perm_res: 'demoRescPerm'                # Permanent resource, where it will keep data indefinitely
@@ -41,20 +48,32 @@ all:
           iptables_allow_irods:
             - "{{ all.ip_addresses['surfsara']['umcg-resc1'] }}"
         irods-test:
-          fqdn: umcg-icat01.hpc.rug.nl
-          ir_client_server_policy: 'CS_NEG_REFUSE'         # communicating using (default) SSL (CS_NEG_REQUIRE) or without (CS_NEG_REFUSE
-          pgsql_server: "local"                            # "local" or "remote" PostgreSQL server
-          ir_local_res: 'demoResc'                         # Staging resource, before data moved to permanent resource
-          ir_default_res: 'demoResc'                       # default resource iRODS uploads to
-          ir_db_server: '127.0.0.1'                        # pgsql server location
-          ir_db_pwd: '{{ icat_test_db_pwd }}'              # test! vaulted pgsql password
-          ir_admin_pwd: '{{ ir_test_admin_pwd }}'          # test! vaulted irods admin password
-          ir_zone: 'tstzone'                               # default main iRODS zone name
-          tiering_install: True                            # True / False - if the playbook tiering.yml should be executed
-          ir_local_stage_res: 'demoRescStage'              # Staging resource, before data moved to permanent resource
-          ir_local_stage_res_fol: '/tmp/irods/{{ ir_local_stage_res }}'
-          ir_local_perm_res: 'demoRescPerm'                # Permanent resource, where it will keep data indefinitely
-          ir_local_perm_res_fol: '/tmp/irods/{{ ir_local_perm_res }}'
+          fqdn: irods-test.hpc.rug.nl
+          yum_packages: '{{ yum_packages_4_2_11 }}'         # test iRODS List of packages are defined in role defaults
+          ir_client_server_policy: 'CS_NEG_REFUSE'          # test iRODS communicate (default) with SSL (CS_NEG_REQUIRE) or not (CS_NEG_REFUSE)
+          pgsql_server: "remote"                            # test iRODS PostgreSQL "local" or "remote" server
+          ir_local_res: 'demoResc'                          # test iRODS Staging resource, before data moved to permanent resource
+          ir_default_res: 'demoResc'                        # test iRODS default resource for uploads
+          ir_db_server: '127.0.0.1'                         # test iRODS pgsql server location
+          ir_db_pwd: '{{ icatV_test_db_pwd }}'              # test iRODS Vaulted pgsql password
+          ir_db_user: '{{ ir_service_account }}'            # test iRODS postgres user
+          ir_db_name: 'ICAT'                                # test iRODS database name
+          ir_admin_pwd: '{{ icatV_test_admin_pwd }}'        # test iRODS Vaulted irods admin password
+          ir_zone: 'tstzone'                                # test iRODS default main zone name
+          ir_salt: 'sA+dwq_dk29DJ1'                         # test iRODS salt
+          tiering_install: True                             # test iRODS True / False - if the playbook tiering.yml should be executed
+          ir_local_stage_res: 'demoRescStage'               # test iRODS staging resource, before data moved to permanent resource
+          ir_local_stage_res_fol: '/tmp/irods/{{ ir_local_stage_res }}' # test! iRODS staging resource folder path
+          ir_local_perm_res: 'demoRescPerm'                 # test! iRODS permanent resource, where it will keep data indefinitely
+          ir_local_perm_res_fol: '/tmp/irods/{{ ir_local_perm_res }}' # test! iRODS permanent resource folder path
+        irods-test-db:
+          fqdn: irods-test-db.hpc.rug.nl
+          cloud_flavor: m1.small                            # test-db CPU:1 MEM:2GB ROOTDISK:20GB
+          pgsql_server: "local"                             # test-db iRODS PostgreSQL "local" or "remote" server
+          ir_db_pwd: '{{ icatV_test_db_pwd }}'              # test-db iRODS Vaulted pgsql password
+          ir_db_user: '{{ ir_service_account }}'            # test-db iRODS postgres user
+          ir_db_name: 'ICAT'                                # test-db iRODS database name
+          ir_admin_pwd: '{{ icatV_test_admin_pwd }}'        # test-db iRODS Vaulted irods admin password
       vars:
         cloud_flavor: m1.large
         local_volume_size_extra: 20

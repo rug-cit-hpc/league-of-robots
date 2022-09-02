@@ -55,26 +55,26 @@ ADD config/irods_environment.json /config/irods_environment.json
 ## dhparm
 #         this is not needded anymore, as the dhparams is copied from host.
 #         This also speeds up potential docker rebuilds
-#RUN openssl dhparam -out /etc/ssl/certs/{{ irods_ssl_dh_params_file }} 2048
+#RUN openssl dhparam -out /etc/ssl/certs/{{ ir_ssl_dh_params_file | basename }} 2048
 
 # copy existing key into VM
-ADD config/{{ irods_ssl_certificate_key_file }} /config/{{ irods_ssl_certificate_key_file }}
-ADD config/{{ irods_ssl_certificate_key_file }} /etc/ssl/private/{{ irods_ssl_certificate_key_file }}
-RUN chmod 600 /config/{{ irods_ssl_certificate_key_file }}
-RUN chmod 600 /etc/ssl/private/{{ irods_ssl_certificate_key_file }}
+ADD config/{{ ir_ssl_certificate_key_file | basename }} /config/{{ ir_ssl_certificate_key_file | basename }}
+ADD config/{{ ir_ssl_certificate_key_file | basename }} /etc/ssl/private/{{ ir_ssl_certificate_key_file | basename }}
+RUN chmod 600 /config/{{ ir_ssl_certificate_key_file | basename }}
+RUN chmod 600 /etc/ssl/private/{{ ir_ssl_certificate_key_file | basename }}
 
 # copy existing crt into VM
-ADD config/{{ irods_ssl_certificate_chain_file }} /config/{{ irods_ssl_certificate_chain_file }}
-RUN chmod 600 /config/{{ irods_ssl_certificate_chain_file }}
+ADD config/{{ ir_ssl_certificate_chain_file | basename }} /config/{{ ir_ssl_certificate_chain_file | basename }}
+RUN chmod 600 /config/{{ ir_ssl_certificate_chain_file | basename }}
 
 # copy existing dhparams into VM
-ADD config/{{ irods_ssl_dh_params_file }} /config/{{ irods_ssl_dh_params_file }}
-RUN chmod 600 /config/{{ irods_ssl_dh_params_file }}
+ADD config/{{ ir_ssl_dh_params_file | basename }} /config/{{ ir_ssl_dh_params_file | basename }}
+RUN chmod 600 /config/{{ ir_ssl_dh_params_file | basename }}
 
 # FIX for https://access.redhat.com/articles/1462323
 #     it appends the dhparam at the end of the chain file
-RUN cat /config/{{ irods_ssl_certificate_chain_file }} /config/{{ irods_ssl_dh_params_file }} > /etc/ssl/certs/{{ irods_ssl_certificate_chain_file }}
-RUN chmod 644 /etc/ssl/certs/{{ irods_ssl_certificate_chain_file }}
+RUN cat /config/{{ ir_ssl_certificate_chain_file | basename }} /config/{{ ir_ssl_dh_params_file | basename }} > /etc/ssl/certs/{{ ir_ssl_certificate_chain_file | basename }}
+RUN chmod 644 /etc/ssl/certs/{{ ir_ssl_certificate_chain_file | basename }}
 
 
 RUN yum install -y mod_ssl.x86_64

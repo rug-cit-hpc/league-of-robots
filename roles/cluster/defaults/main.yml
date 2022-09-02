@@ -36,5 +36,4 @@ cluster_common_packages:
   - urw-base35-fonts
   - vim
   - wget
-
 ...

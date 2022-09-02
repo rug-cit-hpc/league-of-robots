@@ -1,18 +1,8 @@
 ---
-- name: 'Get {{ ir_service_account }} home directory'
-  ansible.builtin.shell: "set -o pipefail && getent passwd {{ ir_service_account }}  | awk -F: '{ print $6 }'"
-  changed_when: false
-  register: getent_output
-  become: true
-
-- name: Store davrods_user_home_path
-  ansible.builtin.set_fact:
-    irods_home_path: "{{ getent_output.stdout }}"
-
 # Configuring according to the https://www.postgresql.org/docs/current/libpq-ssl.html
-- name: Ensure that {{ irods_home_path }}/.postgresql directory exists and is owned by {{ ir_service_account }}
+- name: Ensure that .postgresql directory exists in home and is owned by irods service user
   ansible.builtin.file:
-    path: '{{ irods_home_path }}/.postgresql'
+    path: '{{ ir_service_account_home }}/.postgresql'
     state: directory
     owner: '{{ ir_service_account }}'
     group: '{{ ir_service_account }}'
@@ -23,7 +13,7 @@
 - name: Create empty remote server's CA revocation list file inside .postgresql folder
   ansible.builtin.copy:
     content: ''
-    dest: '{{ irods_home_path }}/.postgresql/root.crl'
+    dest: '{{ ir_service_account_home }}/.postgresql/root.crl'
     force: false
     owner: '{{ ir_service_account }}'
     group: '{{ ir_service_account }}'
@@ -33,8 +23,8 @@
 
 - name: Deploy remote server's CA signing certificate as root.crt into .postgresql folder
   ansible.builtin.copy:
-    src: '{{ remote_psql_server_ca }}'
-    dest: "{{ irods_home_path }}/.postgresql/root.crt"
+    src: 'files/{{ stack_name }}/{{ remote_psql_server_ca }}'
+    dest: "{{ ir_service_account_home }}/.postgresql/root.crt"
     owner: "{{ ir_service_account }}"
     group: "{{ ir_service_account }}"
     mode: '0644'
@@ -43,19 +33,19 @@
 
 - name: Deploy remote server's CA signing certificate into /etc/irods folder
   ansible.builtin.copy:
-    src: '{{ remote_psql_server_ca }}'
+    src: 'files/{{ stack_name }}/{{ remote_psql_server_ca }}'
     dest: '/etc/irods/{{ remote_psql_server_ca | basename }}'
     owner: '{{ ir_service_account }}'
     group: '{{ ir_service_account }}'
     mode: '0644'
-  become_user: '{{ irods_service_account }}'
+  become_user: '{{ ir_service_account }}'
   become: true
   when: remote_psql_server_ca is defined
 
 - name: Deploy certificate and key to be used for psql client calls
   ansible.builtin.copy:
     src: 'files/{{ stack_name }}/{{ item.name }}'
-    dest: '{{ irods_home_path }}/.postgresql/{{ item.dest }}'
+    dest: '{{ ir_service_account_home }}/.postgresql/{{ item.dest }}'
     owner: '{{ ir_service_account }}'
     group: '{{ ir_service_account }}'
     mode: '{{ item.mode }}'
@@ -70,5 +60,23 @@
       mode: '0644'
   become: true
   notify: irodsctl_restart
+
+- name: Install additional packages in order to work with remote database (>=4.3.0)
+  ansible.builtin.yum:
+    name:
+      - unixODBC-devel
+      - python3-devel
+      - gcc-c++
+    state: latest
+  become: true
+  notify: irodsctl_restart
+
+- name: Install pyodbc with pip3
+  ansible.builtin.pip:
+    name: pyodbc
+    state: latest
+    executable: pip3
+  become: true
+  become_user: '{{ ir_service_account }}'
 
 ...
