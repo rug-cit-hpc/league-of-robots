@@ -85,6 +85,8 @@ all:
             - 'umcg-genomescan'
             - 'umcg-gsad'
             - 'umcg-gst'
+            - 'umcg-labgnkbh'
+            - 'umcg-patho'
             - 'umcg-vipt'
     rsyslog:
       hosts:
