@@ -71,6 +71,7 @@ all:
           ansible_host: uozkh1016.zkh.umcg.intra
           use_ldap: false
           functional_admin_group: 'MEDGEN-NFG GCC Analyse Team'
+          envsync_group: 'MEDGEN-NFG GCC Analyse Team'
           #
           # Overrule regular_groups compared to rest of Winged Helix:
           # * Do not create local functional_admin_group, which comes from UMCG AD.

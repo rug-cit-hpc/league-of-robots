@@ -32,7 +32,8 @@
 - name: 'Allow passwordless sudo to the environment synchronization account for deploy admin users.'
   ansible.builtin.lineinfile:
     dest: '/etc/sudoers'
-    line: "%{{ envsync_group }}    ALL=({{ envsync_user }})    NOPASSWD:ALL"
+    regexp: '(\s+)ALL=\({{ envsync_user }}\)(\s+)'
+    line: "%{{ envsync_group | regex_replace(' ', '\\ ') }}    ALL=({{ envsync_user }})    NOPASSWD:ALL"
     owner: root
     group: root
     mode: '0440'
