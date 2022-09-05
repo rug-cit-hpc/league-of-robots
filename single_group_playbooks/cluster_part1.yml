@@ -19,7 +19,7 @@
     - remove
     - update
     - logins
-#    - figlet_motd
+    - figlet_motd
     - node_exporter
     - cluster
     - resolver
