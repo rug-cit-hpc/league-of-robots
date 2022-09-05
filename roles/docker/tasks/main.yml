@@ -9,9 +9,9 @@
     update_cache: true
   become: true
 
-#- name: Upgrade pip to latest version
-#  ansible.builtin.command: pip3 install -U pip
-#  become: true
+# - name: Upgrade pip to latest version
+#   ansible.builtin.command: pip3 install -U pip
+#   become: true
 - name: Upgrade pip3 to latest version
   ansible.builtin.pip:
     name: pip
@@ -24,4 +24,5 @@
     name: docker
     executable: pip3
   become: true
+
 ...

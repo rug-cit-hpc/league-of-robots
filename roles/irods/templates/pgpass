@@ -1,0 +1,2 @@
+# based from https://www.postgresql.org/docs/current/libpq-pgpass.html
+{{ ir_db_server }}:{{ icatV_db_port }}:{{ ir_db_name }}:{{ ir_db_user }}:{{ ir_db_pwd }}

@@ -10,15 +10,15 @@
   become: true
   register: check_unified_storage
 
-- name: Get status of {{ ir_local_stage_res }} resource
-  ansible.builtin.command: 'ilsresc {{ ir_local_stage_res }} '
+- name: Get status of local stage resource
+  ansible.builtin.command: 'ilsresc {{ ir_local_stage_res }}'
   changed_when: false
   register: check_local_stage_resc
   failed_when: 'check_local_stage_resc.rc > 1'
   become_user: '{{ ir_service_account }}'
   become: true
 
-- name: Make {{ ir_local_stage_res }} resource folder for Vault
+- name: Make local stage resource folder for Vault
   ansible.builtin.file:
     path: '{{ ir_local_stage_res_fol }}'
     state: directory
@@ -30,7 +30,7 @@
   when: check_local_stage_resc.rc == 1
   register: make_stage_vault_folder
 
-- name: Make local {{ ir_local_stage_res }} resource
+- name: Make local stage resource
   ansible.builtin.shell: >-
     iadmin mkresc {{ ir_local_stage_res }} unixfilesystem
     $(/usr/bin/hostname):{{ ir_local_stage_res_fol }}
@@ -40,15 +40,15 @@
   failed_when: make_local_stage_res.rc != 0
   when: check_local_stage_resc.rc == 1
 
-- name: Get status of {{ ir_local_perm_res }} resource
-  ansible.builtin.command: 'ilsresc {{ ir_local_perm_res }} '
+- name: Get status of local permanent resource
+  ansible.builtin.command: 'ilsresc {{ ir_local_perm_res }}'
   changed_when: false
   failed_when: check_local_perm_res.rc != 0 and check_local_perm_res.rc != 1
   become_user: '{{ ir_service_account }}'
   become: true
   register: check_local_perm_res
 
-- name: Make {{ ir_local_perm_res }} resource folder for Vault
+- name: Make local permanent resource folder for Vault
   ansible.builtin.file:
     path: '{{ ir_local_perm_res_fol }}'
     state: directory
@@ -60,7 +60,7 @@
   when: check_local_perm_res.rc == 1
   register: make_perm_vault_folder
 
-- name: Make local {{ ir_local_perm_res }} resource
+- name: Make local permanent resource
   ansible.builtin.command: >-
     iadmin mkresc {{ ir_local_perm_res }} unixfilesystem
     $(hostname):{{ ir_local_perm_res_fol }}
@@ -71,7 +71,7 @@
   when: check_local_perm_res.rc == 1
 
 # Check tiering groups
-- name: Check if storage_tiering group was defined for {{ ir_local_res }} resource
+- name: Check if storage_tiering group was defined for local resource
   ansible.builtin.command: imeta ls -R {{ ir_local_res }} irods::storage_tiering::group
   changed_when: false
   become_user: '{{ ir_service_account }}'
@@ -79,7 +79,7 @@
   register: check_imeta_tiering_group
   failed_when: check_imeta_tiering_group.rc != 0
 
-- name: Make storage_tiering group for {{ ir_local_res }}
+- name: Make storage_tiering group for local resource
   ansible.builtin.command: >-
     imeta add -R {{ ir_local_res }} irods::storage_tiering::group tiergroup 0
   become_user: '{{ ir_service_account }}'
@@ -89,7 +89,7 @@
   when: 'check_imeta_tiering_group.stdout is not search("attribute: irods::storage_tiering::group")'
 
 # Tiering group
-- name: Check if storage_tiering group was defined for {{ ir_local_stage_res }} resource
+- name: Check if storage_tiering group was defined for local stage resource
   ansible.builtin.command: >-
     imeta ls -R {{ ir_local_stage_res }} irods::storage_tiering::group
   changed_when: false
@@ -99,7 +99,7 @@
   when: ir_local_stage_res is defined
   register: check_imeta_tiering_staging_group
 
-- name: Make storage_tiering group for {{ ir_local_stage_res }}
+- name: Make storage_tiering group for local stage resource
   ansible.builtin.command: >-
     imeta add -R {{ ir_local_stage_res }} irods::storage_tiering::group tiergroup 1
   become_user: '{{ ir_service_account }}'
@@ -108,7 +108,7 @@
   failed_when: make_local_stage_tiering_group.rc != 0
   when: 'check_imeta_tiering_staging_group.stdout is not search("attribute: irods::storage_tiering::group")'
 
-- name: Check if storage_tiering group was defined for {{ ir_local_perm_res }} resource
+- name: Check if storage_tiering group was defined for local permanent resource
   ansible.builtin.command: imeta ls -R {{ ir_local_perm_res }} irods::storage_tiering::group
   changed_when: false
   become_user: '{{ ir_service_account }}'
@@ -117,7 +117,7 @@
   register: check_imeta_tiering_perm_group
   failed_when: check_imeta_tiering_perm_group.rc != 0
 
-- name: Make storage_tiering group for {{ ir_local_perm_res }}
+- name: Make storage_tiering group for local permanent resource
   ansible.builtin.command: >-
     imeta add -R {{ ir_local_perm_res }} irods::storage_tiering::group tiergroup 2
   become_user: '{{ ir_service_account }}'
@@ -126,7 +126,7 @@
   failed_when: make_local_perm_tiering_group.rc != 0
   when: 'check_imeta_tiering_perm_group.stdout is not search("attribute: irods::storage_tiering::group")'
 
-- name: Check if storage_tiering time was defined for {{ ir_local_res }} resource
+- name: Check if storage_tiering time was defined for local resource
   ansible.builtin.command: >-
     imeta ls -R {{ ir_local_res }} irods::storage_tiering::time
   changed_when: false
@@ -135,7 +135,7 @@
   register: check_imeta_tiering_time
   failed_when: check_imeta_tiering_time.rc != 0
 
-- name: Make storage_tiering time for {{ ir_local_res }}
+- name: Make storage_tiering time for local resource
   ansible.builtin.command: >-
     imeta add -R {{ ir_local_res }} irods::storage_tiering::time 60
   become_user: '{{ ir_service_account }}'
@@ -144,7 +144,7 @@
   failed_when: make_local_tiering_time.rc != 0
   when: 'check_imeta_tiering_time.stdout is not search("attribute: irods::storage_tiering::time")'
 
-- name: Check if storage_tiering time was defined for {{ ir_local_stage_res }} resource
+- name: Check if storage_tiering time was defined for local stage resource
   ansible.builtin.command: imeta ls -R {{ ir_local_stage_res }} irods::storage_tiering::time
   changed_when: false
   become_user: '{{ ir_service_account }}'
@@ -152,7 +152,7 @@
   register: check_imeta_staging_tiering_time
   failed_when: check_imeta_staging_tiering_time.rc != 0
 
-- name: Make storage_tiering time for {{ ir_local_res }}
+- name: Make storage_tiering time for local resource
   ansible.builtin.command: >-
     imeta add -R {{ ir_local_stage_res }} irods::storage_tiering::time 300
   become_user: '{{ ir_service_account }}'
@@ -161,7 +161,7 @@
   failed_when: make_local_staging_tiering_time.rc != 0
   when: 'check_imeta_staging_tiering_time.stdout is not search("attribute: irods::storage_tiering::time")'
 
-- name: Check if storage_tiering minimum_delay_time_in_seconds was defined for {{ ir_local_res }} resource
+- name: Check if storage_tiering minimum_delay_time_in_seconds was defined for local resource
   ansible.builtin.command: >
     imeta ls -R {{ ir_local_res }} irods::storage_tiering::minimum_delay_time_in_seconds
   changed_when: false
@@ -170,7 +170,7 @@
   register: check_imeta_tiering_min_delay_time
   failed_when: check_imeta_tiering_min_delay_time.rc != 0
 
-- name: Make storage_tiering minimum_delay_time for {{ ir_local_res }}
+- name: Make storage_tiering minimum_delay_time for local resource
   ansible.builtin.command: >-
     imeta add -R {{ ir_local_res }} irods::storage_tiering::minimum_delay_time_in_seconds 1
   become_user: '{{ ir_service_account }}'
@@ -179,7 +179,7 @@
   failed_when: make_local_tiering_mindelaytime.rc != 0
   when: 'check_imeta_tiering_min_delay_time.stdout is not search("attribute: irods::storage_tiering::minimum_delay_time_in_seconds")'
 
-- name: Check if storage_tiering maximum_delay_time_in_seconds was defined for {{ ir_local_res }} resource
+- name: Check if storage_tiering maximum_delay_time_in_seconds was defined for local resource
   ansible.builtin.command:
     imeta ls -R {{ ir_local_res }} irods::storage_tiering::maximum_delay_time_in_seconds
   changed_when: false
@@ -188,7 +188,7 @@
   register: check_imeta_tiering_max_delay_time
   failed_when: check_imeta_tiering_max_delay_time.rc != 0
 
-- name: Make storage_tiering maximum_delay_time for {{ ir_local_res }}
+- name: Make storage_tiering maximum_delay_time for local resource
   ansible.builtin.command: >-
     imeta add -R {{ ir_local_res }} irods::storage_tiering::maximum_delay_time_in_seconds 30
   become_user: '{{ ir_service_account }}'
@@ -197,7 +197,7 @@
   failed_when: make_local_tiering_maxdelaytime.rc != 0
   when: 'check_imeta_tiering_max_delay_time.stdout is not search("attribute: irods::storage_tiering::maximum_delay_time_in_seconds")'
 
-- name: Check if storage_tiering minimum_restage_tier was defined for {{ ir_local_stage_res }} resource
+- name: Check if storage_tiering minimum_restage_tier was defined for local stage resource
   ansible.builtin.command: >-
     imeta ls -R {{ ir_local_stage_res }} irods::storage_tiering::minimum_restage_tier
   changed_when: false
@@ -206,7 +206,7 @@
   register: check_imeta_staging_minimum_restage
   failed_when: check_imeta_staging_minimum_restage.rc != 0
 
-- name: Make storage_tiering minimum_restage_tier for {{ ir_local_stage_res }}
+- name: Make storage_tiering minimum_restage_tier for local stage resource
   ansible.builtin.command: >-
     imeta add -R {{ ir_local_stage_res }} irods::storage_tiering::minimum_restage_tier true
   become_user: '{{ ir_service_account }}'

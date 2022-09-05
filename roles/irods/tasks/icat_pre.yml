@@ -10,19 +10,13 @@
   ansible.builtin.user:
     name: '{{ ir_service_account }}'
     groups: '{{ ir_service_account }},admin'
+    home: '{{ ir_service_account_home }}'
   become: true
 
 - name: Installing the iRODS Package(s)
   ansible.builtin.yum:
-    name: '{{ item }}'
+    name: '{{ ir_yum_packages }}'
     state: present
-  loop:
-    - irods-server{{ ir_version }}
-    - irods-database-plugin-postgres{{ ir_version }}
-    - irods-runtime{{ ir_version }}
-    - irods-resource-plugin-s3{{ ir_version }}
-    - irods-rule-engine-plugin-python{{ ir_version }}
-    - irods-rule-engine-plugin-unified-storage-tiering{{ ir_version }}
   become: true
 
 - name: Make sure that the hostname is set correct FQDN name
@@ -88,12 +82,45 @@
   ansible.builtin.package_facts:
     manager: auto
 
-- name: Fix iRODS to use SSL when access remote PostgreSQL (temporary until upstream fix)
+- name: Get version of irods-server
+  ansible.builtin.shell: |
+    set -o pipefail
+    yum list installed | grep irods-server
+  register: irods_version
+  changed_when: false
+  args:
+    warn: true
+
+- name: Fix iRODS v4.2.11 to use SSL when access remote PostgreSQL (temporary until upstream fix)
   ansible.builtin.template:
-    src: database_connect.py
+    src: database_connect.py.4.2.11
     dest: /var/lib/irods/scripts/irods/database_connect.py
     mode: '0644'
+    backup: true
   become_user: '{{ ir_service_account }}'
   become: true
-  when: '"irods-server-4.2.11-1" in ansible_facts.packages'
+  when: '"4.2.11" in irods_version.stdout'
+
+- name: Fix iRODS v4.3.0 to use SSL when access remote PostgreSQL (temporary until upstream fix)
+  ansible.builtin.copy:
+    src: database_connect.py.4.3.0
+    dest: /var/lib/irods/scripts/irods/database_connect.py
+    owner: '{{ ir_service_account }}'
+    group: '{{ ir_service_account }}'
+    mode: '0644'
+    backup: true
+  become_user: '{{ ir_service_account }}'
+  become: true
+  when: '"4.3.0" in irods_version.stdout'
+
+- name: Create .pgpass file
+  ansible.builtin.template:
+    src: pgpass
+    dest: '{{ ir_service_account_home }}/.pgpass'
+    owner: '{{ ir_service_account }}'
+    group: '{{ ir_service_account }}'
+    mode: '0600'
+  become_user: '{{ ir_service_account }}'
+  become: true
+
 ...
