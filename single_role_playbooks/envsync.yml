@@ -1,5 +1,7 @@
 ---
-- hosts: deploy_admin_interface
+- hosts:
+    - deploy_admin_interface
+    - chaperone
   roles:
     - envsync
 ...

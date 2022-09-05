@@ -9,4 +9,5 @@
     - regular_users
     - shared_storage
     - sudoers
+    - envsync
 ...
