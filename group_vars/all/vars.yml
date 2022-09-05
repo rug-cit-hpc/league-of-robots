@@ -64,7 +64,7 @@ auth_groups:
   umcg-patho:
     gid: 20017
   MEDGEN-NFG GCC Analyse Team:
-    gid: 20018
+    gid: 4560734
 #
 # Default for a group of users that are only allowd to transfer data.
 # Is used by the sshd role and listed in
