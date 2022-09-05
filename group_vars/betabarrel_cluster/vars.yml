@@ -138,7 +138,7 @@ regular_users:
 #
 pfs_mounts:
   - pfs: local_raid
-    device: /local_raid  # needs to be already mounted on system (f.e. /dev/sdc1 > /local_raid)
+    device: /data  # needs to be already mounted on system (f.e. /dev/sdc1 > /data)
     source: '/mnt'
     type: 'none'
     rw_options: 'bind'

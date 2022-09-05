@@ -5,7 +5,7 @@
     state: permissive
   become: true
 
-- name: Install some additional packages
+- name: Install some standard software
   ansible.builtin.yum:
     state: latest
     update_cache: true
