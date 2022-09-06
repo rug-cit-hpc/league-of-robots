@@ -144,6 +144,7 @@ pfs_mounts:
     type:
     rw_options:
     ro_options:
+    machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: 'medgen_zincfinger$'
     source: '//storage3.umcg.nl'
     type: cifs    # checked with cat /proc/filesystem
