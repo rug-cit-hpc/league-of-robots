@@ -55,18 +55,12 @@ nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
-network_private_management_id: "{{ stack_prefix }}_internal_management"
-network_private_management_cidr: '10.10.1.0/24'
-network_private_management_gw: '10.10.1.1'
-#network_private_storage_id: "{{ stack_prefix }}_internal_storage"
-#network_private_storage_cidr: '10.10.2.0/24'
 
 backup_clist: # list of folders for cron to make daily backup
   - name: apps # don't modify after once deployed!
     src_path: '/apps'
     frequency:
      - { name: 'daily', hour: '5', minute: '47', day: '*', weekday: '*', month: '*', keep: '60', disabled: 'false' }
-#     - { name: 'weekly', hour: '*', minute: '*', day: '*', weekday: '*', month: '*', keep: '20', disabled: 'false' }
 
 local_admin_groups:
   - 'admin'
@@ -146,12 +140,10 @@ regular_users:
 #
 pfs_mounts:
   - pfs: local_raid
-    device: /local_raid  # needs to be already mounted on system (f.e. /dev/sdc1 > /local_raid)
-    source: '/mnt'
-    type: 'none'
-    rw_options: 'bind'
-    ro_options: 'bind,ro'
-    machines: "{{ groups['sys_admin_interface'] }}"
+    source:
+    type:
+    rw_options:
+    ro_options:
   - pfs: 'medgen_zincfinger$'
     source: '//storage3.umcg.nl'
     type: cifs    # checked with cat /proc/filesystem
