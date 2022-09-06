@@ -1,4 +1,5 @@
 ---
 dependencies:
     - role: rsync
+      when: backup_clist is defined and backup_clist | default([]) | length > 0
 ...
