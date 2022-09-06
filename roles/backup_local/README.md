@@ -1,19 +1,21 @@
 ## About
 
-Playbook creates the local backup (could be mounted from remote machine)  
-of local folder(s).
+Playbook creates the local backup of local folder(s).
 
 The group variables (or machine variables) use the `backup_clist` for a list of  
 folders that needs to be backed up.
 
-The `types` sublist of the `backup_clist` define the frequency of backups. There  
-can be more than one type periodically occuring at the same time (f.e. `daily` and  
-`weekly` backups). This sublist also defines the months/weekdays/days/hours/minutes  
-of when the individual backup should occur.
+The `types` sublist of the `backup_clist` define the frequency of backups. It can
+be multiple periodical backups running at the same time on the machine (f.e. `daily`
+and `weekly` backups). Per each of backup inside `backup_clist`, there is a date
+and time definition of when this type of backup should occur.
 
-Cron jobs are defined and deployed, based on the naming of the backups. Make  
-sure you do not deploy the backup and then redeploy it with the changed name, as  
-it will result in duplicated cron jobs!
+Cronjobs are defined and deployed, based on the naming of the backups. Make sure
+that you do not deploy the backup and then redeploy it with the changed name, as  
+it will result in duplicated cron jobs.
+
+Destination of the backup folder can be also a mounted directory from the remote
+server.
 
 # Backup size growth
 
@@ -23,8 +25,8 @@ space. The hardlinking mechanism uses rsync's internal mechanism to do so.
 The cron will keep number of backups of individual folder, the oldest ones will  
 be automatically deleted upon execution of the new backup.
 
-For each `frequency` there will be one **full** copy, **plus** the differential backups for
-number of `keep` backups.
+For each `frequency` there will be one **full** copy, **plus** the differential
+backups for number of `keep` backups.
 
 ## Data structure
 

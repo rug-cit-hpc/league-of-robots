@@ -12,5 +12,5 @@
 # By default an empty list
 backup_clist: []
 
-main_backup_folder: '/backups/'        # where to save all the backups on the individual machine
+main_backup_folder: '/local_backups/'        # where to save all the backups on the individual machine
 ...
