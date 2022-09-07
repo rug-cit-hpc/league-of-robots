@@ -2,12 +2,12 @@
 
 Playbook creates the local backup of local folder(s).
 
-The group variables (or machine variables) use the `backup_clist` for a list of  
+The group variables (or machine variables) use the `local_backups` for a list of
 folders that needs to be backed up.
 
-The `types` sublist of the `backup_clist` define the frequency of backups. It can
+The `frequency` sublist of the `local_backups` define the frequency of backups. It can
 be multiple periodical backups running at the same time on the machine (f.e. `daily`
-and `weekly` backups). Per each of backup inside `backup_clist`, there is a date
+and `weekly` backups). Per each of backup inside `local_backups`, there is a date
 and time definition of when this type of backup should occur.
 
 Cronjobs are defined and deployed, based on the naming of the backups. Make sure

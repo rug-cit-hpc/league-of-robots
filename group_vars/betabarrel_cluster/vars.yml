@@ -56,7 +56,7 @@ nameservers: [
   '8.8.8.8',  # Google DNS.
 ]
 
-backup_clist: # list of folders for cron to make daily backup
+local_backups: # list of folders for cron to make daily backup
   - name: apps # don't modify after once deployed!
     src_path: '/apps'
     frequency:

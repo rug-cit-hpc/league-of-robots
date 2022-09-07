@@ -1,7 +1,7 @@
 ---
 # list of list of folders for cron to make daily backup
 # Example values:
-# backup_clist: # list of folders for cron to make daily backup
+# local_backups: # list of folders for cron to make daily backup
 #   - name: apps # don't modify after once deployed!
 #     src_path: '/apps'
 #     frequency:
@@ -10,7 +10,7 @@
 
 
 # By default an empty list
-backup_clist: []
+local_backups: []
 
 main_backup_folder: '/local_backups/'        # where to save all the backups on the individual machine
 ...

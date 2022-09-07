@@ -5,7 +5,7 @@
     path: '{{ main_backup_folder }}'
     state: directory
     mode: '0755'
-  when: backup_clist is defined and backup_clist | default([]) | length > 0
+  when: local_backups is defined and local_backups | default([]) | length > 0
   become: true
 
 - name: Create backup subdirectories for each item from list
@@ -13,9 +13,9 @@
     path: '{{ main_backup_folder }}/{{ item.name }}/'
     state: directory
     mode: '0700'
-  when: backup_clist is defined and backup_clist | default([]) | length > 0
+  when: local_backups is defined and local_backups | default([]) | length > 0
   become: true
-  loop: "{{ backup_clist }}"
+  loop: "{{ local_backups }}"
 
 - name: 'Install backup cronjob script'
   ansible.builtin.template:
@@ -24,7 +24,7 @@
     owner: 'root'
     group: 'root'
     mode: '0700'
-  when: backup_clist is defined and backup_clist | default([]) | length > 0
+  when: local_backups is defined and local_backups | default([]) | length > 0
   become: true
 
 - name: 'Create cron for daily backup'
@@ -39,7 +39,7 @@
     job: >
       /root/backup_cronjob.sh '{{ item.0.name }}' '{{ item.1.name }}' '{{ item.1.keep }}'
       '{{ item.0.src_path }}' '{{ main_backup_folder | default("/backups/", true) }}'
-  loop: '{{ backup_clist | subelements("frequency") }}'
+  loop: '{{ local_backups | subelements("frequency") }}'
   become: true
 
 ...
