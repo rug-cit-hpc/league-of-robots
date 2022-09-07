@@ -18,4 +18,5 @@
     - lustre_client
     - nfs_client
     - shared_storage
+    - backup_local
 ...
