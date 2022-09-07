@@ -1,6 +1,6 @@
 ## About
 
-Playbook creates the local backup of local folder(s).
+This role can create a local backup of local folder(s).
 
 The group variables (or machine variables) use the `local_backups` for a list of
 folders that needs to be backed up.
