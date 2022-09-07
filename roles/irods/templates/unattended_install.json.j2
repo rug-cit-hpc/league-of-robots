@@ -1,5 +1,5 @@
 {
-   "admin_password": "{{ irods_admin_pwd }}",
+   "admin_password": "{{ ir_admin_pwd }}",
    "host_access_control_config": {
        "access_entries": [],
        "schema_name": "host_access_control_config",
@@ -54,6 +54,7 @@
            },
            "maximum_number_of_concurrent_rule_engine_server_processes": 4,
            "maximum_size_for_single_buffer_in_megabytes": 32,
+           "maximum_size_of_delay_queue_in_bytes": 0,
            "maximum_temporary_password_lifetime_in_seconds": 1000,
            "rule_engine_server_execution_time_in_seconds": 120,
            "rule_engine_server_sleep_time_in_seconds": 30,
@@ -87,7 +88,8 @@
                    "db_username": "{{ ir_db_user }}"{% if pgsql_server == "remote" %},
                    "db_sslcert": "/etc/irods/{{ ir_ssl_certificate_chain_file }}",
                    "db_sslkey": "/etc/irods/{{ ir_ssl_certificate_key_file }}",
-                   {% if remote_psql_server_ca is defined  %}"db_sslrootcert": "/etc/irods/{{ remote_psql_server_ca | basename }}",{% endif %}
+                   {% if remote_psql_server_ca is defined  %}"db_sslrootcert": "/etc/irods/{{ remote_psql_server_ca | basename }}",
+                   {% endif %}
                    "db_sslmode": "require"{% endif %}
                }
            },

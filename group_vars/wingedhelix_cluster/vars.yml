@@ -112,6 +112,8 @@ regular_groups:
   - 'umcg-gsad'
   - 'umcg-gst'
   - 'umcg-lab'
+  - 'umcg-labgnkbh'
+  - 'umcg-patho'
   - 'umcg-vipt'
 regular_users:
   - user: "{{ envsync_user }}"
@@ -152,6 +154,18 @@ regular_users:
   - user: 'umcg-gst-dm'
     groups: ['umcg-gst', "{{ functional_users_group }}"]
     sudoers: '%umcg-gst'
+  - user: 'umcg-labgnkbh-ateambot'
+    groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
+    sudoers: '%umcg-labgnkbh'
+  - user: 'umcg-labgnkbh-dm'
+    groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
+    sudoers: '%umcg-labgnkbh'
+  - user: 'umcg-patho-ateambot'
+    groups: ['umcg-patho', "{{ functional_users_group }}"]
+    sudoers: '%umcg-patho'
+  - user: 'umcg-patho-dm'
+    groups: ['umcg-patho', "{{ functional_users_group }}"]
+    sudoers: '%umcg-patho'
   - user: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
     sudoers: '%umcg-vipt'
@@ -187,8 +201,8 @@ pfs_mounts:
   - pfs: 'GCC'
     source: '//storage1.umcg.nl/algemenedata$/appdata/AdLas'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02770,file_mode=0660'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02770,file_mode=0660'
     machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home

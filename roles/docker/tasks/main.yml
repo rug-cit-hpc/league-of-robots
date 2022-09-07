@@ -3,18 +3,26 @@
   ansible.builtin.yum:
     name:
       - docker
-      - python2-pip
+      - python3-pip
       - docker-compose
     state: latest
     update_cache: true
   become: true
 
-- name: Upgrade pip to latest version that still supports Python 2.7
-  ansible.builtin.command: pip install pip==20.3.4
+# - name: Upgrade pip to latest version
+#   ansible.builtin.command: pip3 install -U pip
+#   become: true
+- name: Upgrade pip3 to latest version
+  ansible.builtin.pip:
+    name: pip
+    state: latest
+    executable: pip3
   become: true
 
-- name: Install docker-py (supported by python 2.7)
+- name: Install docker-py (supported by python 3)
   ansible.builtin.pip:
-    name: docker==4.4.4
+    name: docker
+    executable: pip3
   become: true
+
 ...
