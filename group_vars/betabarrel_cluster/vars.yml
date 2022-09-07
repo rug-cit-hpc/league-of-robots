@@ -55,6 +55,13 @@ nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
+
+local_backups: # list of folders for cron to make daily backup
+  - name: apps # don't modify after once deployed!
+    src_path: '/apps'
+    frequency:
+     - { name: 'daily', hour: '5', minute: '47', day: '*', weekday: '*', month: '*', keep: '60', disabled: 'false' }
+
 local_admin_groups:
   - 'admin'
   - 'docker'
