@@ -20,17 +20,18 @@ motd: |
       =========================================================
           Welcome to {{ slurm_cluster_name | capitalize }}
       =========================================================
-additional_etc_hosts:
-  - group: docs_library
-    nodes:
-      - name: docs_on_merlin
-        network: vlan16
+# additional_etc_hosts:
+#   - group: docs_library
+#     nodes:
+#       - name: docs_on_merlin
+#         network: vlan16
 use_ldap: yes
 create_ldap: no
 use_sssd: yes
 ldap_domains:
   default_domain:
-    uri: ldaps://svrs.id.rug.nl
+    uri: ldaps://172.23.40.249
+    ldap_tls_reqcert: allow
     search_base: ou=gd,o=asds
     schema: rfc2307
     min_id: 50100000
@@ -43,6 +44,7 @@ ldap_domains:
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
+ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }},{{ inventory_hostname }}"
 totp:
   machines: "{{ groups['jumphost'] }}"
   excluded:
@@ -56,10 +58,27 @@ nameservers: [
   '8.8.8.8',  # Google DNS.
 ]
 network_private_management_id: "{{ stack_prefix }}_internal_management"
-network_private_management_cidr: '10.10.1.0/24'
-network_private_management_gw: '10.10.1.1'
+network_private_management_cidr: '172.23.41.225/24'
 #network_private_storage_id: "{{ stack_prefix }}_internal_storage"
 #network_private_storage_cidr: '10.10.2.0/24'
+
+iptables_allow_icmp_inbound:
+  - "{{ all.ip_addresses['umcg']['net1'] }}"
+  - "{{ all.ip_addresses['umcg']['net2'] }}"
+  - "{{ all.ip_addresses['umcg']['net3'] }}"
+  - "{{ all.ip_addresses['umcg']['net4'] }}"
+  - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+  - "{{ all.ip_addresses['rug']['operator'] }}"
+  - "{{ all.ip_addresses['gcc']['cloud_net'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+iptables_allow_ssh_inbound:
+  - "{{ all.ip_addresses['umcg']['net1'] }}"
+  - "{{ all.ip_addresses['umcg']['net2'] }}"
+  - "{{ all.ip_addresses['umcg']['net3'] }}"
+  - "{{ all.ip_addresses['umcg']['net4'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+iptables_allow_ssh_outbound:
+  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
 
 local_backups: # list of folders for cron to make daily backup
   - name: apps # don't modify after once deployed!
@@ -173,7 +192,7 @@ lfs_mounts:
   - lfs: home
     pfs: local_raid
     rw_machines: "{{ groups['cluster'] }}"
-  - lfs: tmp06
+  - lfs: tmp05
     pfs: local_raid
     groups:
       - name: umcg-atd
@@ -247,7 +266,7 @@ lfs_mounts:
       - name: umcg-gst
       - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: env06
+  - lfs: env05
     pfs: local_raid
     ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
