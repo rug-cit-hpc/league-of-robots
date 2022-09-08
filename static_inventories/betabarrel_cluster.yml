@@ -10,7 +10,6 @@ all:
     sys_admin_interface:
       hosts:
         betabarrel:
-#          ansible_host: betabarrel.hpc.rug.nl
           local_yum_repository: true # enable local yum repository
     deploy_admin_interface:
       hosts:

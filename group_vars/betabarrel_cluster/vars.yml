@@ -20,11 +20,11 @@ motd: |
       =========================================================
           Welcome to {{ slurm_cluster_name | capitalize }}
       =========================================================
-# additional_etc_hosts:
-#   - group: docs_library
-#     nodes:
-#       - name: docs_on_merlin
-#         network: vlan16
+additional_etc_hosts:
+  - group: docs_library
+    nodes:
+      - name: docs_on_merlin
+        network: vlan16
 use_ldap: yes
 create_ldap: no
 use_sssd: yes
