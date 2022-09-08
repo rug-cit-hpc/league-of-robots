@@ -61,7 +61,7 @@ network_private_management_gw: '10.10.1.1'
 #network_private_storage_id: "{{ stack_prefix }}_internal_storage"
 #network_private_storage_cidr: '10.10.2.0/24'
 
-backup_clist: # list of folders for cron to make daily backup
+local_backups: # list of folders for cron to make daily backup
   - name: apps # don't modify after once deployed!
     src_path: '/apps'
     frequency:
