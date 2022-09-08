@@ -31,7 +31,7 @@ use_sssd: yes
 ldap_domains:
   default_domain:
     uri: ldaps://172.23.40.249
-    ldap_tls_reqcert: allow
+    ldap_tls_reqcert: demand
     search_base: ou=gd,o=asds
     schema: rfc2307
     min_id: 50100000
