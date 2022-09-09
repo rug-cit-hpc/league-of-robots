@@ -19,7 +19,7 @@
   become: true
 
 - name: Add custom yum repos.
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: "{{ item.name }}"
     description: "{{ item.description }}"
     baseurl: "{{ item.baseurl }}"
