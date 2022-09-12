@@ -47,7 +47,7 @@ additional_etc_hosts:
   - group: copperfist_cluster
     nodes:
       - name: copperfist
-        network: cf_internal_management
+        network: vlan13
 use_ldap: true
 create_ldap: false
 use_sssd: true
