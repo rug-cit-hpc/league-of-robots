@@ -43,7 +43,7 @@ additional_etc_hosts:
   - group: betabarrel_cluster
     nodes:
       - name: betabarrel
-        network: bb_internal_management
+        network: vlan13
   - group: copperfist_cluster
     nodes:
       - name: copperfist
