@@ -84,7 +84,6 @@ local_backups: # list of folders for cron to make daily backup
     src_path: '/apps'
     frequency:
      - { name: 'daily', hour: '5', minute: '47', day: '*', weekday: '*', month: '*', keep: '60', disabled: 'false' }
-#     - { name: 'weekly', hour: '*', minute: '*', day: '*', weekday: '*', month: '*', keep: '20', disabled: 'false' }
 
 local_admin_groups:
   - 'admin'
