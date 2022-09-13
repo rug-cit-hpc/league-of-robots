@@ -1,0 +1,72 @@
+---
+all:
+  children:
+    openstack_api:
+      hosts:
+        localhost:
+    docs:
+      hosts:
+        docs_on_merlin:
+    sys_admin_interface:
+      hosts:
+        copperfist:
+          local_yum_repository: true # enable local yum repository
+    deploy_admin_interface:
+      hosts:
+        copperfist:
+          volumes:
+            - mount_point: '/apps'
+              device: '/mnt/env06/apps/'
+              mounted_owner: root
+              mounted_group: "{{ envsync_group }}"
+              mounted_mode: '2775'
+              mount_options: 'bind'
+              type: none
+    user_interface:
+      hosts:
+        copperfist:
+          slurm_sockets: 2
+          slurm_cores_per_socket: 128
+          slurm_real_memory: 515456
+          slurm_local_disk: 0
+          slurm_features: 'tmp06'  # copperfist will replace Zinc-Finger
+          slurm_ethernet_interfaces:
+            - eth0
+            - eth1
+    compute_vm:
+      children:
+        regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
+          hosts:
+            copperfist:
+          vars:
+            slurm_sockets: 2
+            slurm_cores_per_socket: 128
+            slurm_real_memory: 515456
+            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 8 }}"
+            slurm_max_mem_per_node: "{{ slurm_real_memory - 8 * 2048 }}"
+            slurm_local_disk: 0
+            slurm_features: 'tmp06'
+            slurm_ethernet_interfaces:
+              - eth0
+              - eth1
+    chaperone:
+      hosts:
+        cf-chaperone:
+          #ansible_host: uozkh[0-9].zkh.umcg.intra
+administration:
+  children:
+    sys_admin_interface:
+    deploy_admin_interface:
+    user_interface:
+cluster:
+  children:
+    compute_vm:
+    administration:
+copperfist_cluster:
+  children:
+    openstack_api:
+    jumphost:
+    cluster:
+    chaperone:
+    docs:
+...
