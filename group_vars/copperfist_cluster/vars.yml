@@ -1,0 +1,272 @@
+---
+slurm_cluster_name: 'copperfist'
+stack_domain: ''  # Only add hpc.rug.nl domain when jumphost is registered in DNS.
+stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
+stack_prefix: 'cf'
+slurm_version: '20.11.8-1.el7.umcg'
+slurm_partitions:
+  - name: regular  # Must be in sync with group listed in Ansible inventory.
+    default: yes
+    nodes: copperfist # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.25G"'
+repo_manager: 'none'
+figlet_font: 'ogre'
+motd: |
+      =========================================================
+          Welcome to {{ slurm_cluster_name | capitalize }}
+      =========================================================
+additional_etc_hosts:
+  - group: docs_library
+    nodes:
+      - name: docs_on_merlin
+        network: vlan16
+use_ldap: yes
+create_ldap: no
+use_sssd: yes
+ldap_domains:
+  default_domain:
+    uri: ldaps://172.23.40.249
+    search_base: ou=gd,o=asds
+    schema: rfc2307
+    min_id: 50100000
+    max_id: 55999999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: groupMembership
+    group_member: memberUid
+    group_object_class: groupofnames
+    group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
+    group_quota_hard_limit_template: ruggroupumcgquotaLFS
+ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }},{{ inventory_hostname }}"
+totp:
+  machines: "{{ groups['jumphost'] }}"
+  excluded:
+    - 'LOCAL'
+    - "{{ all.ip_addresses['umcg']['net1']['address'] }}{{ all.ip_addresses['umcg']['net1']['netmask'] }}"
+    - "{{ all.ip_addresses['umcg']['net2']['address'] }}{{ all.ip_addresses['umcg']['net2']['netmask'] }}"
+    - "{{ all.ip_addresses['umcg']['net3']['address'] }}{{ all.ip_addresses['umcg']['net3']['netmask'] }}"
+    - "{{ all.ip_addresses['umcg']['net4']['address'] }}{{ all.ip_addresses['umcg']['net4']['netmask'] }}"
+nameservers: [
+  '8.8.4.4',  # Google DNS.
+  '8.8.8.8',  # Google DNS.
+]
+network_private_management_id: "vlan983"
+network_private_management_cidr: "172.23.41.226/23"
+#network_private_storage_id: "{{ stack_prefix }}_internal_storage"
+#network_private_storage_cidr: "10.10.2.0/24"
+
+iptables_allow_icmp_inbound:
+  - "{{ all.ip_addresses['umcg']['net1'] }}"
+  - "{{ all.ip_addresses['umcg']['net2'] }}"
+  - "{{ all.ip_addresses['umcg']['net3'] }}"
+  - "{{ all.ip_addresses['umcg']['net4'] }}"
+  - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+  - "{{ all.ip_addresses['rug']['operator'] }}"
+  - "{{ all.ip_addresses['gcc']['cloud_net'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+iptables_allow_ssh_inbound:
+  - "{{ all.ip_addresses['umcg']['net1'] }}"
+  - "{{ all.ip_addresses['umcg']['net2'] }}"
+  - "{{ all.ip_addresses['umcg']['net3'] }}"
+  - "{{ all.ip_addresses['umcg']['net4'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+iptables_allow_ssh_outbound:
+  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+
+local_backups: # list of folders for cron to make daily backup
+  - name: apps # don't modify after once deployed!
+    src_path: '/apps'
+    frequency:
+     - { name: 'daily', hour: '5', minute: '47', day: '*', weekday: '*', month: '*', keep: '60', disabled: 'false' }
+
+local_admin_groups:
+  - 'admin'
+  - 'docker'
+local_admin_users:
+  - 'egon'
+  - 'ger'
+  - 'gerben'
+  - 'henkjan'
+  - 'kim'
+  - 'marieke'
+  - 'marloes'
+  - 'morris'
+  - 'pieter'
+  - 'robin'
+  - 'sandi'
+  - 'wim'
+data_transfer_only_group: 'umcg-sftp-only'
+envsync_user: 'umcg-envsync'
+envsync_group: 'umcg-depad'
+functional_admin_group: 'umcg-funad'
+hpc_env_prefix: '/apps'
+regular_groups:
+  - "{{ envsync_group }}"
+  - "{{ functional_admin_group }}"
+  - 'umcg-atd'
+  - 'umcg-gap'
+  - 'umcg-gd'
+  - 'umcg-genomescan'
+  - 'umcg-gsad'
+  - 'umcg-gst'
+  - 'umcg-vipt'
+regular_users:
+  - user: "{{ envsync_user }}"
+    groups: ["{{ envsync_group }}"]
+  - user: 'umcg-atd-ateambot'
+    groups: ['umcg-atd']
+    sudoers: '%umcg-atd'
+  - user: 'umcg-atd-dm'
+    groups: ['umcg-atd']
+    sudoers: '%umcg-atd'
+  - user: 'umcg-gap-ateambot'
+    groups: ['umcg-gap']
+    sudoers: '%umcg-gap'
+  - user: 'umcg-gap-dm'
+    groups: ['umcg-gap']
+    sudoers: '%umcg-gap'
+  - user: 'umcg-gd-ateambot'
+    groups: ['umcg-gd']
+    sudoers: '%umcg-gd'
+  - user: 'umcg-gd-dm'
+    groups: ['umcg-gd']
+    sudoers: '%umcg-gd'
+  - user: 'umcg-genomescan-ateambot'
+    groups: ['umcg-genomescan']
+    sudoers: '%umcg-genomescan'
+  - user: 'umcg-genomescan-dm'
+    groups: ['umcg-genomescan']
+    sudoers: '%umcg-genomescan'
+  - user: 'umcg-gsad-ateambot'
+    groups: ['umcg-gsad']
+    sudoers: '%umcg-gsad'
+  - user: 'umcg-gsad-dm'
+    groups: ['umcg-gsad']
+    sudoers: '%umcg-gsad'
+  - user: 'umcg-gst-ateambot'
+    groups: ['umcg-gst']
+    sudoers: '%umcg-gst'
+  - user: 'umcg-gst-dm'
+    groups: ['umcg-gst']
+    sudoers: '%umcg-gst'
+  - user: 'umcg-vipt-dm'
+    groups: ['umcg-vipt']
+    sudoers: '%umcg-vipt'
+#
+# Shared storage related variables
+#
+pfs_mounts:
+  - pfs: local_raid
+    device: /data  # needs to be already mounted on system (f.e. /dev/sdc1 > /data)
+    source: '/mnt'
+    type: 'none'
+    rw_options: 'bind'
+    ro_options: 'bind,ro'
+    machines: "{{ groups['sys_admin_interface'] }}"
+  - pfs: 'medgen_zincfinger$'
+    source: '//storage3.umcg.nl'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    machines: "{{ groups['chaperone'] }}"
+  - pfs: 'medgen_leucinezipper$'
+    source: '//storage3.umcg.nl'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    machines: "{{ groups['chaperone'] }}"
+  - pfs: 'medgen_wingedhelix$'
+    source: '//storage3.umcg.nl'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    machines: "{{ groups['chaperone'] }}"
+lfs_mounts:
+  - lfs: home
+    pfs: local_raid
+    rw_machines: "{{ groups['cluster'] }}"
+  - lfs: tmp06
+    pfs: local_raid
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}"
+  - lfs: prm05
+    pfs: 'medgen_zincfinger$'
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat05
+    pfs: 'medgen_zincfinger$'
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm06
+    pfs: 'medgen_leucinezipper$'
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat06
+    pfs: 'medgen_leucinezipper$'
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm07
+    pfs: 'medgen_wingedhelix$'
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat07
+    pfs: 'medgen_wingedhelix$'
+    groups:
+      - name: umcg-atd
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
+      - name: umcg-gsad
+      - name: umcg-gst
+      - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: env06
+    pfs: local_raid
+    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    rw_machines: "{{ groups['deploy_admin_interface'] }}"
+...
