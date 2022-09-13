@@ -4,6 +4,12 @@
   ansible.posix.selinux:
     policy: targeted
     state: permissive
+  register: selinux_status
+  become: true
+- name: Reboot to activate changed SELinux policy or state.
+  ansible.builtin.reboot:
+    msg: Reboot initiated by Ansible role admin_users from League of Robots playbook/repo.
+  when: selinux_status.reboot_required is true
   become: true
 - name: Create admin groups for local admin users.
   ansible.builtin.group:

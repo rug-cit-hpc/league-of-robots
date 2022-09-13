@@ -40,6 +40,14 @@ additional_etc_hosts:
         network: public
       - name: gattaca02
         network: public
+  - group: betabarrel_cluster
+    nodes:
+      - name: betabarrel
+        network: vlan13
+  - group: copperfist_cluster
+    nodes:
+      - name: copperfist
+        network: vlan13
 use_ldap: true
 create_ldap: false
 use_sssd: true
