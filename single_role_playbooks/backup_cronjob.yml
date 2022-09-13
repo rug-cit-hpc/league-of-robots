@@ -1,6 +1,0 @@
----
-- hosts:
-    - deploy_admin_interface
-  roles:
-    - backup_cronjob
-...
