@@ -1,13 +1,13 @@
 ---
-slurm_cluster_name: 'betabarrel'
+slurm_cluster_name: 'copperfist'
 stack_domain: ''  # Only add hpc.rug.nl domain when jumphost is registered in DNS.
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
-stack_prefix: 'bb'
+stack_prefix: 'cf'
 slurm_version: '20.11.8-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
-    nodes: betabarrel  # Must be in sync with Ansible hostnames listed in inventory.
+    nodes: copperfist # Must be in sync with Ansible hostnames listed in inventory.
     max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
     max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
     max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
@@ -57,9 +57,9 @@ nameservers: [
   '8.8.8.8',  # Google DNS.
 ]
 network_private_management_id: "vlan983"
-network_private_management_cidr: '172.23.41.225/24'
+network_private_management_cidr: "172.23.41.226/23"
 #network_private_storage_id: "{{ stack_prefix }}_internal_storage"
-#network_private_storage_cidr: '10.10.2.0/24'
+#network_private_storage_cidr: "10.10.2.0/24"
 
 iptables_allow_icmp_inbound:
   - "{{ all.ip_addresses['umcg']['net1'] }}"
@@ -191,7 +191,7 @@ lfs_mounts:
   - lfs: home
     pfs: local_raid
     rw_machines: "{{ groups['cluster'] }}"
-  - lfs: tmp05
+  - lfs: tmp06
     pfs: local_raid
     groups:
       - name: umcg-atd
@@ -265,7 +265,7 @@ lfs_mounts:
       - name: umcg-gst
       - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: env05
+  - lfs: env06
     pfs: local_raid
     ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"

@@ -11,14 +11,28 @@
   become: false
 
 - name: 'Check if envsync user is present (without creating one if not existing yet).'
-  ansible.builtin.user:
-    name: "{{ envsync_user }}"
-    group: "{{ envsync_user }}"
-    groups: "{{ envsync_group }}"
-    home: "/home/{{ envsync_user }}"
-    create_home: false
-    append: false
-  become: false
+  block:
+    - name: 'Check if envsync user is present assuming all its groups are either local or from an LDAP.'
+      ansible.builtin.user:
+        name: "{{ envsync_user }}"
+        group: "{{ envsync_user }}"
+        groups: "{{ regular_users | selectattr('user', 'equalto', envsync_user) | map(attribute='groups') | flatten | unique }}"
+        home: "/home/{{ envsync_user }}"
+        create_home: false
+        append: false
+      become: false
+  rescue:
+    - name: 'Fallback check if envsync user and only its primary group are present.'
+      #
+      # This fallback option will not check for other groups.
+      # Required for example when some of the secondary groups come from an LDAP while envsync_user & envsync_group are local.
+      #
+      ansible.builtin.user:
+        name: "{{ envsync_user }}"
+        group: "{{ envsync_user }}"
+        home: "/home/{{ envsync_user }}"
+        create_home: false
+      become: false
 
 #
 # Configure environment synchronization account.
@@ -32,7 +46,8 @@
 - name: 'Allow passwordless sudo to the environment synchronization account for deploy admin users.'
   ansible.builtin.lineinfile:
     dest: '/etc/sudoers'
-    line: "%{{ envsync_group }}    ALL=({{ envsync_user }})    NOPASSWD:ALL"
+    regexp: '(\s+)ALL=\({{ envsync_user }}\)(\s+)'
+    line: "%{{ envsync_group | regex_replace(' ', '\\ ') }}    ALL=({{ envsync_user }})    NOPASSWD:ALL"
     owner: root
     group: root
     mode: '0440'
@@ -42,7 +57,7 @@
   ansible.builtin.blockinfile:
     dest: "/home/{{ envsync_user }}/.bashrc"
     block: |
-      [ $(id -gn) = {{ envsync_group }} ] || exec newgrp {{ envsync_group }}
+      [[ $(id -gn) == '{{ envsync_group }}' ]] || exec newgrp '{{ envsync_group }}'
       cd
       umask 0002
       module load depad-utils
@@ -80,7 +95,7 @@
     minute: '05'
     user: "{{ envsync_user }}"
     job: |
-         /usr/bin/sg {{ envsync_group }} -c '/bin/bash -c "export SOURCE_HPC_ENV="True"; . ~/.bashrc; hpc-environment-sync.bash -a"'
+         /usr/bin/sg '{{ envsync_group }}' -c '/bin/bash -c "export SOURCE_HPC_ENV="True"; . ~/.bashrc; hpc-environment-sync.bash -a"'
     cron_file: 'hpc-environment-sync'
   become: true
 ...

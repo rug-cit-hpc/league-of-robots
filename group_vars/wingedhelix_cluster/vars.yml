@@ -40,6 +40,14 @@ additional_etc_hosts:
         network: public
       - name: gattaca02
         network: public
+  - group: betabarrel_cluster
+    nodes:
+      - name: betabarrel
+        network: vlan13
+  - group: copperfist_cluster
+    nodes:
+      - name: copperfist
+        network: vlan13
 use_ldap: true
 create_ldap: false
 use_sssd: true
@@ -112,12 +120,14 @@ regular_groups:
   - 'umcg-gsad'
   - 'umcg-gst'
   - 'umcg-lab'
+  - 'umcg-labgnkbh'
+  - 'umcg-patho'
   - 'umcg-vipt'
 regular_users:
   - user: "{{ envsync_user }}"
     groups: ["{{ envsync_group }}", "{{ functional_users_group }}"]
   - user: 'umcg-atd-ateambot'
-    groups: ['umcg-atd', "{{ functional_users_group }}"]
+    groups: ['umcg-atd', 'umcg-gsad', "{{ functional_users_group }}"]
     sudoers: '%umcg-atd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd', "{{ functional_users_group }}"]
@@ -129,7 +139,7 @@ regular_users:
     groups: ['umcg-gap', "{{ functional_users_group }}"]
     sudoers: '%umcg-gap'
   - user: 'umcg-gd-ateambot'
-    groups: ['umcg-gd', "{{ functional_users_group }}"]
+    groups: ['umcg-gd', 'umcg-gap', "{{ functional_users_group }}"]
     sudoers: '%umcg-gd'
   - user: 'umcg-gd-dm'
     groups: ['umcg-gd', "{{ functional_users_group }}"]
@@ -152,6 +162,18 @@ regular_users:
   - user: 'umcg-gst-dm'
     groups: ['umcg-gst', "{{ functional_users_group }}"]
     sudoers: '%umcg-gst'
+  - user: 'umcg-labgnkbh-ateambot'
+    groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
+    sudoers: '%umcg-labgnkbh'
+  - user: 'umcg-labgnkbh-dm'
+    groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
+    sudoers: '%umcg-labgnkbh'
+  - user: 'umcg-patho-ateambot'
+    groups: ['umcg-patho', "{{ functional_users_group }}"]
+    sudoers: '%umcg-patho'
+  - user: 'umcg-patho-dm'
+    groups: ['umcg-patho', "{{ functional_users_group }}"]
+    sudoers: '%umcg-patho'
   - user: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
     sudoers: '%umcg-vipt'
@@ -187,8 +209,8 @@ pfs_mounts:
   - pfs: 'GCC'
     source: '//storage1.umcg.nl/algemenedata$/appdata/AdLas'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02770,file_mode=0660'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02770,file_mode=0660'
     machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home
