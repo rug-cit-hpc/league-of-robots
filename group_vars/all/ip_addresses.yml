@@ -22,6 +22,14 @@ ip_addresses:
       address: '20.67.122.56'
       netmask: '/32'
       desc: 'UMCG firewalls / core routers'
+    internal:
+      address: '172.25.0.1'
+      netmaask: '/22'
+      desc: 'UMCG internal 3211 range'
+    basiswerkplek:
+      address: '10.96.128.1'
+      netmaask: '/21'
+      desc: 'UMCG internal range of Basis Werkplek'
   #
   # RUG network ranges.
   #

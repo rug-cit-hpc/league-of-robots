@@ -44,14 +44,6 @@ ldap_domains:
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
 ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }},{{ inventory_hostname }}"
-totp:
-  machines: "{{ groups['jumphost'] }}"
-  excluded:
-    - 'LOCAL'
-    - "{{ all.ip_addresses['umcg']['net1']['address'] }}{{ all.ip_addresses['umcg']['net1']['netmask'] }}"
-    - "{{ all.ip_addresses['umcg']['net2']['address'] }}{{ all.ip_addresses['umcg']['net2']['netmask'] }}"
-    - "{{ all.ip_addresses['umcg']['net3']['address'] }}{{ all.ip_addresses['umcg']['net3']['netmask'] }}"
-    - "{{ all.ip_addresses['umcg']['net4']['address'] }}{{ all.ip_addresses['umcg']['net4']['netmask'] }}"
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
@@ -62,20 +54,11 @@ network_private_management_cidr: '10.96.52.12/24'
 #network_private_storage_cidr: '10.10.2.0/24'
 
 iptables_allow_icmp_inbound:
-  - "{{ all.ip_addresses['umcg']['net1'] }}"
-  - "{{ all.ip_addresses['umcg']['net2'] }}"
-  - "{{ all.ip_addresses['umcg']['net3'] }}"
-  - "{{ all.ip_addresses['umcg']['net4'] }}"
-  - "{{ all.ip_addresses['rug']['bwp_net'] }}"
-  - "{{ all.ip_addresses['rug']['operator'] }}"
-  - "{{ all.ip_addresses['gcc']['cloud_net'] }}"
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ all.ip_addresses['umcg']['internal'] }}"
+  - "{{ all.ip_addresses['umcg']['basiswerkplek'] }}"
 iptables_allow_ssh_inbound:
-  - "{{ all.ip_addresses['umcg']['net1'] }}"
-  - "{{ all.ip_addresses['umcg']['net2'] }}"
-  - "{{ all.ip_addresses['umcg']['net3'] }}"
-  - "{{ all.ip_addresses['umcg']['net4'] }}"
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ all.ip_addresses['umcg']['internal'] }}"
+  - "{{ all.ip_addresses['umcg']['basiswerkplek'] }}"
 iptables_allow_ssh_outbound:
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
 
