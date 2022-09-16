@@ -61,7 +61,7 @@
         
         ... multiple lines of QR code to be scanned with mobile Authenticator app ...
 
-    **Save scratch codes somewhere safe**, as they provide access to the system in case you don't have access to the authenticator app and to the WOM (you can also find codes in the file named `.totp` on the jumphosts home folder)
+    **Save scratch codes somewhere safe**, as they provide access to the system in case you don't have access to the authenticator app and to the WOM (you can also find codes in the file `~/.ssh/totp` on the jumphosts home folder)
 
     2.9. Scan the new QR code with your phone and use one of the Authenticator apps to store the secret key (applications links are at the bottom in this page)
 
