@@ -164,7 +164,7 @@ regular_users:
 pfs_mounts:
   - pfs: pssd
     device: /data  # needs to be already mounted on system (f.e. /dev/sdc1 > /data)
-    source: '/dev/sdc'
+    source: '/dev/sdc1'
     type: 'xfs'
     rw_options: 'rw'
     ro_options: 'ro'
