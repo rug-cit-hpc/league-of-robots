@@ -306,7 +306,7 @@ smb_server_shares:
     dir_mode: 0750
   - name: array
     comment: Share for array scanners
-    path: /mnt/umcgst12/groups/umcg-gap/tmp07/rawdata/array/IDAT/
+    path: /mnt/local_raid/groups/umcg-gap/tmp05/rawdata/array/IDAT/
     users: illumina
     file_mode: 0660
     dir_mode: 0770
