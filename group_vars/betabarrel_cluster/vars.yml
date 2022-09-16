@@ -300,7 +300,7 @@ smb_server_interfaces: 192.168.1.0/24  # in addition to 127.0.0.1, which must al
 smb_server_shares:
   - name: ngs
     comment: Share for sequencers
-    path: /mnt/umcgst12/groups/umcg-lab/tmp07/sequencers
+    path: /mnt/local_raid/groups/umcg-lab/tmp05/sequencers
     users: sbsuser
     file_mode: 0640
     dir_mode: 0750
