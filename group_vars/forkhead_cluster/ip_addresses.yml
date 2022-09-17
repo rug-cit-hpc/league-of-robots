@@ -1,6 +1,6 @@
 ---
 ip_addresses:
-  betabarrel:
+  forkhead:
     vnet-medgen-t:
       address: 10.96.52.12
       netmask: /24
