@@ -1,0 +1,10 @@
+---
+ip_addresses:
+  copperfist:
+    vlan983:
+      address: 172.23.41.226
+      netmask: /23
+    vlan13:
+      address: 129.125.55.14
+      netmask: /24
+...
