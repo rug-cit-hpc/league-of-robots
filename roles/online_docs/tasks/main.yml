@@ -149,6 +149,49 @@
     - 'restart_httpd'
   become: true
 
+- name: 'Configure SSLprotocol in /etc/httpd/conf.d/ssl.conf'
+  ansible.builtin.lineinfile:
+    path: '/etc/httpd/conf.d/ssl.conf'
+    insertafter: '^<VirtualHost.*>'
+    regexp: '^#?SSLProtocol .*'
+    line: 'SSLProtocol  all -SSLv3 -TLSv1 -TLSv1.1'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+- name: 'Configure SSLCipherSuite in /etc/httpd/conf.d/ssl.conf'
+  ansible.builtin.lineinfile:
+    path: '/etc/httpd/conf.d/ssl.conf'
+    insertafter: '^<VirtualHost.*>'
+    regexp: '^#?SSLCipherSuite .*'
+    line: "SSLCipherSuite   ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:\
+          ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:\
+          ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:\
+          ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:\
+          ECDHE-RSA-AES128-SHA256"
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - 'restart_httpd'
+  become: true
+
+- name: 'Configure SSLHonorCipherOrder in /etc/httpd/conf.d/ssl.conf'
+  ansible.builtin.lineinfile:
+    path: '/etc/httpd/conf.d/ssl.conf'
+    insertafter: '^<VirtualHost.*>'
+    regexp: '^#?SSLHonorCipherOrder'
+    line: 'SSLHonorCipherOrder on'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - 'restart_httpd'
+  become: true
+
 - name: 'Configure Apache webserver to redirect HTTP to HTTPS.'
   ansible.builtin.template:
     src: 'templates/apache/redirect_all_http_to_https.conf'
