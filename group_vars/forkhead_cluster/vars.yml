@@ -54,10 +54,10 @@ network_private_management_cidr: '10.96.52.12/24'
 #network_private_storage_cidr: '10.10.2.0/24'
 
 iptables_allow_icmp_inbound:
-  - "{{ all.ip_addresses['umcg']['internal'] }}"
+  - "{{ all.ip_addresses['umcg']['internal1'] }}"
   - "{{ all.ip_addresses['umcg']['basiswerkplek'] }}"
 iptables_allow_ssh_inbound:
-  - "{{ all.ip_addresses['umcg']['internal'] }}"
+  - "{{ all.ip_addresses['umcg']['internal1'] }}"
   - "{{ all.ip_addresses['umcg']['basiswerkplek'] }}"
 iptables_allow_ssh_outbound:
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
@@ -162,11 +162,11 @@ regular_users:
 # Shared storage related variables
 #
 pfs_mounts:
-  - pfs: pssd
-    device: /data  # needs to be already mounted on system (f.e. /dev/sdc1 > /data)
+  - pfs: pssd # must already be in /etc/fstab and mounted - f.e. /dev/sda > /mnt/local_raid (pfs somename must be same as /mnt/somename)
+    device: ''
     source: '/mnt'
     type: 'none'
-    rw_options: 'bind'
+    rw_options: 'bind,rw'
     ro_options: 'bind,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: 'medgen_zincfinger$'
