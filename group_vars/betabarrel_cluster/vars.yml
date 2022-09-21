@@ -79,6 +79,7 @@ iptables_allow_ssh_inbound:
 iptables_allow_ssh_outbound:
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
 
+main_backup_folder: '/mnt/local_raid/local_backups/'
 local_backups: # list of folders for cron to make daily backup
   - name: apps # don't modify after once deployed!
     src_path: '/apps'
@@ -179,11 +180,11 @@ regular_users:
 # Shared storage related variables
 #
 pfs_mounts:
-  - pfs: local_raid
-    device: /data  # needs to be already mounted on system (f.e. /dev/sdc1 > /data)
+  - pfs: local_raid # must already be in /etc/fstab and mounted - f.e. /dev/sda > /mnt/local_raid (pfs somename must be same as /mnt/somename)
+    device: ''
     source: '/mnt'
     type: 'none'
-    rw_options: 'bind'
+    rw_options: 'bind,rw'
     ro_options: 'bind,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: 'medgen_zincfinger$'
