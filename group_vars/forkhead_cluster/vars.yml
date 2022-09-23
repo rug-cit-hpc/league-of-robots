@@ -62,7 +62,7 @@ iptables_allow_ssh_inbound:
 iptables_allow_ssh_outbound:
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
 
-main_backup_folder: '/mnt/apps_backup/'
+main_backup_folder: '/mnt/pssd_backup/'
 local_backups: # list of folders for cron to make daily backup
   - name: apps # don't modify after once deployed!
     src_path: '/apps'
