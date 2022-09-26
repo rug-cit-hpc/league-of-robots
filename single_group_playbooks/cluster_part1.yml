@@ -9,6 +9,7 @@
     - ssh_host_signer
     - iptables
     - ssh_known_hosts
+    - grub
     - swap
     - {role: spacewalk_client, when: repo_manager == 'spacewalk'}
     - {role: pulp_client, when: repo_manager == 'pulp'}

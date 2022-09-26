@@ -1,0 +1,34 @@
+---
+- name: Check if /boot/default/grub exists
+  ansible.builtin.stat:
+    path: /etc/default/grub
+  register: defaultgrubpath
+  become: true
+
+- name: Set grub timeout in /etc/default/grub
+  ansible.builtin.replace:
+    path: /etc/default/grub
+    regexp: '^(GRUB_TIMEOUT)=[0-9]*$'
+    replace: '\1={{ grub_timeout }}'
+  when: defaultgrubpath.stat.exists
+  become: true
+
+- name: Check if /boot/grub2/grub.cfg exists
+  ansible.builtin.stat:
+    path: /boot/grub2/grub.cfg
+  register: grub2path
+  become: true
+
+- name: Set grub timeout in /boot/grub2/grub.cfg
+  ansible.builtin.replace:
+   path: '/boot/grub2/grub.cfg'
+   regexp: '(set timeout)=[0-9]*'
+   replace: '\1=60'
+  when: grub2path.stat.exists
+  become: true
+
+- name: Reconfigure grub
+  ansible.builtin.command: 'grub2-mkconfig --output /boot/grub2/grub.cfg'
+  when: grub2path.stat.exists
+  become: true
+...
