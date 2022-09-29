@@ -78,4 +78,10 @@
     exclusive: true
   with_items: "{{ local_admin_users }}"
   become: true
+- name: Update root password from the secrets, so that we can use console
+  ansible.builtin.user:
+    name: root
+    password: '{{ cloud_console_pass | password_hash("sha512") }}'
+    update_password: 'always' 
+  become: true
 ...
