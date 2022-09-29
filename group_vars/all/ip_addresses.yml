@@ -30,6 +30,10 @@ ip_addresses:
       address: '10.96.128.1'
       netmask: '/21'
       desc: 'UMCG internal range of Basis Werkplek'
+    win10vdi:
+      address: '172.18.96.1'
+      netmask: '/20'
+      desc: 'UMCG internal range of Win10VDI machines'
   #
   # RUG network ranges.
   #
