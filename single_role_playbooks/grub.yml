@@ -1,0 +1,17 @@
+---
+- name: Configure grub
+  hosts:
+    - jumphost
+    - data_transfer
+  roles:
+    - grub
+- name: Configure grub
+  hosts:
+    - repo
+    - cluster
+    - docs
+    - jenkins
+    - irods
+  roles:
+    - grub
+...
