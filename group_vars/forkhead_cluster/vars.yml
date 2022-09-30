@@ -54,14 +54,17 @@ network_private_management_cidr: '10.96.52.12/24'
 #network_private_storage_cidr: '10.10.2.0/24'
 
 iptables_allow_icmp_inbound:
-  - "{{ all.ip_addresses['umcg']['internal'] }}"
+  - "{{ all.ip_addresses['umcg']['internal1'] }}"
   - "{{ all.ip_addresses['umcg']['basiswerkplek'] }}"
+  - "{{ all.ip_addresses['umcg']['win10vdi'] }}"
 iptables_allow_ssh_inbound:
-  - "{{ all.ip_addresses['umcg']['internal'] }}"
+  - "{{ all.ip_addresses['umcg']['internal1'] }}"
   - "{{ all.ip_addresses['umcg']['basiswerkplek'] }}"
+  - "{{ all.ip_addresses['umcg']['win10vdi'] }}"
 iptables_allow_ssh_outbound:
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
 
+main_backup_folder: '/mnt/pssd_backup/'
 local_backups: # list of folders for cron to make daily backup
   - name: apps # don't modify after once deployed!
     src_path: '/apps'
@@ -162,11 +165,11 @@ regular_users:
 # Shared storage related variables
 #
 pfs_mounts:
-  - pfs: pssd
-    device: /data  # needs to be already mounted on system (f.e. /dev/sdc1 > /data)
+  - pfs: pssd # must already be in /etc/fstab and mounted - f.e. /dev/sda > /mnt/local_raid (pfs somename must be same as /mnt/somename)
+    device: ''
     source: '/mnt'
     type: 'none'
-    rw_options: 'bind'
+    rw_options: 'bind,rw'
     ro_options: 'bind,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: 'medgen_zincfinger$'
