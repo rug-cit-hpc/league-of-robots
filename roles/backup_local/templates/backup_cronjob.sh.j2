@@ -51,7 +51,7 @@ fi
 frequency_dir="${main_backup_destination}/${backup_name}/${backup_frequency}"
 # Check the destination subdirectories and create them if missing
 # Assemble the destination directory path, but do not create directory yet
-destination_dir="${frequency_dir}/${current_time}/${backup_source_formatted}/"
+destination_dir="${frequency_dir}/${current_time}/${backup_name}/"
 
 test -d "${frequency_dir}" || mkdir "${frequency_dir:-}"
 
@@ -77,7 +77,7 @@ if [[ -z "${latest_backup}" ]]; then # first backup = simple copy, as no lattest
    backup_command="rsync -aqH --protect-args --delete ${backup_source_formatted}/ ${destination_dir}/."
 else # make the incremental backup with hard-link against latest
    # (link-dest has relative path against the new backup folder)
-   backup_command="rsync -aqH --protect-args --delete ${backup_source_formatted}/ ${destination_dir}/. --link-dest=../${latest_backup}"
+   backup_command="rsync -aqH --protect-args --delete ${backup_source_formatted}/ ${destination_dir}/. --link-dest=../../${latest_backup}/${backup_name}/"
 fi
 
 # Make the destination directory
