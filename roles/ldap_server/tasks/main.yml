@@ -47,7 +47,6 @@
     state: link
   become: true
 
-
 - name: Make directory for custom LDIF files.
   ansible.builtin.file:
     path: '/usr/local/openldap/etc/openldap/custom'
@@ -56,7 +55,19 @@
     group: ldap
     mode: '0750'
   become: true
-# 
+
+- name: Create LDAP root password hash.
+  ansible.builtin.command:
+    cmd: >
+         /usr/local/openldap/sbin/slappasswd
+             -o module-path='/usr/local/openldap/libexec/openldap'
+             -o module-load='argon2' -h '{ARGON2}'
+             -s '{{ openldap_root_pw }}'
+  register: slappasswd_root
+  changed_when: true
+  no_log: true
+  become: true  # Technically not required, but if anything sensitive does end up in a log/history it is in that of the root user.
+
 - name: Install custom LDIF files.
   ansible.builtin.template:
     src: "{{ item }}"
@@ -65,8 +76,11 @@
     group: ldap
     mode: '0640'
   with_items:
-    #- 01-overlay-memberof
+    - root.ldif
     - tls.ldif
+    - rfc2307bis.ldif
+  vars:
+    ldap_root_password_hash: "{{ slappasswd_root.stdout }}" 
   register: ldap_server_config
   become: true
 
@@ -78,16 +92,33 @@
     daemon_reload: true
   become: true
 
-- name: Load config from LDIF file.
+- name: Modify config using settings in LDIF files.
   ansible.builtin.command:
-    cmd: ldapmodify -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi -f "/usr/local/openldap/etc/openldap/custom/{{ item }}"
-    #ldapmodify -n0 -F $SLAPD_CONF_DIR -l $file"
-    #ldapmodify -Y EXTERNAL  -H ldapi:/// -f db.ldif
+    cmd: >
+         ldapmodify -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi
+                    -f '/usr/local/openldap/etc/openldap/custom/{{ item }}'
   with_items:
-    #- 01-overlay-memberof
+    - root.ldif
     - tls.ldif
+  when: ldap_server_config | json_query(query) | first is true
+  vars:
+    query: "results[?item=='{{ item }}'].changed"
   become: true
 
-
-
+- name: Add additional schema LDIF files.
+  ansible.builtin.command:
+    cmd: >
+         ldapadd -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi
+                    -f '/usr/local/openldap/etc/openldap/custom/{{ item }}'
+  with_items:
+    - rfc2307bis.ldif  # Note: this requires core.ldif, cosine.ldif and inetorgperson.ldif, which should already be installed by default.
+  register: ldap_server_ldapadd
+  failed_when:
+    - "'error' in ldap_server_ldapadd.stderr"
+    - "'Duplicate' not in ldap_server_ldapadd.stderr"
+  changed_when:
+    - "'adding new entry' in ldap_server_ldapadd.stdout"
+    - "'Duplicate' not in ldap_server_ldapadd.stderr"
+  ignore_errors: true
+  become: true
 ...
