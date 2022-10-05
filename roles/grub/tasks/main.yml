@@ -17,7 +17,7 @@
   ansible.builtin.replace:
     path: /etc/default/grub
     regexp: '^(GRUB_TIMEOUT)=[0-9]*$'
-    replace: '\1={{ grub_timeout }}'
+    replace: '\1={{ grub_timeout_sec }}'
   when: defaultgrubpath.stat.exists
   become: true
 
@@ -31,7 +31,7 @@
   ansible.builtin.replace:
    path: '/boot/grub2/grub.cfg'
    regexp: '(set timeout)=[0-9]*'
-   replace: '\1={{ grub_timeout }}'
+   replace: '\1={{ grub_timeout_sec }}'
   when: grub2path.stat.exists
   become: true
 
