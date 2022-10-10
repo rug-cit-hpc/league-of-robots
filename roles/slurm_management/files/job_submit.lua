@@ -193,14 +193,21 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
     -- Check if we need a specific file system based on path to job's working directory, *.err file or *.out file.
     -- and adjust features/constraints accordingly. Note: these features may conflict with features/constraints requested by the user.
     --
-    --slurm.log_debug("Job script = %s.", tostring(job_desc.script))
-    --slurm.log_debug("Path to job *.out  = %s.", tostring(job_desc.std_out))
-    --slurm.log_debug("Path to job *.err  = %s.", tostring(job_desc.std_err))
-    --slurm.log_debug("Job's working dir  = %s.", tostring(job_desc.work_dir))
-    local job_metadata = {tostring(job_desc.std_out), tostring(job_desc.std_err), tostring(job_desc.work_dir)}
+    slurm.log_debug("Job script = %s.", tostring(job_desc.script))
+    slurm.log_debug("Path to job *.out  = %s.", tostring(job_desc.std_out))
+    slurm.log_debug("Path to job *.err  = %s.", tostring(job_desc.std_err))
+    slurm.log_debug("Job's working dir  = %s.", tostring(job_desc.work_dir))
+    local job_metadata = {tostring(job_desc.work_dir)}
+    if job_desc.std_out ~= nil then
+        table.insert(job_metadata, tostring(job_desc.std_out))
+    end
+    if job_desc.std_err ~= nil then
+        table.insert(job_metadata, tostring(job_desc.std_err))
+    end
     local group = nil
     local lfs = nil
     for inx,job_metadata_value in ipairs(job_metadata) do
+        slurm.log_debug("Checking job meta data string: %s.", job_metadata_value)
         if string.match(tostring(job_metadata_value), '^/home/') then
             slurm.log_error(
                 "Job's working dir, *.err file or *.out file is located in a home dir, which is only designed for user preferences and not for massive parallel data crunching.\n" .. 
@@ -220,10 +227,10 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
                 slurm.log_debug("Job had no features yet; Assigned LFS as first feature: %s.", tostring(job_desc.features))
             else
                 if not string.match(tostring(job_desc.features), lfs) then
-                    job_desc.features = job_desc.features .. '&' .. lfs
-                    slurm.log_debug("Appended LFS %s to job's features.", tostring(lfs))
+                job_desc.features = job_desc.features .. '&' .. lfs
+                slurm.log_debug("Appended LFS %s to job's features.", tostring(lfs))
                 else
-                    slurm.log_debug("Job's features already contained LFS %s.", tostring(lfs))
+                slurm.log_debug("Job's features already contained LFS %s.", tostring(lfs))
                 end
             end
             -- Assign job to account of group, that was defined ^ based on path.
