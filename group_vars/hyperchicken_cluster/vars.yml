@@ -113,7 +113,7 @@ lfs_mounts:
     groups:
       - name: umcg-atd
       - name: solve-rd
-    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
   - lfs: prm09
     pfs: ecst01
     groups:
