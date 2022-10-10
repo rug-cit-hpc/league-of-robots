@@ -1,12 +1,22 @@
 ---
-- name: 'DEBUG: role got triggered.'
-  ansible.builtin.debug:
-    msg: "{{ item }}"
-  loop: "{{ ldap_domains | default([])
-                         | dict2items
-                         | selectattr('value.create_ldap', 'defined')
-                         | selectattr('value.create_ldap')
-                         | list }}"
+#- name: 'DEBUG1: role got triggered.'
+#  ansible.builtin.debug:
+#    msg: "{{ item }}"
+#  loop: "{{ ldap_domains | default([])
+#                         | dict2items
+#                         | selectattr('value.create_ldap', 'defined')
+#                         | selectattr('value.create_ldap')
+#                         | list }}"
+#- name: 'DEBUG2: role got triggered.'
+#  ansible.builtin.debug:
+#    msg: "{{ ldap_credentials[item.key]['readonly']['hash'] }}"
+#  loop: "{{ ldap_domains | default([])
+#                         | dict2items
+#                         | selectattr('value.create_ldap', 'defined')
+#                         | selectattr('value.create_ldap')
+#                         | list }}"
+#
+#- meta: end_play
 
 - name: Install OpenLDAP server and dependencies.
   ansible.builtin.yum:
@@ -43,10 +53,24 @@
     src: ldap.crt
     dest: "{{ ldap_server_tls_dir }}/ca.crt"
     owner: root
-    group: root
+    group: ldap
     state: link
   become: true
 
+- name: Create folders for LDAP databases.
+  ansible.builtin.file:
+    path: "/usr/local/var/{{ item.key }}-data"
+    state: directory
+    mode: '0750'
+    owner: ldap
+    group: ldap
+  loop: "{{ ldap_domains | default([])
+                         | dict2items
+                         | selectattr('value.create_ldap', 'defined')
+                         | selectattr('value.create_ldap')
+                         | list }}"
+  become: true
+  
 - name: Make directory for custom LDIF files.
   ansible.builtin.file:
     path: '/usr/local/openldap/etc/openldap/custom'
@@ -68,6 +92,22 @@
   no_log: true
   become: true  # Technically not required, but if anything sensitive does end up in a log/history it is in that of the root user.
 
+#
+# ToDo: update README.md with these instructions and hwo to add the hashed to secrets.yml
+#
+#- name: Create LDAP domain user password hashes.
+#  ansible.builtin.command:
+#    cmd: >
+#         /usr/local/openldap/sbin/slappasswd
+#             -o module-path='/usr/local/openldap/libexec/openldap'
+#             -o module-load='argon2' -h '{ARGON2}'
+#             -s '{{ openldap_root_pw }}'
+#  loop: ldap_domains | default([]) 
+#                     | dict2items
+#                     | selectattr('value.create_ldap', 'defined')
+#                     | selectattr('value.create_ldap')
+#                     | list
+                     
 - name: Install custom LDIF files.
   ansible.builtin.template:
     src: "{{ item }}"
@@ -79,6 +119,7 @@
     - root.ldif
     - tls.ldif
     - rfc2307bis.ldif
+    - users.ldif
   vars:
     ldap_root_password_hash: "{{ slappasswd_root.stdout }}" 
   register: ldap_server_config
@@ -100,6 +141,7 @@
   with_items:
     - root.ldif
     - tls.ldif
+    - users.ldif
   when: ldap_server_config | json_query(query) | first is true
   vars:
     query: "results[?item=='{{ item }}'].changed"
