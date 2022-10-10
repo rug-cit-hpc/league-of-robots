@@ -26,7 +26,7 @@ all:
       hosts:
         betabarrel:
           slurm_sockets: 2
-          slurm_cores_per_socket: 128
+          slurm_cores_per_socket: 64
           slurm_real_memory: 515456
           slurm_local_disk: 0
           slurm_features: 'tmp06'  # Beta-Barrel will replace Leucine-Zipper
