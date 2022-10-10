@@ -227,10 +227,10 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
                 slurm.log_debug("Job had no features yet; Assigned LFS as first feature: %s.", tostring(job_desc.features))
             else
                 if not string.match(tostring(job_desc.features), lfs) then
-                job_desc.features = job_desc.features .. '&' .. lfs
-                slurm.log_debug("Appended LFS %s to job's features.", tostring(lfs))
+                    job_desc.features = job_desc.features .. '&' .. lfs
+                    slurm.log_debug("Appended LFS %s to job's features.", tostring(lfs))
                 else
-                slurm.log_debug("Job's features already contained LFS %s.", tostring(lfs))
+                    slurm.log_debug("Job's features already contained LFS %s.", tostring(lfs))
                 end
             end
             -- Assign job to account of group, that was defined ^ based on path.
