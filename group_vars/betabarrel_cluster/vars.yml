@@ -221,7 +221,7 @@ lfs_mounts:
       - name: umcg-lab
         mode: '2750'
       - name: umcg-vipt
-    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
   - lfs: prm05
     pfs: 'medgen_zincfinger$'
     groups:
