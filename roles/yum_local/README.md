@@ -83,6 +83,10 @@ In case needed: cleanup needs to be done manually.
 
     `# createrepo /usr/local/repo`
 
+ - and if needed also run
+
+    `# yum clean all`
+
 ### 2.2. Testing
 
     `# yum install vim`
