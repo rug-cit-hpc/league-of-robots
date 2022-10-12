@@ -108,8 +108,8 @@ lfs_mounts:
   - lfs: home
     pfs: ecst01
     rw_machines: "{{ groups['cluster'] }}"
-  - lfs: tmp09'
-    pfs: ecst01'
+  - lfs: tmp09
+    pfs: ecst01
     groups:
       - name: umcg-atd
       - name: solve-rd
