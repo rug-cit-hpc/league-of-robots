@@ -106,7 +106,7 @@ PartitionName={{ partition.name }} Default={{ partition.default }} Nodes={{ part
 # Compute nodes
 #
 {% for node in groups['compute_vm'] %}
-{% if node != groups['user_interface']%}{# this checks if the cluster is a single machine and prevents double entry of UI and node #}
+{% if node != groups['user_interface'] | first %}{# this checks if the cluster is a single machine and prevents double entry of UI and node #}
 NodeName={{ node }} Sockets={{ hostvars[node]['slurm_sockets'] }} CoresPerSocket={{ hostvars[node]['slurm_cores_per_socket'] }} ThreadsPerCore=1 State=UNKNOWN RealMemory={{ hostvars[node]['slurm_real_memory'] }} TmpDisk={{ hostvars[node]['slurm_local_disk'] | default(0, true) }} Feature={{ hostvars[node]['slurm_features'] }}
 {% endif %}
 {% endfor %}
