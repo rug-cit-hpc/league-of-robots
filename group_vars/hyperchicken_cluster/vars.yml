@@ -94,6 +94,8 @@ regular_users:
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'scimerman'
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+  - user: 'mbenjamins'
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
 #
 # Shared storage related variables
 #
