@@ -1,5 +1,6 @@
 ---
 - name: Configure grub on all hosts
+  hosts: all
   roles:
     - grub
 ...
