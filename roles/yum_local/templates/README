@@ -9,19 +9,20 @@ Download the package to folder {{ lyr_dir_path }}:
 To create/recreate a repository's metadata:
    # createrepo {{ lyr_dir_path }}
 
-And if needed also clean cache
+And if search does not show the uploaded package, then manually clean the cache
 
    # yum clean all
 
 Testing
    # yum install vim
-  and check where it has been downloaded from (note local):
-   
-    ==============================================================
-     Package         Arch      Version              Repository  Size
-    ==============================================================
-    Installing:
-     vim-enhanced    x86_64    2:7.4.629-8.el7_9       local    1.1 M
+
+   and check where it has been downloaded from (note local):
+
+     ==============================================================
+      Package         Arch      Version              Repository  Size
+     ==============================================================
+     Installing:
+      vim-enhanced    x86_64    2:7.4.629-8.el7_9       local    1.1 M
 
 Bypasing local repository
    # yum install --disablerepo="local" vim

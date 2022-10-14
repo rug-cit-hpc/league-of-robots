@@ -83,7 +83,8 @@ In case needed: cleanup needs to be done manually.
 
     `# createrepo /usr/local/repo`
 
- - and if needed also run
+ - sometimes the old cache is still in use, and new packages are not shown when
+   searched. Manually cleaning the cache solves the problem
 
     `# yum clean all`
 
