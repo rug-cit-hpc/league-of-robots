@@ -4,12 +4,14 @@ all:
     openstack_api:
       hosts:
         localhost:
+          ansible_python_interpreter: /usr/bin/env python
     docs:
       hosts:
         docs_on_merlin:
     sys_admin_interface:
       hosts:
         forkhead:
+          ansible_host: 10.96.52.12
           local_yum_repository: true # enable local yum repository
     deploy_admin_interface:
       hosts:
@@ -25,9 +27,9 @@ all:
     user_interface:
       hosts:
         forkhead:
-          slurm_sockets: 2
-          slurm_cores_per_socket: 128
-          slurm_real_memory: 515456
+          slurm_sockets: 1
+          slurm_cores_per_socket: 4    # 64 after being resized
+          slurm_real_memory: 15884
           slurm_local_disk: 0
           slurm_features: 'tmp12'
           slurm_ethernet_interfaces:
@@ -39,9 +41,9 @@ all:
           hosts:
             forkhead:
           vars:
-            slurm_sockets: 2
-            slurm_cores_per_socket: 128
-            slurm_real_memory: 515456
+            slurm_sockets: 1
+            slurm_cores_per_socket: 4    # 64 after being resized
+            slurm_real_memory: 15884
             slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 8 }}"
             slurm_max_mem_per_node: "{{ slurm_real_memory - 8 * 2048 }}"
             slurm_local_disk: 0

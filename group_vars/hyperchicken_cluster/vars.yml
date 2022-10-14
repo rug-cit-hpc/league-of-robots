@@ -94,26 +94,28 @@ regular_users:
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'scimerman'
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+  - user: 'mbenjamins'
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
 #
 # Shared storage related variables
 #
 pfs_mounts:
   - pfs: ecst01
     source: '10.35.141.251:/solve-rd-98599485'
-    type: nfs
-    rw_options: 'defaults,_netdev,noatime,nodiratime'
+    type: nfs4
+    rw_options: 'defaults,_netdev,noatime,nodiratime,rw'
     ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
 lfs_mounts:
   - lfs: home
     pfs: ecst01
     rw_machines: "{{ groups['cluster'] }}"
-  - lfs: tmp09'
-    pfs: ecst01'
+  - lfs: tmp09
+    pfs: ecst01
     groups:
       - name: umcg-atd
       - name: solve-rd
-    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
   - lfs: prm09
     pfs: ecst01
     groups:
