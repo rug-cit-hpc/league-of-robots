@@ -72,10 +72,15 @@ In case needed: cleanup needs to be done manually.
 
 ### 2.1. Adding packages
 
- - download the package to local folder - for already installed packages
+ - Recommended (if `yumdownloader` program is available), download package to
+   local folder
+       # yumdownloader --destdir={{ lyr_dir_path }} vim
+
+ - Alternatively use - for already installed packages
+
     `# yum reinstall --downloadonly --downloaddir=/usr/local/repo/ vim`
 
- - and if package has not been yet installed, use
+   and if package has not been yet installed, use
 
     `# yum install --downloadonly --downloaddir=/usr/local/repo/ vim`
 

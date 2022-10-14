@@ -7,10 +7,13 @@ Brief:
 
 Step by step explanation:
 
- 1. Download the package to folder {{ lyr_dir_path }}:
+ 1. Download the package to the local folder {{ lyr_dir_path }}:
        # yum reinstall --downloadonly --downloaddir={{ lyr_dir_path }} vim
     or
        # yum install --downloadonly --downloaddir={{ lyr_dir_path }} vim
+
+    Or if available, use the yumdownloader tool
+       # yumdownloader --destdir={{ lyr_dir_path }} vim
  
  2. To create/recreate a repository's metadata:
        # createrepo {{ lyr_dir_path }}
