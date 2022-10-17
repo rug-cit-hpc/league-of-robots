@@ -126,7 +126,7 @@ all:
           hosts:
             nb-vcompute04:
           vars:
-            cloud_flavor: gpu.A40
+            cloud_flavor: gpu.A40_8
             local_volume_size_extra: 1
             slurm_sockets: 32
             slurm_cores_per_socket: 1
