@@ -1,0 +1,8 @@
+---
+# - name: Restart apache
+#     ansible.builtin.service:
+#     name: httpd
+#     state: restarted
+#   become: true
+#   listen: "Reboot the machineestart web services"
+...

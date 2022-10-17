@@ -1,0 +1,40 @@
+---
+- name: Install yum requirements for gpu driver installation
+  ansible.builtin.yum:
+    state: 'installed'
+    update_cache: true
+    name:
+      - tar
+      - bzip2
+      - make
+      - automake
+      - gcc
+      - gcc-c++
+      - pciutils
+      - elfutils-libelf-devel
+      - libglvnd-devel
+      - bind-utils
+      - wget
+  become: true
+
+
+- name: Download a driver installation file from NVidia
+  ansible.builtin.get_url:
+    url: '{{ gpu_url_directory }}/{{ gpu_runfile }}'
+    dest: '/root/{{ gpu_runfile }}'
+    mode: '0700'
+    # checksum: md5:66dffb5228a211e61d6d7ef4a86f5758
+  become: true
+
+- name: Install driver from .run file
+  ansible.builtin.command: '/root/{{ gpu_runfile }} --silent --driver'
+  register: run_result
+  failed_when: run_result.rc != 0
+  become: true
+
+- name: Remove installation file
+  ansible.builtin.file:
+    path: '/root/{{ gpu_runfile }}'
+    state: absent
+  become: true
+...

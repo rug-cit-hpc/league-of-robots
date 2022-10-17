@@ -1,0 +1,24 @@
+---
+- name: Copy blacklist-nouveau.conf file into modprobe.d to disable Nouveau drivers
+  ansible.builtin.copy:
+    src: blacklist-nouveau.conf
+    dest: /etc/modprobe.d/blacklist-nouveau.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Install NVidia persistence service
+  ansible.builtin.copy:
+    src: nvidia-persistenced.service
+    dest: /etc/systemd/system/nvidia-persistenced.service
+    validate: systemd-analyze verify %s
+  become: true
+
+- name: Enable a nvidia-persistence service
+  ansible.builtin.systemd:
+    name: nvidia-persistenced.service
+    state: started
+    enabled: yes
+  become: true
+...

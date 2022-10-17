@@ -1,0 +1,10 @@
+[Unit]
+Description=Initialize GPU at the startup of the system
+
+[Service]
+ExecStart=/usr/bin/nvidia-persistenced --verbose
+RestartSec=15
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

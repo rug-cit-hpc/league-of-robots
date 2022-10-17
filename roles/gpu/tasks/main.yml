@@ -1,0 +1,19 @@
+---
+- name: Check if we have CUDA capable system
+  ansible.builtin.command: 'lspci'
+  register: lspci_nv
+  become: true
+
+- name: Check if we have already configured NVidia devices
+  ansible.builtin.command: 'nvidia-smi'
+  register: detect_devices
+  failed_when: false
+  become: true
+
+- name: Run GPU driver installation role
+  ansible.builtin.include: gpu.yml
+  when: ('"nvidia" in lspci_nv.stdout | lower') and (detect_devices.rc != 0)
+
+- name: Set configuration files for service and modprobe
+  ansible.builtin.include: configuration.yml
+...
