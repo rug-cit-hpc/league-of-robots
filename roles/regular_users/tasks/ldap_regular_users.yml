@@ -18,7 +18,9 @@
 - name: 'Add regular groups to parent entry for groups.'
   community.general.ldap_entry:
     dn: "cn={{ item }},ou=groups,{{ regular_users_ldap_base }}"
-    objectClass: 'posixGroup'
+    objectClass:
+      - 'groupOfMembers'
+      - 'posixGroup'
     state: present
     attributes:
       gidNumber: "{{ auth_groups[item].gid }}"
