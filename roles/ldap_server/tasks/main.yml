@@ -57,20 +57,6 @@
     state: link
   become: true
 
-- name: Create folders for LDAP databases.
-  ansible.builtin.file:
-    path: "/usr/local/openldap/var/{{ item.key }}-data"
-    state: directory
-    mode: '0750'
-    owner: ldap
-    group: ldap
-  loop: "{{ ldap_domains | default([])
-                         | dict2items
-                         | selectattr('value.create_ldap', 'defined')
-                         | selectattr('value.create_ldap')
-                         | list }}"
-  become: true
-
 - name: Make directory for custom LDIF files.
   ansible.builtin.file:
     path: '/usr/local/openldap/etc/openldap/custom'
@@ -119,7 +105,6 @@
     - root.ldif
     - tls.ldif
     - rfc2307bis.ldif
-    #- users.ldif
   vars:
     ldap_root_password_hash: "{{ slappasswd_root.stdout }}"
   register: ldap_server_config
@@ -141,7 +126,6 @@
   with_items:
     - root.ldif
     - tls.ldif
-    #- users.ldif
   when: ldap_server_config | json_query(query) | first is true
   vars:
     query: "results[?item=='{{ item }}'].changed"
@@ -164,116 +148,20 @@
   ignore_errors: true
   become: true
 
-- name: Create databases for domains in the OpenLDAP config database.
-  community.general.ldap_entry:
-    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
-    dn: "olcDatabase={% raw %}{{% endraw %}{{ item.value['ldap_db_index'] }}{% raw %}}{% endraw %}mdb,cn=config"
-    state: present
-    objectClass:
-      - olcDatabaseConfig
-      - olcMdbConfig
-    attributes:
-      #
-      # These attributes cannot be changed with this role.
-      #
-      olcDatabase: "{% raw %}{{% endraw %}{{ item.value['ldap_db_index'] }}{% raw %}}{% endraw %}mdb"
-      olcDbDirectory: "/usr/local/openldap/var/{{ item.key }}-data"
-      olcSuffix: "{{ item.value['search_base'] }}"
-  loop: "{{ ldap_domains | default([])
-                         | dict2items
-                         | selectattr('value.create_ldap', 'defined')
-                         | selectattr('value.create_ldap')
-                         | list }}"
-  become: true
-
-- name: Update database attributes in the OpenLDAP config database.
-  community.general.ldap_attrs:
-    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
-    dn: "olcDatabase={% raw %}{{% endraw %}{{ item.value['ldap_db_index'] }}{% raw %}}{% endraw %}mdb,cn=config"
-    state: exact
-    attributes:
-      olcDbMode: '0600'
-      olcDbMaxSize: 104857600
-      olcRootDN: "cn=manager,{{ item.value['search_base'] }}"
-      olcRootPW: "{{ slappasswd_root.stdout }}"
-      olcLimits: '{0}users size=unlimited time=unlimited'
-      olcMonitoring: 'TRUE'
-      olcDbNoSync: 'FALSE'
-      olcDbIndex:
-        - objectClass eq
-        - cn,givenName,sn,mail pres,eq,sub
-        - uid pres,eq
-      olcAccess:
-        - to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break
-        - to attrs=userPassword by self read by * none
-        - to dn.subtree="{{ item.value['search_base'] }}" by dn="cn=admin,{{ item.value['search_base'] }}" write by dn="cn=readonly,{{ item.value['search_base'] }}" read by * none
-  loop: "{{ ldap_domains | default([])
-                         | dict2items
-                         | selectattr('value.create_ldap', 'defined')
-                         | selectattr('value.create_ldap')
-                         | list }}"
-  become: true
-
-- name: Create top level entry in LDAP databases.
-  community.general.ldap_entry:
-    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
-    dn: "{{ item.value['search_base'] }}"
-    state: present
-    objectClass:
-      - domain
-  loop: "{{ ldap_domains | default([])
-                         | dict2items
-                         | selectattr('value.create_ldap', 'defined')
-                         | selectattr('value.create_ldap')
-                         | list }}"
-  become: true
-
-- name: Create functional accounts to access the LDAP databases.
-  community.general.ldap_entry:
-    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
-    dn: "{{ ldap_credentials[item.0.key][item.1]['dn'] }}"
-    state: present
-    objectClass:
-      - simpleSecurityObject
-      - organizationalRole
-    attributes:
-      #
-      # These attributes cannot be changed with this role.
-      #
-      cn: "{{ ldap_credentials[item.0.key][item.1]['dn'] | regex_replace('^cn=([^,]+),.*', '\\1') }}"
-      #
-      # These mandatory attributes will be updated if necessary with the ldap_attrs task below.
-      #
-      userPassword: "{{ ldap_credentials[item.0.key][item.1]['hash'] }}"
+- name: Manage LDAP domains.
+  ansible.builtin.include_tasks:
+    file: manage_ldap_domains.yml
   vars:
-    functional_accounts:
+    ldap_domain: "{{ ldap_domain_item.key }}"
+    ldap_root_password_hash: "{{ slappasswd_root.stdout }}"
+    ldap_functional_accounts:
       - admin
       - readonly
   loop: "{{ ldap_domains | default([])
                          | dict2items
                          | selectattr('value.create_ldap', 'defined')
                          | selectattr('value.create_ldap')
-                         | product(functional_accounts)
                          | list }}"
-  become: true
-
-- name: Update attributes of functional accounts used to access the LDAP databases.
-  community.general.ldap_attrs:
-    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
-    dn: "{{ ldap_credentials[item.0.key][item.1]['dn'] }}"
-    state: exact
-    attributes:
-      userPassword: "{{ ldap_credentials[item.0.key][item.1]['hash'] }}"
-      description: "LDAP {{ item.1 }} user for {{ item.0.value['search_base'] }}"
-  vars:
-    functional_accounts:
-      - admin
-      - readonly
-  loop: "{{ ldap_domains | default([])
-                         | dict2items
-                         | selectattr('value.create_ldap', 'defined')
-                         | selectattr('value.create_ldap')
-                         | product(functional_accounts)
-                         | list }}"
-  become: true
+  loop_control:
+    loop_var: ldap_domain_item
 ...

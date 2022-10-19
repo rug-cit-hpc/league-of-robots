@@ -1,0 +1,93 @@
+---
+- name: 'Create folder for "{{ ldap_domain }}" LDAP database.'
+  ansible.builtin.file:
+    path: "/usr/local/openldap/var/{{ ldap_domain }}-data"
+    state: directory
+    mode: '0750'
+    owner: ldap
+    group: ldap
+  become: true
+
+- name: 'Create database for "{{ ldap_domain }}" domain in the OpenLDAP config database.'
+  community.general.ldap_entry:
+    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
+    dn: "olcDatabase={% raw %}{{% endraw %}{{ ldap_domains[ldap_domain]['ldap_db_index'] }}{% raw %}}{% endraw %}mdb,cn=config"
+    state: present
+    objectClass:
+      - olcDatabaseConfig
+      - olcMdbConfig
+    attributes:
+      #
+      # These attributes cannot be changed with this role.
+      #
+      olcDatabase: "{% raw %}{{% endraw %}{{ ldap_domains[ldap_domain]['ldap_db_index'] }}{% raw %}}{% endraw %}mdb"
+      olcDbDirectory: "/usr/local/openldap/var/{{ ldap_domain }}-data"
+      olcSuffix: "{{ ldap_domains[ldap_domain]['base'] }}"
+  become: true
+
+- name: 'Update "{{ ldap_domain }}" database attributes in the OpenLDAP config database.'
+  community.general.ldap_attrs:
+    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
+    dn: "olcDatabase={% raw %}{{% endraw %}{{ ldap_domains[ldap_domain]['ldap_db_index'] }}{% raw %}}{% endraw %}mdb,cn=config"
+    state: exact
+    attributes:
+      olcDbMode: '0600'
+      olcDbMaxSize: 104857600
+      olcRootDN: "cn=manager,{{ ldap_domains[ldap_domain]['base'] }}"
+      olcRootPW: "{{ ldap_root_password_hash }}"
+      olcLimits: '{0}users size=unlimited time=unlimited'
+      olcMonitoring: 'TRUE'
+      olcDbNoSync: 'FALSE'
+      olcDbIndex:
+        - objectClass eq
+        - cn,givenName,sn,mail pres,eq,sub
+        - uid pres,eq
+      olcAccess:
+        - to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break
+        - to attrs=userPassword by self read by * none
+        - to dn.subtree="{{ ldap_domains[ldap_domain]['base'] }}"
+          by dn="{{ ldap_credentials[ldap_domain]['admin']['dn'] }}" write
+          by dn="{{ ldap_credentials[ldap_domain]['readonly']['dn'] }}" read
+          by * none
+  become: true
+
+- name: 'Create top level entry in "{{ ldap_domain }}" LDAP database.'
+  community.general.ldap_entry:
+    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
+    dn: "{{ ldap_domains[ldap_domain]['base'] }}"
+    state: present
+    objectClass:
+      - domain
+  become: true
+
+- name: 'Create functional accounts to access the "{{ ldap_domain }}" LDAP database.'
+  community.general.ldap_entry:
+    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
+    dn: "{{ ldap_credentials[ldap_domain][item]['dn'] }}"
+    state: present
+    objectClass:
+      - simpleSecurityObject
+      - organizationalRole
+    attributes:
+      #
+      # These attributes cannot be changed with this role.
+      #
+      cn: "{{ ldap_credentials[ldap_domain][item]['dn'] | regex_replace('^cn=([^,]+),.*', '\\1') }}"
+      #
+      # These mandatory attributes will be updated if necessary with the ldap_attrs task below.
+      #
+      userPassword: "{{ ldap_credentials[ldap_domain][item]['hash'] }}"
+  loop: "{{ ldap_functional_accounts | flatten(levels=1) }}"
+  become: true
+
+- name: 'Update attributes of functional accounts used to access the "{{ ldap_domain }}" LDAP database.'
+  community.general.ldap_attrs:
+    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
+    dn: "{{ ldap_credentials[ldap_domain][item]['dn'] }}"
+    state: exact
+    attributes:
+      userPassword: "{{ ldap_credentials[ldap_domain][item]['hash'] }}"
+      description: "LDAP {{ item }} user for {{ ldap_domains[ldap_domain]['base'] }}."
+  loop: "{{ ldap_functional_accounts | flatten(levels=1) }}"
+  become: true
+...
