@@ -4,6 +4,7 @@ all:
     openstack_api:
       hosts:
         localhost:
+          ansible_python_interpreter: /usr/bin/env python
     docs:
       hosts:
         docs_on_merlin:
@@ -29,7 +30,7 @@ all:
           slurm_cores_per_socket: 128
           slurm_real_memory: 515456
           slurm_local_disk: 0
-          slurm_features: 'tmp06'  # copperfist will replace Zinc-Finger
+          slurm_features: 'tmp06'  # Copper-Fist will replace Leucine-Zipper
           slurm_ethernet_interfaces:
             - eth0
             - eth1

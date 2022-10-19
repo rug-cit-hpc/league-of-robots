@@ -174,24 +174,15 @@
     - 'reload_slurmd'
   become: true
 
-- name: 'Deploy UI nhc.conf.'
+- name: 'Deploy nhc.conf.'
   ansible.builtin.template:
-    src: 'templates/user_interface_nhc.conf'
+    src: 'templates/nhc.conf'
     dest: '/etc/nhc/nhc.conf'
     owner: 'root'
     group: 'root'
     mode: '0644'
-  when: inventory_hostname in groups['user_interface']
-  become: true
-
-- name: 'Deploy compute_vm nhc.conf.'
-  ansible.builtin.template:
-    src: 'templates/compute_vm_nhc.conf'
-    dest: '/etc/nhc/nhc.conf'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-  when: inventory_hostname in groups['compute_vm']
+  when: (inventory_hostname in groups['user_interface']) or
+        (inventory_hostname in groups['compute_vm'])
   become: true
 
 - name: 'Install logrotate config file for slurmd.'
