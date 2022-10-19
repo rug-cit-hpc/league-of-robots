@@ -60,7 +60,7 @@ use_sssd: yes
 ldap_domains:
   sram:
     uri: ldaps://sv-sram.id.rug.nl
-    search_base: ou=sram-umcg,ou=users,o=id
+    base: ou=sram-umcg,ou=users,o=id
     schema: rfc2307bis
     min_id: 70000000
     max_id: 72999999
@@ -69,9 +69,9 @@ ldap_domains:
     user_ssh_public_key: sshPublicKey
     user_member_of: groupMembership
     group_member: member
-  grunn:
+  idvault:
     uri: ldaps://svrs.id.rug.nl
-    search_base: ou=umcg,o=asds
+    base: ou=umcg,o=asds
     schema: rfc2307
     min_id: 50100000
     max_id: 55999999
