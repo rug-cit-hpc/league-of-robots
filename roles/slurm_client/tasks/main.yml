@@ -147,9 +147,19 @@
     group: 'root'
     mode: '0755'
   with_items:
-    - 'slurm.prolog'
     - 'slurm.epilog'
     - 'slurm.taskprolog'
+  become: true
+
+- name: 'Deploy slurm.conf.'
+  ansible.builtin.template:
+    src: "roles/slurm_management/templates/slurm.prolog"
+    dest: '/etc/slurm/slurm.prolog'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+  notify:
+    - 'restart_slurmd'
   become: true
 
 - name: 'Deploy slurm.conf.'

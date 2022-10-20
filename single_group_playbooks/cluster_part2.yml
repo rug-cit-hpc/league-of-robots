@@ -15,7 +15,7 @@
         - use_sssd | default(false) | bool
     - sshd
     - regular_users
-    - lustre_client
+#    - lustre_client
     - nfs_client
     - shared_storage
     - backup_local
