@@ -1,8 +1,7 @@
 ---
-# - name: Restart apache
-#     ansible.builtin.service:
-#     name: httpd
-#     state: restarted
-#   become: true
-#   listen: "Reboot the machineestart web services"
+- name: Restart server because of the pending updates
+  ansible.builtin.reboot:
+    msg: "Reboot initiated by Ansible"
+  listen: "reboot_server"
+  become: true
 ...

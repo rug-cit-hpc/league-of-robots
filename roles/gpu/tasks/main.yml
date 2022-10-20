@@ -1,13 +1,27 @@
 ---
+
+- name: Check if system needs to be restarted
+  ansible.builtin.command: '/bin/needs-restarting -r'
+  register: needs_restarting
+  failed_when: 'needs_restarting.rc > 1'
+  changed_when: 'needs_restarting.rc == 1'
+  become: true
+  notify: reboot_server
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
 - name: Check if we have CUDA capable system
   ansible.builtin.command: 'lspci'
   register: lspci_nv
+  when: true
   become: true
 
 - name: Check if we have already configured NVidia devices
   ansible.builtin.command: 'nvidia-smi'
   register: detect_devices
   failed_when: false
+  when: true
   become: true
 
 - name: Run GPU driver installation role

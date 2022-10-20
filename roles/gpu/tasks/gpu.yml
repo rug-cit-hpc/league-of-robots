@@ -17,19 +17,46 @@
       - wget
   become: true
 
+# ansible_kernel variable is not working, as after reboot, still holds old kernel
+- name: Get current kernel version
+  ansible.builtin.command: '/usr/bin/uname -r'
+  register: uname_output
+  failed_when: uname_output.rc != 0
+  when: true
+  become: true
+
+- name: Set kernel version fact
+  ansible.builtin.set_fact:
+    kernel_version: "{{ uname_output.stdout }}"
+
+- name: Install kernel developement package matching running kernel version
+  ansible.builtin.yum:
+    name: 'kernel-devel-{{ kernel_version }}'
+  register: yum_result
+  failed_when: yum_result.rc != 0
+  when: true
+  become: true
 
 - name: Download a driver installation file from NVidia
   ansible.builtin.get_url:
     url: '{{ gpu_url_directory }}/{{ gpu_runfile }}'
     dest: '/root/{{ gpu_runfile }}'
     mode: '0700'
-    # checksum: md5:66dffb5228a211e61d6d7ef4a86f5758
+  become: true
+
+- name: "Check if driver downloaded"
+  ansible.builtin.stat:
+    path: '/root/{{ gpu_runfile }}'
+  when: true
+  register: driver_downloaded
   become: true
 
 - name: Install driver from .run file
   ansible.builtin.command: '/root/{{ gpu_runfile }} --silent --driver'
-  register: run_result
-  failed_when: run_result.rc != 0
+  register: install_result
+  failed_when: install_result.rc != 0
+  when: driver_downloaded.stat.exists
+  notify: reboot_server
   become: true
 
 - name: Remove installation file

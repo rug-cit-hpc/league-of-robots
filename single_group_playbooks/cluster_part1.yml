@@ -18,11 +18,11 @@
     - logrotate
     - remove
     - update
-    - gpu
     - logins
     - figlet_motd
     - node_exporter
     - cluster
+    - gpu            # depends on cluster role
     - resolver
     - coredumps
 ...

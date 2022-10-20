@@ -12,13 +12,12 @@
   ansible.builtin.copy:
     src: nvidia-persistenced.service
     dest: /etc/systemd/system/nvidia-persistenced.service
-    validate: systemd-analyze verify %s
   become: true
 
-- name: Enable a nvidia-persistence service
+- name: Enable a nvidia-persistenced service
   ansible.builtin.systemd:
     name: nvidia-persistenced.service
     state: started
-    enabled: yes
+    enabled: true
   become: true
 ...
