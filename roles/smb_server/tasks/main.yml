@@ -21,6 +21,31 @@
   notify: restart_smb
   become: true
 
+- name: Check if base path for each samba share exists.
+  ansible.builtin.stat:
+    path: "{{ item['base'] }}"
+  register: smb_server_shares_base_status
+  loop: "{{ smb_server_shares | flatten(levels=1) }}"
+  become: true
+
+- name: Fail if base path for a samba share is missing.
+  ansible.builtin.fail:
+    msg: "The base path {{ item['base'] }} is missing for samba share {{ item['name'] }}. Another role role should have been deployed first or your config is incomplete."
+  vars:
+    query: "[?stat.path=='{{ item.base }}'].stat.exists"
+  when: smb_server_shares_base_status.results | json_query(query) | first is false
+  loop: "{{ smb_server_shares | flatten(levels=1) }}"
+
+- name: Create samba share folders.
+  ansible.builtin.file:
+    path: "{{ item.0.base }}/{{ item.1.path }}"
+    owner: "{{ item.1.owner }}"
+    group: "{{ item.1.group }}"
+    mode: "{{ item.1.mode }}"
+    state: directory
+  loop: "{{ smb_server_shares | subelements('subtree') }}"
+  become: true
+
 - name: Create local groups for local linux user, which will be mapped to samba user.
   ansible.builtin.group:
     name: "{{ item.name }}"

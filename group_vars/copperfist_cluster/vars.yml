@@ -3,7 +3,7 @@ slurm_cluster_name: 'copperfist'
 stack_domain: ''  # Only add hpc.rug.nl domain when jumphost is registered in DNS.
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'cf'
-slurm_version: '20.11.8-1.el7.umcg'
+slurm_version: '22.05.2-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
@@ -56,11 +56,10 @@ nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
-network_private_management_id: "vlan983"
-network_private_management_cidr: "172.23.41.226/23"
+network_private_management_id: 'vlan983'
+network_private_management_cidr: '172.23.41.226/24'
 #network_private_storage_id: "{{ stack_prefix }}_internal_storage"
-#network_private_storage_cidr: "10.10.2.0/24"
-
+#network_private_storage_cidr: '10.10.2.0/24'
 iptables_allow_icmp_inbound:
   - "{{ all.ip_addresses['umcg']['net1'] }}"
   - "{{ all.ip_addresses['umcg']['net2'] }}"
@@ -78,7 +77,7 @@ iptables_allow_ssh_inbound:
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
 iptables_allow_ssh_outbound:
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
-
+main_backup_folder: '/mnt/local_raid/local_backups/'
 local_backups: # list of folders for cron to make daily backup
   - name: apps # don't modify after once deployed!
     src_path: '/apps'
@@ -105,68 +104,85 @@ data_transfer_only_group: 'umcg-sftp-only'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 functional_admin_group: 'umcg-funad'
+functional_users_group: 'umcg-funus'  # For all functional accounts. Used in /etc/security/access.conf.
 hpc_env_prefix: '/apps'
 regular_groups:
   - "{{ envsync_group }}"
   - "{{ functional_admin_group }}"
+  - "{{ functional_users_group }}"
   - 'umcg-atd'
   - 'umcg-gap'
   - 'umcg-gd'
   - 'umcg-genomescan'
   - 'umcg-gsad'
   - 'umcg-gst'
+  - 'umcg-lab'
+  - 'umcg-labgnkbh'
+  - 'umcg-patho'
   - 'umcg-vipt'
 regular_users:
   - user: "{{ envsync_user }}"
-    groups: ["{{ envsync_group }}"]
+    groups: ["{{ envsync_group }}", "{{ functional_users_group }}"]
   - user: 'umcg-atd-ateambot'
-    groups: ['umcg-atd']
+    groups: ['umcg-atd', 'umcg-gsad', "{{ functional_users_group }}"]
     sudoers: '%umcg-atd'
   - user: 'umcg-atd-dm'
-    groups: ['umcg-atd']
+    groups: ['umcg-atd', "{{ functional_users_group }}"]
     sudoers: '%umcg-atd'
   - user: 'umcg-gap-ateambot'
-    groups: ['umcg-gap']
+    groups: ['umcg-gap', "{{ functional_users_group }}"]
     sudoers: '%umcg-gap'
   - user: 'umcg-gap-dm'
-    groups: ['umcg-gap']
+    groups: ['umcg-gap', "{{ functional_users_group }}"]
     sudoers: '%umcg-gap'
   - user: 'umcg-gd-ateambot'
-    groups: ['umcg-gd']
+    groups: ['umcg-gd', 'umcg-gap', "{{ functional_users_group }}"]
     sudoers: '%umcg-gd'
   - user: 'umcg-gd-dm'
-    groups: ['umcg-gd']
+    groups: ['umcg-gd', "{{ functional_users_group }}"]
     sudoers: '%umcg-gd'
   - user: 'umcg-genomescan-ateambot'
-    groups: ['umcg-genomescan']
+    groups: ['umcg-genomescan', "{{ functional_users_group }}"]
     sudoers: '%umcg-genomescan'
   - user: 'umcg-genomescan-dm'
-    groups: ['umcg-genomescan']
+    groups: ['umcg-genomescan', "{{ functional_users_group }}"]
     sudoers: '%umcg-genomescan'
   - user: 'umcg-gsad-ateambot'
-    groups: ['umcg-gsad']
+    groups: ['umcg-gsad', "{{ functional_users_group }}"]
     sudoers: '%umcg-gsad'
   - user: 'umcg-gsad-dm'
-    groups: ['umcg-gsad']
+    groups: ['umcg-gsad', "{{ functional_users_group }}"]
     sudoers: '%umcg-gsad'
   - user: 'umcg-gst-ateambot'
-    groups: ['umcg-gst']
+    groups: ['umcg-gst', "{{ functional_users_group }}"]
     sudoers: '%umcg-gst'
   - user: 'umcg-gst-dm'
-    groups: ['umcg-gst']
+    groups: ['umcg-gst', "{{ functional_users_group }}"]
     sudoers: '%umcg-gst'
+  - user: 'umcg-labgnkbh-ateambot'
+    groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
+    sudoers: '%umcg-labgnkbh'
+  - user: 'umcg-labgnkbh-dm'
+    groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
+    sudoers: '%umcg-labgnkbh'
+  - user: 'umcg-patho-ateambot'
+    groups: ['umcg-patho', "{{ functional_users_group }}"]
+    sudoers: '%umcg-patho'
+  - user: 'umcg-patho-dm'
+    groups: ['umcg-patho', "{{ functional_users_group }}"]
+    sudoers: '%umcg-patho'
   - user: 'umcg-vipt-dm'
-    groups: ['umcg-vipt']
+    groups: ['umcg-vipt', "{{ functional_users_group }}"]
     sudoers: '%umcg-vipt'
 #
 # Shared storage related variables
 #
 pfs_mounts:
-  - pfs: local_raid
-    device: /data  # needs to be already mounted on system (f.e. /dev/sdc1 > /data)
+  - pfs: local_raid # must already be in /etc/fstab and mounted - f.e. /dev/sda > /mnt/local_raid (pfs somename must be same as /mnt/somename)
+    device: ''
     source: '/mnt'
     type: 'none'
-    rw_options: 'bind'
+    rw_options: 'bind,rw'
     ro_options: 'bind,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: 'medgen_zincfinger$'
@@ -200,73 +216,117 @@ lfs_mounts:
       - name: umcg-genomescan
       - name: umcg-gsad
       - name: umcg-gst
+      - name: umcg-lab
+        mode: '2750'
       - name: umcg-vipt
     rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
   - lfs: prm05
     pfs: 'medgen_zincfinger$'
     groups:
       - name: umcg-atd
-      - name: umcg-gap
-      - name: umcg-gd
+      #- name: umcg-gap         Do not use production groups while still in development phase.
+      #- name: umcg-gd          Do not use production groups while still in development phase.
       - name: umcg-gsad
-      - name: umcg-gst
-      - name: umcg-vipt
+      #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat05
     pfs: 'medgen_zincfinger$'
     groups:
       - name: umcg-atd
-      - name: umcg-gap
-      - name: umcg-gd
-      - name: umcg-genomescan
+      #- name: umcg-gap         Do not use production groups while still in development phase.
+      #- name: umcg-gd          Do not use production groups while still in development phase.
+      #- name: umcg-genomescan  Do not use production groups while still in development phase.
       - name: umcg-gsad
       - name: umcg-gst
-      - name: umcg-vipt
+      #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm06
     pfs: 'medgen_leucinezipper$'
     groups:
       - name: umcg-atd
-      - name: umcg-gap
-      - name: umcg-gd
+      #- name: umcg-gap         Do not use production groups while still in development phase.
+      #- name: umcg-gd          Do not use production groups while still in development phase.
       - name: umcg-gsad
-      - name: umcg-gst
-      - name: umcg-vipt
+      #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat06
     pfs: 'medgen_leucinezipper$'
     groups:
       - name: umcg-atd
-      - name: umcg-gap
-      - name: umcg-gd
-      - name: umcg-genomescan
+      #- name: umcg-gap         Do not use production groups while still in development phase.
+      #- name: umcg-gd          Do not use production groups while still in development phase.
+      #- name: umcg-genomescan  Do not use production groups while still in development phase.
       - name: umcg-gsad
       - name: umcg-gst
-      - name: umcg-vipt
+      #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm07
     pfs: 'medgen_wingedhelix$'
     groups:
       - name: umcg-atd
-      - name: umcg-gap
-      - name: umcg-gd
+      #- name: umcg-gap         Do not use production groups while still in development phase.
+      #- name: umcg-gd          Do not use production groups while still in development phase.
       - name: umcg-gsad
-      - name: umcg-gst
-      - name: umcg-vipt
+      #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat07
     pfs: 'medgen_wingedhelix$'
     groups:
       - name: umcg-atd
-      - name: umcg-gap
-      - name: umcg-gd
-      - name: umcg-genomescan
+      #- name: umcg-gap         Do not use production groups while still in development phase.
+      #- name: umcg-gd          Do not use production groups while still in development phase.
+      #- name: umcg-genomescan  Do not use production groups while still in development phase.
       - name: umcg-gsad
       - name: umcg-gst
-      - name: umcg-vipt
+      #- name: umcg-vipt        Do not use production groups while still in development phase.
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env06
     pfs: local_raid
     ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
+smb_server_users:
+  - name: sbsuser
+    uid: 501
+    groups:
+      - name: umcg-lab
+        gid: 55100194
+  - name: illumina
+    uid: 502
+    groups:
+      - name: umcg-gap
+        gid: 55100225
+smb_server_interfaces: 192.168.1.0/24  # in addition to 127.0.0.1, which must always be present.
+smb_server_shares:
+  - name: ngs
+    comment: Share for sequencers
+    path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers
+    users: sbsuser
+    file_mode: 0640
+    dir_mode: 0750
+    base: /mnt/local_raid/groups/umcg-lab/tmp06  # This will not be created by the smb_server role and must already exist.
+    subtree:  # This will be created if it does not already exist.
+      - path: sequencers
+        owner: sbsuser
+        group: umcg-lab
+        mode: 2750
+  - name: array
+    comment: Share for array scanners
+    path: /mnt/local_raid/groups/umcg-gap/tmp06/rawdata/array/IDAT
+    users: illumina
+    file_mode: 0660
+    dir_mode: 0770
+    base: /mnt/local_raid/groups/umcg-gap/tmp06  # This will not be created by the smb_server role and must already exist.
+    subtree:  # This will be created if it does not already exist.
+      - path: rawdata
+        owner: umcg-gap-ateambot
+        group: umcg-gap
+        mode: 2770
+      - path: rawdata/array
+        owner: umcg-gap-ateambot
+        group: umcg-gap
+        mode: 2770
+      - path: rawdata/array/IDAT
+        owner: illumina
+        group: umcg-gap
+        mode: 2770
 ...
