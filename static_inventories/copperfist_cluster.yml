@@ -69,6 +69,7 @@ cluster:
 copperfist_cluster:
   children:
     openstack_api:
+    jumphost:
     cluster:
     chaperone:
     docs:
