@@ -54,6 +54,9 @@ all:
       hosts:
         bb-chaperone:
           #ansible_host: uozkh[0-9].zkh.umcg.intra
+    smb_server:
+      hosts:
+        betabarrel:
 administration:
   children:
     sys_admin_interface:
