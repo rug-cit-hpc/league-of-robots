@@ -30,7 +30,7 @@
 
 - name: Fail if base path for a samba share is missing.
   ansible.builtin.fail:
-    msg: "The base path {{ item['base'] }} is missing for samba share {{ item['name'] }}. Another role role should have been deployed first or your config is incomplete."
+    msg: "The base path {{ item['base'] }} is missing for samba share {{ item['name'] }}. Another role should have been deployed first or your config is incomplete."
   vars:
     query: "[?stat.path=='{{ item.base }}'].stat.exists"
   when: smb_server_shares_base_status.results | json_query(query) | first is false
