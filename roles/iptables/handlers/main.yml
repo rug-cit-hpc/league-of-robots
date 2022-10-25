@@ -1,12 +1,4 @@
 ---
-- name: Reload and restart docker service
-  ansible.builtin.systemd:
-    daemon_reload: true
-    name: 'docker.service'
-    state: restarted
-  become: true
-  listen: restart_docker
-
 - name: 'Restart iptables based firewall deamons (IPv4 and IPv6).'
   ansible.builtin.service:
     name: "{{ item }}"
