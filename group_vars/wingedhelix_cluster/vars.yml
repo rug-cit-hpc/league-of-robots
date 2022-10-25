@@ -1,6 +1,6 @@
 ---
 slurm_cluster_name: 'wingedhelix'
-stack_domain: 'hpc.rug.nl'
+stack_domain: ''
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'wh'
 slurm_version: '22.05.2-1.el7.umcg'
