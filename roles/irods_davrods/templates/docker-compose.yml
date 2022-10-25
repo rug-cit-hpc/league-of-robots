@@ -1,6 +1,7 @@
 version: '2'
 services:
   davrods:
+    network_mode: 'host'
     ports:
       - '443:443'
     build:
@@ -8,5 +9,4 @@ services:
       args:
         - ENV_DAVRODS_IRODS_VERSION
         - ENV_DAVRODS_VERSION
-        - SSL_ENV=prod 
     restart: always
