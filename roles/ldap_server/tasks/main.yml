@@ -105,6 +105,7 @@
     - root.ldif
     - tls.ldif
     - rfc2307bis.ldif
+    - openssh-lpk.ldif
   vars:
     ldap_root_password_hash: "{{ slappasswd_root.stdout }}"
   register: ldap_server_config
@@ -138,6 +139,7 @@
                     -f '/usr/local/openldap/etc/openldap/custom/{{ item }}'
   with_items:
     - rfc2307bis.ldif  # Note: this requires core.ldif, cosine.ldif and inetorgperson.ldif, which should already be installed by default.
+    - openssh-lpk.ldif
   register: ldap_server_ldapadd
   failed_when:
     - "'error' in ldap_server_ldapadd.stderr"
