@@ -32,7 +32,9 @@
 - name: 'Add private groups for home dirs of users to parent entry for groups.'
   community.general.ldap_entry:
     dn: "cn={{ item.user }},ou=groups,{{ regular_users_ldap_base }}"  # Use same name as user's account name for user's private group.
-    objectClass: 'posixGroup'
+    objectClass:
+      - 'groupOfMembers'
+      - 'posixGroup'
     state: present
     attributes:
       gidNumber: "{{ auth_users[item.user].uid }}"  # Use same GID as user's UID for user's private group.
@@ -48,7 +50,6 @@
     objectClass:
       - 'inetOrgPerson'
       - 'posixAccount'
-      - 'top'
       - 'ldapPublicKey'
     attributes:
       sn: "{{ item.user }}"
