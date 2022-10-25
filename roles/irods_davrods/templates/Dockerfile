@@ -2,7 +2,6 @@ FROM centos:7
 
 ARG ENV_DAVRODS_IRODS_VERSION
 ARG ENV_DAVRODS_VERSION
-ARG ENV_FILEBEAT_VERSION=7.14.1
 
 RUN yum install -y \
     # Add EPEL repository to download extra packages
@@ -40,7 +39,6 @@ RUN ( mv /etc/httpd/conf.d/davrods-vhost.conf /etc/httpd/conf.d/davrods-vhost.co
 
 # cleanup RPMs
 RUN ( yum clean all && rm -rf *.rpm )
-
 
 # the executable 'run-httpd.sh' expects the following files to be provided
 # and will move them into proper locations before starting the HTTPd service
@@ -89,25 +87,13 @@ RUN sed -ri \
         -e 's!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g' \
         "/etc/httpd/conf/httpd.conf"
 
-
-ARG ENV_FILEBEAT_VERSION
-
-###############################################################################
-#                                INSTALLATION FILEBEAT
-###############################################################################
-
-RUN wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${ENV_FILEBEAT_VERSION}-x86_64.rpm -O /tmp/filebeat.rpm \
- && rpm -Uvh /tmp/filebeat.rpm
-ADD filebeat.yml /etc/filebeat/filebeat.yml
-RUN chmod go-w /etc/filebeat/filebeat.yml
-
 # EXPOSE 80
 EXPOSE 443
 CMD ["/opt/run-httpd.sh"]
 # To debug: 
-# comment out the line above and uncommend one below, then
-# rebuild, run the docker and then connect inside instance with
-# docker shell ...
+# comment out the line above and uncommend tail ENTRYPOINT below, then
+# rebuild, run the docker and then connect inside instance with docker shell:
+#   docker exec -ti [docker_id] /bin/bash
 #ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 
