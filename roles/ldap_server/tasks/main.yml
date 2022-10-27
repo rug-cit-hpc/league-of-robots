@@ -23,6 +23,7 @@
     state: latest
     update_cache: true
     name:
+      - argon2
       - curl
       - cracklib
       - openldap-ltb
@@ -66,34 +67,6 @@
     mode: '0750'
   become: true
 
-- name: Create LDAP root password hash.
-  ansible.builtin.command:
-    cmd: >
-         /usr/local/openldap/sbin/slappasswd
-             -o module-path='/usr/local/openldap/libexec/openldap'
-             -o module-load='argon2' -h '{ARGON2}'
-             -s '{{ openldap_root_pw }}'
-  register: slappasswd_root
-  changed_when: true
-  no_log: true
-  become: true  # Technically not required, but if anything sensitive does end up in a log/history it is in that of the root user.
-
-#
-# ToDo: update README.md with these instructions and hwo to add the hashed to secrets.yml
-#
-#- name: Create LDAP domain user password hashes.
-#  ansible.builtin.command:
-#    cmd: >
-#         /usr/local/openldap/sbin/slappasswd
-#             -o module-path='/usr/local/openldap/libexec/openldap'
-#             -o module-load='argon2' -h '{ARGON2}'
-#             -s '{{ openldap_root_pw }}'
-#  loop: ldap_domains | default([]) 
-#                     | dict2items
-#                     | selectattr('value.create_ldap', 'defined')
-#                     | selectattr('value.create_ldap')
-#                     | list
-                     
 - name: Install custom LDIF files.
   ansible.builtin.template:
     src: "{{ item }}"
@@ -106,8 +79,6 @@
     - tls.ldif
     - rfc2307bis.ldif
     - openssh-lpk.ldif
-  vars:
-    ldap_root_password_hash: "{{ slappasswd_root.stdout }}"
   register: ldap_server_config
   become: true
 

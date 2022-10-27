@@ -3,4 +3,4 @@ changeType: modify
 
 dn: olcDatabase={0}config,cn=config
 replace: olcRootPW
-olcRootPW: {{ ldap_root_password_hash }}
+olcRootPW: {{ openldap_root_hash }}

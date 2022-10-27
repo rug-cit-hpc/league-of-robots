@@ -34,7 +34,7 @@
       olcDbMode: '0600'
       olcDbMaxSize: 104857600
       olcRootDN: "cn=manager,{{ ldap_domains[ldap_domain]['base'] }}"
-      olcRootPW: "{{ ldap_root_password_hash }}"
+      olcRootPW: "{{ openldap_root_hash }}"
       olcLimits: '{0}users size=unlimited time=unlimited'
       olcMonitoring: 'TRUE'
       olcDbNoSync: 'FALSE'
