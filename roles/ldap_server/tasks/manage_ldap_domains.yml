@@ -42,6 +42,29 @@
         - objectClass eq
         - cn,givenName,sn,mail pres,eq,sub
         - uid pres,eq
+        - member eq
+  become: true
+
+- name: 'Create memberOf overly in "{{ ldap_domain }}" database for dynamic memberOf attributes in the OpenLDAP config database.'
+  community.general.ldap_entry:
+    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
+    dn: "olcOverlay={0}memberof,olcDatabase={% raw %}{{% endraw %}{{ ldap_domains[ldap_domain]['ldap_db_index'] }}{% raw %}}{% endraw %}mdb,cn=config"
+    state: present
+    objectClass:
+      - olcOverlayConfig
+      - olcMemberOf
+    attributes:
+      #
+      # These attributes cannot be changed with this role.
+      #
+      olcOverlay: '{0}memberof'
+      #
+      # These attributes can be changed.
+      #
+      olcMemberOfRefInt: 'TRUE'
+      olcMemberOfGroupOC: groupOfMembers
+      olcMemberOfMemberAD: member
+      olcMemberOfMemberOfAD: memberOf
   become: true
 
 - name: 'Update "{{ ldap_domain }}" database ACLs in the OpenLDAP config database.'

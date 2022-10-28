@@ -1,29 +1,9 @@
 ---
-#- name: 'DEBUG1: role got triggered.'
-#  ansible.builtin.debug:
-#    msg: "{{ item }}"
-#  loop: "{{ ldap_domains | default([])
-#                         | dict2items
-#                         | selectattr('value.create_ldap', 'defined')
-#                         | selectattr('value.create_ldap')
-#                         | list }}"
-#- name: 'DEBUG2: role got triggered.'
-#  ansible.builtin.debug:
-#    msg: "{{ ldap_credentials[item.key]['readonly']['hash'] }}"
-#  loop: "{{ ldap_domains | default([])
-#                         | dict2items
-#                         | selectattr('value.create_ldap', 'defined')
-#                         | selectattr('value.create_ldap')
-#                         | list }}"
-#
-#- meta: end_play
-
 - name: Install OpenLDAP server and dependencies.
   ansible.builtin.yum:
     state: latest
     update_cache: true
     name:
-      - argon2
       - curl
       - cracklib
       - openldap-ltb
