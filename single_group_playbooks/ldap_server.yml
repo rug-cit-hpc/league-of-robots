@@ -9,11 +9,6 @@
   hosts:
     - ldap_server
   roles:
-    - role: openldap_dockerized
-      when:
-        - use_ldap | default(true, true) | bool
-        - create_ldap | default(false, true) | bool
-        - dockerized_ldap | default(false, true) | bool
     - role: ldap_server
       when:
         - use_ldap | default(true, true) | bool
