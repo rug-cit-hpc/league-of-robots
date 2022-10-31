@@ -21,8 +21,11 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
+            pip install ansible
             pip install ansible-lint
             ansible-galaxy install -r requirements.yml
+      - run: ansible --version
+      - run: ansible-lint --version
       - run:
           name: run tests
           shell: /bin/bash
