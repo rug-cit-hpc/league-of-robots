@@ -32,12 +32,21 @@ additional_etc_hosts:
       - name: docs_on_merlin
         network: vlan16
 use_ldap: true
-create_ldap: true
-dockerized_ldap: true
-ldap_uri: ldaps://fd-dai
-ldap_base: dc=hpc,dc=rug,dc=nl
-ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
-ldap_domain: hpc.rug.nl
+use_sssd: true
+ldap_domains:
+  stack:
+    uri: "ldaps://{{ stack_prefix }}-dai"
+    base: "dc={{ stack_name }},dc=local"
+    schema: rfc2307bis
+    #min_id:
+    #max_id:
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: memberOf
+    group_member: member
+    create_ldap: true
+    ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
 cloud_image: CentOS7-Cloud
 cloud_user: centos
 network_public_external_id: public
@@ -239,9 +248,9 @@ regular_users:
 pfs_mounts:
   - pfs: ecst02
     source: '10.35.141.251:/solve-rd-98599485/'
-    type: nfs
-    rw_options: 'defaults,rw,_netdev,noatime,nodiratime'
-    ro_options: 'defaults,ro,_netdev,noatime,nodiratime'
+    type: nfs4
+    rw_options: 'defaults,_netdev,noatime,nodiratime,rw'
+    ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
 lfs_mounts:
   - lfs: home
