@@ -24,8 +24,8 @@ jobs:
             pip install ansible
             pip install ansible-lint
             ansible-galaxy install -r requirements.yml
-      - run: ansible --version
-      - run: ansible-lint --version
+            ansible --version
+            ansible-lint --version
       - run:
           name: run tests
           shell: /bin/bash
