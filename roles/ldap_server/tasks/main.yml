@@ -110,7 +110,7 @@
     ldap_functional_accounts:
       - admin
       - readonly
-  loop: "{{ ldap_domains | default([])
+  loop: "{{ ldap_domains | default({})
                          | dict2items
                          | selectattr('value.create_ldap', 'defined')
                          | selectattr('value.create_ldap')
@@ -118,3 +118,4 @@
   loop_control:
     loop_var: ldap_domain_item
 ...
+

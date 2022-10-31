@@ -22,7 +22,7 @@
   loop: "{{ volumes }}"
 
 - name: 'Create a filesystem on the device.'
-  filesystem:
+  community.general.filesystem:
     fstype: "{{ item.item.type }}"
     dev: "{{ item.item.device }}"
   when: item.rc == 1
@@ -58,7 +58,7 @@
   loop: "{{ mount_point_status.results }}"
 
 - name: 'Create group folders on volumes.'
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: create_group_folders.yml
   vars:
     mount_point: "{{ item.1.mount_point }}"

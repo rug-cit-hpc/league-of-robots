@@ -5,6 +5,6 @@
     mode: 0644
     owner: root
     group: root
-    content: "@cert-authority * {{ lookup('file', ssh_host_signer_ca_private_key+'.pub') }}"
+    content: "@cert-authority * {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }}"
   become: true
 ...

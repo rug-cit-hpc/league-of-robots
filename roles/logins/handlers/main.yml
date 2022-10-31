@@ -30,5 +30,5 @@
   listen: restart_oddjobd
 
 - name: 'Update GRUB.'
-  import_tasks: "{{ playbook_dir }}/roles/logins/handlers/update-grub.yml"
+  ansible.builtin.import_tasks: "{{ playbook_dir }}/roles/logins/handlers/update-grub.yml"
 ...

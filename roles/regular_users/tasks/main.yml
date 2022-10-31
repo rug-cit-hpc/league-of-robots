@@ -1,6 +1,6 @@
 ---
 - name: 'Create regular users & groups in LDAP with rfc2307bis schema.'
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: ldap_regular_users.yml
   vars:
     regular_users_ldap_base: "{{ ldap_domains['stack']['base'] }}"
@@ -13,7 +13,7 @@
     - inventory_hostname in groups['ldap_server'] | default([])
 
 - name: 'Create local regular users & groups.'
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: local_regular_users.yml
   when:
     - not use_ldap | default(true) | bool

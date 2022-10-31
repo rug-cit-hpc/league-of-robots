@@ -21,6 +21,7 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
+            pip install jmespath
             pip install ansible
             pip install ansible-lint
             ansible-galaxy install -r requirements.yml
