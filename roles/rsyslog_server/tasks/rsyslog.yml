@@ -99,7 +99,7 @@
 
 - name: Open incoming rsyslog tcp port
   ansible.posix.firewalld:
-    port: "{{ hostvars[inventory_hostname].rsyslog_port | default('514',true) }}/tcp"
+    port: "{{ hostvars[inventory_hostname].rsyslog_port | default('514', true) }}/tcp"
     permanent: true
     immediate: true
     state: enabled

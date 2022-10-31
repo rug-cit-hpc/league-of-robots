@@ -6,7 +6,7 @@
 # which users won't need.
 #
 ---
-- name: Install generic build environment packages on UIs and DAIs. 
+- name: Install generic build environment packages on UIs and DAIs.
   ansible.builtin.import_tasks: generic_build_dependencies.yml
   when: inventory_hostname in groups['user_interface'] or inventory_hostname in groups['deploy_admin_interface']
 

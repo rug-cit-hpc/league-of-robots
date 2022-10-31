@@ -16,7 +16,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
-  with_items: "{{ ansible_managed_sudoers.files | map (attribute='path') | list }}"
+  with_items: "{{ ansible_managed_sudoers.files | map(attribute='path') | list }}"
   when: item | regex_replace('.*ansible-managed-','') not in regular_users | default([]) | selectattr('sudoers', 'defined') | map(attribute='user') | list
   become: true
 
