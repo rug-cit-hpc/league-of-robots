@@ -38,6 +38,28 @@
     state: link
   become: true
 
+- name: Add LDAP server certificate to CA trust.
+  ansible.builtin.copy:
+    src: "{{ stack_name }}/ldap.crt"
+    dest: /etc/pki/ca-trust/source/anchors/
+    owner: root
+    group: root
+    mode: '0600'
+  when: (playbook_dir, '/files/', stack_name, '/', 'ldap.crt') | join('') is exists
+  become: true
+  notify:
+    - update-ca-trust
+    - restart_slapd
+
+- name: Deploy /usr/local/openldap/etc/openldap/ldap.conf
+  ansible.builtin.template:
+    src: openldap-ldap.conf
+    dest: /usr/local/openldap/etc/openldap/ldap.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
 - name: Make directory for custom LDIF files.
   ansible.builtin.file:
     path: '/usr/local/openldap/etc/openldap/custom'
@@ -55,10 +77,13 @@
     group: ldap
     mode: '0640'
   with_items:
+    - attribute-options.ldif
     - root.ldif
     - tls.ldif
     - rfc2307bis.ldif
     - openssh-lpk.ldif
+    - eduperson.ldif
+    - voperson.ldif
   register: ldap_server_config
   become: true
 
@@ -76,6 +101,7 @@
          ldapmodify -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi
                     -f '/usr/local/openldap/etc/openldap/custom/{{ item }}'
   with_items:
+    - attribute-options.ldif
     - root.ldif
     - tls.ldif
   when: ldap_server_config | json_query(query) | first is true
@@ -91,6 +117,8 @@
   with_items:
     - rfc2307bis.ldif  # Note: this requires core.ldif, cosine.ldif and inetorgperson.ldif, which should already be installed by default.
     - openssh-lpk.ldif
+    - eduperson.ldif
+    - voperson.ldif
   register: ldap_server_ldapadd
   failed_when:
     - "'error' in ldap_server_ldapadd.stderr"
@@ -106,7 +134,6 @@
     file: manage_ldap_domains.yml
   vars:
     ldap_domain: "{{ ldap_domain_item.key }}"
-    ldap_root_password_hash: "{{ slappasswd_root.stdout }}"
     ldap_functional_accounts:
       - admin
       - readonly
