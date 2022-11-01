@@ -38,8 +38,8 @@ ldap_domains:
     uri: "ldaps://{{ stack_prefix }}-dai"
     base: "dc={{ stack_name }},dc=local"
     schema: rfc2307bis
-    #min_id:
-    #max_id:
+    min_id: 1000
+    max_id: 21999
     user_object_class: posixAccount
     user_name: uid
     user_ssh_public_key: sshPublicKey
