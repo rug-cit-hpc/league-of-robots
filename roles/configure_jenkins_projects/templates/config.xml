@@ -57,8 +57,8 @@
           <apiUri>https://api.github.com</apiUri>
           <credentialsId>analysis-jenkins-password</credentialsId>
           <repoOwner>molgenis</repoOwner>
-          <repository>GAP</repository>
-          <repositoryUrl>https://github.com/molgenis/GAP.git</repositoryUrl>
+          <repository>{{ item }}</repository>
+          <repositoryUrl>https://github.com/molgenis/{{ item }}.git</repositoryUrl>
           <traits>
             <org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
               <strategyId>1</strategyId>
