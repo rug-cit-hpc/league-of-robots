@@ -45,7 +45,7 @@
         - member eq
   become: true
 
-- name: 'Create memberOf overly in "{{ ldap_domain }}" database for dynamic memberOf attributes in the OpenLDAP config database.'
+- name: 'Update OpenLDAP config database to create memberOf overlay for dynamic memberOf attributes in "{{ ldap_domain }}" database.'
   community.general.ldap_entry:
     server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
     dn: "olcOverlay={0}memberof,olcDatabase={% raw %}{{% endraw %}{{ ldap_domains[ldap_domain]['ldap_db_index'] }}{% raw %}}{% endraw %}mdb,cn=config"
