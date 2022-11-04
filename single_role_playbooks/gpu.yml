@@ -1,5 +1,6 @@
 ---
-- hosts: cluster
+- hosts:
+    - compute_vm
   roles:
     - gpu
 ...
