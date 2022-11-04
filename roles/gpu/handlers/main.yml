@@ -1,7 +1,7 @@
 ---
 - name: Restart server because of the pending updates
   ansible.builtin.reboot:
-    msg: "Reboot initiated by Ansible"
+    msg: "Reboot initiated by Ansible, because of the pending updates"
   listen: "reboot_server"
   become: true
 ...
