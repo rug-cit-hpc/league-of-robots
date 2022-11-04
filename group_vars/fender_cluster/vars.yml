@@ -101,8 +101,6 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'dhendriksen'
     groups: ['users', "{{ envsync_group }}", 'solve-rd']
-  - user: 'ksablauskas'
-    groups: ['users', 'solve-rd']
   - user: 'wsteyaert'
     groups: ['users', 'solve-rd']
   - user: 'slaurie'
@@ -251,7 +249,7 @@ lfs_mounts:
     groups:
       - name: umcg-atd
       - name: solve-rd
-    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
   - lfs: prm10
     pfs: ecst02
     groups:

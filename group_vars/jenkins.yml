@@ -24,6 +24,7 @@ iptables_allow_ssh_inbound:
   - "{{ talos_cluster.ip_addresses['reception']['vlan16'] }}"
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
 iptables_allow_ssh_outbound:
+  - "{{ gearshift_cluster.ip_addresses['airlock']['vlan16'] }}"
   - "{{ hyperchicken_cluster.ip_addresses['portal']['public'] }}"
   - "{{ talos_cluster.ip_addresses['reception']['vlan16'] }}"
 iptables_allow_https_inbound:

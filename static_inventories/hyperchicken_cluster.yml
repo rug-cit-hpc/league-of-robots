@@ -4,6 +4,7 @@ all:
     openstack_api:
       hosts:
         localhost:
+          ansible_python_interpreter: /usr/bin/env python
     jumphost:
       hosts:
         portal:
@@ -34,7 +35,7 @@ all:
           cloud_flavor: 4c8m80d
           slurm_sockets: 4
           slurm_cores_per_socket: 1
-          slurm_real_memory: 7821
+          slurm_real_memory: 7820
           slurm_local_disk: 0
           slurm_features: 'prm09,tmp09'
           slurm_ethernet_interfaces:

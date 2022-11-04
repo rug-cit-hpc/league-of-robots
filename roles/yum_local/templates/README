@@ -1,26 +1,40 @@
-To make a new version of repository, copy file into this folder and then rerun
-the createrepo command, f.e.:
+Brief:
+   To make a new version of repository, copy file into this folder and then rerun
+   createrepo command:
+      # createrepo {{ lyr_dir_path }}
 
-Download the package to folder {{ lyr_dir_path }}:
-   # yum reinstall --downloadonly --downloaddir={{ lyr_dir_path }} vim
-  or
-   # yum install --downloadonly --downloaddir={{ lyr_dir_path }} vim
 
-To create/recreate a repository's metadata:
-   # createrepo {{ lyr_dir_path }}
 
-Testing
-   # yum install vim
-  and check where it has been downloaded from (note local):
-   
-    ==============================================================
-     Package         Arch      Version              Repository  Size
-    ==============================================================
-    Installing:
-     vim-enhanced    x86_64    2:7.4.629-8.el7_9       local    1.1 M
+Step by step explanation:
 
-Bypasing local repository
-   # yum install --disablerepo="local" vim
+ 1. Download the package to the local folder {{ lyr_dir_path }}:
+       # yum reinstall --downloadonly --downloaddir={{ lyr_dir_path }} vim
+    or
+       # yum install --downloadonly --downloaddir={{ lyr_dir_path }} vim
 
-Getting info about repository
-   # yum repoinfo local
+    Or if available, use the yumdownloader tool
+       # yumdownloader --destdir={{ lyr_dir_path }} vim
+ 
+ 2. To create/recreate a repository's metadata:
+       # createrepo {{ lyr_dir_path }}
+ 
+ 3. If search does not show the uploaded package, then manually clean the cache
+       # yum clean all
+ 
+ 4. Test and usage
+       # yum install vim
+    and check where what repository is served from - note 'local':
+       ==============================================================
+        Package         Arch      Version              Repository  Size
+       ==============================================================
+       Installing:
+        vim-enhanced    x86_64    2:7.4.629-8.el7_9       local    1.1 M
+ 
+ 5. Troubleshooting
+ 
+    Bypasing local repository
+       # yum install --disablerepo="local" vim
+ 
+    Getting info about repository
+       # yum repoinfo local
+ 

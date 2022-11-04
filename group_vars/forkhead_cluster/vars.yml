@@ -3,7 +3,7 @@ slurm_cluster_name: 'forkhead'
 stack_domain: ''  # Only add hpc.rug.nl domain when jumphost is registered in DNS.
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'fh'
-slurm_version: '20.11.8-1.el7.umcg'
+slurm_version: '22.05.2-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
@@ -206,7 +206,7 @@ lfs_mounts:
       - name: umcg-lab
         mode: '2750'
       - name: umcg-vipt
-    rw_machines: "{{ groups['user_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
   - lfs: prm05
     pfs: 'medgen_zincfinger$'
     groups:

@@ -127,6 +127,7 @@ pip3 install --upgrade pip
 pip3 install wheel
 pip3 install 'openstacksdk<0.99'
 pip3 install ruamel.yaml
+pip3 install netaddr
 #
 # Optional: install Ansible with pip.
 # You may skip this step if you already installed Ansible by other means.
