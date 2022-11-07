@@ -140,7 +140,6 @@ pfs_mounts:
     rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime'
     ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
-lustre_quota_type: group
 lfs_mounts:
   - lfs: home
     pfs: umcgst11

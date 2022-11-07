@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:True, lstrip_blocks: True
 #!/bin/bash
 
 #
@@ -43,12 +44,24 @@ declare    ldap_group_quota_hard_limit_template='{{ ldap_group_quota_hard_limit_
 declare -A ldap_quota_limits=()
 
 #
-# Lustre quota type for groups:
-# We prefer "project quota" for group folders,
+# Quota settings for groups:
+# For Lustre file systems we prefer "project quota" for group folders,
 # but we'll use "group quota" when project quota are not supported (yet).
 #
-declare    lustre_quota_type='{{ lustre_quota_type }}'
-
+declare -A quota_types=(
+	{% for lfs_item in lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$') %}
+		{% if lfs_item['quota_type'] is defined %}
+	['{{ lfs_item['lfs'] }}']='{{ lfs_item['quota_type']}}'
+		{% endif %}
+	{% endfor %}
+)
+declare -A quota_pid_increments=(
+	{% for lfs_item in lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$') %}
+		{% if lfs_item['quota_pid_increment'] is defined %}
+	['{{ lfs_item['lfs'] }}']='{{ lfs_item['quota_pid_increment']}}'
+		{% endif %}
+	{% endfor %}
+)
 #
 # No more Ansible variables below this point!
 #
@@ -300,13 +313,19 @@ function processFileSystems () {
 			# Just append unit: all quota values from the IDVault are in GB.
 			_hard_quota_limit="${_hard_quota_limit}G"
 		fi
-		#
-		# Get the GID for this group, which will be used as the file set / project ID for quota accounting.
-		#
-		local _gid
-		_gid="$(getent group "${_group_from_lfs_path}" | awk -F ':' '{printf $3}')"
 		if [[ "${_fs_type}" == 'lustre' ]]; then
-			applyLustreQuota "${_lfs_path}" "${_gid}" "${_soft_quota_limit}" "${_hard_quota_limit}"
+			#
+			# Get the GID for this group, which will be used as the ID for quota accounting.
+			#
+			local _gid
+			_gid="$(getent group "${_group_from_lfs_path}" | awk -F ':' '{printf $3}')"
+			if [[ "${quota_types[${_lfs_from_lfs_path}]:-group}" == 'project' ]]; then
+				local _pid
+				_pid=$((${_gid} + ${quota_pid_increments[${_lfs_from_lfs_path}]:-0}))
+				applyLustreQuota "${_lfs_path}" 'project' "${_pid}" "${_soft_quota_limit}" "${_hard_quota_limit}"
+			else
+				applyLustreQuota "${_lfs_path}" 'group' "${_gid}" "${_soft_quota_limit}" "${_hard_quota_limit}"
+			fi
 		elif [[ "${_fs_type}" == 'nfs4' ]]; then
 			saveQuotaCache "${_lfs_path}" "${_soft_quota_limit}" "${_hard_quota_limit}"
 		else
@@ -322,9 +341,10 @@ function processFileSystems () {
 #
 function applyLustreQuota () {
 	local    _lfs_path="${1}"
-	local    _gid="${2}"
-	local    _soft_quota_limit="${3}"
-	local    _hard_quota_limit="${4}"
+	local    _quota_type="${2}"
+	local    _id="${3}"
+	local    _soft_quota_limit="${4}"
+	local    _hard_quota_limit="${5}"
 	local    _cmd
 	local -a _cmds
 	if [[ "${apply_settings}" -eq 1 ]]; then
@@ -332,15 +352,15 @@ function applyLustreQuota () {
 	else
 		log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Dry run: the following quota commands would have been executed with the '-a' switch ..."
 	fi
-	if [[ "${lustre_quota_type}" == 'project' ]]; then
+	if [[ "${_quota_type}" == 'project' ]]; then
 		_cmds=(
 			"chattr +P ${_lfs_path}"
-			"chattr -p ${_gid} ${_lfs_path}"
-			"lfs setquota -p ${_gid} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
+			"chattr -p ${_id} ${_lfs_path}"
+			"lfs setquota -p ${_id} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
 		)
-	elif [[ "${lustre_quota_type}" == 'group' ]]; then
+	elif [[ "${_quota_type}" == 'group' ]]; then
 		_cmds=(
-			"lfs setquota -g ${_gid} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
+			"lfs setquota -g ${_id} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
 		)
 	else
 		log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "   Unsuported Lustre quota type: ${lustre_quota_type}."
@@ -487,8 +507,14 @@ function getQuotaFromLDAP () {
 			ldap_quota_limits['hard']="${_directory_record_attributes["${_ldap_group_quota_hard_limit_key}"]}"
 			return
 		else
-			log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Quota values missing for group ${_ldap_group} on LFS ${_lfs_from_lfs_path}."
+			log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Quota values missing for group ${_ldap_group} on LFS ${_lfs}."
 			log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "      Search keys were ${_ldap_group_quota_soft_limit_key} and ${_ldap_group_quota_hard_limit_key}."
+			if [[ "${_lfs}" == 'rsc01' ]]; then
+				log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Temporary hack: use hard coded values for LFS rsc01 for all groups."
+				ldap_quota_limits['soft']='1024'
+				ldap_quota_limits['hard']='2048'
+				return
+			fi
 			continue
 		fi
 	done

@@ -14,6 +14,19 @@
 #   with_items: "{{ pfs_mounts }}"
 #   when: inventory_hostname in groups['sys_admin_interface']
 
+- name: 'Deploy script to fetch quota limits from an LDAP and set them on shared storage mounts.'
+  ansible.builtin.template:
+    src: 'templates/ldapquota.bash'
+    dest: '/root/ldapquota-new.bash'
+    owner: 'root'
+    group: 'root'
+    mode: '0700'
+  when: inventory_hostname in groups['sys_admin_interface'] | default([])
+  become: true
+
+- meta: end_play
+
+
 #
 ##
 ### Mount PFS-ses on DAI and create all required LFS-ses and subfolders on them with the correct permissions.
