@@ -30,7 +30,7 @@
 
 - name: Update docker service to reload every time after iptables service
   ansible.builtin.blockinfile:
-    path: /etc/systemd/system/multi-user.target.wants/docker.service
+    path: /usr/lib/systemd/system/docker.service
     insertafter: '\[Unit\]'
     block: |
       After=iptables.service
