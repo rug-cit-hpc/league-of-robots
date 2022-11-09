@@ -111,8 +111,6 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'dhendriksen'
     groups: ['users', "{{ envsync_group }}", 'solve-rd']
-  - user: 'ksablauskas'
-    groups: ['users', 'solve-rd']
   - user: 'wsteyaert'
     groups: ['users', 'solve-rd']
   - user: 'slaurie'
