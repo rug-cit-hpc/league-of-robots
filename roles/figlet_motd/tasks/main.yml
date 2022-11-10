@@ -12,7 +12,8 @@
     dest: "/usr/share/figlet/{{ item }}"
     owner: false
     group: false
-    use_ssh_args: true
+    # Temporarily disabled as it is broken in Mitogen 0.3.3. Fix is already merged and will be in next Mitogen version.
+    # use_ssh_args: true
     ssh_connection_multiplexing: true
     rsync_opts:
       - '--chmod=Fu=rw,Fgo=r'

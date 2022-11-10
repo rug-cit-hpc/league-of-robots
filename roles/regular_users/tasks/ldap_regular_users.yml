@@ -29,7 +29,7 @@
     bind_pw: "{{ regular_users_ldap_bind_pw }}"
   with_items: "{{ regular_groups }}"
 
-- name: 'Add private groups for home dirs of users to parent entry for groups.'
+- name: 'Add private groups for each regular user to parent entry for groups.'
   community.general.ldap_entry:
     dn: "cn={{ item.user }},ou=groups,{{ regular_users_ldap_base }}"  # Use same name as user's account name for user's private group.
     objectClass:
