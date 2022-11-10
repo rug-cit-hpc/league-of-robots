@@ -11,7 +11,7 @@
   become: true
 
 - name: Create client keys and certificates if managed rsyslog servers are present
-  ansible.builtin.include: client.yml
+  ansible.builtin.include_tasks: client.yml
   when: groups['rsyslog'] is defined and ( groups['rsyslog']|length>0 )
 
 - name: Deploy rsyslog.conf template on the client

@@ -1,14 +1,19 @@
 ---
-- name: 'Create regular users & groups in cluster LDAP.'
-  include_tasks:
+- name: 'Create regular users & groups in LDAP with rfc2307bis schema.'
+  ansible.builtin.include_tasks:
     file: ldap_regular_users.yml
+  vars:
+    regular_users_ldap_base: "{{ ldap_domains['stack']['base'] }}"
+    regular_users_ldap_bind_dn: "{{ ldap_credentials['stack']['admin']['dn'] }}"
+    regular_users_ldap_bind_pw: "{{ ldap_credentials['stack']['admin']['pw'] }}"
+    regular_users_ldap_server_uri: "{{ ldap_domains['stack']['uri'] }}"
   when:
     - use_ldap | default(true) | bool
-    - create_ldap | default(false) | bool
+    - ldap_domains['stack']['create_ldap'] | default(false) | bool
     - inventory_hostname in groups['ldap_server'] | default([])
 
 - name: 'Create local regular users & groups.'
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: local_regular_users.yml
   when:
     - not use_ldap | default(true) | bool

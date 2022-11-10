@@ -264,11 +264,34 @@ ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/munge.k
 ```
 The encrypted ```files/[stack_name]/munge.key``` can now be committed safely.
 
-#### 7. Generate TLS certificate for the LDAP server and encrypt it using Ansible Vault.
+#### 7. Generate TLS certificate, passwords & hashes for the LDAP server and encrypt it using Ansible Vault.
 
-If in ```group_vars/[stack_name]/vars.yml``` you configured:
- * ```create_ldap: yes```: This cluster will create and run its own LDAP server. You will need to create a self-signed TLS certificate for the LDAP server.
- * ```create_ldap: no```: This cluster will use an external LDAP, that was configured & hosted elsewhere, and this step can be skipped.
+If you do not configure any LDAP domains using the ```ldap_domains``` variable (see *ldap_server* role for details) in ```group_vars/[stack_name]/vars.yml```,
+then the machines for the [stack_name] _stack_ will use local accounts created on each machine and this step can be skipped.
+
+If you configured ```ldap_domains``` in ```group_vars/[stack_name]/vars.yml``` and all LDAP domains have  ```create_ldap: false```,
+then this _stack_ will/must use an external LDAP, that was configured & hosted elsewhere, and this step can be skipped.
+
+If you configured one or more LDAP domains with ```create_ldap: true```; E.g.:
+   ```
+   ldap_domains:
+     stack:
+       create_ldap: true
+       .....
+     other_domain:
+       some_config_option: anothervalue
+       create_ldap: true
+       .....
+   ```
+Then this _stack_ will create and run its own LDAP server. You will need to create:
+  * For the LDAP server:
+    * A self-signed TLS certificate.
+    * _Password_ & corresponding _hash_ for the LDAP ```root``` account.
+  * For each LDAP domain hosted on this LDAP server:
+    * A ```readonly``` account with a correct _dn_, _password_ and corresponding _hash_.
+    * An ```admin``` account with a correct _dn_, _password_ and corresponding _hash_.
+
+###### 7a TLS certificate for LDAP server.
 
 Execute:
    ```
@@ -279,6 +302,55 @@ Execute:
    ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/dhparam.pem
    ```
 The encrypted files in ```files/[stack_name]/``` can now be committed safely.
+
+###### 7a passwords and hashes for LDAP accounts.
+
+When an OpenLDAP server is created, you will need passwords and corresponding hashes for the LDAP _root_ account
+as well as for functional accounts for at least one LDAP domain. Therefore the minimal setup in ```group_vars/[stack_name]/secrets.yml``` is something like this:
+
+```
+openldap_root_pw: ''
+openldap_root_hash: ''
+ldap_credentials:
+  stack:
+    readonly:
+      dn: 'cn=readonly,dc={{ use stack_name here }},dc=local'
+      pw: ''
+      hash: ''
+    admin:
+      dn: 'cn={{ use stack_prefix here }}-admin,dc={{ use stack_name here }},dc=local'
+      pw: ''
+      hash: ''
+```
+
+In this example the LDAP domain named ```stack``` is used for users & groups, that were created for and are used only on this _stack_ of infra.
+You may have additional LDAP domains serving as other sources for users and groups.
+
+The `pw` values may have been already generated with the ```generate_secrets.py``` script in step 3.
+If you added additional LDAP domains later you can, decrypt the ```group_vars/[stack_name]/secrets.yml``` with ```ansible-vault```,
+rerun the ```generate_secrets.py``` script to generate additional password values and re-encrypt ```secret.yml``` with ```ansible-vault```.
+
+For each ```pw``` you will need to generate a corresponding hash. You cannot use ```generate_secrets.py``` for that,
+because it requires the ```slappasswd```. Therefore, you have to login on the OpenLDAP servers and use:
+```
+/usr/local/openldap/sbin/slappasswd \
+    -o module-path='/usr/local/openldap/libexec/openldap' \
+    -o module-load='argon2' -h '{ARGON2}' \
+    -s 'pw_value'
+```
+The result is a string with 6 ```$``` separated values like this:
+```
+'{ARGON2}$argon2id$v=19$m=65536,t=2,p=1$7+plp......nDs5J!dSpg$ywJt/ug9j.........qKcdfsgQwEI'
+```
+For the record:
+1. ```{ARGON2}```: identifies which hashing schema was used.
+2. ```argon2id```: lists which Argon 2 algorithm was used.
+3. ```v=19```: version of the Argon 2 algorithm.
+4. ```m=65536,t=2,p=1```: lists values used for arguments for the Argon 2 algorithm.
+5. ```7+plp......nDs5J!dSpg```: The base64 encoded radom salt that was added by ```slappasswd```
+6. ```ywJt/ug9j.........qKcdfsgQwEI````: The base64 encoded hash.
+
+Use the **_entire_** strings as the ```hash``` values in ```group_vars/[stack_name]/secrets.yml```.
 
 #### 8. Running playbooks.
 

@@ -13,7 +13,7 @@
   ansible.builtin.include_vars:
     file: "{{ item }}"
     name: "{{ item | dirname | basename }}"
-  with_items: "{{ ip_addresses_files_found.files | map (attribute='path') | list }}"
+  with_items: "{{ ip_addresses_files_found.files | map(attribute='path') | list }}"
   register: included_ip_addresses
   delegate_to: localhost
   connection: local

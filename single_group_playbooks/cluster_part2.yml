@@ -1,5 +1,6 @@
 ---
-- import_playbook: pre_deploy_checks.yml
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
 
 - name: '###==-> Basic roles for all cluster machines part 2. <-==###'
   hosts:

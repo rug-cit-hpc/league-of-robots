@@ -10,29 +10,42 @@
 - name: 'Dummy play to ping jumphosts and establish a persistent SSH connection.'
   hosts: jumphost
 
-- import_playbook: single_group_playbooks/pre_deploy_checks.yml
+- name: Run pre deploy checks.
+  ansible.builtin.import_playbook: single_group_playbooks/pre_deploy_checks.yml
 
-- import_playbook: single_group_playbooks/jumphost.yml
+- name: Run playbook for jumphosts.
+  ansible.builtin.import_playbook: single_group_playbooks/jumphost.yml
 
-- import_playbook: single_group_playbooks/repo.yml
+- name: Run playbook for repo servers.
+  ansible.builtin.import_playbook: single_group_playbooks/repo.yml
 
-- import_playbook: single_group_playbooks/cluster_part1.yml
+- name: Run playbook for all cluster machines part 1.
+  ansible.builtin.import_playbook: single_group_playbooks/cluster_part1.yml
 
-- import_playbook: single_group_playbooks/ldap_server.yml
+- name: Run playbook for LDAP servers.
+  ansible.builtin.import_playbook: single_group_playbooks/ldap_server.yml
 
-- import_playbook: single_group_playbooks/nfs_server.yml
+- name: Run playbook for NFS servers.
+  ansible.builtin.import_playbook: single_group_playbooks/nfs_server.yml
 
-- import_playbook: single_group_playbooks/cluster_part2.yml
+- name: Run playbook for  all cluster machines part 2.
+  ansible.builtin.import_playbook: single_group_playbooks/cluster_part2.yml
 
-- import_playbook: single_group_playbooks/sys_admin_interface.yml
+- name: Run playbook for sys admin interfaces.
+  ansible.builtin.import_playbook: single_group_playbooks/sys_admin_interface.yml
 
-- import_playbook: single_group_playbooks/deploy_admin_interface.yml
+- name: Run playbook for deploy admin Interfaces.
+  ansible.builtin.import_playbook: single_group_playbooks/deploy_admin_interface.yml
 
-- import_playbook: single_group_playbooks/user_interface.yml
+- name: Run playbook for user interfaces.
+  ansible.builtin.import_playbook: single_group_playbooks/user_interface.yml
 
-- import_playbook: single_group_playbooks/compute_vm.yml
+- name: Run playbook for compute nodes.
+  ansible.builtin.import_playbook: single_group_playbooks/compute_vm.yml
 
-- import_playbook: single_group_playbooks/docs.yml
+- name: Run playbook for documentation servers.
+  ansible.builtin.import_playbook: single_group_playbooks/docs.yml
 
-- import_playbook: single_group_playbooks/rsyslog.yml
+- name: Run playbook for rsyslog servers.
+  ansible.builtin.import_playbook: single_group_playbooks/rsyslog.yml
 ...

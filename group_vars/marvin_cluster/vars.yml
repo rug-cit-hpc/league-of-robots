@@ -34,9 +34,9 @@ additional_etc_hosts:
 create_ldap: yes
 use_sssd: yes
 ldap_domains:
-  default_domain:
+  stack:
     uri: ldaps://mv-dai
-    search_base: dc=marvin,dc=cluster,o=id
+    base: dc=marvin,dc=cluster,o=id
     schema: rfc2307bis
     min_id: 1000
     max_id: 5000
