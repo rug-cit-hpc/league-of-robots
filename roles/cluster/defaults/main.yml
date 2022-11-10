@@ -25,8 +25,8 @@ cluster_common_packages:
   - readline-static
   - rsync
   - screen
-  - singularity-runtime
-  - singularity
+  - apptainer
+  - apptainer-suid
   - strace
   - tcl-devel
   - telnet
