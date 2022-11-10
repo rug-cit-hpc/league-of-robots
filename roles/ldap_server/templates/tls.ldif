@@ -1,16 +1,16 @@
 dn: cn=config
 changetype: modify
 replace: olcTLSCertificateKeyFile
-olcTLSCertificateKeyFile: {{ ldap_server_tls_dir }}/{{ ldap_server_tls_key }}
+olcTLSCertificateKeyFile: {{ ldap_server_tls_dir }}/private/{{ ldap_server_tls_key }}
 -
 replace: olcTLSCACertificateFile
-olcTLSCACertificateFile: {{ ldap_server_tls_dir }}/{{ ldap_server_tls_ca_cert }}
+olcTLSCACertificateFile: {{ ldap_server_tls_dir }}/certs/{{ ldap_server_tls_ca_cert }}
 -
 replace: olcTLSCertificateFile
-olcTLSCertificateFile: {{ ldap_server_tls_dir }}/{{ ldap_server_tls_crt }}
+olcTLSCertificateFile: {{ ldap_server_tls_dir }}/certs/{{ ldap_server_tls_crt }}
 -
 replace: olcTLSDHParamFile
-olcTLSDHParamFile: {{ ldap_server_tls_dir }}/{{ ldap_server_tls_dh_params }}
+olcTLSDHParamFile: {{ ldap_server_tls_dir }}/certs/{{ ldap_server_tls_dh_params }}
 -
 replace: olcTLSCipherSuite
 olcTLSCipherSuite: {{ ldap_server_tls_ciphers }}

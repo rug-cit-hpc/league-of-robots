@@ -15,16 +15,19 @@
 - name: Install key, certificate and dhparam files for TLS.
   ansible.builtin.copy:
     src: "files/{{ stack_name }}/{{ item.name }}"
-    dest: "{{ ldap_server_tls_dir }}/{{ item.name }}"
+    dest: "{{ item.dest }}/{{ item.name }}"
     owner: root
     group: ldap
     mode: "{{ item.mode }}"
   with_items:
     - name: ldap.key
+      dest: "{{ ldap_server_tls_dir }}/private"
       mode: '0640'
     - name: ldap.crt
+      dest: "{{ ldap_server_tls_dir }}/certs"
       mode: '0644'
     - name: dhparam.pem
+      dest: "{{ ldap_server_tls_dir }}/certs"
       mode: '0644'
   notify: restart_slapd
   become: true
@@ -32,10 +35,11 @@
 - name: 'Workaround for self signed certs: create symlink for ca.crt -> ldap.crt.'
   ansible.builtin.file:  # noqa risky-file-permissions
     src: ldap.crt
-    dest: "{{ ldap_server_tls_dir }}/ca.crt"
+    dest: "{{ ldap_server_tls_dir }}/certs/ca.crt"
     owner: root
     group: ldap
     state: link
+  notify: restart_slapd
   become: true
 
 - name: Add LDAP server certificate to CA trust.
