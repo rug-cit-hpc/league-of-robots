@@ -17,21 +17,25 @@
       - wget
   become: true
 
-# ansible_kernel variable is not working, as after reboot, still holds old kernel
-- name: Get current kernel version
-  ansible.builtin.command: '/usr/bin/uname -r'
-  register: uname_output
-  failed_when: uname_output.rc != 0
-  when: true
-  become: true
+## ansible_kernel variable is not working, as after reboot, still holds old kernel
+#- name: Get current kernel version
+#  ansible.builtin.command: '/usr/bin/uname -r'
+#  register: uname_output
+#  failed_when: uname_output.rc != 0
+#  when: true
+#  become: true
+#
+#- name: Set kernel version fact
+#  ansible.builtin.set_fact:
+#    kernel_version: "{{ uname_output.stdout }}"
 
-- name: Set kernel version fact
-  ansible.builtin.set_fact:
-    kernel_version: "{{ uname_output.stdout }}"
+- name: Gather facts to get the latest kernel version
+  ansible.builtin.setup:
+  become: true
 
 - name: Install kernel developement package matching running kernel version
   ansible.builtin.yum:
-    name: 'kernel-devel-{{ kernel_version }}'
+    name: 'kernel-devel-{{ ansible_kernel }}'
   register: yum_result
   failed_when: yum_result.rc != 0
   when: true
@@ -44,20 +48,21 @@
     mode: '0700'
   become: true
 
-- name: "Check if driver downloaded"
-  ansible.builtin.stat:
-    path: '/root/{{ gpu_runfile }}'
-  when: true
-  register: driver_downloaded
-  become: true
-
 - name: Install driver from .run file
   ansible.builtin.command: '/root/{{ gpu_runfile }} --silent --driver'
   register: install_result
   failed_when: install_result.rc != 0
-  when: driver_downloaded.stat.exists
+  when: true
   notify: reboot_server
   become: true
+
+- name: Enforce reboot, so that we can check if drivers are correctly isntalled
+  ansible.builtin.meta: flush_handlers
+
+- name: Check that drivers are correctly installed
+  ansible.builtin.command: 'nvidia-smi -L'
+  register: smi_output
+  failed_when: (smi_output.rc > 1) or ({{ smi_output | default([]) | length < 1 }})
 
 - name: Remove installation file
   ansible.builtin.file:
