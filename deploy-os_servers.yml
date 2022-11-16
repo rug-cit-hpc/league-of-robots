@@ -153,7 +153,7 @@
         - protocol: icmp
           port: -1  # ICMP protocol does not have any ports.
     #
-    # Cluster security groups.
+    # Cluster security groups: for interfaces in internal management and internal storage networks.
     #
     - name: "Create management network security group for {{ stack_prefix }} cluster machines behind jumphost."
       openstack.cloud.security_group:
