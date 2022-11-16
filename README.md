@@ -128,6 +128,7 @@ pip3 install wheel
 pip3 install 'openstacksdk<0.99'
 pip3 install ruamel.yaml
 pip3 install netaddr
+pip3 install dnspython  # Required for Ansible lookup plugin community.general.dig
 #
 # On macOS only to prevent this error:
 # crypt.crypt not supported on Mac OS X/Darwin, install passlib python module.
