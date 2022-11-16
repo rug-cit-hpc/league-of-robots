@@ -55,6 +55,8 @@ network_private_management_cidr: '10.10.1.0/24'
 network_private_management_gw: '10.10.1.1'
 network_private_storage_id: "subnet-nfs-data-2541"
 network_private_storage_cidr: '10.35.141.0/24'
+network_private_storage_allow_ingress:  # Extra network ranges for which to allow any inbound network traffic.
+  - 10.35.141.251/32  # NFS server
 availability_zone: nova
 nameservers: [
   '8.8.4.4',  # Google DNS.

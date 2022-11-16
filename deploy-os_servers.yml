@@ -153,14 +153,14 @@
         - protocol: icmp
           port: -1  # ICMP protocol does not have any ports.
     #
-    # Cluster security group.
+    # Cluster security groups.
     #
-    - name: "Create security group for {{ stack_prefix }} cluster machines behind jumphost."
+    - name: "Create management network security group for {{ stack_prefix }} cluster machines behind jumphost."
       openstack.cloud.security_group:
         state: present
         name: "{{ stack_prefix }}_cluster"
         description: |
-                     Security group for cluster machines behind a jumphost.
+                     Management security group for cluster machines behind a jumphost.
                      Allows SSH and ICMP inbound from machines in the jumphost security group.
                      Allows any traffic inbound from other machines in the same security group.
                      Allows all outbound traffic.
@@ -203,11 +203,48 @@
         timeout: "{{ openstack_api_timeout }}"
       with_items:
         - protocol: tcp
-          port: -1  # Port range min -1 and max -1 means the same as min 1 and max 65535, but the latter is not idempotent due to a known bug.
+          port: -1  # Port range min -1 & max -1 means the same as min 1 & max 65535, but the latter is not idempotent due to a known bug.
         - protocol: udp
-          port: -1  # Port range min -1 and max -1 means the same as min 1 and max 65535, but the latter is not idempotent due to a known bug.
+          port: -1  # Port range min -1 & max -1 means the same as min 1 & max 65535, but the latter is not idempotent due to a known bug.
         - protocol: icmp
           port: -1  # ICMP protocol does not have any ports.
+    - name: "Create storage network security group for {{ stack_prefix }} cluster machines."
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ stack_prefix }}_storage"
+        description: |
+                     Storage security group for cluster machines.
+                     Allows any traffic from storage servers.
+                     Allows any traffic inbound from other machines in the same security group.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ stack_prefix }}_storage security group: allow inbound traffic from storage servers."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_storage"
+        direction: ingress
+        protocol: "{{ item.1 }}"
+        port_range_min: -1  # For TCP and UDP port range min -1 & max -1 means the same as min 1 & max 65535, but the latter is not idempotent due to a known bug.
+        port_range_max: -1  # ICMP protocol does not have any ports.
+        remote_ip_prefix: "{{ item.0 }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      loop: "{{ network_private_storage_allow_ingress | product(['tcp', 'udp', 'icmp']) | list }}"
+      when: network_private_storage_allow_ingress is defined and network_private_storage_allow_ingress | length >= 1
+    - name: "Add rules to {{ stack_prefix }}_storage security group: allow inbound traffic from machines in the same security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_storage"
+        direction: ingress
+        protocol: "{{ item }}"
+        port_range_min: -1  # For TCP and UDP port range min -1 & max -1 means the same as min 1 & max 65535, but the latter is not idempotent due to a known bug.
+        port_range_max: -1  # ICMP protocol does not have any ports.
+        remote_group: "{{ stack_prefix }}_storage"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - tcp
+        - udp
+        - icmp
     #
     # Configure IRODS security group using Openstack API.
     #
@@ -281,9 +318,9 @@
         timeout: "{{ openstack_api_timeout }}"
       with_items:
         - protocol: tcp
-          port: -1  # Port range min -1 and max -1 means the same as min 1 and max 65535, but the latter is not idempotent due to a known bug.
+          port: -1  # Port range min -1 & max -1 means the same as min 1 & max 65535, but the latter is not idempotent due to a known bug.
         - protocol: udp
-          port: -1  # Port range min -1 and max -1 means the same as min 1 and max 65535, but the latter is not idempotent due to a known bug.
+          port: -1  # Port range min -1 & max -1 means the same as min 1 & max 65535, but the latter is not idempotent due to a known bug.
         - protocol: icmp
           port: -1  # ICMP protocol does not have any ports.
       when: groups['irods'] | default([]) | length >= 1
@@ -532,7 +569,7 @@
         state: present
         name: "{{ inventory_hostname }}-{{ network_private_storage_id }}"
         network: "{{ network_private_storage_id }}"
-        security_groups: "{{ stack_prefix }}_cluster"
+        security_groups: "{{ stack_prefix }}_storage"
         fixed_ips:
           - ip_address: "{{ ip_addresses[inventory_hostname][network_private_storage_id]['address'] }}"
         wait: true
@@ -543,7 +580,7 @@
         state: present
         name: "{{ inventory_hostname }}-{{ network_private_storage_id }}"
         network: "{{ network_private_storage_id }}"
-        security_groups: "{{ stack_prefix }}_cluster"
+        security_groups: "{{ stack_prefix }}_storage"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
       when: ip_addresses[inventory_hostname][network_private_storage_id]['address'] is not defined
@@ -854,7 +891,9 @@
         terminate_volume: true
         boot_from_volume: true
         flavor: "{{ cloud_flavor }}"
-        security_groups: "{{ stack_prefix }}_cluster"
+        security_groups:
+          - "{{ stack_prefix }}_cluster"
+          - "{{ stack_prefix }}_storage"
         auto_floating_ip: false
         nics:
           - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
@@ -912,7 +951,9 @@
         terminate_volume: true
         boot_from_volume: true
         flavor: "{{ cloud_flavor }}"
-        security_groups: "{{ stack_prefix }}_cluster"
+        security_groups:
+          - "{{ stack_prefix }}_cluster"
+          - "{{ stack_prefix }}_storage"
         auto_floating_ip: false
         nics:
           - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
@@ -976,7 +1017,9 @@
         terminate_volume: true
         boot_from_volume: true
         flavor: "{{ cloud_flavor }}"
-        security_groups: "{{ stack_prefix }}_cluster"
+        security_groups:
+          - "{{ stack_prefix }}_cluster"
+          - "{{ stack_prefix }}_storage"
         auto_floating_ip: false
         nics:
           - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
@@ -1034,7 +1077,9 @@
         terminate_volume: true
         boot_from_volume: true
         flavor: "{{ cloud_flavor }}"
-        security_groups: "{{ stack_prefix }}_cluster"
+        security_groups:
+          - "{{ stack_prefix }}_cluster"
+          - "{{ stack_prefix }}_storage"
         auto_floating_ip: false
         nics:
           - port-name: "{{ inventory_hostname }}-{{ network_private_management_id }}"
