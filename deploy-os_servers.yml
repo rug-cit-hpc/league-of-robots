@@ -203,9 +203,9 @@
         timeout: "{{ openstack_api_timeout }}"
       with_items:
         - protocol: tcp
-          port: -1  # Port range min -1 & max -1 means the same as min 1 & max 65535, but the latter is not idempotent due to a known bug.
+          port: -1  # Port range min -1 & max -1 equals min 1 & max 65535, but the latter is not idempotent due to a known bug.
         - protocol: udp
-          port: -1  # Port range min -1 & max -1 means the same as min 1 & max 65535, but the latter is not idempotent due to a known bug.
+          port: -1  # Port range min -1 & max -1 equals min 1 & max 65535, but the latter is not idempotent due to a known bug.
         - protocol: icmp
           port: -1  # ICMP protocol does not have any ports.
     - name: "Create storage network security group for {{ stack_prefix }} cluster machines."
@@ -224,7 +224,7 @@
         security_group: "{{ stack_prefix }}_storage"
         direction: ingress
         protocol: "{{ item.1 }}"
-        port_range_min: -1  # For TCP and UDP port range min -1 & max -1 means the same as min 1 & max 65535, but the latter is not idempotent due to a known bug.
+        port_range_min: -1  # For TCP and UDP port range min -1 & max -1 equals min 1 & max 65535, but the latter is not idempotent due to a known bug.
         port_range_max: -1  # ICMP protocol does not have any ports.
         remote_ip_prefix: "{{ item.0 }}"
         wait: true
@@ -236,7 +236,7 @@
         security_group: "{{ stack_prefix }}_storage"
         direction: ingress
         protocol: "{{ item }}"
-        port_range_min: -1  # For TCP and UDP port range min -1 & max -1 means the same as min 1 & max 65535, but the latter is not idempotent due to a known bug.
+        port_range_min: -1  # For TCP and UDP port range min -1 & max -1 equals min 1 & max 65535, but the latter is not idempotent due to a known bug.
         port_range_max: -1  # ICMP protocol does not have any ports.
         remote_group: "{{ stack_prefix }}_storage"
         wait: true
@@ -318,9 +318,9 @@
         timeout: "{{ openstack_api_timeout }}"
       with_items:
         - protocol: tcp
-          port: -1  # Port range min -1 & max -1 means the same as min 1 & max 65535, but the latter is not idempotent due to a known bug.
+          port: -1  # Port range min -1 & max -1 equals min 1 & max 65535, but the latter is not idempotent due to a known bug.
         - protocol: udp
-          port: -1  # Port range min -1 & max -1 means the same as min 1 & max 65535, but the latter is not idempotent due to a known bug.
+          port: -1  # Port range min -1 & max -1 equals min 1 & max 65535, but the latter is not idempotent due to a known bug.
         - protocol: icmp
           port: -1  # ICMP protocol does not have any ports.
       when: groups['irods'] | default([]) | length >= 1
