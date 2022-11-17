@@ -21,8 +21,12 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
-            pip install ansible-lint==6.2.2
+            pip install jmespath
+            pip install ansible
+            pip install ansible-lint
             ansible-galaxy install -r requirements.yml
+            ansible --version
+            ansible-lint --version
       - run:
           name: run tests
           shell: /bin/bash

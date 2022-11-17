@@ -39,7 +39,7 @@
   ansible.builtin.meta: flush_handlers
 
 - name: 'Register client at the spacewalk server.'
-  rhn_register:
+  community.general.rhn_register:
     state: present
     activationkey: "{{ activation_key }}"
     server_url: "{{ spacewalk_server_url }}"

@@ -38,7 +38,7 @@
   become: true
 
 - name: If rsyslog keys and certificate in repository and on server are missing, then create CA
-  ansible.builtin.include: create_ca.yml
+  ansible.builtin.include_tasks: create_ca.yml
   run_once: true
   when:
     ( not repo_rsyslog_ca_key.stat.exists and not rsyslog_ca_key_on_server.stat.exists ) or
@@ -75,7 +75,7 @@
     flat: true
     fail_on_missing: true
     validate_checksum: true
-  when: not repo_rsyslog_ca_key.stat.exists or created_ca.changed # noqa 503
+  when: not repo_rsyslog_ca_key.stat.exists or created_ca.changed # noqa no-handler
   become: true
 
 - name: Fetch servers CA cert to repository
@@ -85,7 +85,7 @@
     flat: true
     fail_on_missing: true
     validate_checksum: true
-  when: not repo_rsyslog_ca_cert.stat.exists or created_ca.changed # noqa 503
+  when: not repo_rsyslog_ca_cert.stat.exists or created_ca.changed # noqa no-handler
   become: true
 
 - name: Deploy rsyslog.conf
@@ -99,7 +99,7 @@
 
 - name: Open incoming rsyslog tcp port
   ansible.posix.firewalld:
-    port: "{{ hostvars[inventory_hostname].rsyslog_port|default('514',true) }}/tcp"
+    port: "{{ hostvars[inventory_hostname].rsyslog_port | default('514', true) }}/tcp"
     permanent: true
     immediate: true
     state: enabled

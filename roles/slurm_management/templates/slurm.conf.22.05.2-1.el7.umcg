@@ -18,6 +18,8 @@ JobSubmitPlugins=lua
 TmpFS=/local
 # Terminate job immediately when one of the processes is crashed or aborted.
 KillOnBadExit=1
+# Job with invalid dependency (by default) stay pending with DependencyNeverSatisfied. This option kills it and sets JOB_CANCELLED.
+DependencyParameters=kill_invalid_depend
 # Automatically requeue jobs after a node failure or preemption by a higher prio job.
 JobRequeue=1
 #
@@ -45,7 +47,7 @@ Waittime=15
 # Scheduling
 #
 SchedulerType=sched/backfill
-SchedulerParameters=kill_invalid_depend,bf_continue,bf_max_job_test=10000,bf_max_job_user=5000,default_queue_depth=1000,bf_window=10080,bf_resolution=300,bf_busy_nodes,preempt_reorder_count=100,preempt_youngest_first
+SchedulerParameters=bf_continue,bf_max_job_test=10000,bf_max_job_user=5000,default_queue_depth=1000,bf_window=10080,bf_resolution=300,bf_busy_nodes,preempt_reorder_count=100,preempt_youngest_first
 SelectType=select/cons_res
 SelectTypeParameters=CR_Core_Memory
 PriorityType=priority/multifactor

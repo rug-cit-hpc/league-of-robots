@@ -3,14 +3,16 @@
 #   * cluster_part1.yml
 #
 ---
-- import_playbook: pre_deploy_checks.yml
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
 
 - name: '###==-> Extra roles for LDAP account server. <-==###'
   hosts:
     - ldap_server
   roles:
-    - role: openldap
+    - role: ldap_server
       when:
         - use_ldap | default(true, true) | bool
-        - create_ldap | default(false, true) | bool
+        - ldap_domains | default([]) | dict2items
+          | selectattr('value.create_ldap', 'defined') | selectattr('value.create_ldap') | length >= 1
 ...

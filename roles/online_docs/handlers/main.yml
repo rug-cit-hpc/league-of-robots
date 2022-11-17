@@ -14,7 +14,7 @@
   listen: 'restart_httpd'
 
 - name: 'Zip the scripted tools from the tmp subfolder and save the archives in the attachments subfolder.'
-  archive:
+  community.general.archive:
     path: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.path }}"
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/attachments/{{ item.dest }}"
     format: 'zip'

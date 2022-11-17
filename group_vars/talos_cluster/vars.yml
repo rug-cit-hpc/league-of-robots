@@ -46,9 +46,9 @@ use_ldap: yes
 create_ldap: no
 use_sssd: yes
 ldap_domains:
-  grunn:
+  idvault:
     uri: ldaps://172.23.40.249
-    search_base: ou=umcg,o=asds
+    base: ou=umcg,o=asds
     schema: rfc2307
     min_id: 50100000
     max_id: 55999999

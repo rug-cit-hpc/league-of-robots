@@ -49,12 +49,39 @@ additional_etc_hosts:
       - name: copperfist
         network: vlan13
 use_ldap: true
-create_ldap: false
 use_sssd: true
 ldap_domains:
-  grunn:
+  stack:
+    uri: "ldaps://{{ stack_prefix }}-dai"
+    base: "dc={{ stack_name }},dc=local"
+    schema: rfc2307bis
+    min_id: 1000
+    max_id: 21999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: groupMembership
+    group_member: member
+    create_ldap: true
+    ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
+  sram:
+    uri: "ldaps://{{ stack_prefix }}-dai"
+    base: dc=umcg-hpc-gd,dc=services,dc=sram,dc=surf,dc=nl
+    schema: rfc2307bis
+    #min_id: 70000000
+    #max_id: 72999999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: groupMembership
+    group_member: member
+    create_ldap: true
+    ldap_db_index: 4  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
+    replication_provider_uri: ldaps://ldap.sram.surf.nl
+    replication_provider_base: dc=umcg-hpc-gd,dc=services,dc=sram,dc=surf,dc=nl
+  idvault:
     uri: ldaps://svrs.id.rug.nl
-    search_base: ou=gd,o=asds
+    base: ou=gd,o=asds
     schema: rfc2307
     min_id: 50100000
     max_id: 55999999
@@ -66,6 +93,7 @@ ldap_domains:
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
+    create_ldap: false
 totp:
   machines: "{{ groups['jumphost'] }}"
   excluded:
