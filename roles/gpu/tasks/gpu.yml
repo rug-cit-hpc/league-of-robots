@@ -62,14 +62,6 @@
 - name: Enforce reboot, so that we can check if drivers are correctly installed
   ansible.builtin.meta: flush_handlers
 
-- name: Count the number of available nvidia devices
-  # ansible.builtin.command: '/usr/bin/ls /dev/nvidia[0-9]{,[0-9]'
-  ansible.builtin.command: 'lspci'
-  register: lspci
-  when: true
-  changed_when: false
-  become: true
-
 - name: Final check to confirm all devices are working
   ansible.builtin.command: 'nvidia-smi -L'
   register: smi
