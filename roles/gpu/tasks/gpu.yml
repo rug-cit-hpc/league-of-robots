@@ -17,17 +17,16 @@
       - wget
   become: true
 
-## ansible_kernel variable is not working, as after reboot, still holds old kernel
-#- name: Get current kernel version
-#  ansible.builtin.command: '/usr/bin/uname -r'
-#  register: uname_output
-#  failed_when: uname_output.rc != 0
-#  when: true
-#  become: true
-#
-#- name: Set kernel version fact
-#  ansible.builtin.set_fact:
-#    kernel_version: "{{ uname_output.stdout }}"
+# # ansible_kernel variable is not working, as after reboot, still holds old kernel
+# - name: Get current kernel version
+#   ansible.builtin.command: '/usr/bin/uname -r'
+#   register: uname_output
+#   failed_when: uname_output.rc != 0
+#   when: true
+#   become: true
+# - name: Set kernel version fact
+#   ansible.builtin.set_fact:
+#     kernel_version: "{{ uname_output.stdout }}"
 
 - name: Gather facts to get the latest kernel version
   ansible.builtin.setup:
@@ -43,7 +42,7 @@
 
 - name: Download a driver installation file from NVidia
   ansible.builtin.get_url:
-    url: '{{ gpu_url_directory }}/{{ gpu_runfile }}'
+    url: '{{ gpu_url_dir }}/{{ gpu_runfile }}'
     dest: '/root/{{ gpu_runfile }}'
     mode: '0700'
   become: true
@@ -53,20 +52,56 @@
   register: install_result
   failed_when: install_result.rc != 0
   when: true
-  notify: reboot_server
   become: true
 
-- name: Enforce reboot, so that we can check if drivers are correctly isntalled
+# - name: Remove installation file
+#   ansible.builtin.file:
+#     path: '/root/{{ gpu_runfile }}'
+#     state: absent
+#   become: true
+
+- name: Copy blacklist-nouveau.conf file into modprobe.d to disable Nouveau drivers
+  ansible.builtin.copy:
+    src: blacklist-nouveau.conf
+    dest: /etc/modprobe.d/blacklist-nouveau.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: 'reboot_server'
+
+# - name: Install NVidia persistence service
+#   ansible.builtin.copy:
+#     src: nvidia-persistenced.service
+#     dest: /etc/systemd/system/nvidia-persistenced.service
+#   become: true
+#   notify: 'reboot_server'
+
+# - name: Enable a nvidia-persistenced service
+#   ansible.builtin.systemd:
+#     name: nvidia-persistenced.service
+#     state: started
+#     enabled: true
+#   become: true
+#   notify: 'reboot_server'
+
+- name: Enforce reboot, so that we can check if drivers are correctly installed
   ansible.builtin.meta: flush_handlers
 
-- name: Check that drivers are correctly installed
-  ansible.builtin.command: 'nvidia-smi -L'
-  register: smi_output
-  failed_when: (smi_output.rc > 1) or ({{ smi_output | default([]) | length < 1 }})
+- name: Count the number of available nvidia devices
+  # ansible.builtin.command: '/usr/bin/ls /dev/nvidia[0-9]{,[0-9]'
+  ansible.builtin.command: 'lspci'
+  register: lspci
+  when: true
+  changed_when: false
+  become: true
 
-- name: Remove installation file
-  ansible.builtin.file:
-    path: '/root/{{ gpu_runfile }}'
-    state: absent
+- name: Check that nvidia-smi sees all devices
+  ansible.builtin.command: 'nvidia-smi -L'
+  register: smi
+  when: true
+  changed_when: false
+  failed_when: ( smi.rc > 0) or
+               ( lspci.stdout|lower|regex_findall('nvidia')|length != smi.stdout|lower|regex_findall('nvidia')|length )
   become: true
 ...

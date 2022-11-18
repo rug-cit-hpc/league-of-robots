@@ -91,7 +91,7 @@ all:
       hosts:
         nb-dai:
           cloud_flavor: m1.small
-          local_volume_size_extra: 200
+          local_volume_size_extra: 3000
     user_interface:
       hosts:
         nibbler:
@@ -128,6 +128,7 @@ all:
             nb-vcompute04:
           vars:
             cloud_flavor: gpu.A40_8
+            gpu_count: 8
             local_volume_size_extra: 1
             slurm_sockets: 32
             slurm_cores_per_socket: 1

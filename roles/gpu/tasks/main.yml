@@ -10,23 +10,22 @@
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
-- name: Check if we have CUDA capable system
-  ansible.builtin.command: 'lspci'
-  register: lspci_nv
-  when: true
-  become: true
+# - name: Check if we have CUDA capable system
+#   ansible.builtin.command: 'lspci'
+#   register: lspci
+#   changed_when: false
+#   when: true
+#   become: true
 
 - name: Check if we have already configured NVidia devices
-  ansible.builtin.command: 'nvidia-smi'
-  register: detect_devices
+  ansible.builtin.command: 'nvidia-smi -L'
+  register: smi
+  changed_when: false
   failed_when: false
-  when: true
   become: true
 
-- name: Run GPU driver installation role
+- name: Install GPU driver if not all GPU devices are present and working
   ansible.builtin.include: gpu.yml
-  when: ('"nvidia" in lspci_nv.stdout | lower') and (detect_devices.rc != 0)
-
-- name: Set configuration files for service and modprobe
-  ansible.builtin.include: configuration.yml
+  when: ( gpu_count is defined ) and
+        ( smi.stdout|default([])|lower|regex_findall('nvidia')|length != gpu_count )
 ...
