@@ -10,13 +10,6 @@
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
-# - name: Check if we have CUDA capable system
-#   ansible.builtin.command: 'lspci'
-#   register: lspci
-#   changed_when: false
-#   when: true
-#   become: true
-
 - name: Check if we have already configured NVidia devices
   ansible.builtin.command: 'nvidia-smi -L'
   register: smi

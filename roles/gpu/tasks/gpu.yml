@@ -17,17 +17,6 @@
       - wget
   become: true
 
-# # ansible_kernel variable is not working, as after reboot, still holds old kernel
-# - name: Get current kernel version
-#   ansible.builtin.command: '/usr/bin/uname -r'
-#   register: uname_output
-#   failed_when: uname_output.rc != 0
-#   when: true
-#   become: true
-# - name: Set kernel version fact
-#   ansible.builtin.set_fact:
-#     kernel_version: "{{ uname_output.stdout }}"
-
 - name: Gather facts to get the latest kernel version
   ansible.builtin.setup:
   become: true
@@ -54,11 +43,11 @@
   when: true
   become: true
 
-# - name: Remove installation file
-#   ansible.builtin.file:
-#     path: '/root/{{ gpu_runfile }}'
-#     state: absent
-#   become: true
+- name: Remove installation file
+  ansible.builtin.file:
+    path: '/root/{{ gpu_runfile }}'
+    state: absent
+  become: true
 
 - name: Copy blacklist-nouveau.conf file into modprobe.d to disable Nouveau drivers
   ansible.builtin.copy:
@@ -69,21 +58,6 @@
     mode: '0644'
   become: true
   notify: 'reboot_server'
-
-# - name: Install NVidia persistence service
-#   ansible.builtin.copy:
-#     src: nvidia-persistenced.service
-#     dest: /etc/systemd/system/nvidia-persistenced.service
-#   become: true
-#   notify: 'reboot_server'
-
-# - name: Enable a nvidia-persistenced service
-#   ansible.builtin.systemd:
-#     name: nvidia-persistenced.service
-#     state: started
-#     enabled: true
-#   become: true
-#   notify: 'reboot_server'
 
 - name: Enforce reboot, so that we can check if drivers are correctly installed
   ansible.builtin.meta: flush_handlers
@@ -96,12 +70,12 @@
   changed_when: false
   become: true
 
-- name: Check that nvidia-smi sees all devices
+- name: Final check to confirm all devices are working
   ansible.builtin.command: 'nvidia-smi -L'
   register: smi
   when: true
   changed_when: false
-  failed_when: ( smi.rc > 0) or
-               ( lspci.stdout|lower|regex_findall('nvidia')|length != smi.stdout|lower|regex_findall('nvidia')|length )
+  failed_when: ( smi.rc != 0) or
+               ( smi.stdout|default([])|lower|regex_findall('nvidia')|length != gpu_count )
   become: true
 ...
