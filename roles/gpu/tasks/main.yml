@@ -10,7 +10,7 @@
 - name: Reboot system if needed
   ansible.builtin.meta: flush_handlers
 
-- name: Check if we have already configured NVidia devices
+- name: Check how many NVidia devices is up and running (might take some time)
   ansible.builtin.command: 'nvidia-smi -L'
   register: smi
   changed_when: false
