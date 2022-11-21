@@ -26,13 +26,13 @@ slurm_partitions:
 repo_manager: 'pulp'
 figlet_font: 'cyberlarge'
 motd: |
-      ============================================================
+      ===============================================================
        Welcome to {{ slurm_cluster_name | capitalize }}
-      ============================================================
+      ===============================================================
        WARNING: only prm* group dirs are backupped.
        When this cluster has to be redeployed from scratch,
-       all data in home dirs and tmp* group dirs will be lost!
-      ============================================================
+       all data in home dirs and tmp* & rsc* group dirs will be lost!
+      ===============================================================
 additional_etc_hosts:
   - group: docs_library
     nodes:
