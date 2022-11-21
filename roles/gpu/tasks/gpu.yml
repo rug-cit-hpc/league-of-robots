@@ -59,6 +59,21 @@
   become: true
   notify: 'reboot_server'
 
+- name: Install NVidia persistence service
+  ansible.builtin.copy:
+    src: nvidia-persistenced.service
+    dest: /etc/systemd/system/nvidia-persistenced.service
+  become: true
+  notify: 'reboot_server'
+
+- name: Enable a nvidia-persistenced service
+  ansible.builtin.systemd:
+    name: nvidia-persistenced.service
+    state: started
+    enabled: true
+  become: true
+  notify: 'reboot_server'
+
 - name: Enforce reboot, so that we can check if drivers are correctly installed
   ansible.builtin.meta: flush_handlers
 

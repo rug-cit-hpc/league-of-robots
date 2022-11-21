@@ -3,9 +3,4 @@ gpu_cuda_version: '11.7.1'
 gpu_driver_version: '515.65.01'
 gpu_url_dir: 'https://developer.download.nvidia.com/compute/cuda/{{ gpu_cuda_version }}/local_installers/'
 gpu_runfile: 'cuda_{{ gpu_cuda_version }}_{{ gpu_driver_version }}_linux.run'
-
-# gpu_dl_site: 'https://us.download.nvidia.com/tesla'
-# gpu_driver_version: '450.80.02'
-# gpu_runfile: 'NVIDIA-Linux-x86_64-{{ gpu_driver_version }}.run'
-# gpu_url: '{{ gpu_dl_site }}/{{ gpu_driver_version }}/{{ gpu_runfile }}'
 ...

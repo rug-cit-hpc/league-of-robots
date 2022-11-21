@@ -25,14 +25,28 @@ rebuild with every new kernel instalation.
 - reboots the machine
 - checks if number of GPU devices reported from `nvidia-smi` is same as in `gpu_count`
 
+## Dead-ends discovered
+
+`gpu_count` is needed to install the driver, since any other `automatic` detection is
+failing sooner or later. To list few:
+
+ - `lspci` found one nvidia device when there were 8,
+ - `nvidia-smi` reported no device found, when it actually should found some,
+ - and `nvidia-smi` had up-and-running 3 GPU's when it should be 8
+
+This was just while testing, but I can expect more.
+
+`gpu_count` instead defines the "truth", and can test aginst it, if all the GPUs
+are actually working or not.
+
 ## Other comments
 
  - The smaller Nvidia .run driver installation file is also avaialble, but then
    number of commands and options are missing on system (for example `nvidia-smi`)
  - The long term availablitiy of .run file on nvidia website is not of concern as
    the cuda archive website is in 2022 still containing the old versions from 2007
- - driver installation vial yum repository is difficult from two reasons:
-    - first the version needs to be limitied for nvidia-driver rpm and 15 other packages
-    - not all old versions are available on repository, only recent ones
+ - driver installation vial yum repository is harder to implement for two reasons:
+    - the version needs to be limitied for nvidia-driver rpm and 15 (!) other packages
+    - it seems that not all old versions are available on repository, only 'recent' ones
 
 [cuda archive website](https://developer.nvidia.com/cuda-toolkit-archive)
