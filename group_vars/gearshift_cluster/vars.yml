@@ -38,7 +38,6 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
-ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-ca"
 use_ldap: yes
 create_ldap: no
 use_sssd: yes
