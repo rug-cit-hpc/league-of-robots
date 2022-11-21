@@ -335,9 +335,10 @@ function processFileSystems () {
 }
 
 #
-# Set Lustre project a.k.a. file set a.k.a folder quota limits:
+# Prefer Lustre project a.k.a. file set a.k.a folder quota limits:
 #  * Set project attribute on LFS path using GID as project ID.
 #  * Use lfs setquota to configure quota limit for project.
+# Fallback to group quota if project quota is not supported.
 #
 function applyLustreQuota () {
 	local    _lfs_path="${1}"
