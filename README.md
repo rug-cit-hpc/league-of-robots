@@ -135,11 +135,6 @@ pip3 install dnspython  # Required for Ansible lookup plugin community.general.d
 #
 pip3 install passlib
 #
-# On macOS only to prevent this error:
-# crypt.crypt not supported on Mac OS X/Darwin, install passlib python module.
-#
-pip3 install passlib
-#
 # Optional: install Ansible with pip.
 # You may skip this step if you already installed Ansible by other means.
 # E.g. with HomeBrew on macOS, with yum or dnf on Linux, etc.
