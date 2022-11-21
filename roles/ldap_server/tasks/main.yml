@@ -1,0 +1,151 @@
+---
+- name: Install OpenLDAP server and dependencies.
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - curl
+      - cracklib
+      - openldap-ltb
+      - openldap-ltb-contrib-overlays
+      - openldap-ltb-mdb-utils
+  notify: restart_slapd
+  become: true
+
+- name: Install key, certificate and dhparam files for TLS.
+  ansible.builtin.copy:
+    src: "files/{{ stack_name }}/{{ item.name }}"
+    dest: "{{ item.dest }}/{{ item.name }}"
+    owner: root
+    group: ldap
+    mode: "{{ item.mode }}"
+  with_items:
+    - name: ldap.key
+      dest: "{{ ldap_server_tls_dir }}/private"
+      mode: '0640'
+    - name: ldap.crt
+      dest: "{{ ldap_server_tls_dir }}/certs"
+      mode: '0644'
+    - name: dhparam.pem
+      dest: "{{ ldap_server_tls_dir }}/certs"
+      mode: '0644'
+  notify: restart_slapd
+  become: true
+
+- name: 'Workaround for self signed certs: create symlink for ca.crt -> ldap.crt.'
+  ansible.builtin.file:  # noqa risky-file-permissions
+    src: ldap.crt
+    dest: "{{ ldap_server_tls_dir }}/certs/ca.crt"
+    owner: root
+    group: ldap
+    state: link
+  notify: restart_slapd
+  become: true
+
+- name: Add LDAP server certificate to CA trust.
+  ansible.builtin.copy:
+    src: "{{ stack_name }}/ldap.crt"
+    dest: /etc/pki/ca-trust/source/anchors/
+    owner: root
+    group: root
+    mode: '0600'
+  when: (playbook_dir, '/files/', stack_name, '/', 'ldap.crt') | join('') is exists
+  become: true
+  notify:
+    - update-ca-trust
+    - restart_slapd
+
+- name: Deploy /usr/local/openldap/etc/openldap/ldap.conf
+  ansible.builtin.template:
+    src: openldap-ldap.conf
+    dest: /usr/local/openldap/etc/openldap/ldap.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Make directory for custom LDIF files.
+  ansible.builtin.file:
+    path: '/usr/local/openldap/etc/openldap/custom'
+    state: directory
+    owner: root
+    group: ldap
+    mode: '0750'
+  become: true
+
+- name: Install custom LDIF files.
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "/usr/local/openldap/etc/openldap/custom/{{ item }}"
+    owner: root
+    group: ldap
+    mode: '0640'
+  with_items:
+    - attribute-options.ldif
+    - root.ldif
+    - tls.ldif
+    - rfc2307bis.ldif
+    - openssh-lpk.ldif
+    - eduperson.ldif
+    - voperson.ldif
+  register: ldap_server_config
+  become: true
+
+- name: Make sure slapd-ltb.service (OpenLDAP server) is started.
+  ansible.builtin.systemd:
+    name: slapd-ltb.service
+    state: started
+    enabled: true
+    daemon_reload: true
+  become: true
+
+- name: Modify config using settings in LDIF files.
+  ansible.builtin.command:
+    cmd: >
+         ldapmodify -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi
+                    -f '/usr/local/openldap/etc/openldap/custom/{{ item }}'
+  with_items:
+    - attribute-options.ldif
+    - root.ldif
+    - tls.ldif
+  when: ldap_server_config | json_query(query) | first is true
+  vars:
+    query: "results[?item=='{{ item }}'].changed"
+  become: true
+
+- name: Add additional schema LDIF files.
+  ansible.builtin.command:
+    cmd: >
+         ldapadd -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi
+                    -f '/usr/local/openldap/etc/openldap/custom/{{ item }}'
+  with_items:
+    - rfc2307bis.ldif  # Note: this requires core.ldif, cosine.ldif and inetorgperson.ldif, which should already be installed by default.
+    - openssh-lpk.ldif
+    - eduperson.ldif
+    - voperson.ldif
+  register: ldap_server_ldapadd
+  failed_when:
+    - "'error' in ldap_server_ldapadd.stderr"
+    - "'Duplicate' not in ldap_server_ldapadd.stderr"
+  changed_when:
+    - "'adding new entry' in ldap_server_ldapadd.stdout"
+    - "'Duplicate' not in ldap_server_ldapadd.stderr"
+  ignore_errors: true
+  become: true
+
+- name: Manage LDAP domains.
+  ansible.builtin.include_tasks:
+    file: manage_ldap_domains.yml
+  vars:
+    ldap_domain: "{{ ldap_domain_item.key }}"
+    ldap_functional_accounts:
+      - admin
+      - readonly
+  loop: "{{ ldap_domains | default({})
+                         | dict2items
+                         | selectattr('value.create_ldap', 'defined')
+                         | selectattr('value.create_ldap')
+                         | list }}"
+  loop_control:
+    loop_var: ldap_domain_item
+...

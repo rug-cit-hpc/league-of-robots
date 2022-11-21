@@ -29,7 +29,7 @@
   become: true
 
 - name: 'Create MOTD.'
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: 'create_motd.yml'
   vars:
     figlet_cmd: 'figlet -w 120 -f "{{ figlet_font }}" "{{ ansible_hostname }}"'

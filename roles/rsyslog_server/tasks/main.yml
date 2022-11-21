@@ -1,5 +1,6 @@
 ---
-- ansible.builtin.include_tasks:
+- name: Deploy rsyslog server.
+  ansible.builtin.include_tasks:
     file: rsyslog.yml
   when: inventory_hostname in groups['rsyslog'] | default([])
 ...

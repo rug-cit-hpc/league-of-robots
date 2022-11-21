@@ -1,0 +1,24 @@
+---
+- name: Install mandatory build depedencies.
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name: "{{ mandatory_deps | default([]) }}"
+  become: true
+
+- name: Gather list of installed package.
+  ansible.builtin.package_facts:
+    manager: auto
+  become: true
+
+- name: Install corresponding development package if a specific, optional package was installed.
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - "{{ item }}-devel"
+  when:
+    - "item in ansible_facts.packages"
+  with_items: "{{ optional_deps | default([]) }}"
+  become: true
+...

@@ -3,7 +3,8 @@
 #   * cluster_part1.yml
 #
 ---
-- import_playbook: pre_deploy_checks.yml
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
 
 - name: '###==-> Extra roles for SMB server. <-==###'
   hosts:

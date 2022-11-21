@@ -31,7 +31,7 @@ use_sssd: yes
 ldap_domains:
   default_domain:
     uri: ldaps://svrs.id.rug.nl
-    search_base: ou=gd,o=asds
+    base: ou=gd,o=asds
     schema: rfc2307
     min_id: 50100000
     max_id: 55999999

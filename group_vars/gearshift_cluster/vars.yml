@@ -295,7 +295,6 @@ regular_users:
 #
 # Shared storage related variables
 #
-lustre_quota_type: 'group'
 lustre_client_networks:
    - name: tcp11
      interface: vlan985.lustre
@@ -397,6 +396,8 @@ lfs_mounts:
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: prm02
     pfs: umcgst01
+    quota_type: 'project'
+    quota_pid_increment: 0  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
       - name: umcg-aad
       - name: umcg-as
@@ -448,6 +449,7 @@ lfs_mounts:
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: prm03
     pfs: umcgst02
+    quota_type: 'group'
     groups:
       - name: umcg-aad
       - name: umcg-as
@@ -499,6 +501,8 @@ lfs_mounts:
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: rsc01
     pfs: umcgst03
+    quota_type: 'project'
+    quota_pid_increment: 100000  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
       - name: umcg-aad
       - name: umcg-as

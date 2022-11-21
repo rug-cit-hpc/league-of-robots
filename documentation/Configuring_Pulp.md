@@ -214,6 +214,7 @@ pulp rpm repository update --name centos7-extras  --remote centos7-extras-remote
 pulp rpm repository update --name epel7           --remote epel7-remote
 pulp rpm repository update --name irods7          --remote irods7-remote
 pulp rpm repository update --name lustre7         --remote lustre7-remote
+pulp rpm repository update --name ltb7            --remote ltb7-remote
 ```
 
 ##### Sync repos with remotes.
@@ -225,6 +226,7 @@ pulp rpm repository sync --name centos7-extras
 pulp rpm repository sync --name epel7
 pulp rpm repository sync --name irods7
 pulp rpm repository sync --name lustre7
+pulp rpm repository sync --name ltb7
 ```
 
 ##### Create/update distributions based on new publications based on new repository versions.
@@ -245,6 +247,7 @@ pulp_repos=(
     cpel7
     irods7
     lustre7
+    ltb7
 )
 
 for repo in "${pulp_repos[@]}"; do

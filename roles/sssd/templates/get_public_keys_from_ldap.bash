@@ -18,16 +18,16 @@
 declare -a domain_names=({% for ldap_domain, ldap_config in ldap_domains.items() %}'{{ ldap_domain }}'{% if not loop.last %} {% endif %}{% endfor %})
 declare -A domain_configs=(
 {% for ldap_domain, ldap_config in ldap_domains.items() %}
-    [{{ ldap_domain }}_uri]='{{ ldap_config.uri }}'
-    [{{ ldap_domain }}_search_base]='{{ ldap_config.search_base }}'
-    [{{ ldap_domain }}_bind_dn]='{{ ldap_credentials[ldap_domain].bind_dn }}'
-    [{{ ldap_domain }}_bind_pw]='{{ ldap_credentials[ldap_domain].bind_pw }}'
-    [{{ ldap_domain }}_user_object_class]='{{ ldap_config.user_object_class }}'
-    [{{ ldap_domain }}_user_name]='{{ ldap_config.user_name }}'
-    [{{ ldap_domain }}_user_ssh_public_key]='{{ ldap_config.user_ssh_public_key }}'
+    [{{ ldap_domain }}_uri]='{{ ldap_config['uri'] }}'
+    [{{ ldap_domain }}_search_base]='{{ ldap_config['base'] }}'
+    [{{ ldap_domain }}_bind_dn]='{{ ldap_credentials[ldap_domain]['readonly']['dn'] }}'
+    [{{ ldap_domain }}_bind_pw]='{{ ldap_credentials[ldap_domain]['readonly']['pw'] }}'
+    [{{ ldap_domain }}_user_object_class]='{{ ldap_config['user_object_class'] }}'
+    [{{ ldap_domain }}_user_name]='{{ ldap_config['user_name'] }}'
+    [{{ ldap_domain }}_user_ssh_public_key]='{{ ldap_config['user_ssh_public_key'] }}'
 {% endfor %}
 )
-declare admin_gid='{{ auth_groups['admin'].gid }}'
+declare admin_gid='{{ auth_groups['admin']['gid'] }}'
 {% raw %}
 #
 # No more Ansible variables below this point!
