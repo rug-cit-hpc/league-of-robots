@@ -25,7 +25,7 @@ rebuild with every new kernel instalation.
 - reboots the machine
 - checks if number of GPU devices reported from `nvidia-smi` is same as in `gpu_count`
 
-## Dead-ends discovered
+## Solved issues - described
 
 `gpu_count` is needed to install the driver, since any other `automatic` detection is
 failing sooner or later. To list few:
