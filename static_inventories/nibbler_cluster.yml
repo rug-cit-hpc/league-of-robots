@@ -90,7 +90,7 @@ all:
     deploy_admin_interface:
       hosts:
         nb-dai:
-          cloud_flavor: m1.small
+          cloud_flavor: m1.large
           local_volume_size_extra: 3000
     user_interface:
       hosts:

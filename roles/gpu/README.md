@@ -22,6 +22,7 @@ rebuild with every new kernel instalation.
 - downloads the cuda .run driver file from nvidia website (version defined in defualts)
 - installs and compile the Dynamic Kernel Module Support driver
 - blacklists nouveau
+- creates a local nvidia (defaults UID 601) user
 - reboots the machine
 - checks if number of GPU devices reported from `nvidia-smi` is same as in `gpu_count`
 
@@ -39,6 +40,12 @@ This was just while testing, but I can expect more.
 `gpu_count` instead defines the "truth", and can test aginst it, if all the GPUs
 are actually working or not.
 
+Persistenced service script was modified based on trial and error, but is taken
+mostly from the example files that come with the driver installation, and can be
+found in the folder 
+
+    /usr/share/doc/NVIDIA_GLX-1.0/samples/nvidia-persistenced-init.tar.bz2
+
 ## Other comments
 
  - The smaller Nvidia .run driver installation file is also avaialble, but then
@@ -48,5 +55,14 @@ are actually working or not.
  - driver installation vial yum repository is harder to implement for two reasons:
     - the version needs to be limitied for nvidia-driver rpm and 15 (!) other packages
     - it seems that not all old versions are available on repository, only 'recent' ones
+ - nvidia advises against using the `persistenced mode` as it is slowly deprecated and
+   instead reccomends the use of `persistenced daemon`
 
 [cuda archive website](https://developer.nvidia.com/cuda-toolkit-archive)
+
+## Debugging
+
+To force driver reinstall
+ - simply change the `gpu_count` from f.e. 8 to 9, and the role will detect the wrong
+number of devices, and therefore try to reinstall the driver.
+
