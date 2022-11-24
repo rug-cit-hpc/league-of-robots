@@ -7,24 +7,29 @@ Linux](https://docs.nvidia.com/cuda/pdf/CUDA_Installation_Guide_Linux.pdf).
 The driver can be installed via yum repository, but the version limiting and
 driver version control is quite hard to implement. Therefore the driver is
 installed by downloading and running the cuda .run file.
-Driver is installed and compiled as Dynamic Kernel Module Support and will
-rebuild with every new kernel instalation.
+
+The driver features Dynamic Kernel Module Support (DKMS) and will be recompiled
+automatically when a new kernel is installed.
 
 
 ## Role outline
 
-- it expects the gpu_count to be defined per invididual machine
-- attempts to gather the GPU device status by running `nvidia-smi` command
-- install the GPU driver if
-   - `nvidia-smi` command is not available (cuda driver was not installed)
-   - `nvidia-smi` reports different number of GPU devices than expected from `gpu_count`
-- yum install on machine packages that is needed for driver install and compile
-- downloads the cuda .run driver file from nvidia website (version defined in defualts)
-- installs and compile the Dynamic Kernel Module Support driver
-- blacklists nouveau
-- creates a local nvidia (defaults UID 601) user
-- reboots the machine
-- checks if number of GPU devices reported from `nvidia-smi` is same as in `gpu_count`
+- it expects `gpu_count` variable to be defined per invididual machine, and then
+  - it attempts to gather the GPU device status by running `nvidia-smi` command
+  - it detects the NVidia driver version
+  - executes the GPU driver installation tasks
+    - checks if machine needs to be rebooted and reboots it, if needed
+    - yum install on machine packages that is needed for driver install and compile
+    - yum also installs a (after a reboot - is correctly matching) version of kernel
+    - downloads the cuda .run driver file from nvidia website (version defined in defualts)
+    - installs and compile the Dynamic Kernel Module Support driver
+  - services tasks are deployed on all machines with `gpu_count` defined
+    - creates a local nvidia (defaults GID 601) group
+    - creates a local nvidia (defaults UID 601) user
+    - blacklists nouveau
+    - installs `nvidia-persistenced.service` file, that will be executed as nvidia user
+    - reboots the machine
+    - checks if number of GPU devices reported from `nvidia-smi` is same as in `gpu_count`
 
 ## Solved issues - described
 
@@ -37,8 +42,8 @@ failing sooner or later. To list few:
 
 This was just while testing, but I can expect more.
 
-`gpu_count` instead defines the "truth", and can test aginst it, if all the GPUs
-are actually working or not.
+`gpu_count` instead defines the correct "truth", and can test aginst it - that is
+if all the GPUs are actually working correctly.
 
 Persistenced service script was modified based on trial and error, but is taken
 mostly from the example files that come with the driver installation, and can be
@@ -48,21 +53,15 @@ found in the folder
 
 ## Other comments
 
- - The smaller Nvidia .run driver installation file is also avaialble, but then
+ - The smaller Nvidia .run driver installation file is also avaialable, but then
    number of commands and options are missing on system (for example `nvidia-smi`)
  - The long term availablitiy of .run file on nvidia website is not of concern as
    the cuda archive website is in 2022 still containing the old versions from 2007
- - driver installation vial yum repository is harder to implement for two reasons:
+ - driver installation is possible via yum repository, but it is harder to implement
+   for two reasons:
     - the version needs to be limitied for nvidia-driver rpm and 15 (!) other packages
     - it seems that not all old versions are available on repository, only 'recent' ones
  - nvidia advises against using the `persistenced mode` as it is slowly deprecated and
    instead reccomends the use of `persistenced daemon`
 
 [cuda archive website](https://developer.nvidia.com/cuda-toolkit-archive)
-
-## Debugging
-
-To force driver reinstall
- - simply change the `gpu_count` from f.e. 8 to 9, and the role will detect the wrong
-number of devices, and therefore try to reinstall the driver.
-

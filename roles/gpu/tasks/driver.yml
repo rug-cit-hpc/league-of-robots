@@ -10,11 +10,16 @@
 - name: Reboot system if needed
   ansible.builtin.meta: flush_handlers
 
+- name: Gather facts to get the latest kernel version
+  ansible.builtin.setup:
+  become: true
+
 - name: Install yum requirements for gpu driver installation
   ansible.builtin.yum:
     state: 'installed'
     update_cache: true
     name:
+      - 'kernel-devel-{{ ansible_kernel }}'
       - tar
       - bzip2
       - make
@@ -26,18 +31,6 @@
       - libglvnd-devel
       - bind-utils
       - wget
-  become: true
-
-- name: Gather facts to get the latest kernel version
-  ansible.builtin.setup:
-  become: true
-
-- name: Install kernel developement package matching running kernel version
-  ansible.builtin.yum:
-    name: 'kernel-devel-{{ ansible_kernel }}'
-  register: yum_result
-  failed_when: yum_result.rc != 0
-  when: true
   become: true
 
 - name: Download a driver installation file from NVidia

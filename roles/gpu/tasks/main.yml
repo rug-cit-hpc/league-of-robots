@@ -1,24 +1,25 @@
 ---
-- name: Check if system needs to be restarted
-  ansible.builtin.command: '/bin/needs-restarting -r'
-  register: needs_restarting
-  failed_when: 'needs_restarting.rc > 1'
-  changed_when: 'needs_restarting.rc == 1'
-  become: true
-  notify: reboot_server
-
-- name: Reboot system if needed
-  ansible.builtin.meta: flush_handlers
-
 - name: Check how many NVidia devices is up and running (might take some time)
   ansible.builtin.command: 'nvidia-smi -L'
   register: smi
+  when: gpu_count|default(0) >= 1
   changed_when: false
   failed_when: false
-  become: false    # running nvidia-smi as root stops the service
+
+- name: Check driver version
+  ansible.builtin.command: '/usr/sbin/modinfo nvidia'
+  register: modinfo
+  changed_when: false
+  failed_when: false
+  when: gpu_count|default(0) >= 1
 
 - name: Install GPU driver if not all GPU devices are present and working
-  ansible.builtin.include_tasks: gpu.yml
-  when: ( gpu_count is defined ) and
-        ( smi.stdout|default([])|lower|regex_findall('nvidia')|length != gpu_count )
+  ansible.builtin.include_tasks: driver.yml
+  when: gpu_count|default(0) >= 1 and
+        (( smi.stdout|default([])|lower|regex_findall('nvidia')|length != gpu_count ) or
+        gpu_driver_version not in modinfo.stdout|default("")|regex_search("version:.*"))
+
+- name: Configure user and services
+  ansible.builtin.include_tasks: user_services.yml
+  when: gpu_count|default(0) >= 1
 ...
