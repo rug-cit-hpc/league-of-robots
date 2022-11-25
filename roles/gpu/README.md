@@ -23,7 +23,7 @@ automatically when a new kernel is installed.
     - yum also installs a (after a reboot - is correctly matching) version of kernel
     - downloads the cuda .run driver file from nvidia website (version defined in defualts)
     - installs and compile the Dynamic Kernel Module Support driver
-  - services tasks are deployed on all machines with `gpu_count` defined
+  - execute configuration if `gpu_count` defined
     - creates a local nvidia (defaults GID 601) group
     - creates a local nvidia (defaults UID 601) user
     - blacklists nouveau
