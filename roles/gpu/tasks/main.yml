@@ -19,7 +19,7 @@
         (( smi.stdout|default([])|lower|regex_findall('nvidia')|length != gpu_count ) or
         gpu_driver_version not in modinfo.stdout|default("")|regex_search("version:.*"))
 
-- name: Configure user and services
-  ansible.builtin.include_tasks: user_services.yml
+- name: Configure GPU - users, files and services
+  ansible.builtin.include_tasks: configuration.yml
   when: gpu_count|default(0) >= 1
 ...
