@@ -1,54 +1,4 @@
 ---
-- name: Install yum requirements for gpu driver installation
-  ansible.builtin.yum:
-    state: 'installed'
-    update_cache: true
-    name:
-      - tar
-      - bzip2
-      - make
-      - automake
-      - gcc
-      - gcc-c++
-      - pciutils
-      - elfutils-libelf-devel
-      - libglvnd-devel
-      - bind-utils
-      - wget
-  become: true
-
-- name: Gather facts to get the latest kernel version
-  ansible.builtin.setup:
-  become: true
-
-- name: Install kernel developement package matching running kernel version
-  ansible.builtin.yum:
-    name: 'kernel-devel-{{ ansible_kernel }}'
-  register: yum_result
-  failed_when: yum_result.rc != 0
-  when: true
-  become: true
-
-- name: Download a driver installation file from NVidia
-  ansible.builtin.get_url:
-    url: '{{ gpu_url_dir }}/{{ gpu_runfile }}'
-    dest: '/root/{{ gpu_runfile }}'
-    mode: '0700'
-  become: true
-
-- name: Install driver from .run file
-  ansible.builtin.command: '/root/{{ gpu_runfile }} --silent --driver'
-  register: install_result
-  failed_when: install_result.rc != 0
-  when: true
-  become: true
-
-- name: Remove installation file
-  ansible.builtin.file:
-    path: '/root/{{ gpu_runfile }}'
-    state: absent
-  become: true
-
 - name: 'Add nvidia group.'
   ansible.builtin.group:
     name: '{{ nvidia_group }}'
@@ -95,5 +45,4 @@
   changed_when: false
   failed_when: ( smi.rc != 0) or
                ( smi.stdout|default([])|lower|regex_findall('nvidia')|length != gpu_count )
-  become: false    # running nvidia-smi as root stops the service
 ...
