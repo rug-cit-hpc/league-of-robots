@@ -39,19 +39,24 @@
   become: true
 
 #
-# Note that /etc/openldap/ldap.conf is not required for SSSD nor to make SSH logins work,
+# Note that /etc/openldap/*.conf is not required for SSSD nor to make SSH logins work,
 # but it is used
 #   * for tools like the ldapsearch command, which may be used for debugging
 #   * for managing users and groups in a local LDAP with roles/regular_users/tasks/ldap_regular_users.yml
 #   * and by scripts on the cluster: e.g. for fetching quota values.
 #
-- name: Deploy /etc/openldap/ldap.conf
+- name: Deploy /etc/openldap/*.conf files
   ansible.builtin.template:
-    src: openldap-ldap.conf
-    dest: /etc/openldap/ldap.conf
+    src: "{{ item.src }}"
+    dest: "/etc/openldap/{{ item.dest }}"
     owner: root
     group: root
     mode: '0644'
+  with_items:
+    - src: openldap-ldap.conf
+      dest: ldap.conf
+    - src: readonly-ldapsearch-credentials.bash
+      dest: readonly-ldapsearch-credentials.bash
   become: true
 
 - name: Deploy /etc/sssd/sssd.conf

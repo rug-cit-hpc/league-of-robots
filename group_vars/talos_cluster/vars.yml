@@ -56,6 +56,7 @@ ldap_domains:
     user_name: uid
     user_ssh_public_key: sshPublicKey
     user_member_of: groupMembership
+    user_expiration_date: loginExpirationTime
     group_member: memberUid
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
