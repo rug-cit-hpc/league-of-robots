@@ -296,17 +296,26 @@
     group: 'root'
     mode: '0644'
   when: inventory_hostname in lfs_mounts
-                              | rejectattr('quota_type', 'undefined')
-                              | rejectattr('rw_machines', 'undefined')
-                              | selectattr('quota_type', 'equalto', 'project')
-                              | map(attribute='rw_machines')
-                              | flatten | unique or
+            | rejectattr('quota_type', 'undefined')
+            | rejectattr('rw_machines', 'undefined')
+            | selectattr('quota_type', 'equalto', 'project')
+            | map(attribute='rw_machines')
+            | flatten | unique or
         inventory_hostname in lfs_mounts
-                              | rejectattr('quota_type', 'undefined')
-                              | rejectattr('ro_machines', 'undefined')
-                              | selectattr('quota_type', 'equalto', 'project')
-                              | map(attribute='ro_machines')
-                              | flatten | unique
+            | rejectattr('quota_type', 'undefined')
+            | rejectattr('ro_machines', 'undefined')
+            | selectattr('quota_type', 'equalto', 'project')
+            | map(attribute='ro_machines')
+            | flatten | unique or
+        (lfs_mounts
+            | rejectattr('quota_type', 'undefined')
+            | selectattr('quota_type', 'equalto', 'project')
+            | length >= 1
+           and
+           inventory_hostname in pfs_mounts
+              | rejectattr('machines', 'undefined')
+              | map(attribute='machines')
+              | flatten | unique)
   become: true
 
 - name: 'Deploy script to fetch quota limits from an LDAP and set them on shared storage mounts.'
