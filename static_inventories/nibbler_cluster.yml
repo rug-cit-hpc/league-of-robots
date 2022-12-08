@@ -125,7 +125,7 @@ all:
               - eth1
         gpu_a40:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            nb-vcompute04:
+            nb-vcompute[04:05]
           vars:
             cloud_flavor: gpu.A40_8
             gpu_count: 8
