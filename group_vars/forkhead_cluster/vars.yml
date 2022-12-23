@@ -48,11 +48,11 @@ nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
-network_private_management_id: "vnet-medgen-t"
-network_private_management_cidr: '10.96.52.12/24'
-#network_private_storage_id: "{{ stack_prefix }}_internal_storage"
-#network_private_storage_cidr: '10.10.2.0/24'
-
+stack_networks:
+  - name: vnet-medgen-t
+    cidr: '10.96.52.12/24'
+    type: management
+    external: true
 iptables_allow_icmp_inbound:
   - "{{ all.ip_addresses['umcg']['internal1'] }}"
   - "{{ all.ip_addresses['umcg']['basiswerkplek'] }}"

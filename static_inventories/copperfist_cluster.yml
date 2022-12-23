@@ -5,6 +5,22 @@ all:
       hosts:
         localhost:
           ansible_python_interpreter: /usr/bin/env python
+    jumphost:
+      hosts:
+        cf-porch:
+          cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_jumphosts"
+              assign_floating_ip: true
+          security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
+          iptables_allow_icmp_inbound:
+            - "{{ all.ip_addresses['umcg']['net1'] }}"
+            - "{{ all.ip_addresses['umcg']['net2'] }}"
+            - "{{ all.ip_addresses['umcg']['net3'] }}"
+            - "{{ all.ip_addresses['umcg']['net4'] }}"
+            - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+            - "{{ all.ip_addresses['rug']['operator'] }}"
     docs:
       hosts:
         docs_on_merlin:
@@ -12,6 +28,9 @@ all:
       hosts:
         copperfist:
           local_yum_repository: true # enable local yum repository
+          host_networks:
+            - name: vlan983
+            - name: vlan990
     deploy_admin_interface:
       hosts:
         copperfist:
@@ -73,4 +92,5 @@ copperfist_cluster:
     cluster:
     chaperone:
     docs:
+    smb_server:
 ...

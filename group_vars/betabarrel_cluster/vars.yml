@@ -56,10 +56,23 @@ nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
-network_private_management_id: 'vlan983'
-network_private_management_cidr: '172.23.41.225/24'
-#network_private_storage_id: "{{ stack_prefix }}_internal_storage"
-#network_private_storage_cidr: '10.10.2.0/24'
+stack_networks:
+  - name: "{{ stack_prefix }}_internal_management"
+    cidr: '10.10.1.0/24'
+    gateway: '10.10.1.1'
+    router_network: vlan16
+    type: management
+    external: false
+  - name: vlan983
+    cidr: '172.23.41.225/24'
+    type: management
+    external: true
+  - name: vlan990
+    cidr: '192.168.1.0/24'
+    allow_ingress:
+      - '192.168.1.0/25'
+    type: storage
+    external: true
 iptables_allow_icmp_inbound:
   - "{{ all.ip_addresses['umcg']['net1'] }}"
   - "{{ all.ip_addresses['umcg']['net2'] }}"
@@ -83,7 +96,6 @@ local_backups: # list of folders for cron to make daily backup
     src_path: '/apps'
     frequency:
      - { name: 'daily', hour: '5', minute: '47', day: '*', weekday: '*', month: '*', keep: '60', disabled: 'false' }
-
 local_admin_groups:
   - 'admin'
   - 'docker'

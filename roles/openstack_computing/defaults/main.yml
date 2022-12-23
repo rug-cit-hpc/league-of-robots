@@ -1,0 +1,3 @@
+---
+openstack_api_timeout: 180
+...

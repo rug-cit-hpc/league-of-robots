@@ -17,7 +17,8 @@
 # Jumphosts
 #
   {% for host in groups['jumphost'] %}
-{{ "%-15s" | format(ip_addresses[host][network_private_management_id].address) }}    {{ host }}
+    
+{{ "%-15s" | format(ip_addresses[host][first_management_network_name].address) }}    {{ host }}
   {% endfor %}
 {% endif %}
 {% if inventory_hostname in groups['jumphost'] %}
@@ -26,7 +27,7 @@
 # Data Staging servers
 #
     {% for host in groups['data_transfer'] %}
-{{ "%-15s" | format(ip_addresses[host][network_private_management_id].address) }}    {{ host }}
+{{ "%-15s" | format(ip_addresses[host][first_management_network_name].address) }}    {{ host }}
     {% endfor %}
   {% endif %}
 {% endif %}
@@ -35,7 +36,7 @@
 # Repo servers
 #
   {% for host in groups['repo'] %}
-{{ "%-15s" | format(ip_addresses[host][network_private_management_id].address) }}    {{ host }}
+{{ "%-15s" | format(ip_addresses[host][first_management_network_name].address) }}    {{ host }}
   {% endfor %}
 {% endif %}
 {% if groups['irods'] is defined and groups['irods'] | length >= 1 %}
@@ -43,7 +44,7 @@
 # IRODS servers
 #
   {% for host in groups['irods'] %}
-{{ "%-15s" | format(ip_addresses[host][network_private_management_id].address) }}    {{ hostvars[host]['fqdn'] }}    {{ hostvars[host]['fqdn'] | regex_replace('\..*$', '')}}    {{ host }}
+{{ "%-15s" | format(ip_addresses[host][first_management_network_name].address) }}    {{ hostvars[host]['fqdn'] }}    {{ hostvars[host]['fqdn'] | regex_replace('\..*$', '')}}    {{ host }}
   {% endfor %}
 {% endif %}
 {% if groups['sys_admin_interface'] is defined and groups['sys_admin_interface'] | length >= 1 %}
@@ -51,7 +52,7 @@
 # Sys Admin Interfaces (SAIs)
 #
   {% for host in groups['sys_admin_interface'] %}
-{{ "%-15s" | format(ip_addresses[host][network_private_management_id].address) }}    {{ host }}
+{{ "%-15s" | format(ip_addresses[host][first_management_network_name].address) }}    {{ host }}
   {% endfor %}
 {% endif %}
 {% if groups['deploy_admin_interface'] is defined and groups['deploy_admin_interface'] | length >= 1 %}
@@ -59,7 +60,7 @@
 # Deploy Admin Interfaces (DAIs)
 #
   {% for host in groups['deploy_admin_interface'] %}
-{{ "%-15s" | format(ip_addresses[host][network_private_management_id].address) }}    {{ host }}
+{{ "%-15s" | format(ip_addresses[host][first_management_network_name].address) }}    {{ host }}
   {% endfor %}
 {% endif %}
 {% if groups['user_interface'] is defined and groups['user_interface'] | length >= 1 %}
@@ -67,7 +68,7 @@
 # User Interfaces (UIs)
 #
   {% for host in groups['user_interface'] %}
-{{ "%-15s" | format(ip_addresses[host][network_private_management_id].address) }}    {{ host }}
+{{ "%-15s" | format(ip_addresses[host][first_management_network_name].address) }}    {{ host }}
   {% endfor %}
 {% endif %}
 {% if groups['compute_vm'] is defined and groups['compute_vm'] | length >= 1 %}
@@ -75,7 +76,7 @@
 # Compute nodes
 #
   {% for host in groups['compute_vm'] %}
-{{ "%-15s" | format(ip_addresses[host][network_private_management_id].address) }}    {{ host }}
+{{ "%-15s" | format(ip_addresses[host][first_management_network_name].address) }}    {{ host }}
   {% endfor %}
 {% endif %}
 {% if groups['docs'] is defined and groups['docs'] | length >= 1 %}
@@ -84,7 +85,7 @@
 #
   {% for host in groups['docs'] %}
     {% if ip_addresses[host] is defined %}
-{{ "%-15s" | format(ip_addresses[host][network_private_management_id].address) }}    {{ host }}
+{{ "%-15s" | format(ip_addresses[host][first_management_network_name].address) }}    {{ host }}
     {% endif %}
   {% endfor %}
 {% endif %}

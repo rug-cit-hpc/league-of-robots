@@ -49,14 +49,19 @@ ldap_domains:
     ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
 cloud_image: CentOS7-Cloud
 cloud_user: centos
-network_public_external_id: public
-network_private_management_id: "{{ stack_prefix }}_internal_management"
-network_private_management_cidr: '10.10.1.0/24'
-network_private_management_gw: '10.10.1.1'
-network_private_storage_id: "subnet-nfs-data-2541"
-network_private_storage_cidr: '10.35.141.0/24'
-network_private_storage_allow_ingress:  # Extra network ranges for which to allow any inbound network traffic.
-  - 10.35.141.251/32  # NFS server
+stack_networks:
+  - name: "{{ stack_prefix }}_internal_management"
+    cidr: '10.10.1.0/24'
+    gateway: '10.10.1.1'
+    router_network: public
+    type: management
+    external: false
+  - name: subnet-nfs-data-2541
+    cidr: '10.35.141.0/24'
+    allow_ingress:
+      - 10.35.141.251/32  # NFS server
+    type: storage
+    external: true
 availability_zone: nova
 nameservers: [
   '8.8.4.4',  # Google DNS.

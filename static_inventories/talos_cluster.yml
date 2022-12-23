@@ -9,6 +9,8 @@ all:
       hosts:
         reception:
           cloud_flavor: 2C-4GB
+          host_networks:
+            - name: vlan983
           iptables_allow_icmp_inbound:
             - "{{ all.ip_addresses['umcg']['net1'] }}"
             - "{{ all.ip_addresses['umcg']['net2'] }}"
@@ -27,6 +29,8 @@ all:
       hosts:
         tl-repo:
           cloud_flavor: 2C-4GB
+          host_networks:
+            - name: vlan983
     docs:
       hosts:
         docs_on_merlin:
@@ -34,16 +38,25 @@ all:
       hosts:
         tl-sai:
           cloud_flavor: 4C-8GB
+          host_networks:
+            - name: vlan983
+            - name: vlan985
           local_volume_size_extra: 290
     deploy_admin_interface:
       hosts:
         tl-dai:
           cloud_flavor: 4C-8GB
+          host_networks:
+            - name: vlan983
+            - name: vlan985
           local_volume_size_extra: 290
     user_interface:
       hosts:
         talos:
           cloud_flavor: 4C-8GB
+          host_networks:
+            - name: vlan983
+            - name: vlan985
           slurm_sockets: 4
           slurm_cores_per_socket: 1
           slurm_real_memory: 7820
@@ -59,6 +72,9 @@ all:
             tl-vcompute[01:03]:
           vars:
             cloud_flavor: 4C-8GB
+            host_networks:
+              - name: vlan983
+              - name: vlan985
             local_volume_size_extra: 290
             slurm_sockets: 4
             slurm_cores_per_socket: 1

@@ -1,0 +1,50 @@
+#
+# Create network ports, volumes and finally instances a.k.a. servers.
+#
+---
+- name: Create network ports, volumes and servers.
+  ansible.builtin.include_tasks:
+    file: servers.yml
+  when:
+    - hostvars[inventory_hostname]['cloud_flavor'] is defined
+#
+# Get IPs addresses from API for static hostname lookup with /etc/hosts.
+#
+# Note: we fetch info for all servers relevant or not
+# as filtering directly during the API call is problematic.
+# Will filter the results for the relevant servers later on.
+#
+- name: Get info on floating IPs from OpenStack API.
+  openstack.cloud.floating_ip_info:
+  register: api_fip_info
+  run_once: true
+- name: Get info on networks from OpenStack API.
+  openstack.cloud.networks_info:
+  register: api_network_info
+  run_once: true
+- name: Get server info from OpenStack API.
+  openstack.cloud.server_info:
+  register: api_server_info
+  run_once: true
+- name: "Add IP addresses to {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/group_vars/template/ip_addresses.yml.j2"
+    dest: "{{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
+    mode: '0644'
+  vars:
+    relevant_servers_info: "{{ api_server_info.openstack_servers | selectattr('name', 'in', groups['all']) | list }}"
+  run_once: true
+- name: "ToDo"
+  ansible.builtin.debug:
+    msg: |
+         ***********************************************************************************************************
+         IMPORTANT: Manual work!
+                    Ansible created:
+                        {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new
+                    Please inspect this file carefully with:
+                        diff -y {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
+                    and if Ok execute:
+                        mv {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
+         ***********************************************************************************************************
+  run_once: true
+...
