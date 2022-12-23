@@ -67,7 +67,7 @@ stack_networks:
     type: management
     external: false
   - name: vlan983
-    cidr: '172.23.41.225/24'
+    cidr: '172.23.41.225/23'
     type: management
     external: true
   - name: vlan990
