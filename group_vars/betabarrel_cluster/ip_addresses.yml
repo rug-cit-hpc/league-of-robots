@@ -1,5 +1,14 @@
 ---
 ip_addresses:
+  bb-porch:
+    bb_internal_management:
+      address: 10.10.1.164
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    vlan16:
+      address: 195.169.22.140
+      netmask: /32
+      fqdn: 'WARNING: Check manually for DNS CNAME records a.k.a. aliases: we cannot reverse lookup an alias automagically.'
   betabarrel:
     vlan983:
       address: 172.23.41.225
@@ -7,4 +16,13 @@ ip_addresses:
     vlan13:
       address: 129.125.55.13
       netmask: /24
+  docs_on_merlin:
+    docs_internal_management:
+      address: 10.10.1.165
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    vlan16:
+      address: 195.169.22.179
+      netmask: /32
+      fqdn: 'docs.gcc.rug.nl'
 ...

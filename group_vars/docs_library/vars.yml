@@ -4,6 +4,7 @@ stack_domain: 'gcc.rug.nl'
 stack_name: "{{ stack_prefix }}_library"  # stack_name must match the name of the folder that contains this vars.yml file.
 cloud_image: CentOS 7
 cloud_user: centos
+availability_zone: nova
 stack_networks:
   - name: "{{ stack_prefix }}_internal_management"
     cidr: '10.10.1.0/24'
@@ -11,7 +12,6 @@ stack_networks:
     router_network: vlan16
     type: management
     external: false
-availability_zone: nova
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.

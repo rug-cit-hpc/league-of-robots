@@ -47,6 +47,7 @@ ldap_domains:
     group_member: member
 cloud_image: centos7
 cloud_user: centos
+availability_zone: AZ_1
 stack_networks:
   - name: EJP-RD-network
     cidr: '10.10.1.0/24'
@@ -54,7 +55,6 @@ stack_networks:
     router_network: ext-net-37
     type: management
     external: false
-availability_zone: AZ_1
 storage_availability_zone: nova
 nameservers: [
 #  '/em-isi-3126.ebi.ac.uk/10.35.126.201',  # Local DNS lookups for shared storage.

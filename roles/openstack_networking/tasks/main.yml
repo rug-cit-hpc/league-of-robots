@@ -7,9 +7,9 @@
     file: management_networks.yml
   vars:
     network_name: "{{ item }}"
-    network_cidr: "{{ stack_networks | selectattr('id', 'equalto', item) | map(attribute='cidr') | first }}"
-    network_gateway: "{{ stack_networks | selectattr('id', 'equalto', item) | map(attribute='gateway') | first }}"
-    router_network: "{{ stack_networks | selectattr('id', 'equalto', item) | map(attribute='router_network') | first }}"
+    network_cidr: "{{ stack_networks | selectattr('name', 'equalto', item) | map(attribute='cidr') | first }}"
+    network_gateway: "{{ stack_networks | selectattr('name', 'equalto', item) | map(attribute='gateway') | first }}"
+    router_network: "{{ stack_networks | selectattr('name', 'equalto', item) | map(attribute='router_network') | first }}"
   with_items: "{{ stack_networks
                   | selectattr('type', 'equalto', 'management')
                   | selectattr('external', 'equalto', false)
@@ -20,7 +20,7 @@
     file: storage_networks.yml
   vars:
     network_name: "{{ item }}"
-    network_cidr: "{{ stack_networks | selectattr('id', 'equalto', item) | map(attribute='cidr') | first }}"
+    network_cidr: "{{ stack_networks | selectattr('name', 'equalto', item) | map(attribute='cidr') | first }}"
   with_items: "{{ stack_networks
                   | selectattr('type', 'equalto', 'storage')
                   | selectattr('external', 'equalto', false)

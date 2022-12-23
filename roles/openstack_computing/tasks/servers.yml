@@ -11,6 +11,7 @@
           - ip_address: "{{ ip_addresses[inventory_hostname][item.name]['address'] }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+      with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
       when: ip_addresses[inventory_hostname][item.name]['address'] is defined
     - name: "Use new random address from defined subnet."
       openstack.cloud.port:
@@ -20,8 +21,8 @@
         security_groups: "{{ item.security_group }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
+      with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
       when: ip_addresses[inventory_hostname][item.name]['address'] is not defined
-  with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
 - name: Create persistent storage volume.
   openstack.cloud.volume:
     display_name: "{{ inventory_hostname }}-volume"
@@ -30,6 +31,7 @@
     availability_zone: "{{ storage_availability_zone | default('nova') }}"
     wait: true
     timeout: "{{ openstack_api_timeout }}"
+  when: local_volume_size_extra is defined
 - name: Create list of network port names for servers.
   set_fact:
     instance_nics: "{{ instance_nics | default([]) + [{'port-name': inventory_hostname + '-' + item}] }}"
@@ -68,12 +70,13 @@
     volume: "{{ inventory_hostname }}-volume"
     wait: true
     timeout: "{{ openstack_api_timeout }}"
+  when: local_volume_size_extra is defined
 - name: Assign floating IP to server.
   openstack.cloud.floating_ip:
     server: "{{ inventory_hostname }}"
     state: present
     reuse: true
-    network: "{{ stack_networks | selectattr('id', 'equalto', item.name) | map(attribute='router_network') | first }}"
+    network: "{{ stack_networks | selectattr('name', 'equalto', item.name) | map(attribute='router_network') | first }}"
     nat_destination: "{{ item.name }}"
     wait: true
     timeout: "{{ openstack_api_timeout }}"

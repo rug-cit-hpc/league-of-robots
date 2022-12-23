@@ -47,4 +47,5 @@
                         mv {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
          ***********************************************************************************************************
   run_once: true
+  failed_when: true  # Make sure to always interrupt any playbook here.
 ...
