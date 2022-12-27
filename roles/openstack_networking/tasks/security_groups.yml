@@ -119,6 +119,23 @@
         - protocol: icmp
           port: -1  # ICMP protocol does not have any ports.
       when: groups['jumphost'] | default([]) | length >= 1
+    - name: "Add rules to {{ stack_prefix }}_cluster security group: allow inbound SSH from external jumphosts."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_cluster"
+        direction: ingress
+        protocol: tcp
+        port_range_min: 22
+        port_range_max: 22
+        remote_ip_prefix: "{{ remote_ip_address }}{{ remote_ip_netmask }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      vars:
+        remote_ip_address: "{{ lookup('vars', item.0.group)['ip_addresses'][item.1.hostname][item.1.network]['address'] }}"
+        remote_ip_netmask: "{{ lookup('vars', item.0.group)['ip_addresses'][item.1.hostname][item.1.network]['netmask'] }}"
+      with_subelements:
+        - "{{ external_jumphosts }}"
+        - hosts
+      when: external_jumphosts | default([]) | length >= 1
     - name: "Add rules to {{ stack_prefix }}_cluster security group: allow inbound traffic from machines in the same security group."
       openstack.cloud.security_group_rule:
         security_group: "{{ stack_prefix }}_cluster"
@@ -147,11 +164,11 @@
                      Allows all outbound traffic.
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-      when: "{{ stack_networks
+      when: stack_networks
                 | selectattr('type', 'equalto', 'storage')
                 | map(attribute='name')
                 | intersect(network_names_of_all_hosts_created_in_openstack)
-                | length >= 1 }}"
+                | length >= 1
     - name: "Add rule to {{ stack_prefix }}_storage security group: allow inbound traffic from external storage servers."
       openstack.cloud.security_group_rule:
         security_group: "{{ stack_prefix }}_storage"
@@ -177,7 +194,7 @@
             | default([]) }}"
       loop: "{{ storage_networks_allow_ingress | product(['tcp', 'udp', 'icmp']) | list }}"
       when:
-        - storage_networks_for_hosts_created_in_openstack | length >= 1 }}"
+        - storage_networks_for_hosts_created_in_openstack | length >= 1
         - storage_networks_allow_ingress | length >= 1
     - name: "Add rules to {{ stack_prefix }}_storage security group: allow inbound traffic from machines in the same security group."
       openstack.cloud.security_group_rule:
@@ -193,12 +210,11 @@
         - tcp
         - udp
         - icmp
-      when:
-        - "{{ stack_networks
-              | selectattr('type', 'equalto', 'storage')
-              | map(attribute='name')
-              | intersect(network_names_of_all_hosts_created_in_openstack)
-              | length >= 1 }}"
+      when: stack_networks
+                | selectattr('type', 'equalto', 'storage')
+                | map(attribute='name')
+                | intersect(network_names_of_all_hosts_created_in_openstack)
+                | length >= 1
   when: "'cluster' in inventory_groups_with_hosts_created_in_openstack"
 #
 # Configure IRODS security group using Openstack API.
@@ -353,7 +369,7 @@
                      Allows all outbound traffic.
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rules to {{ stack_prefix }}_webservers security group: allow inbound SSH from jumphosts."
+    - name: "Add rules to {{ stack_prefix }}_webservers security group: allow inbound SSH from external jumphosts."
       openstack.cloud.security_group_rule:
         security_group: "{{ stack_prefix }}_webservers"
         direction: ingress
@@ -367,8 +383,9 @@
         remote_ip_address: "{{ lookup('vars', item.0.group)['ip_addresses'][item.1.hostname][item.1.network]['address'] }}"
         remote_ip_netmask: "{{ lookup('vars', item.0.group)['ip_addresses'][item.1.hostname][item.1.network]['netmask'] }}"
       with_subelements:
-        - "{{ jumphosts }}"
+        - "{{ external_jumphosts }}"
         - hosts
+      when: external_jumphosts | default([]) | length >= 1
     - name: "Add rules to {{ stack_prefix }}_webservers security group: allow inbound HTTP(S) and ICMP."
       openstack.cloud.security_group_rule:
         security_group: "{{ stack_prefix }}_webservers"
