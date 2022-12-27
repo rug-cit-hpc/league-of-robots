@@ -127,7 +127,7 @@ stack_networks:
     external: false
   - name: "{{ stack_prefix }}_internal_management_13"
     cidr: '10.10.3.0/24'
-    gateway: '10.10.1.1'
+    gateway: '10.10.3.1'
     router_network: vlan13
     type: management
     external: false
