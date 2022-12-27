@@ -8,7 +8,7 @@ ip_addresses:
     vlan16:
       address: 195.169.22.140
       netmask: /32
-      fqdn: 'WARNING: Check manually for DNS CNAME records a.k.a. aliases: we cannot reverse lookup an alias automagically.'
+      fqdn: 'NXDOMAIN'
   betabarrel:
     vlan983:
       address: 172.23.41.225

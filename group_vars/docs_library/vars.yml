@@ -32,7 +32,7 @@ local_admin_users:
 # Jumphosts from other stack-name infra groups.
 # We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
 #
-jumphosts:
+external_jumphosts:
   - group: gearshift_cluster
     hosts:
     - hostname: airlock
@@ -56,5 +56,13 @@ jumphosts:
   - group: wingedhelix_cluster
     hosts:
       - hostname: porch
+        network: vlan16
+  - group: betabarrel_cluster
+    hosts:
+      - hostname: bb-porch
+        network: vlan16
+  - group: copperfist_cluster
+    hosts:
+      - hostname: cf-porch
         network: vlan16
 ...

@@ -39,6 +39,19 @@ additional_etc_hosts:
     nodes:
       - name: copperfist
         network: vlan13
+#
+# Jumphosts from other stack-name infra groups.
+# We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
+#
+external_jumphosts:
+  - group: wingedhelix_cluster
+    hosts:
+      - hostname: porch
+        network: vlan16
+  - group: copperfist_cluster
+    hosts:
+      - hostname: cf-porch
+        network: vlan16
 use_ldap: yes
 create_ldap: no
 use_sssd: yes
@@ -57,7 +70,6 @@ ldap_domains:
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
-ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }},{{ inventory_hostname }}"
 totp:
   machines: "{{ groups['jumphost'] }}"
   excluded:
