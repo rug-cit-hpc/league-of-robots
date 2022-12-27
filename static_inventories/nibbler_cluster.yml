@@ -119,7 +119,7 @@ all:
               security_group: "{{ stack_prefix }}_cluster"
             - name: "{{ stack_prefix }}_internal_storage"
               security_group: "{{ stack_prefix }}_storage"
-          local_volume_size_extra: 200
+          local_volume_size_extra: 3000
     user_interface:
       hosts:
         nibbler:
