@@ -33,7 +33,7 @@
     timeout: "{{ openstack_api_timeout }}"
   when: local_volume_size_extra is defined
 - name: Create list of network port names for servers.
-  set_fact:
+  ansible.builtin.set_fact:
     instance_nics: "{{ instance_nics | default([]) + [{'port-name': inventory_hostname + '-' + item}] }}"
   with_items: "{{ hostvars[inventory_hostname]['host_networks'] | map(attribute='name') }}"
 - name: Create servers.
@@ -43,8 +43,8 @@
     image: "{{ cloud_image }}"
     flavor: "{{ cloud_flavor }}"
     #
-    # Security groups are assigned to servers based on the ones assigned to the 
-    # pre-defined network ports used by a server.
+    # Security groups are assigned to servers based on the ones assigned
+    # to the pre-defined network ports used by a server.
     #
     security_groups: "{{ hostvars[inventory_hostname]['host_networks'] | map(attribute='security_group') | unique }}"
     auto_floating_ip: false
