@@ -369,8 +369,9 @@ There are two _wrapper playbooks_:
    * Uses a static inventory from `static_inventories/*.yaml` parsed with our custom inventory plugin `inventory_plugins/yaml_with_jumphost.py`
 
 The _wrapper playbooks_ execute several _roles_ in the right order to create the complete `stack`.
-During development, testing or regular `stack` maintenance individual roles or all roles for a certain type of machine (inventory group)
-can be (re)deployed with the _playbooks_ from the `single_role_playbooks` or `single_group_playbooks`, respectively.
+_Playbooks_ from the `single_role_playbooks/` or `single_group_playbooks/` sub directories can be used to
+(re)deploy individual roles or all roles for only a certain type of machine (inventory group), respectively.
+These shorter subset _playbooks_ can a lot of time during development, testing or regular maintenance.
 
 ##### openstack.yml
 
