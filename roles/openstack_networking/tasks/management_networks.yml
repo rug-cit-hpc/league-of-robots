@@ -42,5 +42,14 @@
       #   portip: 10.10.1.1
     wait: true
     timeout: "{{ openstack_api_timeout }}"
-  when: false  # hack to skip this task to prevent failure when the router already exists.
+  #
+  # Hack to skip this task to prevent failure when the router already exists.
+  # WARNING:
+  #  * This hack is based on the router name and will fail if the router name was changed.
+  #  * Due to this hack the router will not get updated if it already exists and would need an uppdate.
+  #
+  when: api_routers_info['openstack_routers']
+        | rejectattr('name', 'undefined')
+        | selectattr('name', 'equalto', 'Router bridging ' + router_network + ' and ' + network_name)
+        | length < 1
 ...

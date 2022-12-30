@@ -2,6 +2,10 @@
 # Create vxlans, routers and security groups.
 #
 ---
+- name: Get info on routers from OpenStack API.
+  openstack.cloud.routers_info:
+  register: api_routers_info
+
 - name: Create management networks.
   ansible.builtin.include_tasks:
     file: management_networks.yml
