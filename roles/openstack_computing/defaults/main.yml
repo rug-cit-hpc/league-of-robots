@@ -1,3 +1,7 @@
 ---
 openstack_api_timeout: 180
+stack_hosts_created_in_openstack: "{{ hostvars
+    | json_query('* | [?cloud_flavor] | [].inventory_hostname')
+    | flatten
+    | unique }}"
 ...

@@ -32,10 +32,6 @@
     dest: "{{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
     mode: '0644'
   vars:
-    stack_hosts_created_in_openstack: "{{ hostvars
-      | json_query('* | [?cloud_flavor] | [].inventory_hostname')
-      | flatten
-      | unique }}"
     relevant_servers_info: "{{ api_server_info.openstack_servers | selectattr('name', 'in', stack_hosts_created_in_openstack) | list }}"
   run_once: true
 - name: "ToDo"

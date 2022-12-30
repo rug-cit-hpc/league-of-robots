@@ -5,11 +5,11 @@ openstack_api_timeout: 180
 # wich also have the a cloud_flavor specified indicating these machines are created in OpenStack.
 #
 network_names_of_all_hosts_created_in_openstack: "{{ hostvars
-                   | json_query('* | [?cloud_flavor] | [].host_networks[].name')
-                   | flatten
-                   | unique }}"
+    | json_query('* | [?cloud_flavor] | [].host_networks[].name')
+    | flatten
+    | unique }}"
 inventory_groups_with_hosts_created_in_openstack: "{{ hostvars
-                   | json_query('* | [?cloud_flavor] | [].group_names')
-                   | flatten
-                   | unique }}"
+    | json_query('* | [?cloud_flavor] | [].group_names')
+    | flatten
+    | unique }}"
 ...
