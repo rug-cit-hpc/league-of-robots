@@ -241,6 +241,12 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'asalazarvillacorta'
     groups: ['users', 'solve-rd']
+  - user: 'vyepez'
+    groups: ['users', 'solve-rd']
+  - user: 'fbrechtmann'
+    groups: ['users', 'solve-rd']
+  - user: 'cmertes'
+    groups: ['users', 'solve-rd']
 
 #
 # Shared storage related variables

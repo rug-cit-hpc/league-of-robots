@@ -57,7 +57,7 @@ nameservers: [
   '8.8.8.8',  # Google DNS.
 ]
 network_private_management_id: 'vlan983'
-network_private_management_cidr: '172.23.41.225/24'
+network_private_management_cidr: '172.23.41.225/23'
 #network_private_storage_id: "{{ stack_prefix }}_internal_storage"
 #network_private_storage_cidr: '10.10.2.0/24'
 iptables_allow_icmp_inbound:
