@@ -371,7 +371,7 @@ There are two _wrapper playbooks_:
 The _wrapper playbooks_ execute several _roles_ in the right order to create the complete `stack`.
 _Playbooks_ from the `single_role_playbooks/` or `single_group_playbooks/` sub directories can be used to
 (re)deploy individual roles or all roles for only a certain type of machine (inventory group), respectively.
-These shorter subset _playbooks_ can a lot of time during development, testing or regular maintenance.
+These shorter subset _playbooks_ can save a lot of time during development, testing or regular maintenance.
 
 ##### openstack.yml
 
