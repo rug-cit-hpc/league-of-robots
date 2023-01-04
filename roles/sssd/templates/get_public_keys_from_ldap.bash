@@ -166,8 +166,6 @@ fi
 #
 # Return filtered public keys.
 #
-for authorized_key in "${authorized_keys[@]}"; do
-  printf '%s\n' "${authorized_key}"
-done
+( printf '%s\n' "${authorized_keys[@]}" ) || exit 0
 
 {% endraw %}

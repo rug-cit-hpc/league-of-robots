@@ -1,22 +1,5 @@
 ---
 #
-# Defaults for names of keys used to fetch quota limits for groups from an LDAP.
-#
-# LDAP is case insensitive, but we use lowercase only for field names,
-# so we can use simple literal strings in comparisons as opposed to regexes
-# to handle differences in UPPERCASE vs. lowercase.
-#
-# The UPPERCASE "LFS" in {{ ldap_group_quota_*_limit_template }} Ansible variables
-# is a required placeholder that will get replaced with the value of the Logical File System (LFS)
-# for which we will try to fetch quota limits from the LDAP.
-# E.g. with ldap_group_quota_soft_limit_template='ruggroupumcgquotaLFSsoft',
-#      the fieldname/key to lookup the soft quota limit for the LFS prm01 is
-#      ruggroupumcgquotaprm01soft
-#
-ldap_group_object_class: 'groupofnames'
-ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
-ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
-#
 # Lustre 'project' quota is preferred, but older Lustre versions may not support it;
 # Fall-back is 'group' quota, which will work with older versions too.
 # Setting is global for all Lustre file systems mounted on a cluster.
