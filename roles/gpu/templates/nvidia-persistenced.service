@@ -1,0 +1,14 @@
+[Unit]
+Description=Initialize GPU at the startup of the system
+Before=slurmd.service
+
+[Service]
+ExecStart=/usr/bin/nvidia-persistenced --verbose --user {{ nvidia_user }}
+ExecStopPost=/bin/rm -rf /var/run/nvidia-persistenced
+Type=forking
+PIDFile=/var/run/nvidia-persistenced/nvidia-persistenced.pid
+RestartSec=15
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,16 @@
+---
+- name: Enable / restart nvidia-persistenced service
+  ansible.builtin.systemd:
+    name: nvidia-persistenced.service
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  become: true
+  listen: 'nvidia_service'
+
+- name: Restart server
+  ansible.builtin.reboot:
+    msg: "Reboot initiated by Ansible"
+  listen: 'reboot_server'
+  become: true
+...

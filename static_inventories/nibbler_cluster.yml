@@ -90,8 +90,8 @@ all:
     deploy_admin_interface:
       hosts:
         nb-dai:
-          cloud_flavor: m1.small
-          local_volume_size_extra: 200
+          cloud_flavor: m1.large
+          local_volume_size_extra: 3000
     user_interface:
       hosts:
         nibbler:
@@ -125,9 +125,10 @@ all:
               - eth1
         gpu_a40:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            nb-vcompute04:
+            nb-vcompute[04:05]
           vars:
-            cloud_flavor: gpu.A40
+            cloud_flavor: gpu.A40_8
+            gpu_count: 8
             local_volume_size_extra: 1
             slurm_sockets: 32
             slurm_cores_per_socket: 1
