@@ -45,6 +45,7 @@ This repo currently contains code and configs for the following clusters:
 
  * Talos: Development cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
  * Gearshift: [UMCG](https://www.umcg.nl) Research IT production cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
+ * Nibbler: [UMCG](https://www.umcg.nl) Research IT production cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
  * Hyperchicken: Development cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
  * Fender: [Solve-RD](solve-rd.eu/) production cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
 
@@ -79,7 +80,8 @@ The clusters use the following types of storage systems / folders:
 
 Some other stacks of related machines are:
 
- * docs_library: web servers hosting documentation.
+ * ```docs_library```: web servers hosting documentation.
+ * ```jenkins_server```: Continues Integration testing server.
  * ...: iRODS machines
 
 ## Deployment phases
@@ -93,8 +95,8 @@ Deploying a fully functional stack of virtual machines from scratch involves the
     * For the _Shikra_ cloud, which hosts the _Talos_ and _Gearshift_ HPC clusters
       we use the ansible playbooks from the [hpc-cloud](https://git.webhosting.rug.nl/HPC/hpc-cloud) repository
       to create the OpenStack cluster.
-    * For other HPC clusters we use OpenStack clouds from other service providers as is.
- 3. Create, start and configure virtual machines on an OpenStack cluster to create a Slurm HPC cluster.
+    * For other HPC clusters we use OpenStack clouds from other service providers _as is_.
+ 3. Create, start and configure virtual networks and machines on an OpenStack cluster.
     * This repo.
  4. Deploy bioinformatics software and reference datasets.
     * Off topic for this repo.
@@ -103,7 +105,7 @@ Deploying a fully functional stack of virtual machines from scratch involves the
 
 ---
 
-## Details for phase 3. Create, start and configure virtual machines on an OpenStack cluster to create a Slurm HPC cluster.
+## Details for phase 3. Create, start and configure virtual machines on an OpenStack cluster.
 
 #### 0. Clone this repo and configure Python virtual environment.
 
@@ -355,18 +357,23 @@ Use the **_entire_** strings as the ```hash``` values in ```group_vars/[stack_na
 
 #### 8. Running playbooks.
 
-There are two playbooks:
+There are two _wrapper playbooks_:
 
-1. `deploy-os_servers.yml`:
-   * Creates virtual resources in OpenStack: networks, subnets, routers, volumes and finally the virtual machines.
+1. `openstack.yml`:
+   * Creates virtual resources in OpenStack: networks, subnets, routers, ports, volumes and finally the virtual machines.
    * Interacts with the OpenstackSDK / API on localhost.
    * Uses a static inventory from `static_inventories/*.yaml` parsed with our custom inventory plugin `inventory_plugins/yaml_with_jumphost.py`
 1. `cluster.yml`:
-   * Configures the virtual machines created with the `deploy-os_servers.yml` playbook.
+   * Configures the virtual machines created with the `openstack.yml` playbook.
    * Has no dependency on the OpenstackSDK / API.
    * Uses a static inventory from `static_inventories/*.yaml` parsed with our custom inventory plugin `inventory_plugins/yaml_with_jumphost.py`
 
-##### deploy-os_servers.yml
+The _wrapper playbooks_ execute several _roles_ in the right order to create the complete `stack`.
+_Playbooks_ from the `single_role_playbooks/` or `single_group_playbooks/` sub directories can be used to
+(re)deploy individual roles or all roles for only a certain type of machine (inventory group), respectively.
+These shorter subset _playbooks_ can save a lot of time during development, testing or regular maintenance.
+
+##### openstack.yml
 
 * Login to the OpenStack web interface -> _Identity_ -> _Application Credentials_ -> click the _Create Application Credential_ button.  
   This will result in a popup window: specify _Name_, _Expiration Date_, _Expiration Time_, leave the rest empty / use defaults
@@ -383,11 +390,11 @@ There are two playbooks:
   #
   source ./[Application_Credential_Name]-openrc.sh
   #
-  # Configure this repo for deployment of a specifc stack.
+  # Configure this repo for deployment of a specific stack.
   #
   source ./lor-init
   lor-config [stack_prefix]
-  ansible-playbook deploy-os_servers.yml
+  ansible-playbook openstack.yml
   ```
 
 ##### cluster.yml

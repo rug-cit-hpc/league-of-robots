@@ -48,6 +48,19 @@ additional_etc_hosts:
     nodes:
       - name: copperfist
         network: vlan13
+#
+# Jumphosts from other stack-name infra groups.
+# We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
+#
+external_jumphosts:
+  - group: betabarrel_cluster
+    hosts:
+      - hostname: bb-porch
+        network: vlan16
+  - group: copperfist_cluster
+    hosts:
+      - hostname: cf-porch
+        network: vlan16
 use_ldap: true
 use_sssd: true
 ldap_domains:
@@ -105,13 +118,24 @@ totp:
     - "{{ all.ip_addresses['umcg']['net4']['address'] }}{{ all.ip_addresses['umcg']['net4']['netmask'] }}"
 cloud_image: CentOS 7
 cloud_user: centos
-network_public_external_id: vlan16
-network_private_management_id: "{{ stack_prefix }}_internal_management"
-network_private_management_cidr: '10.10.1.0/24'
-network_private_management_gw: '10.10.1.1'
-network_private_storage_id: "{{ stack_prefix }}_internal_storage"
-network_private_storage_cidr: '10.10.2.0/24'
 availability_zone: nova
+stack_networks:
+  - name: "{{ stack_prefix }}_internal_management"
+    cidr: '10.10.1.0/24'
+    gateway: '10.10.1.1'
+    router_network: vlan16
+    type: management
+    external: false
+  - name: "{{ stack_prefix }}_internal_storage"
+    cidr: '10.10.2.0/24'
+    type: storage
+    external: false
+  - name: vlan990
+    cidr: '192.168.1.0/24'
+    allow_ingress:
+      - '192.168.1.0/25'
+    type: storage
+    external: true
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
@@ -212,7 +236,7 @@ regular_users:
 pfs_mounts:
   - pfs: umcgst12
     device: /dev/vdb
-    source: '10.10.2.99:/mnt'
+    source: "{{ ip_addresses[groups['nfs_server'][0]][stack_prefix + '_internal_storage']['address'] }}:/mnt"
     type: nfs4    # checked with cat /proc/filesystem
     rw_options: 'defaults,_netdev,noatime,nodiratime,local_lock=flock'
     ro_options: 'defaults,_netdev,noatime,nodiratime,ro'

@@ -35,19 +35,4 @@ iptables_allow_https_inbound:
   - "{{ all.ip_addresses['rug']['bwp_net'] }}"
   - "{{ all.ip_addresses['rug']['operator'] }}"
   - "{{ all.ip_addresses['gcc']['cloud_net'] }}"
-extra_jumphosts_for_jenkins_server:
-  - 'airlock'     # Gearshift
-  - 'reception'   # Talos
-  - 'portal'      # Hyperchicken
-  - 'corridor'    # Fender
-  - 'dockingport' # Marvin
-  - 'tunnel'      # Nibbler
-  - 'porch'       # Wingedhelix
-ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }}\
-    {% for jumphost_for_this_cluster in groups['jumphost'] | default([]) %}\
-      ,{{ jumphost_for_this_cluster }}+{{ ansible_hostname }}\
-    {% endfor %}\
-    {% for extra_jumphost in extra_jumphosts_for_jenkins_server | default([]) %}\
-      ,{{ extra_jumphost }}+{{ ansible_hostname }}\
-    {% endfor %}"
 ...

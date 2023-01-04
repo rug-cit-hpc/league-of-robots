@@ -113,14 +113,24 @@ pam_weblogin:
   cache_duration: 3600  # seconds
 cloud_image: CentOS 7
 cloud_user: centos
-network_public_external_id: vlan16
-network_private_management_id: "{{ stack_prefix }}_internal_management"
-network_private_management_id_13: "{{ stack_prefix }}_internal_management_13"
-network_private_management_cidr: '10.10.1.0/24'
-network_private_management_gw: '10.10.1.1'
-network_private_storage_id: "{{ stack_prefix }}_internal_storage"
-network_private_storage_cidr: '10.10.2.0/24'
 availability_zone: nova
+stack_networks:
+  - name: "{{ stack_prefix }}_internal_management"
+    cidr: '10.10.1.0/24'
+    gateway: '10.10.1.1'
+    router_network: vlan16
+    type: management
+    external: false
+  - name: "{{ stack_prefix }}_internal_storage"
+    cidr: '10.10.2.0/24'
+    type: storage
+    external: false
+  - name: "{{ stack_prefix }}_internal_management_13"
+    cidr: '10.10.3.0/24'
+    gateway: '10.10.3.1'
+    router_network: vlan13
+    type: management
+    external: false
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
