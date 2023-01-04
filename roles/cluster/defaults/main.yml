@@ -22,6 +22,7 @@ cluster_common_packages:
   - ncurses-static
   - net-tools
   - openssl
+  - pciutils
   - openssl11  # Required for openldap-ltb RPMs.
   - qt5-qtbase
   - qt5-qtxmlpatterns
@@ -37,4 +38,5 @@ cluster_common_packages:
   - urw-base35-fonts
   - vim
   - wget
+  - yum-utils
 ...

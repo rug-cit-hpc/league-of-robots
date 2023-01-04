@@ -1,0 +1,48 @@
+---
+- name: 'Add nvidia group.'
+  ansible.builtin.group:
+    name: '{{ nvidia_group }}'
+    gid: '{{ nvidia_gid }}'
+  become: true
+
+- name: 'Add nvidia user.'
+  ansible.builtin.user:
+    name: '{{ nvidia_user }}'
+    uid: '{{ nvidia_uid }}'
+    group: '{{ nvidia_group }}'
+    system: true
+    shell: /sbin/nologin
+    create_home: false
+  become: true
+
+- name: Install NVidia persistence service
+  ansible.builtin.template:
+    src: nvidia-persistenced.service
+    dest: /etc/systemd/system/nvidia-persistenced.service
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: 'nvidia_service'
+
+- name: Copy blacklist-nouveau.conf file into modprobe.d to disable Nouveau drivers
+  ansible.builtin.copy:
+    src: blacklist-nouveau.conf
+    dest: /etc/modprobe.d/blacklist-nouveau.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: 'reboot_server'
+
+- name: Enforce reboot, so that we can check if drivers are correctly installed
+  ansible.builtin.meta: flush_handlers
+
+- name: Final check to confirm all devices are working
+  ansible.builtin.command: 'nvidia-smi -L'
+  register: smi
+  when: true
+  changed_when: false
+  failed_when: ( smi.rc != 0) or
+               ( smi.stdout|default([])|lower|regex_findall('nvidia')|length != gpu_count )
+...

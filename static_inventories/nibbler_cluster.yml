@@ -114,7 +114,7 @@ all:
     deploy_admin_interface:
       hosts:
         nb-dai:
-          cloud_flavor: m1.small
+          cloud_flavor: m1.large
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
@@ -164,9 +164,10 @@ all:
               - eth1
         gpu_a40:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            nb-vcompute04:
+            nb-vcompute[04:05]
           vars:
-            cloud_flavor: gpu.A40
+            cloud_flavor: gpu.A40_8
+            gpu_count: 8
             host_networks:
               - name: "{{ stack_prefix }}_internal_management"
                 security_group: "{{ stack_prefix }}_cluster"

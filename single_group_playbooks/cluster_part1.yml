@@ -23,6 +23,7 @@
     - figlet_motd
     - node_exporter
     - cluster
+    - gpu            # needs to run after role 'cluster'
     - resolver
     - coredumps
 ...
