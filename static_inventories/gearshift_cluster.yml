@@ -9,10 +9,14 @@ all:
       hosts:
         airlock:
           cloud_flavor: 2C-4GB
+          host_networks:
+            - name: vlan983
     repo:
       hosts:
         gs-repo:
           cloud_flavor: 2C-4GB
+          host_networks:
+            - name: vlan983
     docs:
       hosts:
         docs_on_merlin:
@@ -20,21 +24,30 @@ all:
       hosts:
         imperator:
           cloud_flavor: 4C-8GB
+          host_networks:
+            - name: vlan983
+            - name: vlan985
           local_volume_size_extra: 2900
     deploy_admin_interface:
       hosts:
         sugarsnax:
           cloud_flavor: 4C-8GB
+          host_networks:
+            - name: vlan983
+            - name: vlan985
           local_volume_size_extra: 2900
     user_interface:
       hosts:
         gearshift:
           cloud_flavor: 24C-240GB
+          host_networks:
+            - name: vlan983
+            - name: vlan985
           slurm_sockets: 2
           slurm_cores_per_socket: 12
           slurm_real_memory: 217778
           slurm_local_disk: 0
-          slurm_features: 'prm03,tmp01'
+          slurm_features: 'prm02,prm03,tmp01'
           slurm_ethernet_interfaces:
             - 'vlan983'
             - 'vlan985.isilon'
@@ -45,6 +58,9 @@ all:
           hosts:
             gs-vcompute[01:10]:
           vars:
+            host_networks:
+              - name: vlan983
+              - name: vlan985
             cloud_flavor: 24C-240GB
             local_volume_size_extra: 2900
             slurm_sockets: 2
@@ -53,7 +69,7 @@ all:
             slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
             slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
             slurm_local_disk: 2800000
-            slurm_features: 'tmp01'
+            slurm_features: 'rsc01,tmp01'
             slurm_ethernet_interfaces:
               - 'vlan983'
               - 'vlan985.isilon'

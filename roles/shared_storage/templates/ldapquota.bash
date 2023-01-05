@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:True, lstrip_blocks: True
 #!/bin/bash
 
 #
@@ -26,29 +27,25 @@ set -o pipefail # Fail when any command in series of piped commands failed as op
 umask 0077
 
 #
-# LDAP is case insensitive, but we use lowercase only for field names,
-# so we can use simple literal strings in comparisons as opposed to regexes
-# to handle differences in UPPERCASE vs. lowercase.
-#
-# The UPPERCASE "LFS" in ${ldap_group_quota_*_limit_template} variables 
-# is a required placeholder that will get replaced with the value of the Logical File System (LFS)
-# for which we will try to fetch quota limits from the LDAP.
-# E.g. with ldap_group_quota_soft_limit_template='ruggroupumcgquotaLFSsoft',
-#      the fieldname/key to lookup the soft quota limit for the LFS prm01 is
-#      ruggroupumcgquotaprm01soft
-#
-declare    ldap_group_object_class='{{ ldap_group_object_class }}'
-declare    ldap_group_quota_soft_limit_template='{{ ldap_group_quota_soft_limit_template }}'
-declare    ldap_group_quota_hard_limit_template='{{ ldap_group_quota_hard_limit_template }}'
-declare -A ldap_quota_limits=()
-
-#
-# Lustre quota type for groups:
-# We prefer "project quota" for group folders,
+# Quota settings for groups:
+# For Lustre file systems we prefer "project quota" for group folders,
 # but we'll use "group quota" when project quota are not supported (yet).
 #
-declare    lustre_quota_type='{{ lustre_quota_type }}'
-
+declare -A ldap_quota_limits=()
+declare -A quota_types=(
+	{% for lfs_item in lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$') %}
+		{% if lfs_item['quota_type'] is defined %}
+	['{{ lfs_item['lfs'] }}']='{{ lfs_item['quota_type']}}'
+		{% endif %}
+	{% endfor %}
+)
+declare -A quota_pid_increments=(
+	{% for lfs_item in lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$') %}
+		{% if lfs_item['quota_pid_increment'] is defined %}
+	['{{ lfs_item['lfs'] }}']='{{ lfs_item['quota_pid_increment']}}'
+		{% endif %}
+	{% endfor %}
+)
 #
 # No more Ansible variables below this point!
 #
@@ -63,7 +60,7 @@ export TMPDIR
 export SCRIPT_NAME
 declare mixed_stdouterr='' # global variable to capture output from commands for reporting in custom log messages.
 declare ldif_dir="${TMPDIR}/ldifs"
-declare config_file='/etc/ssh/ldap.conf'
+declare ldap_config_file='/etc/openldap/readonly-ldapsearch-credentials.bash'
 
 #
 # Initialise Log4Bash logging with defaults.
@@ -300,13 +297,19 @@ function processFileSystems () {
 			# Just append unit: all quota values from the IDVault are in GB.
 			_hard_quota_limit="${_hard_quota_limit}G"
 		fi
-		#
-		# Get the GID for this group, which will be used as the file set / project ID for quota accounting.
-		#
-		local _gid
-		_gid="$(getent group "${_group_from_lfs_path}" | awk -F ':' '{printf $3}')"
 		if [[ "${_fs_type}" == 'lustre' ]]; then
-			applyLustreQuota "${_lfs_path}" "${_gid}" "${_soft_quota_limit}" "${_hard_quota_limit}"
+			#
+			# Get the GID for this group, which will be used as the ID for quota accounting.
+			#
+			local _gid
+			_gid="$(getent group "${_group_from_lfs_path}" | awk -F ':' '{printf $3}')"
+			if [[ "${quota_types[${_lfs_from_lfs_path}]:-group}" == 'project' ]]; then
+				local _pid
+				_pid=$((${_gid} + ${quota_pid_increments[${_lfs_from_lfs_path}]:-0}))
+				applyLustreQuota "${_lfs_path}" 'project' "${_pid}" "${_soft_quota_limit}" "${_hard_quota_limit}"
+			else
+				applyLustreQuota "${_lfs_path}" 'group' "${_gid}" "${_soft_quota_limit}" "${_hard_quota_limit}"
+			fi
 		elif [[ "${_fs_type}" == 'nfs4' ]]; then
 			saveQuotaCache "${_lfs_path}" "${_soft_quota_limit}" "${_hard_quota_limit}"
 		else
@@ -316,15 +319,17 @@ function processFileSystems () {
 }
 
 #
-# Set Lustre project a.k.a. file set a.k.a folder quota limits:
+# Prefer Lustre project a.k.a. file set a.k.a folder quota limits:
 #  * Set project attribute on LFS path using GID as project ID.
 #  * Use lfs setquota to configure quota limit for project.
+# Fallback to group quota if project quota is not supported.
 #
 function applyLustreQuota () {
 	local    _lfs_path="${1}"
-	local    _gid="${2}"
-	local    _soft_quota_limit="${3}"
-	local    _hard_quota_limit="${4}"
+	local    _quota_type="${2}"
+	local    _id="${3}"
+	local    _soft_quota_limit="${4}"
+	local    _hard_quota_limit="${5}"
 	local    _cmd
 	local -a _cmds
 	if [[ "${apply_settings}" -eq 1 ]]; then
@@ -332,15 +337,15 @@ function applyLustreQuota () {
 	else
 		log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Dry run: the following quota commands would have been executed with the '-a' switch ..."
 	fi
-	if [[ "${lustre_quota_type}" == 'project' ]]; then
+	if [[ "${_quota_type}" == 'project' ]]; then
 		_cmds=(
 			"chattr +P ${_lfs_path}"
-			"chattr -p ${_gid} ${_lfs_path}"
-			"lfs setquota -p ${_gid} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
+			"chattr -p ${_id} ${_lfs_path}"
+			"lfs setquota -p ${_id} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
 		)
-	elif [[ "${lustre_quota_type}" == 'group' ]]; then
+	elif [[ "${_quota_type}" == 'group' ]]; then
 		_cmds=(
-			"lfs setquota -g ${_gid} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
+			"lfs setquota -g ${_id} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
 		)
 	else
 		log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "   Unsuported Lustre quota type: ${lustre_quota_type}."
@@ -388,109 +393,118 @@ function getQuotaFromLDAP () {
 	local    _group="${2}"
 	local    _ldap_attr_regex='([^: ]{1,})(:{1,2}) ([^:]{1,})'
 	local    _ldif_file="${ldif_dir}/${_group}.ldif"
-	local    _ldif_record
-	local -a _ldif_records
-	local    _ldap_group_quota_soft_limit_key="${ldap_group_quota_soft_limit_template/LFS/${_lfs}}"
-	local    _ldap_group_quota_hard_limit_key="${ldap_group_quota_hard_limit_template/LFS/${_lfs}}"
+	local _ldap
 	#
 	# Query LDAP
 	#
-	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Retrieving data from LDAP..."
-	ldapsearch -LLL -o ldif-wrap=no \
-			-H "${LDAP_HOST}" \
-			-D "${LDAP_USER}" \
-			-w "${LDAP_PASS}" \
-			-b "${LDAP_SEARCH_BASE}" \
-			"(&(ObjectClass=${ldap_group_object_class})(cn:dn:=${_group}))" \
-			"${_ldap_group_quota_soft_limit_key}" \
-			"${_ldap_group_quota_hard_limit_key}" \
-			2>&1 >"${_ldif_file}" \
-		|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "ldapsearch failed."
-	#
-	# Parse query results.
-	#
-	while IFS= read -r -d '' _ldif_record; do
-		_ldif_records+=("${_ldif_record}")
-	done < <(sed 's/^$/\x0/' "${_ldif_file}") \
-	|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Parsing LDIF file (${_ldif_file}) into records failed."
-	#
-	# Loop over records in the array and create a faked-multi-dimensional hash.
-	#
-	for _ldif_record in "${_ldif_records[@]}"; do
+	for _ldap in "${domain_names[@]}"; do
+		local _uri="${domain_configs[${_ldap}_uri]}"
+		local _search_base="${domain_configs[${_ldap}_search_base]}"
+		local _bind_dn="${domain_configs[${_ldap}_bind_dn]}"
+		local _bind_pw="${domain_configs[${_ldap}_bind_pw]}"
+		local _group_object_class="${domain_configs[${_ldap}_group_object_class]}"
+		local _group_quota_soft_limit_template="${domain_configs[${_ldap}_group_quota_soft_limit_template]}"
+		local _group_quota_hard_limit_template="${domain_configs[${_ldap}_group_quota_hard_limit_template]}"
+		local _group_quota_soft_limit_key="${_group_quota_soft_limit_template/LFS/${_lfs}}"
+		local _group_quota_hard_limit_key="${_group_quota_hard_limit_template/LFS/${_lfs}}"
+		ldapsearch -LLL -o ldif-wrap=no \
+				-H "${_uri}" \
+				-D "${_bind_dn}" \
+				-w "${_bind_pw}" \
+				-b "${_search_base}" \
+				"(&(ObjectClass=${_group_object_class})(cn:dn:=${_group}))" \
+				"${_group_quota_soft_limit_key}" \
+				"${_group_quota_hard_limit_key}" \
+				2>&1 >"${_ldif_file}" \
+			|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "ldapsearch failed."	
 		#
-		# Remove trailing white space like the new line character.
-		# And skip blank lines.
+		# Parse query results.
 		#
-		_ldif_record="${_ldif_record%%[[:space:]]}"
-		[[ "${_ldif_record}" == '' ]] && continue
-		log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "LDIF record contains: ${_ldif_record}"
+		local    _ldif_record
+		local -a _ldif_records
+		while IFS= read -r -d '' _ldif_record; do
+			_ldif_records+=("${_ldif_record}")
+		done < <(sed 's/^$/\x0/' "${_ldif_file}") \
+		|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Parsing LDIF file (${_ldif_file}) into records failed."
 		#
-		# Parse record's key:value pairs.
+		# Loop over records in the array and create a faked-multi-dimensional hash.
 		#
-		local -A _directory_record_attributes=()
-		local    _ldif_line
-		while IFS=$'\n' read -r _ldif_line; do
-			[[ "${_ldif_line}" == '' ]] && continue # Skip blank lines.
-			log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "LDIF key:value pair contains: ${_ldif_line}."
-			if [[ "${_ldif_line}" =~ ${_ldap_attr_regex} ]]; then
-				local _key="${BASH_REMATCH[1],,}" # Convert key on-the-fly to lowercase.
-				local _sep="${BASH_REMATCH[2]}"
-				local _value="${BASH_REMATCH[3]}"
-				#
-				# Check if value was base64 encoded (double colon as separator)
-				# or plain text (single colon as separator) and decode if necessary.
-				#
-				if [[ "${_sep}" == '::' ]]; then
-					log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "     decoding base64 encoded value..."
-					_value="$(printf '%s' "${_value}" | base64 -di)"
-				fi
-				#
-				# This may be a multi-valued attribute and therefore check if key already exists;
-				# When key already exists make sure we append instead of overwriting the existing value(s)!
-				#
-				if [[ -n "${_directory_record_attributes[${_key}]+isset}" ]]; then
-					_directory_record_attributes["${_key}"]="${_directory_record_attributes["${_key}"]} ${_value}"
+		for _ldif_record in "${_ldif_records[@]}"; do
+			#
+			# Remove trailing white space like the new line character.
+			# And skip blank lines.
+			#
+			_ldif_record="${_ldif_record%%[[:space:]]}"
+			[[ "${_ldif_record}" == '' ]] && continue
+			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "LDIF record contains: ${_ldif_record}"
+			#
+			# Parse record's key:value pairs.
+			#
+			local -A _directory_record_attributes=()
+			local    _ldif_line
+			while IFS=$'\n' read -r _ldif_line; do
+				[[ "${_ldif_line}" == '' ]] && continue # Skip blank lines.
+				log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "LDIF key:value pair contains: ${_ldif_line}."
+				if [[ "${_ldif_line}" =~ ${_ldap_attr_regex} ]]; then
+					local _key="${BASH_REMATCH[1],,}" # Convert key on-the-fly to lowercase.
+					local _sep="${BASH_REMATCH[2]}"
+					local _value="${BASH_REMATCH[3]}"
+					#
+					# Check if value was base64 encoded (double colon as separator)
+					# or plain text (single colon as separator) and decode if necessary.
+					#
+					if [[ "${_sep}" == '::' ]]; then
+						log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "     decoding base64 encoded value..."
+						_value="$(printf '%s' "${_value}" | base64 -di)"
+					fi
+					#
+					# This may be a multi-valued attribute and therefore check if key already exists;
+					# When key already exists make sure we append instead of overwriting the existing value(s)!
+					#
+					if [[ -n "${_directory_record_attributes[${_key}]+isset}" ]]; then
+						_directory_record_attributes["${_key}"]="${_directory_record_attributes["${_key}"]} ${_value}"
+					else
+						_directory_record_attributes["${_key}"]="${_value}"
+					fi
+					log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "     key   contains: ${_key}."
+					log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "     value contains: ${_value}."
 				else
-					_directory_record_attributes["${_key}"]="${_value}"
+					log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Failed to parse LDIF key:value pair (${_ldif_line})."
 				fi
-				log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "     key   contains: ${_key}."
-				log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "     value contains: ${_value}."
+			done < <(printf '%s\n' "${_ldif_record}") || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Parsing LDIF record failed."
+			#
+			# Get Quota from processed LDIF record if this the right group.
+			#
+			local _ldap_group
+			if [[ -n "${_directory_record_attributes['dn']+isset}" ]]; then
+				#
+				# Parse cn from dn.
+				#
+				_ldap_group=$(dn2cn "${_directory_record_attributes['dn']}")
+				log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Found group ${_ldap_group} in dn attribute."
 			else
-				log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Failed to parse LDIF key:value pair (${_ldif_line})."
+				log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "dn attribute missing for ${_ldif_record}"
 			fi
-		done < <(printf '%s\n' "${_ldif_record}") || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Parsing LDIF record failed."
-		#
-		# Get Quota from processed LDIF record if this the right group.
-		#
-		local _ldap_group
-		if [[ -n "${_directory_record_attributes['dn']+isset}" ]]; then
+			if [[ "${_ldap_group}" == "${_group}" ]]; then
+				log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Group from ldap record matches the group we were looking for: ${_ldap_group}."
+			else
+				log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Skipping LDAP group ${_ldap_group} that does not match the LFS group ${_group} we were looking for."
+				continue
+			fi
 			#
-			# Parse cn from dn.
+			# Get quota values for this group on this LFS.
 			#
-			_ldap_group=$(dn2cn "${_directory_record_attributes['dn']}")
-			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Found group ${_ldap_group} in dn attribute."
-		else
-			log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "dn attribute missing for ${_ldif_record}"
-		fi
-		if [[ "${_ldap_group}" == "${_group}" ]]; then
-			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Group from ldap record matches the group we were looking for: ${_ldap_group}."
-		else
-			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Skipping LDAP group ${_ldap_group} that does not match the LFS group ${_group} we were looking for."
-			continue
-		fi
-		#
-		# Get quota values for this group on this LFS.
-		#
-		if [[ -n "${_directory_record_attributes["${_ldap_group_quota_soft_limit_key}"]+isset}" && \
-			  -n "${_directory_record_attributes["${_ldap_group_quota_hard_limit_key}"]+isset}" ]]; then
-			ldap_quota_limits['soft']="${_directory_record_attributes["${_ldap_group_quota_soft_limit_key}"]}"
-			ldap_quota_limits['hard']="${_directory_record_attributes["${_ldap_group_quota_hard_limit_key}"]}"
-			return
-		else
-			log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Quota values missing for group ${_ldap_group} on LFS ${_lfs_from_lfs_path}."
-			log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "      Search keys were ${_ldap_group_quota_soft_limit_key} and ${_ldap_group_quota_hard_limit_key}."
-			continue
-		fi
+			if [[ -n "${_directory_record_attributes["${_group_quota_soft_limit_key}"]+isset}" && \
+				  -n "${_directory_record_attributes["${_group_quota_hard_limit_key}"]+isset}" ]]; then
+				ldap_quota_limits['soft']="${_directory_record_attributes["${_group_quota_soft_limit_key}"]}"
+				ldap_quota_limits['hard']="${_directory_record_attributes["${_group_quota_hard_limit_key}"]}"
+				return
+			else
+				log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Quota values missing for group ${_ldap_group} on LFS ${_lfs}."
+				log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "      Search keys were ${_group_quota_soft_limit_key} and ${_group_quota_hard_limit_key}."
+				continue
+			fi
+		done
 	done
 }
 
@@ -544,21 +558,14 @@ while getopts ":l:ah" opt; do
 done
 
 #
-# Get credentials from config file.
+# Parse LDAP config file.
 #
-#	LDAP_USER='some_account'
-#	LDAP_PASS='some_passwd'
-#	LDAP_SEARCH_BASE='ou=groups,ou=some_org_unit,o=some_org'
-#
-if [[ -r "${config_file}" && -f "${config_file}" ]]; then
-	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Fetching ldapsearch credentials from config file ${config_file} ..."
-	LDAP_HOST="$(awk '$1 == "uri" {print $2}' "${config_file}")"         || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Failed to parse LDAP_HOST from ${config_file}."
-	LDAP_USER="$(awk '$1 == "binddn" {print $2}' "${config_file}")"      || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Failed to parse LDAP_USER from ${config_file}."
-	LDAP_PASS="$(awk '$1 == "bindpw" {print $2}' "${config_file}")"      || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Failed to parse LDAP_PASS from ${config_file}."
-	LDAP_SEARCH_BASE="$(awk '$1 == "base" {print $2}' "${config_file}")" || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Failed to parse LDAP_SEARCH_BASE from ${config_file}."
-	log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "Using LDAP credentials: LDAP_HOST=${LDAP_HOST} | LDAP_USER=${LDAP_USER} | LDAP_PASS=${LDAP_PASS} | LDAP_SEARCH_BASE=${LDAP_SEARCH_BASE}"
+if [[ -e  "${ldap_config_file}" && -r "${ldap_config_file}" ]]; then
+	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Fetching ldapsearch credentials from config file ${ldap_config_file} ..."
+	# shellcheck source=/dev/null
+	source "${ldap_config_file}"
 else
-	log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Config file ${config_file} missing or not accessible."
+	log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Config file ${ldap_config_file} missing or not readable."
 fi
 
 if [ "${apply_settings}" -eq 1 ]; then

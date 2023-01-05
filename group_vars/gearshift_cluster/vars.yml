@@ -3,7 +3,7 @@ slurm_cluster_name: 'gearshift'
 stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'gs'
-slurm_version: '20.11.8-1.el7.umcg'
+slurm_version: '22.05.2-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
@@ -26,33 +26,58 @@ slurm_partitions:
 repo_manager: 'pulp'
 figlet_font: 'cyberlarge'
 motd: |
-      ============================================================
+      ===============================================================
        Welcome to {{ slurm_cluster_name | capitalize }}
-      ============================================================
+      ===============================================================
        WARNING: only prm* group dirs are backupped.
        When this cluster has to be redeployed from scratch,
-       all data in home dirs and tmp* group dirs will be lost!
-      ============================================================
+       all data in home dirs and tmp* & rsc* group dirs will be lost!
+      ===============================================================
 additional_etc_hosts:
   - group: docs_library
     nodes:
       - name: docs_on_merlin
         network: vlan16
-ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-ca"
 use_ldap: yes
 create_ldap: no
-ldap_uri: 'ldap://172.23.40.249'
-ldap_base: 'ou=research,o=asds'
-ldap_binddn: 'cn=clusteradminumcg,o=asds'
-ldap_group_object_class: 'groupofnames'
-ldap_group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
-ldap_group_quota_hard_limit_template: 'ruggroupumcgquotaLFS'
-filter_passwd: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
-filter_shadow: '(|(rugpersonentitlementvalue=scz)(rugpersonentitlementvalue=umcg))'
-pam_authz_search: '(|(&(objectClass=posixGroup)(cn=co_bbmri_g-GRP_Gearshift)(memberUid=$username))(&(cn=$username)(rugpersonentitlementvalue=umcg)))'
-network_public_external_id: vlan16
-network_private_management_id: vlan983
-network_private_storage_id: vlan985
+use_sssd: yes
+ldap_domains:
+  idvault:
+    uri: ldaps://172.23.40.249
+    base: ou=umcg,o=asds
+    schema: rfc2307
+    min_id: 50100000
+    max_id: 55999999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: groupMembership
+    user_expiration_date: loginExpirationTime
+    group_member: memberUid
+    group_object_class: groupofnames
+    #
+    # LDAP is case insensitive, but we use lowercase only for quota field names,
+    # so we can use simple literal strings in comparisons as opposed to regexes
+    # to handle differences in UPPERCASE vs. lowercase.
+    #
+    # The UPPERCASE "LFS" in {{ ldap_domains[domain]['group_quota_*_limit_template'] }} Ansible variables
+    # is a required placeholder that will get replaced with the value of the Logical File System (LFS)
+    # for which we will try to fetch quota limits from the LDAP.
+    # E.g. with
+    #     group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
+    # the fieldname/key used to lookup the soft quota limit for the prm01 LFS is
+    #     ruggroupumcgquotaprm01soft
+    #
+    group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
+    group_quota_hard_limit_template: ruggroupumcgquotaLFS
+stack_networks:
+  - name: vlan983
+    router_network: vlan16
+    type: management
+    external: true
+  - name: vlan985
+    type: storage
+    external: true
 nameservers: [
   '172.23.40.244', # Order is important: local DNS for Isilon storage first!
   '8.8.4.4',       # Google DNS.
@@ -295,7 +320,6 @@ regular_users:
 #
 # Shared storage related variables
 #
-lustre_quota_type: 'group'
 lustre_client_networks:
    - name: tcp11
      interface: vlan985.lustre
@@ -397,6 +421,8 @@ lfs_mounts:
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: prm02
     pfs: umcgst01
+    quota_type: 'project'
+    quota_pid_increment: 0  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
       - name: umcg-aad
       - name: umcg-as
@@ -448,6 +474,8 @@ lfs_mounts:
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: prm03
     pfs: umcgst02
+    quota_type: 'project'
+    quota_pid_increment: 200000  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
       - name: umcg-aad
       - name: umcg-as
@@ -499,6 +527,8 @@ lfs_mounts:
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: rsc01
     pfs: umcgst03
+    quota_type: 'project'
+    quota_pid_increment: 100000  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
       - name: umcg-aad
       - name: umcg-as

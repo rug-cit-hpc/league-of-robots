@@ -9,6 +9,10 @@ all:
       hosts:
         porch:
           cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_jumphosts"
+              assign_floating_ip: true
           security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
           iptables_allow_icmp_inbound:
             - "{{ all.ip_addresses['umcg']['net1'] }}"
@@ -21,6 +25,9 @@ all:
       hosts:
         wh-repo:
           cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_repo"
           swap_file_size: 2
     docs:
       hosts:
@@ -29,11 +36,23 @@ all:
       hosts:
         wh-sai:
           cloud_flavor: m1.large
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_cluster"
+            - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
+            - name: vlan990
+              security_group: "{{ stack_prefix }}_storage"
           local_volume_size_extra: 10000
     deploy_admin_interface:
       hosts:
         wh-dai:
           cloud_flavor: m1.large
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_cluster"
+            - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
           local_volume_size_extra: 2000
     ldap_server:
       hosts:
@@ -42,6 +61,11 @@ all:
       hosts:
         wingedhelix:
           cloud_flavor: m1.xlarge
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_cluster"
+            - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
           slurm_sockets: 8
           slurm_cores_per_socket: 1
           slurm_real_memory: 15884
@@ -58,6 +82,11 @@ all:
           vars:
             # flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
             cloud_flavor: m1.huge
+            host_networks:
+              - name: "{{ stack_prefix }}_internal_management"
+                security_group: "{{ stack_prefix }}_cluster"
+              - name: "{{ stack_prefix }}_internal_storage"
+                security_group: "{{ stack_prefix }}_storage"
             local_volume_size_extra: 1
             slurm_sockets: 16
             slurm_cores_per_socket: 1

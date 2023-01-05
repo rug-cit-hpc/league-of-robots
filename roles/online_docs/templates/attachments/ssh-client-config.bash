@@ -374,6 +374,7 @@ Host{% for jumphost in groups['jumphost'] %} {{ jumphost }}*{% endfor %}
   {%- endif -%}
 Host {{ jumphost }}
     HostName {{ ssh_hostname }}
+    HostKeyAlias {{ jumphost }}
 {% endfor -%}
 #
 # Universal jumphost settings for triple-hop SSH.

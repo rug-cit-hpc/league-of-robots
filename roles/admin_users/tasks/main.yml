@@ -41,6 +41,12 @@
     mode: '0755'
     state: directory
   become: true
+- name: Install policycoreutils-python package to be used at admin home dir SE-labeling
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name: 'policycoreutils-python'
+  become: true
 - name: Make sure home dirs for admin users are correctly labelled for SELinux.
   community.general.sefcontext:
     target: "{{ item.target }}"
@@ -83,5 +89,6 @@
     name: root
     password: '{{ cloud_console_pass | password_hash("sha512") }}'
     update_password: 'always'
+  when: cloud_console_pass is defined and cloud_console_pass | length > 1
   become: true
 ...

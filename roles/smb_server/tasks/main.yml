@@ -36,16 +36,6 @@
   when: smb_server_shares_base_status.results | json_query(query) | first is false
   loop: "{{ smb_server_shares | flatten(levels=1) }}"
 
-- name: Create samba share folders.
-  ansible.builtin.file:
-    path: "{{ item.0.base }}/{{ item.1.path }}"
-    owner: "{{ item.1.owner }}"
-    group: "{{ item.1.group }}"
-    mode: "{{ item.1.mode }}"
-    state: directory
-  loop: "{{ smb_server_shares | subelements('subtree') }}"
-  become: true
-
 - name: Create local groups for local linux user, which will be mapped to samba user.
   ansible.builtin.group:
     name: "{{ item.name }}"
@@ -107,6 +97,16 @@
   loop: "{{ smb_server_users }}"
   become: true
   no_log: true
+
+- name: Create samba share folders.
+  ansible.builtin.file:
+    path: "{{ item.0.base }}/{{ item.1.path }}"
+    owner: "{{ item.1.owner }}"
+    group: "{{ item.1.group }}"
+    mode: "{{ item.1.mode }}"
+    state: directory
+  loop: "{{ smb_server_shares | subelements('subtree') }}"
+  become: true
 
 - name: Enable services.
   ansible.builtin.systemd:

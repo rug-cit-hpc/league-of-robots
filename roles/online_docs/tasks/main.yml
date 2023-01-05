@@ -245,7 +245,8 @@
     dest: "/var/www/html/"
     owner: 'no'
     group: 'no'
-    use_ssh_args: true
+    # Temporarily disabled as it is broken in Mitogen 0.3.3. Fix is already merged and will be in next Mitogen version.
+    # use_ssh_args: true
     ssh_connection_multiplexing: true
     rsync_opts:
       # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
@@ -290,7 +291,8 @@
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
     owner: 'no'
     group: 'no'
-    use_ssh_args: true
+    # Temporarily disabled as it is broken in Mitogen 0.3.3. Fix is already merged and will be in next Mitogen version.
+    # use_ssh_args: true
     ssh_connection_multiplexing: true
     rsync_opts:
       # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
@@ -328,7 +330,8 @@
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.dest }}"
     owner: 'no'
     group: 'no'
-    use_ssh_args: true
+    # Temporarily disabled as it is broken in Mitogen 0.3.3. Fix is already merged and will be in next Mitogen version.
+    # use_ssh_args: true
     ssh_connection_multiplexing: true
     recursive: 'yes'
     rsync_opts:

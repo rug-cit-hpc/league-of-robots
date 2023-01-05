@@ -7,10 +7,16 @@
 #
 ---
 - name: Install generic build environment packages on UIs and DAIs.
-  ansible.builtin.import_tasks: generic_build_dependencies.yml
+  ansible.builtin.import_tasks: build_dependencies.yml
+  vars:
+    mandatory_deps: "{{ build_env_generic_deps }}"
+    optional_deps: "{{ build_env_optional_deps }}"
   when: inventory_hostname in groups['user_interface'] or inventory_hostname in groups['deploy_admin_interface']
 
-- name: Install extra build environment packages on DAIs.
-  ansible.builtin.import_tasks: dai_build_dependencies.yml
+- name: Install extended build environment packages on DAIs.
+  ansible.builtin.import_tasks: build_dependencies.yml
+  vars:
+    mandatory_deps: "{{ build_env_dai_deps }}"
+    optional_deps: []
   when: inventory_hostname in groups['deploy_admin_interface']
 ...

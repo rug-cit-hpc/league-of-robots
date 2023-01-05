@@ -1,0 +1,11 @@
+---
+gpu_cuda_version: '11.7.1'
+gpu_driver_version: '515.65.01'
+gpu_url_dir: 'https://developer.download.nvidia.com/compute/cuda/{{ gpu_cuda_version }}/local_installers/'
+gpu_runfile: 'cuda_{{ gpu_cuda_version }}_{{ gpu_driver_version }}_linux.run'
+
+nvidia_user: nvidia
+nvidia_uid: 601       # a regular user with UID >500 and <1000, but no login
+nvidia_group: nvidia
+nvidia_gid: 601
+...
