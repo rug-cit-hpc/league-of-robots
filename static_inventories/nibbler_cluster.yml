@@ -97,7 +97,7 @@ all:
             security_group: "{{ stack_prefix }}_irods"
             assign_floating_ip: false  # Floating IP is used from this network, but assigned manually to be able to switch from production to test and back.
         local_volume_size_extra: 20
-        davrods_icat_ip: "{{ ip_addresses[inventory_hostname][first_management_network_name]['address'] }}"
+        davrods_icat_ip: "{{ ip_addresses[inventory_hostname]['nb_internal_management']['address'] }}"
     docs:
       hosts:
         docs_on_merlin:

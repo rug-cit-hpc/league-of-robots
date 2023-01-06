@@ -30,15 +30,6 @@ public_keys_of_local_admins: "{{ local_admin_users | map('extract', auth_users) 
     | map(attribute='pub_keys') \
     | map('regex_findall', '^([^\\n]+)', 'multiline=True') | flatten }}"
 #
-# Networking.
-#
-host_network_names: "{{ host_networks | map(attribute='name') | flatten | unique }}"
-first_management_network_name: "{{ stack_networks
-    | selectattr('type', 'equalto', 'management')
-    | map(attribute='name')
-    | intersect(host_network_names)
-    | first }}"
-#
 # Local group specs.
 # Note:
 #  * All local groups are listed here.
