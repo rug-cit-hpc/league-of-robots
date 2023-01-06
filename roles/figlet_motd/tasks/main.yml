@@ -16,6 +16,8 @@
     # use_ssh_args: true
     ssh_connection_multiplexing: true
     rsync_opts:
+      - '--omit-dir-times'
+      - '--omit-link-times'
       - '--chmod=Fu=rw,Fgo=r'
       - '--perms'
       - '--force'

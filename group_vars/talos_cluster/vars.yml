@@ -56,13 +56,32 @@ ldap_domains:
     user_name: uid
     user_ssh_public_key: sshPublicKey
     user_member_of: groupMembership
+    user_expiration_date: loginExpirationTime
     group_member: memberUid
     group_object_class: groupofnames
+    #
+    # LDAP is case insensitive, but we use lowercase only for quota field names,
+    # so we can use simple literal strings in comparisons as opposed to regexes
+    # to handle differences in UPPERCASE vs. lowercase.
+    #
+    # The UPPERCASE "LFS" in {{ ldap_domains[domain]['group_quota_*_limit_template'] }} Ansible variables
+    # is a required placeholder that will get replaced with the value of the Logical File System (LFS)
+    # for which we will try to fetch quota limits from the LDAP.
+    # E.g. with
+    #     group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
+    # the fieldname/key used to lookup the soft quota limit for the prm01 LFS is
+    #     ruggroupumcgquotaprm01soft
+    #
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
-network_public_external_id: vlan16
-network_private_management_id: vlan983
-network_private_storage_id: vlan985
+stack_networks:
+  - name: vlan983
+    router_network: vlan16
+    type: management
+    external: true
+  - name: vlan985
+    type: storage
+    external: true
 nameservers: [
   '/gcc-storage001.stor.hpc.local/172.23.40.244',  # Local DNS lookups for shared storage.
   '8.8.4.4',  # Google DNS.
@@ -140,7 +159,6 @@ pfs_mounts:
     rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime'
     ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
-lustre_quota_type: group
 lfs_mounts:
   - lfs: home
     pfs: umcgst11

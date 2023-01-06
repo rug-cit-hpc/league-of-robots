@@ -1,25 +1,9 @@
 ---
 #
 ##
-### List content of variables for debugging.
-##
-#
-# - name: 'Show the content of the group_vars/[cluster]/vars.yml lfs_mounts variable for debugging purposes.'
-#   debug:
-#     msg: "{{ lfs_mounts }}"
-#
-# - name: 'Show the content of the group_vars/[cluster]/vars.yml pfs_mounts variable for debugging purposes.'
-#   debug:
-#     msg: "pfs: {{ item.pfs }} | source: {{ item.source }} | type: {{ item.type }} | rw_options: {{ item.rw_options }}."
-#   with_items: "{{ pfs_mounts }}"
-#   when: inventory_hostname in groups['sys_admin_interface']
-
-#
-##
 ### Mount PFS-ses on DAI and create all required LFS-ses and subfolders on them with the correct permissions.
 ##
 #
-
 - name: 'Create credential files for mounting cifs shares.'
   ansible.builtin.template:
     src: 'templates/credentials.cifs'
@@ -152,7 +136,6 @@
 ### Mount all LFS-ses on cluster components/machines.
 ##
 #
-
 - name: 'Mount "home" Logical File System (LFS) from shared storage read-write.'
   ansible.posix.mount:
     path: "/home"
@@ -305,6 +288,35 @@
 ### Deploy quota management
 ##
 #
+- name: Deploy config file with quota_pid_increments for project quota.
+  ansible.builtin.template:
+    src: 'templates/quota.conf'
+    dest: '/etc/quota.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  when: inventory_hostname in lfs_mounts
+            | rejectattr('quota_type', 'undefined')
+            | rejectattr('rw_machines', 'undefined')
+            | selectattr('quota_type', 'equalto', 'project')
+            | map(attribute='rw_machines')
+            | flatten | unique or
+        inventory_hostname in lfs_mounts
+            | rejectattr('quota_type', 'undefined')
+            | rejectattr('ro_machines', 'undefined')
+            | selectattr('quota_type', 'equalto', 'project')
+            | map(attribute='ro_machines')
+            | flatten | unique or
+        (lfs_mounts
+            | rejectattr('quota_type', 'undefined')
+            | selectattr('quota_type', 'equalto', 'project')
+            | length >= 1
+           and
+           inventory_hostname in pfs_mounts
+              | rejectattr('machines', 'undefined')
+              | map(attribute='machines')
+              | flatten | unique)
+  become: true
 
 - name: 'Deploy script to fetch quota limits from an LDAP and set them on shared storage mounts.'
   ansible.builtin.template:
