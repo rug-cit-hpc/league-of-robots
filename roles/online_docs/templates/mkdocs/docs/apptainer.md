@@ -3,32 +3,32 @@
 
 ## Table of contents
 - [About Apptainer](#about-apptainer)
-  - [Containers and apptainer](#containers-and-apptainer)
+  * [Containers and apptainer](#containers-and-apptainer)
 - [List of commonly used commands](#list-of-commonly-used-commands)
 - [Building Apptainer images](#building-apptainer-images)
-  - [Building Without Elevated Permissions](building-without-elevated-permissions)
+  * [Building Without Elevated Permissions](#building-without-elevated-permissions)
 - [Sandbox](#sandbox)
-  - [Example with Ubuntu 18.04](example-with-ubuntu-18.04)
-  - [Converting sandbox directory to sif file](converting-sandbox-directory-to-sif-file)
-- [Building image as a regular user](building-image-as-a-regular-user)
-- [Making an image from the definition file with elevated permissions](making-an-image-from-the-definition-file-with-elevated-permissions)
-- [Definition file](definition-file)
-  - [Header](header)
-  - [Sections](sections)
-- [Important](important)
-- [Caching redirect or disable](caching-redirect-or-disable)
-- [Running Apptainer on Windows or Mac](running-apptainer-on-windows-or-mac)
-- [Using images from the Docker repository](using-images-from-the-docker-repository)
-- [Isolated runs](isolated-runs)
-- [Mounting host folders inside containers](mounting-host-folders-inside-containers)
-- [Other considerations](other-considerations)
-  - [Architecture considerations](architecture-considerations)
-  - [Licence considerations](licence-considerations)
-- [Environment variables](environment-variables)
-- [Debug information](debug-information)
-- [Additional examples](additional-examples)
-  - [Alpine as regular user build static file via sandbox directory](alpine-as-regular-user-build-static-file-via-sandbox-directory)
-  - [Simple CentOS 7 example via sandbox](simple-centOS-7-example-via-sandbox)
+  * [Example with Ubuntu 18.04](#example-with-ubuntu-1804)
+  * [Converting sandbox directory to sif file](#converting-sandbox-directory-to-sif-file)
+- [Building image as a regular user](#building-image-as-a-regular-user)
+- [Making an image from the definition file with elevated permissions](#making-an-image-from-the-definition-file-with-elevated-permissions)
+- [Definition file](#definition-file)
+  * [Header](#header)
+  * [Sections](#sections)
+- [Important](#important)
+- [Caching redirect or disable](#caching-redirect-or-disable)
+- [Running Apptainer on Windows or Mac](#running-apptainer-on-windows-or-mac)
+- [Using images from the Docker repository](#using-images-from-the-docker-repository)
+- [Isolated runs](#isolated-runs)
+- [Mounting host folders inside containers](#mounting-host-folders-inside-containers)
+- [Other considerations](#other-considerations)
+  * [Architecture considerations](#architecture-considerations)
+  * [Licence considerations](#licence-considerations)
+- [Environment variables](#environment-variables)
+- [Debug information](#debug-information)
+- [Additional examples](#additional-examples)
+  * [Alpine as regular user build static file via sandbox directory](#alpine-as-regular-user-build-static-file-via-sandbox-directory)
+  * [Simple CentOS 7 example via sandbox](#simple-centos-7-example-via-sandbox)
 
 ## About Apptainer
 
@@ -109,8 +109,8 @@ Normally, regular users don't have elevated permissions on multi-user systems, w
 At the time of writing this documentation (late 2022) the Apptainer documentation exaplains the option of using a `--fakeroot` parameter as a way to bypass some of these limitations. The latest version `1.1.4` has still some know issues with this option and will hopefully be soon resolved.
 
 Fortunately, there are at least two alternatives, as users can either:
-  - simply build an `.sif` image file on a system where they have elevated (sudo) permissions, and then copy that `.sif` file to the cluster, or
-  - build an image on the cluster itself, but doing via the additional step of using the sandbox option and then convert the sandbox into the `.sif` file. To use this option, read sections `Sandbox` and `Building image as regular user`.
+- simply build an `.sif` image file on a system where they have elevated (sudo) permissions, and then copy that `.sif` file to the cluster, or
+- build an image on the cluster itself, but doing via the additional step of using the sandbox option and then convert the sandbox into the `.sif` file. To use this option, read sections `Sandbox` and `Building image as regular user`.
 
 ## Sandbox
 
