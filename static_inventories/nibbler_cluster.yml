@@ -9,16 +9,28 @@ all:
       hosts:
         tunnel:
           cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_jumphosts"
+              assign_floating_ip: true
+          security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
           local_yum_repository: true
     repo:
       hosts:
         nb-repo:
           cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_repo"
           swap_file_size: 2
     data_transfer:
       hosts:
         nb-transfer:
           cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_ds"
+              assign_floating_ip: true
           local_volume_size_extra: 10000
     irods:
       hosts:
@@ -77,8 +89,15 @@ all:
           ir_admin_pwd: '{{ icatV_test_admin_pwd }}'        # test-db iRODS Vaulted irods admin password
       vars:
         cloud_flavor: m1.large
+        host_networks:
+          - name: "{{ stack_prefix }}_internal_management"
+            security_group: "{{ stack_prefix }}_irods"
+            assign_floating_ip: false  # No floating IP used from this network.
+          - name: "{{ stack_prefix }}_internal_management_13"
+            security_group: "{{ stack_prefix }}_irods"
+            assign_floating_ip: false  # Floating IP is used from this network, but assigned manually to be able to switch from production to test and back.
         local_volume_size_extra: 20
-        davrods_icat_ip: "{{ ip_addresses[inventory_hostname][network_private_management_id]['address'] }}"
+        davrods_icat_ip: "{{ ip_addresses[inventory_hostname]['nb_internal_management']['address'] }}"
     docs:
       hosts:
         docs_on_merlin:
@@ -86,16 +105,31 @@ all:
       hosts:
         nb-sai:
           cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_cluster"
+            - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
           local_volume_size_extra: 1
     deploy_admin_interface:
       hosts:
         nb-dai:
           cloud_flavor: m1.large
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_cluster"
+            - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
           local_volume_size_extra: 3000
     user_interface:
       hosts:
         nibbler:
           cloud_flavor: m1.xlarge
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_cluster"
+            - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
           slurm_sockets: 8
           slurm_cores_per_socket: 1
           slurm_real_memory: 15884
@@ -112,6 +146,11 @@ all:
           vars:
             # flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
             cloud_flavor: m1.xlarge
+            host_networks:
+              - name: "{{ stack_prefix }}_internal_management"
+                security_group: "{{ stack_prefix }}_cluster"
+              - name: "{{ stack_prefix }}_internal_storage"
+                security_group: "{{ stack_prefix }}_storage"
             local_volume_size_extra: 1
             slurm_sockets: 8
             slurm_cores_per_socket: 1
@@ -125,10 +164,15 @@ all:
               - eth1
         gpu_a40:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            nb-vcompute04:
+            nb-vcompute[04:05]
           vars:
             cloud_flavor: gpu.A40_8
             gpu_count: 8
+            host_networks:
+              - name: "{{ stack_prefix }}_internal_management"
+                security_group: "{{ stack_prefix }}_cluster"
+              - name: "{{ stack_prefix }}_internal_storage"
+                security_group: "{{ stack_prefix }}_storage"
             local_volume_size_extra: 1
             slurm_sockets: 32
             slurm_cores_per_socket: 1

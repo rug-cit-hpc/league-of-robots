@@ -11,6 +11,10 @@ all:
           cloud_flavor: m1.small
           ansible_host: tunnel+jenkins
           fqdn: jenkins.gcc.rug.nl
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_webservers"
+              assign_floating_ip: true
 jenkins_server:
   children:
     openstack_api:

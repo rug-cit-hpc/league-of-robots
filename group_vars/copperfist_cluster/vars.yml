@@ -25,6 +25,33 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
+  - group: all
+    nodes:
+      - name: gattaca01
+        network: public
+      - name: gattaca02
+        network: public
+  - group: betabarrel_cluster
+    nodes:
+      - name: betabarrel
+        network: vlan13
+  - group: copperfist_cluster
+    nodes:
+      - name: copperfist
+        network: vlan13
+#
+# Jumphosts from other stack-name infra groups.
+# We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
+#
+external_jumphosts:
+  - group: wingedhelix_cluster
+    hosts:
+      - hostname: porch
+        network: vlan16
+  - group: betabarrel_cluster
+    hosts:
+      - hostname: bb-porch
+        network: vlan16
 use_ldap: yes
 create_ldap: no
 use_sssd: yes
@@ -43,7 +70,6 @@ ldap_domains:
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
-ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }},{{ inventory_hostname }}"
 totp:
   machines: "{{ groups['jumphost'] }}"
   excluded:
@@ -56,10 +82,26 @@ nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
-network_private_management_id: 'vlan983'
-network_private_management_cidr: '172.23.41.226/23'
-#network_private_storage_id: "{{ stack_prefix }}_internal_storage"
-#network_private_storage_cidr: '10.10.2.0/24'
+cloud_image: CentOS 7
+cloud_user: centos
+availability_zone: nova
+stack_networks:
+  - name: "{{ stack_prefix }}_internal_management"
+    cidr: '10.10.1.0/24'
+    gateway: '10.10.1.1'
+    router_network: vlan16
+    type: management
+    external: false
+  - name: vlan983
+    cidr: '172.23.41.226/23'
+    type: management
+    external: true
+  - name: vlan990
+    cidr: '192.168.1.0/24'
+    allow_ingress:
+      - '192.168.1.0/25'
+    type: storage
+    external: true
 iptables_allow_icmp_inbound:
   - "{{ all.ip_addresses['umcg']['net1'] }}"
   - "{{ all.ip_addresses['umcg']['net2'] }}"
@@ -69,21 +111,26 @@ iptables_allow_icmp_inbound:
   - "{{ all.ip_addresses['rug']['operator'] }}"
   - "{{ all.ip_addresses['gcc']['cloud_net'] }}"
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
+  - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 iptables_allow_ssh_inbound:
   - "{{ all.ip_addresses['umcg']['net1'] }}"
   - "{{ all.ip_addresses['umcg']['net2'] }}"
   - "{{ all.ip_addresses['umcg']['net3'] }}"
   - "{{ all.ip_addresses['umcg']['net4'] }}"
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
+  - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 iptables_allow_ssh_outbound:
   - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
+  - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 main_backup_folder: '/mnt/local_raid/local_backups/'
 local_backups: # list of folders for cron to make daily backup
   - name: apps # don't modify after once deployed!
     src_path: '/apps'
     frequency:
      - { name: 'daily', hour: '5', minute: '47', day: '*', weekday: '*', month: '*', keep: '60', disabled: 'false' }
-
 local_admin_groups:
   - 'admin'
   - 'docker'

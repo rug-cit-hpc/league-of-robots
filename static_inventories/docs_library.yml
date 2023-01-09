@@ -9,6 +9,10 @@ all:
       hosts:
         docs_on_merlin:
           cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_webservers"
+              assign_floating_ip: true
 docs_library:
   children:
     openstack_api:

@@ -74,9 +74,14 @@ ldap_domains:
     #
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
-network_public_external_id: vlan16
-network_private_management_id: vlan983
-network_private_storage_id: vlan985
+stack_networks:
+  - name: vlan983
+    router_network: vlan16
+    type: management
+    external: true
+  - name: vlan985
+    type: storage
+    external: true
 nameservers: [
   '/gcc-storage001.stor.hpc.local/172.23.40.244',  # Local DNS lookups for shared storage.
   '8.8.4.4',  # Google DNS.

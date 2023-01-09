@@ -1,0 +1,13 @@
+#
+# See README.md for instructins how to use this playbook.
+#
+---
+- name: Run pre deploy checks.
+  ansible.builtin.import_playbook: single_group_playbooks/pre_deploy_checks.yml
+
+- name: Run playbook to create OpenStack network components.
+  ansible.builtin.import_playbook: single_role_playbooks/openstack_networking.yml
+
+- name: Run playbook to create OpenStack servers.
+  ansible.builtin.import_playbook: single_role_playbooks/openstack_computing.yml
+...

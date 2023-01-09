@@ -43,16 +43,15 @@ ldap_domains:
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
-ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }},{{ inventory_hostname }}"
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
-network_private_management_id: "vnet-medgen-t"
-network_private_management_cidr: '10.96.52.12/24'
-#network_private_storage_id: "{{ stack_prefix }}_internal_storage"
-#network_private_storage_cidr: '10.10.2.0/24'
-
+stack_networks:
+  - name: vnet-medgen-t
+    cidr: '10.96.52.12/24'
+    type: management
+    external: true
 iptables_allow_icmp_inbound:
   - "{{ all.ip_addresses['umcg']['internal1'] }}"
   - "{{ all.ip_addresses['umcg']['basiswerkplek'] }}"
@@ -70,7 +69,6 @@ local_backups: # list of folders for cron to make daily backup
     src_path: '/apps'
     frequency:
      - { name: 'daily', hour: '5', minute: '47', day: '*', weekday: '*', month: '*', keep: '60', disabled: 'false' }
-
 local_admin_groups:
   - 'admin'
   - 'docker'

@@ -1,10 +1,20 @@
 ---
-openstack_api_timeout: 180
 admin_ranges: "129.125.249.0/24,172.23.40.1/24"
 ssh_host_signer_ca_keypair_dir: "ssh-host-ca"
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/{{ stack_name }}-ca"
 ssh_host_signer_key_types: '.*(rsa|ed25519).*'
-ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }}{% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}"
+ssh_host_signer_hostnames: "{{ inventory_hostname }}\
+    {% if ansible_fqdn is defined and ansible_fqdn != inventory_hostname %}\
+      ,{{ ansible_fqdn }}\
+    {% endif %}\
+    {% for host in groups['jumphost'] | default([]) %}\
+      ,{{ host }}+{{ inventory_hostname }}\
+    {% endfor %}\
+    {% for external_jumphost in external_jumphosts | default([])
+       | map(attribute='hosts') | flatten
+       | map(attribute='hostname') %}\
+      ,{{ external_jumphost }}+{{ inventory_hostname }}\
+    {% endfor %}"
 slurm_database_name: "{{ stack_prefix }}_slurm_accounting"
 ai_jumphost: "{{ lookup('env','AI_PROXY') }}"
 #
