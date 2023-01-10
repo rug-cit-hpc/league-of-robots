@@ -44,7 +44,8 @@ Documentation is available on the official [Apptainer's documentation website](h
 
 ### Containers and apptainer
 
-About Linux containers
+Linux containers
+
 * are a method for running multiple isolated Linux systems (containers) on a control host using a single Linux kernel,
 * provides the cgroups functionality that allows limitation and prioritization of resources (CPU, memory, block I/O, network, etc.) without the need for starting any virtual machines.
 
