@@ -118,7 +118,7 @@ The sandbox option builds a container image inside a directory.
 
 The sandbox option allows users to bypass some of the limitations, as the sandbox container allows user
 
-* to run fakeroot option and become root user inside container,
+* to use the  `--fakeroot` option and become root inside container,
 * to change any files inside the container, and those changes *can be* (if used `--writable`) permanently saved,
 * can convert sandbox back to `.sif` file.
 
