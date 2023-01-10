@@ -57,6 +57,7 @@ Apptainer is a container platform
 * can directly run images from the Docker repository (via path `docker://...`).
 
 Apptainer container image
+
 * is a file (f.e. `ubuntu_18.04.sif`) containing all programs and libraries needed to execute that environment,
 * can contain a small subset of programs (with libraries), or entire Linux operating system (like Alpine, CentOS or Ubuntu),
 * is highly portable between various Linux operating systems and environments - it only requires installed Apptainer,
