@@ -50,6 +50,7 @@ Linux containers
 * provides the cgroups functionality that allows limitation and prioritization of resources (CPU, memory, block I/O, network, etc.) without the need for starting any virtual machines.
 
 Apptainer is a container platform
+
 * highly optimized to be run on a laptop or high-performance cluster,
 * extremely fast and lightweight - as there is no virtualization, and images are simply executed just as any other program,
 * enables a secure way of running containers - images can be easily verified,
