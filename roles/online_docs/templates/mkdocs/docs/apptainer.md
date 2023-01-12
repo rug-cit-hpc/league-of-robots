@@ -35,7 +35,7 @@
 ### In short
 
 > Container is an isolated environment that holds the software and its dependencies and configurations. Containers can be run on any machine with compatible container technology.
-Container instance can be run (deployed) from an existing image. Therefore users must first either build (create) or copy an existing image (f.e. pull from a public registry). They can also share their prebuilt images with each other, and running containers from those, they can expect always to get the same results, regardless of the system on which the containers are run.
+Container instances can be run (deployed) from an existing image. Therefore, users must first either build (create) an image or fetch an existing image (f.e. pull from a public registry). They can also share their prebuilt images with each other to easily distribute software to different systems and can expect to always get the same results.
 > Apptainer is one of the container technology implementations; Docker is, for example, another. They work differently manner and are not fully compatible.  Apptainer is suited for HPC environments but can also run images from the Docker repository.
 > Users can deploy containers, and inside those containers can access the same resources as they can access outside of those containers - nothing more.
 > Container technology described here is focused only on building and deploying Linux containers on Linux host systems.
