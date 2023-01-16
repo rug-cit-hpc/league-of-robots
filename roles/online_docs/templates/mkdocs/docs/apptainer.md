@@ -125,7 +125,7 @@ The _sandbox_ option builds a container image inside a directory, which allows u
 
 The drawbacks on the other hand are
 
-* the changes inside the sandbox (in contrast to the build from `.def` files) are not `recorded` in the image, and therefore,
+* the changes inside the sandbox are not `recorded` in the image (in contrast to the build from `.def` files), and therefore,
 * the `.sif` file is hard to maintain in the long run,
 * running sandbox often brings lower performance: due to the converting of the image, and (in case of shared remote file system use) the access of individual files inside the sandbox is slower than the use of .sif format.
 
