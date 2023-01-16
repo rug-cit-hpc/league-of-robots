@@ -297,7 +297,7 @@ Storage consumption: each container consumes a lot of storage. Making a new cont
 
 ## Caching redirect or disable
 
-By default the apptainer caches all the downloaded image layers. Simply pulling the docker image on Gearshift with
+By default _Apptainer_ caches all the downloaded image layers. Simply pulling a docker image, e.g.
 
 ```
     $ apptainer pull gate-9.2.sif docker://opengatecollaboration/gate:9.2-docker
