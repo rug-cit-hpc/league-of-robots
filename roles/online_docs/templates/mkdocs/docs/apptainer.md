@@ -293,7 +293,7 @@ It depends on how the container was built, but often `/home` folder is shared be
 
 Word of advice: docker and apptainer repositories are developed and maintained by the community, and therefore **images can and do contain all sorts of software and configurations**. While most of them are safe to use, users should be careful and avoid running containers from unknown sources. They might contain either buggy software or malicious code. Try to run only trusted images and when not sure, first try running inside an isolated environment (check the section about `Isolated runs`).
 
-Storage consumption: each container consumes a lot of storage. Making a new container will quickly fill up the disk. Make sure you keep only containers that you need. At the same time, pulling containers from public repositories, stores image layers locally in the `~/.apptainer/cache` folder. Users home folder can be quickly completely filled up with these temporary files. Caching shoud be disabled or redirected (see the section about `Caching redirect or disable`).
+Storage consumption: each container consumes a lot of storage. Making a new container will quickly fill up the disk. Make sure you keep only containers that you need. At the same time, pulling containers from public repositories, stores image layers locally in the `~/.apptainer/cache` folder. Your home folder can be quickly  filled up with these temporary files. Caching should either be disabled or redirected to another location (see the section about `Caching redirect or disable`).
 
 ## Caching redirect or disable
 
