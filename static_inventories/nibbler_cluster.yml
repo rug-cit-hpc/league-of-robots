@@ -110,6 +110,8 @@ all:
               security_group: "{{ stack_prefix }}_cluster"
             - name: "{{ stack_prefix }}_internal_storage"
               security_group: "{{ stack_prefix }}_storage"
+            - name: vlan1068
+              security_group: "{{ stack_prefix }}_storage"
           local_volume_size_extra: 1
     deploy_admin_interface:
       hosts:
@@ -120,6 +122,8 @@ all:
               security_group: "{{ stack_prefix }}_cluster"
             - name: "{{ stack_prefix }}_internal_storage"
               security_group: "{{ stack_prefix }}_storage"
+            - name: vlan1068
+              security_group: "{{ stack_prefix }}_storage"
           local_volume_size_extra: 3000
     user_interface:
       hosts:
@@ -129,6 +133,8 @@ all:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
             - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
+            - name: vlan1068
               security_group: "{{ stack_prefix }}_storage"
           slurm_sockets: 8
           slurm_cores_per_socket: 1
@@ -151,6 +157,8 @@ all:
                 security_group: "{{ stack_prefix }}_cluster"
               - name: "{{ stack_prefix }}_internal_storage"
                 security_group: "{{ stack_prefix }}_storage"
+              - name: vlan1068
+                security_group: "{{ stack_prefix }}_storage"
             local_volume_size_extra: 1
             slurm_sockets: 8
             slurm_cores_per_socket: 1
@@ -172,6 +180,8 @@ all:
               - name: "{{ stack_prefix }}_internal_management"
                 security_group: "{{ stack_prefix }}_cluster"
               - name: "{{ stack_prefix }}_internal_storage"
+                security_group: "{{ stack_prefix }}_storage"
+              - name: vlan1068
                 security_group: "{{ stack_prefix }}_storage"
             local_volume_size_extra: 1
             slurm_sockets: 32
