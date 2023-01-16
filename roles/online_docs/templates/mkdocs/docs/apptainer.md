@@ -117,9 +117,7 @@ Fortunately, there are at least two alternatives, as users can either:
 
 ## Sandbox
 
-The sandbox option builds a container image inside a directory.
-
-The sandbox option allows users to bypass some of the limitations, as the sandbox container allows user
+The _sandbox_ option builds a container image inside a directory, which allows users to:
 
 * to use the  `--fakeroot` option and become root inside container,
 * to change any files inside the container, and those changes *can be* (if used `--writable`) permanently saved,
