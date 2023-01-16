@@ -121,7 +121,7 @@ The _sandbox_ option builds a container image inside a directory, which allows u
 
 * to use the  `--fakeroot` option and become root inside container,
 * to change any files inside the container, and those changes *can be* (if used `--writable`) permanently saved,
-* can convert sandbox back to `.sif` file.
+* convert the sandbox back to a `*.sif` file.
 
 The drawbacks on the other hand are
 
