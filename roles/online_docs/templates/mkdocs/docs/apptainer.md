@@ -427,7 +427,7 @@ For more information, check Apptainer's website [about mount points](https://app
 
 Software build for specific architecture, can be only executed on the systems of the same architecture. For example, an apptainer image build on Apple M1 (ARM) or PowerPC (RISC) architecture will not run on x86 systems and vice versa.
 
-The software compiled within the apptainer image can also have issues when running on same type of architecture, but older genration. For example, the software inside the image compiled on a modern x86 architecture CPU and with high level of optimization, can fail from running on older architecture CPU. This happens because compiled binary contains instructions of modern processor, that older ones cannot understand. Running software build on older architectures, should work on any new architecture of a same type.
+Software compiled within the _Apptainer_ image can also have issues when running on an older generation of the same type of architecture. This can happen when the compiled binary code contains instructions for a modern processor, that older ones cannot understand. The other way around, running software build for processors of a certain architecture should work on any newer generation processors of the same architecture.
 
 ### Licence considerations
 
