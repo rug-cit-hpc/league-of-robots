@@ -313,7 +313,7 @@ By default _Apptainer_ caches all the downloaded image layers. Simply pulling a 
     ...
 ```
 
-will fail, as the layer `blobs` will be by default downloaded inside your home's `~/.apptainer/cache` directory. It will fill it up until 1.3GB and then the system quota will prevent further writing of the data - making the apptainer command fail.
+will fail when the default `~/.apptainer/cache` directory is used. It will fill it up until the quota limit for your home directory is reached, which will prevent any further writes making the `apptainer` command fail.
 
 To mitigate this, users can either run the `apptainer` command with argument  `--disable-cache`
 
