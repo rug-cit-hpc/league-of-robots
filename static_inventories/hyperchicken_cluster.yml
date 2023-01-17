@@ -42,7 +42,7 @@ all:
               security_group: "{{ stack_prefix }}_cluster"
             - name: subnet-nfs-data-2541
               security_group: "{{ stack_prefix }}_storage"
-          local_volume_size_extra: 200
+          local_volume_size_extra: 400
     ldap_server:
       hosts:
         hc-dai:
