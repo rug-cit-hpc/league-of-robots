@@ -38,11 +38,11 @@ motd: |
       =========================================================
       !!! WARNING: {{ slurm_cluster_name | capitalize }} is in beta testing
       =========================================================
-          This cluster may be redeployed from scratch, which
-          may result in complete data loss of home dirs 
+          This cluster may be redeployed from scratch, 
+          which may result in complete data loss of home dirs 
           and tmp0* group folders: You have been warned!!!
-          This does not affect prm0* group folders,
-          which are on a different (production) storage system.
+          This does not affect other group folders (if present),
+          which are on different (production) storage systems.
       =========================================================
 additional_etc_hosts:
   - group: docs_library
@@ -375,125 +375,35 @@ volume_group_folders: [
 # Shared storage related variables
 #
 lustre_client_networks:
-   - name: tcp??
-     interface: eth?
+   - name: tcp20
+     interface: eth2
 pfs_mounts:
-  - pfs: umcgst01
-    #source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1'
+  - pfs: umcgst04
+    source: '172.23.60.161@tcp20:172.23.60.162@tcp20:/'
     type: lustre
     rw_options: 'defaults,_netdev,flock'
     ro_options: 'defaults,_netdev,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
 lfs_mounts:
   - lfs: home
-    pfs: xyz
+    pfs: umcgst04
     rw_machines: "{{ groups['cluster'] }}"
   - lfs: tmp02
-    pfs: xyz
+    pfs: umcgst04
     groups:
-      - name: umcg-aad
-      - name: umcg-as
       - name: umcg-atd
-      - name: umcg-biogen
-      - name: umcg-bionic-mdd-gwama
-      - name: umcg-bios
-      - name: umcg-cineca
-      - name: umcg-dag3
-      - name: umcg-datateam
-      - name: umcg-ejp-rd
-      - name: umcg-endocrinology
-      - name: umcg-franke-scrna
+        mode: '2750'
       - name: umcg-fg
         mode: '2750'
-      - name: umcg-fu
-      - name: umcg-gaf
-      - name: umcg-gap
-      - name: umcg-gastrocol
-      - name: umcg-gcc
-      - name: umcg-gdio
-      - name: umcg-gonl
-        mode: '2750'
-      - name: umcg-griac
-      - name: umcg-gsad
-      - name: umcg-hematology
-      - name: umcg-immunogenetics
-      - name: umcg-impact
-      - name: umcg-lifelines
-      - name: umcg-lld
-      - name: umcg-llnext
-      - name: umcg-mic
-      - name: umcg-micompany
-      - name: umcg-mmbimg
-      - name: umcg-msb
-      - name: umcg-oncogenetics
-      - name: umcg-pmb
-      - name: umcg-pub
-        mode: '2750'
-      - name: umcg-radicon
-      - name: umcg-rehabilitation
-      - name: umcg-solve-rd
-      - name: umcg-sysops
-      - name: umcg-tifn
-      - name: umcg-ukb
-        mode: '2750'
-      - name: umcg-ugli
-      - name: umcg-verbeek
-      - name: umcg-vdakker
-      - name: umcg-weersma
-      - name: umcg-wijmenga
     rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
-  - lfs: prm02
-    pfs: umcgst01
-    groups:
-      - name: umcg-aad
-      - name: umcg-as
-      - name: umcg-atd
-      - name: umcg-biogen
-      - name: umcg-bionic-mdd-gwama
-      - name: umcg-bios
-      - name: umcg-cineca
-      - name: umcg-dag3
-      - name: umcg-datateam
-      - name: umcg-ejp-rd
-      - name: umcg-endocrinology
-      - name: umcg-franke-scrna
-      - name: umcg-fg
-      - name: umcg-fu
-      - name: umcg-gaf
-      - name: umcg-gap
-      - name: umcg-gastrocol
-      - name: umcg-gcc
-      - name: umcg-gdio
-      - name: umcg-gonl
-      - name: umcg-griac
-      - name: umcg-gsad
-      - name: umcg-hematology
-      - name: umcg-immunogenetics
-      - name: umcg-impact
-      - name: umcg-lifelines
-      - name: umcg-lld
-      - name: umcg-llnext
-      - name: umcg-mic
-      - name: umcg-micompany
-      - name: umcg-mmbimg
-      - name: umcg-msb
-      - name: umcg-oncogenetics
-      - name: umcg-pmb
-      - name: umcg-pub
-      - name: umcg-radicon
-      - name: umcg-rehabilitation
-      - name: umcg-solve-rd
-      - name: umcg-sysops
-      - name: umcg-tifn
-      - name: umcg-ukb
-      - name: umcg-ugli
-      - name: umcg-verbeek
-      - name: umcg-vdakker
-      - name: umcg-weersma
-      - name: umcg-wijmenga
-    rw_machines: "{{ groups['user_interface'] }}"
+#  - lfs: prm02
+#    pfs: umcgst01
+#    groups:
+#      - name: umcg-atd
+#      - name: umcg-fg
+#    rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env02
-    pfs: xyz
+    pfs: umcgst04
     ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ...
