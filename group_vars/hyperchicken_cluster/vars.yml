@@ -61,6 +61,8 @@ stack_networks:
     cidr: '10.35.141.0/24'
     allow_ingress:
       - 10.35.141.251/32  # NFS server
+      - 10.35.141.252/32  # NFS server
+      - 10.35.141.253/32  # NFS server
     type: storage
     external: true
 nameservers: [
@@ -118,7 +120,7 @@ regular_users:
 #
 pfs_mounts:
   - pfs: ecst01
-    source: '10.35.141.251:/solve-rd-98599485'
+    source: '10.35.141.252:/solve-rd-98599485'
     type: nfs4
     rw_options: 'defaults,_netdev,noatime,nodiratime,rw'
     ro_options: 'defaults,_netdev,noatime,nodiratime,ro'

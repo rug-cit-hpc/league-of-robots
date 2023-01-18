@@ -131,6 +131,15 @@ stack_networks:
     router_network: vlan13
     type: management
     external: false
+  - name: vlan1068
+    cidr: '172.23.60.0/24'
+    allow_ingress:
+      - 172.23.60.161/32  # Lustre server
+      - 172.23.60.162/32  # Lustre server
+      - 172.23.60.163/32  # Lustre server
+      - 172.23.60.164/32  # Lustre server
+    type: storage
+    external: false
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.

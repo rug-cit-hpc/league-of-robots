@@ -280,8 +280,13 @@ function processFileSystems () {
 		# Check for 0 (zero).
 		# When quota values are set to zero it means unlimited: not what we want.
 		# When zero was specified we'll interpret this as "do not allow this group to consume any space".
+		#
 		# Due to the technical limitations of how quota work we'll configure the lowest possible value instead:
 		# This is 2 * the block/stripe size on Lustre File Systems.
+		# With the current block size of 1 MB this means a 2 MB minimal soft quota limit.
+		#
+		# On Isilon systems the hard limit must be larger than the soft limit,
+		# so therefore we use 4 * the block/stripe size for the hard limit.
 		#
 		if [[ "${_soft_quota_limit}" -eq 0 ]]; then
 			_soft_quota_limit='2M'
@@ -291,7 +296,7 @@ function processFileSystems () {
 			_soft_quota_limit="${_soft_quota_limit}G"
 		fi
 		if [[ "${_hard_quota_limit}" -eq 0 ]]; then
-			_hard_quota_limit='2M'
+			_hard_quota_limit='4M'
 			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "   Converted hard quota limit of 0 (zero) for group ${_group_from_lfs_path} on LFS ${_lfs_from_lfs_path} to lowest possible value of ${_hard_quota_limit}."
 		else
 			# Just append unit: all quota values from the IDVault are in GB.
