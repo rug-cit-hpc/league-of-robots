@@ -41,8 +41,8 @@ group regular_users {
 #		cpu.shares=100;
 #	}
 #	cpuset {
-#		cpuset.cpus=4-19;
-#		cpuset.mems=0-1;
+#		cpuset.cpus={% if cgroups_cpuset_max_core_number | int > 0 %}1{% else %}0{% endif %}-{% if cgroups_cpuset_max_core_number | int > 2 %}{{ cgroups_cpuset_max_core_number | int - 1 }}{% else %}{{ cgroups_cpuset_max_core_number}}{% endif %};
+#		cpuset.mems={{ cgroups_cpuset_mems_range }};
 #	}
 #	memory {
 #		memory.limit_in_bytes=4G;
