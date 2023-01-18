@@ -96,7 +96,7 @@ ip_addresses:
       address: 10.10.2.87
       netmask: /32
     vlan1068:
-      address: 172.23.60.10
+      address: 172.23.60.4
       netmask: /32
   tunnel:
     nb_internal_management:
