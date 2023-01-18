@@ -1,57 +1,12 @@
-#
-# Note:
-#  * This role currently works with cgroups v1
-#    and will need te be refactored for cgroups v2.
-#  * This role currently does not use systemd to manage cgroups,
-#    because systemd currently only support setting limits per user
-#    and does not support settings limits per groups of users (yet).
-#    See: https://github.com/systemd/systemd/issues/12989
-#  * Inspired by discussion at:
-#    https://groups.google.com/g/slurm-users/c/Gt6Vof3E79U
-#
 ---
-- name: Install libcgroup.
-  ansible.builtin.yum:
-    state: latest
-    update_cache: true
-    name:
-      - libcgroup
-      - libcgroup-tools
-  notify:
-    - restart_cgconfig
-    - restart_cgred
-  become: true
-
-- meta: end_play
-
-- name: Install /etc/cgconfig.d/regulars_users.conf.
-  ansible.builtin.template:
-    src: templates/regular_users.conf
-    dest: /etc/cgconfig.d/regular_users.conf
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart_cgconfig
-  become: true
-
-- name: Install /etc/cgrules.conf.
-  ansible.builtin.template:
-    src: templates/cgrules.conf
-    dest: /etc/cgrules.conf
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart_cgred
-  become: true
-
-- name: Make sure services are enabled and started.
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    state: 'started'
-    enabled: 'yes'
-    daemon_reload: 'yes'
-  with_items:
-    - cgconfig.service
-    - cgred.service
-  become: true
+- name: Configure cgroups.
+  ansible.builtin.include_tasks:
+    file: configure_cgroups.yml
+  when:
+    - inventory_hostname in groups['user_interface'] | default([])
+    #
+    # Exclude Slurm-in-a-box machines, which are both user_interface and compute node at the same time,
+    # because otherwise configuring cgroups with this role may interfere with the cgroups configured by Slurm.
+    #
+    - inventory_hostname not in groups['compute_vm'] | default([])
 ...
