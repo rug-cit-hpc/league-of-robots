@@ -9,6 +9,7 @@
       - openldap-ltb
       - openldap-ltb-contrib-overlays
       - openldap-ltb-mdb-utils
+      - python-ldap
   notify: restart_slapd
   become: true
 
