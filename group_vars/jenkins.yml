@@ -35,4 +35,8 @@ iptables_allow_https_inbound:
   - "{{ all.ip_addresses['rug']['bwp_net'] }}"
   - "{{ all.ip_addresses['rug']['operator'] }}"
   - "{{ all.ip_addresses['gcc']['cloud_net'] }}"
+  - "{{ all.ip_addresses['github']['hooks1'] }}"
+  - "{{ all.ip_addresses['github']['hooks2'] }}"
+  - "{{ all.ip_addresses['github']['hooks3'] }}"
+  - "{{ all.ip_addresses['github']['hooks4'] }}"
 ...

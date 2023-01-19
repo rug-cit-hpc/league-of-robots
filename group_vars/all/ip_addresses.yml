@@ -251,3 +251,24 @@ ip_addresses:
       address: '74.125.143.127'
       netmask: '/32'
       desc: 'stun.l.google.com for connection to STUN server when setting up a session with another Globus Connect Personal endpoint.'
+
+  #
+  # GitHub hooks
+  #
+  github:
+    hooks1:
+      address: '192.30.252.0'
+      netmask: '/22'
+      desc: 'GitHub webhooks used to send HTTP POST payload to Jenkins'
+    hooks2:
+      address: '185.199.108.0'
+      netmask: '/22'
+      desc: 'GitHub webhooks used to send HTTP POST payload to Jenkins'
+    hooks3:
+      address: '140.82.112.0'
+      netmask: '/20'
+      desc: 'GitHub webhooks used to send HTTP POST payload to Jenkins'
+    hooks4:
+      address: '143.55.64.0'
+      netmask: '/20'
+      desc: 'GitHub webhooks used to send HTTP POST payload to Jenkins'
