@@ -174,7 +174,7 @@ all:
               - eth2
         gpu_a40:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            nb-vcompute[04:05]
+            nb-vcompute[04:05]:
           vars:
             cloud_flavor: gpu.A40_8
             gpu_count: 8
@@ -188,7 +188,7 @@ all:
             local_volume_size_extra: 1
             slurm_sockets: 32
             slurm_cores_per_socket: 1
-            slurm_real_memory: 98304
+            slurm_real_memory: 110122
             slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
             slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
             slurm_local_disk: 975
