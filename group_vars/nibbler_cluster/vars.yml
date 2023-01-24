@@ -419,12 +419,15 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-fg
         mode: '2750'
+      - name: umcg-franke-scrna
+        mode: '2750'
     rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
 #  - lfs: prm02
 #    pfs: umcgst01
 #    groups:
 #      - name: umcg-atd
 #      - name: umcg-fg
+#      - name: umcg-franke-scrna
 #    rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env02
     pfs: umcgst04
