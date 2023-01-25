@@ -157,4 +157,9 @@ yum_repos:
     baseurl: https://downloads.whamcloud.com/public/lustre/latest-2.12-release/el7/client/
     gpgcheck: 'false'
     gpgkey: ''
+  - name: ltb7
+    description: 'LTB (LDAP Tool Box) project OpenLDAP packages for Enterprise Linux 7.'
+    baseurl: https://ltb-project.org/rpm/openldap25/7/x86_64/
+    gpgcheck: 'false'
+    gpgkey: ''
 ...

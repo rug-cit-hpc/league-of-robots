@@ -1,0 +1,12 @@
+---
+- name: Configure cgroups.
+  ansible.builtin.include_tasks:
+    file: configure_cgroups.yml
+  when:
+    - inventory_hostname in groups['user_interface'] | default([])
+    #
+    # Exclude Slurm-in-a-box machines, which are both user_interface and compute node at the same time,
+    # because otherwise configuring cgroups with this role may interfere with the cgroups configured by Slurm.
+    #
+    - inventory_hostname not in groups['compute_vm'] | default([])
+...

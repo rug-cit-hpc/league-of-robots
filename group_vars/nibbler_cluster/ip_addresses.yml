@@ -33,6 +33,9 @@ ip_addresses:
     nb_internal_storage:
       address: 10.10.2.61
       netmask: /32
+    vlan1068:
+      address: 172.23.60.3
+      netmask: /32
   nb-repo:
     nb_internal_management:
       address: 10.10.1.56
@@ -43,6 +46,9 @@ ip_addresses:
       netmask: /32
     nb_internal_storage:
       address: 10.10.2.68
+      netmask: /32
+    vlan1068:
+      address: 172.23.60.7
       netmask: /32
   nb-transfer:
     nb_internal_management:
@@ -60,12 +66,18 @@ ip_addresses:
     nb_internal_storage:
       address: 10.10.2.190
       netmask: /32
+    vlan1068:
+      address: 172.23.60.6
+      netmask: /32
   nb-vcompute02:
     nb_internal_management:
       address: 10.10.1.246
       netmask: /32
     nb_internal_storage:
       address: 10.10.2.152
+      netmask: /32
+    vlan1068:
+      address: 172.23.60.29
       netmask: /32
   nb-vcompute03:
     nb_internal_management:
@@ -74,12 +86,18 @@ ip_addresses:
     nb_internal_storage:
       address: 10.10.2.220
       netmask: /32
+    vlan1068:
+      address: 172.23.60.15
+      netmask: /32
   nb-vcompute04:
     nb_internal_management:
       address: 10.10.1.197
       netmask: /32
     nb_internal_storage:
       address: 10.10.2.129
+      netmask: /32
+    vlan1068:
+      address: 172.23.60.22
       netmask: /32
   nb-vcompute05:
     nb_internal_management:
@@ -88,12 +106,18 @@ ip_addresses:
     nb_internal_storage:
       address: 10.10.2.39
       netmask: /32
+    vlan1068:
+      address: 172.23.60.14
+      netmask: /32
   nibbler:
     nb_internal_management:
       address: 10.10.1.112
       netmask: /32
     nb_internal_storage:
       address: 10.10.2.87
+      netmask: /32
+    vlan1068:
+      address: 172.23.60.4
       netmask: /32
   tunnel:
     nb_internal_management:
