@@ -110,7 +110,7 @@ OPTIONS:
 Details:
 
 	Values are always reported with a dot as the decimal seperator (LC_NUMERIC="en_US.UTF-8").
-	LDAP connection details are fetched from ${config_file}.
+	LDAP connection details are fetched from ${ldap_config_file}.
 ===============================================================================================================
 
 EOH
@@ -353,7 +353,7 @@ function applyLustreQuota () {
 			"lfs setquota -g ${_id} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
 		)
 	else
-		log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "   Unsuported Lustre quota type: ${lustre_quota_type}."
+		log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "   Unsuported Lustre quota type: ${_quota_type}."
 	fi
 	for _cmd in "${_cmds[@]}"; do
 		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Applying cmd: ${_cmd}"
@@ -420,8 +420,8 @@ function getQuotaFromLDAP () {
 				"(&(ObjectClass=${_group_object_class})(cn:dn:=${_group}))" \
 				"${_group_quota_soft_limit_key}" \
 				"${_group_quota_hard_limit_key}" \
-				2>&1 >"${_ldif_file}" \
-			|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "ldapsearch failed."	
+				>"${_ldif_file}" 2>&1 \
+			|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "ldapsearch for user ${_bind_dn} on server ${_uri} failed."
 		#
 		# Parse query results.
 		#
@@ -430,11 +430,11 @@ function getQuotaFromLDAP () {
 		while IFS= read -r -d '' _ldif_record; do
 			_ldif_records+=("${_ldif_record}")
 		done < <(sed 's/^$/\x0/' "${_ldif_file}") \
-		|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Parsing LDIF file (${_ldif_file}) into records failed."
+			|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Parsing LDIF file (${_ldif_file}) into records failed."
 		#
 		# Loop over records in the array and create a faked-multi-dimensional hash.
 		#
-		for _ldif_record in "${_ldif_records[@]}"; do
+		for _ldif_record in "${_ldif_records[@]:-}"; do
 			#
 			# Remove trailing white space like the new line character.
 			# And skip blank lines.
