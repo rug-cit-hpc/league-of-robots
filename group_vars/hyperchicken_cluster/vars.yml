@@ -61,6 +61,8 @@ stack_networks:
     cidr: '10.35.141.0/24'
     allow_ingress:
       - 10.35.141.251/32  # NFS server
+      - 10.35.141.252/32  # NFS server
+      - 10.35.141.253/32  # NFS server
     type: storage
     external: true
 nameservers: [
@@ -90,6 +92,7 @@ regular_groups:
   - 'users'
   - 'solve-rd'
   - 'umcg-atd'
+  - 'umcg-gsad'
 regular_users:
   - user: "{{ envsync_user }}"
     groups: ["{{ envsync_group }}"]
@@ -113,12 +116,14 @@ regular_users:
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mbenjamins'
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+  - user: 'umcg-molgenis'
+    groups: ['users', 'umcg-atd', 'umcg-gsad']
 #
 # Shared storage related variables
 #
 pfs_mounts:
   - pfs: ecst01
-    source: '10.35.141.251:/solve-rd-98599485'
+    source: '10.35.141.252:/solve-rd-98599485'
     type: nfs4
     rw_options: 'defaults,_netdev,noatime,nodiratime,rw'
     ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
@@ -132,12 +137,14 @@ lfs_mounts:
     groups:
       - name: umcg-atd
       - name: solve-rd
+      - name: umcg-gsad
     rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
   - lfs: prm09
     pfs: ecst01
     groups:
       - name: umcg-atd
       - name: solve-rd
+      - name: umcg-gsad
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env09
     pfs: ecst01

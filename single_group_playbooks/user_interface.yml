@@ -11,6 +11,7 @@
   hosts:
     - user_interface
   roles:
+    - cgroups
     - build_environment
     - slurm_exporter
     - slurm_client

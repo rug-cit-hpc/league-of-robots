@@ -26,6 +26,9 @@ all:
               mounted_mode: '2775'
               mount_options: 'bind'
               type: none
+    ldap_server:
+      hosts:
+        forkhead:
     user_interface:
       hosts:
         forkhead:
@@ -60,6 +63,7 @@ administration:
     sys_admin_interface:
     deploy_admin_interface:
     user_interface:
+    ldap_server:
 cluster:
   children:
     compute_vm:

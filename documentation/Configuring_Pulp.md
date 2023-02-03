@@ -235,8 +235,8 @@ pulp rpm repository sync --name ltb7
 set -e
 set -u
 
-stack_prefix='' # Must be filled in; check group_vars.
-cluster_name='' # Must be filled in; check group_vars.
+stack_prefix='' # Must be filled in; check group_vars (f.e. 'fd').
+cluster_name='' # Must be filled in; check group_vars (without the '_cluster', f.e. 'fender').
 
 declare -a pulp_repos
 pulp_repos=(
