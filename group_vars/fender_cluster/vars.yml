@@ -260,6 +260,18 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'pacthoen'
     groups: ['users', 'solve-rd']
+  - user: 'jgagneur'
+    groups: ['users', 'solve-rd']
+  - user: 'slondhe'
+    groups: ['users', 'solve-rd']
+  - user: 'dbeijer'
+    groups: ['users', 'solve-rd']
+  - user: 'jmueller'
+    groups: ['users', 'solve-rd']
+  - user: 'nsmal'
+    groups: ['users', 'solve-rd']
+  - user: 'bestevez'
+    groups: ['users', 'solve-rd']
 
 #
 # Shared storage related variables
