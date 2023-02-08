@@ -270,6 +270,8 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'nsmal'
     groups: ['users', 'solve-rd']
+  - user: 'bestevez'
+    groups: ['users', 'solve-rd']
 
 #
 # Shared storage related variables
