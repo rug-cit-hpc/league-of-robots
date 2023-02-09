@@ -11,6 +11,7 @@
     - use_ldap | default(true) | bool
     - ldap_domains['stack']['create_ldap'] | default(false) | bool
     - inventory_hostname in groups['ldap_server'] | default([])
+    - ldap_domains['stack']['replication_provider_uri'] is not defined
 
 - name: 'Create local regular users & groups.'
   ansible.builtin.include_tasks:
@@ -21,4 +22,5 @@
       inventory_hostname in groups['jumphost'] | default([]) or
       inventory_hostname in groups['chaperone'] | default([]) or
       inventory_hostname in groups['data_transfer'] | default([])
+    - ldap_domains['stack']['replication_provider_uri'] is not defined
 ...
