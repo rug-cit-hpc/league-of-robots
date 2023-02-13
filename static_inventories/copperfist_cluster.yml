@@ -88,7 +88,26 @@ all:
     chaperone:
       hosts:
         cf-chaperone:
-          #ansible_host: uozkh[0-9].zkh.umcg.intra
+          ansible_host: cf-chaperone.umcg.nl
+          use_ldap: false
+          functional_admin_group: 'MEDGEN-NFG GCC Analyse Team'
+          #
+          # Overrule regular_groups compared to rest of Winged Helix:
+          # * Do not create local functional_admin_group, which comes from UMCG AD.
+          # * Do not create umcg-lab, which is not used on a chaperone.
+          #
+          regular_groups:
+            - "{{ envsync_group }}"
+            - "{{ functional_users_group }}"
+            - 'umcg-atd'
+            - 'umcg-gap'
+            - 'umcg-gd'
+            - 'umcg-genomescan'
+            - 'umcg-gsad'
+            - 'umcg-gst'
+            - 'umcg-labgnkbh'
+            - 'umcg-patho'
+            - 'umcg-vipt'
     smb_server:
       hosts:
         copperfist:

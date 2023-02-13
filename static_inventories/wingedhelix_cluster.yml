@@ -101,7 +101,8 @@ all:
     chaperone:
       hosts:
         wh-chaperone:
-          ansible_host: uozkh1016.zkh.umcg.intra
+          #ansible_host: uozkh1016.zkh.umcg.intra
+          ansible_host: wh-chaperone.umcg.nl
           use_ldap: false
           functional_admin_group: 'MEDGEN-NFG GCC Analyse Team'
           #
