@@ -411,9 +411,12 @@ pfs_mounts:
 lfs_mounts:
   - lfs: home
     pfs: umcgst04
+    quota_type: 'project'
     rw_machines: "{{ groups['cluster'] }}"
   - lfs: tmp02
     pfs: umcgst04
+    quota_type: 'project'
+    quota_pid_increment: 0  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
       - name: umcg-atd
         mode: '2750'
@@ -424,6 +427,8 @@ lfs_mounts:
     rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
 #  - lfs: prm02
 #    pfs: umcgst01
+#    quota_type: 'project'
+#    quota_pid_increment: 0  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
 #    groups:
 #      - name: umcg-atd
 #      - name: umcg-fg
@@ -431,6 +436,7 @@ lfs_mounts:
 #    rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env02
     pfs: umcgst04
+    quota_type: 'project'
     ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ...
