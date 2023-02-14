@@ -31,7 +31,7 @@ use_sssd: yes
 ldap_domains:
   stack:
     uri: "ldaps://{{ slurm_cluster_name }}"
-    base: ou=gd,o=asds
+    base: "dc=rug,dc=nl" # in case of replication, the base and replication_provider_base must match!
     schema: rfc2307
     min_id: 50100000
     max_id: 55999999
