@@ -105,6 +105,7 @@ local_admin_users:
   - 'robin'
   - 'sandi'
   - 'wim'
+  - 'wouter'
 data_transfer_only_group: umcg-sftp-only
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
@@ -135,8 +136,10 @@ regular_groups:
   - 'umcg-gdio'
   - 'umcg-gonl'
   - 'umcg-griac'
+  - 'umcg-grip'
   - 'umcg-gsad'
   - 'umcg-hematology'
+  - 'umcg-hlhs'
   - 'umcg-immunogenetics'
   - 'umcg-impact'
   - 'umcg-lifelines'
@@ -239,12 +242,18 @@ regular_users:
   - user: 'umcg-griac-dm'
     groups: ['umcg-griac']
     sudoers: '%umcg-griac-dms'
+  - user: 'umcg-grip-dm'
+    groups: ['umcg-grip']
+    sudoers: '%umcg-grip-dms'
   - user: 'umcg-gsad-dm'
     groups: ['umcg-gsad']
     sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
   - user: 'umcg-hematology-dm'
     groups: ['umcg-hematology']
     sudoers: '%umcg-hematology-dms'
+  - user: 'umcg-hlhs-dm'
+    groups: ['umcg-hlhs']
+    sudoers: '%umcg-hlhs-dms'
   - user: 'umcg-immunogenetics-dm'
     groups: ['umcg-immunogenetics']
     sudoers: '%umcg-immunogenetics-dms'
@@ -383,8 +392,10 @@ lfs_mounts:
       - name: umcg-gonl
         mode: '2750'
       - name: umcg-griac
+      - name: umcg-grip
       - name: umcg-gsad
       - name: umcg-hematology
+      - name: umcg-hlhs
       - name: umcg-immunogenetics
       - name: umcg-impact
       - name: umcg-lifelines
@@ -445,8 +456,10 @@ lfs_mounts:
       - name: umcg-gdio
       - name: umcg-gonl
       - name: umcg-griac
+      - name: umcg-grip
       - name: umcg-gsad
       - name: umcg-hematology
+      - name: umcg-hlhs
       - name: umcg-immunogenetics
       - name: umcg-impact
       - name: umcg-lifelines
@@ -498,8 +511,10 @@ lfs_mounts:
       - name: umcg-gdio
       - name: umcg-gonl
       - name: umcg-griac
+      - name: umcg-grip
       - name: umcg-gsad
       - name: umcg-hematology
+      - name: umcg-hlhs
       - name: umcg-immunogenetics
       - name: umcg-impact
       - name: umcg-lifelines

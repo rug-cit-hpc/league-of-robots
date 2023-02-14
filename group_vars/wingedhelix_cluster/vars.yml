@@ -286,61 +286,61 @@ lfs_mounts:
     pfs: 'medgen_zincfinger$'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
       - name: umcg-gsad
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat05
     pfs: 'GCC'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
-      #- name: umcg-genomescan  Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
       - name: umcg-gsad
       - name: umcg-gst
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm06
     pfs: 'medgen_leucinezipper$'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
       - name: umcg-gsad
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat06
     pfs: 'GCC'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
-      #- name: umcg-genomescan  Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
       - name: umcg-gsad
       - name: umcg-gst
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm07
     pfs: 'medgen_wingedhelix$'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
       - name: umcg-gsad
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat07
     pfs: 'GCC'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
-      #- name: umcg-genomescan  Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
       - name: umcg-gsad
       - name: umcg-gst
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env07
     pfs: umcgst12
