@@ -105,6 +105,7 @@ local_admin_users:
   - 'robin'
   - 'sandi'
   - 'wim'
+  - 'wouter'
 data_transfer_only_group: umcg-sftp-only
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
