@@ -1,5 +1,8 @@
 ---
 - name: "Create directory structure for releases with version number on {{ lfs }}."
+  when: versioned_sub_groups | length > 0
+  become: true
+  become_user: "{{ main_group }}-dm"
   block:
     - name: "Create /groups/{{ main_group }}/{{ lfs }}/releases/ directory."
       ansible.builtin.file:
@@ -28,11 +31,11 @@
       with_items: "{{ versioned_sub_groups }}"
       # Continue if this specific subgroup failed and try to create other subgroup folders.
       ignore_errors: true  # noqa ignore-errors
-  when: versioned_sub_groups | length > 0
-  become: true
-  become_user: "{{ main_group }}-dm"
 
 - name: "Create directory structure for projects on {{ lfs }}."
+  when: unversioned_sub_groups | length > 0
+  become: true
+  become_user: "{{ main_group }}-dm"
   block:
     - name: "Create /groups/{{ main_group }}/{{ lfs }}/projects directory."
       ansible.builtin.file:
@@ -51,7 +54,4 @@
       with_items: "{{ unversioned_sub_groups }}"
       # Continue if this specific subgroup failed and try to create other subgroup folders.
       ignore_errors: true  # noqa ignore-errors
-  when: unversioned_sub_groups | length > 0
-  become: true
-  become_user: "{{ main_group }}-dm"
 ...
