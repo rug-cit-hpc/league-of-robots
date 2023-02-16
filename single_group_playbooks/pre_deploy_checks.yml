@@ -9,7 +9,7 @@
     # Disable Ansible's interpretor detection logic,
     # which would fail to use the interpretor from an activated virtual environment.
     #
-    - ansible_python_interpreter: python
+    ansible_python_interpreter: python
   pre_tasks:
     - name: 'Verify Ansible version meets requirements.'
       ansible.builtin.assert:
@@ -50,6 +50,4 @@
       with_items: "{{ ip_addresses_files.files | map(attribute='path') | list }}"
       delegate_to: localhost
       connection: local
-  tasks:
-    #  No tasks here, but added to make it pass the schema[playbook] check from ansible-lint.
 ...
