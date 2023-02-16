@@ -3,7 +3,7 @@
   ansible.builtin.template:
     src: templates/hosts.j2
     dest: /etc/hosts
-    mode: 0644
+    mode: '0644'
     owner: root
     group: root
     backup: true

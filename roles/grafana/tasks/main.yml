@@ -3,7 +3,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0755
+    mode: '0755'
     owner: '65534'
   with_items:
     - '/srv/grafana/lib'
@@ -15,7 +15,7 @@
   ansible.builtin.template:
     src: 'templates/grafana.service'
     dest: '/etc/systemd/system/grafana.service'
-    mode: 0644
+    mode: '0644'
     owner: root
     group: root
   tags:

@@ -72,7 +72,7 @@
     dest: '/etc/sysconfig/iptables-init.bash'
     owner: root
     group: root
-    mode: 0700
+    mode: '0700'
   notify: configure_iptables
   become: true
 
