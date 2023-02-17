@@ -64,19 +64,24 @@ external_jumphosts:
 use_ldap: true
 use_sssd: true
 ldap_domains:
-  stack:
-    uri: "ldaps://{{ stack_prefix }}-dai"
-    base: "dc={{ stack_name }},dc=local"
-    schema: rfc2307bis
-    min_id: 1000
-    max_id: 21999
-    user_object_class: posixAccount
-    user_name: uid
-    user_ssh_public_key: sshPublicKey
-    user_member_of: groupMembership
-    group_member: member
-    create_ldap: true
-    ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
+  #
+  # Temporarily disabled stack LDAP, because it gets functional accounts with the same name,
+  # but different UID as compared to what is available from the IDVault.
+  # This results in permission denied errors due to mis-matching UIDs.
+  #
+  #stack:
+  #  uri: "ldaps://{{ stack_prefix }}-dai"
+  #  base: "dc={{ stack_name }},dc=local"
+  #  schema: rfc2307bis
+  #  min_id: 1000
+  #  max_id: 21999
+  #  user_object_class: posixAccount
+  #  user_name: uid
+  #  user_ssh_public_key: sshPublicKey
+  #  user_member_of: groupMembership
+  #  group_member: member
+  #  create_ldap: true
+  #  ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
   sram:
     uri: "ldaps://{{ stack_prefix }}-dai"
     base: dc=umcg-hpc-gd,dc=services,dc=sram,dc=surf,dc=nl
