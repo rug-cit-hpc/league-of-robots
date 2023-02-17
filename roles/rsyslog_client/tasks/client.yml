@@ -63,6 +63,7 @@
     --template /tmp/client_template.csr
     --outfile /tmp/{{ inventory_hostname }}.csr
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
+  changed_when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
   register: client_request_generate_result
   failed_when: client_request_generate_result.rc != 0
   notify: client_restart_rsyslog
