@@ -3,10 +3,10 @@ galaxy_info:
   role_name: grafana
   author: Pieter Neerincx (UMCG)  Egon Rijpkema (UG)
   description: runs grafana in a docker container.
-  min_ansible_version: 2.4
+  min_ansible_version: '2.4'
   license: "license (GPLv3)"
   platforms:
-    - name: CentOS
+    - name: EL
       versions:
         - all
 

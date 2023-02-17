@@ -50,7 +50,7 @@
   ansible.builtin.template:
     src: templates/client_template.csr
     dest: /tmp/client_template.csr
-    mode: 0600
+    mode: '0600'
     force: true
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
 
@@ -100,7 +100,7 @@
   ansible.builtin.template:
     src: templates/client_template.csr
     dest: /tmp/{{ inventory_hostname }}_client_template.csr
-    mode: 0600
+    mode: '0600'
     force: true
   become: true
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1

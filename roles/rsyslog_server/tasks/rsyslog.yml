@@ -93,7 +93,7 @@
     src: roles/rsyslog_server/templates/rsyslog.conf
     dest: /etc/rsyslog.conf
     force: true
-    mode: 0644
+    mode: '0644'
   become: true
   notify: restart-rsyslog.service
 

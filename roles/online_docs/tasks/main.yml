@@ -279,7 +279,7 @@
     owner: 'root'
     group: 'root'
     mode: '0750'
-  with_filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
+  with_community.general.filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
   when: item.state == 'directory'
   notify:
     - 'build_mkdocs'
@@ -398,7 +398,7 @@
     owner: 'root'
     group: 'root'
     mode: '0640'
-  with_filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
+  with_community.general.filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
   # Exclude temporary *.html preview files, which are also exlcuded in .gitignore and should not be transferred.
   when: item.state == 'file' and '.md.html' not in item.path
   notify:
