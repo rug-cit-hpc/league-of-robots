@@ -18,6 +18,9 @@ Key ingredients of the High Performance Computing (HPC) environment of the {{ sl
  * Deploy Admin Interfaces (DAIs): _{% for server in groups['deploy_admin_interface'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
  * Sys Admin Interfaces (SAIs): _{% for server in groups['sys_admin_interface'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
  * Compute Nodes: _{% for server in groups['compute_vm'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
+{% if groups['chaperone'] is defined %}
+ * Chaperones: _{% for server in groups['chaperone'] %}{% if hostvars[server]['ansible_host'] is defined %}{{ hostvars[server]['ansible_host'] }}{% else %}{{ server }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}_
+{% endif %}
 
 ## Shared Storage
 
