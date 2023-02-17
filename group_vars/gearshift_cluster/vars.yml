@@ -393,9 +393,11 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-griac
       - name: umcg-grip
+        mode: '2750'
       - name: umcg-gsad
       - name: umcg-hematology
       - name: umcg-hlhs
+        mode: '2750'
       - name: umcg-immunogenetics
       - name: umcg-impact
       - name: umcg-lifelines
@@ -566,8 +568,10 @@ lfs_mounts:
       - name: umcg-gdio
       - name: umcg-gonl
       - name: umcg-griac
+      - name: umcg-grip
       - name: umcg-gsad
       - name: umcg-hematology
+      - name: umcg-hlhs
       - name: umcg-immunogenetics
       - name: umcg-impact
       - name: umcg-lifelines

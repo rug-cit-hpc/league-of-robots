@@ -188,7 +188,7 @@
   ansible.builtin.template:
     src: templates/repo_management_user.netrc.j2
     dest: "/admin/{{ repo_management_user }}/.netrc"
-    mode: 0600
+    mode: '0600'
     owner: "{{ repo_management_user }}"
     group: "{{ repo_management_user }}"
   become: true
@@ -198,7 +198,7 @@
   ansible.builtin.template:
     src: templates/repo_management_user.settings.toml.j2
     dest: "/admin/{{ repo_management_user }}/.config/pulp/settings.toml"
-    mode: 0600
+    mode: '0600'
     owner: "{{ repo_management_user }}"
     group: "{{ repo_management_user }}"
   become: true
