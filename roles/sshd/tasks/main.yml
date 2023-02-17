@@ -75,7 +75,8 @@
 - name: Remove weak (small) values from /etc/ssh/moduli.
   ansible.builtin.shell: awk '$5 >= {{ sshd_moduli_minimum }}' /etc/ssh/moduli > /etc/ssh/moduli.new ;
          [ -r /etc/ssh/moduli.new -a -s /etc/ssh/moduli.new ] && mv /etc/ssh/moduli.new /etc/ssh/moduli || true
-  when: sshd_register_moduli.stdout
+  when: sshd_register_moduli.stdout | length > 1
+  changed_when: sshd_register_moduli.stdout | length > 1
   notify: restart_sshd
   become: true
 ...

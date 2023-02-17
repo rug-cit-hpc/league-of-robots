@@ -42,6 +42,7 @@
     certtool --generate-privkey --bits 4096
       --outfile {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
   when: not remote_client_key_status.stat.exists or remote_client_key_status.stat.size == 0
+  changed_when: not remote_client_key_status.stat.exists or remote_client_key_status.stat.size == 0
   register: remote_client_key_generate
   failed_when: remote_client_key_generate.rc != 0
   become: true
@@ -53,6 +54,7 @@
     mode: '0600'
     force: true
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
+  changed_when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
 
 - name: Create certificate signing request on rsyslog client
   ansible.builtin.command: >
@@ -115,6 +117,7 @@
       --template /tmp/{{ inventory_hostname }}_client_template.csr
       --outfile {{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
+  changed_when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
   register: client_certificates_generate_results
   failed_when: client_certificates_generate_results.rc != 0
   become: true
