@@ -235,6 +235,10 @@ regular_users:
   - user: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
     sudoers: '%umcg-vipt'
+remote_users_in_local_groups:
+  - user: 'neerincxp'
+    groups: ["{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst', 'umcg-gap', 'umcg-gd', 'umcg-genomescan']
+
 #
 # Shared storage related variables
 #
