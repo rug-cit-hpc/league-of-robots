@@ -4,6 +4,6 @@
     name: "{{ item.user }}"
     groups: "{{ item.groups }}"
     append: true
-  with_items: "{{ regular_users }}"
+  with_items: "{{ remote_users_in_local_groups }}"
   become: true
 ...
