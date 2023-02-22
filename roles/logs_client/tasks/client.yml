@@ -50,7 +50,7 @@
   ansible.builtin.template:
     src: templates/client_template.csr
     dest: /tmp/client_template.csr
-    mode: 0600
+    mode: '0600'
     force: true
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
 
@@ -94,31 +94,53 @@
     force: true
   become: true
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
-  delegate_to: "{{ groups['rsyslog'] | first }}"
+  delegate_to: "{{ groups['logs'] | first }}"
+
+# Gathering logs server list
+- name: Include static inventory logs_library.yml
+  ansible.builtin.include_vars:
+    file: "{{ inventory_dir }}/logs_library.yml"
+    name: "logs_servers_library"
+  register: logs_server_library
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- name: print logs_servers_library urls
+  debug:
+    msg: "{{ logs_servers_library.all }}"
+#- name: Create logs variable from logs_library.yml values
+#  ansible.builtin.set_fact:
+#    logs_inventory: "{{ logs_servers_library.all.children.logs.hosts }}"
+#  delegate_to: localhost
+#  connection: local
+#  run_once: true
+#
+- meta: end_play
 
 - name: Copy client temporary template to rsyslog server
   ansible.builtin.template:
     src: templates/client_template.csr
     dest: /tmp/{{ inventory_hostname }}_client_template.csr
-    mode: 0600
+    mode: '0600'
     force: true
   become: true
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
-  delegate_to: "{{ groups['rsyslog'] | first }}"
+  delegate_to: "{{ groups['logs'] | first }}"
 
 - name: Sign rsyslog client certificate on rsyslog server with rsyslog CA certificate
   ansible.builtin.command: >
     certtool --generate-certificate
       --load-request /tmp/{{ inventory_hostname }}.csr
-      --load-ca-certificate {{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}
-      --load-ca-privkey {{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}
+      --load-ca-certificate {{ rsyslog_remote_path_cert_dir }}/rsyslog_ca.pem
+      --load-ca-privkey {{ rsyslog_remote_path_key_dir }}/rsyslog_ca.key
       --template /tmp/{{ inventory_hostname }}_client_template.csr
       --outfile {{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
   register: client_certificates_generate_results
   failed_when: client_certificates_generate_results.rc != 0
   become: true
-  delegate_to: "{{ groups['rsyslog'] | first }}"
+  delegate_to: "{{ groups['logs'] | first }}"
 
 - name: Fetch rsyslog client certificates from rsyslog server
   ansible.builtin.fetch:
@@ -130,7 +152,7 @@
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
   with_items:
     - "{{ inventory_hostname }}.pem"
-  delegate_to: "{{ groups['rsyslog'] | first }}"
+  delegate_to: "{{ groups['logs'] | first }}"
   become: true
 
 - name: Deploy rsyslog client certificate

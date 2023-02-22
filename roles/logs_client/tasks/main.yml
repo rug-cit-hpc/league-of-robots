@@ -1,0 +1,189 @@
+---
+# Gathering logs server list
+- name: Include static inventory logs_library.yml
+  ansible.builtin.include_vars:
+    file: "{{ inventory_dir }}/logs_library.yml"
+    name: "logs_servers_library"
+  register: logs_server_library
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- name: get public ip of client
+  # ansible.builtin.command: "dig +short myip.opendns.com @resolver1.opendns.com"
+  ansible.builtin.command: "curl ifconfig.me"
+  register: client_public_ip
+
+- name: add logs ip's
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/group_vars/logs_library/ip_addresses.yml"
+    name: "logs_ips"
+  delegate_to: localhost
+  connection: local
+
+# - ansible.builtin.set_fact:
+#     paths: "{{ lookup('ansible.utils.to_paths', logs_ips) }}"
+# - name: ext ip - get ext networks
+#   ansible.builtin.set_fact:
+#     logs_test: "{{ item }}"
+#   loop: "{{ stacks_logs_servers | subelements('external_network') }}"
+#   register: 'test'
+#   delegate_to: localhost
+#   connection: local
+# 
+# - name: ext ip - make a list
+#   ansible.builtin.set_fact:
+#     logs_ext_ip: "{{ foo_result.results | map(attribute='ansible_facts.logs_test') | list }}"
+#   delegate_to: localhost
+#   connection: local
+# 
+
+#- set_fact:
+#    logs_ext_networks: "{{ stacks_logs_servers[item]['external_network'] | list }}"
+#  loop: "{{ stacks_logs_servers | list }}"
+#  register: logs_tmp_register
+#  delegate_to: localhost
+#  connection: local
+
+- set_fact:
+    logs_servers: "{{ stacks_logs_servers }}"
+  loop: "{{ stacks_logs_servers | list }}"
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- debug:
+    #msg: "item: {{ logs_servers }}"
+    #msg: "name: {{ logs_servers[item.name] }} / logs_servers[item.external_network] }}"
+    #msg: "item: {{ item }}"
+    msg: "name: {{ item['name'] }} | network: {{ item['external_network'] }}"
+  loop: "{{ logs_servers }}"
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- set_fact:
+    rsyslogs_ext_ips: "{{ rsyslogs_ext_ips | default([]) + [ logs_ips.ip_addresses[item['name']][item['external_network']].address ] }}"
+  loop: "{{ logs_servers }}"
+  register: rsys_ext_ips
+  delegate_to: 127.0.0.1
+  connection: local
+  run_once: true
+
+- debug:
+   msg: "{{ item }}"
+   #msg: "{{ rsyslogs_ext_ips }}"
+  with_items: "{{ rsyslogs_ext_ips }}"
+  run_once: true
+
+- name: Run commands on logs servers
+  ansible.builtin.shell:
+    cmd: "uptime"
+  delegate_to: "{{ item }}"
+  register: uptimes
+  loop: "{{ rsyslogs_ext_ips }}"
+  connection: local
+  #run_once: true
+  # delegate_facts: true
+
+- debug:
+    msg: "=====> {{ item.stdout }}"
+  run_once: true
+  loop: "{{ uptimes.results }}"
+
+- meta: end_play
+
+- name: Print all external ip's of log servers
+  debug:
+    msg: |
+          "{{ logs_ext_networks }}"
+#          "{{ stacks_logs_servers[item]['external_network'] | list }}"
+#  with_items: "{{ logs_ext_networks }}"
+  delegate_to: "localhost"
+  connection: local
+
+# - set_fact:
+#     logs_ext_networks_list: "{{ logs_tmp_register.results | map(attribute='ansible_facts.logs_ext_networks') | list }}"
+#   delegate_to: localhost
+#   connection: local
+# 
+# - set_fact:
+#     logs_ext_networks_ips:
+#   loop: '{{ }}'
+#   delegate_to: localhost
+#   connection: local
+
+# - name: uptime (on all associated log servers)
+#   ansible.builtin.command: "uptime"
+#   delegate_to: "{{ item }}"
+#   loop: "{{ logs_ips.ip_addresses[stacks_logs_servers.0.name][stacks_logs_servers.0.external_network].address }}"
+#   register: my_output
+
+- meta: end_play
+
+# - name: Print all external ip's of log servers
+#   debug:
+#     msg: |
+#           "external ips: {{ logs_ext_ip }}"
+#   delegate_to: "localhost"
+#   connection: local
+# 
+# - name: Debug print values
+#   debug:
+#     msg: |
+#           "external network: {{ stacks_logs_servers.1.external_network }}"
+#           "external ip: {{ logs_ips.ip_addresses[(stacks_logs_servers | first ).name][(stacks_logs_servers | first ).external_network].address }}"
+#   delegate_to: "localhost"
+#   connection: local
+# 
+# | selectattr('fqdn') }}"
+# !!!         "{{ logs_ips.ip_addresses | json_query('*[].*[].fqdn') }}"
+#         "{{ logs_ips.ip_addresses | flatten(2) | selectattr)}}"
+#         "{{ logs_ips | subelements('fqdn') }}"
+#         "{{ logs_ips.ip_addresses | query('address', 'defined') }}"
+#         "{{ logs_ips.ip_addresses | select('match', '^.*address.*$') }}"
+
+
+# json_query(\"address\") }}"
+
+# | selectattr('fqdn', 'defined')|first).master | first }}"
+# | selectattr('fqdn', 'defined') }}" 
+#         "{{ logs_ips }}"
+# ['ip_addresses'] | selectattr('fqdn', 'defined') |list }}" 
+# | map(attribute='address') | list }}"
+        # "{{ all_ip_addresses['logs_library']['logs_internal_management']['address'] }}"
+        # "{{ users | selectattr('password', 'undefined') | map(attribute='email') | list }}"
+         # "{{ stacks_logs_servers_library.all.children.logs.hosts | first }}"
+ 
+- name: uptime (on first logs server node)
+  ansible.builtin.command: "uptime"
+  delegate_to: "{{ logs_ips.ip_addresses[stacks_logs_servers.0.name][stacks_logs_servers.0.external_network].address }}"
+  register: my_output
+
+- name: Add line to IP whitelist
+  ansible.builtin.lineinfile:
+    path: /etc/logs_whitelist
+    state: present
+    create: yes
+    regexp: "{{ client_public_ip.stdout | trim }}"
+    line: "{{ client_public_ip.stdout | trim }}"
+  delegate_to: "{{ logs_ips.ip_addresses[stacks_logs_servers.1.name][stacks_logs_servers.1.external_network].address }}"
+  become: true
+
+- debug: var=my_output.stdout_lines
+- meta: end_play
+
+#- name: Create logs variable from logs_library.yml values
+#  ansible.builtin.set_fact:
+#    logs_inventory: "{{ logs_servers_library.all.children.logs.hosts }}"
+#  delegate_to: localhost
+#  connection: local
+#  run_once: true
+#
+
+- name: Deploy rsyslog client.
+  ansible.builtin.include_tasks:
+    file: deploy.yml
+  when: ( stacks_logs_servers is defined and ( stacks_logs_servers|length>0 ) ) or
+        ( rsyslog_external_servers is defined and ( rsyslog_external_servers|length>0 ))
+...

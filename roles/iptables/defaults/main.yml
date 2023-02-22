@@ -55,6 +55,10 @@ iptables_allow_ftp_outbound: []
 #
 iptables_allow_aspera_outbound: []
 #
+# syslog (only inbound)
+#
+iptables_allow_logs_inbound: []
+#
 # iRODS: by definition both inbound and outbound.
 #
 iptables_allow_irods: []

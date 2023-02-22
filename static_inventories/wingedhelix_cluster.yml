@@ -121,10 +121,6 @@ all:
             - 'umcg-labgnkbh'
             - 'umcg-patho'
             - 'umcg-vipt'
-    rsyslog:
-      hosts:
-        wh-repo:
-          rsyslog_port: 41514
     nfs_server:
       hosts:
         wh-sai:

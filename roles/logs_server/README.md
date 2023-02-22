@@ -44,7 +44,7 @@ Playbook
    - add the rules for the accepting port and machines IP's
    - point to the ca certificate, then to servers's key and certificate
 6. Opens a port based on defined port under static inventory rsyslog server's
-   rsyslog_port value or `514` by default
+   rsyslog_port value or `41514` by default
 
 ## IV. Recreating rsyslog's CA
 

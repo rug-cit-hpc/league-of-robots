@@ -3,17 +3,18 @@
 ## I. Prerequisites
 
 This role is the second of the rsyslog ansible playbooks. It expects predefined
- - (optional) a list of external rsyslog servers defined in group variables f.e.
-   inside ```group_vars/{{ stack_name }}/vars.yml```
+ - (optional) a list of external rsyslog servers (unmanaged by our roles) defined
+   in group variables f.e. inside ```group_vars/{{ stack_name }}/vars.yml```
    ```
    rsyslog_external_servers:
     - hostname: 123.45.67.89
       port: 514
    ```
- - (optional) servers defined in the inventory group named ```rsyslog``` inside
-   ```static_inventories/{{ cluster_name }}.yml```. Those _rsyslog_ servers should 
-   have previously deployed with rsyslog_server playbook. And each of them should
-   already have configured CA key and certificates.
+   if port is not defined, the default rsyslog port number of 514 is used.
+ - (optional) servers defined in the ```static_inventories/logs_library.yml```
+   group named ```logs```. Those _logs_ servers should have already been deployed
+   with rsyslog_server playbook. And each of them should already have configured
+   CA key and certificates.
 
 ## II. Playbook procedure
 
@@ -27,7 +28,7 @@ This role is the second of the rsyslog ansible playbooks. It expects predefined
    ```
    Playbook configures this list of external servers inside `rsyslog.conf` on each
    of the client machine.
-   Note: port is optional and, if not defined, 514 as default value is used.
+   Note: port is optional and, if not defined, default rsyslog port 514 is used.
 
 2. If a list of rsyslog servers (managed by Ansible roles from this repo) was defined in the inventory, then the playbook configures on each
    of the client machines:

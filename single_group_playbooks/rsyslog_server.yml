@@ -1,0 +1,19 @@
+---
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
+
+- name: '###==-> Roles for log servers. <-==###'
+  hosts:
+    - logs
+  roles:
+    - admin_users
+    - ssh_host_signer
+    - iptables
+    - logrotate
+    - remove
+    - update
+    - {role: geerlingguy.repo-epel, become: true}
+    - sshd
+    - {role: geerlingguy.security, become: true}
+    - rsyslog_server
+...

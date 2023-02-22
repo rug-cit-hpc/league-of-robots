@@ -15,13 +15,13 @@
 
 - name: Get information on CA key from managed rsyslog server
   ansible.builtin.stat:
-    path: "{{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}"
+    path: "{{ rsyslog_remote_path_key_dir }}/rsyslog_ca.key"
   register: rsyslog_ca_key_on_server
   become: true
 
 - name: Get information on CA cert from managed rsyslog server
   ansible.builtin.stat:
-    path: "{{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_key_file }}"
+    path: "{{ rsyslog_remote_path_cert_dir }}/rsyslog_ca.key"
   register: rsyslog_ca_cert_on_server
 
 - name: 'Install rsyslog and gnutls, with all the plugins'
@@ -44,7 +44,6 @@
     ( not repo_rsyslog_ca_key.stat.exists and not rsyslog_ca_key_on_server.stat.exists ) or
     ( not repo_rsyslog_ca_cert.stat.exists and not rsyslog_ca_cert_on_server.stat.exists)
   register: created_ca
-  notify: restart-rsyslog.service
 
 - name: If CA key exists in repository, then deploy it
   ansible.builtin.copy:
@@ -90,21 +89,21 @@
 
 - name: Deploy rsyslog.conf
   ansible.builtin.template:
-    src: roles/rsyslog_server/templates/rsyslog.conf
+    src: templates/rsyslog.conf
     dest: /etc/rsyslog.conf
     force: true
-    mode: 0644
+    mode: '0644'
   become: true
   notify: restart-rsyslog.service
 
-- name: Open incoming rsyslog tcp port
-  ansible.posix.firewalld:
-    port: "{{ hostvars[inventory_hostname].rsyslog_port | default('514', true) }}/tcp"
-    permanent: true
-    immediate: true
-    state: enabled
-  become: true
-
+#- name: Open incoming rsyslog tcp port
+#  ansible.posix.firewalld:
+#    port: "{{ hostvars[inventory_hostname].rsyslog_port | default('41514', true) }}/tcp"
+#    permanent: true
+#    immediate: true
+#    state: enabled
+#  become: true
+#
 - name: Start and enable rsyslog service
   ansible.builtin.systemd:
     name: rsyslog.service

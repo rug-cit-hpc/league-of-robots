@@ -1,0 +1,70 @@
+---
+stack_prefix: 'logs'
+stack_domain: ''
+stack_name: "{{ stack_prefix }}_library"  # stack_name must match the name of the folder that contains this vars.yml file.
+cloud_image: CentOS 7
+cloud_user: centos
+availability_zone: nova
+stack_networks:
+  - name: "{{ stack_prefix }}_internal_management"
+    cidr: '10.10.1.0/24'
+    gateway: '10.10.1.1'
+    router_network: vlan16
+    type: management
+    external: false
+nameservers: [
+  '8.8.4.4',  # Google DNS.
+  '8.8.8.8',  # Google DNS.
+]
+local_admin_groups:
+  - 'admin'
+
+# To limit access to sensitive logs, access is limited to: NEED-TO-HAVE personnel
+local_admin_users:
+  - 'gerben'
+  - 'marieke'
+  - 'marloes'
+  - 'morris'
+  - 'pieter'
+  - 'sandi'
+
+# Logs CA key name: 'development', 'research' or 'diagnostics'
+logs_ca_name: 'development'
+#
+# Jumphosts from other stack-name infra groups.
+# We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
+#
+external_jumphosts:
+  - group: gearshift_cluster
+    hosts:
+    - hostname: airlock
+      network: vlan16
+  - group: talos_cluster
+    hosts:
+      - hostname: reception
+        network: vlan16
+  - group: hyperchicken_cluster
+    hosts:
+      - hostname: portal
+        network: public
+  - group: fender_cluster
+    hosts:
+      - hostname: corridor
+        network: public
+  - group: nibbler_cluster
+    hosts:
+      - hostname: tunnel
+        network: vlan16
+  - group: wingedhelix_cluster
+    hosts:
+      - hostname: porch
+        network: vlan16
+  - group: betabarrel_cluster
+    hosts:
+      - hostname: bb-porch
+        network: vlan16
+  - group: copperfist_cluster
+    hosts:
+      - hostname: cf-porch
+        network: vlan16
+...

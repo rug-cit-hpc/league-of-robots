@@ -12,16 +12,16 @@
 
 - name: Create client keys and certificates if managed rsyslog servers are present
   ansible.builtin.include_tasks: client.yml
-  when: groups['rsyslog'] is defined and ( groups['rsyslog']|length>0 )
+  when: groups['logs'] is defined and ( groups['logs']|length>0 )
 
 - name: Deploy rsyslog.conf template on the client
   ansible.builtin.template:
     src: templates/rsyslog.conf
     dest: /etc/rsyslog.conf
     force: true
-    mode: 0644
+    mode: '0644'
   become: true
-  when: inventory_hostname not in groups['rsyslog']
+  when: inventory_hostname not in groups['logs']
   notify: client_restart_rsyslog
 
 - name: Deploy configuration for managed remote rsyslog servers
@@ -29,9 +29,9 @@
     src: templates/rsyslog_managed.conf
     dest: /etc/rsyslog.d/managed.conf
     force: true
-    mode: 0644
+    mode: '0644'
   become: true
-  when: inventory_hostname not in groups['rsyslog']
+  when: inventory_hostname not in groups['logs']
   notify: client_restart_rsyslog
 
 - name: Deploy configuration for unmanaged remote rsyslog servers
@@ -39,9 +39,9 @@
     src: templates/rsyslog_unmanaged.conf
     dest: /etc/rsyslog.d/unmanaged.conf
     force: true
-    mode: 0644
+    mode: '0644'
   become: true
-  when: inventory_hostname not in groups['rsyslog']
+  when: inventory_hostname not in groups['logs']
   notify: client_restart_rsyslog
 
 - name: Start and enable rsyslog service if they are not
