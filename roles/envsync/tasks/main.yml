@@ -37,7 +37,7 @@
 - name: "Create {{ hpc_env_prefix }} folder on root partition unless the machine already has a dedicated mount for {{ hpc_env_prefix }}."
   ansible.builtin.file:
     path: "{{ hpc_env_prefix }}"
-    state: folder
+    state: directory
     owner: root
     group: "{{ envsync_group }}"
     mode: '2775'
