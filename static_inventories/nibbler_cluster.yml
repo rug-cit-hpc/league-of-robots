@@ -151,8 +151,7 @@ all:
           hosts:
             nb-vcompute[01:03]:
           vars:
-            # flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
-            cloud_flavor: m1.xlarge
+            cloud_flavor: htc-node
             host_networks:
               - name: "{{ stack_prefix }}_internal_management"
                 security_group: "{{ stack_prefix }}_cluster"
