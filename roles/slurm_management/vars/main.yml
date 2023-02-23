@@ -6,6 +6,7 @@
 #
 slurm_cluster_cores_total: "{{ groups['compute_vm'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | map('int') | sum }}"
 slurm_cluster_mem_total: "{{ groups['compute_vm'] | map('extract', hostvars, 'slurm_max_mem_per_node') | map('int') | sum }}"
+slurm_cluster_gpus_total: "{{ groups['compute_vm'] | map('extract', hostvars, 'gpu_count') | select('defined') | map('int') | sum }}"
 #
 # Determine max resources that can be consumed by an interactive job in QoS 'interactive'
 #  * Use half of the total cores of the smallest node with a minimum of 1
