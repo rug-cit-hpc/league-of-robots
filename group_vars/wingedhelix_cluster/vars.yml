@@ -260,7 +260,7 @@ remote_users_in_local_groups:
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
         'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
     ]
-  - user: 'kanningar'
+  - user: 'kanningaroj'
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
