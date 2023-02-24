@@ -1,6 +1,6 @@
 ---
 volumes:
-  - mount_point: '/apps'
+  - mount_point: "{{ hpc_env_prefix }}"
     device: '/dev/vdb'
     mounted_owner: root
     mounted_group: "{{ envsync_group }}"

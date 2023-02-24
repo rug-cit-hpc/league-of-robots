@@ -222,6 +222,49 @@ regular_users:
   - user: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
     sudoers: '%umcg-vipt'
+remote_users_in_local_groups:
+  - user: 'benjaminsm'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'bijlsmam'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'cimermans'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'langek'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'kanningaroj'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'neerincxp'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'vriesgb'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
 #
 # Shared storage related variables
 #
