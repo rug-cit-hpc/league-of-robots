@@ -3,11 +3,7 @@
   hosts:
     - jumphost
     - cluster
-  roles:
-    - regular_users
-- hosts:
     - chaperone
-  connection: local
   roles:
     - regular_users
 ...
