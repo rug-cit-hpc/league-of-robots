@@ -138,7 +138,7 @@ do
         COPIED_HPC_ENV_PREFIXES=("${COPIED_HPC_ENV_PREFIXES[@]:-}" "${COPIED_HPC_ENV_PREFIX}")
       fi
     else
-      echo "INFO: no ${ORIGINAL_HPC_ENV_PREFIX} copy found on ${LFS_MOUNT_POINTS[${j}]}."
+      echo "INFO: No ${ORIGINAL_HPC_ENV_PREFIX} copy found on ${LFS_MOUNT_POINTS[${j}]}."
     fi
   done
 done
