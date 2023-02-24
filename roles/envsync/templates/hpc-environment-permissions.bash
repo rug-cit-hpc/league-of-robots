@@ -115,7 +115,7 @@ fi
 #
 # Find all rsynced copies of our shared HPC environment.
 #
-declare -a COPIED_HPC_ENV_PREFIXES
+declare -a COPIED_HPC_ENV_PREFIXES=()
 for (( i = 0 ; i < ${#COPIED_HPC_ENV_MOUNT_POINT_PARENTS[@]} ; i++ ))
 do 
   #
@@ -138,7 +138,7 @@ do
         COPIED_HPC_ENV_PREFIXES=("${COPIED_HPC_ENV_PREFIXES[@]:-}" "${COPIED_HPC_ENV_PREFIX}")
       fi
     else
-      echo "WARN: ${COPIED_HPC_ENV_PREFIX} not available (symlink dead or mount missing)."
+      echo "INFO: no ${ORIGINAL_HPC_ENV_PREFIX} copy found on ${LFS_MOUNT_POINTS[${j}]}."
     fi
   done
 done
