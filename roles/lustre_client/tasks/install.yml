@@ -134,7 +134,7 @@
   ansible.builtin.shell:
     cmd: |
          checksum_old=$(md5sum /etc/lnet.conf)
-         lnetctl net show > /etc/lnet.conf
+         lnetctl export -b /etc/lnet.conf
          checksum_new=$(md5sum /etc/lnet.conf)
          if [[ "${checksum_old}" != "${checksum_new}" ]]; then
              echo 'lnet.conf has changed.'
@@ -142,6 +142,37 @@
   register: lnetconf_status
   changed_when:
     - '"lnet.conf has changed." in lnetconf_status.stdout'
+  notify:
+    - restart_lnet
+  become: true
+
+- name: Patch lnet.service file for systemd to ignore failure if a Lustre network ID was already loaded.
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/lnet.service
+    backup: true
+    insertafter: '\[Service\]'
+    regexp: '^#?SuccessExitStatus='
+    line: 'SuccessExitStatus=239'  # lustre NID already loaded.
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart_lnet
+  become: true
+
+- name: Patch lnet.service file for systemd to start lnet.service before remote-fs.target.
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/lnet.service
+    backup: true
+    insertafter: '\[Install\]'
+    regexp: '^#?WantedBy='
+    line: 'WantedBy=multi-user.target remote-fs.target'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - reenable_lnet
+    - restart_lnet
   become: true
 
 - name: Start lnet.service.
