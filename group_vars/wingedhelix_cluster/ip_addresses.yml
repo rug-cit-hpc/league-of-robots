@@ -21,6 +21,9 @@ ip_addresses:
       address: 10.10.1.153
       netmask: /32
   wh-sai:
+    vlan990:
+      address: 192.168.1.151
+      netmask: /32
     wh_internal_management:
       address: 10.10.1.71
       netmask: /32
