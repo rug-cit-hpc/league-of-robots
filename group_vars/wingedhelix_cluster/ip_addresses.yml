@@ -1,6 +1,6 @@
 ---
 ip_addresses:
-  porch:
+  wh-porch:
     wh_internal_management:
       address: 10.10.1.148
       netmask: /32

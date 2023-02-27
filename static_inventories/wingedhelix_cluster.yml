@@ -7,7 +7,7 @@ all:
           ansible_python_interpreter: /usr/bin/env python
     jumphost:
       hosts:
-        porch:
+        wh-porch:
           cloud_flavor: m1.small
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"

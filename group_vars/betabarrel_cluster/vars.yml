@@ -46,15 +46,15 @@ additional_etc_hosts:
 external_jumphosts:
   - group: wingedhelix_cluster
     hosts:
-      - hostname: porch
+      - hostname: wh-porch
         network: vlan16
   - group: copperfist_cluster
     hosts:
       - hostname: cf-porch
         network: vlan16
-use_ldap: yes
-create_ldap: no
-use_sssd: yes
+use_ldap: true
+create_ldap: false
+use_sssd: true
 ldap_domains:
   idvault:
     uri: ldaps://svrs.id.rug.nl
@@ -66,6 +66,7 @@ ldap_domains:
     user_name: uid
     user_ssh_public_key: sshPublicKey
     user_member_of: groupMembership
+    user_expiration_date: loginExpirationTime
     group_member: memberUid
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
@@ -79,10 +80,6 @@ totp:
     - "{{ all.ip_addresses['umcg']['net2']['address'] }}{{ all.ip_addresses['umcg']['net2']['netmask'] }}"
     - "{{ all.ip_addresses['umcg']['net3']['address'] }}{{ all.ip_addresses['umcg']['net3']['netmask'] }}"
     - "{{ all.ip_addresses['umcg']['net4']['address'] }}{{ all.ip_addresses['umcg']['net4']['netmask'] }}"
-nameservers: [
-  '8.8.4.4',  # Google DNS.
-  '8.8.8.8',  # Google DNS.
-]
 cloud_image: CentOS 7
 cloud_user: centos
 availability_zone: nova
@@ -103,6 +100,10 @@ stack_networks:
       - '192.168.1.0/25'
     type: storage
     external: true
+nameservers: [
+  '8.8.4.4',  # Google DNS.
+  '8.8.8.8',  # Google DNS.
+]
 iptables_allow_icmp_inbound:
   - "{{ all.ip_addresses['umcg']['net1'] }}"
   - "{{ all.ip_addresses['umcg']['net2'] }}"
@@ -111,7 +112,7 @@ iptables_allow_icmp_inbound:
   - "{{ all.ip_addresses['rug']['bwp_net'] }}"
   - "{{ all.ip_addresses['rug']['operator'] }}"
   - "{{ all.ip_addresses['gcc']['cloud_net'] }}"
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
   - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
   - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 iptables_allow_ssh_inbound:
@@ -119,11 +120,11 @@ iptables_allow_ssh_inbound:
   - "{{ all.ip_addresses['umcg']['net2'] }}"
   - "{{ all.ip_addresses['umcg']['net3'] }}"
   - "{{ all.ip_addresses['umcg']['net4'] }}"
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
   - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
   - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 iptables_allow_ssh_outbound:
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
   - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
   - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 main_backup_folder: '/mnt/local_raid/local_backups/'
@@ -294,6 +295,12 @@ pfs_mounts:
     rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
     ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
     machines: "{{ groups['chaperone'] }}"
+  - pfs: 'GCC'
+    source: '//storage1.umcg.nl/algemenedata$/appdata/AdLas'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02770,file_mode=0660'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02770,file_mode=0660'
+    machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home
     pfs: local_raid
@@ -315,61 +322,61 @@ lfs_mounts:
     pfs: 'medgen_zincfinger$'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
       - name: umcg-gsad
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat05
-    pfs: 'medgen_zincfinger$'
+    pfs: 'GCC'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
-      #- name: umcg-genomescan  Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
       - name: umcg-gsad
       - name: umcg-gst
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm06
     pfs: 'medgen_leucinezipper$'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
       - name: umcg-gsad
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat06
-    pfs: 'medgen_leucinezipper$'
+    pfs: 'GCC'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
-      #- name: umcg-genomescan  Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
       - name: umcg-gsad
       - name: umcg-gst
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm07
     pfs: 'medgen_wingedhelix$'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
       - name: umcg-gsad
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat07
-    pfs: 'medgen_wingedhelix$'
+    pfs: 'GCC'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
-      #- name: umcg-genomescan  Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
       - name: umcg-gsad
       - name: umcg-gst
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env05
     pfs: local_raid
