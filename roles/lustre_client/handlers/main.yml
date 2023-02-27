@@ -3,4 +3,28 @@
   ansible.builtin.reboot:
   become: true
   listen: reboot
+
+- name: 'Re-enable lnet.service part 1: disable lnet.service.'
+  ansible.builtin.systemd:
+    name: lnet.service
+    enabled: false
+    daemon_reload: true
+  become: true
+  listen: reenable_lnet
+
+- name: 'Re-enable lnet.service part 2: enable lnet.service.'
+  ansible.builtin.systemd:
+    name: lnet.service
+    enabled: true
+    daemon_reload: true
+  become: true
+  listen: reenable_lnet
+
+- name: Restart lnet.service.
+  ansible.builtin.systemd:
+    name: lnet.service
+    state: restarted
+    daemon_reload: true
+  become: true
+  listen: restart_lnet
 ...
