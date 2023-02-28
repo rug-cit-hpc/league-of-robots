@@ -1,6 +1,7 @@
 ---
 - hosts:
     - user_interface
+    - build_servers
   roles:
     - sudoers
 - hosts:
