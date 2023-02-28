@@ -235,6 +235,49 @@ regular_users:
   - user: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
     sudoers: '%umcg-vipt'
+remote_users_in_local_groups:
+  - user: 'benjaminsm'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'bijlsmam'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'cimermans'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'langek'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'kanningaroj'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'neerincxp'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'vriesgb'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
 #
 # Shared storage related variables
 #
@@ -370,10 +413,30 @@ smb_server_shares:
     users: sbsuser
     file_mode: 0640
     dir_mode: 0750
+    base: /mnt/umcgst12/groups/umcg-lab/tmp07  # This will not be created by the smb_server role and must already exist.
+    subtree:  # This will be created if it does not already exist.
+      - path: sequencers
+        owner: sbsuser
+        group: umcg-lab
+        mode: 2750
   - name: array
     comment: Share for array scanners
-    path: /mnt/umcgst12/groups/umcg-gap/tmp07/rawdata/array/IDAT/
+    path: /mnt/umcgst12/groups/umcg-gap/tmp07/rawdata/array/IDAT
     users: illumina
     file_mode: 0660
     dir_mode: 0770
+    base: /mnt/umcgst12/groups/umcg-gap/tmp07  # This will not be created by the smb_server role and must already exist.
+    subtree:  # This will be created if it does not already exist.
+      - path: rawdata
+        owner: umcg-gap-ateambot
+        group: umcg-gap
+        mode: 2770
+      - path: rawdata/array
+        owner: umcg-gap-ateambot
+        group: umcg-gap
+        mode: 2770
+      - path: rawdata/array/IDAT
+        owner: illumina
+        group: umcg-gap
+        mode: 2770
 ...

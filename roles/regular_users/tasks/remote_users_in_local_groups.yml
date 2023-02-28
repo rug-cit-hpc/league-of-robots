@@ -1,0 +1,9 @@
+---
+- name: 'Add regular users from an LDAP/AD to local groups.'
+  ansible.builtin.user:
+    name: "{{ item.user }}"
+    groups: "{{ item.groups }}"
+    append: true
+  with_items: "{{ remote_users_in_local_groups }}"
+  become: true
+...
