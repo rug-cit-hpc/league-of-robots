@@ -2,11 +2,7 @@
 - hosts:
     - user_interface
     - build_servers
-  roles:
-    - sudoers
-- hosts:
     - chaperone
-  connection: local
   roles:
     - sudoers
 ...
