@@ -1,12 +1,14 @@
 ---
 - hosts:
     - user_interface
+<<<<<<< HEAD
     - build_servers
   roles:
     - sudoers
 - hosts:
+=======
+>>>>>>> e7c58a02625eee04f4cfb5bb7e243334ea79f8d5
     - chaperone
-  connection: local
   roles:
     - sudoers
 ...

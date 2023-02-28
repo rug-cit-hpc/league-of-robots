@@ -24,7 +24,6 @@ all:
             - "{{ gearshift_cluster.ip_addresses['airlock']['vlan16'] }}"
             - "{{ hyperchicken_cluster.ip_addresses['portal']['public'] }}"
             - "{{ nibbler_cluster.ip_addresses['tunnel']['vlan16'] }}"
-            - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
     repo:
       hosts:
         tl-repo:
