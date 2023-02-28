@@ -66,8 +66,9 @@ iptables_allow_ssh_inbound:
   - "{{ all.ip_addresses['umcg']['basiswerkplek'] }}"
   - "{{ all.ip_addresses['umcg']['win10vdi'] }}"
 iptables_allow_ssh_outbound:
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
-
+  - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
+  - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
+  - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 main_backup_folder: '/mnt/pssd_backup/'
 local_backups: # list of folders for cron to make daily backup
   - name: apps # don't modify after once deployed!

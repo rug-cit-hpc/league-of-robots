@@ -413,10 +413,30 @@ smb_server_shares:
     users: sbsuser
     file_mode: 0640
     dir_mode: 0750
+    base: /mnt/umcgst12/groups/umcg-lab/tmp07  # This will not be created by the smb_server role and must already exist.
+    subtree:  # This will be created if it does not already exist.
+      - path: sequencers
+        owner: sbsuser
+        group: umcg-lab
+        mode: 2750
   - name: array
     comment: Share for array scanners
-    path: /mnt/umcgst12/groups/umcg-gap/tmp07/rawdata/array/IDAT/
+    path: /mnt/umcgst12/groups/umcg-gap/tmp07/rawdata/array/IDAT
     users: illumina
     file_mode: 0660
     dir_mode: 0770
+    base: /mnt/umcgst12/groups/umcg-gap/tmp07  # This will not be created by the smb_server role and must already exist.
+    subtree:  # This will be created if it does not already exist.
+      - path: rawdata
+        owner: umcg-gap-ateambot
+        group: umcg-gap
+        mode: 2770
+      - path: rawdata/array
+        owner: umcg-gap-ateambot
+        group: umcg-gap
+        mode: 2770
+      - path: rawdata/array/IDAT
+        owner: illumina
+        group: umcg-gap
+        mode: 2770
 ...
