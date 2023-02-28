@@ -29,6 +29,6 @@
     mode: '0440'
     validate: '/usr/sbin/visudo -cf %s'
   with_items:
-    - "{{ sudoers | selectattr('name', 'defined') }}"
+    - "{{ sudoers | default([]) }}"
   become: true
 ...
