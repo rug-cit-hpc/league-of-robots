@@ -11,14 +11,8 @@
   hosts:
     - sys_admin_interface
   roles:
-    - slurm_management
+    - slurm
     - prom_server
     - grafana
     - cadvisor
-  vars:
-    # These variables are needed by the mariadb role.
-    # Which is a depencency of the slurm_management role.
-    # See roles/slurm/meta/main.yml
-    hostname_node0: "{{ ansible_hostname }}"
-    ip_node0: "{{ ansible_default_ipv4['address'] }}"
 ...

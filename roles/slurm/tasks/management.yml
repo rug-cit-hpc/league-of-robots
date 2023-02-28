@@ -1,5 +1,10 @@
 # Deploy Slurm control host.
 ---
+- name: Setting host facts using complex arguments
+  ansible.builtin.set_fact:
+    hostname_node0: "{{ ansible_hostname }}"
+    ip_node0: "{{ ansible_default_ipv4['address'] }}"
+
 - name: 'Add Slurm group.'
   ansible.builtin.group:
     name: 'slurm'
