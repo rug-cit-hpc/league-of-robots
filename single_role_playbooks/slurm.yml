@@ -1,5 +1,5 @@
 ---
-- name: Configure slurm for clients and management machines
+- name: Configure Slurm for client and management machines.
   hosts:
     - compute_vm
     - sys_admin_interface
