@@ -15,14 +15,6 @@
   become: true
   listen: restart_munge
 
-- name: 'Restart slurmd service.'
-  ansible.builtin.systemd:
-    name: 'slurmd.service'
-    state: 'restarted'
-    daemon_reload: true
-  become: true
-  listen: restart_slurmd
-
 - name: 'Restart slurmdbd service.'
   ansible.builtin.systemd:
     name: 'slurmdbd.service'
@@ -38,6 +30,14 @@
     daemon_reload: true
   become: true
   listen: restart_slurmctld
+
+- name: 'Restart slurmd service.'
+  ansible.builtin.systemd:
+    name: 'slurmd.service'
+    state: 'restarted'
+    daemon_reload: true
+  become: true
+  listen: restart_slurmd
 #
 # Service reloads after restarts.
 #
@@ -47,13 +47,6 @@
     state: 'reloaded'
   become: true
   listen: reload_munge
-
-- name: 'Reload slurmd service.'
-  ansible.builtin.systemd:
-    name: 'slurmd.service'
-    state: 'reloaded'
-  become: true
-  listen: reload_slurmd
 
 - name: 'Reload slurmdbd service.'
   ansible.builtin.systemd:
@@ -68,4 +61,11 @@
     state: 'reloaded'
   become: true
   listen: reload_slurmctld
+
+- name: 'Reload slurmd service.'
+  ansible.builtin.systemd:
+    name: 'slurmd.service'
+    state: 'reloaded'
+  become: true
+  listen: reload_slurmd
 ...
