@@ -1,6 +1,6 @@
 # Deploy Slurm control host.
 ---
-- name:  'Define variables that are needed by the mariadb role (dependency for slurm management).
+- name: 'Define variables that are needed by the mariadb role (dependency for slurm management).'
   ansible.builtin.set_fact:
     hostname_node0: "{{ ansible_hostname }}"
     ip_node0: "{{ ansible_default_ipv4['address'] }}"
