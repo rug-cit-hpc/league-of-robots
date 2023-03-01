@@ -18,6 +18,15 @@
   become: true
   notify: 'restart_dnsmasq'
 
+- name: 'Create /etc/etc/dhcp/dhclient-enter-hooks to disable the make_resolv_conf function from the dhcp-client script.'
+  ansible.builtin.template:
+    dest: '/etc/dhcp/dhclient-enter-hooks'
+    src: 'templates/dhclient-enter-hooks.j2'
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
 - name: 'Configure /etc/resolv.conf to use dnsmasq on localhost.'
   ansible.builtin.copy:
     dest: '/etc/resolv.conf'
