@@ -27,7 +27,6 @@ all:
           host_networks:
             - name: vlan983
             - name: vlan985
-          local_volume_size_extra: 2900
     deploy_admin_interface:
       hosts:
         sugarsnax:
