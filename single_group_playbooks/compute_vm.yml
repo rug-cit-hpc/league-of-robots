@@ -12,5 +12,5 @@
     - compute_vm
   roles:
     - mount_volume
-    - slurm_client
+    - slurm
 ...
