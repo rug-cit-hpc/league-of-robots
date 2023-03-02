@@ -88,7 +88,7 @@ all:
     chaperone:
       hosts:
         bb-chaperone:
-          ansible_host: bb-chaperone.umcg.nl
+          ansible_host: bb-chaperone.umcg.nl  # upzkh1055
           use_ldap: false
           functional_admin_group: 'MEDGEN-NFG GCC Analyse Team'
           #
