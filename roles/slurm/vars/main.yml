@@ -14,6 +14,8 @@ slurm_cluster_gpus_total: "{{ groups['compute_vm'] | map('extract', hostvars, 'g
 #
 slurm_total_cores_of_smallest_node: "{{ groups['compute_vm'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | map('int') | min }}"
 slurm_total_mem_of_smallest_node: "{{ groups['compute_vm'] | map('extract', hostvars, 'slurm_max_mem_per_node') | map('int') | min }}"
+slurm_total_gpus_of_smallest_node: "{{ groups['compute_vm'] | map('extract', hostvars, 'gpu_count') | select('defined') | map('int') | min }}"
 slurm_interactive_max_cores_per_user: "{{ [1, (slurm_total_cores_of_smallest_node | float * 0.5) | int] | max }}"
 slurm_interactive_max_mem_per_user: "{{ [1000, (slurm_total_mem_of_smallest_node | float * 0.5) | int] | max }}"
+slurm_interactive_max__gpus_per_user: "{{ [1, (slurm_total_gpus_of_smallest_node | float * 0.5) | int] | max }}"
 ...

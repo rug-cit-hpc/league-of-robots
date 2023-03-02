@@ -31,7 +31,7 @@ sacctmgr -i modify qos Name='leftover' set \
     Priority=0 \
     UsageFactor=0 \
     GrpSubmit=30000 MaxSubmitJobsPU=10000 \
-    GrpTRES=cpu=0,mem=0{{ ',gres/gpu=0' if slurm_cluster_gpus_total | int > 0 }}
+    GrpTRES=cpu=0,mem=0,gres/gpu=0
 
 sacctmgr -i create qos set Name='leftover-short'
 sacctmgr -i modify qos Name='leftover-short' set \
@@ -62,7 +62,7 @@ sacctmgr -i modify qos Name='regular' set \
     Description='Standard Quality of Service level with default priority and corresponding impact on your Fair Share.' \
     Priority=10 \
     GrpSubmit=30000 MaxSubmitJobsPU=5000 \
-    GrpTRES=cpu=0,mem=0{{ ',gres/gpu=0' if slurm_cluster_gpus_total | int > 0 }}
+    GrpTRES=cpu=0,mem=0,gres/gpu=0
 
 sacctmgr -i create qos set Name='regular-short'
 sacctmgr -i modify qos Name='regular-short' set \
@@ -77,8 +77,8 @@ sacctmgr -i modify qos Name='regular-medium' set \
     Priority=10 \
     Preempt='leftover-short,leftover-medium,leftover-long' \
     GrpSubmit=30000 MaxSubmitJobsPU=5000  MaxWall=1-00:00:00 \
-    GrpTRES=cpu={{ [1, (slurm_cluster_cores_total | float * 0.6) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.6) | int] | max }}{{ ',gres/gpu=' ~ [1, (slurm_cluster_gpus_total | float * 0.6) | int] | max if slurm_cluster_gpus_total | int > 0 }} \
-    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.4) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.4) | int] | max }}{{ ',gres/gpu=' ~ [1, (slurm_cluster_gpus_total | float * 0.4) | int] | max if slurm_cluster_gpus_total | int > 0 }}
+    GrpTRES=cpu={{ [1, (slurm_cluster_cores_total | float * 0.6) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.6) | int] | max }},gres/gpu={{ (slurm_cluster_gpus_total | float * 0.6) | int | default(0) }} \
+    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.4) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.4) | int] | max }},gres/gpu={{ (slurm_cluster_gpus_total | float * 0.4) | int | default(0) }}
 
 sacctmgr -i create qos set Name='regular-long'
 sacctmgr -i modify qos Name='regular-long' set \
@@ -86,8 +86,8 @@ sacctmgr -i modify qos Name='regular-long' set \
     Priority=10 \
     Preempt='leftover-short,leftover-medium,leftover-long' \
     GrpSubmit=3000 MaxSubmitJobsPU=1000  MaxWall=7-00:00:00 \
-    GrpTRES=cpu={{ [1, (slurm_cluster_cores_total | float * 0.3) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.3) | int] | max }}{{ ',gres/gpu=' ~ [1, (slurm_cluster_gpus_total | float * 0.3) | int] | max if slurm_cluster_gpus_total | int > 0 }} \
-    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.15) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.15) | int] | max }}{{ ',gres/gpu=' ~ [1, (slurm_cluster_gpus_total | float * 0.15) | int] | max if slurm_cluster_gpus_total | int > 0 }}
+    GrpTRES=cpu={{ [1, (slurm_cluster_cores_total | float * 0.3) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.3) | int] | max }},gres/gpu={{ (slurm_cluster_gpus_total | float * 0.3) | int | default(0) }} \
+    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.15) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.15) | int] | max }},gres/gpu={{ (slurm_cluster_gpus_total | float * 0.15) | int | default(0) }}
 
 #
 # QoS priority
@@ -107,7 +107,7 @@ sacctmgr -i modify qos Name='priority-short' set \
     Preempt='leftover-short,leftover-medium,leftover-long' \
     UsageFactor=2 \
     GrpSubmit=5000  MaxSubmitJobsPU=1000   MaxWall=06:00:00 \
-    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.25) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.25) | int] | max }}{{ ',gres/gpu=' ~ [1, (slurm_cluster_gpus_total | float * 0.25) | int] | max if slurm_cluster_gpus_total | int > 0 }}
+    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.25) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.25) | int] | max }},gres/gpu={{ (slurm_cluster_gpus_total | float * 0.25) | int | default(0) }}
 
 sacctmgr -i create qos set Name='priority-medium'
 sacctmgr -i modify qos Name='priority-medium' set \
@@ -116,8 +116,8 @@ sacctmgr -i modify qos Name='priority-medium' set \
     Preempt='leftover-short,leftover-medium,leftover-long' \
     UsageFactor=2 \
     GrpSubmit=2500  MaxSubmitJobsPU=500   MaxWall=1-00:00:00 \
-    GrpTRES=cpu={{ [1, (slurm_cluster_cores_total | float * 0.6) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.6) | int] | max }}{{ ',gres/gpu=' ~ [1, (slurm_cluster_gpus_total | float * 0.6) | int] | max if slurm_cluster_gpus_total | int > 0 }} \
-    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.2) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.2) | int] | max }}{{ ',gres/gpu=' ~ [1, (slurm_cluster_gpus_total | float * 0.2) | int] | max if slurm_cluster_gpus_total | int > 0 }}
+    GrpTRES=cpu={{ [1, (slurm_cluster_cores_total | float * 0.6) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.6) | int] | max }},gres/gpu={{ (slurm_cluster_gpus_total | float * 0.6) | int | default(0) }} \
+    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.2) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.2) | int] | max }},gres/gpu={{ (slurm_cluster_gpus_total | float * 0.2) | int | default(0) }}
 
 sacctmgr -i create qos set Name='priority-long'
 sacctmgr -i modify qos Name='priority-long' set \
@@ -126,8 +126,8 @@ sacctmgr -i modify qos Name='priority-long' set \
     Preempt='leftover-short,leftover-medium,leftover-long' \
     UsageFactor=2 \
     GrpSubmit=250   MaxSubmitJobsPU=50   MaxWall=7-00:00:00 \
-    GrpTRES=cpu={{ [1, (slurm_cluster_cores_total | float * 0.3) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.3) | int] | max }}{{ ',gres/gpu=' ~ [1, (slurm_cluster_gpus_total | float * 0.3) | int] | max if slurm_cluster_gpus_total | int > 0 }} \
-    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.1) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.1) | int] | max }}{{ ',gres/gpu=' ~ [1, (slurm_cluster_gpus_total | float * 0.1) | int] | max if slurm_cluster_gpus_total | int > 0 }}
+    GrpTRES=cpu={{ [1, (slurm_cluster_cores_total | float * 0.3) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.3) | int] | max }},gres/gpu={{ (slurm_cluster_gpus_total | float * 0.3) | int | default(0) }} \
+    MaxTRESPU=cpu={{ [1, (slurm_cluster_cores_total | float * 0.1) | int] | max }},mem={{ [1000, (slurm_cluster_mem_total | float * 0.1) | int] | max }},gres/gpu={{ (slurm_cluster_gpus_total | float * 0.1) | int | default(0) }}
 
 #
 # QoS interactive
@@ -147,7 +147,7 @@ sacctmgr -i modify qos Name='interactive-short' set \
     Preempt='leftover-short,leftover-medium,leftover-long,regular-short' \
     UsageFactor=1 \
     MaxSubmitJobsPU=1   MaxWall=06:00:00 \
-    MaxTRESPU=cpu={{ slurm_interactive_max_cores_per_user }},mem={{ slurm_interactive_max_mem_per_user }}{{ ',gres/gpu=' ~ slurm_cluster_gpus_total if slurm_cluster_gpus_total | int > 0 }}
+    MaxTRESPU=cpu={{ slurm_interactive_max_cores_per_user }},mem={{ slurm_interactive_max_mem_per_user }},gres/gpu={{ slurm_interactive_max__gpus_per_user | default(0) }}
 
 #
 # QoS ds
@@ -158,7 +158,7 @@ sacctmgr -i modify qos Name='ds' set \
     Priority=10 \
     UsageFactor=1 \
     GrpSubmit=5000  MaxSubmitJobsPU=1000 \
-    GrpTRES=cpu=0,mem=0{{ ',gres/gpu=0' if slurm_cluster_gpus_total | int > 0 }}
+    GrpTRES=cpu=0,mem=0,gres/gpu=0
 
 sacctmgr -i create qos set Name='ds-short'
 sacctmgr -i modify qos Name='ds-short' set \
@@ -166,7 +166,7 @@ sacctmgr -i modify qos Name='ds-short' set \
     Priority=10 \
     UsageFactor=1 \
     GrpSubmit=5000  MaxSubmitJobsPU=1000   MaxWall=06:00:00 \
-    MaxTRESPU=cpu=4,mem=4096{{ ',gres/gpu=0' if slurm_cluster_gpus_total | int > 0 }}
+    MaxTRESPU=cpu=4,mem=4096,gres/gpu=0
 
 sacctmgr -i create qos set Name='ds-medium'
 sacctmgr -i modify qos Name='ds-medium' set \
@@ -175,7 +175,7 @@ sacctmgr -i modify qos Name='ds-medium' set \
     UsageFactor=1 \
     GrpSubmit=2500  MaxSubmitJobsPU=500   MaxWall=1-00:00:00 \
     GrpTRES=cpu=2,mem=2048 \
-    MaxTRESPU=cpu=2,mem=2048{{ ',gres/gpu=0' if slurm_cluster_gpus_total | int > 0 }}
+    MaxTRESPU=cpu=2,mem=2048,gres/gpu=0
 
 sacctmgr -i create qos set Name='ds-long'
 sacctmgr -i modify qos Name='ds-long' set \
@@ -184,7 +184,7 @@ sacctmgr -i modify qos Name='ds-long' set \
     UsageFactor=1 \
     GrpSubmit=250   MaxSubmitJobsPU=50   MaxWall=7-00:00:00 \
     GrpTRES=cpu=1,mem=1024 \
-    MaxTRESPU=cpu=1,mem=1024{{ ',gres/gpu=0' if slurm_cluster_gpus_total | int > 0 }}
+    MaxTRESPU=cpu=1,mem=1024,gres/gpu=0
 
 #
 ##
