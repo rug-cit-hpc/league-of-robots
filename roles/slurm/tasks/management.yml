@@ -187,7 +187,7 @@
     group: 'root'
     mode: '0644'
   when: slurm_cluster_gpus_total | default(0) | int > 0
-  notify: 'restart_slurmctld'
+  notify: 'restart_slurmd'
   become: true
 
 - name: 'Install Slurm DBD config file.'
