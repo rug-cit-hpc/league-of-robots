@@ -14,7 +14,7 @@
 
 - name: DEBUG
   debug:
-    msg: "user {{item.user}} has home dir {{ user_account_settings[item.user]['home'] }}."
+    msg: "user {{ item.user }} has home dir {{ user_account_settings[item.user]['home'] }}."
   with_items: "{{ regular_users }}"
 
 - meta: end_play
@@ -47,12 +47,11 @@
       - '.ssh'
       - '.ssh/tmp'
       - '.ssh/conf.d'
-  become: true
   with_items: "{{ regular_users | product(ssh_client_dirs) | list }}"
   become: true
 
 - name: 'Configure ssh client config file ~/.ssh/config to include ~/.ssh/conf.d dir.'
-  ansible.posix.lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ user_account_settings[item.user]['home'] }}/.ssh/config"
     owner: "{{ item.user }}"
     group: "{{ item.user }}"
@@ -75,7 +74,7 @@
   become: true
 
 - name: "Add {{ slurm_cluster_name }} settings to ssh client ~/.ssh/known_hosts file."
-  ansible.posix.lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ user_account_settings[item.user]['home'] }}/.ssh/known_hosts"
     owner: "{{ item.user }}"
     group: "{{ item.user }}"
@@ -83,7 +82,7 @@
     create: true
     insertbefore: BOF
     regexp: '(?i)^#?@cert-authority .* for {{ slurm_cluster_name }}$'
-    line: "@cert-authority {{ known_hosts_hostnames }} {{ lookup('file', ssh_host_signer_ca_private_key+'.pub') }} for {{ slurm_cluster_name }}"
+    line: "@cert-authority {{ known_hosts_hostnames }} {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }} for {{ slurm_cluster_name }}"
   with_items: "{{ regular_users }}"
   become: true
 
