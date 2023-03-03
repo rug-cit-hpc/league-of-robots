@@ -177,6 +177,7 @@ all:
           vars:
             cloud_flavor: gpu.A40_8
             gpu_count: 8
+            gpu_type: 'a40'
             host_networks:
               - name: "{{ stack_prefix }}_internal_management"
                 security_group: "{{ stack_prefix }}_cluster"
