@@ -5,39 +5,9 @@
 # even if we couldf, that won't fix .bashrc if the home dir already exists
 # or functionality to load modules was lost or needs an update.
 #
-- name: Get details for regular users.
-  ansible.builtin.user:
-    name: "{{ item }}"
-  check_mode: true
-  register: user_account_settings
-  with_items: "{{ regular_users }}"
-
-- name: DEBUG
-  debug:
-    msg: "user {{ item.user }} has home dir {{ user_account_settings[item.user]['home'] }}."
-  with_items: "{{ regular_users }}"
-
-- meta: end_play
-
-- name: Insert/update block into ~/.bashrc to ensure we can load modules.
-  ansible.builtin.blockinfile:
-    path: "{{ user_account_settings[item.user]['home'] }}/{{ item.user }}/.bashrc"
-    block: |
-      if [ -f "/apps/modules//modules.bashrc" ]; then
-        source "/apps/modules//modules.bashrc"
-      fi
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - Setup environment for Lua, Lmod & EasyBuild."
-    insertbefore: '# User specific aliases and functions'
-    create: false
-    owner: "{{ item.user }}"
-    group: "{{ item.user }}"
-    mode: '0600'
-  with_items: "{{ regular_users }}"
-  become: true
-
 - name: Create ~/.ssh dir and subdirs.
   ansible.builtin.file:
-    path: "{{ user_account_settings[item.0.user]['home'] }}/{{ item.1 }}"
+    path: "/home/{{ item.0.user }}/{{ item.1 }}"
     state: 'directory'
     owner: "{{ item.0.user }}"
     group: "{{ item.0.user }}"
@@ -52,7 +22,7 @@
 
 - name: 'Configure ssh client config file ~/.ssh/config to include ~/.ssh/conf.d dir.'
   ansible.builtin.lineinfile:
-    path: "{{ user_account_settings[item.user]['home'] }}/.ssh/config"
+    path: "/home/{{ item.user }}/.ssh/config"
     owner: "{{ item.user }}"
     group: "{{ item.user }}"
     mode: '0600'
@@ -66,7 +36,7 @@
 - name: "Create ~/.ssh/conf.d/{{ slurm_cluster_name }} config file."
   ansible.builtin.template:
     src: ssh_client_config.j2
-    dest: "{{ user_account_settings[item.user]['home'] }}/.ssh/conf.d/{{ slurm_cluster_name }}"
+    dest: "/home/{{ item.user }}/.ssh/conf.d/{{ slurm_cluster_name }}"
     owner: "{{ item.user }}"
     group: "{{ item.user }}"
     mode: '0600'
@@ -75,7 +45,7 @@
 
 - name: "Add {{ slurm_cluster_name }} settings to ssh client ~/.ssh/known_hosts file."
   ansible.builtin.lineinfile:
-    path: "{{ user_account_settings[item.user]['home'] }}/.ssh/known_hosts"
+    path: "/home/{{ item.user }}/.ssh/known_hosts"
     owner: "{{ item.user }}"
     group: "{{ item.user }}"
     mode: '0600'
@@ -88,7 +58,7 @@
 
 - name: 'Insert/update block into ~/.bashrc to ensure we can load modules.'
   ansible.builtin.blockinfile:
-    path: "{{ user_account_settings[item.user]['home'] }}/.bashrc"
+    path: "/home/{{ item.user }}/.bashrc"
     block: |
       if [ -f "/apps/modules//modules.bashrc" ]; then
         source "/apps/modules//modules.bashrc"
