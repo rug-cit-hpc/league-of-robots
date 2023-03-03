@@ -17,7 +17,7 @@
       - '.ssh'
       - '.ssh/tmp'
       - '.ssh/conf.d'
-  with_items: "{{ regular_users | product(ssh_client_dirs) | list }}"
+  loop: "{{ regular_users | product(ssh_client_dirs) | list }}"
   become: true
 
 - name: 'Configure ssh client config file ~/.ssh/config to include ~/.ssh/conf.d dir.'
