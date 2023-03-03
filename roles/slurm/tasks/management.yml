@@ -179,6 +179,16 @@
   tags: 'slurm.conf'
   become: true
 
+- name: 'Install Slurm GRES config file.'
+  ansible.builtin.template:
+    src: "templates/gres.conf"
+    dest: '/etc/slurm/gres.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: 'restart_slurmd'
+  become: true
+
 - name: 'Install Slurm DBD config file.'
   ansible.builtin.template:
     src: 'templates/slurmdbd.conf'
