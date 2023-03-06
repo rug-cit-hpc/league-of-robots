@@ -1,0 +1,64 @@
+#jinja2: trim_blocks:False
+#
+# Host settings.
+#
+Host {% for jumphost in groups['jumphost'] %}{{ jumphost }}* {% endfor %}{% raw %}{% endraw %}
+    #
+    # Default account name when not specified explicitly.
+    #
+    User {{ item.user }}
+    #
+    # Prevent timeouts
+    #
+    ServerAliveInterval 60
+    ServerAliveCountMax 5
+    #
+    # We use public-private key pairs for authentication.
+    # Do not use password based authentication as fallback,
+    # which may be confusing and won't work anyway.
+    #
+    IdentityFile "~/.ssh/id_ed25519"
+    PasswordAuthentication No
+    #
+    # Multiplex connections to
+    #   * reduce lag when logging in to the same host in a second terminal
+    #   * reduce the amount of connections that are made to prevent excessive DNS lookups
+    #     and to prevent getting blocked by a firewall, because it thinks we are executing a DoS attack.
+    #
+    # Name/location of sockets for connection multiplexing are configured using the ControlPath directive.
+    # In the ControlPath directive %C expands to a hashed value of %l_%h_%p_%r, where:
+    #    %l = local hostname
+    #    %h = remote hostname
+    #    %p = remote port
+    #    %r = remote username
+    # This makes sure that the ControlPath is
+    #   * a unique socket that is local to machine on which the sessions are created,
+    #     which means it works with home dirs from a shared network file system.
+    #     (as sockets cannot be shared by servers.)
+    #   * not getting to long as the hash has a fixed size not matter how long %l_%h_%p_%r was.
+    #
+    ControlMaster auto
+    ControlPath ~/.ssh/tmp/%C
+    ControlPersist 1m
+#
+# Expand short jumphost names to FQDN or IP address.
+#
+{% for jumphost in groups['jumphost'] %}
+  {%- set network_id = ip_addresses[jumphost]
+           | dict2items
+           | json_query('[?value.fqdn].key')
+           | first -%}
+  {%- if ip_addresses[jumphost][network_id]['fqdn'] == 'NXDOMAIN' -%}
+    {%- set ssh_hostname = ip_addresses[jumphost][network_id]['address'] -%}
+  {%- else -%}
+    {%- set ssh_hostname = ip_addresses[jumphost][network_id]['fqdn'] -%}
+  {%- endif -%}
+Host {{ jumphost }}
+    HostName {{ ssh_hostname }}
+    HostKeyAlias {{ jumphost }}
+{% endfor -%}
+#
+# Double-hop SSH settings to connect via specific jumphosts.
+#
+Host {% for jumphost in groups['jumphost'] %}{{ jumphost }}+* {% endfor %}{% raw %}{% endraw %}
+    ProxyCommand ssh -x -q $(echo "${JUMPHOST_USER:-%r}")@$(echo %h | sed 's/+[^+]*$//'){% if stack_domain | length %}.{{ stack_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p

@@ -30,7 +30,7 @@ Open a terminal and copy paste the following commands:
 # Create new known_hosts file and append the UMCG HPC CA's public key.
 #
 printf '%s\n' \
-            "@cert-authority {{ known_hosts_hostnames }} {{ lookup('file', ssh_host_signer_ca_private_key+'.pub') }} for {{ slurm_cluster_name }}" \
+            "@cert-authority {{ known_hosts_hostnames }} {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }} for {{ slurm_cluster_name }}" \
     > "${HOME}/.ssh/known_hosts.new"
 if [[ -e "${HOME}/.ssh/known_hosts" ]]; then
     #
