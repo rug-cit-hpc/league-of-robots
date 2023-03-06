@@ -80,7 +80,7 @@
     create: false
   become: true
 
-- name: 'Deploy script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
+- name: 'Deploy script to verify and if necessary fix permissions of the environment managed by the envsync account.'
   ansible.builtin.template:
     src: 'templates/hpc-environment-permissions.bash'
     dest: '/root/hpc-environment-permissions.bash'
