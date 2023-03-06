@@ -2,7 +2,7 @@
 #
 # On most systems we already added relevant code to /ets/skel/ to create a proper .bashrc
 # when a home dir is created, but on chaperones we do not control /etc/skel and
-# even if we couldf, that won't fix .bashrc if the home dir already exists
+# even if we could, that won't fix .bashrc if the home dir already exists
 # or functionality to load modules was lost or needs an update.
 #
 - name: Create ~/.ssh dir and subdirs.
