@@ -166,7 +166,7 @@
     backup: true
     insertafter: '\[Install\]'
     regexp: '^#?WantedBy='
-    line: 'WantedBy=multi-user.target remote-fs.target'
+    line: 'WantedBy=multi-user.target remote-fs-pre.target'
     owner: root
     group: root
     mode: '0644'

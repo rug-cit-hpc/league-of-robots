@@ -239,7 +239,7 @@ function manageConfig() {
 	#
 	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Appending the public key of the Certificate Authority (CA) to ${HOME}/.ssh/known_hosts ..."
 	printf '%s\n' \
-		"@cert-authority {{ known_hosts_hostnames }} {{ lookup('file', ssh_host_signer_ca_private_key+'.pub') }} for {{ slurm_cluster_name }}" \
+		"@cert-authority {{ known_hosts_hostnames }} {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }} for {{ slurm_cluster_name }}" \
 		> "${HOME}/.ssh/known_hosts.new"
 	if [[ -e "${HOME}/.ssh/known_hosts" ]]; then
 		#

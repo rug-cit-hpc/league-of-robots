@@ -5,15 +5,10 @@
   delegate_facts: true
   with_items: "{{ groups['sys_admin_interface'] }}"
 
-- name: 'Include Slurm defaults from "slurm_management" role.'
-  ansible.builtin.include_vars:
-    file: '../../slurm_management/defaults/main.yml'
-    name: 'slurm'
-
 - name: 'Add Slurm group.'
   ansible.builtin.group:
     name: 'slurm'
-    gid: "{{ slurm['slurm_gid'] }}"
+    gid: "{{ slurm_gid }}"
   notify:
     - 'restart_slurmd'
   become: true
@@ -21,7 +16,7 @@
 - name: 'Add Munge group.'
   ansible.builtin.group:
     name: 'munge'
-    gid: "{{ slurm['munge_gid'] }}"
+    gid: "{{ munge_gid }}"
   notify:
     - 'restart_munge'
     - 'restart_slurmd'
@@ -30,7 +25,7 @@
 - name: 'Add Slurm user.'
   ansible.builtin.user:
     name: 'slurm'
-    uid: "{{ slurm['slurm_uid'] }}"
+    uid: "{{ slurm_uid }}"
     group: 'slurm'
   notify:
     - 'restart_slurmd'
@@ -39,7 +34,7 @@
 - name: 'Add Munge user.'
   ansible.builtin.user:
     name: 'munge'
-    uid: "{{ slurm['munge_uid'] }}"
+    uid: "{{ munge_uid }}"
     group: 'munge'
   notify:
     - 'restart_munge'
@@ -141,7 +136,7 @@
 
 - name: 'Deploy slurm prolog/epilog scripts.'
   ansible.builtin.copy:
-    src: "roles/slurm_management/files/{{ item }}"
+    src: "files/{{ item }}"
     dest: '/etc/slurm/'
     owner: 'root'
     group: 'root'
@@ -154,7 +149,7 @@
 
 - name: 'Deploy slurm.conf.'
   ansible.builtin.template:
-    src: "roles/slurm_management/templates/slurm.conf.{{ slurm_version }}"
+    src: "templates/slurm.conf.{{ slurm_version }}"
     dest: '/etc/slurm/slurm.conf'
     owner: 'root'
     group: 'root'
@@ -163,9 +158,19 @@
     - 'restart_slurmd'
   become: true
 
+- name: 'Install Slurm GRES config file.'
+  ansible.builtin.template:
+    src: "templates/gres.conf"
+    dest: '/etc/slurm/gres.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: 'restart_slurmd'
+  become: true
+
 - name: 'Configure cgroups.'
   ansible.builtin.copy:
-    src: "roles/slurm_management/files/cgroup.conf.{{ slurm_version }}"
+    src: "files/cgroup.conf.{{ slurm_version }}"
     dest: '/etc/slurm/cgroup.conf'
     owner: 'root'
     group: 'root'
@@ -207,7 +212,7 @@
 
 - name: 'Allow passwordless sudo to slurm user for users in the functional_admins_group.'
   ansible.builtin.template:
-    src: 'roles/slurm_management/templates/91-slurm'
+    src: 'templates/91-slurm'
     dest: "/etc/sudoers.d/91-slurm"
     owner: 'root'
     group: 'root'
