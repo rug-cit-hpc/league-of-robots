@@ -27,28 +27,23 @@ local_admin_users:
   - 'pieter'
   - 'sandi'
   - 'wim'
-
 functional_admin_group: 'funad'
 regular_groups:
   - "{{ functional_admin_group }}"
   - 'vip'
-
 regular_users:
   - user: 'dhendriksen'
     groups: ['vip']
   - user: 'bcharbon'
     groups: ['vip']
-
 sudoers:
   - who: ['%vip']
     become: 'ALL'
     name: 'apptainer' 
     command: '/bin/apptainer'
-
 use_ldap: false
 create_ldap: false
 use_sssd: false
-
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/build_library-ca"
 
 cluster_common_packages:
