@@ -116,55 +116,107 @@ regular_users:
     groups: ["{{ envsync_group }}", "{{ functional_users_group }}"]
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd', 'umcg-gsad', "{{ functional_users_group }}"]
-    sudoers: '%umcg-atd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd', "{{ functional_users_group }}"]
-    sudoers: '%umcg-atd'
   - user: 'umcg-gap-ateambot'
     groups: ['umcg-gap', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gap'
   - user: 'umcg-gap-dm'
     groups: ['umcg-gap', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gap'
   - user: 'umcg-gd-ateambot'
     groups: ['umcg-gd', 'umcg-gap', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gd'
   - user: 'umcg-gd-dm'
     groups: ['umcg-gd', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gd'
   - user: 'umcg-genomescan-ateambot'
     groups: ['umcg-genomescan', "{{ functional_users_group }}"]
-    sudoers: '%umcg-genomescan'
   - user: 'umcg-genomescan-dm'
     groups: ['umcg-genomescan', "{{ functional_users_group }}"]
-    sudoers: '%umcg-genomescan'
   - user: 'umcg-gsad-ateambot'
     groups: ['umcg-gsad', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gsad'
   - user: 'umcg-gsad-dm'
     groups: ['umcg-gsad', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gsad'
   - user: 'umcg-gst-ateambot'
     groups: ['umcg-gst', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gst'
   - user: 'umcg-gst-dm'
     groups: ['umcg-gst', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gst'
   - user: 'umcg-labgnkbh-ateambot'
     groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
-    sudoers: '%umcg-labgnkbh'
   - user: 'umcg-labgnkbh-dm'
     groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
-    sudoers: '%umcg-labgnkbh'
   - user: 'umcg-patho-ateambot'
     groups: ['umcg-patho', "{{ functional_users_group }}"]
-    sudoers: '%umcg-patho'
   - user: 'umcg-patho-dm'
     groups: ['umcg-patho', "{{ functional_users_group }}"]
-    sudoers: '%umcg-patho'
   - user: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
-    sudoers: '%umcg-vipt'
+sudoers:
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-ateambot'
+    name: 'umcg-atd-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-dm'
+    name: 'umcg-atd-dm'
+    command: 'ALL'
+  - who: ['%umcg-gap']
+    become: 'umcg-gap-ateambot'
+    name: 'umcg-gap-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gap']
+    become: 'umcg-gap-dm'
+    name: 'umcg-gap-dm'
+    command: 'ALL'
+  - who: ['%umcg-gd']
+    become: 'umcg-gd-ateambot'
+    name: 'umcg-gd-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gd']
+    become: 'umcg-gd-dm'
+    name: 'umcg-gd-dm'
+    command: 'ALL'
+  - who: ['%umcg-genomescan']
+    become: 'umcg-genomescan-ateambot'
+    name: 'umcg-genomescan-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-genomescan']
+    become: 'umcg-genomescan-dm'
+    name: 'umcg-genomescan-dm'
+    command: 'ALL'
+  - who: ['%umcg-gsad']
+    become: 'umcg-gsad-ateambot'
+    name: 'umcg-gsad-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gsad']
+    become: 'umcg-gsad-dm'
+    name: 'umcg-gsad-dm'
+    command: 'ALL'
+  - who: ['%umcg-gst']
+    become: 'umcg-gst-ateambot'
+    name: 'umcg-gst-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gst']
+    become: 'umcg-gst-dm'
+    name: 'umcg-gst-dm'
+    command: 'ALL'
+  - who: ['%umcg-labgnkbh']
+    become: 'umcg-labgnkbh-ateambot'
+    name: 'umcg-labgnkbh-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-labgnkbh']
+    become: 'umcg-labgnkbh-dm'
+    name: 'umcg-labgnkbh-dm'
+    command: 'ALL'    
+  - who: ['%umcg-patho']
+    become: 'umcg-patho-ateambot'
+    name: 'umcg-patho-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-patho']
+    become: 'umcg-patho-dm'
+    name: 'umcg-patho-dm'
+    command: 'ALL'
+  - who: ['%umcg-vipt']
+    become: 'umcg-vipt-dm'
+    name: 'umcg-vipt-dm'
+    command: 'ALL'
 #
 # Shared storage related variables
 #
