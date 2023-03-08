@@ -147,7 +147,6 @@ regular_groups:
   - 'umcg-llnext'
   - 'umcg-mic'
   - 'umcg-micompany'
-  - 'umcg-mmbimg'
   - 'umcg-msb'
   - 'umcg-nawijn'
   - 'umcg-oncogenetics'
@@ -239,8 +238,12 @@ regular_users:
     groups: ['umcg-mic']
   - user: 'umcg-micompany-dm'
     groups: ['umcg-micompany']
+<<<<<<< HEAD
   - user: 'umcg-mmbimg-dm'
     groups: ['umcg-mmbimg']
+=======
+    sudoers: '%umcg-micompany-dms'
+>>>>>>> 2c1d7bb061ea805b108209c621efe8122cfdc4af
   - user: 'umcg-msb-dm'
     groups: ['umcg-msb']
   - user: 'umcg-nawijn-dm'
@@ -570,7 +573,6 @@ lfs_mounts:
       - name: umcg-llnext
       - name: umcg-mic
       - name: umcg-micompany
-      - name: umcg-mmbimg
       - name: umcg-msb
       - name: umcg-nawijn
         mode: '2750'
@@ -633,7 +635,6 @@ lfs_mounts:
       - name: umcg-llnext
       - name: umcg-mic
       - name: umcg-micompany
-      - name: umcg-mmbimg
       - name: umcg-msb
       - name: umcg-nawijn
       - name: umcg-oncogenetics
@@ -688,7 +689,6 @@ lfs_mounts:
       - name: umcg-llnext
       - name: umcg-mic
       - name: umcg-micompany
-      - name: umcg-mmbimg
       - name: umcg-msb
       - name: umcg-nawijn
       - name: umcg-oncogenetics
@@ -743,7 +743,6 @@ lfs_mounts:
       - name: umcg-llnext
       - name: umcg-mic
       - name: umcg-micompany
-      - name: umcg-mmbimg
       - name: umcg-msb
       - name: umcg-nawijn
       - name: umcg-oncogenetics
