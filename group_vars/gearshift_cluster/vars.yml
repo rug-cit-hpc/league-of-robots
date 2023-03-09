@@ -238,12 +238,6 @@ regular_users:
     groups: ['umcg-mic']
   - user: 'umcg-micompany-dm'
     groups: ['umcg-micompany']
-<<<<<<< HEAD
-  - user: 'umcg-mmbimg-dm'
-    groups: ['umcg-mmbimg']
-=======
-    sudoers: '%umcg-micompany-dms'
->>>>>>> 2c1d7bb061ea805b108209c621efe8122cfdc4af
   - user: 'umcg-msb-dm'
     groups: ['umcg-msb']
   - user: 'umcg-nawijn-dm'
@@ -424,10 +418,6 @@ sudoers:
   - who: ['%umcg-micompany-dms']
     become: 'umcg-micompany-dm'
     name: 'umcg-micompany-dm'
-    command: 'ALL'
-  - who: ['%umcg-mmbimg-dms']
-    become: 'umcg-mmbimg-dm'
-    name: 'umcg-mmbimg-dm'
     command: 'ALL'
   - who: ['%umcg-msb']
     become: 'umcg-msb-dm'
