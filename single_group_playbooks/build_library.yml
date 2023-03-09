@@ -4,7 +4,7 @@
 
 - name: '###==-> Roles for build library. <-==###'
   hosts:
-    - vip_build
+    - build_servers
   roles:
     - admin_users
     - ssh_host_signer

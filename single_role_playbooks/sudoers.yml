@@ -1,12 +1,8 @@
 ---
 - hosts:
     - user_interface
-    - build_servers
-  roles:
-    - sudoers
 - hosts:
     - build_servers
-    - chaperone
   roles:
     - sudoers
 ...
