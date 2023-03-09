@@ -45,7 +45,31 @@ use_ldap: false
 create_ldap: false
 use_sssd: false
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/build_library-ca"
-
+#
+# Jumphosts from other stack-name infra groups.
+# We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
+#
+external_jumphosts:
+  - group: gearshift_cluster
+    hosts:
+    - hostname: airlock
+      network: vlan16
+  - group: talos_cluster
+    hosts:
+      - hostname: reception
+        network: vlan16
+  - group: hyperchicken_cluster
+    hosts:
+      - hostname: portal
+        network: public
+  - group: fender_cluster
+    hosts:
+      - hostname: corridor
+        network: public
+  - group: nibbler_cluster
+    hosts:
+      - hostname: tunnel
+        network: vlan16
 cluster_common_packages:
   - apptainer
   - apptainer-suid

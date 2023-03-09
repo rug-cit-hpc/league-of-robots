@@ -5,22 +5,19 @@ all:
       hosts:
         localhost:
           ansible_python_interpreter: /usr/bin/env python
-    jumphost:     # build_servers
-      hosts:
-        vip_build:
     build_servers:
       hosts:
         vip_build:
           cloud_flavor: m1.large
+          ansible_host: tunnel+vip_build
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
-              security_group: "{{ stack_prefix }}_jumphosts"
+              security_group: "{{ stack_prefix }}_webservers"            
               assign_floating_ip: true
           security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
 build_library:
   children:
     openstack_api:
-    jumphost:
     build_servers:
 cluster:
   children:
