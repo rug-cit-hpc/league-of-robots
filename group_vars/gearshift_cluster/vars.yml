@@ -147,7 +147,6 @@ regular_groups:
   - 'umcg-llnext'
   - 'umcg-mic'
   - 'umcg-micompany'
-  - 'umcg-mmbimg'
   - 'umcg-msb'
   - 'umcg-nawijn'
   - 'umcg-oncogenetics'
@@ -169,163 +168,321 @@ regular_users:
     groups: ["{{ envsync_group }}"]
   - user: 'umcg-aad-dm'
     groups: ['umcg-aad']
-    sudoers: '%umcg-aad'
   - user: 'umcg-capicebot'
     groups: ['umcg-as']
-    sudoers: '%umcg-as'
   - user: 'umcg-as-dm'
     groups: ['umcg-as']
-    sudoers: '%umcg-as'
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']
-    sudoers: '%umcg-atd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
-    sudoers: '%umcg-atd'
   - user: 'umcg-biogen-dm'
     groups: ['umcg-biogen']
-    sudoers: '%umcg-biogen-dms'
   - user: 'umcg-bionic-mdd-gwama-dm'
     groups: ['umcg-bionic-mdd-gwama']
-    sudoers: '%umcg-bionic-mdd-gwama-dms'
   - user: 'umcg-bios-dm'
     groups: ['umcg-bios']
-    sudoers: '%umcg-bios'
   - user: 'umcg-cineca-dm'
     groups: ['umcg-cineca']
-    sudoers: '%umcg-cineca-dms'
   - user: 'umcg-dag3-dm'
     groups: ['umcg-dag3']
-    sudoers: '%umcg-dag3-dms'
   - user: 'umcg-datateam-dm'
     groups: ['umcg-datateam']
-    sudoers: '%umcg-datateam'
   - user: 'umcg-ejp-rd-dm'
     groups: ['umcg-ejp-rd']
-    sudoers: '%umcg-ejp-rd-dms'
   - user: 'umcg-endocrinology-dm'
     groups: ['umcg-endocrinology']
-    sudoers: '%umcg-endocrinology-dms'
   - user: 'umcg-fg-dm'
     groups: ['umcg-fg']
-    sudoers: '%umcg-fg-dms'
   - user: 'umcg-franke-scrna-dm'
     groups: ['umcg-franke-scrna']
-    sudoers: '%umcg-franke-scrna-dms'
   - user: 'umcg-fu-dm'
     groups: ['umcg-fu']
-    sudoers: '%umcg-fu-dms'
   - user: 'umcg-gaf-ateambot'
     groups: ['umcg-gaf']
-    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
   - user: 'umcg-gaf-dm'
     groups: ['umcg-gaf']
-    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
   - user: 'umcg-gap-ateambot'
     groups: ['umcg-gap']
-    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
   - user: 'umcg-gap-dm'
     groups: ['umcg-gap']
-    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
   - user: 'umcg-gastrocol-dm'
     groups: ['umcg-gastrocol']
-    sudoers: '%umcg-gastrocol-dms'
   - user: 'umcg-gcc-dm'
     groups: ['umcg-gcc']
-    sudoers: '%umcg-gcc'
   - user: 'umcg-gdio-dm'
     groups: ['umcg-gdio']
-    sudoers: '%umcg-gdio-dms'
   - user: 'umcg-gonl-dm'
     groups: ['umcg-gonl']
-    sudoers: '%umcg-gonl-dms'
   - user: 'umcg-griac-dm'
     groups: ['umcg-griac']
-    sudoers: '%umcg-griac-dms'
   - user: 'umcg-grip-dm'
     groups: ['umcg-grip']
-    sudoers: '%umcg-grip-dms'
   - user: 'umcg-gsad-dm'
     groups: ['umcg-gsad']
-    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
   - user: 'umcg-hematology-dm'
     groups: ['umcg-hematology']
-    sudoers: '%umcg-hematology-dms'
   - user: 'umcg-hlhs-dm'
     groups: ['umcg-hlhs']
-    sudoers: '%umcg-hlhs-dms'
   - user: 'umcg-immunogenetics-dm'
     groups: ['umcg-immunogenetics']
-    sudoers: '%umcg-immunogenetics-dms'
   - user: 'umcg-impact-dm'
     groups: ['umcg-impact']
-    sudoers: '%umcg-impact'
   - user: 'umcg-lifelines-dm'
     groups: ['umcg-lifelines']
-    sudoers: '%umcg-lifelines-dms'
   - user: 'umcg-lld-dm'
     groups: ['umcg-lld']
-    sudoers: '%umcg-lld-dms'
   - user: 'umcg-llnext-dm'
     groups: ['umcg-llnext']
-    sudoers: '%umcg-llnext-dms'
   - user: 'umcg-mic-dm'
     groups: ['umcg-mic']
-    sudoers: '%umcg-mic-dms'
   - user: 'umcg-micompany-dm'
     groups: ['umcg-micompany']
-    sudoers: '%umcg-micompany-dms'
-  - user: 'umcg-mmbimg-dm'
-    groups: ['umcg-mmbimg']
-    sudoers: '%umcg-mmbimg-dms'
   - user: 'umcg-msb-dm'
     groups: ['umcg-msb']
-    sudoers: '%umcg-msb'
   - user: 'umcg-nawijn-dm'
     groups: ['umcg-nawijn']
-    sudoers: '%umcg-nawijn-dms'
   - user: 'umcg-oncogenetics-dm'
     groups: ['umcg-oncogenetics']
-    sudoers: '%umcg-oncogenetics'
   - user: 'umcg-pmb-dm'
     groups: ['umcg-pmb']
-    sudoers: '%umcg-pmb-dms'
   - user: 'umcg-pub-dm'
     groups: ['umcg-pub']
-    sudoers: '%umcg-pub-dms'
   - user: 'umcg-radicon-dm'
     groups: ['umcg-radicon']
-    sudoers: 'umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga'
   - user: 'umcg-rehabilitation-dm'
     groups: ['umcg-rehabilitation']
-    sudoers: '%umcg-rehabilitation-dms'
   - user: 'umcg-solve-rd-dm'
     groups: ['umcg-solve-rd']
-    sudoers: '%umcg-solve-rd-dms'
   - user: 'umcg-sysops-dm'
     groups: ['umcg-sysops']
-    sudoers: '%umcg-sysops'
   - user: 'umcg-tifn-dm'
     groups: ['umcg-tifn']
-    sudoers: '%umcg-tifn-dms'
   - user: 'umcg-ukb-dm'
     groups: ['umcg-ukb']
-    sudoers: '%umcg-ukb-dms'
   - user: 'umcg-ugli-dm'
     groups: ['umcg-ugli']
-    sudoers: '%umcg-ugli-dms'
   - user: 'umcg-verbeek-dm'
     groups: ['umcg-verbeek']
-    sudoers: '%umcg-verbeek'
   - user: 'umcg-vdakker-dm'
     groups: ['umcg-vdakker']
-    sudoers: '%umcg-vdakker-dms'
   - user: 'umcg-weersma-dm'
     groups: ['umcg-weersma']
-    sudoers: '%umcg-weersma-dms'
   - user: 'umcg-wijmenga-dm'
     groups: ['umcg-wijmenga']
-    sudoers: '%umcg-wijmenga-dms'
+sudoers:
+  - who: ['%umcg-aad']
+    become: 'umcg-aad-dm'
+    name: 'umcg-aad-dm'
+    command: 'ALL'
+  - who: ['%umcg-as']
+    become: 'umcg-capicebot'
+    name: 'umcg-capicebot'
+    command: 'ALL'
+  - who: ['%umcg-as']
+    become: 'umcg-as-dm'
+    name: 'umcg-as-dm'
+    command: 'ALL'
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-ateambot'
+    name: 'umcg-atd-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-dm'
+    name: 'umcg-atd-dm'
+    command: 'ALL'
+  - who: ['%umcg-biogen-dms']
+    become: 'umcg-biogen-dm'
+    name: 'umcg-biogen-dm'
+    command: 'ALL'
+  - who: ['%umcg-bionic-mdd-gwama-dms']
+    become: 'umcg-bionic-mdd-gwama-dm'
+    name: 'umcg-bionic-mdd-gwama-dm'
+    command: 'ALL'
+  - who: ['%umcg-bios']
+    become: 'umcg-bios-dm'
+    name: 'umcg-bios-dm'
+    command: 'ALL'
+  - who: ['%umcg-cineca-dms']
+    become: 'umcg-cineca-dm'
+    name: 'umcg-cineca-dm'
+    command: 'ALL'
+  - who: ['%umcg-dag3-dms']
+    become: 'umcg-dag3-dm'
+    name: 'umcg-dag3-dm'
+    command: 'ALL'
+  - who: ['%umcg-datateam']
+    become: 'umcg-datateam-dm'
+    name: 'umcg-datateam-dm'
+    command: 'ALL'
+  - who: ['%umcg-ejp-rd-dms']
+    become: 'umcg-ejp-rd-dm'
+    name: 'umcg-ejp-rd-dm'
+    command: 'ALL'
+  - who: ['%umcg-endocrinology-dms']
+    become: 'umcg-endocrinology-dm'
+    name: 'umcg-endocrinology-dm'
+    command: 'ALL'
+  - who: ['%umcg-gcc']
+    become: 'umcg-gcc-dm'
+    name: 'umcg-gcc-dm'
+    command: 'ALL'
+  - who: ['%umcg-fg-dms']
+    become: 'umcg-fg-dm'
+    name: 'umcg-fg-dm'
+    command: 'ALL'
+  - who: ['%umcg-franke-scrna-dms']
+    become: 'umcg-franke-scrna-dm'
+    name: 'umcg-franke-scrna-dm'
+    command: 'ALL'
+  - who: ['%umcg-fu-dms']
+    become: 'umcg-fu-dm'
+    name: 'umcg-fu-dm'
+    command: 'ALL'
+  - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
+    become: 'umcg-gaf-ateambot'
+    name: 'umcg-gaf-ateambot'
+    command: 'ALL'
+  - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
+    become: 'umcg-gaf-dm'
+    name: 'umcg-gaf-dm'
+    command: 'ALL'
+  - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
+    become: 'umcg-gap-ateambot'
+    name: 'umcg-gap-ateambot'
+    command: 'ALL'
+  - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
+    become: 'umcg-gap-dm'
+    name: 'umcg-gap-dm'
+    command: 'ALL'
+  - who: ['%umcg-gastrocol-dms']
+    become: 'umcg-gastrocol-dm'
+    name: 'umcg-gastrocol-dm'
+    command: 'ALL'
+  - who: ['%umcg-gcc']
+    become: 'umcg-gcc-dm'
+    name: 'umcg-gcc-dm'
+    command: 'ALL'
+  - who: ['%umcg-gdio-dms']
+    become: 'umcg-gdio-dm'
+    name: 'umcg-gdio-dm'
+    command: 'ALL'
+  - who: ['%umcg-gonl-dms']
+    become: 'umcg-gonl-dm'
+    name: 'umcg-gonl-dm'
+    command: 'ALL'
+  - who: ['%umcg-griac-dms']
+    become: 'umcg-griac-dm'
+    name: 'umcg-griac-dm'
+    command: 'ALL'
+  - who: ['%umcg-grip-dms']
+    become: 'umcg-grip-dm'
+    name: 'umcg-grip-dm'
+    command: 'ALL'
+  - who: ['%umcg-gsad']
+    become: 'umcg-gsad-dm'
+    name: 'umcg-gsad-dm'
+    command: 'ALL'
+  - who: ['%umcg-hematology-dms']
+    become: 'umcg-hematology-dm'
+    name: 'umcg-hematology-dm'
+    command: 'ALL'
+  - who: ['%umcg-hlhs-dms']
+    become: 'umcg-hlhs-dm'
+    name: 'umcg-hlhs-dm'
+    command: 'ALL'
+  - who: ['%umcg-immunogenetics-dms']
+    become: 'umcg-immunogenetics-dm'
+    name: 'umcg-immunogenetics-dm'
+    command: 'ALL'
+  - who: ['%umcg-impact']
+    become: 'umcg-impact-dm'
+    name: 'umcg-impact-dm'
+    command: 'ALL'
+  - who: ['%umcg-lifelines-dms']
+    become: 'umcg-lifelines-dm'
+    name: 'umcg-lifelines-dm'
+    command: 'ALL'
+  - who: ['%umcg-lld-dms']
+    become: 'umcg-lld-dm'
+    name: 'umcg-lld-dm'
+    command: 'ALL'
+  - who: ['%umcg-llnext-dms']
+    become: 'umcg-llnext-dm'
+    name: 'umcg-llnext-dm'
+    command: 'ALL'
+  - who: ['%umcg-mic-dms']
+    become: 'umcg-mic-dm'
+    name: 'umcg-mic-dm'
+    command: 'ALL'
+  - who: ['%umcg-micompany-dms']
+    become: 'umcg-micompany-dm'
+    name: 'umcg-micompany-dm'
+    command: 'ALL'
+  - who: ['%umcg-msb']
+    become: 'umcg-msb-dm'
+    name: 'umcg-msb-dm'
+    command: 'ALL'
+  - who: ['%umcg-nawijn-dms']
+    become: 'umcg-nawijn-dm'
+    name: 'umcg-nawijn-dm'
+    command: 'ALL'  
+  - who: ['%umcg-oncogenetics']
+    become: 'umcg-oncogenetics-dm'
+    name: 'umcg-oncogenetics-dm'
+    command: 'ALL'
+  - who: ['%umcg-pmb-dms']
+    become: 'umcg-pmb-dm'
+    name: 'umcg-pmb-dm'
+    command: 'ALL' 
+  - who: ['%umcg-pub-dms']
+    become: 'umcg-pub-dm'
+    name: 'umcg-pub-dm'
+    command: 'ALL'
+  - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
+    become: 'umcg-radicon-dm'
+    name: 'umcg-radicon-dm'
+    command: 'ALL'
+  - who: ['%umcg-rehabilitation-dms']
+    become: 'umcg-rehabilitation-dm'
+    name: 'umcg-rehabilitation-dm'
+    command: 'ALL'
+  - who: ['%umcg-solve-rd-dms']
+    become: 'umcg-solve-rd-dm'
+    name: 'umcg-solve-rd-dm'
+    command: 'ALL'
+  - who: ['%umcg-sysops']
+    become: 'umcg-sysops-dm'
+    name: 'umcg-sysops-dm'
+    command: 'ALL'
+  - who: ['%umcg-tifn-dms']
+    become: 'umcg-tifn-dm'
+    name: 'umcg-tifn-dm'
+    command: 'ALL'
+  - who: ['%umcg-ukb-dms']
+    become: 'umcg-ukb-dm'
+    name: 'umcg-ukb-dm'
+    command: 'ALL'
+  - who: ['%umcg-ugli-dms']
+    become: 'umcg-ugli-dm'
+    name: 'umcg-ugli-dm'
+    command: 'ALL'
+  - who: ['%umcg-verbeek']
+    become: 'umcg-verbeek-dm'
+    name: 'umcg-verbeek-dm'
+    command: 'ALL'
+  - who: ['%umcg-vdakker-dms']
+    become: 'umcg-vdakker-dm'
+    name: 'umcg-vdakker-dm'
+    command: 'ALL'
+  - who: ['%umcg-weersma-dms']
+    become: 'umcg-weersma-dm'
+    name: 'umcg-weersma-dm'
+    command: 'ALL'
+  - who: ['%umcg-wijmenga-dms']
+    become: 'umcg-wijmenga-dm'
+    name: 'umcg-wijmenga-dm'
+    command: 'ALL'
 #
 # Shared storage related variables
 #
@@ -406,7 +563,6 @@ lfs_mounts:
       - name: umcg-llnext
       - name: umcg-mic
       - name: umcg-micompany
-      - name: umcg-mmbimg
       - name: umcg-msb
       - name: umcg-nawijn
         mode: '2750'
@@ -469,7 +625,6 @@ lfs_mounts:
       - name: umcg-llnext
       - name: umcg-mic
       - name: umcg-micompany
-      - name: umcg-mmbimg
       - name: umcg-msb
       - name: umcg-nawijn
       - name: umcg-oncogenetics
@@ -524,7 +679,6 @@ lfs_mounts:
       - name: umcg-llnext
       - name: umcg-mic
       - name: umcg-micompany
-      - name: umcg-mmbimg
       - name: umcg-msb
       - name: umcg-nawijn
       - name: umcg-oncogenetics
@@ -579,7 +733,6 @@ lfs_mounts:
       - name: umcg-llnext
       - name: umcg-mic
       - name: umcg-micompany
-      - name: umcg-mmbimg
       - name: umcg-msb
       - name: umcg-nawijn
       - name: umcg-oncogenetics

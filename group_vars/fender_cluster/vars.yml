@@ -97,13 +97,10 @@ regular_users:
     groups: ["{{ envsync_group }}"]
   - user: 'solve-rd-dm'
     groups: ['solve-rd']
-    sudoers: '%solve-rd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
-    sudoers: '%umcg-atd'
   - user: 'solve-rd-ateambot'
     groups: ['solve-rd']
-    sudoers: '%solve-rd'
   - user: 'gvdvries'
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mbijlsma'
@@ -286,6 +283,19 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'jschulzehentrich'
     groups: ['users', 'solve-rd']
+sudoers:
+  - who: ['%solve-rd']
+    become: 'solve-rd-dm'
+    name: 'solve-rd-dm'
+    command: 'ALL'
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-dm'
+    name: 'umcg-atd-dm'
+    command: 'ALL'
+  - who: ['%solve-rd']
+    become: 'solve-rd-ateambot'
+    name: 'solve-rd-ateambot'
+    command: 'ALL'
 #
 # Shared storage related variables
 #

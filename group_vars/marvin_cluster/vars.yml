@@ -90,16 +90,12 @@ regular_users:
     groups: ["{{ envsync_group }}"]
   - user: 'erknet-dm'
     groups: ['erknet']
-    sudoers: '%erknet'
   - user: 'euro-nmd-dm'
     groups: ['euro-nmd']
-    sudoers: '%euro-nmd'
   - user: 'ern-liver-dm'
     groups: ['ern-liver']
-    sudoers: '%ern-liver'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
-    sudoers: '%umcg-atd'
   - user: 'gvdvries'
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
   - user: 'mbijlsma'
@@ -112,16 +108,45 @@ regular_users:
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
   - user: 'umcg-atd-dm'
     groups: ['users', 'umcg-atd']
-    sudoers: 'pieter,gerben'
   - user: 'erknet-dm'
     groups: ['users', 'erknet']
-    sudoers: '%erknet'
   - user: 'euro-nmd-dm'
     groups: ['users', 'euro-nmd']
-    sudoers: '%euro-nmd'
   - user: 'ern-liver-dm'
     groups: ['users', 'ern-liver']
-    sudoers: '%ern-liver'
+sudoers:
+  - who: ['%erknet']
+    become: 'erknet-dm'
+    name: 'erknet-dm'
+    command: 'ALL'
+  - who: ['%euro-nmd']
+    become: 'euro-nmd-dm'
+    name: 'euro-nmd-dm'
+    command: 'ALL'
+  - who: ['%ern-liver']
+    become: 'ern-liver-dm'
+    name: 'ern-liver-dm'
+    command: 'ALL'
+  - who: ['%umcg-atd,pieter,gerben']
+    become: 'umcg-atd-dm'
+    name: 'umcg-atd-dm'
+    command: 'ALL'
+  - who: ['%umcg-biogen-dms']
+    become: 'umcg-biogen-dm'
+    name: 'umcg-biogen-dm'
+    command: 'ALL'
+  - who: ['%umcg-bionic-mdd-gwama-dms']
+    become: 'umcg-bionic-mdd-gwama-dm'
+    name: 'umcg-bionic-mdd-gwama-dm'
+    command: 'ALL'
+  - who: ['%umcg-bios']
+    become: 'umcg-bios-dm'
+    name: 'umcg-bios-dm'
+    command: 'ALL'
+  - who: ['%umcg-cineca-dms']
+    become: 'umcg-cineca-dm'
+    name: 'umcg-cineca-dm'
+    command: 'ALL'
 #
 # Shared storage related variables
 #
