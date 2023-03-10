@@ -125,31 +125,60 @@ regular_users:
     groups: ["{{ envsync_group }}"]
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']
-    sudoers: '%umcg-atd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
-    sudoers: '%umcg-atd'
   - user: 'umcg-cineca-dm'
     groups: ['umcg-cineca']
-    sudoers: '%umcg-cineca-dms'
   - user: 'umcg-endocrinology-dm'
     groups: ['umcg-endocrinology']
-    sudoers: '%umcg-endocrinology-dms'
   - user: 'umcg-gcc-dm'
     groups: ['umcg-gcc']
-    sudoers: '%umcg-gcc'
   - user: 'umcg-gsad-ateambot'
     groups: ['umcg-gsad']
-    sudoers: '%umcg-gsad'
   - user: 'umcg-gsad-dm'
     groups: ['umcg-gsad']
-    sudoers: '%umcg-gsad' 
   - user: 'umcg-lifelines-dm'
     groups: ['umcg-lifelines']
-    sudoers: '%umcg-lifelines-dms'
   - user: 'umcg-sysops-dm'
     groups: ['umcg-sysops']
-    sudoers: '%umcg-sysops'
+sudoers:
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-dm'
+    name: 'umcg-atd-dm'
+    command: 'ALL'
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-ateambot'
+    name: 'umcg-atd-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-cineca-dms']
+    become: 'umcg-cineca-dm'
+    name: 'umcg-cineca-dm'
+    command: 'ALL'
+  - who: ['%umcg-endocrinology-dms']
+    become: 'umcg-endocrinology-dm'
+    name: 'umcg-endocrinology-dm'
+    command: 'ALL'
+  - who: ['%umcg-gcc']
+    become: 'umcg-gcc-dm'
+    name: 'umcg-gcc-dm'
+    command: 'ALL'
+  - who: ['%umcg-gsad']
+    become: 'umcg-gsad-ateambot'
+    name: 'umcg-gsad-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gsad']
+    become: 'umcg-gsad-dm'
+    name: 'umcg-gsad-dm'
+    command: 'ALL'
+  - who: ['%umcg-lifelines-dms']
+    become: 'umcg-lifelines-dm'
+    name: 'umcg-lifelines-dm'
+    command: 'ALL'
+  - who: ['%umcg-sysops']
+    become: 'umcg-sysops-dm'
+    name: 'umcg-sysops-dm'
+    command: 'ALL'
+
 #
 # Shared storage related variables
 #
