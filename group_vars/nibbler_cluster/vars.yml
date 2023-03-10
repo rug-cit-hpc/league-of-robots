@@ -35,15 +35,13 @@ slurm_partitions:
 repo_manager: 'pulp'
 figlet_font: 'ogre'
 motd: |
-      =========================================================
-      !!! WARNING: {{ slurm_cluster_name | capitalize }} is in beta testing
-      =========================================================
-          This cluster may be redeployed from scratch, 
-          which may result in complete data loss of home dirs 
-          and tmp0* group folders: You have been warned!!!
-          This does not affect other group folders (if present),
-          which are on different (production) storage systems.
-      =========================================================
+      ===============================================================
+       Welcome to {{ slurm_cluster_name | capitalize }}
+      ===============================================================
+       WARNING: only prm* group dirs are backupped.
+       When this cluster has to be redeployed from scratch,
+       all data in home dirs and tmp* & rsc* group dirs will be lost!
+      ===============================================================
 additional_etc_hosts:
   - group: docs_library
     nodes:
@@ -191,8 +189,10 @@ regular_groups:
   - 'umcg-gdio'
   - 'umcg-gonl'
   - 'umcg-griac'
+  - 'umcg-grip'
   - 'umcg-gsad'
   - 'umcg-hematology'
+  - 'umcg-hlhs'
   - 'umcg-immunogenetics'
   - 'umcg-impact'
   - 'umcg-lifelines'
@@ -200,7 +200,6 @@ regular_groups:
   - 'umcg-llnext'
   - 'umcg-mic'
   - 'umcg-micompany'
-  - 'umcg-mmbimg'
   - 'umcg-msb'
   - 'umcg-nawijn'
   - 'umcg-oncogenetics'
@@ -270,10 +269,14 @@ regular_users:
     groups: ['umcg-gonl']
   - user: 'umcg-griac-dm'
     groups: ['umcg-griac']
+  - user: 'umcg-grip-dm'
+    groups: ['umcg-grip']
   - user: 'umcg-gsad-dm'
     groups: ['umcg-gsad']
   - user: 'umcg-hematology-dm'
     groups: ['umcg-hematology']
+  - user: 'umcg-hlhs-dm'
+    groups: ['umcg-hlhs']
   - user: 'umcg-immunogenetics-dm'
     groups: ['umcg-immunogenetics']
   - user: 'umcg-impact-dm'
@@ -288,8 +291,6 @@ regular_users:
     groups: ['umcg-mic']
   - user: 'umcg-micompany-dm'
     groups: ['umcg-micompany']
-  - user: 'umcg-mmbimg-dm'
-    groups: ['umcg-mmbimg']
   - user: 'umcg-msb-dm'
     groups: ['umcg-msb']
   - user: 'umcg-nawijn-dm'
@@ -366,7 +367,7 @@ sudoers:
   - who: ['%umcg-datateam']
     become: 'umcg-datateam-dm'
     name: 'umcg-datateam-dm'
-    command: 'ALL'    
+    command: 'ALL'
   - who: ['%umcg-ejp-rd-dms']
     become: 'umcg-ejp-rd-dm'
     name: 'umcg-ejp-rd-dm'
@@ -427,6 +428,10 @@ sudoers:
     become: 'umcg-griac-dm'
     name: 'umcg-griac-dm'
     command: 'ALL'
+  - who: ['%umcg-grip-dms']
+    become: 'umcg-grip-dm'
+    name: 'umcg-grip-dm'
+    command: 'ALL'
   - who: ['%umcg-gsad']
     become: 'umcg-gsad-dm'
     name: 'umcg-gsad-dm'
@@ -434,6 +439,10 @@ sudoers:
   - who: ['%umcg-hematology-dms']
     become: 'umcg-hematology-dm'
     name: 'umcg-hematology-dm'
+    command: 'ALL'
+  - who: ['%umcg-hlhs-dms']
+    become: 'umcg-hlhs-dm'
+    name: 'umcg-hlhs-dm'
     command: 'ALL'
   - who: ['%umcg-immunogenetics-dms']
     become: 'umcg-immunogenetics-dm'
@@ -462,10 +471,6 @@ sudoers:
   - who: ['%umcg-micompany-dms']
     become: 'umcg-micompany-dm'
     name: 'umcg-micompany-dm'
-    command: 'ALL'
-  - who: ['%umcg-mmbimg-dms']
-    become: 'umcg-mmbimg-dm'
-    name: 'umcg-mmbimg-dm'
     command: 'ALL'
   - who: ['%umcg-msb']
     become: 'umcg-msb-dm'
@@ -574,11 +579,101 @@ lfs_mounts:
   - lfs: tmp02
     pfs: umcgst04
     groups:
+      - name: umcg-aad
+        mode: '2750'
+      - name: umcg-as
+        mode: '2750'
       - name: umcg-atd
+        mode: '2750'
+      - name: umcg-biogen
+        mode: '2750'
+      - name: umcg-bionic-mdd-gwama
+        mode: '2750'
+      - name: umcg-bios
+        mode: '2750'
+      - name: umcg-cineca
+        mode: '2750'
+      - name: umcg-dag3
+        mode: '2750'
+      - name: umcg-datateam
+        mode: '2750'
+      - name: umcg-ejp-rd
+        mode: '2750'
+      - name: umcg-endocrinology
         mode: '2750'
       - name: umcg-fg
         mode: '2750'
       - name: umcg-franke-scrna
+        mode: '2750'
+      - name: umcg-fu
+        mode: '2750'
+      - name: umcg-gaf
+        mode: '2750'
+      - name: umcg-gap
+        mode: '2750'
+      - name: umcg-gastrocol
+        mode: '2750'
+      - name: umcg-gcc
+        mode: '2750'
+      - name: umcg-gdio
+        mode: '2750'
+      - name: umcg-gonl
+        mode: '2750'
+      - name: umcg-griac
+        mode: '2750'
+      - name: umcg-grip
+        mode: '2750'
+      - name: umcg-gsad
+        mode: '2750'
+      - name: umcg-hematology
+        mode: '2750'
+      - name: umcg-hlhs
+        mode: '2750'
+      - name: umcg-immunogenetics
+        mode: '2750'
+      - name: umcg-impact
+        mode: '2750'
+      - name: umcg-lifelines
+        mode: '2750'
+      - name: umcg-lld
+        mode: '2750'
+      - name: umcg-llnext
+        mode: '2750'
+      - name: umcg-mic
+        mode: '2750'
+      - name: umcg-micompany
+        mode: '2750'
+      - name: umcg-msb
+        mode: '2750'
+      - name: umcg-nawijn
+        mode: '2750'
+      - name: umcg-oncogenetics
+        mode: '2750'
+      - name: umcg-pmb
+        mode: '2750'
+      - name: umcg-pub
+        mode: '2750'
+      - name: umcg-radicon
+        mode: '2750'
+      - name: umcg-rehabilitation
+        mode: '2750'
+      - name: umcg-solve-rd
+        mode: '2750'
+      - name: umcg-sysops
+        mode: '2750'
+      - name: umcg-tifn
+        mode: '2750'
+      - name: umcg-ukb
+        mode: '2750'
+      - name: umcg-ugli
+        mode: '2750'
+      - name: umcg-verbeek
+        mode: '2750'
+      - name: umcg-vdakker
+        mode: '2750'
+      - name: umcg-weersma
+        mode: '2750'
+      - name: umcg-wijmenga
         mode: '2750'
     rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
 #  - lfs: prm02
