@@ -53,6 +53,10 @@ additional_etc_hosts:
     nodes:
       - name: jenkins
         network: vlan16
+  - group: build_library
+    nodes:
+      - name: vip_build
+        network: vlan16
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
