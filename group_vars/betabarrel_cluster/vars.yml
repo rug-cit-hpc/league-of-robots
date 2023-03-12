@@ -14,6 +14,23 @@ slurm_partitions:
     local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
     features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.25G"'
+slurm_qos_limit_fractions:
+  regular-medium:
+    group: 1
+    user: 1
+  regular-long:
+    group: 1
+    user: 1
+  priority-short:
+    user: 1
+  priority-medium:
+    group: 1
+    user: 1
+  priority-long:
+    group: 1
+    user: 1
+  interactive-short:
+    user: 0.5
 repo_manager: 'none'
 figlet_font: 'ogre'
 motd: |
