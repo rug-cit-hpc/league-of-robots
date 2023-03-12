@@ -21,13 +21,34 @@ slurm_allow_jobs_to_span_nodes: false
 #  * number of vcompute nodes in inventory and
 #  * cores per node, mem per node, etc. as specified in group_vars for cluster.
 #
-slurm_cluster_cores_total: "{{ groups['compute_vm'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | map('int') | sum }}"
-slurm_cluster_mem_total: "{{ groups['compute_vm'] | map('extract', hostvars, 'slurm_max_mem_per_node') | map('int') | sum }}"
-slurm_cluster_gpus_total: "{{ groups['compute_vm'] | map('extract', hostvars, 'gpu_count') | select('defined') | default([0], true) | map('int') | sum }}"
-slurm_total_cores_of_smallest_node: "{{ groups['compute_vm'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | map('int') | min }}"
-slurm_total_mem_of_smallest_node: "{{ groups['compute_vm'] | map('extract', hostvars, 'slurm_max_mem_per_node') | map('int') | min }}"
-slurm_total_gpus_of_smallest_node: "{{ groups['compute_vm'] | map('extract', hostvars, 'gpu_count') | select('defined') | default([0], true) | map('int') | min }}"
-
+slurm_cluster_cores_total: "{{ groups['compute_vm']
+    | map('extract', hostvars, 'slurm_max_cpus_per_node')
+    | map('int')
+    | sum }}"
+slurm_cluster_mem_total: "{{ groups['compute_vm']
+    | map('extract', hostvars, 'slurm_max_mem_per_node')
+    | map('int')
+    | sum }}"
+slurm_cluster_gpus_total: "{{ groups['compute_vm']
+    | map('extract', hostvars, 'gpu_count')
+    | select('defined')
+    | default([0], true)
+    | map('int')
+    | sum }}"
+slurm_total_cores_of_smallest_node: "{{ groups['compute_vm']
+    | map('extract', hostvars, 'slurm_max_cpus_per_node')
+    | map('int')
+    | min }}"
+slurm_total_mem_of_smallest_node: "{{ groups['compute_vm']
+    | map('extract', hostvars, 'slurm_max_mem_per_node')
+    | map('int')
+    | min }}"
+slurm_total_gpus_of_smallest_node: "{{ groups['compute_vm']
+    | map('extract', hostvars, 'gpu_count')
+    | select('defined')
+    | default([0], true)
+    | map('int')
+    | min }}"
 #
 # Fractions of the amount of resources, which running jobs in a QoS can consume.
 # QoS limit must be 0 < fraction of resources <= 1.
