@@ -18,6 +18,10 @@ function totp-configure() {
 		printf '       %s\n' '  * Or use the "totp-show-QR-code" command to configure a new device reuseing the existing secret.'
 		echo
 		return
+	else
+		if [[ ! -e $(dirname "${totp_config}") ]]; then
+			mkdir -p -m 700 $(dirname "${totp_config}")
+		fi
 	fi
 	#
 	# IMPORTANT: Each command below is prefixed with a space,
