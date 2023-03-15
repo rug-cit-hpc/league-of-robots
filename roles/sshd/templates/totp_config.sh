@@ -6,6 +6,7 @@
 #
 
 totp_config="{{ sshd_user_totp_config_path }}"
+totp_dir="$(dirname "${totp_config}")"
 
 {% raw %}
 
@@ -18,10 +19,9 @@ function totp-configure() {
 		printf '       %s\n' '  * Or use the "totp-show-QR-code" command to configure a new device reuseing the existing secret.'
 		echo
 		return
-	else
-		if [[ ! -e $(dirname "${totp_config}") ]]; then
-			mkdir -p -m 700 $(dirname "${totp_config}")
-		fi
+	elif [[ ! -e "${totp_dir}" ]]; then
+		printf 'INFO: %s\n' "Creating ${totp_dir} ..."
+		mkdir -p -m 700 "${totp_dir}"
 	fi
 	#
 	# IMPORTANT: Each command below is prefixed with a space,
@@ -55,8 +55,11 @@ function totp-show-QR-code() {
 #
 # Check if 2FA was already configured.
 #
-if [[ -e "${totp_config}" ]]; then
-	: # TOTP already configured
+if [[ "${TERM:-dumb}" == 'dumb' ]]; then
+	: # No terminal available. Hence, also no display available, so we cannot show the QR-code to the user.
+elif [[ -e "${totp_config}" ]]; then
+	printf 'INFO: %s\n' 'Two factor authentication was already configured.'
+	printf '      %s\n' 'Use the totp-show-QR-code command to rescan the QR code when you need to reconfigure your authenticator app.'
 elif [[ "$(whoami)" != "$(logname)" ]]; then
 	: # No direct (SSH) login; sudo perhaps.
 else
