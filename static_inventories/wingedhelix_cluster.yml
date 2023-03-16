@@ -70,7 +70,7 @@ all:
           slurm_cores_per_socket: 1
           slurm_real_memory: 15884
           slurm_local_disk: 0
-          slurm_features: 'prm02,tmp07'
+          slurm_features: 'tmp07'
           slurm_ethernet_interfaces:
             - eth0
             - eth1

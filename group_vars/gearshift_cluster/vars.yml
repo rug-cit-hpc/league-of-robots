@@ -107,7 +107,7 @@ local_admin_users:
   - 'sandi'
   - 'wim'
   - 'wouter'
-data_transfer_only_group: umcg-sftp-only
+data_transfer_only_group: 'umcg-sftp-only'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 functional_admin_group: 'umcg-funad'
@@ -538,9 +538,9 @@ lfs_mounts:
       - name: umcg-datateam
       - name: umcg-ejp-rd
       - name: umcg-endocrinology
-      - name: umcg-franke-scrna
       - name: umcg-fg
         mode: '2750'
+      - name: umcg-franke-scrna
       - name: umcg-fu
       - name: umcg-gaf
       - name: umcg-gap
@@ -605,8 +605,8 @@ lfs_mounts:
       - name: umcg-datateam
       - name: umcg-ejp-rd
       - name: umcg-endocrinology
-      - name: umcg-franke-scrna
       - name: umcg-fg
+      - name: umcg-franke-scrna
       - name: umcg-fu
       - name: umcg-gaf
       - name: umcg-gap
@@ -659,8 +659,8 @@ lfs_mounts:
       - name: umcg-datateam
       - name: umcg-ejp-rd
       - name: umcg-endocrinology
-      - name: umcg-franke-scrna
       - name: umcg-fg
+      - name: umcg-franke-scrna
       - name: umcg-fu
       - name: umcg-gaf
       - name: umcg-gap
@@ -713,8 +713,8 @@ lfs_mounts:
       - name: umcg-datateam
       - name: umcg-ejp-rd
       - name: umcg-endocrinology
-      - name: umcg-franke-scrna
       - name: umcg-fg
+      - name: umcg-franke-scrna
       - name: umcg-fu
       - name: umcg-gaf
       - name: umcg-gap

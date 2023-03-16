@@ -16,4 +16,120 @@ munge_gid: 498
 #                   Will set MaxNodes in slurm.conf to the total amount of compute nodes in the Slurm cluster.
 #
 slurm_allow_jobs_to_span_nodes: false
+#
+# Determine cluster size and smallest node size based on
+#  * number of vcompute nodes in inventory and
+#  * cores per node, mem per node, etc. as specified in group_vars for cluster.
+#
+slurm_cluster_cores_total: "{{ groups['compute_vm']
+    | map('extract', hostvars, 'slurm_max_cpus_per_node')
+    | map('int')
+    | sum }}"
+slurm_cluster_mem_total: "{{ groups['compute_vm']
+    | map('extract', hostvars, 'slurm_max_mem_per_node')
+    | map('int')
+    | sum }}"
+slurm_cluster_gpus_total: "{{ groups['compute_vm']
+    | map('extract', hostvars, 'gpu_count')
+    | select('defined')
+    | default([0], true)
+    | map('int')
+    | sum }}"
+slurm_total_cores_of_smallest_node: "{{ groups['compute_vm']
+    | map('extract', hostvars, 'slurm_max_cpus_per_node')
+    | map('int')
+    | min }}"
+slurm_total_mem_of_smallest_node: "{{ groups['compute_vm']
+    | map('extract', hostvars, 'slurm_max_mem_per_node')
+    | map('int')
+    | min }}"
+slurm_total_gpus_of_smallest_node: "{{ groups['compute_vm']
+    | map('extract', hostvars, 'gpu_count')
+    | select('defined')
+    | default([0], true)
+    | map('int')
+    | min }}"
+#
+# Fractions of the amount of resources, which running jobs in a QoS can consume.
+# QoS limit must be 0 < fraction of resources <= 1.
+#  * For all QoS levels except interactive:
+#    this determines the fraction of the total amount of the cluster's resources that can be consumed.
+#  * For QoS level interactive:
+#    this determines the fraction of the amount of resources of the smallest node that can be consumed.
+# Fractions can be specified
+#   * Per user.
+#   * Per QoS level, which Slurm calls a "group" in sacct commands and output.
+#     Hence the "groups" specified here are not a file system nor POSIX groups.
+# When no value is speified for user or group the default is 1,
+# which means that 100% of the resources can be used simultaneously.
+#
+slurm_qos_limit_fractions:
+  regular-medium:
+    group: 0.6
+    user: 0.4
+  regular-long:
+    group: 0.3
+    user: 0.15
+  priority-short:
+    user: 0.25
+  priority-medium:
+    group: 0.6
+    user: 0.2
+  priority-long:
+    group: 0.3
+    user: 0.1
+  interactive-short:
+    user: 0.5
+#
+# Determine max resources that can be consumed by an interactive job in QoS 'interactive'
+#  * Use half of the total cores of the smallest node with a minimum of 1
+#  * Use half of the total memory of the smallest node with a minimum of 1000.
+#
+slurm_qos_limits:
+  regular-medium:
+    group:
+      cores: "{{ [1, (slurm_cluster_cores_total | float * slurm_qos_limit_fractions['regular-medium']['group']) | int] | max }}"
+      mem: "{{ [1000, (slurm_cluster_mem_total | float * slurm_qos_limit_fractions['regular-medium']['group']) | int] | max }}"
+      gpus: "{{ (slurm_cluster_gpus_total | float * slurm_qos_limit_fractions['regular-medium']['group']) | round(0, 'ceil') | int }}"
+    user:
+      cores: "{{ [1, (slurm_cluster_cores_total | float * slurm_qos_limit_fractions['regular-medium']['user']) | int] | max }}"
+      mem: "{{ [1000, (slurm_cluster_mem_total | float * slurm_qos_limit_fractions['regular-medium']['user']) | int] | max }}"
+      gpus: "{{ (slurm_cluster_gpus_total | float * slurm_qos_limit_fractions['regular-medium']['user']) | round(0, 'ceil') | int }}"
+  regular-long:
+    group:
+      cores: "{{ [1, (slurm_cluster_cores_total | float * slurm_qos_limit_fractions['regular-long']['group']) | int] | max }}"
+      mem: "{{ [1000, (slurm_cluster_mem_total | float * slurm_qos_limit_fractions['regular-long']['group']) | int] | max }}"
+      gpus: "{{ (slurm_cluster_gpus_total | float * slurm_qos_limit_fractions['regular-long']['group']) | round(0, 'ceil') | int }}"
+    user:
+      cores: "{{ [1, (slurm_cluster_cores_total | float * slurm_qos_limit_fractions['regular-long']['user']) | int] | max }}"
+      mem: "{{ [1000, (slurm_cluster_mem_total | float * slurm_qos_limit_fractions['regular-long']['user']) | int] | max }}"
+      gpus: "{{ (slurm_cluster_gpus_total | float * slurm_qos_limit_fractions['regular-long']['user']) | round(0, 'ceil') | int }}"
+  priority-short:
+    user:
+      cores: "{{ [1, (slurm_cluster_cores_total | float * slurm_qos_limit_fractions['priority-short']['user']) | int] | max }}"
+      mem: "{{ [1000, (slurm_cluster_mem_total | float * slurm_qos_limit_fractions['priority-short']['user']) | int] | max }}"
+      gpus: "{{ (slurm_cluster_gpus_total | float * slurm_qos_limit_fractions['priority-short']['user']) | round(0, 'ceil') | int }}"
+  priority-medium:
+    group:
+      cores: "{{ [1, (slurm_cluster_cores_total | float * slurm_qos_limit_fractions['priority-medium']['group']) | int] | max }}"
+      mem: "{{ [1000, (slurm_cluster_mem_total | float * slurm_qos_limit_fractions['priority-medium']['group']) | int] | max }}"
+      gpus: "{{ (slurm_cluster_gpus_total | float * slurm_qos_limit_fractions['priority-medium']['group']) | round(0, 'ceil') | int }}"
+    user:
+      cores: "{{ [1, (slurm_cluster_cores_total | float * slurm_qos_limit_fractions['priority-medium']['user']) | int] | max }}"
+      mem: "{{ [1000, (slurm_cluster_mem_total | float * slurm_qos_limit_fractions['priority-medium']['user']) | int] | max }}"
+      gpus: "{{ (slurm_cluster_gpus_total | float * slurm_qos_limit_fractions['priority-medium']['user']) | round(0, 'ceil') | int }}"
+  priority-long:
+    group:
+      cores: "{{ [1, (slurm_cluster_cores_total | float * slurm_qos_limit_fractions['priority-long']['group']) | int] | max }}"
+      mem: "{{ [1000, (slurm_cluster_mem_total | float * slurm_qos_limit_fractions['priority-long']['group']) | int] | max }}"
+      gpus: "{{ (slurm_cluster_gpus_total | float * slurm_qos_limit_fractions['priority-long']['group']) | round(0, 'ceil') | int }}"
+    user:
+      cores: "{{ [1, (slurm_cluster_cores_total | float * slurm_qos_limit_fractions['priority-long']['user']) | int] | max }}"
+      mem: "{{ [1000, (slurm_cluster_mem_total | float * slurm_qos_limit_fractions['priority-long']['user']) | int] | max }}"
+      gpus: "{{ (slurm_cluster_gpus_total | float * slurm_qos_limit_fractions['priority-long']['user']) | round(0, 'ceil') | int }}"
+  interactive-short:
+    user:
+      cores: "{{ [1, (slurm_total_cores_of_smallest_node | float * slurm_qos_limit_fractions['interactive-short']['user']) | int] | max }}"
+      mem: "{{ [1000, (slurm_total_mem_of_smallest_node | float * slurm_qos_limit_fractions['interactive-short']['user']) | int] | max }}"
+      gpus: "{{ (slurm_total_gpus_of_smallest_node | float * slurm_qos_limit_fractions['interactive-short']['user']) | round(0, 'ceil') | int }}"
 ...
