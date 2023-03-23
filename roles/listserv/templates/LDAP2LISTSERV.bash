@@ -577,12 +577,11 @@ function manageSubscriptions () {
 		if [[ ! -z "${subscriptions["${_account_name}"]+isset}" && "${_account_must_be_subscribed}" == 'no' ]]; then
 			_accounts["${_account_name}"]='disabled'
 			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Unsubscribing expired/inactive account ${_account_name} from '${_mailinglist}' mailing list..."
-			echo "sendListservCommand" "${_mailinglist}" "${notify_users}" 'DELETE' "${_email}"
+			sendListservCommand "${_mailinglist}" "${notify_users}" 'DELETE' "${_email}"
 		elif [[ -z "${subscriptions["${_account_name}"]+isset}" && "${_account_must_be_subscribed}" == 'yes' ]]; then
 			_accounts["${_account_name}"]='active'
 			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Subscribing new account ${_account_name} to '${_mailinglist}' mailing list..."
-			echo "sendListservCommand" "${_mailinglist}" "${notify_users}" 'ADD' "${_email}" 
-"${_full_name}"
+			sendListservCommand "${_mailinglist}" "${notify_users}" 'ADD' "${_email}" "${_full_name}"
 		elif [[ ! -z "${subscriptions["${_account_name}"]+isset}" && "${_account_must_be_subscribed}" == 'yes' ]]; then
 			_accounts["${_account_name}"]='active'
 			if [[ "${subscriptions["${_account_name}"]}" =~ ${_subscription_regex} ]]; then
@@ -601,8 +600,7 @@ function manageSubscriptions () {
 					# User will receive the a notification based on the CHANGE1 template.
 					#
 					log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Updating email address for account ${_account_name}..."
-					echo "sendListservCommand" "${_mailinglist}" "${notify_users}" 
-'CHANGE' "${_subscribed_email}" "${_email}"
+					sendListservCommand "${_mailinglist}" "${notify_users}" 'CHANGE' "${_subscribed_email}" "${_email}"
 				elif [[ "${_subscribed_email,,}" == "${_email,,}" && "${_subscribed_full_name}" != "${_full_name}" ]]; then
 					#
 					# Use hardcoded notify_users=0 to do a QUIET ADD,
@@ -610,8 +608,7 @@ function manageSubscriptions () {
 					# without sending a "welcome new user" notification email.
 					#
 					log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Updating name for account ${_account_name}..."
-					echo "sendListservCommand" "${_mailinglist}" '0' 'ADD' "${_email}" 
-"${_full_name}"
+					sendListservCommand "${_mailinglist}" '0' 'ADD' "${_email}" "${_full_name}"
 				else
 					#
 					# Both the email address as well as the full name of the user have changed.
@@ -619,10 +616,8 @@ function manageSubscriptions () {
 					#  -> unsubscribe (delete) the old user and subscribe (add) the new user.
 					#
 					log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Unsubscribing and resubscribing changed account ${_account_name}..."
-					echo "sendListservCommand" "${_mailinglist}" "${notify_users}" 
-'DELETE' "${_subscribed_email}"
-					echo "sendListservCommand" "${_mailinglist}" "${notify_users}" 'ADD' 
-"${_email}" "${_full_name}"
+					sendListservCommand "${_mailinglist}" "${notify_users}" 'DELETE' "${_subscribed_email}"
+					sendListservCommand "${_mailinglist}" "${notify_users}" 'ADD' "${_email}" "${_full_name}"
 				fi
 			else
 				log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Failed to split subscriber info using a pipe as separator for ${_account_name}. Contact an admin."
@@ -649,8 +644,7 @@ function manageSubscriptions () {
 			if [[ "${subscriptions["${_subscribed_account}"]}" =~ ${_subscription_regex} ]]; then
 				local _subscribed_email="${BASH_REMATCH[1]}"
 				log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Unsubscribing missing account ${_subscribed_account}..."
-				echo "sendListservCommand" "${_mailinglist}" "${notify_users}" 'DELETE' 
-"${_subscribed_email}"
+				sendListservCommand "${_mailinglist}" "${notify_users}" 'DELETE' "${_subscribed_email}"
 			else
 				log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Failed to split subscriber info using a pipe as separator for ${_subscribed_account}. Contact an admin."
 			fi
@@ -667,7 +661,6 @@ function sendListservCommand () {
 	local _name="${5:-}" # optional; not required for DELETE command.
 	local _body
 	#
-	exit 0
 	log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" 0 "Args: _mailinglist=${_mailinglist}|_notify_users=${_notify_users}|_command=${_command}|email=${_email}|_name=${_name}."
 	#
 	# Use QUIET in front of command to disable sending notification messages to users.
@@ -811,7 +804,7 @@ for entitlement in ${entitlements[@]}; do
 	#
 	# Query LDAP and add/update/delete subscriptions.
 	#
-#	manageSubscriptions "${entitlement}"
+	manageSubscriptions "${entitlement}"
 done
 
 #
