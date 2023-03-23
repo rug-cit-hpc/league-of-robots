@@ -1,3 +1,50 @@
 ---
+- name: Create directories for mailinglists script.
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0750'
+    owner: 'root'
+    group: 'root'
+  with_items:
+    - '/root/mailinglists'
+  become: true
 
+- name: 'Install listserv script.'
+  ansible.builtin.copy:
+    src: "templates/{{ item }}"
+    dest: "/root/mailinglists/{{ item }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+  with_items:
+    - 'LDAP2LISTSERV.bash'
+    - 'LDAP2LISTSERV.cfg'
+  become: true
+
+- name: 'Create cron job to fetch data from an LDAP and manage mailing list subscriptions of our users.'
+  ansible.builtin.cron:
+    name: Set cron job to fetch data from an LDAP and manage mailing list subscriptions.
+    weekday: '*'
+    hour: '12,15,18'
+    minute: '15'
+    user: 'root'
+    job: |
+         /bin/bash -c '/root/mailinglists/LDAP2LISTSERV.bash -l ERROR -u -n 2>&1  | /bin/logger'
+    cron_file: 'ldap-2-mailinglists'
+    disabled: True
+  become: true
+
+- name: 'cron job to backup mailing list ones a day.'
+  ansible.builtin.cron:
+    name: set cron job to backup mailing list.
+    weekday: '*'
+    hour: '09'
+    minute: '15'
+    user: 'root'
+    job: |
+         /bin/bash -c '/root/mailinglists/LDAP2LISTSERV.bash -l ERROR -u -n -b /root/mailinglists/listserv_backups 2>&1 | /bin/logger
+    cron_file: 'ldap-2-mailinglists'
+    disabled: True
+  become: true
 ...
