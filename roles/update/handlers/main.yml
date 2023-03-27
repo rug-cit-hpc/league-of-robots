@@ -8,6 +8,7 @@
   ansible.builtin.shell:
     cmd: |
          /bin/needs-restarting -r >/dev/null 2>&1 || /sbin/shutdown -r +60 "Restarting to apply updates..."
+  changed_when: true
   become: true
   listen: reboot_for_kernel_update
 ...

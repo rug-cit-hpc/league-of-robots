@@ -11,6 +11,7 @@
          grub2-mkconfig -o '/boot/grub2/grub.cfg'
   args:
     executable: '/bin/bash'
+  changed_when: true
   become: true
   listen: rebuild_grub_config
 
