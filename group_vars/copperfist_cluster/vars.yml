@@ -230,27 +230,27 @@ regular_users:
   - user: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
 sudoers:
-  - who: ['%umcg-atd']
+  - who: ['%umcg-atd,!charbonb,!hendriksend']
     become: 'umcg-atd-ateambot'
     name: 'umcg-atd-ateambot'
     command: 'ALL'
-  - who: ['%umcg-atd']
+  - who: ['%umcg-atd,!charbonb,!hendriksend']
     become: 'umcg-atd-dm'
     name: 'umcg-atd-dm'
     command: 'ALL'
-  - who: ['%umcg-gap']
+  - who: ['%umcg-gap,!charbonb,!hendriksend']
     become: 'umcg-gap-ateambot'
     name: 'umcg-gap-ateambot'
     command: 'ALL'
-  - who: ['%umcg-gap']
+  - who: ['%umcg-gap,!charbonb,!hendriksend']
     become: 'umcg-gap-dm'
     name: 'umcg-gap-dm'
     command: 'ALL'
-  - who: ['%umcg-gd']
+  - who: ['%umcg-gd,!charbonb,!hendriksend']
     become: 'umcg-gd-ateambot'
     name: 'umcg-gd-ateambot'
     command: 'ALL'
-  - who: ['%umcg-gd']
+  - who: ['%umcg-gd,!charbonb,!hendriksend']
     become: 'umcg-gd-dm'
     name: 'umcg-gd-dm'
     command: 'ALL'
@@ -262,11 +262,11 @@ sudoers:
     become: 'umcg-genomescan-dm'
     name: 'umcg-genomescan-dm'
     command: 'ALL'
-  - who: ['%umcg-gsad']
+  - who: ['%umcg-gsad,!charbonb,!hendriksend']
     become: 'umcg-gsad-ateambot'
     name: 'umcg-gsad-ateambot'
     command: 'ALL'
-  - who: ['%umcg-gsad']
+  - who: ['%umcg-gsad,!charbonb,!hendriksend']
     become: 'umcg-gsad-dm'
     name: 'umcg-gsad-dm'
     command: 'ALL'
@@ -311,11 +311,21 @@ remote_users_in_local_groups:
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
         'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
     ]
+  - user: 'charbonb'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad',
+        'umcg-gap', 'umcg-gd', 'umcg-vipt',
+    ]
   - user: 'cimermans'
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
         'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'hendriksend'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad',
+        'umcg-gap', 'umcg-gd', 'umcg-vipt',
     ]
   - user: 'langek'
     groups: [

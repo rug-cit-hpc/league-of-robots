@@ -58,8 +58,8 @@
       # or the first user defined in the user definition directive.
       #
       ssh_authorized_keys:
-      {% for public_key in public_keys_of_local_admins %}  - {{ public_key }}
-      {% endfor %}
+      {% for public_key in public_keys_of_local_admins %}{% if 'ssh-rsa' not in public_key %}  - {{ public_key }}
+      {% endif %}{% endfor %}
     availability_zone: "{{ availability_zone }}"
     wait: true
     timeout: "{{ openstack_api_timeout }}"
