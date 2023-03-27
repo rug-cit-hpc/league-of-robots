@@ -237,7 +237,7 @@ regular_users:
   - user: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
 sudoers:
-  - who: ['%umcg-atd']
+  - who: ['%umcg-atd,!charbonb,!hendriksend']
     become: 'umcg-atd-ateambot'
     name: 'umcg-atd-ateambot'
     command: 'ALL'
