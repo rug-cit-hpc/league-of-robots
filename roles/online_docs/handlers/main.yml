@@ -39,6 +39,7 @@
          export LANG='en_US.utf8'
          export PATH="${PATH}:/usr/local/bin/"
          mkdocs build
+  changed_when: true
   become: true
   listen: 'build_mkdocs'
 ...

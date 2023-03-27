@@ -24,7 +24,9 @@
   listen: reload_nfs-server
 
 - name: '(Re)export all NFS shares.'
-  ansible.builtin.command: 'exportfs -a'
+  ansible.builtin.command:
+    cmd: 'exportfs -a'
+  changed_when: true
   become: true
   listen: export_nfs_shares
 ...
