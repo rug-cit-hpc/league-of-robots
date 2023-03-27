@@ -6,7 +6,7 @@
 #
 - name: 'Run authconfig update.'
   ansible.builtin.command:
-   cmd: 'authconfig --enablemkhomedir --update'
+    cmd: 'authconfig --enablemkhomedir --update'
   changed_when: true
   become: true
   listen: authconfig_enable_mkhomedir
