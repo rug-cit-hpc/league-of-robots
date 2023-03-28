@@ -1,0 +1,28 @@
+---
+known_hosts_hostnames: "\
+  {% for jumphost in groups['jumphost'] | default([]) %}\
+    {{ jumphost }}*,\
+    {% for network_id in ip_addresses[jumphost] %}\
+      {% if ip_addresses[jumphost][network_id]['fqdn'] is defined and
+            ip_addresses[jumphost][network_id]['fqdn'] == 'NXDOMAIN' %}\
+        {{ ip_addresses[jumphost][network_id]['address'] }},\
+      {% endif %}\
+    {% endfor %}\
+  {% endfor %}\
+  {% for dthost in groups['data_transfer'] | default([]) %}\
+    *{{ dthost }}*,\
+    {% for network_id in ip_addresses[dthost] %}\
+      {% if ip_addresses[dthost][network_id]['fqdn'] is defined and
+            ip_addresses[dthost][network_id]['fqdn'] == 'NXDOMAIN' %}\
+        {{ ip_addresses[dthost][network_id]['address'] }},\
+      {% endif %}\
+    {% endfor %}\
+  {% endfor %}\
+  {% for adminhost in groups['administration'] | default([]) %}\
+    *{{ adminhost }},\
+  {% endfor %}\
+  {% for dochost in groups['docs'] | default([]) %}\
+    *{{ dochost }},\
+  {% endfor %}\
+  *{{ stack_prefix }}-*"
+...

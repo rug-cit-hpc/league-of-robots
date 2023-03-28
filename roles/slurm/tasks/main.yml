@@ -1,0 +1,12 @@
+---
+- name: Deploy Slurm management.
+  ansible.builtin.include_tasks:
+    file: management.yml
+  when: inventory_hostname in groups['sys_admin_interface']
+
+- name: Deploy Slurm clients.
+  ansible.builtin.include_tasks:
+    file: client.yml
+  when: inventory_hostname in groups['compute_vm'] or
+        inventory_hostname in groups['user_interface']
+...

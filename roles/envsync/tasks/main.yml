@@ -34,6 +34,19 @@
         create_home: false
       become: false
 
+- name: "Create {{ hpc_env_prefix }} folder on root partition unless the machine already has a dedicated mount for {{ hpc_env_prefix }}."
+  ansible.builtin.file:
+    path: "{{ hpc_env_prefix }}"
+    state: directory
+    owner: root
+    group: "{{ envsync_group }}"
+    mode: '2775'
+  when: volumes | default([])
+        | selectattr('mount_point', 'defined')
+        | selectattr('mount_point', 'equalto', hpc_env_prefix)
+        | length <= 0
+  become: true
+
 #
 # Configure environment synchronization account.
 #
@@ -67,13 +80,13 @@
     create: false
   become: true
 
-- name: 'Deploy script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
+- name: 'Deploy script to verify and if necessary fix permissions of the environment managed by the envsync account.'
   ansible.builtin.template:
     src: 'templates/hpc-environment-permissions.bash'
     dest: '/root/hpc-environment-permissions.bash'
     owner: 'root'
     group: 'root'
-    mode: '0644'
+    mode: '0750'
   become: true
 
 - name: 'Create cron job to execute script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
@@ -83,7 +96,8 @@
     hour: '04'
     minute: '04'
     user: 'root'
-    job: '/bin/bash /root/hpc-environment-permissions.bash'
+    job: |
+         /bin/bash -c '/root/hpc-environment-permissions.bash | /bin/logger'
     cron_file: 'hpc-environment-permissions'
   become: true
 
@@ -95,7 +109,7 @@
     minute: '05'
     user: "{{ envsync_user }}"
     job: |
-         /usr/bin/sg '{{ envsync_group }}' -c '/bin/bash -c "export SOURCE_HPC_ENV="True"; . ~/.bashrc; hpc-environment-sync.bash -a"'
+         /usr/bin/sg '{{ envsync_group }}' -c '/bin/bash -c "export SOURCE_HPC_ENV="True"; . ~/.bashrc; hpc-environment-sync.bash -a | /bin/logger"'
     cron_file: 'hpc-environment-sync'
   become: true
 ...

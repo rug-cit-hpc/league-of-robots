@@ -97,13 +97,10 @@ regular_users:
     groups: ["{{ envsync_group }}"]
   - user: 'solve-rd-dm'
     groups: ['solve-rd']
-    sudoers: '%solve-rd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
-    sudoers: '%umcg-atd'
   - user: 'solve-rd-ateambot'
     groups: ['solve-rd']
-    sudoers: '%solve-rd'
   - user: 'gvdvries'
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mbijlsma'
@@ -254,7 +251,51 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'cmertes'
     groups: ['users', 'solve-rd']
-
+  - user: 'umcg-molgenis'
+    groups: ['users']
+  - user: 'svandenhoek'
+    groups: ['users', 'solve-rd']
+  - user: 'pacthoen'
+    groups: ['users', 'solve-rd']
+  - user: 'jgagneur'
+    groups: ['users', 'solve-rd']
+  - user: 'slondhe'
+    groups: ['users', 'solve-rd']
+  - user: 'dbeijer'
+    groups: ['users', 'solve-rd']
+  - user: 'jmueller'
+    groups: ['users', 'solve-rd']
+  - user: 'nsmal'
+    groups: ['users', 'solve-rd']
+  - user: 'bestevez'
+    groups: ['users', 'solve-rd']
+  - user: 'msynofzik'
+    groups: ['users', 'solve-rd']
+  - user: 'wmacken'
+    groups: ['users', 'solve-rd']
+  - user: 'klohmann'
+    groups: ['users', 'solve-rd']
+  - user: 'sadiaw'
+    groups: ['users', 'solve-rd']
+  - user: 'dndebento'
+    groups: ['users', 'solve-rd']
+  - user: 'hhengel'
+    groups: ['users', 'solve-rd']
+  - user: 'jschulzehentrich'
+    groups: ['users', 'solve-rd']
+sudoers:
+  - who: ['%solve-rd']
+    become: 'solve-rd-dm'
+    name: 'solve-rd-dm'
+    command: 'ALL'
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-dm'
+    name: 'umcg-atd-dm'
+    command: 'ALL'
+  - who: ['%solve-rd']
+    become: 'solve-rd-ateambot'
+    name: 'solve-rd-ateambot'
+    command: 'ALL'
 #
 # Shared storage related variables
 #

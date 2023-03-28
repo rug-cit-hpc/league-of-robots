@@ -1,7 +1,7 @@
 ---
 - name: 'Compile list of volumes to mount for NFS servers.'
   ansible.builtin.set_fact:
-    volumes: "{{ volumes | default([]) + [ volume ] }}"
+    volumes: "{{ volumes | default([]) + [volume] }}"
   vars:
     volume:
       mount_point: "/mnt/{{ item.pfs }}"

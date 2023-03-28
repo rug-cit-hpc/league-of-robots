@@ -1,0 +1,74 @@
+---
+#
+# On most systems we already added relevant code to /ets/skel/ to create a proper .bashrc
+# when a home dir is created, but on chaperones we do not control /etc/skel and
+# even if we could, that won't fix .bashrc if the home dir already exists
+# or functionality to load modules was lost or needs an update.
+#
+- name: Create ~/.ssh dir and subdirs.
+  ansible.builtin.file:
+    path: "/home/{{ item.0.user }}/{{ item.1 }}"
+    state: 'directory'
+    owner: "{{ item.0.user }}"
+    group: "{{ item.0.user }}"
+    mode: '0700'
+  vars:
+    ssh_client_dirs:
+      - '.ssh'
+      - '.ssh/tmp'
+      - '.ssh/conf.d'
+  loop: "{{ regular_users | product(ssh_client_dirs) | list }}"
+  become: true
+
+- name: 'Configure ssh client config file ~/.ssh/config to include ~/.ssh/conf.d dir.'
+  ansible.builtin.lineinfile:
+    path: "/home/{{ item.user }}/.ssh/config"
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
+    mode: '0600'
+    create: true
+    insertbefore: BOF
+    regexp: '(?i)^#?Include'
+    line: 'Include conf.d/*'
+  with_items: "{{ regular_users }}"
+  become: true
+
+- name: "Create ~/.ssh/conf.d/{{ slurm_cluster_name }} config file."
+  ansible.builtin.template:
+    src: ssh_client_config.j2
+    dest: "/home/{{ item.user }}/.ssh/conf.d/{{ slurm_cluster_name }}"
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
+    mode: '0600'
+  with_items: "{{ regular_users }}"
+  become: true
+
+- name: "Add {{ slurm_cluster_name }} settings to ssh client ~/.ssh/known_hosts file."
+  ansible.builtin.lineinfile:
+    path: "/home/{{ item.user }}/.ssh/known_hosts"
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
+    mode: '0600'
+    create: true
+    insertbefore: BOF
+    regexp: '(?i)^#?@cert-authority .* for {{ slurm_cluster_name }}$'
+    line: "@cert-authority {{ known_hosts_hostnames }} {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }} for {{ slurm_cluster_name }}"
+  with_items: "{{ regular_users }}"
+  become: true
+
+- name: 'Insert/update block into ~/.bashrc to ensure we can load modules.'
+  ansible.builtin.blockinfile:
+    path: "/home/{{ item.user }}/.bashrc"
+    block: |
+      if [ -f "/apps/modules//modules.bashrc" ]; then
+        source "/apps/modules//modules.bashrc"
+      fi
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Setup environment for Lua, Lmod & EasyBuild."
+    insertbefore: '# User specific aliases and functions'
+    create: false
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
+    mode: '0600'
+  with_items: "{{ regular_users }}"
+  become: true
+...

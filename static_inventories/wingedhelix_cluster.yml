@@ -7,7 +7,7 @@ all:
           ansible_python_interpreter: /usr/bin/env python
     jumphost:
       hosts:
-        porch:
+        wh-porch:
           cloud_flavor: m1.small
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
@@ -70,7 +70,7 @@ all:
           slurm_cores_per_socket: 1
           slurm_real_memory: 15884
           slurm_local_disk: 0
-          slurm_features: 'prm02,tmp07'
+          slurm_features: 'tmp07'
           slurm_ethernet_interfaces:
             - eth0
             - eth1
@@ -90,7 +90,7 @@ all:
             local_volume_size_extra: 1
             slurm_sockets: 16
             slurm_cores_per_socket: 1
-            slurm_real_memory: 64264
+            slurm_real_memory: 64263
             slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
             slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
             slurm_local_disk: 0
@@ -101,7 +101,8 @@ all:
     chaperone:
       hosts:
         wh-chaperone:
-          ansible_host: uozkh1016.zkh.umcg.intra
+          #ansible_host: uozkh1016.zkh.umcg.intra
+          ansible_host: wh-chaperone.umcg.nl  # upzkh1054.
           use_ldap: false
           functional_admin_group: 'MEDGEN-NFG GCC Analyse Team'
           #

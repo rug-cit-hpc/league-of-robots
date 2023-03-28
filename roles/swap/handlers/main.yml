@@ -7,18 +7,21 @@
 - name: Disable swap file using swapon.
   ansible.builtin.command:
     cmd: swapoff {{ swap_file_path | quote }}
+  changed_when: true
   listen: disable_swap_file
   become: true
 
 - name: Format swap file.
   ansible.builtin.command:
     cmd: mkswap {{ swap_file_path | quote }}
+  changed_when: true
   listen: format_swap_file
   become: true
 
 - name: Enable swap file using swapon.
   ansible.builtin.command:
     cmd: swapon {{ swap_file_path | quote }}
+  changed_when: true
   listen: enable_swap_file
   become: true
 ...

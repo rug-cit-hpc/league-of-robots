@@ -1,10 +1,8 @@
 ---
-
+#
 # Python CircleCI 2.0 configuration file
+# Check https://circleci.com/docs/2.0/language-python/ for more details.
 #
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-#
-
 version: 2.1
 jobs:
   build:
@@ -24,7 +22,15 @@ jobs:
             pip install jmespath
             pip install ansible
             pip install ansible-lint
-            ansible-galaxy install -r requirements.yml
+            attempt=1
+            until [[ "${attempt}" -gt 3 ]]; do
+                [[ "${attempt}" -gt 1 ]] && sleep 30
+                ansible-galaxy install -r requirements.yml --timeout 120 && status="${?}" && break
+                attempt=$((attempt+1))
+            done
+            if [[ "${status}" -ne 0 ]]; then
+                exit "${status}"
+            fi
             ansible --version
             ansible-lint --version
       - run:
@@ -40,7 +46,7 @@ jobs:
             else
                 export ANSIBLE_ROLES_PATH="${HOME}/.ansible/roles/"
             fi
-            if ansible-lint -p --nocolor *.yml > lint_results 2>&1; then
+            if ansible-lint -p --nocolor --offline *.yml > lint_results 2>&1; then
               lint_errors=0
             else
               cat lint_results
