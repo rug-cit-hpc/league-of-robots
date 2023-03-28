@@ -327,7 +327,7 @@ function processGroupDirs () {
 # Apply quota to Physical File Systems (PFSs) containing home dirs.
 #
 function processHomeDirs () {
-	local    _lfs_path_regex='/mnt/([^/]+)/home/([^/]+)'
+	local    _lfs_path_regex='/mnt/([^/]+)/(home)/([^/]+)'
 	local    _lfs_path
 	local -a _lfs_paths=("${@}")
 	local    _soft_quota_limit='1G'
@@ -335,12 +335,15 @@ function processHomeDirs () {
 	for _lfs_path in "${_lfs_paths[@]}"; do
 		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "Processing LFS path ${_lfs_path} ..."
 		local _pfs_from_lfs_path
+		local _lfs_from_lfs_path
 		local _user_from_lfs_path
 		local _fs_type
 		if [[ "${_lfs_path}" =~ ${_lfs_path_regex} ]]; then
 			_pfs_from_lfs_path="${BASH_REMATCH[1]}"
-			_user_from_lfs_path="${BASH_REMATCH[2]}"
+			_lfs_from_lfs_path="${BASH_REMATCH[2]}"
+			_user_from_lfs_path="${BASH_REMATCH[3]}"
 			log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "      found _pfs_from_lfs_path:  ${_pfs_from_lfs_path}."
+			log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "      found _lfs_from_lfs_path:  ${_lfs_from_lfs_path}."
 			log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "      found _user_from_lfs_path: ${_user_from_lfs_path}."
 			_fs_type="$(awk -v _mount_point="/mnt/${_pfs_from_lfs_path}" '{if ($2 == _mount_point) print $3}' /proc/mounts)"
 			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "      found _fs_type:             ${_fs_type}."
@@ -645,7 +648,7 @@ processGroupDirs "${lfs_paths[@]:-}"
 #
 # Apply hard coded limits to home dirs for all regular users.
 #
-readarray -t lfs_paths < <(find /mnt/*/home/*/ -maxdepth 1 -mindepth 1 -type d)
+readarray -t lfs_paths < <(find /mnt/*/home/ -maxdepth 1 -mindepth 1 -type d)
 processHomeDirs "${lfs_paths[@]:-}"
 
 #
