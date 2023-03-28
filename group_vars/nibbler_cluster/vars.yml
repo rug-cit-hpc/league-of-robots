@@ -657,11 +657,8 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-impact
         mode: '2750'
-      #
-      # LifeLines not enabled yet pending quota support.
-      #
-      #- name: umcg-lifelines
-      #  mode: '2750'
+      - name: umcg-lifelines
+        mode: '2750'
       - name: umcg-lld
         mode: '2750'
       - name: umcg-llnext
