@@ -318,7 +318,7 @@ function processGroupDirs () {
 		elif [[ "${_fs_type}" == 'nfs4' ]]; then
 			saveQuotaCache "${_lfs_path}" "${_soft_quota_limit}" "${_hard_quota_limit}"
 		else
-			log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Cannot configure quota due to unsuported file system type: ${_fs_type}."
+			log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Cannot configure quota due to unsupported file system type: ${_fs_type}."
 		fi
 	done
 }
@@ -365,7 +365,7 @@ function processHomeDirs () {
 				applyLustreQuota "${_lfs_path}" 'group' "${_gid}" "${_soft_quota_limit}" "${_hard_quota_limit}"
 			fi
 		else
-			log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Cannot configure quota due to unsuported file system type: ${_fs_type}."
+			log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Cannot configure quota due to unsupported file system type: ${_fs_type}."
 		fi
 	done
 }
@@ -400,7 +400,7 @@ function applyLustreQuota () {
 			"lfs setquota -g ${_id} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
 		)
 	else
-		log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "   Unsuported Lustre quota type: ${_quota_type}."
+		log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "   Unsupported Lustre quota type: ${_quota_type}."
 	fi
 	for _cmd in "${_cmds[@]}"; do
 		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Applying cmd: ${_cmd}"
