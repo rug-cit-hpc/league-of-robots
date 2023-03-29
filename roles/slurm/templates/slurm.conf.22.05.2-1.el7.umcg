@@ -22,6 +22,8 @@ KillOnBadExit=1
 DependencyParameters=kill_invalid_depend
 # Automatically requeue jobs after a node failure or preemption by a higher prio job.
 JobRequeue=1
+# Increase security and prevent credential replay attacks.
+CommunicationParameters=block_null_hash
 #
 # Prologs and Epilogs.
 #
