@@ -642,7 +642,7 @@ lfs_mounts:
       - name: umcg-vdakker
       - name: umcg-weersma
       - name: umcg-wijmenga
-    rw_machines: "{{ groups['user_interface'] }}"
+    ro_machines: "{{ groups['user_interface'] }}"
   - lfs: prm03
     pfs: umcgst02
     quota_type: 'project'
@@ -750,8 +750,7 @@ lfs_mounts:
       - name: umcg-vdakker
       - name: umcg-weersma
       - name: umcg-wijmenga
-    ro_machines: "{{ groups['compute_vm'] }}"
-    rw_machines: "{{ groups['user_interface'] }}"
+    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
   - lfs: env01
     pfs: umcgst10
     ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
