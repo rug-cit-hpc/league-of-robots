@@ -145,7 +145,9 @@
     opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'home') | list }}"
-  when: inventory_hostname in item.rw_machines and not inventory_hostname in groups['nfs_server'] | default([])
+  when:
+    - inventory_hostname in item.rw_machines | default ([])
+    - not inventory_hostname in groups['nfs_server'] | default([])
   become: true
 
 - name: 'Create root /groups folder.'
@@ -189,7 +191,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in item.0.rw_machines
+  when: inventory_hostname in item.0.rw_machines | default ([])
   become: true
 
 - name: 'Mount "rsc" Logical File Systems (LFSs) per group from shared storage read-write.'
@@ -203,7 +205,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'rsc[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in item.0.rw_machines
+  when: inventory_hostname in item.0.rw_machines | default ([])
   become: true
 
 - name: 'Mount "rsc" Logical File Systems (LFSs) per group from shared storage read-only.'
@@ -217,7 +219,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'rsc[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in item.0.ro_machines
+  when: inventory_hostname in item.0.ro_machines | default ([])
   become: true
 
 - name: 'Mount "prm" Logical File Systems (LFSs) per group from shared storage read-write.'
@@ -236,7 +238,26 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in item.0.rw_machines
+  when: inventory_hostname in item.0.rw_machines | default ([])
+  become: true
+
+- name: 'Mount "prm" Logical File Systems (LFSs) per group from shared storage read-only.'
+  ansible.posix.mount:
+    path: "/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/\
+          {{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='ro_options') | first }}{{ extra_opts }}"
+    state: 'mounted'
+  vars:
+    extra_opts: >-
+      {%- if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' -%}
+      ,credentials=/etc/sysconfig/{{ item.0.pfs | regex_replace('\$$', '') }}.cifs,uid={{ item.1.name }}-dm,gid={{ item.1.name }}
+      {%- endif -%}
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in item.0.ro_machines | default ([])
   become: true
 
 - name: 'Mount "dat" Logical File Systems (LFSs) per group from shared storage read-write.'
@@ -255,7 +276,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'dat[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in item.0.rw_machines
+  when: inventory_hostname in item.0.rw_machines | default ([])
   become: true
 
 - name: 'Mount "env" Logical File Systems (LFSs) from shared storage read-write.'
@@ -267,7 +288,7 @@
     opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
-  when: inventory_hostname in item.rw_machines
+  when: inventory_hostname in item.rw_machines | default ([])
   become: true
 
 - name: 'Mount "apps" from one "env" Logical File System (LFS) from shared storage read-only as /apps.'
@@ -280,7 +301,7 @@
     state: 'mounted'
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
-  when: inventory_hostname in item.ro_machines
+  when: inventory_hostname in item.ro_machines | default ([])
   become: true
 
 #
