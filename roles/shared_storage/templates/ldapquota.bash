@@ -33,14 +33,14 @@ umask 0077
 #
 declare -A ldap_quota_limits=()
 declare -A quota_types=(
-	{% for lfs_item in lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$') %}
+	{% for lfs_item in lfs_mounts | selectattr('lfs', 'search', '(home|((tmp)|(rsc)|(prm)|(dat))[0-9]+)$') %}
 		{% if lfs_item['quota_type'] is defined %}
 	['{{ lfs_item['lfs'] }}']='{{ lfs_item['quota_type']}}'
 		{% endif %}
 	{% endfor %}
 )
 declare -A quota_pid_increments=(
-	{% for lfs_item in lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$') %}
+	{% for lfs_item in lfs_mounts | selectattr('lfs', 'search', '(home|((tmp)|(rsc)|(prm)|(dat))[0-9]+)$') %}
 		{% if lfs_item['quota_pid_increment'] is defined %}
 	['{{ lfs_item['lfs'] }}']='{{ lfs_item['quota_pid_increment']}}'
 		{% endif %}
@@ -110,7 +110,7 @@ OPTIONS:
 Details:
 
 	Values are always reported with a dot as the decimal seperator (LC_NUMERIC="en_US.UTF-8").
-	LDAP connection details are fetched from ${config_file}.
+	LDAP connection details are fetched from ${ldap_config_file}.
 ===============================================================================================================
 
 EOH
@@ -214,9 +214,9 @@ function log4Bash() {
 }
 
 #
-# Parse LDIF records and apply quota to Physical File Systems (PFSs).
+# Parse LDIF records and apply quota to Physical File Systems (PFSs) containing group dirs.
 #
-function processFileSystems () {
+function processGroupDirs () {
 	local    _lfs_path_regex='/mnt/([^/]+)/groups/([^/]+)/([^/]+)'
 	local    _pos_int_regex='^[0-9]+$'
 	local    _lfs_path
@@ -318,7 +318,54 @@ function processFileSystems () {
 		elif [[ "${_fs_type}" == 'nfs4' ]]; then
 			saveQuotaCache "${_lfs_path}" "${_soft_quota_limit}" "${_hard_quota_limit}"
 		else
-			log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Cannot configure quota due to unsuported file system type: ${_fs_type}."
+			log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Cannot configure quota due to unsupported file system type: ${_fs_type}."
+		fi
+	done
+}
+
+#
+# Apply quota to Physical File Systems (PFSs) containing home dirs.
+#
+function processHomeDirs () {
+	local    _lfs_path_regex='/mnt/([^/]+)/(home)/([^/]+)'
+	local    _lfs_path
+	local -a _lfs_paths=("${@}")
+	local    _soft_quota_limit='1G'
+	local    _hard_quota_limit='2G'
+	for _lfs_path in "${_lfs_paths[@]}"; do
+		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "Processing LFS path ${_lfs_path} ..."
+		local _pfs_from_lfs_path
+		local _lfs_from_lfs_path
+		local _user_from_lfs_path
+		local _fs_type
+		if [[ "${_lfs_path}" =~ ${_lfs_path_regex} ]]; then
+			_pfs_from_lfs_path="${BASH_REMATCH[1]}"
+			_lfs_from_lfs_path="${BASH_REMATCH[2]}"
+			_user_from_lfs_path="${BASH_REMATCH[3]}"
+			log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "      found _pfs_from_lfs_path:  ${_pfs_from_lfs_path}."
+			log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "      found _lfs_from_lfs_path:  ${_lfs_from_lfs_path}."
+			log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "      found _user_from_lfs_path: ${_user_from_lfs_path}."
+			_fs_type="$(awk -v _mount_point="/mnt/${_pfs_from_lfs_path}" '{if ($2 == _mount_point) print $3}' /proc/mounts)"
+			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "      found _fs_type:             ${_fs_type}."
+		else
+			log4Bash 'ERROR' "${LINENO}" "${FUNCNAME:-main}" '0' "Skipping malformed LFS path ${_lfs_path}."
+			continue
+		fi
+		if [[ "${_fs_type}" == 'lustre' ]]; then
+			#
+			# Get the primary GID for this user, which will be used as the ID for quota accounting.
+			#
+			local _uid
+			_uid="$(id -u "${_user_from_lfs_path}")"
+			if [[ "${quota_types[${_lfs_from_lfs_path}]:-group}" == 'project' ]]; then
+				local _pid
+				_pid=$((${_uid} + ${quota_pid_increments[${_lfs_from_lfs_path}]:-0}))
+				applyLustreQuota "${_lfs_path}" 'project' "${_pid}" "${_soft_quota_limit}" "${_hard_quota_limit}"
+			else
+				applyLustreQuota "${_lfs_path}" 'group' "${_gid}" "${_soft_quota_limit}" "${_hard_quota_limit}"
+			fi
+		else
+			log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Cannot configure quota due to unsupported file system type: ${_fs_type}."
 		fi
 	done
 }
@@ -353,7 +400,7 @@ function applyLustreQuota () {
 			"lfs setquota -g ${_id} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
 		)
 	else
-		log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "   Unsuported Lustre quota type: ${lustre_quota_type}."
+		log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "   Unsupported Lustre quota type: ${_quota_type}."
 	fi
 	for _cmd in "${_cmds[@]}"; do
 		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Applying cmd: ${_cmd}"
@@ -420,8 +467,8 @@ function getQuotaFromLDAP () {
 				"(&(ObjectClass=${_group_object_class})(cn:dn:=${_group}))" \
 				"${_group_quota_soft_limit_key}" \
 				"${_group_quota_hard_limit_key}" \
-				2>&1 >"${_ldif_file}" \
-			|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "ldapsearch failed."	
+				>"${_ldif_file}" 2>&1 \
+			|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "ldapsearch for user ${_bind_dn} on server ${_uri} failed."
 		#
 		# Parse query results.
 		#
@@ -430,11 +477,11 @@ function getQuotaFromLDAP () {
 		while IFS= read -r -d '' _ldif_record; do
 			_ldif_records+=("${_ldif_record}")
 		done < <(sed 's/^$/\x0/' "${_ldif_file}") \
-		|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Parsing LDIF file (${_ldif_file}) into records failed."
+			|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Parsing LDIF file (${_ldif_file}) into records failed."
 		#
 		# Loop over records in the array and create a faked-multi-dimensional hash.
 		#
-		for _ldif_record in "${_ldif_records[@]}"; do
+		for _ldif_record in "${_ldif_records[@]:-}"; do
 			#
 			# Remove trailing white space like the new line character.
 			# And skip blank lines.
@@ -596,7 +643,13 @@ mkdir -p "${ldif_dir}"
 #
 # Get quota values from LDAP and apply quota limits to file systems.
 #
-processFileSystems "${lfs_paths[@]:-}"
+processGroupDirs "${lfs_paths[@]:-}"
+
+#
+# Apply hard coded limits to home dirs for all regular users.
+#
+readarray -t lfs_paths < <(find /mnt/*/home/ -maxdepth 1 -mindepth 1 -type d)
+processHomeDirs "${lfs_paths[@]:-}"
 
 #
 # Cleanup tmp files.
