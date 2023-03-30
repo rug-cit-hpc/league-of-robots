@@ -28,8 +28,17 @@ local_admin_users:
   - 'pieter'
   - 'sandi'
 
+use_ldap: false
+create_ldap: false
+use_sssd: false
+
 # Logs CA key name: 'development', 'research' or 'diagnostics'
 logs_ca_name: 'development'
+stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
+   - name: 'earl2'
+     external_network: 'logs_external_network'
+#   - name: 'earl1'
+#     external_network: 'vlan16' # to retrieve public IP from
 #
 # Jumphosts from other stack-name infra groups.
 # We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.

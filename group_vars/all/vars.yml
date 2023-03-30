@@ -30,9 +30,6 @@ public_keys_of_local_admins: "{{ local_admin_users | map('extract', auth_users) 
     | map(attribute='pub_keys') \
     | map('regex_findall', '^([^\\n]+)', 'multiline=True') | flatten }}"
 
-# Logs CA key name: 'development', 'research' or 'diagnostics'
-logs_ca_name: 'development'
-
 #
 # Local group specs.
 # Note:
@@ -166,4 +163,10 @@ yum_repos:
     baseurl: https://ltb-project.org/rpm/openldap25/7/x86_64/
     gpgcheck: 'false'
     gpgkey: ''
+
+# Logs CA key name: 'development', 'research' or 'diagnostics'
+logs_ca_name: 'development'
+
+# Iptables additional configurations 
+iptables_extras_dir: '/etc/iptables_extras.d/'
 ...

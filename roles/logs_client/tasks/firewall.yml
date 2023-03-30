@@ -1,0 +1,30 @@
+---
+- name: "Ensure that the directory iptables extras exists."
+  ansible.builtin.file:
+    path: "{{ iptables_extras_dir }}"
+    owner: "root"
+    group: "root"
+    mode: '0770'
+    state: 'directory'
+  delegate_to: "{{ item }}"
+  register: create_iptables_extras_d
+  loop: "{{ rsyslogs_ext_ips }}"
+  become: true
+
+- name: Get current instances public IP
+  ansible.builtin.command: "curl ifconfig.me"
+  register: client_public_ip
+
+- name: Add line to Logs exception file
+  ansible.builtin.lineinfile:
+    path: '{{ iptables_extras_dir }}/{{ stack_prefix }}.allow'
+    state: present
+    create: yes
+    regexp: "{{ client_public_ip.stdout | trim }} 41514"
+    line: "{{ client_public_ip.stdout | trim }} 41514"
+  delegate_to: "{{ item }}"
+  register: add_ip_to_firewall_extra_allow
+  loop: "{{ rsyslogs_ext_ips }}"
+  become: true
+  notify: restart_rserver_firewall
+...

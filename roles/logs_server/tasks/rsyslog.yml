@@ -15,19 +15,20 @@
 
 - name: Get information on CA key from managed rsyslog server
   ansible.builtin.stat:
-    path: "{{ rsyslog_remote_path_key_dir }}/rsyslog_ca.key"
+    path: "{{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}"
   register: rsyslog_ca_key_on_server
   become: true
 
 - name: Get information on CA cert from managed rsyslog server
   ansible.builtin.stat:
-    path: "{{ rsyslog_remote_path_cert_dir }}/rsyslog_ca.key"
+    path: "{{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_key_file }}"
   register: rsyslog_ca_cert_on_server
 
 - name: 'Install rsyslog and gnutls, with all the plugins'
   ansible.builtin.yum:
     name:
       - rsyslog
+      - rsyslog-relp
       - rsyslog-gnutls
       - gnutls
       - gnutls-utils

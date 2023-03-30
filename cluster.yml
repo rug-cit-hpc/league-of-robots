@@ -47,5 +47,5 @@
   ansible.builtin.import_playbook: single_group_playbooks/docs.yml
 
 - name: Run playbook for rsyslog servers.
-  ansible.builtin.import_playbook: single_group_playbooks/rsyslog.yml
+  ansible.builtin.import_playbook: single_group_playbooks/logs.yml
 ...

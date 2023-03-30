@@ -5,4 +5,14 @@
     state: restarted
   listen: client_restart_rsyslog
   become: true
+
+- name: restart rsyslog.service
+  ansible.builtin.service:
+    name: rsyslog.service
+    state: restarted
+  listen: restart_rserver_firewall
+  become: true
+  delegate_to: "{{ item }}"
+  loop: "{{ rsyslogs_ext_ips }}"
+  become: true
 ...

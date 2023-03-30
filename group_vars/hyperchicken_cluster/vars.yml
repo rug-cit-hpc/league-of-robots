@@ -25,14 +25,10 @@ slurm_partitions:
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 
 stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
-#  earl2:
-#    external_network: 'logs_external_network'
-#  earl1:
-#    external_network: 'vlan16' # to retrieve public IP from
    - name: 'earl2'
      external_network: 'logs_external_network'
-   - name: 'earl1'
-     external_network: 'vlan16' # to retrieve public IP from
+#   - name: 'earl1'
+#     external_network: 'vlan16' # to retrieve public IP from
 
 repo_manager: 'pulp'
 figlet_font: 'lockergnome'

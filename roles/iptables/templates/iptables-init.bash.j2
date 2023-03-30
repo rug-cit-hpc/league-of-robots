@@ -472,6 +472,25 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 done
 
 #
+## Check for the whitelist files and ingest them, allowing access for each IP + PORT
+#
+# When needed, ansible roles will create this directory and is ignored otherwise
+iptables_extras_dir="{{ iptables_extras_dir | default('/does/not/exist')}}"
+if [[ -d {{ iptables_extras_dir }}  ]]; then
+   # Loop collect content from every stack *.allow file, sort and get unique values only
+   IPTABLES_EXCEPTIONS="$(cat {{ iptables_extras_dir }}/*.allow | sort | uniq)"
+   declare -a ALLOW_EXCEPTIONS
+   # Use only the lines in the format of "^(IP address)(one or more spaces)(PORT number)$"
+   IPTABLES_FILTER_EXCEPTIONS="$(echo "${IPTABLES_EXCEPTIONS}" | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}[[:blank:]]+[0-9]{1,5}$')"
+   readarray -t ALLOW_EXCEPTIONS <<< "${IPTABLES_FILTER_EXCEPTIONS:-}"
+   for EACH_EXCEPTION_LINE in "${ALLOW_EXCEPTIONS[@]}"; do
+      IP_ADDRESS="$(echo "${EACH_EXCEPTION_LINE:-}" | awk '{print $1}')"
+      PORT_NUMBER="$(echo "${EACH_EXCEPTION_LINE:-}" | awk '{print $2}')"
+      iptables -A INPUT -p tcp -s "${IP_ADDRESS}" --dport "${PORT_NUMBER}" -m state --state NEW,ESTABLISHED -j ACCEPT
+   done
+fi
+
+#
 # (Re)start fail2ban, so it will (re)create a custom f2b-SSH iptables chain.
 #
 #service fail2ban restart

@@ -1,0 +1,25 @@
+---
+- name: Generate random string with length 12
+  ansible.builtin.set_fact:
+    random_tag: "{{ lookup('community.general.random_string', length=12, override_all=hex_chars) }}" 
+  vars:
+    hex_chars: '0123456789ABCDEF'
+- name: Print the random tag value
+  debug:
+    msg: "Value for {{ inventory_hostname }} is {{ random_tag }}"
+- name: Create random log event on the client side
+  ansible.builtin.command:
+    logger -t "{{ random_tag }}" Rsyslog remote test
+  register: rsyslog_remote_test
+- name: Sleep for 15 seconds for logs to propagate to server
+  ansible.builtin.wait_for:
+    timeout: 15
+- name: Check that remote server has log line
+  ansible.builtin.command:
+    fgrep -q -nirI '{{ random_tag }}' /var/log/remote/{{ inventory_hostname }}
+  register: remote_test_result
+  failed_when: remote_test_result.rc != 0
+  delegate_to: "{{ item }}"
+  loop: "{{ rsyslogs_ext_ips }}"
+  become: true
+...
