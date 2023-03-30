@@ -500,7 +500,11 @@ pfs_mounts:
     ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: umcgst01
-    source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1'
+    #
+    # Temporarily fetch umcgst01 read-only from dh4 during migration of dh1 to new data center.
+    #
+    #source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1'
+    source: '172.23.57.213@tcp14:172.23.57.214@tcp14:/umcg'
     type: lustre
     rw_options: 'defaults,_netdev,flock'
     ro_options: 'defaults,_netdev,ro'
@@ -512,7 +516,11 @@ pfs_mounts:
     ro_options: 'defaults,_netdev,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: umcgst03
-    source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1'
+    #
+    # Temporarily fetch umcgst03 read-only from dh4 during migration of dh1 to new data center.
+    #
+    #source: '172.23.57.201@tcp11:172.23.57.202@tcp11:/dh1'
+    source: '172.23.57.213@tcp14:172.23.57.214@tcp14:/umcg'
     type: lustre
     rw_options: 'defaults,_netdev,flock'
     ro_options: 'defaults,_netdev,ro'
