@@ -133,6 +133,55 @@
 
 #
 ##
+### Unmount LFS-ses, which are no longer configured to be mounted.
+##
+#
+- name: 'Unmount shared storage LFS-ses no longer configured to be mounted.'
+  ansible.posix.mount:
+    path: "{{ item['mount'] }}"
+    src: "{{ item['device'] }}"
+    state: absent
+  vars:
+    configured_lfs_mount_devices_string: "
+      {%- for lfs_mount in lfs_mounts | selectattr('lfs', 'search', 'home') | list -%}
+        {%- if inventory_hostname in lfs_mount['rw_machines'] | default ([])
+            or inventory_hostname in lfs_mount['ro_machines'] | default([]) -%}
+      {{ pfs_mounts | selectattr('pfs', 'equalto', lfs_mount['pfs']) | map(attribute='source') | first }}/{{ lfs_mount['pfs'] }}/{{ lfs_mount['lfs'] }}#
+        {%- endif -%}
+      {%- endfor -%}
+      {%- for lfs_mount in lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$') | list -%}
+        {%- if inventory_hostname in lfs_mount['rw_machines'] | default ([])
+            or inventory_hostname in lfs_mount['ro_machines'] | default([]) -%}
+          {%- for group in lfs_mount['groups'] -%}
+      {{ pfs_mounts | selectattr('pfs', 'equalto', lfs_mount['pfs']) | map(attribute='source') | first }}/{{ lfs_mount['pfs'] }}/groups/{{ group['name'] }}/{{ lfs_mount['lfs'] }}#
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- for lfs_mount in lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list -%}
+        {%- if inventory_hostname in lfs_mount['rw_machines'] | default ([]) -%}
+      {{ pfs_mounts | selectattr('pfs', 'equalto', lfs_mount['pfs']) | map(attribute='source') | first }}/{{ lfs_mount['pfs'] }}/{{ lfs_mount['lfs'] }}#
+        {%- endif -%}
+      {%- endfor -%}
+      {%- for lfs_mount in lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list -%}
+        {%- if inventory_hostname in lfs_mount['ro_machines'] | default([]) -%}
+      {{ pfs_mounts | selectattr('pfs', 'equalto', lfs_mount['pfs']) | map(attribute='source') | first }}/{{ lfs_mount['pfs'] }}/{{ lfs_mount['lfs'] }}/apps#
+        {%- endif -%}
+      {%- endfor -%}"
+    configured_lfs_mount_devices: "{{ configured_lfs_mount_devices_string
+      | regex_replace('#+$','')
+      | split('#') }}"
+  with_items: "{{ ansible_mounts
+    | selectattr('mount', 'defined')
+    | selectattr('mount', 'search', '^/(groups/)|(apps)|(home)|(mnt/env[0-9]+)')
+    | selectattr('device', 'defined')
+    | selectattr('device', 'search', ':/')
+    | sort(attribute='device')
+    | list }}"
+  when: item['device'] not in configured_lfs_mount_devices
+  become: true
+
+#
+##
 ### Mount all LFS-ses on cluster components/machines.
 ##
 #
