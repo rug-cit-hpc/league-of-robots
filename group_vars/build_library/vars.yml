@@ -30,14 +30,18 @@ local_admin_users:
 functional_admin_group: 'funad'
 regular_groups:
   - "{{ functional_admin_group }}"
-  - 'vip'
+  - 'vipt'
 regular_users:
   - user: 'dhendriksen'
-    groups: ['vip']
+    groups: ['vipt']
   - user: 'bcharbon'
-    groups: ['vip']
+    groups: ['vipt']
+  - user: 'rsietsma'
+    groups: ['vipt']
+  - user: 'svandenhoek'
+    groups: ['vipt']
 sudoers:
-  - who: ['%vip']
+  - who: ['%vipt']
     become: 'ALL'
     name: 'apptainer' 
     command: '/bin/apptainer'
