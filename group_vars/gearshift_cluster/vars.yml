@@ -162,6 +162,7 @@ regular_groups:
   - 'umcg-ugli'
   - 'umcg-verbeek'
   - 'umcg-vdakker'
+  - 'umcg-visclasataxia'
   - 'umcg-weersma'
   - 'umcg-wijmenga'
 regular_users:
@@ -267,6 +268,8 @@ regular_users:
     groups: ['umcg-verbeek']
   - user: 'umcg-vdakker-dm'
     groups: ['umcg-vdakker']
+  - user: 'umcg-visclasataxia-dm'
+    groups: ['umcg-visclasataxia']
   - user: 'umcg-weersma-dm'
     groups: ['umcg-weersma']
   - user: 'umcg-wijmenga-dm'
@@ -475,6 +478,10 @@ sudoers:
   - who: ['%umcg-vdakker-dms']
     become: 'umcg-vdakker-dm'
     name: 'umcg-vdakker-dm'
+    command: 'ALL'
+  - who: ['%umcg-visclasataxia-dms']
+    become: 'umcg-visclasataxia-dm'
+    name: 'umcg-visclasataxia-dm'
     command: 'ALL'
   - who: ['%umcg-weersma-dms']
     become: 'umcg-weersma-dm'
