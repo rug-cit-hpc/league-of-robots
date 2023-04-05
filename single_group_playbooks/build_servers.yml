@@ -15,6 +15,7 @@
     - {role: geerlingguy.repo-epel, become: true}
     - sshd
     - {role: geerlingguy.security, become: true}
+    - regular_users
     - cluster       # installing software
     - sudoers
 ...

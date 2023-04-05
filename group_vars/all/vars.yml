@@ -75,6 +75,8 @@ auth_groups:
     gid: 20017
   umcg-lab:
     gid: 20018
+  vipt:
+    gid: 20019
   MEDGEN-NFG GCC Analyse Team:
     gid: 4560734
 #
