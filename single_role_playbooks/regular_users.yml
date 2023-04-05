@@ -4,6 +4,7 @@
     - jumphost
     - cluster
     - chaperone
+    - build_servers
   roles:
     - regular_users
 ...

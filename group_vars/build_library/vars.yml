@@ -40,6 +40,8 @@ regular_users:
     groups: ['vipt']
   - user: 'svandenhoek'
     groups: ['vipt']
+  - user: 'mbijlsma'
+    groups: ['vipt']
 sudoers:
   - who: ['%vipt']
     become: 'ALL'
