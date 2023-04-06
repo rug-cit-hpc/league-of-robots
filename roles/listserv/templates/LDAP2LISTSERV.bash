@@ -489,7 +489,9 @@ function manageSubscriptions () {
 		local _account_must_be_subscribed='yes'
 		if [[ -z "${_directory_record_attributes['mail']+isset}" ]]; then
 			_account_must_be_subscribed='no'
-			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "mail attribute is missing/empty in ldif record for ${_account_name}."
+			_accounts["${_account_name}"]='nomail'
+			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Skipping ldif record for ${_account_name}, because mail attribute is missing/empty."
+			continue
 		else
 			_email="${_directory_record_attributes['mail']}"
 			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Found mail: ${_email}."
@@ -633,17 +635,18 @@ function manageSubscriptions () {
 	#
 	# Check if all subscribers still have an account for this entitlement 
 	# and hence if they got processed using the code above.
-	# Unsubscribe any users who no longer can be found in the LDAP.
+	# Unsubscribe any users who no longer can be found in the LDAP
+	# or who no longer have an email address configured in the LDAP.
 	#
 	local _subscribed_account
 	for _subscribed_account in "${!subscriptions[@]}"; do
-		if [[ ! -z "${_accounts["${_subscribed_account}"]+isset}" ]]; then
+		if [[ ! -z "${_accounts["${_subscribed_account}"]+isset}" && "${_accounts["${_subscribed_account}"]}" != 'nomail' ]]; then
 			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Subscribed account ${_subscribed_account} was found in the LDAP and processed."
 		else
-			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Subscribed account ${_subscribed_account} was not found in the LDAP and will be unsubscribed..."
+			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Subscribed account ${_subscribed_account} was not found in the LDAP or no longer has an email address configured and will be unsubscribed..."
 			if [[ "${subscriptions["${_subscribed_account}"]}" =~ ${_subscription_regex} ]]; then
 				local _subscribed_email="${BASH_REMATCH[1]}"
-				log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Unsubscribing missing account ${_subscribed_account}..."
+				log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Unsubscribing account ${_subscribed_account}..."
 				sendListservCommand "${_mailinglist}" "${notify_users}" 'DELETE' "${_subscribed_email}"
 			else
 				log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Failed to split subscriber info using a pipe as separator for ${_subscribed_account}. Contact an admin."
