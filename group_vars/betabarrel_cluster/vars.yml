@@ -350,6 +350,23 @@ remote_users_in_local_groups:
         'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
     ]
 #
+# Local storage variables.
+#
+volume_group_folders: [
+  { mount_point: '/groups',
+    machines: "{{ groups['data_transfer'] }}",
+    mode: '2750',
+    groups: [
+        "{{ data_transfer_only_group }}"
+      ]},
+  { mount_point: '/groups',
+    machines: "{{ groups['data_transfer'] }}",
+    mode: '2770',
+    groups: [
+        'umcg-genomescan', 'umcg-gst'
+      ]},
+]
+#
 # Shared storage related variables
 #
 pfs_mounts:

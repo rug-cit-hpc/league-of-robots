@@ -33,6 +33,15 @@ all:
             - "{{ all.ip_addresses['umcg']['net4'] }}"
             - "{{ all.ip_addresses['rug']['bwp_net'] }}"
             - "{{ all.ip_addresses['rug']['operator'] }}"
+    data_transfer:
+      hosts:
+        bb-transfer:
+          cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_ds"
+              assign_floating_ip: true
+          local_volume_size_extra: 2000
     docs:
       hosts:
         docs_on_merlin:
@@ -138,6 +147,7 @@ betabarrel_cluster:
     jumphost:
     cluster:
     chaperone:
+    data_transfer:
     docs:
     smb_server:
 ...
