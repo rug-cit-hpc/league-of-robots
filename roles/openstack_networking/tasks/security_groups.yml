@@ -41,9 +41,9 @@
 #
 # Data staging security groups.
 #
-- name: "Create security groups for machines in 'data_staging' inventory group."
+- name: "Create security groups for machines in 'data_transfer' inventory group."
   block:
-    - name: "Create security group for {{ stack_prefix }} data staging servers."
+    - name: "Create security group for {{ stack_prefix }} data transfer servers."
       openstack.cloud.security_group:
         state: present
         name: "{{ stack_prefix }}_ds"
@@ -73,7 +73,7 @@
           port: 636  # LDAPS; ToDo: restrict to {{ ldap_uri }}
         - protocol: icmp
           port: -1  # ICMP protocol does not have any ports.
-  when: "'data_staging' in inventory_groups_with_hosts_created_in_openstack"
+  when: "'data_transfer' in inventory_groups_with_hosts_created_in_openstack"
 #
 # Cluster security groups.
 #
