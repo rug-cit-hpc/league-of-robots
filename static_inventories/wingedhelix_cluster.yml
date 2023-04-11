@@ -29,6 +29,15 @@ all:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_repo"
           swap_file_size: 2
+    data_transfer:
+      hosts:
+        wh-transfer:
+          cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_ds"
+              assign_floating_ip: true
+          local_volume_size_extra: 800
     docs:
       hosts:
         docs_on_merlin:
@@ -149,6 +158,7 @@ wingedhelix_cluster:
     repo:
     cluster:
     chaperone:
+    data_transfer:
     docs:
     rsyslog:
     nfs_server:

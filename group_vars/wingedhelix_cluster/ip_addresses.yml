@@ -1,5 +1,12 @@
 ---
 ip_addresses:
+  wh-dai:
+    wh_internal_management:
+      address: 10.10.1.222
+      netmask: /32
+    wh_internal_storage:
+      address: 10.10.2.218
+      netmask: /32
   wh-porch:
     wh_internal_management:
       address: 10.10.1.148
@@ -9,13 +16,6 @@ ip_addresses:
       address: 195.169.22.170
       netmask: /32
       fqdn: 'NXDOMAIN'
-  wh-dai:
-    wh_internal_management:
-      address: 10.10.1.222
-      netmask: /32
-    wh_internal_storage:
-      address: 10.10.2.218
-      netmask: /32
   wh-repo:
     wh_internal_management:
       address: 10.10.1.153
@@ -30,6 +30,15 @@ ip_addresses:
     wh_internal_storage:
       address: 10.10.2.99
       netmask: /32
+  wh-transfer:
+    wh_internal_management:
+      address: 10.10.1.96
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    vlan16:
+      address: 195.169.22.152
+      netmask: /32
+      fqdn: 'NXDOMAIN'
   wh-vcompute01:
     wh_internal_management:
       address: 10.10.1.65
