@@ -3,15 +3,16 @@
 # Bash code to initialize the environment / repo settings for deploying a specific HPC cluster,
 # for which the config is stored in the repo containing this script.
 #
-# This script assumes there is for each CLUSTERNAME a corresponding:
-#  1. ./group_vars/CLUSTERNAME_cluster/      Ansible group variables and secrets encrypted with Ansible vault.
-#  2. ./CLUSTERNAME_hosts.ini                Ansible inventory file in the root of this repo.
-#  3. ./.vault/vault_pass.txt.CLUSTERNAME    Ansible vault password file in the root of this repo.
+# This script assumes there is for each ${STACK_NAME} a corresponding:
+#  1. ./group_vars/${STACK_NAME}/                Ansible group_vars directory with variables and secrets encrypted with Ansible vault.
+#     ./group_vars/${STACK_NAME}/vars.yml        Ansible variables for this stack, which defines the {{ stack_prefix }} Ansible variable.
+#  2. ./static_inventories/${STACK_NAME}.yml     Ansible inventory file.
+#  3. ./.vault/vault_pass.txt.${STACK_NAME}      Ansible vault password file.
 #
 # Once this code was sourced (not executed!) like this:
 #     $> . ./lor-init
-# You can call the lor-config function for a specific cluster. E.g.:
-#     $> lor-config talos
+# You can call the lor-config function for a specific stack prefix. E.g.:
+#     $> lor-config tl
 #
 
 #
@@ -19,7 +20,7 @@
 ### Environment and bash sanity.
 ##
 #
-export LOR_DIR="$( cd -P "$( dirname "${BASH_SOURCE}" )" && pwd )"
+export LOR_DIR="$( cd -P "$( dirname "${BASH_SOURCE:-}" )" && pwd )"
 
 #
 ##
@@ -28,39 +29,81 @@ export LOR_DIR="$( cd -P "$( dirname "${BASH_SOURCE}" )" && pwd )"
 #
 
 function lor-config() {
+	local _opt_nounset_was_enbled
+	if [[ -o nounset ]]; then
+		_opt_nounset_was_enbled='true'
+	else
+		_opt_nounset_was_enbled='false'
+		set -u
+	fi
 	#
 	# Get and check input.
 	#
-	local cluster="${1-}"
-	if [[ -z "${cluster:-}" ]]; then
-		printf '%s\n' 'ERROR: must specify an HPC cluster name.'
+	local _stack_prefix="${1-}"
+	if [[ -z "${_stack_prefix:-}" ]]; then
+		printf '%s\n' 'ERROR: must specify an infra stack prefix.'
 		return
 	fi
-	declare -a required_paths=(
-		"${LOR_DIR}/group_vars/${cluster}_cluster/"
-		"${LOR_DIR}/static_inventories/${cluster}_hosts.ini"
-		"${LOR_DIR}/.vault/vault_pass.txt.${cluster}"
+	local _group_vars="$(grep "^stack_prefix: ['\"]*${_stack_prefix}['\"]*$" "${LOR_DIR}/group_vars/"*/vars.yml | sed 's|:.*||')"
+	if [[ -z "${_group_vars:-}" ]]; then
+		printf '%s\n' "ERROR: cannot find group_vars/*/vars.yml for infra stack prefix ${_stack_prefix}."
+		return
+	fi
+	local _stack_name="$(basename "$(dirname "${_group_vars}")")"
+	declare -a _required_paths=(
+		"${LOR_DIR}/group_vars/${_stack_name}/"
+		"${LOR_DIR}/static_inventories/${_stack_name}.yml"
+		"${LOR_DIR}/.vault/vault_pass.txt.${_stack_name}"
 		"${LOR_DIR}/.vault/vault_pass.txt.all"
 	)
-	for required_path in "${required_paths[@]}"; do
-		if [[ ! -e "${required_path}" ]]; then
-			printf '%s\n' "ERROR: ${required_path} does not exist for HPC cluster ${cluster}."
+	local _required_path
+	for _required_path in "${_required_paths[@]}"; do
+		if [[ ! -e "${_required_path}" ]]; then
+			printf '%s\n' "ERROR: ${_required_path} does not exist for infra stack prefix ${_stack_prefix}."
 			return
 		fi
 	done
 	#
 	# Get jumphost from inventory file.
 	#
-	local jumphost=$(fgrep -A1 '[jumphost]' "${LOR_DIR}/static_inventories/${cluster}_hosts.ini" | tail -1)
+	# ToDo: this is rather brittle code;
+	# install something like https://github.com/mikefarah/yq
+	# for proper parsing of YAML files.
+	#
+	local _jumphost_block=$(fgrep -A1 'jumphost' "${LOR_DIR}/static_inventories/${_stack_name}.yml" | head -2 | tail -1 | tr -d ' :')
+	if [[ "${_jumphost_block:-}" == 'hosts' ]]; then
+		local _jumphost=$(fgrep -A2 'jumphost' "${LOR_DIR}/static_inventories/${_stack_name}.yml" | head -3 | tail -1 | tr -d ' :')
+	fi
 	#
 	# Init and report current setup.
 	#
-	cd ${LOR_DIR}
-	export AI_INVENTORY="static_inventories/${cluster}_hosts.ini"
-	export AI_PROXY="${jumphost}"
-	export ANSIBLE_VAULT_IDENTITY_LIST="all@.vault/vault_pass.txt.all, ${cluster}@.vault/vault_pass.txt.${cluster}"
-	printf '%s\n' "Current working directory is $(pwd)"
-	printf '%s\n' "Using AI_PROXY:                    ${AI_PROXY}"
-	printf '%s\n' "Using AI_INVENTORY:                ${AI_INVENTORY}"
-	printf '%s\n' "Using ANSIBLE_VAULT_IDENTITY_LIST: ${ANSIBLE_VAULT_IDENTITY_LIST}"
+	cd "${LOR_DIR}"
+	if [[ -n "${_jumphost:-}" ]]; then
+		export AI_PROXY="${_jumphost}"
+	else
+		unset AI_PROXY
+	fi
+	export ANSIBLE_INVENTORY="static_inventories/${_stack_name}.yml"
+	export ANSIBLE_VAULT_IDENTITY_LIST="all@.vault/vault_pass.txt.all, ${_stack_name}@.vault/vault_pass.txt.${_stack_name}"
+	printf 'INFO: Current working directory is:      %s\n' "$(pwd)"
+	printf 'INFO: Using ANSIBLE_INVENTORY:           %s\n' "${ANSIBLE_INVENTORY}"
+	printf 'INFO: Using AI_PROXY:                    %s\n' "${AI_PROXY:-None: no jumphost specified in ANSIBLE_INVENTORY}"
+	printf 'INFO: Using ANSIBLE_VAULT_IDENTITY_LIST: %s\n' "${ANSIBLE_VAULT_IDENTITY_LIST}"
+	#
+	# Enable ansible_mitogen strategy plugin for improved speed of plays when available.
+	#
+	_ansible_mitogen_search_path='.*/lib/python.*/site-packages/ansible_mitogen/plugins/strategy'
+	_ansible_mitogen_path=$(find . -regex "${_ansible_mitogen_search_path}" | sort -V | tail -1)
+	if [[ -n "${_ansible_mitogen_path}" ]]; then
+		export ANSIBLE_STRATEGY_PLUGINS="${_ansible_mitogen_path}"
+		export ANSIBLE_STRATEGY='mitogen_linear'
+		printf 'INFO: Found Mitogen strategy plugin in:  %s\n' "${ANSIBLE_STRATEGY_PLUGINS}"
+		printf 'INFO: Using Ansible strategy:            %s.\n' "${ANSIBLE_STRATEGY}"
+	else
+		printf 'WARNING: Could not find Mitogen strategy plugin in %s\n' "${_ansible_mitogen_search_path}"
+		printf 'INFO: Mitogen strategy plugin is:        %s.\n' 'disabled (default)'
+	fi
+	if [[ "${_opt_nounset_was_enbled}" == 'false' ]]; then
+		set +u
+	fi
 }

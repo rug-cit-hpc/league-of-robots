@@ -1,0 +1,32 @@
+---
+#
+# Note we cannot simply delete the subscription-manager RPM,
+# because the docker RPMs have a silly dependency on this subscription-manager.
+#
+- name: Check if /etc/yum/pluginconf.d/subscription-manager.conf exists.
+  ansible.builtin.stat:
+    path: /etc/yum/pluginconf.d/subscription-manager.conf
+  register: subscription_manager
+
+- name: Disable RedHat subscription manager.
+  ansible.builtin.lineinfile:
+    path: /etc/yum/pluginconf.d/subscription-manager.conf
+    owner: root
+    group: root
+    mode: '0644'
+    state: present
+    create: false
+    insertafter: '^\[main\]'
+    line: enabled=0
+    regexp: '^#?enabled'
+  when: subscription_manager.stat.exists
+  become: true
+
+- name: 'Remove packages we do not need.'
+  ansible.builtin.yum:
+    state: absent
+    name:
+      - tuned
+      - polkit  # Security risk due to bug and we don't need it!
+  become: true
+...

@@ -1,0 +1,118 @@
+---
+stack_prefix: 'build'
+stack_name: "{{ stack_prefix }}_library"  # stack_name must match the name of the folder that contains this vars.yml file.
+cloud_image: CentOS 7
+cloud_user: centos
+availability_zone: nova
+stack_networks:
+  - name: "{{ stack_prefix }}_internal_management"
+    cidr: '10.10.1.0/24'
+    gateway: '10.10.1.1'
+    router_network: vlan16
+    type: management
+    external: false
+nameservers: [
+  '8.8.4.4',  # Google DNS.
+  '8.8.8.8',  # Google DNS.
+]
+local_admin_groups:
+  - 'admin'
+local_admin_users:
+  - 'egon'
+  - 'gerben'
+  - 'henkjan'
+  - 'marieke'
+  - 'marloes'
+  - 'morris'
+  - 'pieter'
+  - 'sandi'
+  - 'wim'
+functional_admin_group: 'funad'
+regular_groups:
+  - "{{ functional_admin_group }}"
+  - 'vipt'
+regular_users:
+  - user: 'dhendriksen'
+    groups: ['vipt']
+  - user: 'bcharbon'
+    groups: ['vipt']
+  - user: 'rsietsma'
+    groups: ['vipt']
+  - user: 'svandenhoek'
+    groups: ['vipt']
+  - user: 'mbijlsma'
+    groups: ['vipt']
+sudoers:
+  - who: ['%vipt']
+    become: 'ALL'
+    name: 'apptainer' 
+    command: '/bin/apptainer'
+use_ldap: false
+create_ldap: false
+use_sssd: false
+ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/build_library-ca"
+#
+# Jumphosts from other stack-name infra groups.
+# We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
+#
+external_jumphosts:
+  - group: gearshift_cluster
+    hosts:
+    - hostname: airlock
+      network: vlan16
+  - group: talos_cluster
+    hosts:
+      - hostname: reception
+        network: vlan16
+  - group: hyperchicken_cluster
+    hosts:
+      - hostname: portal
+        network: public
+  - group: fender_cluster
+    hosts:
+      - hostname: corridor
+        network: public
+  - group: nibbler_cluster
+    hosts:
+      - hostname: tunnel
+        network: vlan16
+cluster_common_packages:
+  - apptainer
+  - apptainer-suid
+  - bash-completion
+  - bc
+  - bcc-tools
+  - bind-utils
+  - bzip2
+  - cargo
+  - curl
+  - dos2unix
+  - figlet
+  - git
+  - git-core
+  - gnutls
+  - libsodium
+  - lsof
+  - nano
+  - ncdu
+  - ncurses-static
+  - net-tools
+  - openssl
+  - pciutils
+  - openssl11  # Required for openldap-ltb RPMs.
+  - qt5-qtbase
+  - qt5-qtxmlpatterns
+  - readline-static
+  - rsync
+  - screen
+  - strace
+  - tcl-devel
+  - telnet
+  - tmux
+  - tree
+  - unzip
+  - urw-base35-fonts
+  - vim
+  - wget
+  - yum-utils
+...

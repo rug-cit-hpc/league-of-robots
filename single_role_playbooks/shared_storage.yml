@@ -1,5 +1,7 @@
 ---
-- hosts: cluster
+- hosts:
+    - cluster
+    - chaperone
   roles:
     - shared_storage
 ...

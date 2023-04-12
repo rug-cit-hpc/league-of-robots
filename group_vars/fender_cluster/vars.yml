@@ -1,64 +1,71 @@
 ---
 slurm_cluster_name: 'fender'
-slurm_cluster_domain: ''
+stack_domain: ''
+stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'fd'
-slurm_version: '17.11.9-2.umcg.el7'
-repo_manager: 'spacewalk'
-mailhub: '192.168.0.5'
-rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
+slurm_version: '22.05.2-1.el7.umcg'
+slurm_partitions:
+  - name: regular  # Must be in sync with group listed in Ansible inventory.
+    default: yes
+    nodes: "{{ stack_prefix }}-vcompute[01-12]"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
+  - name: user_interface  # Must be in sync with group listed in Ansible inventory.
+    default: no
+    nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: 1
+    max_cores_per_node: 1
+    max_mem_per_node: 1024
+    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
+repo_manager: 'pulp'
 figlet_font: 'slant'
 motd: "To solve or not to solve, that's the question."
 additional_etc_hosts:
-  - group: all
-    hosts:
-      - docs
-vcompute_hostnames: "{{ stack_prefix }}-vcompute[01-12]"
-vcompute_sockets: 16
-vcompute_cores_per_socket: 1
-vcompute_real_memory: 64264
-vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
-vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
-vcompute_local_disk: 0
-vcompute_features: 'tmp10'
-vcompute_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
-ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: 4
-ui_cores_per_socket: 1
-ui_real_memory: 7821
-ui_local_disk: 0
-ui_features: 'prm10,tmp10'
-ui_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
-ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/ca-key-production-ebi"
-use_ldap: yes
-create_ldap: yes
-ldap_uri: ldap://fd-dai
-ldap_base: dc=hpc,dc=rug,dc=nl
-ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
-ldap_domain: hpc.rug.nl
-key_name: Gerben
-cloud_image: centos7
+  - group: docs_library
+    nodes:
+      - name: docs_on_merlin
+        network: vlan16
+use_ldap: true
+use_sssd: true
+ldap_domains:
+  stack:
+    uri: "ldaps://{{ stack_prefix }}-dai"
+    base: "dc={{ stack_name }},dc=local"
+    schema: rfc2307bis
+    min_id: 1000
+    max_id: 21999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: memberOf
+    group_member: member
+    create_ldap: true
+    ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
+cloud_image: CentOS7-Cloud
 cloud_user: centos
-flavor_nano: s1.nano
-flavor_tiny: s1.tiny
-flavor_ui: s1.large
-flavor_vcompute: s1.gargantuan
-public_net_id: ext-net-37
-public_ip_addresses:
-  corridor: '193.62.55.161'
-private_net_id: Solve-RD_private
-private_subnet_id: Solve-RD_subnet
-private_storage_net_id: net_provider_vlan3126
-private_storage_subnet_id: subnet3126
-security_group_id: SSH-and-ping-2
-availability_zone: AZ_1
-storage_availability_zone: nova
-local_volume_size: 1
+availability_zone: nova
+stack_networks:
+  - name: "{{ stack_prefix }}_internal_management"
+    cidr: '10.10.1.0/24'
+    gateway: '10.10.1.1'
+    router_network: public
+    type: management
+    external: false
+  - name: subnet-nfs-data-2541
+    cidr: '10.35.141.0/24'
+    allow_ingress:
+      - 10.35.141.251/32  # NFS server
+      - 10.35.141.252/32  # NFS server
+      - 10.35.141.253/32  # NFS server
+    type: storage
+    external: true
 nameservers: [
-  '/em-isi-3126.ebi.ac.uk/10.35.126.201',  # Local DNS lookups for shared storage.
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
@@ -67,51 +74,49 @@ local_admin_groups:
   - 'docker'
 local_admin_users:
   - 'egon'
+  - 'gerben'
   - 'henkjan'
   - 'marieke'
   - 'marloes'
   - 'morris'
   - 'pieter'
+  - 'sandi'
   - 'wim'
-  - 'gerben'
 envsync_user: 'envsync'
 envsync_group: 'depad'
+functional_admin_group: 'funad'
 hpc_env_prefix: '/apps'
 regular_groups:
+  - "{{ envsync_group }}"
+  - "{{ functional_admin_group }}"
   - 'users'
-  - 'depad'
   - 'solve-rd'
   - 'umcg-atd'
 regular_users:
-  - user: 'envsync'
-    groups: ['depad']
+  - user: "{{ envsync_user }}"
+    groups: ["{{ envsync_group }}"]
   - user: 'solve-rd-dm'
     groups: ['solve-rd']
-    sudoers: '%solve-rd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
-    sudoers: '%umcg-atd'
   - user: 'solve-rd-ateambot'
     groups: ['solve-rd']
-    sudoers: '%solve-rd'
   - user: 'gvdvries'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mbijlsma'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mswertz'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'pneerincx'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'rkanninga'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'ljohansson'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'ddanis'
     groups: ['users', 'solve-rd']
   - user: 'dhendriksen'
-    groups: ['users', 'solve-rd']
-  - user: 'ksablauskas'
-    groups: ['users', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'solve-rd']
   - user: 'wsteyaert'
     groups: ['users', 'solve-rd']
   - user: 'slaurie'
@@ -120,8 +125,6 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'fmusacchia'
     groups: ['users', 'solve-rd']
-  - user: 'dspalding'
-    groups: ['users', 'solve-rd']
   - user: 'psivakumar'
     groups: ['users', 'solve-rd']
   - user: 'fandrade'
@@ -129,11 +132,13 @@ regular_users:
   - user: 'gdemidov'
     groups: ['users', 'solve-rd']
   - user: 'amohan'
-    groups: ['users', 'solve-rd']
+    groups: ['users']
+  - user: 'dspalding'
+    groups: ['users']
   - user: 'cthomas'
     groups: ['users', 'solve-rd']
   - user: 'mbenjamins'
-    groups: ['users','depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'lmatalonga'
     groups: ['users', 'solve-rd']
   - user: 'gbullich'
@@ -141,7 +146,9 @@ regular_users:
   - user: 'ebenetti'
     groups: ['users', 'solve-rd']
   - user: 'kdelange'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+  - user: 'scimerman'
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'sli'
     groups: ['users', 'solve-rd']
   - user: 'rschuele'
@@ -187,7 +194,7 @@ regular_users:
   - user: 'byaldiz'
     groups: ['users', 'solve-rd']
   - user: 'bcharbon'
-    groups: ['users', 'depad','umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'solve-rd']
   - user: 'amaver'
     groups: ['users', 'solve-rd']
   - user: 'cgilissen'
@@ -214,31 +221,117 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'druvolo'
     groups: ['users', 'solve-rd']
+  - user: 'ftranmauthem'
+    groups: ['users', 'solve-rd']
+  - user: 'mjohari'
+    groups: ['users', 'solve-rd']
+  - user: 'mchahdil'
+    groups: ['users', 'solve-rd']
+  - user: 'aesteve'
+    groups: ['users', 'solve-rd']
+  - user: 'cdoornbos'
+    groups: ['users', 'solve-rd']
+  - user: 'kmaassen'
+    groups: ['users', 'solve-rd']
+  - user: 'gbeen'
+    groups: ['users', 'solve-rd']
+  - user: 'dmei'
+    groups: ['users', 'solve-rd']
+  - user: 'hmorsy'
+    groups: ['users', 'solve-rd']
+  - user: 'kzguro'
+    groups: ['users', 'solve-rd']
+  - user: 'jklimp'
+    groups: ['users', 'solve-rd']
+  - user: 'asalazarvillacorta'
+    groups: ['users', 'solve-rd']
+  - user: 'vyepez'
+    groups: ['users', 'solve-rd']
+  - user: 'fbrechtmann'
+    groups: ['users', 'solve-rd']
+  - user: 'cmertes'
+    groups: ['users', 'solve-rd']
+  - user: 'umcg-molgenis'
+    groups: ['users']
+  - user: 'svandenhoek'
+    groups: ['users', 'solve-rd']
+  - user: 'pacthoen'
+    groups: ['users', 'solve-rd']
+  - user: 'jgagneur'
+    groups: ['users', 'solve-rd']
+  - user: 'slondhe'
+    groups: ['users', 'solve-rd']
+  - user: 'dbeijer'
+    groups: ['users', 'solve-rd']
+  - user: 'jmueller'
+    groups: ['users', 'solve-rd']
+  - user: 'nsmal'
+    groups: ['users', 'solve-rd']
+  - user: 'bestevez'
+    groups: ['users', 'solve-rd']
+  - user: 'msynofzik'
+    groups: ['users', 'solve-rd']
+  - user: 'wmacken'
+    groups: ['users', 'solve-rd']
+  - user: 'klohmann'
+    groups: ['users', 'solve-rd']
+  - user: 'sadiaw'
+    groups: ['users', 'solve-rd']
+  - user: 'dndebento'
+    groups: ['users', 'solve-rd']
+  - user: 'hhengel'
+    groups: ['users', 'solve-rd']
+  - user: 'jschulzehentrich'
+    groups: ['users', 'solve-rd']
+sudoers:
+  - who: ['%solve-rd']
+    become: 'solve-rd-dm'
+    name: 'solve-rd-dm'
+    command: 'ALL'
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-dm'
+    name: 'umcg-atd-dm'
+    command: 'ALL'
+  - who: ['%solve-rd']
+    become: 'solve-rd-ateambot'
+    name: 'solve-rd-ateambot'
+    command: 'ALL'
 #
 # Shared storage related variables
 #
-pfs_mounts: [
-  { pfs: 'ecst02',
-    source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD',
-    type: 'nfs',
-    rw_options: 'defaults,_netdev,noatime,nodiratime',
-    ro_options: 'defaults,_netdev,noatime,nodiratime,ro' },
-]
-lfs_mounts: [
-  { lfs: 'home',
-    pfs: 'ecst02',
-    machines: "{{ groups['cluster'] }}" },
-  { lfs: 'tmp10',
-    pfs: 'ecst02',
-    groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'prm10',
-    pfs: 'ecst02',
-    groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'env10',
-    pfs: 'ecst02',
-    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
-]
+pfs_mounts:
+  - pfs: ecst02
+    source: '10.35.141.253:/solve-rd-98599485/'
+    type: nfs4
+    rw_options: 'defaults,_netdev,noatime,nodiratime,rw'
+    ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
+    machines: "{{ groups['sys_admin_interface'] }}"
+lfs_mounts:
+  - lfs: home
+    pfs: ecst02
+    rw_machines: "{{ groups['cluster'] }}"
+  - lfs: tmp10
+    pfs: ecst02
+    groups:
+      - name: umcg-atd
+      - name: solve-rd
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+  - lfs: prm10
+    pfs: ecst02
+    groups:
+      - name: umcg-atd
+      - name: solve-rd
+    rw_machines: "{{ groups['user_interface'] }}"
+  - lfs: env10
+    pfs: ecst02
+    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ega_fuse_client_mounts:
   solve_rd: '/groups/solve-rd/prm10/ega-fuse-client'
-ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
+ega_fuse_client_java_home: '/etc/alternatives/jre_11_openjdk'
+interfaces:
+  - device: 'eth0'
+    bootproto: 'dhcp'
+  - device: 'eth1' 
+    bootproto: 'dhcp'
 ...

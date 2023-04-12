@@ -1,0 +1,166 @@
+---
+all:
+  children:
+    openstack_api:
+      hosts:
+        localhost:
+          ansible_python_interpreter: /usr/bin/env python
+    jumphost:
+      hosts:
+        wh-porch:
+          cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_jumphosts"
+              assign_floating_ip: true
+          security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
+          iptables_allow_icmp_inbound:
+            - "{{ all.ip_addresses['umcg']['net1'] }}"
+            - "{{ all.ip_addresses['umcg']['net2'] }}"
+            - "{{ all.ip_addresses['umcg']['net3'] }}"
+            - "{{ all.ip_addresses['umcg']['net4'] }}"
+            - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+            - "{{ all.ip_addresses['rug']['operator'] }}"
+    repo:
+      hosts:
+        wh-repo:
+          cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_repo"
+          swap_file_size: 2
+    data_transfer:
+      hosts:
+        wh-transfer:
+          cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_ds"
+              assign_floating_ip: true
+          local_volume_size_extra: 800
+    docs:
+      hosts:
+        docs_on_merlin:
+    sys_admin_interface:
+      hosts:
+        wh-sai:
+          cloud_flavor: m1.large
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_cluster"
+            - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
+            - name: vlan990
+              security_group: "{{ stack_prefix }}_storage"
+          local_volume_size_extra: 10000
+    deploy_admin_interface:
+      hosts:
+        wh-dai:
+          cloud_flavor: m1.large
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_cluster"
+            - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
+          local_volume_size_extra: 2000
+    ldap_server:
+      hosts:
+        wh-dai:
+    user_interface:
+      hosts:
+        wingedhelix:
+          cloud_flavor: m1.xlarge
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_cluster"
+            - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
+          slurm_sockets: 8
+          slurm_cores_per_socket: 1
+          slurm_real_memory: 15884
+          slurm_local_disk: 0
+          slurm_features: 'tmp07'
+          slurm_ethernet_interfaces:
+            - eth0
+            - eth1
+    compute_vm:
+      children:
+        regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
+          hosts:
+            wh-vcompute[01:02]:
+          vars:
+            # flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
+            cloud_flavor: m1.huge
+            host_networks:
+              - name: "{{ stack_prefix }}_internal_management"
+                security_group: "{{ stack_prefix }}_cluster"
+              - name: "{{ stack_prefix }}_internal_storage"
+                security_group: "{{ stack_prefix }}_storage"
+            local_volume_size_extra: 1
+            slurm_sockets: 16
+            slurm_cores_per_socket: 1
+            slurm_real_memory: 64263
+            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
+            slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
+            slurm_local_disk: 0
+            slurm_features: 'tmp07'
+            slurm_ethernet_interfaces:
+              - eth0
+              - eth1
+    chaperone:
+      hosts:
+        wh-chaperone:
+          #ansible_host: uozkh1016.zkh.umcg.intra
+          ansible_host: wh-chaperone.umcg.nl  # upzkh1054.
+          use_ldap: false
+          functional_admin_group: 'MEDGEN-NFG GCC Analyse Team'
+          #
+          # Overrule regular_groups compared to rest of Winged Helix:
+          # * Do not create local functional_admin_group, which comes from UMCG AD.
+          # * Do not create umcg-lab, which is not used on a chaperone.
+          #
+          regular_groups:
+            - "{{ envsync_group }}"
+            - "{{ functional_users_group }}"
+            - 'umcg-atd'
+            - 'umcg-gap'
+            - 'umcg-gd'
+            - 'umcg-genomescan'
+            - 'umcg-gsad'
+            - 'umcg-gst'
+            - 'umcg-labgnkbh'
+            - 'umcg-patho'
+            - 'umcg-vipt'
+    rsyslog:
+      hosts:
+        wh-repo:
+          rsyslog_port: 41514
+    nfs_server:
+      hosts:
+        wh-sai:
+    smb_server:
+      hosts:
+        wh-sai:
+administration:
+  children:
+    sys_admin_interface:
+    deploy_admin_interface:
+    user_interface:
+    ldap_server:
+cluster:
+  children:
+    compute_vm:
+    administration:
+wingedhelix_cluster:
+  children:
+    openstack_api:
+    jumphost:
+    repo:
+    cluster:
+    chaperone:
+    data_transfer:
+    docs:
+    rsyslog:
+    nfs_server:
+    smb_server:
+...

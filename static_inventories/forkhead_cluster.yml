@@ -1,0 +1,78 @@
+---
+all:
+  children:
+    openstack_api:
+      hosts:
+        localhost:
+          ansible_python_interpreter: /usr/bin/env python
+    docs:
+      hosts:
+        docs_on_merlin:
+    sys_admin_interface:
+      hosts:
+        forkhead:
+          ansible_host: 10.96.52.12
+          host_networks:
+            - name: vnet-medgen-t
+          local_yum_repository: true # enable local yum repository
+    deploy_admin_interface:
+      hosts:
+        forkhead:
+          volumes:
+            - mount_point: '/apps'
+              device: '/mnt/env12/apps/'
+              mounted_owner: root
+              mounted_group: "{{ envsync_group }}"
+              mounted_mode: '2775'
+              mount_options: 'bind'
+              type: none
+    ldap_server:
+      hosts:
+        forkhead:
+    user_interface:
+      hosts:
+        forkhead:
+          slurm_sockets: 1
+          slurm_cores_per_socket: 4
+          slurm_real_memory: 15884
+          slurm_local_disk: 0
+          slurm_features: 'tmp12'
+          slurm_ethernet_interfaces:
+            - eth0
+    compute_vm:
+      children:
+        regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
+          hosts:
+            forkhead:
+          vars:
+            slurm_sockets: 1
+            slurm_cores_per_socket: 4
+            slurm_real_memory: 15884
+            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
+            slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
+            slurm_local_disk: 0
+            slurm_features: 'tmp12'
+            slurm_ethernet_interfaces:
+              - eth0
+    chaperone:
+      hosts:
+        fh-chaperone:
+          #ansible_host: uozkh[0-9].zkh.umcg.intra
+administration:
+  children:
+    sys_admin_interface:
+    deploy_admin_interface:
+    user_interface:
+    ldap_server:
+cluster:
+  children:
+    compute_vm:
+    administration:
+forkhead_cluster:
+  children:
+    openstack_api:
+    jumphost:
+    cluster:
+    chaperone:
+    docs:
+...

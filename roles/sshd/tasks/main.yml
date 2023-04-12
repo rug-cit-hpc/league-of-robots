@@ -1,6 +1,62 @@
 ---
+- name: Check if system has /etc/pam.d/sshd
+  ansible.builtin.stat:
+    path: /etc/pam.d/sshd
+  register: pam_sshd_status
+  when: inventory_hostname in totp.machines | default([])
+
+- name: Fail if host does not have /etc/pam.d/sshd.
+  ansible.builtin.fail:
+    msg: This host does not have a /etc/pam.d/sshd file. We cannot configure the PAM stack. Check the sshd setup.
+  when:
+    - (inventory_hostname in totp.machines | default([])) or
+      (inventory_hostname in pam_weblogin.machines | default([]))
+    - pam_sshd_status.stat.exists is false
+
+- name: Fail if both MFA with TOTPs and pam plugin for web logins are configured.
+  ansible.builtin.fail:
+    msg: "MFA with TOTPs and the pam plugin for web logins are both configured, but mutually exclusive:
+         check the sshd setup for the {{ stack_name }} stack."
+  when:
+    - inventory_hostname in totp.machines | default([])
+    - inventory_hostname in pam_weblogin.machines | default([])
+
+- name: 'Update /etc/pam.d/sshd: Enable password-auth.'
+  ansible.builtin.lineinfile:
+    path: '/etc/pam.d/sshd'
+    owner: root
+    group: root
+    mode: '0644'
+    insertafter: '^#%PAM'
+    regexp: '^#?auth(\s+)([a-z]+)(\s+)password-auth'
+    line: 'auth       substack     password-auth'
+  when:
+    - inventory_hostname not in totp.machines | default([])
+    - inventory_hostname not in pam_weblogin.machines | default([])
+  become: true
+
+- name: Disable TOTPs for MFA.
+  ansible.builtin.include_tasks:
+    file: disable_totps.yml
+  when: inventory_hostname not in totp.machines | default([])
+
+- name: Disable pam plugin for web logins.
+  ansible.builtin.include_tasks:
+    file: disable_pam_weblogin.yml
+  when: inventory_hostname not in pam_weblogin.machines | default([])
+
+- name: Enable TOTPs for MFA.
+  ansible.builtin.include_tasks:
+    file: enable_totps.yml
+  when: inventory_hostname in totp.machines | default([])
+
+- name: Enable pam plugin for web logins.
+  ansible.builtin.include_tasks:
+    file: enable_pam_weblogin.yml
+  when: inventory_hostname in pam_weblogin.machines | default([])
+
 - name: Deploy sshd config.
-  template:
+  ansible.builtin.template:
     src: templates/sshd_config
     dest: /etc/ssh/sshd_config
     owner: root
@@ -11,15 +67,16 @@
   become: true
 
 - name: Check if /etc/ssh/moduli contains weak (small) values.
-  shell: awk '$5 < {{ sshd_moduli_minimum }}' /etc/ssh/moduli
+  ansible.builtin.shell: awk '$5 < {{ sshd_moduli_minimum }}' /etc/ssh/moduli
   register: sshd_register_moduli
   changed_when: false
   check_mode: false
 
 - name: Remove weak (small) values from /etc/ssh/moduli.
-  shell: awk '$5 >= {{ sshd_moduli_minimum }}' /etc/ssh/moduli > /etc/ssh/moduli.new ;
+  ansible.builtin.shell: awk '$5 >= {{ sshd_moduli_minimum }}' /etc/ssh/moduli > /etc/ssh/moduli.new ;
          [ -r /etc/ssh/moduli.new -a -s /etc/ssh/moduli.new ] && mv /etc/ssh/moduli.new /etc/ssh/moduli || true
-  when: sshd_register_moduli.stdout
+  when: sshd_register_moduli.stdout | length > 1
+  changed_when: sshd_register_moduli.stdout | length > 1
   notify: restart_sshd
   become: true
 ...

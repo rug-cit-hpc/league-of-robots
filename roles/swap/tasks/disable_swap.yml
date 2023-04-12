@@ -1,6 +1,6 @@
 ---
 - name: Check if swap is active.
-  command:
+  ansible.builtin.command:
     cmd: /usr/bin/grep "{{ swap_file_path }}" /proc/swaps
   register: proc_swaps
   changed_when: swap_file_path in proc_swaps.stdout
@@ -8,10 +8,10 @@
   notify: disable_swap_file
 
 - name: Flush handlers.
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Remove swap file entry from fstab.
-  mount:
+  ansible.posix.mount:
     path: none
     src: "{{ swap_file_path }}"
     fstype: swap
@@ -20,8 +20,11 @@
   become: true
 
 - name: Remove swap file.
-  file:
+  ansible.builtin.file:
     path: "{{ swap_file_path }}"
     state: absent
   become: true
+
+- name: Flush handlers to disable swap.
+  ansible.builtin.meta: flush_handlers
 ...

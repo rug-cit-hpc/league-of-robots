@@ -1,15 +1,42 @@
 ---
 - name: Install docker comunity edition.
-  yum:
+  ansible.builtin.yum:
     name:
-      - docker-ce
-      - python2-pip
+      - docker
+      - python3-pip
+      - docker-compose
     state: latest
-    update_cache: yes
+    update_cache: true
   become: true
 
-- name: Install docker-py.
-  pip:
-    name: docker
+# - name: Upgrade pip to latest version
+#   ansible.builtin.command: pip3 install -U pip
+#   become: true
+- name: Upgrade pip3 to latest version
+  ansible.builtin.pip:
+    name: pip
+    state: latest
+    executable: pip3
   become: true
+
+- name: Install docker-py (supported by python 3)
+  ansible.builtin.pip:
+    name: docker
+    executable: pip3
+  become: true
+
+- name: Get service facts
+  ansible.builtin.service_facts:
+
+- name: Update docker service to reload every time after iptables service
+  ansible.builtin.blockinfile:
+    path: /usr/lib/systemd/system/docker.service
+    insertafter: '\[Unit\]'
+    block: |
+      After=iptables.service
+      Requires=iptables.service
+      PartOf=iptables.service
+  notify: 'restart_docker'
+  become: true
+
 ...

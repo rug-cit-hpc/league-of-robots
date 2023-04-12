@@ -1,0 +1,160 @@
+---
+- name: Install yum dependencies
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - sssd
+      - sssd-tools
+      - openldap-clients
+      - openssh-ldap
+      - coreutils
+      - grep
+      - sed
+  notify:
+    - restart_sssd
+    - restart_sshd
+  become: true
+
+- name: Copy LDAP server certificate to LDAP clients.
+  ansible.builtin.copy:
+    src: "{{ stack_name }}/ldap.crt"
+    dest: /etc/pki/ca-trust/source/anchors/
+    owner: root
+    group: root
+    mode: '0600'
+  when: (playbook_dir, '/files/', stack_name, '/', 'ldap.crt') | join('') is exists
+  become: true
+  notify:
+    - update-ca-trust
+    - restart_sssd
+
+- name: Create /etc/openldap/
+  ansible.builtin.file:
+    path: /etc/openldap/
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+#
+# Note that /etc/openldap/*.conf is not required for SSSD nor to make SSH logins work,
+# but it is used
+#   * for tools like the ldapsearch command, which may be used for debugging
+#   * for managing users and groups in a local LDAP with roles/regular_users/tasks/ldap_regular_users.yml
+#   * and by scripts on the cluster: e.g. for fetching quota values.
+#
+- name: Deploy /etc/openldap/*.conf files
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "/etc/openldap/{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - src: openldap-ldap.conf
+      dest: ldap.conf
+    - src: readonly-ldapsearch-credentials.bash
+      dest: readonly-ldapsearch-credentials.bash
+  become: true
+
+- name: Deploy /etc/sssd/sssd.conf
+  ansible.builtin.template:
+    src: sssd.conf
+    dest: /etc/sssd/sssd.conf
+    owner: root
+    group: root
+    mode: '0600'
+  notify:
+    - restart_sssd
+  become: true
+
+- name: Remove conflicting configuration files for nslcd and ssh-ldap-wrapper.
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /etc/ssh/ldap.conf
+    - /usr/libexec/openssh/ssh-ldap-wrapper.bash
+  become: true
+
+- name: Get a list of currently existing services.
+  ansible.builtin.service_facts:  # Results in "services" variable.
+
+- name: Disable conflicting services.
+  ansible.builtin.systemd:
+    name: nslcd
+    state: stopped
+    enabled: false
+    daemon_reload: true
+  register: nslcd_status
+  when: "'nslcd.service' in services"
+  become: true
+
+- name: Deploy nsswitch.conf
+  ansible.builtin.copy:
+    src: nsswitch.conf
+    dest: /etc/nsswitch.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart_sssd
+  become: true
+
+- name: Deploy custom script to fetch public keys from LDAP servers.
+  ansible.builtin.template:
+    src: get_public_keys_from_ldap.bash
+    dest: /usr/libexec/openssh/get_public_keys_from_ldap.bash
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Ensure systemd will try to restart the sssd service automatically on failure.
+  ansible.builtin.lineinfile:
+    path: '/usr/lib/systemd/system/sssd.service'
+    backup: true
+    insertafter: '\[Service\]'
+    regexp: '^#?Restart='
+    line: 'Restart=on-failure'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart_sssd
+  become: true
+
+- name: Ensure sssd service will try to restart the sssd service automatically with reasonable intervals.
+  ansible.builtin.lineinfile:
+    path: '/usr/lib/systemd/system/sssd.service'
+    backup: true
+    insertafter: '\[Service\]'
+    regexp: '^#?RestartSec='
+    line: 'RestartSec=600s'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart_sssd
+  become: true
+
+- name: Enable services.
+  ansible.builtin.systemd:
+    name: sssd
+    state: started
+    enabled: true
+    daemon_reload: true
+  become: true
+
+- name: Check if we need to update authconfig.
+  ansible.builtin.command:
+    cmd: /usr/sbin/authconfig --test
+  register: authconfig_test
+  changed_when: ('nss_sss is disabled' in authconfig_test.stdout) or ('pam_sss is disabled' in authconfig_test.stdout)
+  notify: authconfig_enable_sssd
+
+- name: Flush handlers.
+  ansible.builtin.meta: flush_handlers
+...

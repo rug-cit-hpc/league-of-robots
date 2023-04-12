@@ -2,7 +2,9 @@
 exclude_paths:
   - '~/.ansible' # Exclude external playbooks.
 skip_list:
-  # We explicitly use latest combined with other tech to pin versions (e.g. Spacewalk).
+  # We explicitly use latest combined with other tech to pin versions (e.g. Pulp).
   - 'package-latest'  # "Package installs should not use latest (403)."
   - 'meta-no-info'  # "No 'galaxy_info' found in meta/main.yml of a role (701)."
+  - 'experimental'  # All rules tagged as experimental.
+  - 'name[template]'  # Allow jinja templating anywhere in a task name.
 ...

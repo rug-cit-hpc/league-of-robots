@@ -1,19 +1,25 @@
 # Create local admin groups & users and allow admin group to use sudo on all hosts.
 ---
-- name: Set selinux in permissive mode
-  selinux:
+- name: Put SELinux in permissive mode
+  ansible.posix.selinux:
     policy: targeted
     state: permissive
+  register: selinux_status
+  become: true
+- name: Reboot to activate changed SELinux policy or state.
+  ansible.builtin.reboot:
+    msg: Reboot initiated by Ansible role admin_users from League of Robots playbook/repo.
+  when: selinux_status.reboot_required is true
   become: true
 - name: Create admin groups for local admin users.
-  group:
+  ansible.builtin.group:
     name: "{{ item }}"
     gid: "{{ auth_groups[item].gid }}"
     state: present
   with_items: "{{ local_admin_groups }}"
   become: true
-- name: 'Allow passwordless sudo for local admin users.'
-  lineinfile:
+- name: Allow passwordless sudo for local admin users.
+  ansible.builtin.lineinfile:
     path: '/etc/sudoers'
     line: "%admin  ALL=(ALL:ALL) NOPASSWD:ALL"
     owner: root
@@ -21,22 +27,46 @@
     mode: '0440'
   become: true
 - name: "Create private groups for user's home dirs."
-  group:
+  ansible.builtin.group:
     name: "{{ item }}"                 # Use same name as user's account name for user's private group.
     gid: "{{ auth_users[item].uid }}"  # Use same GID as user's UID for user's private group.
     state: present
   with_items: "{{ local_admin_users }}"
   become: true
-- name: 'Create /admin root dir for the home dirs of local admin users.'
-  file:
+- name: Create /admin root dir for the home dirs of local admin users.
+  ansible.builtin.file:
     path: '/admin'
     owner: root
     group: root
     mode: '0755'
     state: directory
   become: true
+- name: Install policycoreutils-python package to be used at admin home dir SE-labeling
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name: 'policycoreutils-python'
+  become: true
+- name: Make sure home dirs for admin users are correctly labelled for SELinux.
+  community.general.sefcontext:
+    target: "{{ item.target }}"
+    ftype: "{{ item.ftype }}"
+    setype: ssh_home_t
+    state: present
+  loop:
+    - target: '/admin/[^/]+/\.ssh(/.*)?'
+      ftype: a  # All types.
+    - target: '/admin/[^/]+/\.ansible/cp/.*'
+      ftype: s  # Sockets only.
+  become: true
+- name: Apply new SELinux file contexts to filesystem.
+  ansible.builtin.command:
+    cmd: restorecon -irv /admin
+  register: restorecon_admin_homes
+  changed_when: ('reset' in restorecon_admin_homes.stdout)
+  become: true
 - name: Create local admin users and append them to relevant groups.
-  user:
+  ansible.builtin.user:
     name: "{{ item }}"
     uid: "{{ auth_users[item].uid }}"
     comment: "{{ auth_users[item].comment }}"
@@ -47,11 +77,18 @@
   with_items: "{{ local_admin_users }}"
   become: true
 - name: 'Deploy authorized keys for admins.'
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ item }}"
     key: "{{ auth_users[item].pub_keys }}"
     state: present
     exclusive: true
   with_items: "{{ local_admin_users }}"
+  become: true
+- name: Update root password (if different) to match the one from the secrets
+  ansible.builtin.user:
+    name: root
+    password: '{{ cloud_console_pass | password_hash("sha512") }}'
+    update_password: 'always'
+  when: cloud_console_pass is defined and cloud_console_pass | length > 1
   become: true
 ...

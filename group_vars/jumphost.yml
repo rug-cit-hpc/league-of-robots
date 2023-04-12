@@ -1,9 +1,21 @@
 ---
-firewall_allowed_tcp_ports:
-  - "22"    # SSH.
-  - "443"   # SSH fallback when 22 is blocked.
-  - "3000"  # Grafana server.
-firewall_additional_rules:
-  - "iptables -A INPUT -i eth1 -p tcp -s 129.125.2.233,129.125.2.225,129.125.2.226 --dport 9090 -j ACCEPT -m comment --comment 'prometheus server'"
-ssh_host_signer_hostnames: "{{ ansible_hostname }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %},{{ ansible_hostname }}{% if public_ip_addresses is defined and public_ip_addresses[ansible_hostname] | length %},{{ public_ip_addresses[ansible_hostname] }}{% endif %}"
+iptables_allow_icmp_inbound:
+  - ANY
+iptables_allow_https_inbound:
+  - ANY  # Port 443 is used as fallback for SSH on jumphosts. Port 443 outbound is allowed by default.
+iptables_allow_ssh_inbound:
+  - ANY
+iptables_allow_ssh_outbound:
+  - ANY
+ssh_host_signer_hostnames: "{{ inventory_hostname }}\
+    {% for network_id in ip_addresses[inventory_hostname] %}\
+      {% if ip_addresses[inventory_hostname][network_id]['fqdn'] is defined and
+            ip_addresses[inventory_hostname][network_id]['fqdn'] | length >= 1 %}\
+        {% if ip_addresses[inventory_hostname][network_id]['fqdn'] == 'NXDOMAIN' %}\
+          ,{{ ip_addresses[inventory_hostname][network_id]['address'] }}\
+        {% else %}\
+          ,{{ ip_addresses[inventory_hostname][network_id]['fqdn'] }}\
+        {% endif %}\
+      {% endif %}\
+    {% endfor %}"
 ...

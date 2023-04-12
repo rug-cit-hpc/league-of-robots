@@ -1,0 +1,89 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin="workflow-multibranch@{{ jenkins_plugins | selectattr('name', 'defined') | selectattr('name', 'equalto', 'workflow-multibranch') | map(attribute='version') | first }}">
+  <actions/>
+  <description>{{ item }} pipeline</description>
+  <properties>
+    <com.cloudbees.hudson.plugins.folder.properties.AuthorizationMatrixProperty>
+      <inheritanceStrategy class="org.jenkinsci.plugins.matrixauth.inheritance.InheritParentStrategy"/>
+      <permission>GROUP:com.cloudbees.plugins.credentials.CredentialsProvider.Create:authenticated</permission>
+      <permission>GROUP:com.cloudbees.plugins.credentials.CredentialsProvider.Delete:authenticated</permission>
+      <permission>GROUP:com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains:authenticated</permission>
+      <permission>GROUP:com.cloudbees.plugins.credentials.CredentialsProvider.Update:authenticated</permission>
+      <permission>GROUP:com.cloudbees.plugins.credentials.CredentialsProvider.View:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Build:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Cancel:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Configure:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Create:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Delete:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Discover:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Move:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Read:authenticated</permission>
+      <permission>GROUP:hudson.model.Item.Workspace:authenticated</permission>
+      <permission>GROUP:hudson.model.Run.Delete:authenticated</permission>
+      <permission>GROUP:hudson.model.Run.Replay:authenticated</permission>
+      <permission>GROUP:hudson.model.Run.Update:authenticated</permission>
+      <permission>GROUP:hudson.model.View.Configure:authenticated</permission>
+      <permission>GROUP:hudson.model.View.Create:authenticated</permission>
+      <permission>GROUP:hudson.model.View.Delete:authenticated</permission>
+      <permission>GROUP:hudson.model.View.Read:authenticated</permission>
+      <permission>GROUP:hudson.scm.SCM.Tag:authenticated</permission>
+    </com.cloudbees.hudson.plugins.folder.properties.AuthorizationMatrixProperty>
+  </properties>
+  <folderViews class="jenkins.branch.MultiBranchProjectViewHolder" plugin="branch-api@{{ jenkins_plugins | selectattr('name', 'defined') | selectattr('name', 'equalto', 'branch-api') | map(attribute='version') | first }}">
+    <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+  </folderViews>
+  <healthMetrics/>
+  <icon class="jenkins.branch.MetadataActionFolderIcon" plugin="branch-api@{{ jenkins_plugins | selectattr('name', 'defined') | selectattr('name', 'equalto', 'branch-api') | map(attribute='version') | first }}">
+    <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+  </icon>
+  <orphanedItemStrategy class="com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy" plugin="cloudbees-folder@{{ jenkins_plugins | selectattr('name', 'defined') | selectattr('name', 'equalto', 'cloudbees-folder') | map(attribute='version') | first }}">
+    <pruneDeadBranches>true</pruneDeadBranches>
+    <daysToKeep>14</daysToKeep>
+    <numToKeep>10</numToKeep>
+    <abortBuilds>false</abortBuilds>
+  </orphanedItemStrategy>
+  <triggers>
+    <com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger plugin="cloudbees-folder@{{ jenkins_plugins | selectattr('name', 'defined') | selectattr('name', 'equalto', 'cloudbees-folder') | map(attribute='version') | first }}">
+      <spec>H H/4 * * *</spec>
+      <interval>86400000</interval>
+    </com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger>
+  </triggers>
+  <disabled>false</disabled>
+  <sources class="jenkins.branch.MultiBranchProject$BranchSourceList" plugin="branch-api@{{ jenkins_plugins | selectattr('name', 'defined') | selectattr('name', 'equalto', 'branch-api') | map(attribute='version') | first }}">
+    <data>
+      <jenkins.branch.BranchSource>
+        <source class="org.jenkinsci.plugins.github_branch_source.GitHubSCMSource" plugin="github-branch-source@{{ jenkins_plugins | selectattr('name', 'defined') | selectattr('name', 'equalto', 'github-branch-source') | map(attribute='version') | first }}">
+          <id>6256df08-2f0d-493f-9094-e6b69b4dd0b5</id>
+          <apiUri>https://api.github.com</apiUri>
+          <credentialsId>analysis-jenkins-password</credentialsId>
+          <repoOwner>molgenis</repoOwner>
+          <repository>{{ item }}</repository>
+          <repositoryUrl>https://github.com/molgenis/{{ item }}.git</repositoryUrl>
+          <traits>
+            <org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
+              <strategyId>1</strategyId>
+            </org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
+            <org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
+              <strategyId>2</strategyId>
+            </org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
+            <org.jenkinsci.plugins.github__branch__source.ForkPullRequestDiscoveryTrait>
+              <strategyId>2</strategyId>
+              <trust class="org.jenkinsci.plugins.github_branch_source.ForkPullRequestDiscoveryTrait$TrustPermission"/>
+            </org.jenkinsci.plugins.github__branch__source.ForkPullRequestDiscoveryTrait>
+            <jenkins.plugins.git.traits.WipeWorkspaceTrait plugin="git@{{ jenkins_plugins | selectattr('name', 'defined') | selectattr('name', 'equalto', 'git') | map(attribute='version') | first }}">
+              <extension class="hudson.plugins.git.extensions.impl.WipeWorkspace"/>
+            </jenkins.plugins.git.traits.WipeWorkspaceTrait>
+          </traits>
+        </source>
+        <strategy class="jenkins.branch.DefaultBranchPropertyStrategy">
+          <properties class="empty-list"/>
+        </strategy>
+      </jenkins.branch.BranchSource>
+    </data>
+    <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+  </sources>
+  <factory class="org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory">
+    <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+    <scriptPath>Jenkinsfile</scriptPath>
+  </factory>
+</org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>

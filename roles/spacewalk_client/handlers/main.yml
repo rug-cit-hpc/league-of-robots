@@ -5,7 +5,7 @@
 # and not in the order in which they are listed in a "notify: handler_name" statement!
 #
 - name: Restart spacewalk service.
-  service:
+  ansible.builtin.service:
     name: rhnsd
     state: restarted
   become: true

@@ -1,0 +1,18 @@
+---
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
+
+- name: '###==-> Roles for Jenkins servers. <-==###'
+  hosts:
+    - jenkins
+  roles:
+    - admin_users
+    - ssh_host_signer
+    - iptables
+    - logrotate
+    - remove
+    - update
+    - sshd
+    - jenkins
+    - configure_jenkins_projects
+...

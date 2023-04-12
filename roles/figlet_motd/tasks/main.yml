@@ -1,6 +1,6 @@
 ---
 - name: 'Install figlet.'
-  yum:
+  ansible.builtin.yum:
     state: latest
     update_cache: true
     name: figlet
@@ -12,9 +12,12 @@
     dest: "/usr/share/figlet/{{ item }}"
     owner: false
     group: false
-    use_ssh_args: true
+    # Temporarily disabled as it is broken in Mitogen 0.3.3. Fix is already merged and will be in next Mitogen version.
+    # use_ssh_args: true
     ssh_connection_multiplexing: true
     rsync_opts:
+      - '--omit-dir-times'
+      - '--omit-link-times'
       - '--chmod=Fu=rw,Fgo=r'
       - '--perms'
       - '--force'
@@ -28,7 +31,7 @@
   become: true
 
 - name: 'Create MOTD.'
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: 'create_motd.yml'
   vars:
     figlet_cmd: 'figlet -w 120 -f "{{ figlet_font }}" "{{ ansible_hostname }}"'

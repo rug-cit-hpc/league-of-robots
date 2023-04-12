@@ -1,38 +1,7 @@
 #
-# Order of deployment required to prevent chicken versus the egg issues:
-#  0. For all deployment phases:
-#       export AI_PROXY="${jumphost_name}"
-#       export AI_INVENTORY="static_inventories/${cluster_name}_hosts.ini"
-#       ANSIBLE_VAULT_PASSWORD_FILE=".vault_pass.txt.${cluster_name}"
-#  1. Use standard CentOS cloud image user 'centos' or 'root' user and without host key checking:
-#       export ANSIBLE_HOST_KEY_CHECKING=False
-#       ansible-playbook -i inventory.py -u centos -l 'jumphost,cluster'  single_role_playbooks/admin_users.yml
-#       ansible-playbook -i inventory.py -u root   -l 'docs'              single_role_playbooks/admin_users.yml
-#  2. Use local admin user's account and without host key checking:
-#       export ANSIBLE_HOST_KEY_CHECKING=False
-#       ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/ssh_host_signer.yml
-#  3. Use local admin user's account and with strict host key checking to deploy everything else:
-#       export ANSIBLE_HOST_KEY_CHECKING=True
-#       ansible-playbook -i inventory.py -u [admin_account] cluster.yml
-#     This will configure:
-#       * Jumphost first as it is required to access the other machines.
-#       * Repo management server second as it is required for version control of the packages
-#         installed on all other machines except for the jumphost, which will always get the latest updates for security.
-#       * Basic roles for all cluster machines part 1:
-#           * Roles that do NOT require regular accounts or groups to be present.
-#       * An LDAP with regular user accounts, which may be required for additional roles.
-#             (E.g. a chmod or chgrp for a file/folder requires the corresponding user or group to be present.)
-#       * Basic roles for all cluster machines part 2:
-#           * Roles that DO depend on regular accounts and groups.
-#       * SAI as it is required to:
-#           * Configure layout on shared storage devices used by other machines.
-#           * Configure Slurm control and Slurm database.
-#       * DAI
-#       * UI
-#       * Compute nodes
-#       * Documentation server
+# See README.md for instructins how to use this playbook.
 #
-
+---
 #
 # Dummy play to ping jumphosts and establish a persisting SSH connection
 # before trying to connect to the machines behind the jumphost,
@@ -41,25 +10,45 @@
 - name: 'Dummy play to ping jumphosts and establish a persistent SSH connection.'
   hosts: jumphost
 
-- import_playbook: single_group_playbooks/pre_deploy_checks.yml
+- name: Run pre deploy checks.
+  ansible.builtin.import_playbook: single_group_playbooks/pre_deploy_checks.yml
 
-- import_playbook: single_group_playbooks/jumphost.yml
+- name: Run playbook for jumphosts.
+  ansible.builtin.import_playbook: single_group_playbooks/jumphost.yml
 
-- import_playbook: single_group_playbooks/repo.yml
+- name: Run playbook for repo servers.
+  ansible.builtin.import_playbook: single_group_playbooks/repo.yml
 
-- import_playbook: single_group_playbooks/cluster_part1.yml
+- name: Run playbook for all cluster machines part 1.
+  ansible.builtin.import_playbook: single_group_playbooks/cluster_part1.yml
 
-- import_playbook: single_group_playbooks/ldap_server.yml
+- name: Run playbook for LDAP servers.
+  ansible.builtin.import_playbook: single_group_playbooks/ldap_server.yml
 
-- import_playbook: single_group_playbooks/cluster_part2.yml
+- name: Run playbook for NFS servers.
+  ansible.builtin.import_playbook: single_group_playbooks/nfs_server.yml
 
-- import_playbook: single_group_playbooks/sys_admin_interface.yml
+- name: Run playbook for all cluster machines part 2.
+  ansible.builtin.import_playbook: single_group_playbooks/cluster_part2.yml
 
-- import_playbook: single_group_playbooks/deploy_admin_interface.yml
+- name: Run playbook for sys admin interfaces.
+  ansible.builtin.import_playbook: single_group_playbooks/sys_admin_interface.yml
 
-- import_playbook: single_group_playbooks/user_interface.yml
+- name: Run playbook for deploy admin Interfaces.
+  ansible.builtin.import_playbook: single_group_playbooks/deploy_admin_interface.yml
 
-- import_playbook: single_group_playbooks/compute_vm.yml
+- name: Run playbook for user interfaces.
+  ansible.builtin.import_playbook: single_group_playbooks/user_interface.yml
 
-- import_playbook: single_group_playbooks/docs.yml
+- name: Run playbook for compute nodes.
+  ansible.builtin.import_playbook: single_group_playbooks/compute_vm.yml
+
+- name: Run playbook for documentation servers.
+  ansible.builtin.import_playbook: single_group_playbooks/docs.yml
+
+- name: Run playbook for data transfer servers.
+  ansible.builtin.import_playbook: single_group_playbooks/data_transfer.yml
+
+- name: Run playbook for rsyslog servers.
+  ansible.builtin.import_playbook: single_group_playbooks/rsyslog.yml
 ...

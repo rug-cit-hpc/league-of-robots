@@ -1,0 +1,35 @@
+---
+iptables_allow_icmp_inbound:
+  - ANY
+iptables_allow_https_inbound:
+  - ANY  # On data_transfer servers port 443 is used for SSH too.
+iptables_allow_ssh_inbound:
+  - ANY
+ssh_host_signer_hostnames: "{{ inventory_hostname }}\
+    {% for network_id in ip_addresses[inventory_hostname] %}\
+      {% if ip_addresses[inventory_hostname][network_id]['fqdn'] is defined and
+            ip_addresses[inventory_hostname][network_id]['fqdn'] | length >= 1 %}\
+        {% if ip_addresses[inventory_hostname][network_id]['fqdn'] == 'NXDOMAIN' %}\
+          ,{{ ip_addresses[inventory_hostname][network_id]['address'] }}\
+        {% else %}\
+          ,{{ ip_addresses[inventory_hostname][network_id]['fqdn'] }}\
+        {% endif %}\
+      {% endif %}\
+    {% endfor %}\
+    {% for host in groups['jumphost'] | default([]) %}\
+      ,{{ host }}+{{ inventory_hostname }}\
+    {% endfor %}\
+    {% for external_jumphost in external_jumphosts | default([])
+       | map(attribute='hosts') | flatten
+       | map(attribute='hostname') %}\
+      ,{{ external_jumphost }}+{{ inventory_hostname }}\
+    {% endfor %}"
+volumes:
+  - mount_point: '/groups'
+    device: '/dev/vdb'
+    mounted_owner: root
+    mounted_group: root
+    mounted_mode: '0755'
+    mount_options: 'rw,relatime'
+    type: ext4
+...

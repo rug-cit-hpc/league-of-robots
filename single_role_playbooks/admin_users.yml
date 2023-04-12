@@ -1,12 +1,15 @@
 ---
 - hosts:
     - jumphost
+    - data_transfer
   roles:
     - admin_users
 - hosts:
     - repo
     - cluster
     - docs
+    - jenkins
+    - build_servers
   roles:
     - admin_users
 ...

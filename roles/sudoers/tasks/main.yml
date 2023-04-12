@@ -5,7 +5,7 @@
 #
 
 - name: 'Find all ansible-managed files in /etc/sudoers.d/.'
-  find:
+  ansible.builtin.find:
     paths: '/etc/sudoers.d/'
     use_regex: true
     patterns: '.*ansible-managed.*'
@@ -13,21 +13,22 @@
   become: true
 
 - name: 'Remove outdated ansible-managed files from /etc/sudoers.d/.'
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
-  with_items: "{{ ansible_managed_sudoers.files | map (attribute='path') | list }}"
-  when: item | regex_replace('.*ansible-managed-','') not in regular_users | default([]) | selectattr('sudoers', 'defined') | map (attribute='user') | list
+  with_items: "{{ ansible_managed_sudoers.files | map(attribute='path') | list }}"
+  when: item | regex_replace('.*ansible-managed-','') not in sudoers | default([]) | selectattr('name', 'defined') | map(attribute='name') | list
   become: true
 
 - name: 'Allow passwordless sudo to functional accounts.'
-  template:
+  ansible.builtin.template:
     src: 'templates/92-ansible-managed'
-    dest: "/etc/sudoers.d/92-ansible-managed-{{ item.user }}"
+    dest: "/etc/sudoers.d/92-ansible-managed-{{ item.name }}"
     owner: 'root'
     group: 'root'
     mode: '0440'
+    validate: '/usr/sbin/visudo -cf %s'
   with_items:
-    - "{{ regular_users | default([]) | selectattr('sudoers', 'defined') | list }}"
+    - "{{ sudoers | default([]) }}"
   become: true
 ...

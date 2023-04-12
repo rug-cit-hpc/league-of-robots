@@ -1,0 +1,34 @@
+---
+#
+# Important: maintain correct handler order.
+# Handlers are executed in the order in which they are defined
+# and not in the order in which they are listed in a "notify: handler_name" statement!
+#
+- name: Running update-ca-trust when certificates have changed.
+  ansible.builtin.command:
+    cmd: update-ca-trust extract
+  changed_when: true
+  become: true
+  listen: update-ca-trust
+
+- name: Restart sssd service.
+  ansible.builtin.service:
+    name: sssd
+    state: restarted
+  become: true
+  listen: restart_sssd
+
+- name: Restart sshd service.
+  ansible.builtin.service:
+    name: sshd
+    state: restarted
+  become: true
+  listen: restart_sshd
+
+- name: Run authconfig update to enable sssd.
+  ansible.builtin.command:
+    cmd: 'authconfig --enablesssd --enablesssdauth --update'
+  changed_when: true
+  become: true
+  listen: authconfig_enable_sssd
+...

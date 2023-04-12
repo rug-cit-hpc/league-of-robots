@@ -1,0 +1,72 @@
+---
+build_env_generic_deps:
+  - '@development'
+  - 'glibc-common'
+  - 'glibc-devel'
+  - 'glibc-headers'
+  - 'gnutls-devel'
+  - 'intltool'
+  - 'kernel-devel'
+  - 'libselinux-devel'
+  - 'libsodium-devel'
+  - 'openssl-devel'
+  - 'patch'
+  - 'qt5-qtbase-devel'
+  - 'qt5-qtxmlpatterns-devel'
+  - 'rpm-build'
+build_env_optional_deps:
+  - 'openssl11'
+build_env_dai_deps:
+  #
+  # Slurm dependencies.
+  #
+  - 'readline-devel'
+  - 'pkgconfig'
+  - 'perl-ExtUtils-MakeMaker'
+  - 'perl'
+  - 'pam-devel'
+  - 'numactl-devel'
+  - 'nss-softokn-freebl'
+  - 'ncurses-devel'
+  - 'mysql-devel'
+  - 'munge-libs'
+  - 'munge-devel'
+  - 'mariadb-devel'
+  - 'man2html'
+  - 'lua-devel'
+  - 'hwloc-devel'
+  - 'hdf5-devel'
+  #
+  # Ansible dependencies.
+  #
+  - 'python-devel'  # Previously python2-devel
+  - 'python-nose'
+  - 'python-coverage'
+  - 'python-mock'
+  - 'python-boto3'
+  - 'python-botocore'
+  - 'python-ldap'
+  - 'python-passlib'
+  - 'python2-sphinx-theme-alabaster'
+  - 'pytest'
+  #
+  # Lua, Lmod, EasyBuild dependencies.
+  #
+  - 'rdma-core-devel'  # First was 'rmda-core-devel', then some period 'mlnx-ofa_kernel-devel', now is rdma again.
+  - 'libxml2-devel'
+  - 'libXext-devel'
+  - 'libX11-devel'
+  - 'python-pep8'
+  - 'python3'
+  - 'python3-pip'
+build_env_chaperone_deps:
+  - 'bzip2'
+  - 'gcc'
+  - 'git'
+  - 'nano'
+  - 'openssl'
+  - 'rsync'
+  - 'tcl-devel'
+  - 'unzip'
+  - 'wget'
+...

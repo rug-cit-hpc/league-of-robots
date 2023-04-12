@@ -1,4 +1,5 @@
 ---
 dependencies:
-    - role: rsync
+  - role: include_vars_from_other_groups
+  - role: rsync
 ...

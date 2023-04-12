@@ -1,50 +1,131 @@
 ---
 ip_addresses:
-  nb-repo:
-    addr: 10.10.1.56
-    mask: /32
-    vlan: internal_management
-    fqdn:
-  nb-sai:
-    addr: 10.10.1.106
-    mask: /32
-    vlan: internal_management
-    fqdn:
-    desc: Sys Admin Interface
+  irods-catalogus:
+    nb_internal_management:
+      address: 10.10.1.121
+      netmask: /32
+    nb_internal_management_13:
+      address: 10.10.3.154
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    vlan13:
+      address: 129.125.55.10
+      netmask: /32
+      fqdn: 'umcg-icat01.hpc.rug.nl'
+  irods-test:
+    nb_internal_management:
+      address: 10.10.1.182
+      netmask: /32
+    nb_internal_management_13:
+      address: 10.10.3.17
+      netmask: /32
+  irods-test-db:
+    nb_internal_management:
+      address: 10.10.1.114
+      netmask: /32
+    nb_internal_management_13:
+      address: 10.10.3.97
+      netmask: /32
   nb-dai:
-    addr: 10.10.1.75
-    mask: /32
-    vlan: internal_management
-    fqdn:
-    desc: Deploy Admin Interface
-  nb-vcompute03:
-    addr: 10.10.1.108
-    mask: /32
-    vlan: internal_management
-    fqdn:
-    desc: Compute Node
-  nb-vcompute02:
-    addr: 10.10.1.140
-    mask: /32
-    vlan: internal_management
-    fqdn:
-    desc: Compute Node
+    nb_internal_management:
+      address: 10.10.1.75
+      netmask: /32
+    nb_internal_storage:
+      address: 10.10.2.61
+      netmask: /32
+    vlan1068:
+      address: 172.23.60.3
+      netmask: /32
+  nb-repo:
+    nb_internal_management:
+      address: 10.10.1.56
+      netmask: /32
+  nb-sai:
+    nb_internal_management:
+      address: 10.10.1.106
+      netmask: /32
+    nb_internal_storage:
+      address: 10.10.2.68
+      netmask: /32
+    vlan1068:
+      address: 172.23.60.7
+      netmask: /32
+  nb-transfer:
+    nb_internal_management:
+      address: 10.10.1.12
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    vlan16:
+      address: 195.169.22.166
+      netmask: /32
+      fqdn: 'nb-transfer.hpc.rug.nl'
   nb-vcompute01:
-    addr: 10.10.1.199
-    mask: /32
-    vlan: internal_management
-    fqdn:
-    desc: Compute Node
+    nb_internal_management:
+      address: 10.10.1.172
+      netmask: /32
+    nb_internal_storage:
+      address: 10.10.2.190
+      netmask: /32
+    vlan1068:
+      address: 172.23.60.6
+      netmask: /32
+  nb-vcompute02:
+    nb_internal_management:
+      address: 10.10.1.246
+      netmask: /32
+    nb_internal_storage:
+      address: 10.10.2.152
+      netmask: /32
+    vlan1068:
+      address: 172.23.60.29
+      netmask: /32
+  nb-vcompute03:
+    nb_internal_management:
+      address: 10.10.1.32
+      netmask: /32
+    nb_internal_storage:
+      address: 10.10.2.220
+      netmask: /32
+    vlan1068:
+      address: 172.23.60.15
+      netmask: /32
+  nb-vcompute04:
+    nb_internal_management:
+      address: 10.10.1.197
+      netmask: /32
+    nb_internal_storage:
+      address: 10.10.2.129
+      netmask: /32
+    vlan1068:
+      address: 172.23.60.22
+      netmask: /32
+  nb-vcompute05:
+    nb_internal_management:
+      address: 10.10.1.229
+      netmask: /32
+    nb_internal_storage:
+      address: 10.10.2.39
+      netmask: /32
+    vlan1068:
+      address: 172.23.60.14
+      netmask: /32
   nibbler:
-    addr: 10.10.1.112
-    mask: /32
-    vlan: internal_management
-    fqdn:
-    desc: User Interface
+    nb_internal_management:
+      address: 10.10.1.112
+      netmask: /32
+    nb_internal_storage:
+      address: 10.10.2.87
+      netmask: /32
+    vlan1068:
+      address: 172.23.60.4
+      netmask: /32
   tunnel:
-    addr: 10.10.1.188
-    mask: /32
-    vlan: internal_management
-    fqdn:
-    desc: Jumphost
+    nb_internal_management:
+      address: 10.10.1.188
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    vlan16:
+      address: 195.169.22.136
+      netmask: /32
+      fqdn: 'tunnel.hpc.rug.nl'
 ...

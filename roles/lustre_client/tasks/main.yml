@@ -5,7 +5,27 @@
 # See: https://github.com/ansible/ansible/issues/41313
 #
 - name: 'Install Lustre client.'
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: 'install.yml'
-  when: pfs_mounts | selectattr('type', 'equalto', 'lustre') | list | length >= 1
+  vars:
+    lustre_file_systems: "{{ pfs_mounts
+        | rejectattr('type', 'undefined')
+        | selectattr('type', 'equalto', 'lustre')
+        | map(attribute='pfs') }}"
+  when: inventory_hostname in lfs_mounts
+            | rejectattr('rw_machines', 'undefined')
+            | selectattr('pfs', 'in', lustre_file_systems)
+            | map(attribute='rw_machines')
+            | flatten | unique
+        or inventory_hostname in lfs_mounts
+            | rejectattr('ro_machines', 'undefined')
+            | selectattr('pfs', 'in', lustre_file_systems)
+            | map(attribute='ro_machines')
+            | flatten | unique
+        or inventory_hostname in pfs_mounts
+            | rejectattr('machines', 'undefined')
+            | rejectattr('type', 'undefined')
+            | selectattr('type', 'equalto', 'lustre')
+            | map(attribute='machines')
+            | flatten | unique
 ...

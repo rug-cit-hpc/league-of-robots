@@ -1,19 +1,27 @@
 ---
-openstack_api_timeout: 180
 admin_ranges: "129.125.249.0/24,172.23.40.1/24"
 ssh_host_signer_ca_keypair_dir: "ssh-host-ca"
-ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/hpc-ca"
+ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/{{ stack_name }}-ca"
 ssh_host_signer_key_types: '.*(rsa|ed25519).*'
-ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }}{% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}"
-spacewalk_server_url: 'http://spacewalk02.hpc.rug.nl/XMLRPC'
+ssh_host_signer_hostnames: "{{ inventory_hostname }}\
+    {% if ansible_fqdn is defined and ansible_fqdn != inventory_hostname %}\
+      ,{{ ansible_fqdn }}\
+    {% endif %}\
+    {% for host in groups['jumphost'] | default([]) %}\
+      ,{{ host }}+{{ inventory_hostname }}\
+    {% endfor %}\
+    {% for external_jumphost in external_jumphosts | default([])
+       | map(attribute='hosts') | flatten
+       | map(attribute='hostname') %}\
+      ,{{ external_jumphost }}+{{ inventory_hostname }}\
+    {% endfor %}"
 slurm_database_name: "{{ stack_prefix }}_slurm_accounting"
 ai_jumphost: "{{ lookup('env','AI_PROXY') }}"
 #
-# Configure allowed network ports for geerlingguy.firewall role
+# Local volume size (root partition) for all instances
 #
-firewall_allowed_tcp_ports:
-  - '22'   # SSH
-  - '9100'   # Node Exporter
+local_volume_size_root: 33
+
 #
 # Public keys of all local admins.
 #
@@ -24,8 +32,8 @@ public_keys_of_local_admins: "{{ local_admin_users | map('extract', auth_users) 
 #
 # Local group specs.
 # Note:
-#  *  all local groups are listed here.
-#  * In ../[name]_cluster/vars.yml we list which groups are created locally on which cluster.
+#  * All local groups are listed here.
+#  * In ../[stack_name]/vars.yml we list which groups are created locally on which stack.
 #  * Never ever change nor recycle a GID value here unless you are in for a surprise...
 #
 auth_groups:
@@ -41,13 +49,46 @@ auth_groups:
     gid: 20004
   umcg-atd:
     gid: 20005
+  funad:
+    gid: 20006
+  umcg-gap:
+    gid: 20007
+  umcg-gd:
+    gid: 20008
+  umcg-genomescan:
+    gid: 20009
+  umcg-gsad:
+    gid: 20010
+  umcg-gst:
+    gid: 20011
+  umcg-vipt:
+    gid: 20012
+  umcg-depad:
+    gid: 20013
+  umcg-funad:
+    gid: 20014
+  umcg-funus:
+    gid: 20015
+  umcg-labgnkbh:
+    gid: 20016
+  umcg-patho:
+    gid: 20017
+  umcg-lab:
+    gid: 20018
+  vipt:
+    gid: 20019
+  MEDGEN-NFG GCC Analyse Team:
+    gid: 4560734
 #
-# Custom/extra yum repos
+# Default for a group of users that are only allowd to transfer data.
+# Is used by the sshd role and listed in
+#     roles/sshd/defaults/main.yml,
+# but that file is not used when the
+#     roles/sshd/templates/sshd_config
+# is redeployed by other roles like the ldap or sssd roles.
+# Therefore we set a default here too.
 #
-yum_repos:
-  umcg-centos7:
-    description: 'UMCG YUM repo for CentOS 7.'
-    baseurl: http://spacewalk02.hpc.rug.nl/umcg-centos7
+data_transfer_only_group: sftp-only
 #
 # Pulp repos.
 #
@@ -55,29 +96,81 @@ pulp_repos:
   - name: centos7-base
     description: 'CentOS-7 - Base.'
     remote_url: http://mirror.centos.org/centos/7/os/x86_64/
-    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/centos7-base/"
+    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/centos7-base/"
   - name: centos7-updates
     description: 'CentOS-7 - Updates.'
     remote_url: http://mirror.centos.org/centos/7/updates/x86_64/
-    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/centos7-updates/"
+    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/centos7-updates/"
   - name: centos7-extras
     description: 'CentOS-7 - Extras.'
     remote_url: http://mirror.centos.org/centos/7/extras/x86_64/
-    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/centos7-extras/"
+    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/centos7-extras/"
   - name: epel7
     description: 'Extra Packages for Enterprise Linux 7 (EPEL).'
     remote_url: https://download.fedoraproject.org/pub/epel/7/x86_64/
-    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/epel7/"
+    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/epel7/"
   - name: cpel7
     description: 'UMCG Custom Packages for Enterprise Linux 7 (CPEL).'
     #remote_url: no remote for our homebrew packages.
-    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/cpel7/"
+    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/cpel7/"
   - name: irods7
     description: 'RENCI iRODS Repository for Enterprise Linux 7.'
     remote_url: https://packages.irods.org/yum/pool/centos7/x86_64/
-    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/irods7/"
+    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/irods7/"
   - name: lustre7
     description: 'Lustre client Long Term Support (LTS) releases for Enterprise Linux 7.'
-    remote_url: https://downloads.whamcloud.com/public/lustre/latest-release/el7/client/
-    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ slurm_cluster_name }}/lustre7/"
+    remote_url: https://downloads.whamcloud.com/public/lustre/latest-2.12-release/el7/client/
+    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/lustre7/"
+  - name: e2fsprogs7  # Dependency for Lustre project quota.
+    description: 'Ext filesystem utility releases for Enterprise Linux 7.'
+    remote_url: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
+    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/e2fsprogs7/"
+  - name: ltb7
+    description: 'LTB (LDAP Tool Box) project OpenLDAP packages for Enterprise Linux 7.'
+    remote_url: https://ltb-project.org/rpm/openldap25/7/x86_64/
+    client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/ltb7/"
+#
+# List of repos for machines that do not use Pulp or Spacewalk
+#
+yum_repos:
+  - name: centos7-base
+    description: 'CentOS-7 - Base.'
+    baseurl: http://mirror.centos.org/centos/7/os/x86_64/
+    gpgcheck: 'true'
+    gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7'
+  - name: centos7-updates
+    description: 'CentOS-7 - Updates.'
+    baseurl: http://mirror.centos.org/centos/7/updates/x86_64/
+    gpgcheck: 'true'
+    gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7'
+  - name: centos7-extras
+    description: 'CentOS-7 - Extras.'
+    baseurl: http://mirror.centos.org/centos/7/extras/x86_64/
+    gpgcheck: 'true'
+    gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7'
+  - name: epel7
+    description: 'Extra Packages for Enterprise Linux 7 (EPEL).'
+    baseurl: https://download.fedoraproject.org/pub/epel/7/x86_64/
+    gpgcheck: 'true'
+    gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7' # comes preinstalled with epel-release
+  - name: irods7
+    description: 'RENCI iRODS Repository for Enterprise Linux 7.'
+    baseurl: https://packages.irods.org/yum/pool/centos7/x86_64/
+    gpgcheck: 'false'
+    gpgkey: ''
+  - name: lustre7
+    description: 'Lustre client Long Term Support (LTS) releases for Enterprise Linux 7.'
+    baseurl: https://downloads.whamcloud.com/public/lustre/latest-2.12-release/el7/client/
+    gpgcheck: 'false'
+    gpgkey: ''
+  - name: e2fsprogs7  # Dependency for Lustre project quota.
+    description: 'Ext filesystem utility releases for Enterprise Linux 7.'
+    baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
+    gpgcheck: 'false'
+    gpgkey: ''
+  - name: ltb7
+    description: 'LTB (LDAP Tool Box) project OpenLDAP packages for Enterprise Linux 7.'
+    baseurl: https://ltb-project.org/rpm/openldap25/7/x86_64/
+    gpgcheck: 'false'
+    gpgkey: ''
 ...

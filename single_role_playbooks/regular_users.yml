@@ -1,6 +1,10 @@
 ---
 - name: Install regular_users role.
-  hosts: jumphost, cluster
+  hosts:
+    - jumphost
+    - cluster
+    - chaperone
+    - build_servers
   roles:
-     - regular_users
+    - regular_users
 ...

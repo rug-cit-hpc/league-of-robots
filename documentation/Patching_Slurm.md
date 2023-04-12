@@ -111,8 +111,6 @@ tar -cvjf ~/rpmbuild/SOURCES/slurm-${SLURM_VERSION}.umcg.tar.bz2  slurm-${SLURM_
 ```
 rpmbuild -ta --with lua --with mysql ~/rpmbuild/SOURCES/slurm-${SLURM_VERSION}.umcg.tar.bz2
 ```
-When successful, add patched RPMs to custom repo and don't forget to contact admin to update relevant spacewalk channels!
-E.g.:
-```
-rsync -av ~/rpmbuild/RPMS/x86_64/slurm-${SLURM_VERSION}-*.x86_64.rpm  spacewalk02:umcg-centos7/
-```
+When successful, add the patched RPMs to our custom repo on the Pulp repo servers for the corresponding infra stacks.
+Don't forget to create a new Pulp publication for the updated repo version and then update the Pulp distribution 
+to serve the new Pulp publication. See [Configuring_Pulp](Configuring_Pulp.md) for details.

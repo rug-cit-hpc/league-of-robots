@@ -1,62 +1,70 @@
 ---
 slurm_cluster_name: 'hyperchicken'
-slurm_cluster_domain: ''
+stack_domain: ''
+stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'hc'
-slurm_version: '18.08.8-1.el7.umcg'
+slurm_version: '22.05.2-1.el7.umcg'
+slurm_partitions:
+  - name: regular  # Must be in sync with group listed in Ansible inventory.
+    default: yes
+    nodes: "{{ stack_prefix }}-vcompute[01]"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
+  - name: user_interface  # Must be in sync with group listed in Ansible inventory.
+    default: no
+    nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: 1
+    max_cores_per_node: 1
+    max_mem_per_node: 1024
+    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
-mailhub: '192.168.0.5'
-rewrite_domain: "{{ stack_prefix }}-sai{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}"
 figlet_font: 'lockergnome'
 motd: "To solve or not to solve, that's the question."
 additional_etc_hosts:
-  - group: all
-    hosts:
-      - docs
-vcompute_hostnames: "{{ stack_prefix }}-vcompute01"
-vcompute_sockets: 16
-vcompute_cores_per_socket: 1
-vcompute_real_memory: 64264
-vcompute_max_cpus_per_node: "{{ vcompute_sockets * vcompute_cores_per_socket - 2 }}"
-vcompute_max_mem_per_node: "{{ vcompute_real_memory - vcompute_sockets * vcompute_cores_per_socket * 512 }}"
-vcompute_local_disk: 0
-vcompute_features: 'tmp09'
-vcompute_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
-ui_hostnames: "{{ slurm_cluster_name }}"
-ui_sockets: 4
-ui_cores_per_socket: 1
-ui_real_memory: 7821
-ui_local_disk: 0
-ui_features: 'prm09,tmp09'
-ui_ethernet_interfaces:
-  - 'eth0'
-  - 'eth1'
-ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
-use_ldap: yes
-create_ldap: yes
-ldap_uri: ldap://hc-dai
-ldap_base: dc=hpc,dc=rug,dc=nl
-ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
-ldap_domain: hpc.rug.nl
+  - group: docs_library
+    nodes:
+      - name: docs_on_merlin
+        network: vlan16
+use_ldap: true
+use_sssd: true
+ldap_domains:
+  stack:
+    uri: "ldaps://{{ stack_prefix }}-dai"
+    base: "dc={{ stack_name }},dc=local"
+    schema: rfc2307bis
+    min_id: 1000
+    max_id: 21999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: memberOf
+    group_member: member
+    create_ldap: true
+    ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
 cloud_image: CentOS7-Cloud
 cloud_user: centos
-flavor_jumphost: 1c2m20d # s1.small
-flavor_ui: 4c8m80d # s1.large
-flavor_vcompute: 8c16m80d
-flavor_management: 4c4m60d
-network_public_external_id: public
-network_private_management_id: "{{ stack_prefix }}_internal_management"
-network_private_management_cidr: '10.10.1.0/24'
-network_private_management_gw: '10.10.1.1'
-network_private_storage_id: "{{ stack_prefix }}_internal_storage"
-network_private_storage_cidr: '10.10.2.0/24'
-public_ip_addresses:
-  portal: '45.88.81.146'
 availability_zone: nova
-local_volume_size_repo: 30
-local_volume_size_vcompute: 1
-local_volume_size_management: 1
+stack_networks:
+  - name: "{{ stack_prefix }}_internal_management"
+    cidr: '10.10.1.0/24'
+    gateway: '10.10.1.1'
+    router_network: public
+    type: management
+    external: false
+  - name: subnet-nfs-data-2541
+    cidr: '10.35.141.0/24'
+    allow_ingress:
+      - 10.35.141.251/32  # NFS server
+      - 10.35.141.252/32  # NFS server
+      - 10.35.141.253/32  # NFS server
+    type: storage
+    external: true
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
@@ -76,60 +84,88 @@ local_admin_users:
   - 'wim'
 envsync_user: 'envsync'
 envsync_group: 'depad'
+functional_admin_group: 'funad'
 hpc_env_prefix: '/apps'
 regular_groups:
+  - "{{ envsync_group }}"
+  - "{{ functional_admin_group }}"
   - 'users'
-  - 'depad'
   - 'solve-rd'
   - 'umcg-atd'
+  - 'umcg-gsad'
 regular_users:
-  - user: 'envsync'
-    groups: ['depad']
+  - user: "{{ envsync_user }}"
+    groups: ["{{ envsync_group }}"]
   - user: 'solve-rd-dm'
     groups: ['solve-rd']
-    sudoers: '%solve-rd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
-    sudoers: '%umcg-atd'
+  - user: 'umcg-gsad-dm'
+    groups: ['umcg-gsad']
   - user: 'gvdvries'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mbijlsma'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mswertz'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'pneerincx'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'rkanninga'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'scimerman'
-    groups: ['users', 'depad', 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+  - user: 'mbenjamins'
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+  - user: 'umcg-molgenis'
+    groups: ['users', 'umcg-atd', 'umcg-gsad']
+sudoers:
+  - who: ['%solve-rd']
+    become: 'solve-rd-dm'
+    name: 'solve-rd-dm'
+    command: 'ALL'
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-dm'
+    name: 'umcg-atd-dm'
+    command: 'ALL'
+  - who: ['%umcg-gsad']
+    become: 'umcg-gsad-dm'
+    name: 'umcg-gsad-dm'
+    command: 'ALL'
 #
 # Shared storage related variables
 #
-pfs_mounts: [
-  { pfs: 'ecst01',
-    source: 'em-isi-3126.ebi.ac.uk:/ifs/Solve-RD',
-    type: 'nfs',
-    rw_options: 'defaults,_netdev,noatime,nodiratime',
-    ro_options: 'defaults,_netdev,noatime,nodiratime,ro' },
-]
-lfs_mounts: [
-  { lfs: 'home',
-    pfs: 'ecst01',
-    machines: "{{ groups['cluster'] }}" },
-  { lfs: 'tmp09',
-    pfs: 'ecst01',
-    groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'prm09',
-    pfs: 'ecst01',
-    groups: ['umcg-atd', 'solve-rd'] },
-  { lfs: 'env09',
-    pfs: 'ecst01',
-    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
-]
+pfs_mounts:
+  - pfs: ecst01
+    source: '10.35.141.252:/solve-rd-98599485'
+    type: nfs4
+    rw_options: 'defaults,_netdev,noatime,nodiratime,rw'
+    ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
+    machines: "{{ groups['sys_admin_interface'] }}"
+lfs_mounts:
+  - lfs: home
+    pfs: ecst01
+    rw_machines: "{{ groups['cluster'] }}"
+  - lfs: tmp09
+    pfs: ecst01
+    groups:
+      - name: umcg-atd
+      - name: solve-rd
+      - name: umcg-gsad
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+  - lfs: prm09
+    pfs: ecst01
+    groups:
+      - name: umcg-atd
+      - name: solve-rd
+      - name: umcg-gsad
+    rw_machines: "{{ groups['user_interface'] }}"
+  - lfs: env09
+    pfs: ecst01
+    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ega_fuse_client_mounts:
   solve_rd: '/groups/solve-rd/prm09/ega-fuse-client'
-ega_fuse_client_java_home: '/apps/software/AdoptOpenJDK/8u222b10-hotspot'
+ega_fuse_client_java_home: '/etc/alternatives/jre_11_openjdk'
 interfaces:
   - device: 'eth0'
     bootproto: 'dhcp'

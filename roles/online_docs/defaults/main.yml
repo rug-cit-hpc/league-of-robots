@@ -1,0 +1,70 @@
+---
+external_hrefs:
+  spacewalk: 'https://spacewalkproject.github.io/'
+  pulp: 'https://pulpproject.org/'
+known_hosts_hostnames: "\
+  {% for jumphost in groups['jumphost'] %}\
+    {{ jumphost }}*,\
+    {% for network_id in ip_addresses[jumphost] %}\
+      {% if ip_addresses[jumphost][network_id]['fqdn'] is defined and
+            ip_addresses[jumphost][network_id]['fqdn'] == 'NXDOMAIN' %}\
+        {{ ip_addresses[jumphost][network_id]['address'] }},\
+      {% endif %}\
+    {% endfor %}\
+  {% endfor %}\
+  {% for dthost in groups['data_transfer'] | default([]) %}\
+    *{{ dthost }}*,\
+    {% for network_id in ip_addresses[dthost] %}\
+      {% if ip_addresses[dthost][network_id]['fqdn'] is defined and
+            ip_addresses[dthost][network_id]['fqdn'] == 'NXDOMAIN' %}\
+        {{ ip_addresses[dthost][network_id]['address'] }},\
+      {% endif %}\
+    {% endfor %}\
+  {% endfor %}\
+  {% for adminhost in groups['administration'] %}\
+    *{{ adminhost }},\
+  {% endfor %}\
+  {% for dochost in groups['docs'] %}\
+    *{{ dochost }},\
+  {% endfor %}\
+  *{{ stack_prefix }}-*"
+first_dt_server_address: "\
+  {% if groups['data_transfer'] is defined and
+        groups['data_transfer'] | length %}\
+    {% set first_dthost = groups['data_transfer']
+                          | first %}\
+    {% set network_id = ip_addresses[first_dthost]
+                        | dict2items
+                        | json_query('[?value.fqdn].key')
+                        | first %}\
+    {% if ip_addresses[first_dthost][network_id]['fqdn'] is defined %}\
+      {% if ip_addresses[first_dthost][network_id]['fqdn'] == 'NXDOMAIN' %}\
+        {{ ip_addresses[first_dthost][network_id]['address'] }}\
+      {% else %}\
+        {{ ip_addresses[first_dthost][network_id]['fqdn'] }}\
+      {% endif %}\
+    {% else %}\
+      not available\
+    {% endif %}\
+  {% else %}\
+    not available\
+  {% endif %}"
+first_jumphost_name: "{{ groups['jumphost'] | first }}"
+first_jumphost_address: "\
+  {% set first_jumphost = groups['jumphost']
+                          | first %}\
+  {% set network_id = ip_addresses[first_jumphost]
+                      | dict2items
+                      | json_query('[?value.fqdn].key')
+                      | first %}\
+  {% if ip_addresses[first_jumphost][network_id]['fqdn'] == 'NXDOMAIN' %}\
+    {{ ip_addresses[first_jumphost][network_id]['address'] }}\
+  {% else %}\
+    {{ ip_addresses[first_jumphost][network_id]['fqdn'] }}\
+  {% endif %}"
+first_doc_server_address: "\
+  {{ all_ip_addresses[groups['docs'] | first].values()
+     | selectattr('fqdn', 'defined')
+     | map(attribute='fqdn')
+     | first }}"
+...

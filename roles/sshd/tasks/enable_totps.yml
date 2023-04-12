@@ -1,0 +1,59 @@
+---
+- name: Install TOTP tools
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - google-authenticator
+      - python-qrcode
+  become: true
+
+- name: Deploy /etc/profile.d/totp_config.sh to configure TOTP MFA when user logs in and TOTP MFA is not configured yet.
+  ansible.builtin.template:
+    src: 'totp_config.sh'
+    dest: '/etc/profile.d/totp_config.sh'
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Deploy /etc/security/exclude-totp.conf to allow skipping 2FA with TOTPs for trusted subnets.
+  ansible.builtin.template:
+    src: 'exclude-totp.conf'
+    dest: '/etc/security/exclude-totp.conf'
+    owner: root
+    group: root
+    mode: '0440'
+  become: true
+
+- name: Deploy /etc/pam.d/totp-auth with settings for 2FA with TOTPs.
+  ansible.builtin.template:
+    src: 'templates/totp-auth'
+    dest: '/etc/pam.d/totp-auth'
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: 'Update /etc/pam.d/sshd: Disable password-auth'
+  ansible.builtin.lineinfile:
+    path: '/etc/pam.d/sshd'
+    owner: root
+    group: root
+    mode: '0644'
+    insertafter: '^#%PAM'
+    regexp: '^#?auth(\s+)([a-z]+)(\s+)password-auth'
+    line: '#auth       substack     password-auth # Disabled in favor of totp-auth.'
+  become: true
+
+- name: 'Update /etc/pam.d/sshd: Include totp-auth.'
+  ansible.builtin.lineinfile:
+    path: '/etc/pam.d/sshd'
+    owner: root
+    group: root
+    mode: '0644'
+    insertafter: '^#?auth(\s+)substack(\s+)password-auth'
+    regexp: '^#?auth(\s+)([a-z]+)(\s+)totp-auth'
+    line: 'auth       include      totp-auth'
+  become: true
+...

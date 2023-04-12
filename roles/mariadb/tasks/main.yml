@@ -1,17 +1,17 @@
 # Install  MariaDB.
 ---
 - name: 'Install mariadb-server.'
-  yum:
+  ansible.builtin.yum:
     name:
       - 'mariadb-server'
     state: 'latest'
-    update_cache: yes
+    update_cache: true
   notify:
     - 'restart_mariadb'
   become: true
 
 - name: 'Create/check dirs used by MariaDB/MySQL.'
-  file:
+  ansible.builtin.file:
     path: "{{ item.path }}"
     state: 'directory'
     mode: "{{ item.mode }}"
@@ -27,7 +27,7 @@
   become: true
 
 - name: 'Deploy MariaDB/MySQL galara.cnf on node if we have at least three nodes.'
-  template:
+  ansible.builtin.template:
     src: 'files/galera.cnf'
     dest: '/etc/my.cnf.d/galera.cnf'
     mode: '0644'
@@ -39,7 +39,7 @@
   become: true
 
 - name: 'Deploy MariaDB/MySQL config files.'
-  copy:
+  ansible.builtin.copy:
     src: "files/{{ item }}"
     dest: "/etc/my.cnf.d/{{ item }}"
     mode: '0644'
@@ -52,7 +52,7 @@
   become: true
 
 - name: 'Make sure the MariaDB/MySQL service is enabled and started.'
-  systemd:
+  ansible.builtin.systemd:
     name: 'mariadb.service'
     state: 'started'
     enabled: 'yes'
@@ -61,22 +61,22 @@
 
 # This command will fail when the root password was set previously
 - name: 'Check if MariaDB/MySQL root password is set.'
-  command:
+  ansible.builtin.command:
     cmd: mysqladmin -u root status
   changed_when: false
   failed_when: false
   register: root_pwd_check
 
 - name: 'Install dependencies to interface with MariaDB/MySQL databases/services.'
-  yum:
+  ansible.builtin.yum:
     name:
       - 'MySQL-python'
     state: 'latest'
-    update_cache: yes
+    update_cache: true
   become: true
 
 - name: 'Set MariaDB/MySQL root user password.'
-  mysql_user:
+  community.mysql.mysql_user:
     name: 'root'
     host: 'localhost'
     password: "{{ MYSQL_ROOT_PASSWORD }}"
@@ -92,14 +92,15 @@
 # Without explicit flush the handlers will run after the slurm rol tasks,
 # which is too late resulting in Slurm unable to work with the Slurm Accounting DB.
 #
-- meta: flush_handlers
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: 'Give the MariaDB/MySQL master node some time to initialize the database cluster.'
-  command: bash -c "sleep 60"
+  ansible.builtin.command: bash -c "sleep 60"
   when: "'databases' in group_names and groups['databases'] \
          | length >= 3"
 
 - name: 'Give the MariaDB/MySQL cluster some time to initialize replication.'
-  command: bash -c "sleep 60 && systemctl daemon-reload"
+  ansible.builtin.command: bash -c "sleep 60 && systemctl daemon-reload"
   when: "'databases' in group_names and groups['databases'] | length >= 3"
   become: true

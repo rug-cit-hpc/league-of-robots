@@ -47,7 +47,7 @@ An HPC cluster can have
 
 ## group_vars
 
-The _LFS-ses_ and _PFS-ses_ they are located on must be specified for each HPC cluster in the corresponding _group\_vars_ located at ```groups_vars/${name}_cluster/vars.yml```
+The _LFS-ses_ and _PFS-ses_ they are located on must be specified for each HPC cluster in the corresponding _group\_vars_ located at ```groups_vars/{{stack_name}}/vars.yml```
 An example snippet (see below for explanation of what get's mounted where based on this example):
 ```
 ---

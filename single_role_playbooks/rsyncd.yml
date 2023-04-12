@@ -1,5 +1,5 @@
 ---
-- hosts: data_staging
+- hosts: data_transfer
   roles:
-    - rsyncd # Note: depends on ldap role, which will be included when deploying this one.
+    - rsyncd # Note: depends on sshd role, which will be included when deploying this one.
 ...

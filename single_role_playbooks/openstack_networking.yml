@@ -1,0 +1,14 @@
+---
+- name: Create network components using OpenStack API.
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    #
+    # Disable Ansible's interpretor detection logic,
+    # which would fail to use the interpretor from an activated virtual environment.
+    #
+    ansible_python_interpreter: python
+  roles:
+    - openstack_networking
+...

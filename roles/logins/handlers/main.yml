@@ -5,9 +5,11 @@
 # and not in the order in which they are listed in a "notify: handler_name" statement!
 #
 - name: 'Run authconfig update.'
-  command: "authconfig --enablemkhomedir --update"
+  ansible.builtin.command:
+    cmd: 'authconfig --enablemkhomedir --update'
+  changed_when: true
   become: true
-  listen: authconfig_update
+  listen: authconfig_enable_mkhomedir
 
 #
 # Notes:
@@ -19,7 +21,7 @@
 #   Is fixed in DBus 1.11.x, but that is not available yet for CentOS 7.x.
 #
 - name: 'Restart oddjobd service and its dependencies.'
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     state: restarted
   with_items:
@@ -29,6 +31,6 @@
   become: true
   listen: restart_oddjobd
 
-- name: 'Set tiny quota for regular users on jumphosts.'
-  import_tasks: "{{ playbook_dir }}/roles/logins/handlers/jumphost-quota.yml"
+- name: 'Update GRUB.'
+  ansible.builtin.import_tasks: "{{ playbook_dir }}/roles/logins/handlers/update-grub.yml"
 ...

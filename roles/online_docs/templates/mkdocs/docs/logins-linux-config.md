@@ -30,7 +30,7 @@ Open a terminal and copy paste the following commands:
 # Create new known_hosts file and append the UMCG HPC CA's public key.
 #
 printf '%s\n' \
-            "@cert-authority {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}*,{% if public_ip_addresses is defined and public_ip_addresses[jumphost] | length %}{{ public_ip_addresses[jumphost] }},{% endif %}{% endfor %}{% for adminhost in groups['administration'] %}*{{ adminhost | regex_replace('^' + ai_jumphost + '\\+','')}},{% endfor %}*{{ stack_prefix }}-* {{ lookup('file', ssh_host_signer_ca_private_key+'.pub') }} for {{ slurm_cluster_name }}" \
+            "@cert-authority {{ known_hosts_hostnames }} {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }} for {{ slurm_cluster_name }}" \
     > "${HOME}/.ssh/known_hosts.new"
 if [[ -e "${HOME}/.ssh/known_hosts" ]]; then
     #
@@ -76,7 +76,7 @@ IgnoreUnknown AddKeysToAgent
 #
 # Host settings.
 #
-Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}* {% endfor %}{% raw %}{% endraw %}
+Host {% for jumphost in groups['jumphost'] %}{{ jumphost }}* {% endfor %}{% raw %}{% endraw %}
     #
     # Default account name when not specified explicitly.
     #
@@ -116,28 +116,38 @@ Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + a
     ControlPersist 1m
 #
 # Expand short jumphost names to FQDN or IP address.
-#{% if public_ip_addresses is defined and public_ip_addresses | length %}{% for jumphost in groups['jumphost'] %}
-Host {{ jumphost | regex_replace('^' + ai_jumphost + '\\+','') }}
-    HostName {{ public_ip_addresses[jumphost | regex_replace('^' + ai_jumphost + '\\+','')] }}{% endfor %}{% else %}
-Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','') }} {% endfor %}{% if slurm_cluster_domain | length %}!*.{{ slurm_cluster_domain }}{% endif %}
-    HostName %h{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}{% endif %}
+#
+{% for jumphost in groups['jumphost'] %}
+  {%- set network_id = ip_addresses[jumphost]
+           | dict2items
+           | json_query('[?value.fqdn].key')
+           | first -%}
+  {%- if ip_addresses[jumphost][network_id]['fqdn'] == 'NXDOMAIN' -%}
+    {%- set ssh_hostname = ip_addresses[jumphost][network_id]['address'] -%}
+  {%- else -%}
+    {%- set ssh_hostname = ip_addresses[jumphost][network_id]['fqdn'] -%}
+  {%- endif -%}
+Host {{ jumphost }}
+    HostName {{ ssh_hostname }}
+    HostKeyAlias {{ jumphost }}
+{% endfor -%}
 #
 # Universal jumphost settings for triple-hop SSH.
 #
 Host *+*+*
     ProxyCommand ssh -x -q $(echo %h | sed 's/+[^+]*$//') -W $(echo %h | sed 's/^[^+]*+[^+]*+//'):%p
 #
-# Double-hop SSH settings to connect via Jumphosts{% if slurm_cluster_domain | length %}{{ slurm_cluster_domain }}{% endif %}.
+# Double-hop SSH settings to connect via specific jumphosts.
 #
-Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}+* {% endfor %}{% raw %}{% endraw %}
-    ProxyCommand ssh -x -q $(echo "${JUMPHOST_USER:-%r}")@$(echo %h | sed 's/+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p
+Host {% for jumphost in groups['jumphost'] %}{{ jumphost }}+* {% endfor %}{% raw %}{% endraw %}
+    ProxyCommand ssh -x -q $(echo "${JUMPHOST_USER:-%r}")@$(echo %h | sed 's/+[^+]*$//'){% if stack_domain | length %}.{{ stack_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p
 #
 # Sometimes port 22 for the SSH protocol is blocked by firewalls; in that case you can try to use SSH on port 443 as fall-back.
 # Do not use port 443 by default for SSH as it officially assigned to HTTPS traffic
 # and some firewalls will cause problems when trying to route SSH over port 443.
 #
-Host {% for jumphost in groups['jumphost'] %}{{ jumphost | regex_replace('^' + ai_jumphost + '\\+','')}}443+* {% endfor %}{% raw %}{% endraw %}
-    ProxyCommand ssh -x -q $(echo "${JUMPHOST_USER:-%r}")@$(echo %h | sed 's/443+[^+]*$//'){% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 443
+Host {% for jumphost in groups['jumphost'] %}{{ jumphost }}443+* {% endfor %}{% raw %}{% endraw %}
+    ProxyCommand ssh -x -q $(echo "${JUMPHOST_USER:-%r}")@$(echo %h | sed 's/443+[^+]*$//'){% if stack_domain | length %}.{{ stack_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 443
 ```
 
 ## 5. Login

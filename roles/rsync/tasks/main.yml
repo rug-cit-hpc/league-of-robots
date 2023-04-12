@@ -7,7 +7,7 @@
 #
 ---
 - name: Install rsync.
-  yum:
+  ansible.builtin.yum:
     state: 'latest'
     update_cache: true
     name: 'rsync'
@@ -16,7 +16,7 @@
 # Check managed hosts.
 #
 - name: Check if rsync >= 3.1.2 is installed on the managed hosts.
-  shell:
+  ansible.builtin.shell:
     cmd: |
       set -o pipefail
       (trap '' PIPE; rsync --version 2>/dev/null || echo 'missing') \
@@ -30,7 +30,7 @@
   register: rsync_version_managed_host
 
 - name: Abort when modern rsync >= 3.1.2 is missing on the managed hosts.
-  debug:
+  ansible.builtin.debug:
     msg: "FATAL: Need rsync >= 3.1.2 on {{ inventory_hostname }}, but detected {{ rsync_version_managed_host.stdout }}."
   when:        rsync_version_managed_host is failed
                or rsync_version_managed_host.stdout == 'missing'
@@ -42,7 +42,7 @@
 # Check control host.
 #
 - name: Check if rsync >= 3.1.2 is installed on the control host.
-  shell:
+  ansible.builtin.shell:
     cmd: |
       set -o pipefail
       (trap '' PIPE; rsync --version 2>/dev/null || echo 'missing') \
@@ -55,9 +55,10 @@
   check_mode: no
   register: rsync_version_control_host
   delegate_to: localhost
+  connection: local
 
 - name: Abort when modern rsync >= 3.1.2 is missing on control host.
-  debug:
+  ansible.builtin.debug:
     msg: "FATAL: Need rsync >= 3.1.2 on control host, but detected {{ rsync_version_control_host.stdout }}."
   when:        rsync_version_control_host is failed
                or rsync_version_control_host.stdout == 'missing'
@@ -66,4 +67,5 @@
                or rsync_version_control_host.stdout == 'missing'
                or (rsync_version_control_host.stdout is version_compare("3.1.2", operator="<"))
   delegate_to: localhost
+  connection: local
 ...

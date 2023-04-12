@@ -1,0 +1,32 @@
+---
+#
+# Important: maintain correct handler order.
+# Handlers are executed in the order in which they are defined
+# and not in the order in which they are listed in a "notify: handler_name" statement!
+#
+# Restart before reload: an reload after a restart may be redundant but should not fail,
+# but the other way around may fail when the impact of changes was too large for a reload.
+#
+- name: 'Restart nfs-server service.'
+  ansible.builtin.systemd:
+    name: 'nfs-server.service'
+    state: restarted
+    daemon_reload: true
+  become: true
+  listen: restart_nfs-server
+
+- name: 'Reload nfs-server service.'
+  ansible.builtin.systemd:
+    name: 'nfs-server.service'
+    state: reloaded
+    daemon_reload: true
+  become: true
+  listen: reload_nfs-server
+
+- name: '(Re)export all NFS shares.'
+  ansible.builtin.command:
+    cmd: 'exportfs -a'
+  changed_when: true
+  become: true
+  listen: export_nfs_shares
+...

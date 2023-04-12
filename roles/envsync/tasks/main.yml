@@ -5,44 +5,72 @@
 # it must have been created earlier on in the play.
 #
 - name: 'Check if envsync group is present (without creating one if not existing yet).'
-  group:
+  ansible.builtin.group:
     name: "{{ envsync_group }}"
     state: present
   become: false
 
 - name: 'Check if envsync user is present (without creating one if not existing yet).'
-  user:
-    name: "{{ envsync_user }}"
-    group: "{{ envsync_user }}"
-    groups: "{{ envsync_group }}"
-    home: "/home/{{ envsync_user }}"
-    create_home: false
-    append: false
-  become: false
+  block:
+    - name: 'Check if envsync user is present assuming all its groups are either local or from an LDAP.'
+      ansible.builtin.user:
+        name: "{{ envsync_user }}"
+        group: "{{ envsync_user }}"
+        groups: "{{ regular_users | selectattr('user', 'equalto', envsync_user) | map(attribute='groups') | flatten | unique }}"
+        home: "/home/{{ envsync_user }}"
+        create_home: false
+        append: false
+      become: false
+  rescue:
+    - name: 'Fallback check if envsync user and only its primary group are present.'
+      #
+      # This fallback option will not check for other groups.
+      # Required for example when some of the secondary groups come from an LDAP while envsync_user & envsync_group are local.
+      #
+      ansible.builtin.user:
+        name: "{{ envsync_user }}"
+        group: "{{ envsync_user }}"
+        home: "/home/{{ envsync_user }}"
+        create_home: false
+      become: false
+
+- name: "Create {{ hpc_env_prefix }} folder on root partition unless the machine already has a dedicated mount for {{ hpc_env_prefix }}."
+  ansible.builtin.file:
+    path: "{{ hpc_env_prefix }}"
+    state: directory
+    owner: root
+    group: "{{ envsync_group }}"
+    mode: '2775'
+  when: volumes | default([])
+        | selectattr('mount_point', 'defined')
+        | selectattr('mount_point', 'equalto', hpc_env_prefix)
+        | length <= 0
+  become: true
 
 #
 # Configure environment synchronization account.
 #
 - name: 'Initialize envsync account creating home dir if it did not exist yet.'
-  command:
+  ansible.builtin.command:
     cmd: "mkhomedir_helper {{ envsync_user }} 0077"
     creates: "/home/{{ envsync_user }}"
   become: true
 
 - name: 'Allow passwordless sudo to the environment synchronization account for deploy admin users.'
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: '/etc/sudoers'
-    line: "%{{ envsync_group }}    ALL=({{ envsync_user }})    NOPASSWD:ALL"
+    regexp: '(\s+)ALL=\({{ envsync_user }}\)(\s+)'
+    line: "%{{ envsync_group | regex_replace(' ', '\\ ') }}    ALL=({{ envsync_user }})    NOPASSWD:ALL"
     owner: root
     group: root
     mode: '0440'
   become: true
 
 - name: 'Insert/update block into ~/.bashrc to ensure we use the correct environment for syncing.'
-  blockinfile:
+  ansible.builtin.blockinfile:
     dest: "/home/{{ envsync_user }}/.bashrc"
     block: |
-      [ $(id -gn) = {{ envsync_group }} ] || exec newgrp {{ envsync_group }}
+      [[ $(id -gn) == '{{ envsync_group }}' ]] || exec newgrp '{{ envsync_group }}'
       cd
       umask 0002
       module load depad-utils
@@ -52,35 +80,36 @@
     create: false
   become: true
 
-- name: 'Deploy script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
-  template:
+- name: 'Deploy script to verify and if necessary fix permissions of the environment managed by the envsync account.'
+  ansible.builtin.template:
     src: 'templates/hpc-environment-permissions.bash'
     dest: '/root/hpc-environment-permissions.bash'
     owner: 'root'
     group: 'root'
-    mode: '0644'
+    mode: '0750'
   become: true
 
 - name: 'Create cron job to execute script to verify and if necessary fix prmissions of the environment managed by the envsync account.'
-  cron:
+  ansible.builtin.cron:
     name: Verify and fix permissions for HPC environment.
     weekday: '*'
     hour: '04'
     minute: '04'
     user: 'root'
-    job: '/bin/bash /root/hpc-environment-permissions.bash'
+    job: |
+         /bin/bash -c '/root/hpc-environment-permissions.bash | /bin/logger'
     cron_file: 'hpc-environment-permissions'
   become: true
 
 - name: 'Create cron job to synchronise the environment managed by the envsync account.'
-  cron:
+  ansible.builtin.cron:
     name: Synchronise HPC environment.
     weekday: '*'
     hour: '05'
     minute: '05'
     user: "{{ envsync_user }}"
     job: |
-         /usr/bin/sg {{ envsync_group }} -c '/bin/bash -c "export SOURCE_HPC_ENV="True"; . ~/.bashrc; hpc-environment-sync.bash -a"'
+         /usr/bin/sg '{{ envsync_group }}' -c '/bin/bash -c "export SOURCE_HPC_ENV="True"; . ~/.bashrc; hpc-environment-sync.bash -a | /bin/logger"'
     cron_file: 'hpc-environment-sync'
   become: true
 ...

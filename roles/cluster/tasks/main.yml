@@ -1,52 +1,15 @@
 ---
-- name: Set hostname to inventory_hostname
-  hostname:
-    name: "{{ inventory_hostname | regex_replace('^' + ai_jumphost + '\\+','') }}"
-  become: true
-
 - name: Set selinux in permissive mode
-  selinux:
+  ansible.posix.selinux:
     policy: targeted
     state: permissive
   become: true
 
 - name: Install some standard software
-  yum:
+  ansible.builtin.yum:
     state: latest
     update_cache: true
-    name:
-      - bash-completion
-      - bc
-      - bzip2
-      - cargo
-      - curl
-      - dos2unix
-      - figlet
-      - git
-      - git-core
-      - gnutls
-      - irods-icommands
-      - libsodium
-      - lsof
-      - nano
-      - ncdu
-      - ncurses-static
-      - openssl
-      - qt5-qtbase
-      - qt5-qtxmlpatterns
-      - readline-static
-      - rsync
-      - screen
-      - singularity-runtime
-      - singularity
-      - tcl-devel
-      - telnet
-      - tmux
-      - tree
-      - unzip
-      - urw-base35-fonts
-      - vim
-      - wget
+    name: '{{ cluster_common_packages }}'
   tags:
     - software
   become: true
@@ -57,7 +20,8 @@
     dest: '/etc/skel/'
     owner: 'no'
     group: 'no'
-    use_ssh_args: true
+    # Temporarily disabled as it is broken in Mitogen 0.3.3. Fix is already merged and will be in next Mitogen version.
+    # use_ssh_args: true
     ssh_connection_multiplexing: true
     rsync_opts:
       # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"

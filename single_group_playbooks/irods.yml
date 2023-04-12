@@ -1,0 +1,23 @@
+---
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
+
+- name: 'Satisfy dependencies and install iCAT'
+  hosts: irods
+  roles:
+    - admin_users
+    - ssh_host_signer
+    - iptables
+    - ssh_known_hosts
+    - pulp_client
+    - static_hostname_lookup
+    - logrotate
+    - logins
+    - sshd
+    - {role: geerlingguy.security, become: true}
+    - remove
+    - update
+    - docker
+    - irods
+    - irods_davrods
+...

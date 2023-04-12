@@ -1,4 +1,6 @@
 site_name: "{{ slurm_cluster_name | capitalize }} HPC cluster"
+site_url: "http://{{ first_doc_server_address }}/{{ slurm_cluster_name }}/"
+use_directory_urls: true
 theme:
   name: readthedocs
   highlightjs: false
@@ -29,10 +31,16 @@ nav:
   - Storage:
     - 'Keep - What is stored where on {{ slurm_cluster_name | capitalize }}': 'storage.md'
     - 'Data transfers - How to move data to / from {{ slurm_cluster_name | capitalize }}': 'datatransfers.md'
+{% if groups['data_transfer'] is defined and groups['data_transfer'] | length >= 1 %}
+    - 'Data transfers - Using a dedicated data transfer server': 'dedicated-dt-server-overview.md'
+{% endif %}
   - Compute:
     - 'Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}': 'analysis.md'
   - Technical Specifications:
     - 'Details on the {{ slurm_cluster_name | capitalize }} HPC environment': 'specifications.md'
+  - Software:
+    - 'R packages': 'R.md'
+    - 'Apptainer (Singularity)': 'apptainer.md'
 {% if 'hyperchicken' in slurm_cluster_name or 'fender' in slurm_cluster_name %}
   - Group Specific Documentation:
     - 'Solve-RD - How to find and work with Solve-RD data': 'solve-rd.md'

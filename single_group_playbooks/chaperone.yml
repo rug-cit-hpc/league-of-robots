@@ -1,0 +1,14 @@
+---
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
+
+- name: '###==-> Roles for chaperones. <-==###'
+  hosts:
+    - chaperone
+  roles:
+    - regular_users
+    - shared_storage
+    - sudoers
+    - build_environment
+    - envsync
+...

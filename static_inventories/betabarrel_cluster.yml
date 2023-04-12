@@ -1,0 +1,153 @@
+---
+all:
+  children:
+    openstack_api:
+      hosts:
+        localhost:
+          ansible_python_interpreter: /usr/bin/env python
+    jumphost:
+      hosts:
+        bb-porch:
+          cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_jumphosts"
+              assign_floating_ip: true
+          security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
+          iptables_allow_icmp_inbound:
+            - "{{ all.ip_addresses['umcg']['net1'] }}"
+            - "{{ all.ip_addresses['umcg']['net2'] }}"
+            - "{{ all.ip_addresses['umcg']['net3'] }}"
+            - "{{ all.ip_addresses['umcg']['net4'] }}"
+            - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+            - "{{ all.ip_addresses['rug']['operator'] }}"
+        az-porch:
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_jumphosts"
+          security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
+          iptables_allow_icmp_inbound:
+            - "{{ all.ip_addresses['umcg']['net1'] }}"
+            - "{{ all.ip_addresses['umcg']['net2'] }}"
+            - "{{ all.ip_addresses['umcg']['net3'] }}"
+            - "{{ all.ip_addresses['umcg']['net4'] }}"
+            - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+            - "{{ all.ip_addresses['rug']['operator'] }}"
+    data_transfer:
+      hosts:
+        bb-transfer:
+          cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_ds"
+              assign_floating_ip: true
+          local_volume_size_extra: 2000
+    docs:
+      hosts:
+        docs_on_merlin:
+    sys_admin_interface:
+      hosts:
+        betabarrel:
+          host_networks:
+            - name: vlan983
+            - name: vlan990
+          local_yum_repository: true # enable local yum repository
+          ldap_domains:
+            idvault:  # Required to override LDAP uri to use internal connection via VLAN 983.
+              uri: ldaps://172.23.40.249
+              base: ou=gd,o=asds
+              schema: rfc2307
+              min_id: 50100000
+              max_id: 55999999
+              user_object_class: posixAccount
+              user_name: uid
+              user_ssh_public_key: sshPublicKey
+              user_member_of: groupMembership
+              group_member: memberUid
+              group_object_class: groupofnames
+              group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
+              group_quota_hard_limit_template: ruggroupumcgquotaLFS
+              create_ldap: false
+    deploy_admin_interface:
+      hosts:
+        betabarrel:
+          volumes:
+            - mount_point: '/apps'
+              device: '/mnt/env05/apps/'
+              mounted_owner: root
+              mounted_group: "{{ envsync_group }}"
+              mounted_mode: '2775'
+              mount_options: 'bind'
+              type: none
+    user_interface:
+      hosts:
+        betabarrel:
+          slurm_sockets: 2
+          slurm_cores_per_socket: 64
+          slurm_real_memory: 515456
+          slurm_local_disk: 0
+          slurm_features: 'tmp05'  # Beta-Barrel will replace Zinc-Finger
+          slurm_ethernet_interfaces:
+            - em1
+            - em3
+    compute_vm:
+      children:
+        regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
+          hosts:
+            betabarrel:
+          vars:
+            slurm_sockets: 2
+            slurm_cores_per_socket: 64
+            slurm_real_memory: 515456
+            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 8 }}"
+            slurm_max_mem_per_node: "{{ slurm_real_memory - 8 * 2048 }}"
+            slurm_local_disk: 0
+            slurm_features: 'tmp05'
+            slurm_ethernet_interfaces:
+              - em1
+              - em3
+    chaperone:
+      hosts:
+        bb-chaperone:
+          ansible_host: bb-chaperone.umcg.nl  # upzkh1055
+          use_ldap: false
+          functional_admin_group: 'MEDGEN-NFG GCC Analyse Team'
+          #
+          # Overrule regular_groups compared to rest of Winged Helix:
+          # * Do not create local functional_admin_group, which comes from UMCG AD.
+          # * Do not create umcg-lab, which is not used on a chaperone.
+          #
+          regular_groups:
+            - "{{ envsync_group }}"
+            - "{{ functional_users_group }}"
+            - 'umcg-atd'
+            - 'umcg-gap'
+            - 'umcg-gd'
+            - 'umcg-genomescan'
+            - 'umcg-gsad'
+            - 'umcg-gst'
+            - 'umcg-labgnkbh'
+            - 'umcg-patho'
+            - 'umcg-vipt'
+    smb_server:
+      hosts:
+        betabarrel:
+administration:
+  children:
+    sys_admin_interface:
+    deploy_admin_interface:
+    user_interface:
+cluster:
+  children:
+    compute_vm:
+    administration:
+betabarrel_cluster:
+  children:
+    openstack_api:
+    jumphost:
+    cluster:
+    chaperone:
+    data_transfer:
+    docs:
+    smb_server:
+...

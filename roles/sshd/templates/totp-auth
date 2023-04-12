@@ -1,0 +1,10 @@
+#
+# Configure TOTPs for auth.
+#
+auth       required     pam_env.so
+auth       requisite    pam_succeed_if.so uid >= 500 quiet
+#
+# Skip TOTP with pam_google_authenticator.so if subnet is listed in /etc/security/exclude-totp.conf.
+#
+auth [success=1 default=ignore] pam_access.so accessfile=/etc/security/exclude-totp.conf
+auth       required     pam_google_authenticator.so noskewadj secret={{ sshd_user_totp_config_path }} [authtok_prompt=Your verification code for {{ inventory_hostname }}: ]

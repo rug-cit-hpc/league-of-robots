@@ -1,0 +1,28 @@
+---
+- name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
+  ansible.builtin.find:
+    paths: "{{ playbook_dir }}/group_vars/"
+    recurse: true
+    patterns: 'ip_addresses.yml'
+  register: ip_addresses_files_found
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- name: Include ip_addresses per stack from ip_addresses.yml files.
+  ansible.builtin.include_vars:
+    file: "{{ item }}"
+    name: "{{ item | dirname | basename }}"
+  with_items: "{{ ip_addresses_files_found.files | map(attribute='path') | list }}"
+  register: included_ip_addresses
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- name: Combine network info from ip_addresses per stack into one dict for all items from all stacks.
+  ansible.builtin.set_fact:
+    all_ip_addresses: "{{ included_ip_addresses.results | json_query('[].ansible_facts.*[].ip_addresses') | combine() }}"
+  delegate_to: localhost
+  connection: local
+  run_once: true
+...

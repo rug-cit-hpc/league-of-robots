@@ -1,5 +1,6 @@
 ---
-- import_playbook: pre_deploy_checks.yml
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
 
 - name: '###==-> Basic roles for all cluster machines part 1. <-==###'
   hosts:
@@ -7,18 +8,22 @@
   roles:
     - admin_users
     - ssh_host_signer
+    - iptables
     - ssh_known_hosts
     - swap
     - {role: spacewalk_client, when: repo_manager == 'spacewalk'}
     - {role: pulp_client, when: repo_manager == 'pulp'}
+    - {role: yum_repos, when: repo_manager == 'none'}
+    - {role: yum_local, when: local_yum_repository is defined}
+    - static_hostname_lookup
     - logrotate
+    - remove
     - update
     - logins
     - figlet_motd
     - node_exporter
-    - static_hostname_lookup
     - cluster
+    - gpu            # needs to run after role 'cluster'
     - resolver
     - coredumps
-    - logrotate
 ...

@@ -123,14 +123,14 @@ See the `README.md` in the root of this repo for details.
 Make sure the requirements/dependencies from Ansible Galaxy were installed.
 The exec summary:
 ```bash
-ansible-galaxy install -r galaxy-requirements.yml
+ansible-galaxy install -r requirements.yml
 ```
 See the `README.md` in the root of this repo for details.
 Next you can use
 ```bash
 . ./lor-init
-lor-config [name-of-the-cluster]
-ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/pulp_server.yml
+lor-config [stack_prefix]
+ansible-playbook -u [admin_account] single_role_playbooks/pulp_server.yml
 ```
 This will install Pulp, create an admin account to manage Pulp and install the Pulp CLI in a Python virtual environment
 for that admin account. It will also do part of the initial configuration, but this is incomplete due to missing features in _Pulp Squeezer_;
@@ -150,11 +150,148 @@ The following steps must be performed manually for now:
 
 You can use
 
- * Either Pulp CLI commands where possible (easier and recommended)
- * Or send raw HTTP GET/PUT calls to the Pulp API using a commandline HTTP client like HTTPie or cURL
-   (harder, but required where Pulp CLI support is incomplete).
+ * Either Pulp CLI commands where possible (easier and recommended).
+ * Or send raw HTTP GET/PUT calls to the Pulp API using a commandline HTTP client like HTTPie or cURL (harder).
 
-See the example commands below for what was initially configured manually for the ```nb-repo``` Pulp server.
+##### Upload custom RPMs to repo server.
+
+```bash
+#
+# This assumes you have the custom RPMs in a local folder named "umcg-centos7".
+#
+rsync -av --rsync-path 'sudo -u [repoadmin] rsync' umcg-centos7 [admin]@[jumphost]+[stack_prefix]-repo:/admin/[repoadmin]/
+```
+
+##### Login and become repoadmin user on repo server.
+
+```bash
+ssh [admin]@[jumphost]+[stack_prefix]-repo
+sudo -u [repoadmin] bash
+cd
+source pulp-cli.venv/bin/activate
+set -u
+pulp status
+```
+
+##### Add custom content (RPMs) to a the custom repo without remote.
+
+```bash
+#
+# Upload RPM files to create Pulp RPMs and add them to 
+# our Custom Packages for Enterprise Linux (cpel) repo.
+#
+for rpm in $(find umcg-centos7 -name '*.rpm'); do
+    rpm_href=$(pulp --format json rpm content upload \
+                    --file "${rpm}" \
+                    --relative-path "$(basename "${rpm}")" \
+                 | jq -r '.pulp_href')
+    if [[ -n "${rpm_href:-}" ]]; then
+        pulp rpm repository content add \
+            --repository cpel7 \
+            --package-href "${rpm_href}"
+    fi
+done
+```
+
+```bash
+#
+# Alternatively, if the RPMs were already uploaded to Pulp
+# and only need to be added to our cpel repo:
+#
+for rpm_href in $(pulp --format json rpm content list | jq -r '.[].pulp_href'); do
+    pulp rpm repository content add \
+        --repository cpel7 \
+        --package-href "${rpm_href}"
+done
+```
+
+##### Add remotes to repos.
+
+```bash
+pulp rpm repository update --name centos7-base    --remote centos7-base-remote
+pulp rpm repository update --name centos7-updates --remote centos7-updates-remote
+pulp rpm repository update --name centos7-extras  --remote centos7-extras-remote
+pulp rpm repository update --name epel7           --remote epel7-remote
+pulp rpm repository update --name irods7          --remote irods7-remote
+pulp rpm repository update --name lustre7         --remote lustre7-remote
+pulp rpm repository update --name e2fsprogs7      --remote e2fsprogs7-remote
+pulp rpm repository update --name ltb7            --remote ltb7-remote
+```
+
+##### Sync repos with remotes.
+
+```bash
+pulp rpm repository sync --name centos7-base
+pulp rpm repository sync --name centos7-updates
+pulp rpm repository sync --name centos7-extras
+pulp rpm repository sync --name epel7
+pulp rpm repository sync --name irods7
+pulp rpm repository sync --name lustre7
+pulp rpm repository sync --name e2fsprogs7
+pulp rpm repository sync --name ltb7
+```
+
+##### Create/update distributions based on new publications based on new repository versions.
+
+```bash
+set -e
+set -u
+
+stack_prefix='' # Must be filled in; check group_vars (f.e. 'fd').
+stack_name=''   # Must be filled in; check group_vars (f.e. 'fender_cluster').
+
+declare -a pulp_repos
+pulp_repos=(
+    centos7-base
+    centos7-updates
+    centos7-extras
+    epel7
+    cpel7
+    irods7
+    lustre7
+    e2fsprogs7
+    ltb7
+)
+
+for repo in "${pulp_repos[@]}"; do
+    echo "INFO: Processing distribution name ${stack_prefix}-${repo} with base path ${stack_name%_cluster}/${repo} ..."
+    #
+    # Get latest repository version href for this repo.
+    #
+    latest_version_href=$(pulp --format json rpm repository show --name "${repo}" | jq -r '.latest_version_href')
+    #
+    # Check if we already have a publication for the latest repository version.
+    #
+    if [[ $(pulp --format json rpm publication list --repository-version "${latest_version_href}" 2>/dev/null \
+          | jq -r 'first.pulp_href') =~ /pulp/api/ ]]; then
+        echo "INFO:     Using existing publication for latest version of ${repo} repository ..."
+        publication_href=$(pulp --format json \
+            rpm publication list --repository-version "${latest_version_href}" \
+          | jq -r 'first.pulp_href')
+    else
+        echo "INFO:     Creating new publication for latest version of ${repo} repository ..."
+        publication_href=$(pulp --format json \
+            rpm publication create --repository "${repo}" \
+          | jq -r '.pulp_href')
+    fi
+    #
+    # Check if we already have a distribution for this repo.
+    #
+    if pulp rpm distribution show --name "${stack_prefix}-${repo}" >/dev/null 2>&1; then
+        distribution_action='update'
+        echo "INFO:     Updating distribution ..."
+    else
+        distribution_action='create'
+        echo "INFO:     Creating distribution ..."
+    fi
+    pulp rpm distribution "${distribution_action}" \
+        --name "${stack_prefix}-${repo}" \
+        --base-path "${stack_name%_cluster}/${repo}" \
+        --publication "${publication_href}"
+done
+```
+
+---
 
 # <a name="Configure-Manually-With-Api"/> Configure manually with API
 
@@ -184,7 +321,7 @@ ssh tunnel+nb-repo
 #
 # repo_management_user is configured
 #   * either in roles/pulp_server/defaults/main.yml
-#   * or overruled in group_vars/[name-of-the-cluster]_cluster/vars.yml
+#   * or overruled in group_vars/[stack_name]/vars.yml
 #
 sudo -u ${repo_management_user}
 touch -m 600 ~/.netrc
@@ -266,7 +403,7 @@ done
 #
 # pulp-cli does not have commands yet to create RPM content from artifacts and add them to a repo.
 # So we have to manually create HTTP POST/PUT/GET calls using the example code/scripts described at
-# https://docs.pulpproject.org/pulp_rpm/index.html 
+# https://docs.pulpproject.org/pulp_rpm/index.html
 #
 export BASE_ADDR='http://localhost:24817'
 # Poll a Pulp task until it is finished.
@@ -361,6 +498,7 @@ pulp rpm repository version list --repository centos7-extras
 pulp rpm repository version list --repository epel7
 pulp rpm repository version list --repository cpel7
 pulp rpm repository version list --repository irods7
+pulp rpm repository version list --repository lustre7
 #
 # Create new publications based on new repository versions.
 #
@@ -370,8 +508,9 @@ pulp rpm publication create --repository centos7-base     --version 1
 pulp rpm publication create --repository centos7-updates  --version 1
 pulp rpm publication create --repository centos7-extras   --version 1
 pulp rpm publication create --repository epel7            --version 1
-pulp rpm publication create --repository cpel7            --version 15
+pulp rpm publication create --repository cpel7            --version 14
 pulp rpm publication create --repository irods7           --version 1
+pulp rpm publication create --repository lustre7          --version 1
 #
 # List repos and publications to figure out which publication HREF matches which repo.
 #
@@ -386,6 +525,7 @@ pulp rpm distribution create --name nb-centos7-extras  --base-path nibbler/cento
 pulp rpm distribution create --name nb-epel7           --base-path nibbler/epel7           --publication /pulp/api/v3/publications/rpm/rpm/6718163f-4a97-46c8-ae08-7f538885da9f/
 pulp rpm distribution create --name nb-cpel7           --base-path nibbler/cpel7           --publication /pulp/api/v3/publications/rpm/rpm/0e7c5260-522b-42f5-af63-e3f35312a036/
 pulp rpm distribution create --name nb-irods7          --base-path nibbler/irods7          --publication /pulp/api/v3/publications/rpm/rpm/a9da6d50-043b-4f7a-b898-2c78553cd7b0/
+pulp rpm distribution create --name nb-lustre7         --base-path nibbler/lustre7         --publication /pulp/api/v3/publications/rpm/rpm/3d8as2d0-323c-eff7-v3qq-asd8d72cw82k/
 #
 # List distributions to get the URLs for the clients.
 #
@@ -426,6 +566,8 @@ root@nb-repo $> /usr/local/bin/pulpcore-manager handle-artifact-checksums
 # Updates
 #
 pulp rpm repository sync --name epel7
+# then you want to list the changes (if version remains thes same, there was no changes, otherwise it automaticaly increments:
+pulp rpm repository version list --repository epel7               
 pulp rpm publication create --repository epel7 --version 2
 pulp rpm distribution show --name nb-epel7
 pulp rpm distribution update --name nb-epel7 --publication /pulp/api/v3/publications/rpm/rpm/a4765571-dc89-47c3-a7d0-ed9b18fad287/
@@ -503,4 +645,159 @@ export PUBLICATION_HREF
 
 echo "Inspecting Publication."
 http "$BASE_ADDR""$PUBLICATION_HREF"
+```
+
+### Adding rpm to repo repository
+
+The commands are listed below, but in general, these are the steps to add an rpm to the pulp repository:
+
+1. upload rpm to repo server, connect to server and load pulp environment
+2. upload artifact to the pulp
+3. create rpm from this new artifact
+4. add the rpm to the correct repository
+5. create publication 
+6. update distribution with new publication
+7. client side check
+
+#### 1. upload rpm to repo server, connect to server and load pulp environment
+```
+$ rsync -av --rsync-path 'sudo -u repoadmin rsync' ega-fuse-client-2.1.0-1.noarch.rpm sandi@corridor+fd-repo:/admin/repoadmin/umcg-centos7/
+$ ssh sandi@corridor+fd-repo
+$ sudo su - repoadmin
+$ source pulp-cli.venv/bin/activate
+```
+
+#### 2. upload artifact to the pulp
+```
+pulp artifact upload --file umcg-centos7/ega-fuse-client-2.1.0-1.noarch.rpm
+export BASE_ADDR='http://localhost:24817'
+
+wait_until_task_finished() {
+    echo "Polling the task until it has reached a final state."
+    local task_url=$1
+    while true
+    do
+        response=$(http "$task_url")
+        local response
+        state=$(jq -r .state <<< "${response}")
+        local state
+        jq . <<< "${response}"
+        case ${state} in
+            failed|canceled)
+                echo "Task in final state: ${state}"
+                exit 1
+                ;;
+            completed)
+                echo "$task_url complete."
+                break
+                ;;
+            *)
+                echo "Still waiting..."
+                sleep 1
+                ;;
+        esac
+    done
+}
+```
+
+Collect the returned **pulp_href** variable and create an array with the correct values
+
+#### 3. create rpm from this new artifact
+
+```
+declare -A custom_rpms=(
+    ['ega-fuse-client-2.1.0-1.noarch.rpm']='/pulp/api/v3/artifacts/cc7f9dd2-c086-45b4-97fd-362e34b0baff/'
+)
+```
+
+execute the following for pulp to create an rpm out of the uploaded artifact:
+
+```
+for custom_rpm in "${!custom_rpms[@]}"; do
+    # Create RPM package from an artifact
+    echo "Create RPM ${custom_rpm} from artifact ${custom_rpms[${custom_rpm}]}."
+    TASK_URL=$(http POST "$BASE_ADDR"/pulp/api/v3/content/rpm/packages/ \
+        artifact="${custom_rpms[${custom_rpm}]}" relative_path="${custom_rpm}" | jq -r '.task')
+    # Poll the task (here we use a function defined in docs/_scripts/base.sh)
+    wait_until_task_finished "$BASE_ADDR""$TASK_URL"
+    # After the task is complete, it gives us a new package (RPM content)
+    echo "Set PACKAGE_HREF from finished task."
+    PACKAGE_HREF=$(http "$BASE_ADDR""$TASK_URL"| jq -r '.created_resources | first')
+    echo "Inspecting Package."
+    http "$BASE_ADDR""$PACKAGE_HREF"
+done
+```
+
+collect the returned **pulp_href** and feed it again in the array
+
+```
+declare -A custom_rpms=(
+    ['ega-fuse-client-2.1.0-1.noarch.rpm']='/pulp/api/v3/content/rpm/packages/362e30bfff-efg7-dbc3-cc23-345feea/' 
+)
+```
+
+#### 4. add the rpm to the correct repository
+
+Now you need to select the **pulp_href** of the correct repository that you want to add to the rpm package
+
+```
+pulp rpm repository list                # and get the pul_href of correct repository (usually cpel)
+REPO_HREF='/pulp/api/v3/repositories/rpm/rpm/4baaad23-0a10-4a7e-90fe-17dea19b84f3/'           # < this is an example
+```
+
+Then execute
+
+```
+for custom_rpm in "${!custom_rpms[@]}"; do
+    # Add created RPM content to repository
+    echo "Add created RPM Package ${custom_rpm} to repository."
+    TASK_URL=$(http POST "$BASE_ADDR""$REPO_HREF"'modify/' \
+        add_content_units:="[\"${custom_rpms[${custom_rpm}]}\"]" | jq -r '.task')
+    # Poll the task (here we use a function defined in docs/_scripts/base.sh)
+    wait_until_task_finished "$BASE_ADDR""$TASK_URL"
+done
+```
+
+and check if repository has incremented version
+
+```
+pulp rpm repository version list --repository cpel7
+```
+
+
+#### 5. create publication 
+
+First check which publication is currently used by distribution, so you can later compare
+
+```
+pulp rpm distribution show --href /pulp/api/v3/distributions/rpm/rpm/8fb72c53-8832-430c-83af-656310be4c2d/
+```
+
+then create publication
+
+```
+pulp rpm publication create --repository /pulp/api/v3/repositories/rpm/rpm/b7180e7b-ca73-4357-a89c-2f813e4dab1c/versions/1/     --version ?
+```
+
+
+#### 6. update distribution with new publication
+
+```
+pulp rpm distribution update --name ? --publication /pulp/api/v3/publications/rpm/rpm/98300791-39cb-4918-b613-7c8f481a8ffd/
+```
+
+With correct distribution name, like **nb-cpel7** or **fd-cpel7**. Then check if distribution is now linked to the new publication (f.e. for fd--cpel7 repository on fender)
+
+```
+pulp rpm distribution show --name fd-cpel7
+```
+
+
+#### 7. client side check
+
+Sometimes when you check the client side, the package is not yet visible, therefore you might need to clear cache:
+
+```
+# yum clean all
+# yum search --showduplicates ega-fuse
 ```

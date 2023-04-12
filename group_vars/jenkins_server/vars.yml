@@ -1,0 +1,96 @@
+---
+stack_prefix: 'jenkins'
+stack_name: "{{ stack_prefix }}_server"  # stack_name must match the name of the folder that contains this vars.yml file.
+cloud_image: CentOS 7
+cloud_user: centos
+availability_zone: nova
+stack_networks:
+  - name: "{{ stack_prefix }}_internal_management"
+    cidr: '10.10.1.0/24'
+    gateway: '10.10.1.1'
+    router_network: vlan16
+    type: management
+    external: false
+nameservers: [
+  '8.8.4.4',  # Google DNS.
+  '8.8.8.8',  # Google DNS.
+]
+local_admin_groups:
+  - 'admin'
+local_admin_users:
+  - 'egon'
+  - 'gerben'
+  - 'henkjan'
+  - 'marieke'
+  - 'marloes'
+  - 'morris'
+  - 'pieter'
+  - 'sandi'
+  - 'wim'
+
+use_ldap: false
+create_ldap: false
+use_sssd: false
+#
+# Jumphosts from other stack-name infra groups.
+# We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
+#
+external_jumphosts:
+  - group: gearshift_cluster
+    hosts:
+    - hostname: airlock
+      network: vlan16
+  - group: talos_cluster
+    hosts:
+      - hostname: reception
+        network: vlan16
+  - group: hyperchicken_cluster
+    hosts:
+      - hostname: portal
+        network: public
+  - group: fender_cluster
+    hosts:
+      - hostname: corridor
+        network: public
+  - group: nibbler_cluster
+    hosts:
+      - hostname: tunnel
+        network: vlan16
+  - group: wingedhelix_cluster
+    hosts:
+      - hostname: wh-porch
+        network: vlan16
+  - group: betabarrel_cluster
+    hosts:
+      - hostname: bb-porch
+        network: vlan16
+  - group: copperfist_cluster
+    hosts:
+      - hostname: cf-porch
+        network: vlan16
+jenkins_plugins:
+  - warnings-ng
+  - name: git
+    version: 4.11.5
+  - name: workflow-multibranch
+    version: 716.vc692a_e52371b_
+  - name: branch-api
+    version: 2.1046.v0ca_37783ecc5
+  - name: cloudbees-folder
+    version: 6.722.v8165b_a_cf25e9
+  - name: github-branch-source
+    version: 1628.vb_2f51293cb_78
+jenkins_plugins_install_dependencies: true
+jenkins_prefer_lts: true
+jenkins_shellcheck_version: 0.8.0
+jenkins_url: 'http://localhost:8080/'
+jenkins_cli_dest: '/opt/jenkins-cli.jar'
+jenkins_xml_dest: '/var/lib/jenkins/xml_files/'
+jenkins_projects: 
+  - 'AGCT'
+  - 'GAP'
+  - 'NGS_DNA'
+  - 'NGS_Demultiplexing'
+  - 'NGS_RNA'
+  - 'NGS_Automated'
+...

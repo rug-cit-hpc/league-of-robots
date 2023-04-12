@@ -1,3 +1,48 @@
 ---
 sshd_moduli_minimum: 3072
+data_transfer_only_group: sftp-only
+#
+# Reduce LoginGraceTime on machines with direct internet connection to increase security
+# and reduce the number of opened but not yet authenticated connections consuming resources.
+# When MFA authentication is enabled either with TOTPs or the SRAM PAM web-login plugin,
+# users may need some extra time for the additional steps.
+#
+sshd_login_grace_time: "\
+    {% if inventory_hostname in totp.machines | default([])
+       or inventory_hostname in pam_weblogin.machines | default([]) %}\
+        60\
+    {% elif inventory_hostname in groups['jumphost'] | default([])
+       or inventory_hostname in groups['data_transfer'] | default([]) %}\
+        30\
+    {% else %}\
+        120 # default\
+    {% endif %}"
+#
+# Increase MaxSessions for connection multiplexing on jumphosts.
+# All sessions multiplexed over the same connection count as a single connection for MaxStartups.
+# When MaxSessions is lower than the number of Ansible forks,
+# you may start to see "randomly" dropped connections due to
+#     MaxStartups start:rate:full
+# which by default is 10:30:100.
+# This means sshd starts to refuse connection attempts with a probability of "rate/100" (30%)
+# when there are already "start" (10) unauthenticated connections.
+# The probability increases linearly and all connection attempts are refused
+# if the number of unauthenticated connections reaches "full" (100).
+# See also https://bugs.launchpad.net/openstack-ansible/+bug/1479812
+# A connection is no longer in unauthenticated state until
+#   * either authentication succeeds
+#   * or the LoginGraceTime expires and the connection is dropped.
+# Therefore we also lower LoginGraceTime (see above) to reduce the amount of connections in unauthenticated state
+# and hence lower the chance of hitting the MaxStartups limits.
+#
+sshd_max_sessions: "\
+    {% if inventory_hostname in groups['jumphost'] | default([]) %}\
+        {{ [10,
+            (lookup('config', 'DEFAULT_FORKS') * 2),
+            ([groups['cluster'] | length, 50] | min)]
+           | max }}\
+    {% else %}\
+        10 # default\
+    {% endif %}"
+sshd_user_totp_config_path: "${HOME}/.ssh/totp"
 ...

@@ -1,5 +1,6 @@
 ---
-- import_playbook: pre_deploy_checks.yml
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
 
 - name: '###==-> Roles for repo management servers. <-==###'
   hosts: repo
@@ -7,12 +8,14 @@
     - admin_users
     - ssh_host_signer
     - ssh_known_hosts
+    - swap
     - {role: geerlingguy.repo-epel, become: true}
     - logrotate
     - logins
     - static_hostname_lookup
     - sshd
     - {role: geerlingguy.security, become: true}
+    - remove
     - update
     - pulp_server
 ...

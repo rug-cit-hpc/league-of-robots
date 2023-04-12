@@ -10,8 +10,9 @@ The jobs are submitted to a workload manager, which distributes them efficiently
 
 The key features of the {{ slurm_cluster_name | capitalize }} cluster include:
 
- * Linux OS: [CentOS](https://www.centos.org/) 7.x with [Spacewalk](https://spacewalkproject.github.io/) for package distribution/management.
- * Completely virtualised on an [OpenStack](https://www.openstack.org/) cloud
+ * Linux OS: [CentOS](https://www.centos.org/) 7.x
+   {% if repo_manager | default('none') != 'none' %}with [{{ repo_manager | capitalize }}]({{ external_hrefs[repo_manager] }}) for package distribution/management{% endif %}.
+ * Completely virtualised on an [OpenStack](https://www.openstack.org/) cloud.
  * Deployment of HPC cluster with [Ansible playbooks](https://docs.ansible.com/ansible/latest/index.html) under version control in a Git repo: [league-of-robots](https://github.com/rug-cit-hpc/league-of-robots)
  * Job scheduling: [Slurm Workload Manager](https://slurm.schedmd.com/)
  * Account management:
@@ -57,14 +58,14 @@ Some of these can be accessed directly by users, whereas others cannot be access
 {{ slurm_cluster_name | capitalize }} is part of the _League of Robots_ - a collection of HPC clusters - that use the same themes for naming various components:
 
  * Cluster itself and UIs are named after robots.  
-   Production cluster are named after robots from the [Futurama scifi sitcom](https://futurama.fandom.com/wiki/Category:Robots).
+   Production clusters are named after robots from the [Futurama scifi sitcom](https://futurama.fandom.com/wiki/Category:Robots).
    Test/development clusters are named after other robots.  
-   E.g.: {{ slurm_cluster_name | capitalize }} UI = _{{ groups['user_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_
+   E.g.: {{ slurm_cluster_name | capitalize }} UI = _{{ groups['user_interface'] | first }}_
  * Jumphosts are named after rooms preceding other rooms.  
-   E.g.: {{ slurm_cluster_name | capitalize }} Jumphost = _{{ groups['jumphost'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}{% if slurm_cluster_domain | length %}.{{ slurm_cluster_domain }}{% endif %}_
+   E.g.: {{ slurm_cluster_name | capitalize }} Jumphost = _{{ groups['jumphost'] | first }}{% if stack_domain | length %}.{{ stack_domain }}{% endif %}_
  * Other machines that are part of the cluster and only accessible using internal network interfaces (schedulers, compute nodes, account servers, etc.)  
    will use a two character prefix _{{ stack_prefix }}_ followed by a dash and the function of the machine.  
-   E.g. {{ slurm_cluster_name | capitalize }} compute node = _{{ groups['compute_vm'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_
+   E.g. {{ slurm_cluster_name | capitalize }} compute node = _{{ groups['compute_vm'] | first }}_
  * SAIs & DAIs may be named after root/carrot varieties or simply use the two character prefix _{{ stack_prefix }}_ plus function of the machine.  
-   E.g.: {{ slurm_cluster_name | capitalize }} DAI = _{{ groups['deploy_admin_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_  
-   E.g.: {{ slurm_cluster_name | capitalize }} SAI = _{{ groups['sys_admin_interface'] | first | regex_replace('^' + ai_jumphost + '\\+','') }}_
+   E.g.: {{ slurm_cluster_name | capitalize }} DAI = _{{ groups['deploy_admin_interface'] | first }}_  
+   E.g.: {{ slurm_cluster_name | capitalize }} SAI = _{{ groups['sys_admin_interface'] | first }}_

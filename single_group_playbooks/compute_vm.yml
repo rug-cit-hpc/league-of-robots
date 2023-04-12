@@ -4,12 +4,13 @@
 #   * cluster_part2.yml
 #
 ---
-- import_playbook: pre_deploy_checks.yml
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
 
 - name: '###==-> Extra roles for compute nodes. <-==###'
   hosts:
     - compute_vm
   roles:
     - mount_volume
-    - slurm_client
+    - slurm
 ...

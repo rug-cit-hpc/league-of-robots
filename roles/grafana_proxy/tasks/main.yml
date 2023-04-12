@@ -1,29 +1,29 @@
 ---
 - name: Install nginx.
-  yum:
+  ansible.builtin.yum:
     name: nginx
     state: latest
     update_cache: true
   become: true
 
 - name: Deploy nginx.conf.
-  template:
+  ansible.builtin.template:
     src: templates/nginx.conf
     dest: /etc/nginx/nginx.conf
-    mode: 0644
+    mode: '0644'
     owner: root
     group: root
   become: true
 
-- name: create tls certs directory
-  file:
+- name: Create TLS certs directory.
+  ansible.builtin.file:
     path: /etc/certificates/live/airlock.hpc.rug.nl
     state: directory
-    mode: 0751
+    mode: '0751'
   become: true
 
-- name: copy certificate and chain files in place
-  copy:
+- name: Copy certificate and chain files in place.
+  ansible.builtin.copy:
     src: "tls/{{ item }}"
     dest: /etc/certificates/live/{{ item }}
     owner: root
@@ -37,7 +37,7 @@
   become: true
 
 - name: Make sure nginx is enabled and restarted.
-  systemd:
+  ansible.builtin.systemd:
     name: nginx.service
     state: 'restarted'
     enabled: 'yes'

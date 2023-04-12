@@ -1,5 +1,6 @@
 ---
-- import_playbook: pre_deploy_checks.yml
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
 
 - name: '###==-> Roles for jumphosts. <-==###'
   hosts:
@@ -7,14 +8,24 @@
   roles:
     - admin_users
     - ssh_host_signer
+    - iptables
     - ssh_known_hosts
+    - {role: yum_local, when: local_yum_repository is defined}
     - logrotate
+    - remove
     - update
     - {role: geerlingguy.repo-epel, become: true}
     - logins
-    - ldap
-    - static_hostname_lookup
+    - role: ldap
+      when:
+        - use_ldap | default(true) | bool
+        - not use_sssd | default(false) | bool
+    - role: sssd
+      when:
+        - use_ldap | default(true) | bool
+        - use_sssd | default(false) | bool
     - sshd
+    - static_hostname_lookup
     - node_exporter
     - {role: geerlingguy.security, become: true}
     - {role: grafana_proxy, when: ansible_hostname == 'airlock'}

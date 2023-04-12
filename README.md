@@ -1,8 +1,17 @@
 # League of Robots
 
+##### _develop_ branch CI status
+
+[![CircleCI](https://circleci.com/gh/rug-cit-hpc/league-of-robots/tree/develop.svg?style=svg)](https://circleci.com/gh/rug-cit-hpc/league-of-robots/tree/develop)
+
+##### _master_ branch CI status
+
+[![CircleCI](https://circleci.com/gh/rug-cit-hpc/league-of-robots/tree/master.svg?style=svg)](https://circleci.com/gh/rug-cit-hpc/league-of-robots/tree/master)
+
 ## About this repo
 
-This repository contains playbooks and documentation to deploy virtual Linux HPC clusters, which can be used as *collaborative, analytical sandboxes*.
+This repository contains playbooks and documentation to deploy *stacks* of virtual machines working together.
+Most of these stacks are virtual Linux HPC clusters, which can be used as *collaborative, analytical sandboxes*.
 All production clusters were named after robots that appear in the animated sitcom [Futurama](https://en.wikipedia.org/wiki/Futurama).
 Test/development clusters were named after other robots.
 
@@ -12,7 +21,7 @@ The main ingredients for (deploying) these clusters:
 
  * [Ansible playbooks](https://github.com/ansible/ansible) for system configuration management.
  * [OpenStack](https://www.openstack.org/) for virtualization. (Note that deploying the OpenStack itself is not part of the configs/code in this repo.)
- * [Spacewalk](https://spacewalkproject.github.io/index.html) to create freezes of Linux distros.
+ * [Pulp](https://pulpproject.org/) to create freezes of Linux distros.
  * [CentOS 7](https://www.centos.org/) as OS for the virtual machines.
  * [Slurm](https://slurm.schedmd.com/) as workload/resource manager to orchestrate jobs.
 
@@ -36,7 +45,8 @@ This repo currently contains code and configs for the following clusters:
 
  * Talos: Development cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
  * Gearshift: [UMCG](https://www.umcg.nl) Research IT production cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
- * Hyperchicken: Development cluster cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
+ * Nibbler: [UMCG](https://www.umcg.nl) Research IT production cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
+ * Hyperchicken: Development cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
  * Fender: [Solve-RD](solve-rd.eu/) production cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
 
 Deployment and functional administration of all clusters is a joined effort of the
@@ -66,9 +76,17 @@ The clusters use the following types of storage systems / folders:
 | /local/${slurm_job_id}      | Local        | No      | CNs                  | Local storage on compute nodes only available during job execution. Hence folders are automatically created when a job starts and deleted when it finishes. |
 | /mnt/${complete_filesystem} | Shared       | Mixed   | SAIs                 | Complete file systems, which may contain various `home`, `prm`, `tmp` or `scr` dirs. |
 
+## Other stacks
+
+Some other stacks of related machines are:
+
+ * ```docs_library```: web servers hosting documentation.
+ * ```jenkins_server```: Continues Integration testing server.
+ * ...: iRODS machines
+
 ## Deployment phases
 
-Deploying a fully functional virtual cluster from scratch involves the following steps:
+Deploying a fully functional stack of virtual machines from scratch involves the following steps:
 
  1. Configure physical machines
     * Off topic for this repo.
@@ -77,8 +95,8 @@ Deploying a fully functional virtual cluster from scratch involves the following
     * For the _Shikra_ cloud, which hosts the _Talos_ and _Gearshift_ HPC clusters
       we use the ansible playbooks from the [hpc-cloud](https://git.webhosting.rug.nl/HPC/hpc-cloud) repository
       to create the OpenStack cluster.
-    * For other HPC clusters we use OpenStack clouds from other service providers as is.
- 3. Create, start and configure virtual machines on an OpenStack cluster to create a Slurm HPC cluster.
+    * For other HPC clusters we use OpenStack clouds from other service providers _as is_.
+ 3. Create, start and configure virtual networks and machines on an OpenStack cluster.
     * This repo.
  4. Deploy bioinformatics software and reference datasets.
     * Off topic for this repo.
@@ -87,7 +105,7 @@ Deploying a fully functional virtual cluster from scratch involves the following
 
 ---
 
-## Details for phase 3. Create, start and configure virtual machines on an OpenStack cluster to create a Slurm HPC cluster.
+## Details for phase 3. Create, start and configure virtual machines on an OpenStack cluster.
 
 #### 0. Clone this repo and configure Python virtual environment.
 
@@ -107,32 +125,53 @@ source openstacksdk.venv/bin/activate
 #
 # Install OpenStack SDK (once) and other python packages.
 #
-pip3 install openstacksdk
+pip3 install --upgrade pip
+pip3 install wheel
+pip3 install 'openstacksdk<0.99'
 pip3 install ruamel.yaml
+pip3 install netaddr
+pip3 install dnspython  # Required for Ansible lookup plugin community.general.dig
+#
+# On macOS only to prevent this error:
+# crypt.crypt not supported on Mac OS X/Darwin, install passlib python module.
+#
+pip3 install passlib
+#
+# Optional: install Ansible with pip.
+# You may skip this step if you already installed Ansible by other means.
+# E.g. with HomeBrew on macOS, with yum or dnf on Linux, etc.
+#
+pip3 install ansible
+#
+# Optional: install Mitogen with pip.
+# Mitogen provides an optional strategy plugin that makes playbooks a lot (up to 7 times!) faster.
+# See https://mitogen.networkgenomics.com/ansible_detailed.html
+#
+pip3 install mitogen
 ```
 
 #### 1. First import the required roles and collections for the playbooks:
 
 ```bash
-ansible-galaxy install -r galaxy-requirements.yml
+ansible-galaxy install -r requirements.yml
 ```
 
 Note: the default location where these dependencies will get installed with the above command is ```${HOME}/.ansible/```.
 
 #### 2. Create a `vault_pass.txt`.
 
-The vault password is used to encrypt/decrypt the ```secrets.yml``` file per cluster, 
+The vault password is used to encrypt/decrypt the ```secrets.yml``` file per *stack_name*, 
 which will be created in the next step if you do not already have one.
-In addition a second vault passwd is used for various files in ```group_vars/all/``` and which contain settings that are the same for all clusters.
-If you have multiple HPC clusters with their own vault passwd you will have multiple vault password files. 
+In addition a second vault passwd is used for various files in ```group_vars/all/``` and which contain settings that are the same for all *stacks*.
+If you have multiple *stacks* with their own vault passwd you will have multiple vault password files. 
 The pattern ```.vault*``` is part of ```.gitignore```, so if you put the vault passwd files in the ```.vault/``` subdir,
 they will not accidentally get committed to the repo.
 
-* To generate a new Ansible vault password and put it in ```.vault/vault_pass.txt.[name-of-the-cluster|all]```, use the following oneliner:
+* To generate a new Ansible vault password and put it in ```.vault/vault_pass.txt.[stack_name|all]```, use the following oneliner:
   ```bash
-  LC_ALL=C tr -cd '[:alnum:]' < /dev/urandom | fold -w60 | head -n1 > .vault/vault_pass.txt.[name-of-the-cluster|all]
+  LC_ALL=C tr -cd '[:alnum:]' < /dev/urandom | fold -w60 | head -n1 > .vault/vault_pass.txt.[stack_name|all]
   ```
-* Or to use an existing Ansible vault password create ```.vault/vault_pass.txt.[name-of-the-cluster|all]``` and use a text editor to add the password.
+* Or to use an existing Ansible vault password create ```.vault/vault_pass.txt.[stack_name|all]``` and use a text editor to add the password.
 * Make sure the ```.vault/``` subdir and it's content is private:
   ```bash
   chmod -R go-rwx .vault/
@@ -140,10 +179,11 @@ they will not accidentally get committed to the repo.
 
 #### 3. Configure Ansible settings including the vault.
 
-To create a new virtual cluster you will need ```group_vars``` and an static inventory for that HPC cluster:
+To create a new *stack* you will need ```group_vars``` and a static inventory for that *stack*:
 
-* See the ```static_inventories/*_hosts.ini``` files for existing clusters for examples to create a new ```[name-of-the-cluster]*_hosts.ini```.
-* Create a ```group_vars/[name-of-the-cluster]_cluster/``` folder with a ```vars.yml```.  
+* See the ```static_inventories/*.yml``` files for existing stacks for examples.  
+  Create a new ```static_inventories/[stack_name].yml```.
+* Create a ```group_vars/[stack_name]/``` folder with a ```vars.yml```.  
   You'll find and example ```vars.yml``` file in ```group_vars/template/```.  
   To generate a new ```secrets.yml``` with new random passwords for the various daemons/components and encrypt this new ```secrets.yml``` file:
   ```bash
@@ -154,23 +194,23 @@ To create a new virtual cluster you will need ```group_vars``` and an static inv
   #
   # Configure this repo for a specific cluster.
   # This will set required ENVIRONMENT variables including
-  # ANSIBLE_VAULT_IDENTITY_LIST='all@.vault/vault_pass.txt.all, [name-of-the-cluster]@.vault/vault_pass.txt.[name-of-the-cluster]'
+  # ANSIBLE_VAULT_IDENTITY_LIST='all@.vault/vault_pass.txt.all, [stack_name]@.vault/vault_pass.txt.[stack_name]'
   #
   . ./lor-init
-  lor-config [name-of-the-cluster]
+  lor-config [stack_prefix]
   #
   #
   # Create new secrets.yml file based on a template and encrypt it with the vault password.
   #
-  ./generate_secrets.py group_vars/template/secrets.yml group_vars/[name-of-the-cluster]_cluster/secrets.yml
-  ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] group_vars/[name-of-the-cluster]_cluster/secrets.yml 
+  ./generate_secrets.py group_vars/template/secrets.yml group_vars/[stack_name]/secrets.yml
+  ansible-vault encrypt --encrypt-vault-id [stack_name] group_vars/[stack_name]/secrets.yml 
   ```
   The encrypted ```secrets.yml``` can now safely be committed.  
-  The ```.vault/vault_pass.txt.[name-of-the-cluster]``` file is excluded from the repo using the ```.vault*``` pattern in ```.gitignore```.
+  The ```.vault/vault_pass.txt.[stack_name]``` file is excluded from the repo using the ```.vault*``` pattern in ```.gitignore```.
 
-To use use an existing encrypted ```group_vars/[name-of-the-cluster]_cluster/secrets.yml```:
+To use use an existing encrypted ```group_vars/[stack_name]/secrets.yml```:
 
-* Add a ```.vault/vault_pass.txt.[name-of-the-cluster]``` file to this repo and use a text editor to add the vault password to this file.
+* Add a ```.vault/vault_pass.txt.[stack_name]``` file to this repo and use a text editor to add the vault password to this file.
 
 #### 4. Configure the Certificate Authority (CA).
 
@@ -179,12 +219,13 @@ This way users only need the public key of the CA in their ```~.ssh/known_hosts`
 and will not get bothered by messages like this:
 ```
 The authenticity of host '....' can't be established.
-ECDSA key fingerprint is ....
+ED25519 key fingerprint is ....
 Are you sure you want to continue connecting (yes/no)?
 ```
-* The filename of the CA private key is specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/[name-of-the-cluster]_cluster/vars.yml```
+* The default filename of the CA private key is ```[stack_name]-ca```
+  A different CA key file must be specified using the ```ssh_host_signer_ca_private_key``` variable defined in ```group_vars/[stack_name]/vars.yml```
 * The filename of the corresponding CA public key must be the same as the one of the private key suffixed with ```.pub```
-* The password required to decrypt the CA private key must be specified using the ```ssh_host_signer_ca_private_key_pass``` variable defined in ```group_vars/[name-of-the-cluster]_cluster/secrets.yml```,
+* The password required to decrypt the CA private key must be specified using the ```ssh_host_signer_ca_private_key_pass``` variable defined in ```group_vars/[stack_name]/secrets.yml```,
   which must be encrypted with ```ansible-vault```.
 * Each user must add the content of the CA public key to their ```~.ssh/known_hosts``` like this:
   ```
@@ -194,9 +235,10 @@ Are you sure you want to continue connecting (yes/no)?
   ```
   @cert-authority reception*,*talos,*tl-* ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDWNAF....VMZpZ5b9+5GA3O8w== UMCG HPC Development CA
   ```
-* Example to create a new CA key pair with the ```ed25519``` algorithm:
+* Example to create a new CA key pair with the ```ed25519``` algorithm and encryption after that:
   ```bash
-  ssh-keygen -t ed25519 -a 101 -f ssh-host-ca/ca-key-file-name -C "CA key for ..."
+  ssh-keygen -t ed25519 -a 101 -f ssh-host-ca/[stack_name]-ca -C "CA key for [stack_name]"
+  ansible-vault encrypt --encrypt-vault-id [stack_name] ssh-host-ca/[stack_name]-ca
   ```
 
 #### 5. Build Prometheus Node Exporter
@@ -215,29 +257,123 @@ Are you sure you want to continue connecting (yes/no)?
   ./build.sh
   ```
 
-#### 6. Generate munge key and encrypt using the ansible-vault.
+#### 6. Generate munge key and encrypt it using Ansible Vault.
 
 Execute:
 ```bash
-dd if=/dev/urandom bs=1 count=1024 > roles/slurm_management/files/[name-of-the-cluster]_munge.key
-ansible-vault encrypt --encrypt-vault-id [name-of-the-cluster] roles/slurm_management/files/[name-of-the-cluster]_munge.key
+mkdir -p files/[stack_name]
+dd if=/dev/urandom bs=1 count=1024 > files/[stack_name]/munge.key
+ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/munge.key
 ```
-The encrypted ```[name-of-the-cluster]_munge.key``` can now safely be committed.
+The encrypted ```files/[stack_name]/munge.key``` can now be committed safely.
 
-#### 7. Running playbooks.
+#### 7. Generate TLS certificate, passwords & hashes for the LDAP server and encrypt it using Ansible Vault.
 
-There are two playbooks:
+If you do not configure any LDAP domains using the ```ldap_domains``` variable (see *ldap_server* role for details) in ```group_vars/[stack_name]/vars.yml```,
+then the machines for the [stack_name] _stack_ will use local accounts created on each machine and this step can be skipped.
 
-1. `deploy-os_servers.yml`:
-   * Creates virtual resources in OpenStack: networks, subnets, routers, volumes and finally the virtual machines.
+If you configured ```ldap_domains``` in ```group_vars/[stack_name]/vars.yml``` and all LDAP domains have  ```create_ldap: false```,
+then this _stack_ will/must use an external LDAP, that was configured & hosted elsewhere, and this step can be skipped.
+
+If you configured one or more LDAP domains with ```create_ldap: true```; E.g.:
+   ```
+   ldap_domains:
+     stack:
+       create_ldap: true
+       .....
+     other_domain:
+       some_config_option: anothervalue
+       create_ldap: true
+       .....
+   ```
+Then this _stack_ will create and run its own LDAP server. You will need to create:
+  * For the LDAP server:
+    * A self-signed TLS certificate.
+    * _Password_ & corresponding _hash_ for the LDAP ```root``` account.
+  * For each LDAP domain hosted on this LDAP server:
+    * A ```readonly``` account with a correct _dn_, _password_ and corresponding _hash_.
+    * An ```admin``` account with a correct _dn_, _password_ and corresponding _hash_.
+
+###### 7a TLS certificate for LDAP server.
+
+Execute:
+   ```
+   openssl req -x509 -nodes -days 1825 -newkey rsa:4096 -keyout files/[stack_name]/ldap.key -out files/[stack_name]/ldap.crt
+   openssl dhparam -out files/[stack_name]/dhparam.pem 4096
+   ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/ldap.key
+   ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/ldap.crt
+   ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/dhparam.pem
+   ```
+The encrypted files in ```files/[stack_name]/``` can now be committed safely.
+
+###### 7a passwords and hashes for LDAP accounts.
+
+When an OpenLDAP server is created, you will need passwords and corresponding hashes for the LDAP _root_ account
+as well as for functional accounts for at least one LDAP domain. Therefore the minimal setup in ```group_vars/[stack_name]/secrets.yml``` is something like this:
+
+```
+openldap_root_pw: ''
+openldap_root_hash: ''
+ldap_credentials:
+  stack:
+    readonly:
+      dn: 'cn=readonly,dc={{ use stack_name here }},dc=local'
+      pw: ''
+      hash: ''
+    admin:
+      dn: 'cn={{ use stack_prefix here }}-admin,dc={{ use stack_name here }},dc=local'
+      pw: ''
+      hash: ''
+```
+
+In this example the LDAP domain named ```stack``` is used for users & groups, that were created for and are used only on this _stack_ of infra.
+You may have additional LDAP domains serving as other sources for users and groups.
+
+The `pw` values may have been already generated with the ```generate_secrets.py``` script in step 3.
+If you added additional LDAP domains later you can, decrypt the ```group_vars/[stack_name]/secrets.yml``` with ```ansible-vault```,
+rerun the ```generate_secrets.py``` script to generate additional password values and re-encrypt ```secret.yml``` with ```ansible-vault```.
+
+For each ```pw``` you will need to generate a corresponding hash. You cannot use ```generate_secrets.py``` for that,
+because it requires the ```slappasswd```. Therefore, you have to login on the OpenLDAP servers and use:
+```
+/usr/local/openldap/sbin/slappasswd \
+    -o module-path='/usr/local/openldap/libexec/openldap' \
+    -o module-load='argon2' -h '{ARGON2}' \
+    -s 'pw_value'
+```
+The result is a string with 6 ```$``` separated values like this:
+```
+'{ARGON2}$argon2id$v=19$m=65536,t=2,p=1$7+plp......nDs5J!dSpg$ywJt/ug9j.........qKcdfsgQwEI'
+```
+For the record:
+1. ```{ARGON2}```: identifies which hashing schema was used.
+2. ```argon2id```: lists which Argon 2 algorithm was used.
+3. ```v=19```: version of the Argon 2 algorithm.
+4. ```m=65536,t=2,p=1```: lists values used for arguments for the Argon 2 algorithm.
+5. ```7+plp......nDs5J!dSpg```: The base64 encoded radom salt that was added by ```slappasswd```
+6. ```ywJt/ug9j.........qKcdfsgQwEI````: The base64 encoded hash.
+
+Use the **_entire_** strings as the ```hash``` values in ```group_vars/[stack_name]/secrets.yml```.
+
+#### 8. Running playbooks.
+
+There are two _wrapper playbooks_:
+
+1. `openstack.yml`:
+   * Creates virtual resources in OpenStack: networks, subnets, routers, ports, volumes and finally the virtual machines.
    * Interacts with the OpenstackSDK / API on localhost.
-   * Uses a static inventory from `static_inventories/*.ini`
+   * Uses a static inventory from `static_inventories/*.yaml` parsed with our custom inventory plugin `inventory_plugins/yaml_with_jumphost.py`
 1. `cluster.yml`:
-   * Configures the virtual machines created with the `deploy-os_servers.yml` playbook.
+   * Configures the virtual machines created with the `openstack.yml` playbook.
    * Has no dependency on the OpenstackSDK / API.
-   * Uses the `inventory.py` dynamic inventory script.
+   * Uses a static inventory from `static_inventories/*.yaml` parsed with our custom inventory plugin `inventory_plugins/yaml_with_jumphost.py`
 
-##### deploy-os_servers.yml
+The _wrapper playbooks_ execute several _roles_ in the right order to create the complete `stack`.
+_Playbooks_ from the `single_role_playbooks/` or `single_group_playbooks/` sub directories can be used to
+(re)deploy individual roles or all roles for only a certain type of machine (inventory group), respectively.
+These shorter subset _playbooks_ can save a lot of time during development, testing or regular maintenance.
+
+##### openstack.yml
 
 * Login to the OpenStack web interface -> _Identity_ -> _Application Credentials_ -> click the _Create Application Credential_ button.  
   This will result in a popup window: specify _Name_, _Expiration Date_, _Expiration Time_, leave the rest empty / use defaults
@@ -254,11 +390,11 @@ There are two playbooks:
   #
   source ./[Application_Credential_Name]-openrc.sh
   #
-  # Configure this repo for deployment of a specifc HPC cluster.
+  # Configure this repo for deployment of a specific stack.
   #
   source ./lor-init
-  lor-config [name-of-the-cluster]
-  ansible-playbook -i static_inventories/[name-of-the-cluster]_hosts.ini deploy-os_servers.yml
+  lor-config [stack_prefix]
+  ansible-playbook openstack.yml
   ```
 
 ##### cluster.yml
@@ -291,7 +427,7 @@ Therefore the first step is to create additional local admin accounts:
 * whose home dir is not located in /home and
 * who are allowed to ```sudo su``` to the root user.
 
-Without signed host keys, SSH host key checking must be disbled for this first step.
+Without signed host keys, SSH host key checking must be disabled for this first step.
 The next step is to deploy the signed host keys.
 Once these first two steps have been deployed, the rest of the steps can be deployed with a local admin account and SSH host key checking enabled, which is the default.
 
@@ -317,15 +453,15 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
 
 * Configure the dynamic inventory and jumphost for the *Talos* test cluster:
   ```bash
-  export AI_INVENTORY='static_inventories/talos_hosts.ini'
   export AI_PROXY='reception'
-  export ANSIBLE_VAULT_IDENTITY_LIST='all@.vault/vault_pass.txt.all, talos@.vault/vault_pass.txt.talos'
+  export ANSIBLE_INVENTORY='static_inventories/talos_cluster.yml'
+  export ANSIBLE_VAULT_IDENTITY_LIST='all@.vault/vault_pass.txt.all, talos@.vault/vault_pass.txt.talos_cluster'
   ```
   This can also be accomplished with less typing by sourcing an initialisation file, which provides the ```lor-config``` function 
   to configure these environment variables for a specific cluster/site:
   ```bash
   . ./lor-init
-  lor-config talos
+  lor-config tl
   ```
 * Firstly, create the jumphost, which is required to access the other machines.
 * Create local admin accounts.
@@ -333,10 +469,10 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
 * Configure other stuff on the jumphost, which contains amongst others the settings required to access the other machines behind the jumphost.
   ```bash
   export ANSIBLE_HOST_KEY_CHECKING=False
-  ansible-playbook -i inventory.py -u centos          -l 'jumphost' single_role_playbooks/admin_users.yml
-  ansible-playbook -i inventory.py -u [admin_account] -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
+  ansible-playbook -u centos          -l 'jumphost' single_role_playbooks/admin_users.yml
+  ansible-playbook -u [admin_account] -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
   export ANSIBLE_HOST_KEY_CHECKING=True
-  ansible-playbook -i inventory.py -u [admin_account] -l 'jumphost' cluster.yml
+  ansible-playbook -u [admin_account] -l 'jumphost' cluster.yml
   ```
 * Secondly, deploy the rest of the machines in the same order.
   For creation of the local admin accounts you must (temporarily) set ```JUMPHOST_USER``` for the jumphost to _your local admin account_,
@@ -344,18 +480,18 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
   ```bash
   export ANSIBLE_HOST_KEY_CHECKING=False
   export JUMPHOST_USER=[admin_account] # Requires SSH client config as per end user documentation: see above.
-  ansible-playbook -i inventory.py -u centos          -l 'repo,cluster'      single_role_playbooks/admin_users.yml
-  ansible-playbook -i inventory.py -u root            -l 'docs'              single_role_playbooks/admin_users.yml
+  ansible-playbook -u centos          -l 'repo,cluster'      single_role_playbooks/admin_users.yml
+  ansible-playbook -u root            -l 'docs'              single_role_playbooks/admin_users.yml
   unset JUMPHOST_USER
-  ansible-playbook -i inventory.py -u [admin_account] -l 'repo,cluster,docs' single_role_playbooks/ssh_host_signer.yml
+  ansible-playbook -u [admin_account] -l 'repo,cluster,docs' single_role_playbooks/ssh_host_signer.yml
   export ANSIBLE_HOST_KEY_CHECKING=True
-  ansible-playbook -i inventory.py -u [admin_account] -l 'repo,cluster,docs' cluster.yml
+  ansible-playbook -u [admin_account] -l 'repo,cluster,docs' cluster.yml
   ```
-* (Re-)deploying only a specific role - e.g. *slurm_management* - on the previously deployed test cluster *Talos*
+* (Re-)deploying only a specific role - e.g. *rsyslog_client* - on the previously deployed test cluster *Talos*
   ```bash
-  ansible-playbook -i inventory.py -u [admin_account] single_role_playbooks/slurm_management.yml
+  ansible-playbook -u [admin_account] single_role_playbooks/rsyslog_client.yml
   ```
 
-#### 8. Verify operation.
+#### 9. Verify operation.
 
 See the end user documentation, that was generated with the ```online_docs``` role for instructions how to submit a job to test the cluster.

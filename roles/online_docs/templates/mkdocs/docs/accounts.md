@@ -33,8 +33,8 @@ Hence we do not have a copy/record/backup of your private key on the server side
     This requires setting the desired permissions for files or folders, which is your own responsibility. When you specify wrong permissions, data may be accessible for others.
   * You **cannot** secure the meta data of files/folders.
     * Hence things like file or folder names, time stamps, size, owner, group, etc. can always be seen by anyone who is logged in.
-    * This also applies to the name of and resources requested for job script files: all users can see the meta-data of all queued and all running jobs.  
-  Therefore **never ever put privacy sensitive data in the meta-data of files or folders**!
+    * This also applies to the name of and resources requested for job script files: all users can see the meta-data for all queued and all running jobs.  
+  Therefore **never ever put privacy sensitive data in the meta-data of files nor of folders**!
   * Your full name, email address, group memberships and role in a group (regular user or data manager or group owner) are visible to all other users.
 
 ## 2. Generate a public/private key pair
