@@ -46,8 +46,11 @@ all:
             - "{{ all.ip_addresses['rug']['bwp_net'] }}"
             - "{{ all.ip_addresses['rug']['operator'] }}"
             - "{{ all.ip_addresses['genomescan']['portal'] }}"
+            - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['wh_internal_management'] }}"
             - "{{ wingedhelix_cluster.ip_addresses['wh_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ betabarrel_cluster.ip_addresses['bb-porch']['bb_internal_management'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ copperfist_cluster.ip_addresses['cf-porch']['cf_internal_management'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf_internal_management-vlan16-router']['vlan16'] }}"
           iptables_allow_https_inbound:
             # On data_transfer servers port 443 is used for SSH too.
@@ -58,8 +61,11 @@ all:
             - "{{ all.ip_addresses['rug']['bwp_net'] }}"
             - "{{ all.ip_addresses['rug']['operator'] }}"
             - "{{ all.ip_addresses['genomescan']['portal'] }}"
+            - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['wh_internal_management'] }}"
             - "{{ wingedhelix_cluster.ip_addresses['wh_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ betabarrel_cluster.ip_addresses['bb-porch']['bb_internal_management'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ copperfist_cluster.ip_addresses['cf-porch']['cf_internal_management'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf_internal_management-vlan16-router']['vlan16'] }}"
           iptables_allow_ssh_inbound:
             - "{{ all.ip_addresses['umcg']['net1'] }}"
@@ -69,8 +75,11 @@ all:
             - "{{ all.ip_addresses['rug']['bwp_net'] }}"
             - "{{ all.ip_addresses['rug']['operator'] }}"
             - "{{ all.ip_addresses['genomescan']['portal'] }}"
+            - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['wh_internal_management'] }}"
             - "{{ wingedhelix_cluster.ip_addresses['wh_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ betabarrel_cluster.ip_addresses['bb-porch']['bb_internal_management'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ copperfist_cluster.ip_addresses['cf-porch']['cf_internal_management'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf_internal_management-vlan16-router']['vlan16'] }}"
     docs:
       hosts:
