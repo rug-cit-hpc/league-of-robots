@@ -54,8 +54,10 @@ all:
             - "{{ wingedhelix_cluster.ip_addresses['wh_internal_management-vlan16-router']['vlan16'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb-porch']['bb_internal_management'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ betabarrel_cluster.ip_addresses['betabarrel']['vlan13'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf-porch']['cf_internal_management'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ copperfist_cluster.ip_addresses['copperfist']['vlan13'] }}"
           iptables_allow_https_inbound:
             # On data_transfer servers port 443 is used for SSH too.
             - "{{ all.ip_addresses['umcg']['net1'] }}"
@@ -69,8 +71,10 @@ all:
             - "{{ wingedhelix_cluster.ip_addresses['wh_internal_management-vlan16-router']['vlan16'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb-porch']['bb_internal_management'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ betabarrel_cluster.ip_addresses['betabarrel']['vlan13'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf-porch']['cf_internal_management'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ copperfist_cluster.ip_addresses['copperfist']['vlan13'] }}"
           iptables_allow_ssh_inbound:
             - "{{ all.ip_addresses['umcg']['net1'] }}"
             - "{{ all.ip_addresses['umcg']['net2'] }}"
@@ -83,8 +87,10 @@ all:
             - "{{ wingedhelix_cluster.ip_addresses['wh_internal_management-vlan16-router']['vlan16'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb-porch']['bb_internal_management'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ betabarrel_cluster.ip_addresses['betabarrel']['vlan13'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf-porch']['cf_internal_management'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ copperfist_cluster.ip_addresses['copperfist']['vlan13'] }}"
     docs:
       hosts:
         docs_on_merlin:
