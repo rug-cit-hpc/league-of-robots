@@ -38,6 +38,40 @@ all:
               security_group: "{{ stack_prefix }}_ds"
               assign_floating_ip: true
           local_volume_size_extra: 800
+          iptables_allow_icmp_inbound:
+            - "{{ all.ip_addresses['umcg']['net1'] }}"
+            - "{{ all.ip_addresses['umcg']['net2'] }}"
+            - "{{ all.ip_addresses['umcg']['net3'] }}"
+            - "{{ all.ip_addresses['umcg']['net4'] }}"
+            - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+            - "{{ all.ip_addresses['rug']['operator'] }}"
+            - "{{ all.ip_addresses['genomescan']['portal'] }}"
+            - "{{ wingedhelix_cluster.ip_addresses['wh_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ betabarrel_cluster.ip_addresses['bb_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ copperfist_cluster.ip_addresses['cf_internal_management-vlan16-router']['vlan16'] }}"
+          iptables_allow_https_inbound:
+            # On data_transfer servers port 443 is used for SSH too.
+            - "{{ all.ip_addresses['umcg']['net1'] }}"
+            - "{{ all.ip_addresses['umcg']['net2'] }}"
+            - "{{ all.ip_addresses['umcg']['net3'] }}"
+            - "{{ all.ip_addresses['umcg']['net4'] }}"
+            - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+            - "{{ all.ip_addresses['rug']['operator'] }}"
+            - "{{ all.ip_addresses['genomescan']['portal'] }}"
+            - "{{ wingedhelix_cluster.ip_addresses['wh_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ betabarrel_cluster.ip_addresses['bb_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ copperfist_cluster.ip_addresses['cf_internal_management-vlan16-router']['vlan16'] }}"
+          iptables_allow_ssh_inbound:
+            - "{{ all.ip_addresses['umcg']['net1'] }}"
+            - "{{ all.ip_addresses['umcg']['net2'] }}"
+            - "{{ all.ip_addresses['umcg']['net3'] }}"
+            - "{{ all.ip_addresses['umcg']['net4'] }}"
+            - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+            - "{{ all.ip_addresses['rug']['operator'] }}"
+            - "{{ all.ip_addresses['genomescan']['portal'] }}"
+            - "{{ wingedhelix_cluster.ip_addresses['wh_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ betabarrel_cluster.ip_addresses['bb_internal_management-vlan16-router']['vlan16'] }}"
+            - "{{ copperfist_cluster.ip_addresses['cf_internal_management-vlan16-router']['vlan16'] }}"
     docs:
       hosts:
         docs_on_merlin:
