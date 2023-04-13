@@ -16,7 +16,7 @@
         that: "ansible_version.full is version_compare(minimal_ansible_version, '>=')"
         msg: "You must update Ansible to at least {{ minimal_ansible_version }}.x to use this playbook."
       vars:
-        minimal_ansible_version: 2.12
+        minimal_ansible_version: 2.11
       run_once: true  # noqa run-once
       delegate_to: localhost
       connection: local
