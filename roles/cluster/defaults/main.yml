@@ -29,6 +29,7 @@ cluster_common_packages:
   - readline-static
   - rsync
   - screen
+  - sl
   - strace
   - tcl-devel
   - telnet
