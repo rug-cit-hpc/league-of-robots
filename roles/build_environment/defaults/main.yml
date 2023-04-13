@@ -62,6 +62,7 @@ build_env_dai_deps:
 build_env_chaperone_deps:
   - 'bzip2'
   - 'gcc'
+  - 'gcc-c++'
   - 'git'
   - 'nano'
   - 'openssl'
