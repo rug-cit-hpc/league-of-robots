@@ -33,4 +33,23 @@ ip_addresses:
     {% endif %}
   {% endfor %}
 {% endfor %}
+{% for stack_network in stack_networks
+   | selectattr('router_network', 'defined')
+   | sort(attribute='name') %}
+  {% set router_name = 'Router bridging ' + stack_network.router_network + ' and ' + stack_network.name %}
+  {{ stack_network.name }}-{{ stack_network.router_network }}-router:
+    {{ stack_network.name }}:
+      address: {{ stack_network.gateway }}
+      netmask: /32
+    {{ stack_network.router_network }}:
+      address: {{ api_routers_info['openstack_routers']
+                  | selectattr('name', 'equalto', router_name)
+                  | map(attribute='external_gateway_info')
+                  | map (attribute='external_fixed_ips')
+                  | first
+                  | map (attribute='ip_address')
+                  | first }}
+      netmask: /32
+      fqdn: 'NXDOMAIN'
+{% endfor %}
 ...
