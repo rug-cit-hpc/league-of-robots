@@ -1,0 +1,23 @@
+---
+cluster_common_packages:
+  - bash-completion
+  - bc
+  - bzip2
+  - curl
+  - dos2unix
+  - git
+  - git-core
+  - gnutls
+  - lsof
+  - nano
+  - openssl
+  - rsync
+  - screen
+  - strace
+  - tmux
+  - unzip
+  - urw-base35-fonts
+  - vim
+  - wget
+  - yum-utils
+...
