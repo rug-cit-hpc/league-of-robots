@@ -65,6 +65,7 @@ build_env_chaperone_deps:
   - 'git'
   - 'nano'
   - 'openssl'
+  - 'patch'
   - 'rsync'
   - 'tcl-devel'
   - 'unzip'
