@@ -6,6 +6,7 @@
   hosts:
     - chaperone
   roles:
+    - cluster
     - regular_users
     - shared_storage
     - sudoers
