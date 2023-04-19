@@ -76,6 +76,9 @@
   notify: configure_iptables
   become: true
 
+- name: Flush handlers for iptables role.
+  ansible.builtin.meta: flush_handlers
+
 - name: Configure the firewall service.
   ansible.builtin.service:
     name: "{{ item }}"
