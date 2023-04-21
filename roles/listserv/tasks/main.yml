@@ -10,16 +10,26 @@
     - '/root/mailinglists'
   become: true
 
-- name: 'Install listserv script.'
-  ansible.builtin.copy:
+- name: 'Install listserv template.'
+  ansible.builtin.template:
     src: "templates/{{ item }}"
     dest: "/root/mailinglists/{{ item }}"
     owner: 'root'
     group: 'root'
     mode: '0750'
   with_items:
-    - 'LDAP2LISTSERV.bash'
     - 'LDAP2LISTSERV.cfg'
+  become: true
+
+- name: 'Copy listserv script.'
+  ansible.builtin.copy:
+    src: "files/{{ item }}"
+    dest: "/root/mailinglists/{{ item }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+  with_items:
+    - 'LDAP2LISTSERV.bash'
   become: true
 
 - name: 'Create cron job to fetch data from an LDAP and manage mailing list subscriptions of our users.'

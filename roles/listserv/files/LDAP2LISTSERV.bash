@@ -343,6 +343,7 @@ function manageSubscriptions () {
 	#
 	declare -A _accounts=()
 	mixed_stdouterr=$(ldapsearch -LLL -o ldif-wrap=no \
+		-H "${entitlement_settings[${_entitlement}',ldap_search_uri']}" \
 		-D "${entitlement_settings[${_entitlement}',ldap_user']}" \
 		-w "${entitlement_settings[${_entitlement}',ldap_pass']}" \
 		-b "${entitlement_settings[${_entitlement}',ldap_search_base']}" \
@@ -771,6 +772,14 @@ if [[ -r "${config_file}" && -f "${config_file}" ]]; then
 else
 	log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Config file ${config_file} missing or not accessible."
 fi
+
+#ldapcredentials_file="/etc/openldap/readonly-ldapsearch-credentials.bash"
+#if [[ -r "${ldapcredentials_file}" && -f "${ldapcredentials_file}" ]]; then
+#        log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Sourcing config file ${ldapcredentials_file}..."
+#        source "${ldapcredentials_file}" || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Cannot source ${ldapcredentials_file}."
+#else
+#        log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Config file ${ldapcredentials_file} missing or not accessible."
+#fi
 
 if [[ "${update_subscriptions}" -eq '1' ]]; then
 	log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' 'Found option -u: will update mailing list subscriptions.'
