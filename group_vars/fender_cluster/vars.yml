@@ -283,6 +283,8 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'jschulzehentrich'
     groups: ['users', 'solve-rd']
+  - user: 'atopf'
+    groups: ['users', 'solve-rd']
 sudoers:
   - who: ['%solve-rd']
     become: 'solve-rd-dm'
