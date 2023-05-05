@@ -6,13 +6,13 @@
   listen: client_restart_rsyslog
   become: true
 
-- name: restart rsyslog.service
-  ansible.builtin.service:
-    name: rsyslog.service
-    state: restarted
+- name: Restart firewall
+  ansible.builtin.command:
+    /etc/sysconfig/iptables-init.bash
   listen: restart_rserver_firewall
   become: true
   delegate_to: "{{ item }}"
   loop: "{{ rsyslogs_ext_ips }}"
   become: true
+  notify: client_restart_rsyslog
 ...

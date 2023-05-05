@@ -16,7 +16,8 @@
     certtool --generate-privkey --bits 4096
     --outfile {{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}
   register: ca_key_generate_result
-  when: not ca_key_on_server.stat.exists  or ca_key_on_server.stat.size == 0
+  when: not ca_key_on_server.stat.exists or ca_key_on_server.stat.size == 0
+  changed_when: ca_key_generate_result.rc == 0
   failed_when: "'FAILED' in ca_key_generate_result.stderr"
   notify: restart-rsyslog.service
   become: true
@@ -36,6 +37,7 @@
      --outfile {{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}
   register: ca_cert_generate_result
   when: not ca_cert_on_server.stat.exists or ca_cert_on_server.stat.size == 0
+  changed_when: ca_cert_generate_result.rc == 0
   failed_when: "'FAILED' in ca_cert_generate_result.stderr"
   notify: restart-rsyslog.service
   become: true

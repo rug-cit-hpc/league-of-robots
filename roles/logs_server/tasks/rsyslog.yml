@@ -88,6 +88,11 @@
   when: not repo_rsyslog_ca_cert.stat.exists or created_ca.changed # noqa no-handler
   become: true
 
+- name: Create servers key and certificate
+  ansible.builtin.include_tasks: server_certificate.yml
+  run_once: true
+  register: created_certificate
+
 - name: Deploy rsyslog.conf
   ansible.builtin.template:
     src: templates/rsyslog.conf
@@ -97,14 +102,6 @@
   become: true
   notify: restart-rsyslog.service
 
-#- name: Open incoming rsyslog tcp port
-#  ansible.posix.firewalld:
-#    port: "{{ hostvars[inventory_hostname].rsyslog_port | default('41514', true) }}/tcp"
-#    permanent: true
-#    immediate: true
-#    state: enabled
-#  become: true
-#
 - name: Start and enable rsyslog service
   ansible.builtin.systemd:
     name: rsyslog.service

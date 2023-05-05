@@ -1,23 +1,32 @@
 ---
-- name: Generate random string with length 12
+- name: Force all services to restart, before we start using iRODS imeta commands
+  ansible.builtin.meta: flush_handlers
+
+- name: Generate random HEX 20 character token
   ansible.builtin.set_fact:
     random_tag: "{{ lookup('community.general.random_string', length=12, override_all=hex_chars) }}" 
   vars:
     hex_chars: '0123456789ABCDEF'
-- name: Print the random tag value
+
+- name: Print the token
   debug:
     msg: "Value for {{ inventory_hostname }} is {{ random_tag }}"
-- name: Create random log event on the client side
+
+- name: Create random log event on the client side with token as a tag
   ansible.builtin.command:
     logger -t "{{ random_tag }}" Rsyslog remote test
   register: rsyslog_remote_test
+  changed_when: false
+
 - name: Sleep for 15 seconds for logs to propagate to server
   ansible.builtin.wait_for:
     timeout: 15
-- name: Check that remote server has log line
+
+- name: Check that remote server has token logged
   ansible.builtin.command:
     fgrep -q -nirI '{{ random_tag }}' /var/log/remote/{{ inventory_hostname }}
   register: remote_test_result
+  changed_when: false
   failed_when: remote_test_result.rc != 0
   delegate_to: "{{ item }}"
   loop: "{{ rsyslogs_ext_ips }}"

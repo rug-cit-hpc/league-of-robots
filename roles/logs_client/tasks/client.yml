@@ -1,5 +1,15 @@
 ---
-- name: Get information on rsyslog CA certificate on Ansible control host.
+# Gathering logs server list
+- name: Include static inventory logs_library.yml
+  ansible.builtin.include_vars:
+    file: "{{ inventory_dir }}/logs_library.yml"
+    name: "logs_servers_library"
+  register: logs_server_library
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- name: Get information on rsyslog CA certificate on Ansible control host
   ansible.builtin.stat:
     path: "{{ rsyslog_repository_dir }}/{{ rsyslog_ca_cert_file }}"
   register: repo_rsyslog_ca_cert
@@ -94,31 +104,8 @@
     force: true
   become: true
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
-#  delegate_to: "{{ groups['logs'] | first }}"
   delegate_to: "{{ item }}"
   loop: "{{ rsyslogs_ext_ips }}"
-
-# Gathering logs server list
-- name: Include static inventory logs_library.yml
-  ansible.builtin.include_vars:
-    file: "{{ inventory_dir }}/logs_library.yml"
-    name: "logs_servers_library"
-  register: logs_server_library
-  delegate_to: localhost
-  connection: local
-  run_once: true
-
-#- name: print logs_servers_library urls
-#  debug:
-#    msg: "{{ logs_servers_library.all }}"
-#- name: Create logs variable from logs_library.yml values
-#  ansible.builtin.set_fact:
-#    logs_inventory: "{{ logs_servers_library.all.children.logs.hosts }}"
-#  delegate_to: localhost
-#  connection: local
-#  run_once: true
-#
-#- meta: end_play
 
 - name: Copy client temporary template to rsyslog server
   ansible.builtin.template:
@@ -128,7 +115,6 @@
     force: true
   become: true
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
-#  delegate_to: "{{ groups['logs'] | first }}"
   delegate_to: "{{ item }}"
   loop: "{{ rsyslogs_ext_ips }}"
 
@@ -146,7 +132,6 @@
   become: true
   delegate_to: "{{ item }}"
   loop: "{{ rsyslogs_ext_ips }}"
-#  delegate_to: "{{ groups['logs'] | first }}"
 
 - name: Fetch rsyslog client certificates from rsyslog server
   ansible.builtin.fetch:
@@ -156,9 +141,6 @@
     fail_on_missing: true
     validate_checksum: true
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
-#   with_items:
-#     - "{{ inventory_hostname }}.pem"
-#  delegate_to: "{{ groups['logs'] | first }}"
   become: true
   delegate_to: "{{ item }}"
   loop: "{{ rsyslogs_ext_ips }}"

@@ -19,6 +19,9 @@ all:
         earl2:
           logs_ca_name: 'development'
           # ExternAl RsysLog 2 - Azure
+        earl3:
+          logs_ca_name: 'development'
+          # ExternAl RsysLog 2 - Azure
 logs_library:
   children:
     openstack_api:

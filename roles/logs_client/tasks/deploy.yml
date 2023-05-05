@@ -3,12 +3,14 @@
   ansible.builtin.yum:
     name:
       - rsyslog
+      - rsyslog-relp
       - rsyslog-gnutls
       - gnutls
       - gnutls-utils
     state: latest
     update_cache: true
   become: true
+  notify: client_restart_rsyslog
 
 - name: Create client keys and certificates if managed rsyslog servers are present
   ansible.builtin.include_tasks: client.yml
