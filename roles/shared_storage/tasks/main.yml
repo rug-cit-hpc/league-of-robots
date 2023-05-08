@@ -133,6 +133,67 @@
 
 #
 ##
+### Unmount LFS-ses, which are no longer configured to be mounted.
+##
+#
+- name: 'Unmount shared storage LFS-ses no longer configured to be mounted.'
+  ansible.posix.mount:
+    path: "{{ item['mount'] }}"
+    src: "{{ item['device'] }}"
+    state: absent
+  vars:
+    configured_lfs_mount_devices_string: "
+      {%- for lfs_mount in lfs_mounts | selectattr('lfs', 'search', 'home') | list -%}
+        {%- if inventory_hostname in lfs_mount['rw_machines'] | default([])
+            or inventory_hostname in lfs_mount['ro_machines'] | default([]) -%}
+      {{ pfs_mounts
+         | selectattr('pfs', 'equalto', lfs_mount['pfs'])
+         | map(attribute='source')
+         | first }}/{{ lfs_mount['pfs'] }}/{{ lfs_mount['lfs'] }}#
+        {%- endif -%}
+      {%- endfor -%}
+      {%- for lfs_mount in lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$') | list -%}
+        {%- if inventory_hostname in lfs_mount['rw_machines'] | default([])
+            or inventory_hostname in lfs_mount['ro_machines'] | default([]) -%}
+          {%- for group in lfs_mount['groups'] -%}
+      {{ pfs_mounts
+         | selectattr('pfs', 'equalto', lfs_mount['pfs'])
+         | map(attribute='source')
+         | first }}/{{ lfs_mount['pfs'] }}/groups/{{ group['name'] }}/{{ lfs_mount['lfs'] }}#
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- for lfs_mount in lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list -%}
+        {%- if inventory_hostname in lfs_mount['rw_machines'] | default([]) -%}
+      {{ pfs_mounts
+         | selectattr('pfs', 'equalto', lfs_mount['pfs'])
+         | map(attribute='source')
+         | first }}/{{ lfs_mount['pfs'] }}/{{ lfs_mount['lfs'] }}#
+        {%- endif -%}
+      {%- endfor -%}
+      {%- for lfs_mount in lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list -%}
+        {%- if inventory_hostname in lfs_mount['ro_machines'] | default([]) -%}
+      {{ pfs_mounts
+         | selectattr('pfs', 'equalto', lfs_mount['pfs'])
+         | map(attribute='source')
+         | first }}/{{ lfs_mount['pfs'] }}/{{ lfs_mount['lfs'] }}/apps#
+        {%- endif -%}
+      {%- endfor -%}"
+    configured_lfs_mount_devices: "{{ configured_lfs_mount_devices_string
+      | regex_replace('#+$', '')
+      | split('#') }}"
+  with_items: "{{ ansible_mounts
+    | selectattr('mount', 'defined')
+    | selectattr('mount', 'search', '^/(groups/)|(apps)|(home)|(mnt/env[0-9]+)')
+    | selectattr('device', 'defined')
+    | selectattr('device', 'search', ':/')
+    | sort(attribute='device')
+    | list }}"
+  when: item['device'] not in configured_lfs_mount_devices
+  become: true
+
+#
+##
 ### Mount all LFS-ses on cluster components/machines.
 ##
 #
@@ -145,7 +206,9 @@
     opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'home') | list }}"
-  when: inventory_hostname in item.rw_machines and not inventory_hostname in groups['nfs_server'] | default([])
+  when:
+    - inventory_hostname in item.rw_machines | default ([])
+    - not inventory_hostname in groups['nfs_server'] | default([])
   become: true
 
 - name: 'Create root /groups folder.'
@@ -189,7 +252,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in item.0.rw_machines
+  when: inventory_hostname in item.0.rw_machines | default ([])
   become: true
 
 - name: 'Mount "rsc" Logical File Systems (LFSs) per group from shared storage read-write.'
@@ -203,7 +266,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'rsc[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in item.0.rw_machines
+  when: inventory_hostname in item.0.rw_machines | default ([])
   become: true
 
 - name: 'Mount "rsc" Logical File Systems (LFSs) per group from shared storage read-only.'
@@ -217,7 +280,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'rsc[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in item.0.ro_machines
+  when: inventory_hostname in item.0.ro_machines | default ([])
   become: true
 
 - name: 'Mount "prm" Logical File Systems (LFSs) per group from shared storage read-write.'
@@ -236,7 +299,26 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in item.0.rw_machines
+  when: inventory_hostname in item.0.rw_machines | default ([])
+  become: true
+
+- name: 'Mount "prm" Logical File Systems (LFSs) per group from shared storage read-only.'
+  ansible.posix.mount:
+    path: "/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/\
+          {{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='ro_options') | first }}{{ extra_opts }}"
+    state: 'mounted'
+  vars:
+    extra_opts: >-
+      {%- if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' -%}
+      ,credentials=/etc/sysconfig/{{ item.0.pfs | regex_replace('\$$', '') }}.cifs,uid={{ item.1.name }}-dm,gid={{ item.1.name }}
+      {%- endif -%}
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in item.0.ro_machines | default ([])
   become: true
 
 - name: 'Mount "dat" Logical File Systems (LFSs) per group from shared storage read-write.'
@@ -255,7 +337,7 @@
   with_subelements:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'dat[0-9]+$') | list }}"
     - 'groups'
-  when: inventory_hostname in item.0.rw_machines
+  when: inventory_hostname in item.0.rw_machines | default ([])
   become: true
 
 - name: 'Mount "env" Logical File Systems (LFSs) from shared storage read-write.'
@@ -267,7 +349,7 @@
     opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
-  when: inventory_hostname in item.rw_machines
+  when: inventory_hostname in item.rw_machines | default ([])
   become: true
 
 - name: 'Mount "apps" from one "env" Logical File System (LFS) from shared storage read-only as /apps.'
@@ -280,7 +362,7 @@
     state: 'mounted'
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
-  when: inventory_hostname in item.ro_machines
+  when: inventory_hostname in item.ro_machines | default ([])
   become: true
 
 #

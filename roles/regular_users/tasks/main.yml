@@ -11,6 +11,7 @@
     - use_ldap | default(true) | bool
     - ldap_domains['stack']['create_ldap'] | default(false) | bool
     - inventory_hostname in groups['ldap_server'] | default([])
+    - ldap_domains['stack']['replication_provider_uri'] is not defined
 
 - name: 'Create local regular users & groups.'
   ansible.builtin.include_tasks:
@@ -20,5 +21,20 @@
     - inventory_hostname in groups['cluster'] | default([]) or
       inventory_hostname in groups['jumphost'] | default([]) or
       inventory_hostname in groups['chaperone'] | default([]) or
-      inventory_hostname in groups['data_transfer'] | default([])
+      inventory_hostname in groups['data_transfer'] | default([]) or
+      inventory_hostname in groups['build_servers'] | default([])
+    - ldap_domains['stack']['replication_provider_uri'] is not defined
+
+- name: 'Add remote regular users to local groups.'
+  ansible.builtin.include_tasks:
+    file: remote_users_in_local_groups.yml
+  when:
+    - inventory_hostname in groups['chaperone'] | default([])
+    - remote_users_in_local_groups is defined
+
+- name: 'Configure functional local accounts on chaperones.'
+  ansible.builtin.include_tasks:
+    file: functional_accounts_on_chaperones.yml
+  when:
+    - inventory_hostname in groups['chaperone'] | default([])
 ...

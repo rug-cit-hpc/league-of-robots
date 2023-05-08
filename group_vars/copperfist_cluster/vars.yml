@@ -14,6 +14,23 @@ slurm_partitions:
     local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
     features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.25G"'
+slurm_qos_limit_fractions:
+  regular-medium:
+    group: 1
+    user: 1
+  regular-long:
+    group: 1
+    user: 1
+  priority-short:
+    user: 1
+  priority-medium:
+    group: 1
+    user: 1
+  priority-long:
+    group: 1
+    user: 1
+  interactive-short:
+    user: 0.5
 repo_manager: 'none'
 figlet_font: 'ogre'
 motd: |
@@ -46,15 +63,17 @@ additional_etc_hosts:
 external_jumphosts:
   - group: wingedhelix_cluster
     hosts:
-      - hostname: porch
+      - hostname: wh-porch
         network: vlan16
   - group: betabarrel_cluster
     hosts:
       - hostname: bb-porch
         network: vlan16
-use_ldap: yes
-create_ldap: no
-use_sssd: yes
+      - hostname: az-porch
+        network: az_public
+use_ldap: true
+create_ldap: false
+use_sssd: true
 ldap_domains:
   idvault:
     uri: ldaps://svrs.id.rug.nl
@@ -66,6 +85,7 @@ ldap_domains:
     user_name: uid
     user_ssh_public_key: sshPublicKey
     user_member_of: groupMembership
+    user_expiration_date: loginExpirationTime
     group_member: memberUid
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
@@ -79,10 +99,6 @@ totp:
     - "{{ all.ip_addresses['umcg']['net2']['address'] }}{{ all.ip_addresses['umcg']['net2']['netmask'] }}"
     - "{{ all.ip_addresses['umcg']['net3']['address'] }}{{ all.ip_addresses['umcg']['net3']['netmask'] }}"
     - "{{ all.ip_addresses['umcg']['net4']['address'] }}{{ all.ip_addresses['umcg']['net4']['netmask'] }}"
-nameservers: [
-  '8.8.4.4',  # Google DNS.
-  '8.8.8.8',  # Google DNS.
-]
 cloud_image: CentOS 7
 cloud_user: centos
 availability_zone: nova
@@ -103,6 +119,10 @@ stack_networks:
       - '192.168.1.0/25'
     type: storage
     external: true
+nameservers: [
+  '8.8.4.4',  # Google DNS.
+  '8.8.8.8',  # Google DNS.
+]
 iptables_allow_icmp_inbound:
   - "{{ all.ip_addresses['umcg']['net1'] }}"
   - "{{ all.ip_addresses['umcg']['net2'] }}"
@@ -111,20 +131,23 @@ iptables_allow_icmp_inbound:
   - "{{ all.ip_addresses['rug']['bwp_net'] }}"
   - "{{ all.ip_addresses['rug']['operator'] }}"
   - "{{ all.ip_addresses['gcc']['cloud_net'] }}"
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
   - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
+  - "{{ betabarrel_cluster.ip_addresses['az-porch']['az_public'] }}"
   - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 iptables_allow_ssh_inbound:
   - "{{ all.ip_addresses['umcg']['net1'] }}"
   - "{{ all.ip_addresses['umcg']['net2'] }}"
   - "{{ all.ip_addresses['umcg']['net3'] }}"
   - "{{ all.ip_addresses['umcg']['net4'] }}"
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
   - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
+  - "{{ betabarrel_cluster.ip_addresses['az-porch']['az_public'] }}"
   - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 iptables_allow_ssh_outbound:
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
   - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
+  - "{{ betabarrel_cluster.ip_addresses['az-porch']['az_public'] }}"
   - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 main_backup_folder: '/mnt/local_raid/local_backups/'
 local_backups: # list of folders for cron to make daily backup
@@ -148,6 +171,7 @@ local_admin_users:
   - 'robin'
   - 'sandi'
   - 'wim'
+  - 'wouter'
 data_transfer_only_group: 'umcg-sftp-only'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
@@ -173,55 +197,177 @@ regular_users:
     groups: ["{{ envsync_group }}", "{{ functional_users_group }}"]
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd', 'umcg-gsad', "{{ functional_users_group }}"]
-    sudoers: '%umcg-atd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd', "{{ functional_users_group }}"]
-    sudoers: '%umcg-atd'
   - user: 'umcg-gap-ateambot'
     groups: ['umcg-gap', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gap'
   - user: 'umcg-gap-dm'
     groups: ['umcg-gap', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gap'
   - user: 'umcg-gd-ateambot'
     groups: ['umcg-gd', 'umcg-gap', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gd'
   - user: 'umcg-gd-dm'
     groups: ['umcg-gd', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gd'
   - user: 'umcg-genomescan-ateambot'
     groups: ['umcg-genomescan', "{{ functional_users_group }}"]
-    sudoers: '%umcg-genomescan'
   - user: 'umcg-genomescan-dm'
     groups: ['umcg-genomescan', "{{ functional_users_group }}"]
-    sudoers: '%umcg-genomescan'
   - user: 'umcg-gsad-ateambot'
     groups: ['umcg-gsad', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gsad'
   - user: 'umcg-gsad-dm'
     groups: ['umcg-gsad', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gsad'
   - user: 'umcg-gst-ateambot'
     groups: ['umcg-gst', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gst'
   - user: 'umcg-gst-dm'
     groups: ['umcg-gst', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gst'
   - user: 'umcg-labgnkbh-ateambot'
     groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
-    sudoers: '%umcg-labgnkbh'
   - user: 'umcg-labgnkbh-dm'
     groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
-    sudoers: '%umcg-labgnkbh'
   - user: 'umcg-patho-ateambot'
     groups: ['umcg-patho', "{{ functional_users_group }}"]
-    sudoers: '%umcg-patho'
   - user: 'umcg-patho-dm'
     groups: ['umcg-patho', "{{ functional_users_group }}"]
-    sudoers: '%umcg-patho'
   - user: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
-    sudoers: '%umcg-vipt'
+sudoers:
+  - who: ['%umcg-atd,!charbonb,!hendriksend']
+    become: 'umcg-atd-ateambot'
+    name: 'umcg-atd-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-atd,!charbonb,!hendriksend']
+    become: 'umcg-atd-dm'
+    name: 'umcg-atd-dm'
+    command: 'ALL'
+  - who: ['%umcg-gap,!charbonb,!hendriksend']
+    become: 'umcg-gap-ateambot'
+    name: 'umcg-gap-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gap,!charbonb,!hendriksend']
+    become: 'umcg-gap-dm'
+    name: 'umcg-gap-dm'
+    command: 'ALL'
+  - who: ['%umcg-gd,!charbonb,!hendriksend']
+    become: 'umcg-gd-ateambot'
+    name: 'umcg-gd-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gd,!charbonb,!hendriksend']
+    become: 'umcg-gd-dm'
+    name: 'umcg-gd-dm'
+    command: 'ALL'
+  - who: ['%umcg-genomescan']
+    become: 'umcg-genomescan-ateambot'
+    name: 'umcg-genomescan-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-genomescan']
+    become: 'umcg-genomescan-dm'
+    name: 'umcg-genomescan-dm'
+    command: 'ALL'
+  - who: ['%umcg-gsad,!charbonb,!hendriksend']
+    become: 'umcg-gsad-ateambot'
+    name: 'umcg-gsad-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gsad,!charbonb,!hendriksend']
+    become: 'umcg-gsad-dm'
+    name: 'umcg-gsad-dm'
+    command: 'ALL'
+  - who: ['%umcg-gst']
+    become: 'umcg-gst-ateambot'
+    name: 'umcg-gst-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gst']
+    become: 'umcg-gst-dm'
+    name: 'umcg-gst-dm'
+    command: 'ALL'
+  - who: ['%umcg-labgnkbh']
+    become: 'umcg-labgnkbh-ateambot'
+    name: 'umcg-labgnkbh-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-labgnkbh']
+    become: 'umcg-labgnkbh-dm'
+    name: 'umcg-labgnkbh-dm'
+    command: 'ALL'    
+  - who: ['%umcg-patho']
+    become: 'umcg-patho-ateambot'
+    name: 'umcg-patho-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-patho']
+    become: 'umcg-patho-dm'
+    name: 'umcg-patho-dm'
+    command: 'ALL'
+  - who: ['%umcg-vipt']
+    become: 'umcg-vipt-dm'
+    name: 'umcg-vipt-dm'
+    command: 'ALL'
+remote_users_in_local_groups:
+  - user: 'benjaminsm'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'bijlsmam'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'charbonb'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad',
+        'umcg-gap', 'umcg-gd', 'umcg-vipt',
+    ]
+  - user: 'cimermans'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'hendriksend'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad',
+        'umcg-gap', 'umcg-gd', 'umcg-vipt',
+    ]
+  - user: 'langek'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'kanningaroj'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'neerincxp'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+  - user: 'vriesgb'
+    groups: [
+        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
+        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
+        'umcg-labgnkbh', 'umcg-patho', 'umcg-vipt',
+    ]
+#
+# Local storage variables.
+#
+volume_group_folders: [
+  { mount_point: '/groups',
+    machines: "{{ groups['data_transfer'] }}",
+    mode: '2750',
+    groups: [
+        "{{ data_transfer_only_group }}"
+      ]},
+  { mount_point: '/groups',
+    machines: "{{ groups['data_transfer'] }}",
+    mode: '2770',
+    groups: [
+        'umcg-genomescan', 'umcg-gst'
+      ]},
+]
 #
 # Shared storage related variables
 #
@@ -251,6 +397,12 @@ pfs_mounts:
     rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
     ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
     machines: "{{ groups['chaperone'] }}"
+  - pfs: 'GCC'
+    source: '//storage1.umcg.nl/algemenedata$/appdata/AdLas'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02770,file_mode=0660'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02770,file_mode=0660'
+    machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home
     pfs: local_raid
@@ -272,61 +424,61 @@ lfs_mounts:
     pfs: 'medgen_zincfinger$'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
       - name: umcg-gsad
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat05
-    pfs: 'medgen_zincfinger$'
+    pfs: 'GCC'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
-      #- name: umcg-genomescan  Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
       - name: umcg-gsad
       - name: umcg-gst
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm06
     pfs: 'medgen_leucinezipper$'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
       - name: umcg-gsad
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat06
-    pfs: 'medgen_leucinezipper$'
+    pfs: 'GCC'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
-      #- name: umcg-genomescan  Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
       - name: umcg-gsad
       - name: umcg-gst
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm07
     pfs: 'medgen_wingedhelix$'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
       - name: umcg-gsad
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat07
-    pfs: 'medgen_wingedhelix$'
+    pfs: 'GCC'
     groups:
       - name: umcg-atd
-      #- name: umcg-gap         Do not use production groups while still in development phase.
-      #- name: umcg-gd          Do not use production groups while still in development phase.
-      #- name: umcg-genomescan  Do not use production groups while still in development phase.
+      - name: umcg-gap
+      - name: umcg-gd
+      - name: umcg-genomescan
       - name: umcg-gsad
       - name: umcg-gst
-      #- name: umcg-vipt        Do not use production groups while still in development phase.
+      - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env06
     pfs: local_raid

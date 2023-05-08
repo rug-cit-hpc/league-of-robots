@@ -487,9 +487,9 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
   export ANSIBLE_HOST_KEY_CHECKING=True
   ansible-playbook -u [admin_account] -l 'repo,cluster,docs' cluster.yml
   ```
-* (Re-)deploying only a specific role - e.g. *slurm_management* - on the previously deployed test cluster *Talos*
+* (Re-)deploying only a specific role - e.g. *rsyslog_client* - on the previously deployed test cluster *Talos*
   ```bash
-  ansible-playbook -u [admin_account] single_role_playbooks/slurm_management.yml
+  ansible-playbook -u [admin_account] single_role_playbooks/rsyslog_client.yml
   ```
 
 #### 9. Verify operation.

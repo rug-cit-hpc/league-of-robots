@@ -13,6 +13,7 @@
 - name: 'Configure iptables based firewalls (IPv4 and IPv6).'
   ansible.builtin.command:
     cmd: '/etc/sysconfig/iptables-init.bash'
+  changed_when: true
   become: true
   listen: configure_iptables
 ...

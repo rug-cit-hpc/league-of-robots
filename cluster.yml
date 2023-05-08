@@ -28,7 +28,7 @@
 - name: Run playbook for NFS servers.
   ansible.builtin.import_playbook: single_group_playbooks/nfs_server.yml
 
-- name: Run playbook for  all cluster machines part 2.
+- name: Run playbook for all cluster machines part 2.
   ansible.builtin.import_playbook: single_group_playbooks/cluster_part2.yml
 
 - name: Run playbook for sys admin interfaces.
@@ -45,6 +45,9 @@
 
 - name: Run playbook for documentation servers.
   ansible.builtin.import_playbook: single_group_playbooks/docs.yml
+
+- name: Run playbook for data transfer servers.
+  ansible.builtin.import_playbook: single_group_playbooks/data_transfer.yml
 
 - name: Run playbook for rsyslog servers.
   ansible.builtin.import_playbook: single_group_playbooks/logs.yml

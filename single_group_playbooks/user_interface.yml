@@ -11,9 +11,10 @@
   hosts:
     - user_interface
   roles:
+    - cgroups
     - build_environment
     - slurm_exporter
-    - slurm_client
+    - slurm
     - sudoers
     - subgroup_directories
     - role: ega_fuse_client

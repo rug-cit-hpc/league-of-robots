@@ -214,6 +214,7 @@ pulp rpm repository update --name centos7-extras  --remote centos7-extras-remote
 pulp rpm repository update --name epel7           --remote epel7-remote
 pulp rpm repository update --name irods7          --remote irods7-remote
 pulp rpm repository update --name lustre7         --remote lustre7-remote
+pulp rpm repository update --name e2fsprogs7      --remote e2fsprogs7-remote
 pulp rpm repository update --name ltb7            --remote ltb7-remote
 ```
 
@@ -226,6 +227,7 @@ pulp rpm repository sync --name centos7-extras
 pulp rpm repository sync --name epel7
 pulp rpm repository sync --name irods7
 pulp rpm repository sync --name lustre7
+pulp rpm repository sync --name e2fsprogs7
 pulp rpm repository sync --name ltb7
 ```
 
@@ -235,8 +237,8 @@ pulp rpm repository sync --name ltb7
 set -e
 set -u
 
-stack_prefix='' # Must be filled in; check group_vars.
-cluster_name='' # Must be filled in; check group_vars.
+stack_prefix='' # Must be filled in; check group_vars (f.e. 'fd').
+stack_name=''   # Must be filled in; check group_vars (f.e. 'fender_cluster').
 
 declare -a pulp_repos
 pulp_repos=(
@@ -247,11 +249,12 @@ pulp_repos=(
     cpel7
     irods7
     lustre7
+    e2fsprogs7
     ltb7
 )
 
 for repo in "${pulp_repos[@]}"; do
-    echo "INFO: Processing distribution name ${stack_prefix}-${repo} with base path ${cluster_name}/${repo} ..."
+    echo "INFO: Processing distribution name ${stack_prefix}-${repo} with base path ${stack_name%_cluster}/${repo} ..."
     #
     # Get latest repository version href for this repo.
     #
@@ -283,7 +286,7 @@ for repo in "${pulp_repos[@]}"; do
     fi
     pulp rpm distribution "${distribution_action}" \
         --name "${stack_prefix}-${repo}" \
-        --base-path "${cluster_name}/${repo}" \
+        --base-path "${stack_name%_cluster}/${repo}" \
         --publication "${publication_href}"
 done
 ```

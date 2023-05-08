@@ -10,6 +10,7 @@
     - cluster
     - docs
     - jenkins
+    - build_servers
   roles:
     - admin_users
 ...

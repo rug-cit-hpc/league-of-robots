@@ -118,6 +118,11 @@ ip_addresses:
       address: '145.88.35.10'
       netmask: '/32'
       desc: 'Jumphost for LUMC Shark cluster.'
+  genomescan:
+    portal:
+      address: '145.88.209.231'
+      netmask: '/32'
+      desc: 'Genomescan data transfer server.'
   #
   # EBI & Sanger servers.
   #
@@ -251,7 +256,6 @@ ip_addresses:
       address: '74.125.143.127'
       netmask: '/32'
       desc: 'stun.l.google.com for connection to STUN server when setting up a session with another Globus Connect Personal endpoint.'
-
   #
   # GitHub hooks
   #

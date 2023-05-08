@@ -9,6 +9,7 @@
       - openldap-ltb
       - openldap-ltb-contrib-overlays
       - openldap-ltb-mdb-utils
+      - python-ldap
   notify: restart_slapd
   become: true
 
@@ -109,6 +110,7 @@
     - root.ldif
     - tls.ldif
   when: ldap_server_config | json_query(query) | first is true
+  changed_when: ldap_server_config | json_query(query) | first is true
   vars:
     query: "results[?item=='{{ item }}'].changed"
   become: true

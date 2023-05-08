@@ -22,6 +22,10 @@
   openstack.cloud.networks_info:
   register: api_network_info
   run_once: true
+- name: Get info on routers from OpenStack API.
+  openstack.cloud.routers_info:
+  register: api_routers_info
+  run_once: true
 - name: Get server info from OpenStack API.
   openstack.cloud.server_info:
   register: api_server_info

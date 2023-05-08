@@ -2,35 +2,55 @@
 # Apptainer (previously known as Singularity)
 
 ## Table of contents
-
 - [About Apptainer](#about-apptainer)
-  - [Containers and apptainer](#containers-and-apptainer)
-- [How to use it](#how-to-use-it)
-- [Regular user limitations](#regular-user-limitations)
+    - [Containers and apptainer](#containers-and-apptainer)
+- [List of commonly used commands](#list-of-commonly-used-commands)
+- [Building Apptainer images](#building-apptainer-images)
+    - [Building Without Elevated Permissions](#building-without-elevated-permissions)
 - [Sandbox](#sandbox)
-  - [Converting sandbox directory to sif file](#converting-sandbox-directory-to-sif-file)
-- [Building image as regular user](#building-shared-image-as-regular-user)
+    - [Example with Ubuntu 18.04](#example-with-ubuntu-1804)
+    - [Converting sandbox directory to sif file](#converting-sandbox-directory-to-sif-file)
+- [Building image as a regular user](#building-image-as-a-regular-user)
+- [Making an image from the definition file with elevated permissions](#making-an-image-from-the-definition-file-with-elevated-permissions)
 - [Definition file](#definition-file)
+    - [Header](#header)
+    - [Sections](#sections)
+- [Important](#important)
+- [Caching redirect or disable](#caching-redirect-or-disable)
+- [Running Apptainer on Windows or Mac](#running-apptainer-on-windows-or-mac)
+- [Using images from the Docker repository](#using-images-from-the-docker-repository)
+- [Isolated runs](#isolated-runs)
+- [Mounting host folders inside containers](#mounting-host-folders-inside-containers)
+- [Other considerations](#other-considerations)
+    - [Architecture considerations](#architecture-considerations)
+    - [Licence considerations](#licence-considerations)
+- [Environment variables](#environment-variables)
+- [Debug information](#debug-information)
 - [Additional examples](#additional-examples)
-
+    - [Alpine as regular user build static file via sandbox directory](#alpine-as-regular-user-build-static-file-via-sandbox-directory)
+    - [Simple CentOS 7 example via sandbox](#simple-centos-7-example-via-sandbox)
 
 ## About Apptainer
 
 ### In short
 
 > Container is an isolated environment that holds the software and its dependencies and configurations. Containers can be run on any machine with compatible container technology.
-Container instance can be run (deployed) from an existing image. Therefore users must first either build (create) or copy an existing image (f.e. pull from a public registry). They can also share their prebuilt images with each other, and running containers from those, they can expect always to get the same results, regardless of the system on which the containers are run.
-> Apptainer is one of the container technology implementations; Docker is, for example, another. They work differently manner and are not fully compatible.  Apptainer is suited for HPC environments but can also run images from the Docker repository.
+Container instances can be run (deployed) from an existing image. Therefore, users must first either build (create) an image or fetch an existing image (f.e. pull from a public registry). They can also share their prebuilt images with each other to easily distribute software to different systems and can expect to always get the same results.
+> _Apptainer_ and _Docker_ are different implementations of container technology. _Docker_ is the most popular one, but unfortunately not suited for multi-user environments. _Apptainer_ is suited for multi-user environments, was specifically designed for HPC clusters and can run both _Singularity_ as well as _Docker_ container images.
 > Users can deploy containers, and inside those containers can access the same resources as they can access outside of those containers - nothing more.
 > Container technology described here is focused only on building and deploying Linux containers on Linux host systems.
 
+Documentation is available on the official [Apptainer's documentation website](https://apptainer.org/docs/)
+
 ### Containers and apptainer
 
-About Linux containers
+Linux containers
+
 * are a method for running multiple isolated Linux systems (containers) on a control host using a single Linux kernel,
 * provides the cgroups functionality that allows limitation and prioritization of resources (CPU, memory, block I/O, network, etc.) without the need for starting any virtual machines.
 
 Apptainer is a container platform
+
 * highly optimized to be run on a laptop or high-performance cluster,
 * extremely fast and lightweight - as there is no virtualization, and images are simply executed just as any other program,
 * enables a secure way of running containers - images can be easily verified,
@@ -38,7 +58,8 @@ Apptainer is a container platform
 * can directly run images from the Docker repository (via path `docker://...`).
 
 Apptainer container image
-* is a file (f.e. `ubuntu_18.04.sif`) containing all programs and libraries needed to execute that environment,
+
+* is a file (e.g. `ubuntu_18.04.sif`) containing all programs and libraries needed to execute that environment,
 * can contain a small subset of programs (with libraries), or entire Linux operating system (like Alpine, CentOS or Ubuntu),
 * is highly portable between various Linux operating systems and environments - it only requires installed Apptainer,
 * container filesystem environment is by default read-only when deployed (this can be partially changed by the user at the runtime - see section `Sandbox`),
@@ -49,27 +70,35 @@ Apptainer container image
 ## List of commonly used commands
 
 1. Pull container image from Docker repository
+
     `$ apptainer pull docker://alpine:latest`
 
 2. Start an interactive shell within your container
+
     `$ apptainer shell alpine_latest.sif`
 
 3. Run container (this executes its predefined runscript command)
+
     `$ apptainer run alpine_latest.sif`
 
 4. Execute custom command inside the container
+
     `$ apptainer exec alpine_latest.sif cat /etc/os-release`
 
 5. Execute a command directly from the Docker's repository container
+
     `$ apptainer exec docker://busybox:latest busybox | head -n1`
 
 6. Build sandbox directory directly from the Docker image
+
     `$ apptainer build --sandbox alpine_sandbox docker://busybox:latest`
 
 7. Shell into the sandbox, pretend to be a root user and permanently save all changes
+
     `$ apptainer shell --fakeroot --writable alpine_sandbox`
 
 8. Convert sandbox to static image
+
     `$ apptainer build alpine.sif alpine_sandbox`
 
 ## Building Apptainer images
@@ -83,22 +112,20 @@ Normally, regular users don't have elevated permissions on multi-user systems, w
 At the time of writing this documentation (late 2022) the Apptainer documentation exaplains the option of using a `--fakeroot` parameter as a way to bypass some of these limitations. The latest version `1.1.4` has still some know issues with this option and will hopefully be soon resolved.
 
 Fortunately, there are at least two alternatives, as users can either:
-  - simply build an `.sif` image file on a system where they have elevated (sudo) permissions, and then copy that `.sif` file to the cluster, or
-  - build an image on the cluster itself, but doing via the additional step of using the sandbox option and then convert the sandbox into the `.sif` file. To use this option, read sections `Sandbox` and `Building image as regular user`.
+- simply build an `.sif` image file on a system where they have elevated (sudo) permissions, and then copy that `.sif` file to the cluster, or
+- build an image on the cluster itself, but doing via the additional step of using the sandbox option and then convert the sandbox into the `.sif` file. To use this option, read sections `Sandbox` and `Building image as regular user`.
 
 ## Sandbox
 
-The sandbox option builds a container image inside a directory.
+The _sandbox_ option builds a container image inside a directory, which allows users to:
 
-The sandbox option allows users to bypass some of the limitations, as the sandbox container allows user
-
-* to run fakeroot option and become root user inside container,
+* to use the  `--fakeroot` option and become root inside container,
 * to change any files inside the container, and those changes *can be* (if used `--writable`) permanently saved,
-* can convert sandbox back to `.sif` file.
+* convert the sandbox back to a `*.sif` file.
 
 The drawbacks on the other hand are
 
-* the changes inside the sandbox (in contrast to the build from `.def` files) are not `recorded` in the image, and therefore,
+* the changes inside the sandbox are not `recorded` in the image (in contrast to the build from `.def` files), and therefore,
 * the `.sif` file is hard to maintain in the long run,
 * running sandbox often brings lower performance: due to the converting of the image, and (in case of shared remote file system use) the access of individual files inside the sandbox is slower than the use of .sif format.
 
@@ -111,7 +138,7 @@ Example: Rocky Linux 9 - from Docker repository to sandbox container
 
 where `--fakeroot` will emulate elevated (root) permissions inside container and `--writable` will allow files in the sandbox to be changed.
 
-#### Example with Ubuntu 18.04
+### Example with Ubuntu 18.04
 
 Alternatively, you can use `.def` recipe file. Example file named `ubuntu_18.04.def`
 ```
@@ -165,39 +192,39 @@ Regular users cannot build an image on the {{ slurm_cluster_name | capitalize }}
 **Example of building an image from the definition file**
 
 1. first we need to make sure we are not using our home folder - we need to create a directory inside the appropriate tmpXX filesystem and execute our commands from within
-   ```
-      $ mkdir /groups/umcg-MYGROUP/tmpXX/umcg-MYUSERNAME/mycontainers && cd $_ && pwd`
-   ```
+   
+   `$ mkdir /groups/umcg-MYGROUP/tmpXX/umcg-MYUSERNAME/mycontainers && cd $_ && pwd`
+  
   change capitalized part of the path with appropriate values.
 
 2. inside we can create new or copy pre-existent definition file, here is an example for the tiny definition file `busybox_min.def`
-   ```
-      Bootstrap: busybox
-      MirrorURL: https://www.busybox.net/downloads/binaries/1.35.0-x86_64-linux-musl/busybox
-      %runscript
-         /bin/busybox sh
-   ```
+```
+    Bootstrap: busybox
+    MirrorURL: https://www.busybox.net/downloads/binaries/1.35.0-x86_64-linux-musl/busybox
+    %runscript
+      /bin/busybox sh
+```
 
 3. now let's create a container image - first it will be just a sandbox directory made out of the definition file
-   ```
-      $ apptainer build --sandbox --disable-cache /groups/umcg-group/tmpXX/umcg-myusername/busybox_sandbox ./busybox_min.def
-   ```
+   
+   `$ apptainer build --sandbox --disable-cache /groups/umcg-group/tmpXX/umcg-myusername/busybox_sandbox ./busybox_min.def`
+   
    where `./my_apptainer.def` is a container recipe file in local directory.
 
 4. then we need to convert the sandbox into a static `.sif` file
-   ```
-      $ apptainer build ./busybox.sif /groups/umcg-group/tmpXX/umcg-myusername/busybox_sandbox
-   ```
+   
+   `$ apptainer build ./busybox.sif /groups/umcg-group/tmpXX/umcg-myusername/busybox_sandbox`
+   
 5. now we can execute the container, either (faster options) directly as any other executable file
-   ```
-      $ ./my_apptainer.sif
-   ```
+   
+   `$ ./my_apptainer.sif`
+   
    or by calling the `apptainer` command first (this gives you more apptainer options)
-   ```
-      $ apptainer run ./my_apptainer.sif
-   ```
+   
+   `$ apptainer run ./my_apptainer.sif`
+   
 
-## Making an image from the definition file (with elevated permissions)
+## Making an image from the definition file with elevated permissions
 
 Definition file `lolcow.def`:
 ```
@@ -266,11 +293,11 @@ It depends on how the container was built, but often `/home` folder is shared be
 
 Word of advice: docker and apptainer repositories are developed and maintained by the community, and therefore **images can and do contain all sorts of software and configurations**. While most of them are safe to use, users should be careful and avoid running containers from unknown sources. They might contain either buggy software or malicious code. Try to run only trusted images and when not sure, first try running inside an isolated environment (check the section about `Isolated runs`).
 
-Storage consumption: each container consumes a lot of storage. Making a new container will quickly fill up the disk. Make sure you keep only containers that you need. At the same time, pulling containers from public repositories, stores image layers locally in the `~/.apptainer/cache` folder. Users home folder can be quickly completely filled up with these temporary files. Caching shoud be disabled or redirected (see the section about `Caching redirect or disable`).
+Storage consumption: each container consumes a lot of storage. Making a new container will quickly fill up the disk. Make sure you keep only containers that you need. At the same time, pulling containers from public repositories, stores image layers locally in the `~/.apptainer/cache` folder. Your home folder can be quickly  filled up with these temporary files. Caching should either be disabled or redirected to another location (see the section about `Caching redirect or disable`).
 
 ## Caching redirect or disable
 
-By default the apptainer caches all the downloaded image layers. Simply pulling the docker image on Gearshift with
+By default _Apptainer_ caches all the downloaded image layers. Simply pulling a docker image, e.g.
 
 ```
     $ apptainer pull gate-9.2.sif docker://opengatecollaboration/gate:9.2-docker
@@ -286,7 +313,7 @@ By default the apptainer caches all the downloaded image layers. Simply pulling 
     ...
 ```
 
-will fail, as the layer `blobs` will be by default downloaded inside your home's `~/.apptainer/cache` directory. It will fill it up until 1.3GB and then the system quota will prevent further writing of the data - making the apptainer command fail.
+will fail when the default `~/.apptainer/cache` directory is used. It will fill it up until the quota limit for your home directory is reached, which will prevent any further writes making the `apptainer` command fail.
 
 To mitigate this, users can either run the `apptainer` command with argument  `--disable-cache`
 
@@ -322,73 +349,51 @@ Apptainer cannot run natively on Windows or Mac, but it is possible to run appta
 
 For more information please visit [Apptainer's installation documentation](https://apptainer.org/docs/admin/main/installation.html).
 
-## Debugging
-
-In case you have issues with building or running images, you can run the apptainer command with more verbose output. To use it, simply use `--debug` parameter:
-
-    `apptainer --debug exec centos7.sif ls`
-
-## More information
-
-First check the official [Apptainer's documentation website](https://apptainer.org/docs/)
-
-There are other interesting 
-
-### Using images from the Docker repository
+## Using images from the Docker repository
 
 Users can shell, import, run, and exec Docker images directly from the Docker Registry:
 
-Run image directly from Docker repository
-```
-    $ apptainer run docker://alpine:latest
-```
+* Run image directly from Docker repository
 
-Download image from Docker reposiroty to local folder
-```
-    $ apptainer pull docker://centos:latest 
-```
+`$ apptainer run docker://alpine:latest`
 
-Directly execute shell inside Docker repository image
-```
-    $ apptainer shell docker://alpine:latest
-```
+* Download image from Docker reposiroty to local folder
 
-Execute command inside the image
-```
-    $ apptainer exec docker://alpine:latest echo "Hello Dinosaur!"
-```
+`$ apptainer pull docker://centos:latest`
 
-Build image from Docker repository - expects user to have elevated permissions:
-```
-    $ sudo apptainer build ubuntu.img docker://ubuntu:latest
-```
+* Directly execute shell inside Docker repository image
 
-Build sandbox image directly from Docker repository:
-```
-    $ apptainer build --sandbox --disable-cache ubuntu.img docker://ubuntu:latest
-```
+`$ apptainer shell docker://alpine:latest`
 
-Convert sandbox to static .sif image:
-```
-    $ apptainer build busybox.sif busybox_sandboxdir
-```
+* Execute command inside the image
 
-Prevent download caching of files from Docker repository:
-```
-    $ apptainer pull --disable-cache centos.sif docker://centos:7.9
-```
+`$ apptainer exec docker://alpine:latest echo "Hi from inside the container."`
 
-### Isolated runs
+* Build image from Docker repository - expects user to have elevated permissions:
 
-**Be careful, by default some folders are automatically shared between host machine and container.** This depends on the options with which container was built and container runtime parameters. Most commonly, on host system user's current working directoy is automatically as `/home` folder inside the container.
+`$ sudo apptainer build ubuntu.img docker://ubuntu:latest`
 
-That means that badly written or malicious software from inside container, could change and delete your currently working directory or your `/home/...` directory.
+* Build sandbox image directly from Docker repository:
 
-Apptainer provides options to control this exposure, by controlling mount points. User can either limit them with `-c` or `-C` argument, like:
+`$ apptainer build --sandbox --disable-cache ubuntu.img docker://ubuntu:latest`
+
+* Convert sandbox to static .sif image
+
+`$ apptainer build busybox.sif busybox_sandboxdir`
+
+* Prevent caching downloaded files from online repositories
+
+`$ apptainer pull --disable-cache centos.sif docker://centos:7.9`
+
+## Isolated runs
+
+**Be careful, by default some folders are automatically shared between host machine and container.** This depends on the options with which container was built and container runtime parameters. Most commonly, on host system user's current working directoy is automatically as `/home` folder inside the container. Badly written or malicious software from inside container, could change and delete current working directory or `/home/` directory on host system. Apptainer provides options to control this exposure, by controlling mount points. User can either limit with arguments `-c` or `-C`
 
 ```
-    $ apptainer run -C mycontainer.sif somecommands ...
+    $ apptainer run -C mycontainer.sif
 ```
+
+where
 
 ```
        -c, --contain[=false]        use minimal /dev and empty other directories (e.g. /tmp and $HOME) instead of sharing filesystems from your host
@@ -399,7 +404,7 @@ First option will share no folders, while the second one will (inside container)
 
 The `--no-mount` flag allows specific system mounts to be disabled, even if they are set in the `apptainer.conf` configuration file by the administrator.
 
-### Mounting host folders inside containers
+## Mounting host folders inside containers
 
 User can also manually control where the individual hosts folder will be mounted to, by using `--bind` (or short `-B`) argument. For example
 
@@ -415,24 +420,28 @@ this will expose host machine users `mydata` folder to `/mnt` folder inside cont
 
 For more information, check Apptainer's website [about mount points](https://apptainer.org/docs/user/main/bind_paths_and_mounts.html).
 
-## Architecture considerations
+
+## Other considerations
+
+### Architecture considerations
 
 Software build for specific architecture, can be only executed on the systems of the same architecture. For example, an apptainer image build on Apple M1 (ARM) or PowerPC (RISC) architecture will not run on x86 systems and vice versa.
 
-The software compiled within the apptainer image can also have issues when running on same type of architecture, but older genration. For example, the software inside the image compiled on a modern x86 architecture CPU and with high level of optimization, can fail from running on older architecture CPU. This happens because compiled binary contains instructions of modern processor, that older ones cannot understand. Running software build on older architectures, should work on any new architecture of a same type.
+Software compiled within the _Apptainer_ image can also have issues when running on an older generation of the same type of architecture. This can happen when the compiled binary code contains instructions for a modern processor, that older ones cannot understand. The other way around, running software build for processors of a certain architecture should work on any newer generation processors of the same architecture.
 
-## Licence considerations
+### Licence considerations
 
 A non-free software - a closed-source or proprietary software, can be used within the licence agreement of that software. Using a proprietary software from publicly available containers are not allowed. And conversly also creating and publicly share your own containers with closed-source software is usually prohibited.
 
 Before using, and sharing containers, please check for software limitations, which can be (among many others) limited to
- - group-wide, company-wide, enterprise-wide use,
- - use on-premise only or geographically limited - for example to a region or country,
- - limited to specific person (in some cases only when working at specific company and/or position),
- - prohibited from running in the cloud,
- - locked to a specific host or hardware (MAC address limited).
 
-### Environment variables
+* group-wide, company-wide, enterprise-wide use,
+* use on-premise only or geographically limited - for example to a region or country,
+* limited to specific person (in some cases only when working at specific company and/or position),
+* prohibited from running in the cloud,
+* locked to a specific host or hardware (MAC address limited).
+
+## Environment variables
 
 If you have environment variables set outside of your container, on the host, then by default they will be available inside the container.
 You can overwrite variable set inside container by defining it outside first. The variables that can overwrite the default set ones start with `APPTAINERENV_...`, f.e.
@@ -450,7 +459,7 @@ or by providing argument `--env myvariable="myvalue1"` at container execution
     /some/path
 ```
 
-### Debug information
+## Debug information
 
 In some cases you might need more information about how the container is behaving while running. Adding `-d` argument to `apptainer` call, will enable printing more information about the container environment and what system call is being executed. For example without debug:
 
@@ -479,7 +488,7 @@ and the same container with debug option
 ```
 ## Additional examples
 
-### Making Alpine latest static sif file as regular user
+### Alpine - as regular user build static file via sandbox directory
 
 Alpine has a known bug in that is still present in apptainer version `1.1.4`. It prevents users to build apptainer images from `.def` file, reporting:
 ```

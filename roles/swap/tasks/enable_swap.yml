@@ -18,7 +18,7 @@
     path: "{{ swap_file_path }}"
     owner: root
     group: root
-    mode: 0600
+    mode: '0600'
   become: true
 
 - name: Add swap file entry to fstab.

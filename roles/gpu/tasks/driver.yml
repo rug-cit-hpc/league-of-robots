@@ -44,7 +44,7 @@
   ansible.builtin.command: '/root/{{ gpu_runfile }} --silent --driver'
   register: install_result
   failed_when: install_result.rc != 0
-  when: true
+  changed_when: true
   become: true
 
 - name: Remove installation file

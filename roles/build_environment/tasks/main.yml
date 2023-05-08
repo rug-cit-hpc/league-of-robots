@@ -5,18 +5,29 @@
 # The DAI requires additional packages for compiling Slurm, Lmod, Lua, Ansible, etc.,
 # which users won't need.
 #
+# On chaperones we need a minimal build invironment too in order to deploy software
+# with the playbooks from the ansible-pipeline repo.
+#
 ---
 - name: Install generic build environment packages on UIs and DAIs.
   ansible.builtin.import_tasks: build_dependencies.yml
   vars:
     mandatory_deps: "{{ build_env_generic_deps }}"
     optional_deps: "{{ build_env_optional_deps }}"
-  when: inventory_hostname in groups['user_interface'] or inventory_hostname in groups['deploy_admin_interface']
+  when: inventory_hostname in groups['user_interface'] | default([]) or
+        inventory_hostname in groups['deploy_admin_interface'] | default([])
 
 - name: Install extended build environment packages on DAIs.
   ansible.builtin.import_tasks: build_dependencies.yml
   vars:
     mandatory_deps: "{{ build_env_dai_deps }}"
     optional_deps: []
-  when: inventory_hostname in groups['deploy_admin_interface']
+  when: inventory_hostname in groups['deploy_admin_interface'] | default([])
+
+- name: Install minimal build environment packages on chaperones.
+  ansible.builtin.import_tasks: build_dependencies.yml
+  vars:
+    mandatory_deps: "{{ build_env_chaperone_deps }}"
+    optional_deps: []
+  when: inventory_hostname in groups['chaperone'] | default([])
 ...

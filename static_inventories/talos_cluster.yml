@@ -24,7 +24,6 @@ all:
             - "{{ gearshift_cluster.ip_addresses['airlock']['vlan16'] }}"
             - "{{ hyperchicken_cluster.ip_addresses['portal']['public'] }}"
             - "{{ nibbler_cluster.ip_addresses['tunnel']['vlan16'] }}"
-            - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
     repo:
       hosts:
         tl-repo:
@@ -75,13 +74,13 @@ all:
             host_networks:
               - name: vlan983
               - name: vlan985
-            local_volume_size_extra: 290
+            local_volume_size_extra: 100
             slurm_sockets: 4
             slurm_cores_per_socket: 1
             slurm_real_memory: 7820
             slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
             slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
-            slurm_local_disk: 270000
+            slurm_local_disk: 93000
             slurm_features: 'tmp08'
             slurm_ethernet_interfaces:
               - 'vlan983'
