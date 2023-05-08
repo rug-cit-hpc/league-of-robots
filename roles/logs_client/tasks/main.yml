@@ -39,13 +39,13 @@
   when: ( stacks_logs_servers is defined and ( stacks_logs_servers|length>0 ) ) or
         ( rsyslog_external_servers is defined and ( rsyslog_external_servers|length>0 ))
 
-- name: Deploy rsyslog client.
+- name: Deploy rsyslog client
   ansible.builtin.include_tasks:
     file: deploy.yml
   when: ( stacks_logs_servers is defined and ( stacks_logs_servers|length>0 ) ) or
         ( rsyslog_external_servers is defined and ( rsyslog_external_servers|length>0 ))
 
-- name: Deploy rsyslog client.
+- name: Test rsyslog client
   ansible.builtin.include_tasks:
     file: test.yml
   when: ( stacks_logs_servers is defined and ( stacks_logs_servers|length>0 ) ) or

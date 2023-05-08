@@ -1,13 +1,14 @@
-# Rsyslog SERVER ansible role
+# Remote logs SERVER ansible role
 
 ## I. Overview
-This playbook is a (first) half of ansible rsyslog server role. It is independant
+This playbook is a (first) half of ansible rsyslog server role. It is independent
 of a second half (the client) role.
 
 ## II. Prerequisites
-The playbook expects that there are one or more servers defined in static 
-inventory list, under group called `rsyslog`. It will configure CA and deploy
-`/etc/rsyslog.conf` file.
+
+The playbook expects that there are one or more servers defined in a static
+inventory list, under group named `rsyslog`. It configures CA and deploys it on server
+in `/etc/rsyslog.conf` file.
 It expects
  - preconfigured (for now only) Centos 7 server
  - preinstalled firewall service (or installs if run via `single_group_playbook`)
@@ -16,7 +17,7 @@ It expects
  - selinux in `permissive` or `disabled` mode
 
 Playbook
- - installs rsyslog software package
+ - installs rsyslog software package, and rsyslog reliable module plugin (RELP)
  - installs tools for key and certificate generation
  - deploys (or if needed creates) key and certificate for self signed ca
  - overwrites the `/etc/rsyslog.conf` with one predefined from the template
@@ -60,4 +61,5 @@ By default on remote they are at the
    `/etc/pki/tls/private/rsyslog-ca.key`
 
 and on the repository at the
+
    `files/{{stack or library name}}/rsyslog-ca.[key and pem]`

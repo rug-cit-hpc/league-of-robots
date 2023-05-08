@@ -2,7 +2,7 @@
 - name: Force all services to restart, before we start using iRODS imeta commands
   ansible.builtin.meta: flush_handlers
 
-- name: Generate random HEX 20 character token
+- name: Generate random 12-character HEX token
   ansible.builtin.set_fact:
     random_tag: "{{ lookup('community.general.random_string', length=12, override_all=hex_chars) }}"
   vars:

@@ -1,8 +1,8 @@
-# Rsyslog CLIENT ansible role
+# Remote logs CLIENT ansible role
 
 ## I. Prerequisites
 
-This role is the second of the rsyslog ansible playbooks. It expects predefined
+This role is the second of the logs ansible playbooks. It expects predefined
  - (optional) a list of external rsyslog servers (unmanaged by our roles) defined
    in group variables f.e. inside ```group_vars/{{ stack_name }}/vars.yml```
    ```
@@ -18,7 +18,7 @@ This role is the second of the rsyslog ansible playbooks. It expects predefined
 
 ## II. Playbook procedure
 
-1. The playbook parses the group vars for the list of external rsyslog servers
+1. The playbook parses the group vars for the list of (unmanaged) **external** rsyslog servers
    (not managed with Ansible roles from this repo) - the variable defining those
    servers can be defined in ```group_vars/{{ stack_name}}/vars.yml``` f.e.
    ```
@@ -30,9 +30,18 @@ This role is the second of the rsyslog ansible playbooks. It expects predefined
    of the client machine.
    Note: port is optional and, if not defined, default rsyslog port 514 is used.
 
-2. If a list of rsyslog servers (managed by Ansible roles from this repo) was defined in the inventory, then the playbook configures on each
-   of the client machines:
+2. Managed log servers
+
+    - types: there can be several types of log servers. Currently we envisoned the three types:
+      - `development` (default) for testing purposes
+      - `research`, for the research clusters, and
+      - `diagnostics` for the production machines
+    - type can be defined by assigning an appropriate value to the `logs_ca_name` variable (f.e. `research`) in a `groups_vars/[stack]/vars.yml` (for group of computers) or `static_inventory/[stack].yml` (to the individual instance).
+
+   If a list of managed logs servers (managed by Ansible roles from this repo) was
+   defined in the inventory, then the playbook configures on each of the client machines:
    (if certificate and key are missing or are not compatible signed with CA)
+
     - private key (with 4096 bits)
     - copies the template, based on which the certificate request will be created
     - generates certificate sign request for clients machine name, based on the
@@ -40,6 +49,7 @@ This role is the second of the rsyslog ansible playbooks. It expects predefined
     - both signing request and clients template (!) are copied to CA server
     - the server creates certificate from CSR and template
     - both client's and CA's certificate are copied from server to client
+
 3. Steps creating and deploying `rsyslog.conf`
    At the end, the `/etc/rsyslog.conf` file is deployed based on the template from
    this playbook. It combines all the external (non-managed) rsyslog servers from 
@@ -52,22 +62,28 @@ This role is the second of the rsyslog ansible playbooks. It expects predefined
 
 ## III. Redeploying individual client
 
-By default, the playbook always check that the correct ca certificate (one from the
+By default, the playbook always check that the correct CA certificate (one from the
 repo) is deployed. If client is missing or an outdated one, it overwrites it. Then
-playbook checks if existing client's certificate is valid against the ca certificate.
+playbook checks if existing client's certificate is valid against the CA certificate.
 If it is not, it triggers the process of recreating one.
 
-(On the client machine) remove the files
+To recreate the client certificate:
+
+(on the client machine) remove the files
+
 ```
    {{ rsyslog_remote_key_dir }}/{{ inventory_hostname }}.key
    {{ rsyslog_remote_cert_dir }}/{{ inventory_hostname }}.pem
    {{ rsyslog_remote_cert_dir }}/{{ rsyslog_ca_cert_file }}
 ```
+
 By default they should be
+
 ```
    /etc/pki/tls/private/[machinename].key
    /etc/pki/tls/certs/[machinename].pem
    /etc/pki/tls/certs/rsyslog-ca.pem
 ```
-then rerun the `single_group_playbooks/rsyslog.yml` or `single_role_playbooks/ryslog_client.yml`
+
+then rerun the `single_group_playbooks/logs.yml` or `single_role_playbooks/logs_client.yml`
 playbook.

@@ -1,5 +1,5 @@
 ---
-- name: "Ensure that the directory iptables extras exists."
+- name: Ensure that the directory iptables extras exists
   ansible.builtin.file:
     path: "{{ iptables_extras_dir }}"
     owner: "root"

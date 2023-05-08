@@ -1,5 +1,5 @@
 ---
-- name: Get information on rsyslog server certificate {{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem
+- name: Get information of servers rsyslog certificate
   ansible.builtin.stat:
     path: "{{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem"
   register: server_cert_status
@@ -14,7 +14,7 @@
   changed_when: false
   become: true
 
-- name: Check rsyslog client key in the {{ rsyslog_remote_path_key_dir }}
+- name: Check on server for the instance key status
   ansible.builtin.stat:
     path: "{{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key"
   register: server_key_status
