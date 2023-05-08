@@ -410,7 +410,7 @@
 #
 - name: "Create security groups for machines in 'logs' inventory group."
   block:
-    - name: "Create security group for {{ stack_prefix }} stack logs servers."
+    - name: "Create security group {{ stack_prefix }}_logservers."
       openstack.cloud.security_group:
         state: present
         name: "{{ stack_prefix }}_logservers"
@@ -422,7 +422,7 @@
                      Allows all outbound traffic.
         wait: true
         timeout: "{{ openstack_api_timeout }}"
-    - name: "Add rules to {{ stack_prefix }}_logservers security group."
+    - name: "Add rules to {{ stack_prefix }}_logservers security group: 443, 41514 and ICMP"
       openstack.cloud.security_group_rule:
         security_group: "{{ stack_prefix }}_logservers"
         direction: ingress

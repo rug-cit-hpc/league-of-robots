@@ -12,6 +12,7 @@ stack_networks:
     router_network: vlan16
     type: management
     external: false
+    mtu_size: '1450'
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
