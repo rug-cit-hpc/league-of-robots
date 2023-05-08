@@ -12,20 +12,23 @@
   become: true
 
 - name: Get public IP of all the clients
-  ansible.builtin.command: "curl ifconfig.me"
+  ansible.builtin.uri:
+    url: http://ifconfig.me/ip
+    return_content: true
   register: client_public_ip
   changed_when: false
 
 - name: Print public IP of all the clients
   ansible.builtin.debug:
-    msg: "{{ inventory_hostname }} => {{ client_public_ip.stdout }}"
+    msg: "{{ inventory_hostname }} => {{ client_public_ip.content }}"
   changed_when: false
 
 - name: Add line to Logs exception file
   ansible.builtin.lineinfile:
     path: '{{ iptables_extras_dir }}/{{ stack_prefix }}.allow'
     state: present
-    create: yes
+    mode: '0640'
+    create: true
     regexp: "{{ client_public_ip.stdout | trim }} 41514"
     line: "{{ client_public_ip.stdout | trim }} 41514"
   run_once: true

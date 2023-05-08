@@ -67,7 +67,7 @@ external_jumphosts:
         network: vlan16
   - group: wingedhelix_cluster
     hosts:
-      - hostname: porch
+      - hostname: wh-porch
         network: vlan16
   - group: betabarrel_cluster
     hosts:

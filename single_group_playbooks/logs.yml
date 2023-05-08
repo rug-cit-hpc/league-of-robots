@@ -7,9 +7,8 @@
     - admin_users
     - ssh_host_signer
     - iptables
-    - update
-    - iptables
     - ssh_known_hosts
+    - update
     - {role: yum_local, when: local_yum_repository is defined}
     - logrotate
     - {role: geerlingguy.repo-epel, become: true}

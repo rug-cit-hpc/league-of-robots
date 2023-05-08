@@ -24,29 +24,14 @@
   connection: local
   run_once: true
 
-# - name: Print the log servers
-#   ansible.builtin.debug:
-#     msg: "name: {{ item['name'] }} | network: {{ item['external_network'] }}"
-#   loop: "{{ logs_servers }}"
-#   delegate_to: localhost
-#   connection: local
-#   run_once: true
-# 
 - name: Compile the list of logs external IP addresses
   ansible.builtin.set_fact:
-    rsyslogs_ext_ips: "{{ rsyslogs_ext_ips | default([]) + [ logs_ips.ip_addresses[item['name']][item['external_network']].address ] }}"
+    rsyslogs_ext_ips: "{{ rsyslogs_ext_ips | default([]) + [logs_ips.ip_addresses[item['name']][item['external_network']].address] }}"
   loop: "{{ logs_servers }}"
   register: rsys_ext_ips
   delegate_to: 127.0.0.1
   connection: local
   run_once: true
-
-# - name: Print rsyslog external ips
-#   ansible.builtin.debug:
-#    msg: "{{ item }}"
-#   with_items: "{{ rsyslogs_ext_ips }}"
-#   run_once: true
-# 
 
 - name: Open logs server firewall for each client
   ansible.builtin.include_tasks:

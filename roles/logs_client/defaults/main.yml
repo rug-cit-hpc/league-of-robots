@@ -7,6 +7,6 @@ rsyslog_ca_key_file: "logs_{{ logs_ca_name }}.key"
 rsyslog_ca_cert_file: "logs_{{ logs_ca_name }}.pem"
 rsyslog_repository_dir: "{{ playbook_dir }}/files/logs_library/"
 
-# Iptables additional configurations 
+# Iptables additional configurations
 iptables_extras_dir: '/etc/iptables_extras.d/'
 ...

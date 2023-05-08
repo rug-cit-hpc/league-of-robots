@@ -4,12 +4,12 @@
 
 - name: Generate random HEX 20 character token
   ansible.builtin.set_fact:
-    random_tag: "{{ lookup('community.general.random_string', length=12, override_all=hex_chars) }}" 
+    random_tag: "{{ lookup('community.general.random_string', length=12, override_all=hex_chars) }}"
   vars:
     hex_chars: '0123456789ABCDEF'
 
 - name: Print the token
-  debug:
+  ansible.builtin.debug:
     msg: "Value for {{ inventory_hostname }} is {{ random_tag }}"
 
 - name: Create random log event on the client side with token as a tag

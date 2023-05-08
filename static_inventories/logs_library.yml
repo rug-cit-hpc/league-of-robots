@@ -10,6 +10,7 @@ all:
         earl1:
           # ExternAl RsysLog 1 - Merlin
           logs_ca_name: 'development'
+          ansible_host: bb-porch+earl1
           cloud_flavor: m1.small
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
@@ -17,11 +18,13 @@ all:
               assign_floating_ip: true
           local_volume_size_extra: 100
         earl2:
-          logs_ca_name: 'development'
           # ExternAl RsysLog 2 - Azure
+          logs_ca_name: 'development'
+          ansible_host: bb-porch+earl2
         earl3:
-          logs_ca_name: 'development'
           # ExternAl RsysLog 2 - Azure
+          logs_ca_name: 'development'
+          ansible_host: bb-porch+earl3
 logs_library:
   children:
     openstack_api:
