@@ -23,8 +23,18 @@ all:
           ansible_host: bb-porch+earl2
         earl3:
           # ExternAl RsysLog 2 - Azure
-          logs_ca_name: 'development'
+          logs_ca_name: 'diagnostics'
           ansible_host: bb-porch+earl3
+        earl4:
+          # ExternAl RsysLog 4 - Merlin - Diagnostics
+          logs_ca_name: 'diagnostics'
+          ansible_host: bb-porch+earl4
+          cloud_flavor: m1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_logservers"
+              assign_floating_ip: true
+          local_volume_size_extra: 100
 logs_library:
   children:
     openstack_api:
