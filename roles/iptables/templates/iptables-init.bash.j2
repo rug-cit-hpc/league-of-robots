@@ -472,10 +472,11 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 done
 
 #
-## Check for the whitelist files and ingest them, allowing access for each IP + PORT
+## IP & PORT exception whitelist
+# Inside the (default) /etc/iptables_extras.d/ directory, check for the whitelist files (name ending with .allow)
+# parse through and look for format '{IP}{one or more spaces}{PORT}', then create 'iptables' exceptions for those.
+# When needed, ansible roles will create this directory and is ignored otherwise.
 #
-# When needed, ansible roles will create this directory and is ignored otherwise
-iptables_extras_dir="{{ iptables_extras_dir | default('/does/not/exist')}}"
 if [[ -d {{ iptables_extras_dir }}  ]]; then
    # Loop collect content from every stack *.allow file, sort and get unique values only
    IPTABLES_EXCEPTIONS="$(cat {{ iptables_extras_dir }}/*.allow | sort | uniq)"
