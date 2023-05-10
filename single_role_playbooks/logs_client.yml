@@ -1,5 +1,6 @@
 ---
-- hosts:
+- name: Running > logs_client < role
+  hosts:
     - jumphost
     - cluster
     - repo
