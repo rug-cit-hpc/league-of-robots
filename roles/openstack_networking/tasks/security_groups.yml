@@ -404,7 +404,8 @@
         - protocol: icmp
           port: -1  # ICMP protocol does not have any ports.
   when: ('docs' in inventory_groups_with_hosts_created_in_openstack) or
-        ('jenkins' in inventory_groups_with_hosts_created_in_openstack)
+        ('jenkins' in inventory_groups_with_hosts_created_in_openstack) or
+        ('build_servers' in inventory_groups_with_hosts_created_in_openstack)
 #
 # Logs security groups.
 #
