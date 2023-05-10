@@ -1,4 +1,4 @@
-# Remote logs CLIENT ansible role
+# Ansible role for remote logging - CLIENT
 
 (see also ../logs_server/README.md)
 
@@ -54,6 +54,9 @@ This role is the second of the logs ansible playbooks. It expects predefined
     - both signing request and clients template (!) are copied to CA server
     - the server creates certificate from CSR and template
     - both client's and CA's certificate are copied from server to client
+   The clients IP and port are injected in the servers `/etc/iptables_extras.d/[stack].allow`
+   file and /etc/sysconfig/iptables-init.bash` script is rerun. This adds the exception for
+   clients public IP for the predefined rsyslog port.
 
 3. Steps creating and deploying `rsyslog.conf`
    At the end, the `/etc/rsyslog.conf` file is deployed based on the template from

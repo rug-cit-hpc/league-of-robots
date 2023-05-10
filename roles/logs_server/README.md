@@ -1,31 +1,33 @@
-# Remote logs SERVER ansible role
+# Ansible role for remote logging - SERVER
 
 (see also ../logs_client/README.md)
 
 ## I. Overview
-This playbook is a (first) half of ansible rsyslog server role. It is independent
-of a second half (the client) role.
+
+This playbook is the first half of ansible logs playbooks and independent of the
+second half (the client) role.
 
 ## II. Prerequisites
 
-The playbook expects that there are one or more servers defined and deployed in a
-`static_inventory/logs_library.yml`.
-The `single_role_playbooks/logs_server.yml` then configures CA and deploys the rsyslog
+The playbook expects one or more instances defined in a `static_inventory/logs_library.yml`
+and already deployed on some environment.
+The `single_role_playbooks/logs_server.yml` configures CA and deploys the rsyslog
 server `/etc/rsyslog.conf` file.
-It expects
+
+Role expects
  - preconfigured (for now only) Centos 7 server
  - preinstalled firewall service (or installs if run via `single_group_playbook`)
  - admin permissions
  - working network connection between the server and the clients
  - selinux in `permissive` or `disabled` mode
 
-Playbook
- - installs rsyslog software package, and rsyslog reliable module plugin (RELP)
- - installs tools for key and certificate generation
- - deploys (or if needed creates) key and certificate for self signed ca
- - overwrites the `/etc/rsyslog.conf` with one predefined from the template
- - opens firewall port (if deployed through the single_group_playbooks)
- - enables and start the rsyslog service
+Playbook steps
+ - installing rsyslog software package, and rsyslog reliable module plugin (RELP)
+ - installing tools for key and certificate generation
+ - deploying (or create, if needed) key and certificate for self signed CA
+ - deploy custom made `/etc/rsyslog.conf` and either/both `/etc/rsyslog.d/rsyslog_managed.conf`
+   and `/etc/rsyslog.d/rsyslog_unmanaged.conf`
+ - enable and start the rsyslog service
 
 ## III. Playbook steps
 
@@ -48,9 +50,7 @@ Playbook
 5. Configures the rsyslog `/etc/rsyslog.conf` from the template, where
    - add the rules for the accepting port and machines IP's
    - point to the ca certificate, then to servers's key and certificate
-6. Opens a port based on defined port under static inventory rsyslog server's
-   rsyslog port on `41514` by default
-7. Deploys the private key and certificate for the server to use during the client
+6. Deploys the private key and certificate for the server to use during the client
    communication. When it creates own key and certificate it also uses the CA key
    and certificate, that were created in the step 4.
 
@@ -106,11 +106,12 @@ The steps are:
 
 ## VI. Client connections to the logs server
 
-Log servers have by default opened only ssh (22) and rsyslog (41514) ports. The ssh is limited
-(with the security groups, as well as with iptables) to various stacks for jumphosts public IPs,
-with variable `external_jumphosts` in the `group_vars/logs_library/vars.yml`, and with variable
-`iptables_allow_ssh_inbound` in the `group_vars/logs.yml`.
-The rsyslog port is limited with `iptables` to clients public IP
+Log servers have by default opened only ssh (22) and rsyslog (41514) ports. Security group and iptables
+limit `ssh` connections to jumphosts machines only. This is defined with the variable `external_jumphosts`
+in the `group_vars/logs_library/vars.yml` and `iptables_allow_ssh_inbound` in the `group_vars/logs.yml`.
 
-Additionally the rsyslog accepts only the communication from the clients that use certificate that
-were singed by apropriate certificate authority (each type of logs server has different CA).
+The rsyslog port is limited with `iptables` to public IP of individual client. Those port and IPs are stored
+on the server in the files `/etc/iptables_extras.d/[stack].allow`.
+
+Additionally, the rsyslog accepts only the communication from the clients with certificate singed by apropriate
+certificate authority (each type of logs server has different CA).
