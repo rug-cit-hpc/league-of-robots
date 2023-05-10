@@ -82,11 +82,11 @@ Every logs type, needs it's own server, to which the clients can connect.
 
 The steps are:
 - in the `static_inventory/logs_library.yml` define a new instance
-- under the instance assing the correct `logs_ca_name` variable, for example 'diagnostics'
+- assign the correct `logs_ca_name` variable for individual instance- example 'diagnostics':
     `logs_ca_name: 'development'`
 - deploy the new server and run the `single_group_playbooks/logs.yml` on top of it
-- define the client's environment to use the same type of logs servers for example for Hyperchicken, 
-  edit the `group_vars/hyperchicken_cluster/vars.yml` and configure the lines
+- define the client's environment to use the same type of logs servers - example Hyperchicken:
+  (edit the `group_vars/hyperchicken_cluster/vars.yml` and configure the lines)
   ```
     logs_ca_name: 'development'
     logs_ca_name: 'diagnostics'
@@ -99,6 +99,9 @@ The steps are:
   Where the stacks logs servers values are already defined in the `static_inventory/logs_library.yml`
   file, and in the `group_vars/logs_library/ip_addresses.yml`
 - initialize the apropriate client LOR stack environment and on them deploy the same `single_group_playbooks/logs.yml`
+- in order for jumphost jump to work (explained in VI.) the invididual stack have to have the logs servers added in the
+  `additional_etc_hosts` in the file `group_vars/[stack]/vars.yml` and the `single_role_playbooks/static_hostname_lookup.yml` 
+  needs to be run on the jumphosts of that individual stack.
 
 
 ## VI. Client connections to the logs server

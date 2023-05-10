@@ -15,6 +15,7 @@
     name: "logs_ips"
   delegate_to: localhost
   connection: local
+  run_once: true
 
 - name: Create list of log servers
   ansible.builtin.set_fact:

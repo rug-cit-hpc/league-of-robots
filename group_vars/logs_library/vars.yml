@@ -33,9 +33,6 @@ use_ldap: false
 create_ldap: false
 use_sssd: false
 
-# The directory that contains the IP&PORT exception files, (default '/etc/iptables_extras.d/')
-iptables_extras_dir: '/etc/iptables_extras.d/'
-
 # Logs CA key name: 'development' (default), 'research' or 'diagnostics'
 logs_ca_name: 'development'
 
