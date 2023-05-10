@@ -6,7 +6,7 @@
     group: "root"
     mode: '0770'
     state: 'directory'
-  delegate_to: "{{ item }}"
+  delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
   register: create_iptables_extras_d
   loop: "{{ rsyslogs_ext_ips }}"
   become: true
@@ -29,15 +29,15 @@
     state: present
     mode: '0640'
     create: true
-    regexp: "{{ client_public_ip.stdout | trim }} 41514"
-    line: "{{ client_public_ip.stdout | trim }} 41514"
+    regexp: "{{ client_public_ip.content | trim }} 41514"
+    line: "{{ client_public_ip.content | trim }} 41514"
   run_once: true
-  delegate_to: "{{ item }}"
+  delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
   register: add_ip_to_firewall_extra_allow
   loop: "{{ rsyslogs_ext_ips }}"
   become: true
-  notify: restart_rserver_firewall
+  notify: restart_server_firewall
 
-- name: Force all services to restart, before we start using iRODS imeta commands
+- name: Force all services to restart, before we continue to configure logs clients
   ansible.builtin.meta: flush_handlers
 ...

@@ -41,6 +41,22 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
+  - group: logs_library
+    nodes:
+      - name: earl1
+        network: vlan16
+  - group: logs_library
+    nodes:
+      - name: earl2
+        network: logs_external_network
+  - group: logs_library
+    nodes:
+      - name: earl3
+        network: logs_external_network
+  - group: logs_library
+    nodes:
+      - name: earl4
+        network: vlan16
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no

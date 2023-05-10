@@ -50,7 +50,7 @@
   notify: restart-rsyslog.service
   become: true
 
-- name: Sign rsyslog client certificate on rsyslog server with rsyslog CA certificate
+- name: Sign servers rsyslog certificate on server with rsyslog CA certificate
   ansible.builtin.command: >
     certtool --generate-certificate
       --load-request /tmp/{{ inventory_hostname }}.csr

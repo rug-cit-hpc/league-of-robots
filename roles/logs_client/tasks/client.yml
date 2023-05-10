@@ -107,7 +107,7 @@
     force: true
   become: true
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
-  delegate_to: "{{ item }}"
+  delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
   loop: "{{ rsyslogs_ext_ips }}"
 
 - name: Copy client temporary template to rsyslog server
@@ -118,7 +118,7 @@
     force: true
   become: true
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
-  delegate_to: "{{ item }}"
+  delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
   loop: "{{ rsyslogs_ext_ips }}"
 
 - name: Sign rsyslog client certificate on rsyslog server with rsyslog CA certificate
@@ -134,8 +134,9 @@
   register: client_certificates_generate_results
   failed_when: client_certificates_generate_results.rc != 0
   become: true
-  delegate_to: "{{ item }}"
+  delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
   loop: "{{ rsyslogs_ext_ips }}"
+  notify: restart_server_rsyslog
 
 - name: Fetch rsyslog client certificates from rsyslog server
   ansible.builtin.fetch:
@@ -146,8 +147,9 @@
     validate_checksum: true
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
   become: true
-  delegate_to: "{{ item }}"
+  delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
   loop: "{{ rsyslogs_ext_ips }}"
+  notify: restart_server_rsyslog
 
 - name: Deploy rsyslog client certificate
   ansible.builtin.copy:

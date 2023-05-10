@@ -90,15 +90,22 @@
 
 - name: Create servers key and certificate
   ansible.builtin.include_tasks: server_certificate.yml
-  run_once: true
   register: created_certificate
 
-- name: Deploy rsyslog.conf
+- name: Remove problematic /etc/rsyslog.d/listen.conf file
+  ansible.builtin.file:
+    path: /etc/rsyslog.d/listen.conf
+    state: absent
+  become: true
+  notify: restart-rsyslog.service
+
+- name: Deploy server rsyslog.conf
   ansible.builtin.template:
     src: templates/rsyslog.conf
     dest: /etc/rsyslog.conf
     force: true
     mode: '0644'
+    validate: /sbin/rsyslogd -N1 -f %s
   become: true
   notify: restart-rsyslog.service
 
