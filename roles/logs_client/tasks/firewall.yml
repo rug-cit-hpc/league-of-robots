@@ -23,7 +23,7 @@
     msg: "{{ inventory_hostname }} => {{ client_public_ip.content }}"
   changed_when: false
 
-- name: Add line to Logs exception file
+- name: "Add public IPs of clients to {{ iptables_extras_dir }}/{{ stack_prefix }}.allow on rsyslog servers."
   ansible.builtin.lineinfile:
     path: '{{ iptables_extras_dir }}/{{ stack_prefix }}.allow'
     state: present
