@@ -9,8 +9,7 @@ Software can be installed using different methods; some are only available to ad
 2. Modules installed with EasyBuild by admins
 3. Modules installed with EasyBuild by regular users in their own environment
 4. Other package managers / deployment procedures
-5. Containers
-6. Language specific installation options for extra/custom packages
+5. Language specific installation options for extra/custom packages
 
 ## 1. Packages from the Linux distro / Operating System (OS)
 
@@ -186,22 +185,58 @@ then follow these steps:
 
 ## 4. Other package managers / deployment procedures
 
-Important:
+There are many other ways to deploy software on a cluster, some of which are listed below.
+Feel free to choose whatever suits your scientific project best, but
 
- * Your home dir is designed to be a small **private folder** for personal preferences.
- * Your home dir is **not** a suitable place for data sets nor for software.
- * Certain software package managers tend to cache lot's of data in home dirs by default;
-   If that happens you will quickly run into _"quota exceeded"_ or _"no space left on device"_ errors.
-   Consult the manual for the corresponding package manager how to relocate its cache to a different folder 
-   and cleanup your home dir. Note: do not forget to look for hidden folders/files in your home that start with a dot
-   e.g. ```${HOME}/.cache/```, ```${HOME}/.local/```, etc.
+ * Do realize you can only get minimal support from our helpdesk for other deployment methods.
+ * Understand that mixing package managers or methods is a bad idea.
+   This will quickly create additional complexity when they start fighting each other by modifying _search paths_ in conflicting ways.
+ * Make sure you have a good _recipe_ to make the software installation procedure [FAIR](https://doi.org/10.15497/RDA00068).
+   Think ahead about how to write the _materials and methods_ section of the paper or internship report you will write in the near future:
+   If the installation procedure was a horrible, hacky, band aid solution, then writing the _materials and methods_ section is going to be a challenge.
+ * Watch out for package managers that want to install or cache lots of data in your home dir by default!
+    * Your home dir is designed to be a small **private folder** for personal preferences.
+    * Your home dir is **not** a suitable place for data sets nor for software.
+    * If a software package manager cached a lot of data in your home dir,
+      you will quickly run into _"quota exceeded"_ or _"no space left on device"_ errors.
+      Consult the manual for the corresponding package manager how to relocate its cache to a different folder and cleanup your home dir.
+      Do not forget to look for _hidden_ folders or files (the ones starting with a dot) in your home.
+      E.g. ```${HOME}/.cache/```, ```${HOME}/.local/```, etc.
 
-###### Conda, bioconda, miniconda
+###### Conda, Miniconda and Bioconda
 
-######
+[Conda](https://docs.conda.io) is a package and environment manager originally written in and for the Python language,
+but nowadays it can package and distribute software written in any language.
 
-## 5. Containers
+Anaconda is the name of both the [company developing Anaconda](https://www.anaconda.com) and the name of a large conda _channel/repository_ with curated conda packages.
+
+Miniconda is a minimal, bootstrap version of Anaconda that includes only Conda, Python, their dependencies and a small number of utilities.
+
+[Bioconda](https://bioconda.github.io/) is a conda _channel/repo_ with packaged bioinformatics software.
+
+The main difference between EasyBuild and Conda is
+
+ * EasyBuild can use pre-compiled binaries as the exception, but prefers to compile software from source on each cluster.
+ * Conda on the other hand compiles the software once and then adds the compiled binaries to a repository.
+
+Installing pre-compiled binaries from a conda _channel/repo_ as opposed to compiling the code yourself has the advantage that it is easier and faster,
+but the are also disadvantages:
+
+ * The pre-compiled binaries cannot be optimized for different CPU architectures:
+   instead they will use a common denominator and only use instructions most recent generations of CPUs understand.
+ * Conda makes assumptions about locations of dependencies during compile time.
+   The pre-compiled binaries will crash if these dependencies are missing or located elsewhere on the machine where you install them with Conda.
+   Depending on the error message it can be very hard to figure out if there is a problem with the pre-compiled software
+   or whether there is a problem with your input data set.
+   If you compile the software from source on the cluster instead,
+   you will notice during compilation if there are issues due to missing dependencies.
+
+###### Containers
 
 Docker Apptainer
+
+## 5. Language specific installation options for extra/custom packages
+
+
 
 
