@@ -186,7 +186,7 @@
     owner: 'root'
     group: 'root'
     mode: '0644'
-  notify: 'restart_slurmd'
+  notify: 'restart_slurmctld'
   become: true
 
 - name: 'Install Slurm DBD config file.'
@@ -208,6 +208,36 @@
     mode: '0755'
   with_items:
     - 'job_submit.lua'
+  become: true
+
+- name: 'Create folders for systemd override files.'
+  ansible.builtin.file:
+    name: "/etc/systemd/system/{{ item }}.service.d"
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+    state: 'directory'
+  with_items:
+    - 'slurmctld'
+    - 'slurmdbd'
+  notify:
+    - 'restart_slurmdbd'
+    - 'restart_slurmctld'
+  become: true
+
+- name: 'Install systemd override files to disable logging stdout/stderr from Slurm daemons via journald to the syslog.'
+  ansible.builtin.copy:
+    src: 'files/override.conf'
+    dest: "/etc/systemd/system/{{ item }}.service.d/override.conf"
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  with_items:
+    - 'slurmctld'
+    - 'slurmdbd'
+  notify:
+    - 'restart_slurmdbd'
+    - 'restart_slurmctld'
   become: true
 
 - name: 'Make sure slurmdbd and munge services are enabled and started.'
