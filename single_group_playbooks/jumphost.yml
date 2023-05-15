@@ -30,6 +30,6 @@
     - {role: geerlingguy.security, become: true}
     # Disabled monitoring: needs update. See also:
     # https://github.com/rug-cit-hpc/league-of-robots/issues/294
-    #- {role: grafana_proxy, when: ansible_hostname == 'airlock'}
+    # - {role: grafana_proxy, when: ansible_hostname == 'airlock'}
     - regular_users
 ...

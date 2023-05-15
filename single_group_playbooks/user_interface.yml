@@ -15,7 +15,7 @@
     - build_environment
     # Disabled monitoring: needs update. See also:
     # https://github.com/rug-cit-hpc/league-of-robots/issues/294
-    #- slurm_exporter
+    # - slurm_exporter
     - slurm
     - sudoers
     - subgroup_directories
