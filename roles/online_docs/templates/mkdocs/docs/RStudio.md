@@ -74,11 +74,12 @@ then you may not be allowed to download that to your local computer.
 
  * Login on {{ slurm_cluster_name | capitalize }}
  * Optionally start a ```screen``` or ```tmux``` session.  
-   Working with ```screen``` or ```tmux``` is beyond the scope of this documentation, but highly recommend.
+   Working with ```screen``` or ```tmux``` is beyond the scope of this documentation, but highly recommended.
    It allows you to disconnect from {{ slurm_cluster_name | capitalize }} while leaving your session running,
    so you can re-login and re-connect later.
    Without ```screen``` or ```tmux``` a dropped network connection will result in loosing the session and loosing any unsaved work in it.
    There is a good article [How to Use Linux’s screen Command](https://www.howtogeek.com/662422/how-to-use-linuxs-screen-command/) on the _How-To Geek website_.
+   Use the ```-S``` argument to give your ```screen``` session a name. E.g. to create one named ```rstudio```:
 
         screen -S rstudio
 
@@ -127,7 +128,7 @@ then you may not be allowed to download that to your local computer.
                                Port:         55555
 
  * Optionally in case you are running this inside ```screen```:  
-   Now press ```CTRL+a``` followed by ````CTRL+d``` to detach from the ```screen```.
+   Now press ```CTRL+a``` followed by ```CTRL+d``` to detach from the ```screen```.
    The ```R``` session inside the interactive Slurm job inside the ```screen``` session will continue to run in the background.  
    You can always reconnect to the existing screen session using:
 
