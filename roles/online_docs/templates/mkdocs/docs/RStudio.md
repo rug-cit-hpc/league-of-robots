@@ -26,6 +26,8 @@ Therefore we will not install the _server_ edition.
 
 ## How to use RStudio
 
+![How to use RStudio](img/rstudio.svg)
+
 You can use RStudio by:
 
  * Running the _normal_ a.k.a. _desktop_ a.k.a. non-server version of RStudio on your local computer and
@@ -46,7 +48,7 @@ Using RStudio to look at such a plot would be compatible with such a data access
 Note that if you include measurements for individual samples to the plot - e.g. you include outliers and label them with sample IDs - 
 then you may not be allowed to download that to your local computer.
 
-#### Install software on your own computer
+#### 1. Install software on your own computer
 
  * Install libsodium
     * For Linux and Windows computers see the [libsodium documentation](https://doc.libsodium.org/)
@@ -56,85 +58,86 @@ then you may not be allowed to download that to your local computer.
              brew install libsodium
 
  * [Install both R and RStudio desktop](https://posit.co/download/rstudio-desktop/)
- * Start RStudio, go to the _Console_ tab and install the
-   [sodium](https://cran.r-project.org/web/packages/sodium/index.html) and
-   [remoteR](https://cran.r-project.org/web/packages/remotes/index.html) R-packages
-   with these commands
 
-        install.packages('sodium')
-        # Latest release remoteR no longer available from CRAN.
-        #install.packages('remoter')
-        # Workaround: install latest release from GitHub
-        install.packages('remotes')
-        library('remotes')
-        remotes::install_github('wrathematics/argon2', ref = github_release())
-        remotes::install_github('RBigData/remoter', ref = github_release())
+#### 2. Login on {{ slurm_cluster_name | capitalize }}
 
-#### On {{ slurm_cluster_name | capitalize }}
+[Login on {{ slurm_cluster_name | capitalize }} with your SSH client](logins/)
 
- * Login on {{ slurm_cluster_name | capitalize }}
- * Optionally start a ```screen``` or ```tmux``` session.  
-   Working with ```screen``` or ```tmux``` is beyond the scope of this documentation, but highly recommended.
-   It allows you to disconnect from {{ slurm_cluster_name | capitalize }} while leaving your session running,
-   so you can re-login and re-connect later.
-   Without ```screen``` or ```tmux``` a dropped network connection will result in loosing the session and loosing any unsaved work in it.
-   There is a good article [How to Use Linux’s screen Command](https://www.howtogeek.com/662422/how-to-use-linuxs-screen-command/) on the _How-To Geek website_.
-   Use the ```-S``` argument to give your ```screen``` session a name. E.g. to create one named ```rstudio```:
+#### 3. Create a screen or tmux session on {{ slurm_cluster_name | capitalize }}
 
-        screen -S rstudio
+Optionally start a ```screen``` or ```tmux``` session.  
+Working with ```screen``` or ```tmux``` is beyond the scope of this documentation, but highly recommended.
+It allows you to disconnect from {{ slurm_cluster_name | capitalize }} while leaving your session running,
+so you can re-login and re-connect later.
+Without ```screen``` or ```tmux``` a dropped network connection will result in loosing the session and loosing any unsaved work in it.
 
- * Create an interactive Slurm session.  
-   See [Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}](analysis/) for details.  
-   Simple example requesting a single core and 1 GB RAM memory for max one hour:
+There is a good article [How to Use Linux’s screen Command](https://www.howtogeek.com/662422/how-to-use-linuxs-screen-command/) on the _How-To Geek website_.
+Use the ```-S``` argument to give your ```screen``` session a name. E.g. to create one named ```rstudio```:
+```bash
+screen -S rstudio
+```
 
-        srun --cpus-per-task=1 --mem=1gb --nodes=1 --qos=interactive --time=01:00:00 --pty bash -i
 
- * Load and start R in your interactive Slurm session
+#### 4. Create an interactive Slurm session
 
-        module load RPlus
-        R
+See [Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}](analysis/) for details.  
+Simple example requesting a single core and 1 GB RAM memory for max one hour:
+```bash
+srun --cpus-per-task=1 --mem=1gb --nodes=1 --qos=interactive --time=01:00:00 --pty bash -i
+```
 
- * If you loaded ```RPlus``` in the previous step this contains a _bare_ ```R``` version
-   and a large list of R packages including ```remoteR``` and its dependencies.
-   If you prefer to load a _bare_ ```R``` installation and manage your own list of R packages you will need to 
-   install the [```remoteR``` R-package](https://cran.r-project.org/web/packages/remotes/index.html)
-   and its dependencies in your R session yourself.  
-   When you are asked if you would like to install in your own ```library``` folder, then answer ```yes```.
+#### 5. Load and start R in your interactive Slurm session
 
-        install.packages('sodium')
-        # Latest release no longer available from CRAN.
-        #install.packages('remoter')
-        # Workaround: install latest release from GitHub
-        install.packages('remotes')
-        library('remotes')
-        remotes::install_github('wrathematics/argon2', ref = github_release())
-        remotes::install_github('RBigData/remoter', ref = github_release())
+```bash
+module load RPlus
+R
+```
+If you loaded ```RPlus``` in the previous step this contains a _bare_ ```R``` version
+and a large list of R packages including ```remoteR``` and its dependencies.
+If you prefer to load a _bare_ ```R``` installation and manage your own list of R packages you will need to 
+install the [```remoteR``` R-package](https://cran.r-project.org/web/packages/remotes/index.html)
+and its dependencies in your R session yourself using:
+```R
+install.packages('sodium')
+# Latest release no longer available from CRAN.
+#install.packages('remoter')
+# Workaround: install latest release from GitHub
+install.packages('remotes')
+library('remotes')
+remotes::install_github('wrathematics/argon2', ref = github_release())
+remotes::install_github('RBigData/remoter', ref = github_release())
+```
+When you are asked if you would like to install in your own ```library``` folder, then answer ```yes```.
 
- * Generate a random password to secure your remoteR session and start remoteR in server mode.
+#### 6. Start a remoteR server session in your R session
 
-        library('sodium')
-        library('remoter')
-        remoter_session_password <- rawToChar(as.raw(sample(c(65:90,97:122), 10, replace=T)))
-        message(sprintf('Your password for remoteR is: %s', remoter_session_password))
-        remoter::server(verbose = TRUE, password = remoter_session_password, secure=TRUE)
+Generate a random password to secure your ```remoteR``` session and start ```remoteR``` in _server mode_.
+```R
+library('sodium')
+library('remoter')
+remoter_session_password <- rawToChar(as.raw(sample(c(65:90,97:122), 10, replace=T)))
+message(sprintf('Your password for remoteR is: %s', remoter_session_password))
+remoter::server(verbose = TRUE, password = remoter_session_password, secure=TRUE)
+```
+The ```remoteR``` package will now create a session and report on which machine it is running and which port it selected.
+Each session needs its own unique port and ```remoteR``` will automatically select one that is free.
+You will need this port number and the machine name later on when creating the SSH tunnel...  
+E.g.:
+```R
+[2023-05-10 12:05:47]: *** Launching secure server ***
+                       Hostname:     gs-vcompute07
+                       Port:         55555
+```
+Optionally in case you are running this inside ```screen```:  
+Now press ```CTRL+a``` followed by ```CTRL+d``` to detach from the ```screen```.
+The ```R``` session inside the interactive Slurm job inside the ```screen``` session will continue to run in the background.
+You can reconnect to the existing screen session using ```-r``` argument and the name of the ```screen``` session.  
+E.g.:
+```bash
+screen -r rstudio
+```
 
- * The remoteR package will now create a session and report on which machine it is running and which port it selected.
-   Each session needs its own unique port and remoteR will automatically select one that is free.
-   You will need this port number and the machine name later on when creating the SSH tunnel...
-   E.g.:
-
-        [2023-05-10 12:05:47]: *** Launching secure server ***
-                               Hostname:     gs-vcompute07
-                               Port:         55555
-
- * Optionally in case you are running this inside ```screen```:  
-   Now press ```CTRL+a``` followed by ```CTRL+d``` to detach from the ```screen```.
-   The ```R``` session inside the interactive Slurm job inside the ```screen``` session will continue to run in the background.  
-   You can always reconnect to the existing screen session using:
-
-        screen -r rstudio
-
-#### Create SSH tunnel
+#### 7. Create an SSH tunnel
 
 Now we need to create an SSH tunnel from your local client computer to the server and connect to the remote R session.
 
@@ -197,7 +200,24 @@ Try the next port number until you find one that is free: in that case you will 
 ssh -N -L localhost:55556:localhost:55555 airlock+gs-vcompute07
 ```
 
-#### Using the remote R session in RStudio on your own computer
+#### 8. Install remoteR in RStudio on your own computer
+
+Start RStudio, go to the _Console_ tab and install the
+[sodium](https://cran.r-project.org/web/packages/sodium/index.html) and
+[remoteR](https://cran.r-project.org/web/packages/remotes/index.html) R-packages
+with these commands
+```R
+install.packages('sodium')
+# Latest release remoteR no longer available from CRAN.
+#install.packages('remoter')
+# Workaround: install latest release from GitHub
+install.packages('remotes')
+library('remotes')
+remotes::install_github('wrathematics/argon2', ref = github_release())
+remotes::install_github('RBigData/remoter', ref = github_release())
+```
+
+#### 9. Using the remote R session in RStudio on your own computer
 
 ![use RStudioon your own computer](img/RStudio.png)
 
