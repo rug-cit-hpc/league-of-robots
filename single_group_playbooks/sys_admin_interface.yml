@@ -14,7 +14,7 @@
     - slurm
     # Disabled monitoring: needs update. See also:
     # https://github.com/rug-cit-hpc/league-of-robots/issues/294
-    #- prom_server
-    #- grafana
-    #- cadvisor
+    # - prom_server
+    # - grafana
+    # - cadvisor
 ...
