@@ -78,7 +78,7 @@ screen -S rstudio
 ```
 
 
-#### 4. Create an interactive Slurm session
+#### 4. Create an interactive Slurm session on {{ slurm_cluster_name | capitalize }}
 
 See [Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}](analysis/) for details.  
 Simple example requesting a single core and 1 GB RAM memory for max one hour:
@@ -86,7 +86,7 @@ Simple example requesting a single core and 1 GB RAM memory for max one hour:
 srun --cpus-per-task=1 --mem=1gb --nodes=1 --qos=interactive --time=01:00:00 --pty bash -i
 ```
 
-#### 5. Load and start R in your interactive Slurm session
+#### 5. Load and start R in your interactive Slurm session on {{ slurm_cluster_name | capitalize }}
 
 ```bash
 module load RPlus
@@ -109,7 +109,7 @@ remotes::install_github('RBigData/remoter', ref = github_release())
 ```
 When you are asked if you would like to install in your own ```library``` folder, then answer ```yes```.
 
-#### 6. Start a remoteR server session in your R session
+#### 6. Start a remoteR server session in your R session on {{ slurm_cluster_name | capitalize }}
 
 Generate a random password to secure your ```remoteR``` session and start ```remoteR``` in _server mode_.
 ```R
@@ -137,7 +137,7 @@ E.g.:
 screen -r rstudio
 ```
 
-#### 7. Create an SSH tunnel
+#### 7. Create an SSH tunnel on your own computer
 
 Now we need to create an SSH tunnel from your local client computer to the server and connect to the remote R session.
 
@@ -256,9 +256,11 @@ points(c(10,-10, -15, 15), c(-10, -10, 10, 10), pch=169, font=5)
 dev.off()
 ```
 
-###### Cleaning up
+#### 10. Cleaning up
 
-**Don’t keep R running forever on {{ slurm_cluster_name | capitalize }}!** Make sure to really exit your session on {{ slurm_cluster_name | capitalize }} when you are done to prevent wasting resources, which is not nice for others waiting in the queue.
+**Don’t keep R running forever on {{ slurm_cluster_name | capitalize }}!**
+Make sure to really exit your session on {{ slurm_cluster_name | capitalize }} when you are done to prevent wasting resources,
+which is not nice for others waiting in the queue.
 
  * Without ```screen```:  
    Use ```q()``` to quit the ```R``` session, type ```exit``` or ```CTRL+x``` to exit your interactive Slurm job.
