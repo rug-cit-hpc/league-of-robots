@@ -40,7 +40,6 @@ all:
           host_networks:
             - name: vlan983
             - name: vlan985
-          local_volume_size_extra: 290
     deploy_admin_interface:
       hosts:
         tl-dai:
@@ -48,7 +47,7 @@ all:
           host_networks:
             - name: vlan983
             - name: vlan985
-          local_volume_size_extra: 290
+          local_volume_size_extra: 614
     user_interface:
       hosts:
         talos:
