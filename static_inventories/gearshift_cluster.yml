@@ -55,19 +55,25 @@ all:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            gs-vcompute[01:10]:
+            gs-vcompute[01:05]:
+              local_volume_size_extra: 2900
+              slurm_local_disk: 2800000
+            gs-vcompute06:
+              local_volume_size_extra: 2015
+              slurm_local_disk: 2063000
+            gs-vcompute[07:10]:
+              local_volume_size_extra: 2900
+              slurm_local_disk: 2800000
           vars:
             host_networks:
               - name: vlan983
               - name: vlan985
             cloud_flavor: 24C-240GB
-            local_volume_size_extra: 2900
             slurm_sockets: 2
             slurm_cores_per_socket: 12
             slurm_real_memory: 217778
             slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
             slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
-            slurm_local_disk: 2800000
             slurm_features: 'rsc01,tmp01'
             slurm_ethernet_interfaces:
               - 'vlan983'
