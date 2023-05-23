@@ -116,3 +116,5 @@ Run:
 - check the CA certificate and client certificate are stored at `/etc/pki/tls/certs/logs_[type].pem` and `/etc/pki/tls/certs/[hostname].pem`
 - check if the client key exists in the `/etc/pki/tls/private/[hostname].key`
 - validate that the client certificate was signed with the CA certificate `openssl verify -verbose -CAfile /etc/pki/tls/certs/logs_[type].pem /etc/pki/tls/certs/[hostname].pem`
+
+Sometimes it happens that after several days the logs are lost in `/var/log/messages` and rsyslog gets in the `HUPed` state (checking with `systemctl status rsyslog`). This can happen when logrotate starts. The files `/etc/logrorate.d/syslog` has been updated, so that on every `logrorate` event, the `rsyslog` service will be restarted.

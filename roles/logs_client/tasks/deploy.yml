@@ -50,4 +50,15 @@
     state: started
     enabled: true
   become: true
+
+- name: Fix logrotate, so that syslog is not getting HUPed on logrotate run
+  ansible.builtin.lineinfile:
+    path: /etc/logrotate.d/syslog
+    search_string: '/bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true'
+    line: '        /bin/systemctl restart rsyslog'
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: client_restart_rsyslog
 ...
