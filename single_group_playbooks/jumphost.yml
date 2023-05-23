@@ -28,6 +28,8 @@
     - static_hostname_lookup
     - node_exporter
     - {role: geerlingguy.security, become: true}
-    - {role: grafana_proxy, when: ansible_hostname == 'airlock'}
+    # Disabled monitoring: needs update. See also:
+    # https://github.com/rug-cit-hpc/league-of-robots/issues/294
+    # - {role: grafana_proxy, when: ansible_hostname == 'airlock'}
     - regular_users
 ...
