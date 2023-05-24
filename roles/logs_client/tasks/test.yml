@@ -20,7 +20,7 @@
 
 - name: Sleep for 15 seconds for logs to propagate to server
   ansible.builtin.wait_for:
-    timeout: 15
+    timeout: 30
 
 - name: Check that remote server has token logged
   ansible.builtin.command:

@@ -51,6 +51,13 @@
     enabled: true
   become: true
 
+- name: Remove problematic /etc/rsyslog.d/listen.conf file
+  ansible.builtin.file:
+    path: /etc/rsyslog.d/listen.conf
+    state: absent
+  become: true
+  notify: client_restart_rsyslog
+
 - name: Fix logrotate, so that syslog is not getting HUPed on logrotate run
   ansible.builtin.lineinfile:
     path: /etc/logrotate.d/syslog
