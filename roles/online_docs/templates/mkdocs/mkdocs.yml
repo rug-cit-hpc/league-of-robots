@@ -42,6 +42,7 @@ nav:
     - 'Using and installing software': 'software.md'
     - 'R packages': 'R.md'
     - 'RStudio': 'RStudio.md'
+    - 'Jupyter notebooks': 'Jupyter.md'
     - 'Apptainer (Singularity)': 'apptainer.md'
 {% if 'hyperchicken' in slurm_cluster_name or 'fender' in slurm_cluster_name %}
   - Group Specific Documentation:
