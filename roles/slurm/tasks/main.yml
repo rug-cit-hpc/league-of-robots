@@ -9,4 +9,12 @@
     file: client.yml
   when: inventory_hostname in groups['compute_vm'] or
         inventory_hostname in groups['user_interface']
+
+- name: Deploy Slurm notifications for admins.
+  ansible.builtin.include_tasks:
+    file: notifications.yml
+  when:
+    - inventory_hostname in groups['sys_admin_interface']
+    - slurm_notification_slack_webhook is defined
+    - slurm_notification_slack_webhook | length >= 1
 ...
