@@ -1,0 +1,39 @@
+---
+ip_addresses:
+  earl1:
+    logs_internal_management:
+      address: 10.10.1.158
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    vlan16:
+      address: 195.169.22.151
+      netmask: /32
+      fqdn: 'NXDOMAIN'
+  earl2:
+    logs_external_network:
+      address: 20.61.46.9
+      netmask: /32
+      fqdn: 'NXDOMAIN'
+  earl3:
+    logs_external_network:
+      address: 51.124.104.127
+      netmask: /32
+      fqdn: 'NXDOMAIN'
+  earl4:
+    logs_internal_management:
+      address: 10.10.1.62
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    vlan16:
+      address: 195.169.22.180
+      netmask: /32
+      fqdn: 'NXDOMAIN'
+  logs_internal_management-vlan16-router:
+    logs_internal_management:
+      address: 10.10.1.1
+      netmask: /32
+    vlan16:
+      address: 195.169.22.175
+      netmask: /32
+      fqdn: 'NXDOMAIN'
+...

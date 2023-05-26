@@ -65,6 +65,22 @@ additional_etc_hosts:
     nodes:
       - name: copperfist
         network: vlan13
+  - group: logs_library
+    nodes:
+      - name: earl1
+        network: vlan16
+  - group: logs_library
+    nodes:
+      - name: earl2
+        network: logs_external_network
+  - group: logs_library
+    nodes:
+      - name: earl3
+        network: logs_external_network
+  - group: logs_library
+    nodes:
+      - name: earl4
+        network: vlan16
 #
 # Jumphosts from other stack-name infra groups.
 # We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
@@ -78,6 +94,19 @@ external_jumphosts:
     hosts:
       - hostname: cf-porch
         network: vlan16
+#
+# Remote logging settings - for diagnostics servers
+#
+# Prepared, but commented out for now
+# logs_ca_name: 'diagnostics'
+# stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
+#    - name: 'earl3'
+#      external_network: 'logs_external_network'
+#    - name: 'earl4'
+#      external_network: 'vlan16' # to retrieve public IP from
+#
+# Ldap settings
+#
 use_ldap: true
 use_sssd: true
 ldap_domains:
