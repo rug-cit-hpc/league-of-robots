@@ -29,6 +29,7 @@ public_keys_of_local_admins: "{{ local_admin_users | map('extract', auth_users) 
     | rejectattr('pub_keys', 'none') | rejectattr('pub_keys', 'undefined') \
     | map(attribute='pub_keys') \
     | map('regex_findall', '^([^\\n]+)', 'multiline=True') | flatten }}"
+
 #
 # Local group specs.
 # Note:
@@ -173,4 +174,7 @@ yum_repos:
     baseurl: https://ltb-project.org/rpm/openldap25/7/x86_64/
     gpgcheck: 'false'
     gpgkey: ''
+
+# Iptables additional configurations 
+iptables_extras_dir: '/etc/iptables_extras.d/'
 ...

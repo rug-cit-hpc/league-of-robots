@@ -1,0 +1,28 @@
+---
+- name: Restart firewall
+  ansible.builtin.command:
+    /etc/sysconfig/iptables-init.bash
+  register: fw_reg
+  changed_when: fw_reg.rc == 0
+  delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
+  loop: "{{ rsyslogs_ext_ips }}"
+  become: true
+  notify: client_restart_rsyslog
+  listen: restart_server_firewall
+
+- name: Restart client rsyslog.service
+  ansible.builtin.service:
+    name: rsyslog.service
+    state: restarted
+  listen: client_restart_rsyslog
+  become: true
+
+- name: Restart server rsyslog.service
+  ansible.builtin.service:
+    name: rsyslog.service
+    state: restarted
+  delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
+  loop: "{{ rsyslogs_ext_ips }}"
+  become: true
+  listen: restart_server_rsyslog
+...

@@ -87,10 +87,6 @@ all:
             slurm_ethernet_interfaces:
               - eth0
               - eth1
-    rsyslog:
-      hosts:
-        hc-repo:
-          rsyslog_port: 41514
 administration:
   children:
     sys_admin_interface:

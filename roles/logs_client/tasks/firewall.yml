@@ -1,0 +1,43 @@
+---
+- name: Ensure that the directory iptables extras exists
+  ansible.builtin.file:
+    path: "{{ iptables_extras_dir }}"
+    owner: "root"
+    group: "root"
+    mode: '0770'
+    state: 'directory'
+  delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
+  register: create_iptables_extras_d
+  loop: "{{ rsyslogs_ext_ips }}"
+  become: true
+
+- name: Get public IP of all the clients
+  ansible.builtin.uri:
+    url: http://ifconfig.me/ip
+    return_content: true
+  register: client_public_ip
+  changed_when: false
+
+- name: Print public IP of all the clients
+  ansible.builtin.debug:
+    msg: "{{ inventory_hostname }} => {{ client_public_ip.content }}"
+  changed_when: false
+
+- name: "Add public IPs of clients to {{ iptables_extras_dir }}/{{ stack_prefix }}.allow on rsyslog servers."
+  ansible.builtin.lineinfile:
+    path: '{{ iptables_extras_dir }}/{{ stack_prefix }}.allow'
+    state: present
+    mode: '0640'
+    create: true
+    regexp: "{{ client_public_ip.content | trim }} 41514"
+    line: "{{ client_public_ip.content | trim }} 41514"
+  run_once: true
+  delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
+  register: add_ip_to_firewall_extra_allow
+  loop: "{{ rsyslogs_ext_ips }}"
+  become: true
+  notify: restart_server_firewall
+
+- name: Force all services to restart, before we continue to configure logs clients
+  ansible.builtin.meta: flush_handlers
+...

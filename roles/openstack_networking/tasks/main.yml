@@ -13,6 +13,7 @@
     network_name: "{{ item }}"
     network_cidr: "{{ stack_networks | selectattr('name', 'equalto', item) | map(attribute='cidr') | first }}"
     network_gateway: "{{ stack_networks | selectattr('name', 'equalto', item) | map(attribute='gateway') | first }}"
+    network_mtu_size: "{{ stack_networks | selectattr('name', 'equalto', item) | map(attribute='mtu_size') | first | default(omit) }}"
     router_network: "{{ stack_networks | selectattr('name', 'equalto', item) | map(attribute='router_network') | first }}"
   with_items: "{{ stack_networks
                   | selectattr('type', 'equalto', 'management')

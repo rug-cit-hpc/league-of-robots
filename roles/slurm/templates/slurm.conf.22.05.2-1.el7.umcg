@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:True, lstrip_blocks:True
 ClusterName={{ slurm_cluster_name }}
 SlurmctldHost={{ hostvars[groups['sys_admin_interface'][0]]['ansible_hostname'] }}
 SlurmUser=slurm
@@ -93,7 +94,8 @@ AccountingStorageEnforce=limits,qos  # Will also enable: associations
 AccountingStorageType=accounting_storage/slurmdbd
 AccountingStorageHost={{ hostvars[groups['sys_admin_interface'][0]]['ansible_hostname'] }}
 MaxJobCount=100000
-{% if slurm_cluster_gpus_total | int > 0 %}GresTypes=gpu
+{% if slurm_cluster_gpus_total | int > 0 %}
+GresTypes=gpu
 AccountingStorageTRES=gres/gpu
 {% endif %}
 #
@@ -113,14 +115,13 @@ PartitionName={{ partition.name }} Default={{ partition.default }} Nodes={{ part
 # Compute nodes
 #
 {% for node in groups['compute_vm'] %}
-NodeName={{ node }} Sockets={{ hostvars[node]['slurm_sockets'] }} CoresPerSocket={{ hostvars[node]['slurm_cores_per_socket'] }} ThreadsPerCore=1 State=UNKNOWN RealMemory={{ hostvars[node]['slurm_real_memory'] }} TmpDisk={{ hostvars[node]['slurm_local_disk'] | default(0, true) }} Feature={{ hostvars[node]['slurm_features'] }}{% if hostvars[node]['gpu_type'] is defined %} Gres=gpu:{{ hostvars[node]['gpu_type'] }}:{{ hostvars[node]['gpu_count'] | string }}{% endif %}
-
+NodeName={{ node }} Sockets={{ hostvars[node]['slurm_sockets'] }} CoresPerSocket={{ hostvars[node]['slurm_cores_per_socket'] }} ThreadsPerCore=1 State=UNKNOWN RealMemory={{ hostvars[node]['slurm_real_memory'] }} TmpDisk={{ hostvars[node]['slurm_local_disk'] | default(0, true) }} Feature={{ hostvars[node]['slurm_features'] }}{% if hostvars[node]['gpu_type'] is defined %} Gres=gpu:{{ hostvars[node]['gpu_type'] }}:{{ hostvars[node]['gpu_count'] | string }}{% endif +%}
 {% endfor %}
 #
 # User Interface nodes (only for data staging jobs).
 #
 {% for node in groups['user_interface'] %}
-{% if node not in groups['compute_vm'] %}{# this checks if the cluster is a single machine and prevents double entry of UI and node #}
-NodeName={{ node }} Sockets={{ hostvars[node]['slurm_sockets'] }} CoresPerSocket={{ hostvars[node]['slurm_cores_per_socket'] }} ThreadsPerCore=1 State=UNKNOWN RealMemory={{ hostvars[node]['slurm_real_memory'] }} TmpDisk={{ hostvars[node]['slurm_local_disk'] | default(0, true) }} Feature={{ hostvars[node]['slurm_features'] }}{% if hostvars[node]['gpu_type'] is defined %} Gres=gpu:{{ hostvars[node]['gpu_type'] }}:{{ hostvars[node]['gpu_count'] | string }}{% endif %}
-{% endif %}
+  {% if node not in groups['compute_vm'] %}{# this checks if the cluster is a single machine and prevents double entry of UI and node #}
+NodeName={{ node }} Sockets={{ hostvars[node]['slurm_sockets'] }} CoresPerSocket={{ hostvars[node]['slurm_cores_per_socket'] }} ThreadsPerCore=1 State=UNKNOWN RealMemory={{ hostvars[node]['slurm_real_memory'] }} TmpDisk={{ hostvars[node]['slurm_local_disk'] | default(0, true) }} Feature={{ hostvars[node]['slurm_features'] }}{% if hostvars[node]['gpu_type'] is defined %} Gres=gpu:{{ hostvars[node]['gpu_type'] }}:{{ hostvars[node]['gpu_count'] | string }}{% endif +%}
+  {% endif %}
 {% endfor %}
