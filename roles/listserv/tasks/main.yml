@@ -1,4 +1,27 @@
 ---
+- name: Install mailx and postfix.
+  ansible.builtin.yum:
+    name:
+      - mailx
+      - postfix
+    state: latest
+    update_cache: true
+  become: true
+
+- name: Update postfix config
+  ansible.builtin.lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^#myhostname = host.domain.tld'
+    line: "myhostname = {{ listserv_api_email_from }}"
+  become: true
+
+- name: "Make sure postfix service is enabled and started."
+  ansible.builtin.systemd:
+    name: "postfix.service"
+    state: started
+    enabled: true
+  become: true
+
 - name: Create directories for mailinglists script.
   ansible.builtin.file:
     path: "{{ item }}"
