@@ -1,6 +1,0 @@
----
-- hosts: rsyslog
-  roles:
-    - role: rsyslog_server
-      when: groups['rsyslog'] is defined and ( groups['rsyslog']|length>0 )
-...

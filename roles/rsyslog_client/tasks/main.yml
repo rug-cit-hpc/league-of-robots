@@ -1,7 +1,0 @@
----
-- name: Deploy rsyslog client.
-  ansible.builtin.include_tasks:
-    file: deploy.yml
-  when: (rsyslog_external_servers is defined and ( rsyslog_external_servers|length>0 )) or
-     ( groups['rsyslog'] is defined and ( groups['rsyslog']|length>0 ) )
-...

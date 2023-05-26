@@ -2,6 +2,7 @@
 - hosts:
     - jumphost
     - data_transfer
+    - logs
   roles:
     - admin_users
 - hosts:

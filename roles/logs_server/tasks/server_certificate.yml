@@ -1,0 +1,66 @@
+---
+- name: Get information of servers rsyslog certificate
+  ansible.builtin.stat:
+    path: "{{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem"
+  register: server_cert_status
+
+- name: Check if rsyslog server certificate was signed with rsyslog CA certificate
+  ansible.builtin.command:
+    certtool --verify --load-ca-certificate {{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}
+    --infile {{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem
+  when: repo_rsyslog_ca_cert.stat.exists and server_cert_status.stat.exists
+  register: verify_certificate_result
+  failed_when: verify_certificate_result.rc != 0 and verify_certificate_result.rc != 1
+  changed_when: false
+  become: true
+
+- name: Check on server for the instance key status
+  ansible.builtin.stat:
+    path: "{{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key"
+  register: server_key_status
+
+- name: Generate private key on rsyslog server
+  ansible.builtin.command: >
+    certtool --generate-privkey --bits 4096
+      --outfile {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
+  when: not server_key_status.stat.exists or server_key_status.stat.size == 0
+  register: server_key_generate
+  changed_when: false
+  failed_when: server_key_generate.rc != 0
+  become: true
+
+- name: Copy certificate signing request template to rsyslog server
+  ansible.builtin.template:
+    src: templates/server_template.csr
+    dest: /tmp/server_template.csr
+    mode: '0600'
+    force: true
+  when: not server_key_status.stat.exists or ( 'rc' in verify_certificate_result and verify_certificate_result.rc == 1 )
+
+- name: Create certificate signing request on rsyslog server
+  ansible.builtin.command: >
+    certtool --generate-request
+    --load-privkey {{ rsyslog_remote_path_key_dir }}/{{ inventory_hostname }}.key
+    --template /tmp/server_template.csr
+    --outfile /tmp/{{ inventory_hostname }}.csr
+  when: not server_key_status.stat.exists or ( 'rc' in verify_certificate_result and verify_certificate_result.rc == 1 )
+  register: server_request_generate_result
+  changed_when: server_request_generate_result.rc == 0
+  failed_when: server_request_generate_result.rc != 0
+  notify: restart-rsyslog.service
+  become: true
+
+- name: Sign servers rsyslog certificate on server with rsyslog CA certificate
+  ansible.builtin.command: >
+    certtool --generate-certificate
+      --load-request /tmp/{{ inventory_hostname }}.csr
+      --load-ca-certificate {{ rsyslog_remote_path_cert_dir }}/{{ rsyslog_ca_cert_file }}
+      --load-ca-privkey {{ rsyslog_remote_path_key_dir }}/{{ rsyslog_ca_key_file }}
+      --template /tmp/server_template.csr
+      --outfile {{ rsyslog_remote_path_cert_dir }}/{{ inventory_hostname }}.pem
+  when: not server_key_status.stat.exists or ( 'rc' in verify_certificate_result and verify_certificate_result.rc == 1 )
+  register: server_certificates_generate_results
+  changed_when: server_certificates_generate_results.rc == 0
+  failed_when: server_certificates_generate_results.rc != 0
+  become: true
+...

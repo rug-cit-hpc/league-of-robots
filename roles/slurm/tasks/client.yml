@@ -199,6 +199,28 @@
     dest: '/etc/logrotate.d/slurm'
   become: true
 
+- name: 'Create folders for systemd override file.'
+  ansible.builtin.file:
+    name: '/etc/systemd/system/slurmd.service.d'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+    state: 'directory'
+  notify:
+    - 'restart_slurmd'
+  become: true
+
+- name: 'Install systemd override file to disable logging stdout/stderr from Slurm daemon via journald to the syslog.'
+  ansible.builtin.copy:
+    src: 'files/override.conf'
+    dest: '/etc/systemd/system/slurmd.service.d/override.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - 'restart_slurmd'
+  become: true
+
 - name: 'Start slurm and munge services.'
   ansible.builtin.systemd:
     name: "{{ item }}"
