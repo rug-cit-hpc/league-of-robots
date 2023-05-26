@@ -4,6 +4,7 @@
     state: present
     name: "{{ network_name }}"
     external: false
+    mtu_size: "{{ network_mtu_size | default(omit) }}"
     wait: true
     timeout: "{{ openstack_api_timeout }}"
 

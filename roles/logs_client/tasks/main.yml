@@ -1,0 +1,54 @@
+---
+# Gathering logs server list
+- name: Include static inventory logs_library.yml
+  ansible.builtin.include_vars:
+    file: "{{ inventory_dir }}/logs_library.yml"
+    name: "logs_servers_library"
+  register: logs_server_library
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- name: Collect IP addresses of logs_library
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/group_vars/logs_library/ip_addresses.yml"
+    name: "logs_ips"
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- name: Create list of log servers
+  ansible.builtin.set_fact:
+    logs_servers: "{{ stacks_logs_servers }}"
+  loop: "{{ stacks_logs_servers | list }}"
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- name: Compile the list of logs external IP addresses
+  ansible.builtin.set_fact:
+    rsyslogs_ext_ips: "{{ rsyslogs_ext_ips | default([]) + [logs_ips.ip_addresses[item['name']][item['external_network']].address] }}"
+  loop: "{{ logs_servers }}"
+  register: rsys_ext_ips
+  delegate_to: 127.0.0.1
+  connection: local
+  run_once: true
+
+- name: Open logs server firewall for each client
+  ansible.builtin.include_tasks:
+    file: firewall.yml
+  when: ( stacks_logs_servers is defined and ( stacks_logs_servers|length>0 ) ) or
+        ( rsyslog_external_servers is defined and ( rsyslog_external_servers|length>0 ))
+
+- name: Deploy rsyslog client
+  ansible.builtin.include_tasks:
+    file: deploy.yml
+  when: ( stacks_logs_servers is defined and ( stacks_logs_servers|length>0 ) ) or
+        ( rsyslog_external_servers is defined and ( rsyslog_external_servers|length>0 ))
+
+- name: Test rsyslog client
+  ansible.builtin.include_tasks:
+    file: test.yml
+  when: ( stacks_logs_servers is defined and ( stacks_logs_servers|length>0 ) ) or
+        ( rsyslog_external_servers is defined and ( rsyslog_external_servers|length>0 ))
+...
