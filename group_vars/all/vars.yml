@@ -175,9 +175,6 @@ yum_repos:
     gpgcheck: 'false'
     gpgkey: ''
 
-# Logs CA key name: 'development', 'research' or 'diagnostics'
-logs_ca_name: 'development'
-
 # Iptables additional configurations 
 iptables_extras_dir: '/etc/iptables_extras.d/'
 ...

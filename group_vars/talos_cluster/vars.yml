@@ -57,6 +57,15 @@ additional_etc_hosts:
     nodes:
       - name: earl4
         network: vlan16
+#
+# Remote logging settings - for diagnostics servers
+#
+logs_ca_name: 'development'
+stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
+   - name: 'earl1'
+     external_network: 'vlan16' # to retrieve public IP from
+   - name: 'earl2'
+     external_network: 'logs_external_network'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
