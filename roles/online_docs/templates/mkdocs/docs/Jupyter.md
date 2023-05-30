@@ -6,10 +6,12 @@
 The [_Jupyter project_](https://jupyter.org/) provides a collection of tools for interactive computing across various programming languages.
 
 _JupyterLab_ is one of the project's most well known products and the latest web-based, interactive development environment for _Jupyter notebooks_, code, and data.
+The documentation below explains how to create and connect to a _JupyterLab_ session on {{ slurm_cluster_name | capitalize }}.
+For documentation on how to use _JupyterLab_ itself see https://jupyterlab.readthedocs.io
 
 ## How to use JupyterLab
 
-![How to use RStudio](img/rstudio.svg)
+![How to use Jupyter](img/jupyter.svg)
 
 You can use _Jupyter_ by:
 
@@ -22,25 +24,18 @@ This setup will ensure:
  * The original data sets can stay on {{ slurm_cluster_name | capitalize }}
  * Communication between your local client computer and {{ slurm_cluster_name | capitalize }} is encrypted via the SSH protocol.
  * Code to crunch data can be written on your local client and will be send to {{ slurm_cluster_name | capitalize }} for analysis of the data sets.
- * Result files also stay on {{ slurm_cluster_name | capitalize }}.
+ * Result files can also stay on {{ slurm_cluster_name | capitalize }}.
 
-Data access policies may differ, but in most cases it is allowed to download aggregate results to your local client.
-E.g. if you create a bar plot of the median of variable X for different cohorts, this will not contain any data for an individual sample.
-Using RStudio to look at such a plot would be compatible with such a data access policy.
-
-Note that if you include measurements for individual samples to the plot - e.g. you include outliers and label them with sample IDs - 
-then you may not be allowed to download that to your local computer.
-
-#### 1. Install software on your own computer
+#### 0. Install software on your own computer
 
 You only need a web browser and an SSH client, which you most likely already have by the time your read this documentation.
 There is no need to install any _Jupyter_ components locally.
 
-#### 2. Login on {{ slurm_cluster_name | capitalize }}
+#### 1. Login on {{ slurm_cluster_name | capitalize }}
 
 [Login on {{ slurm_cluster_name | capitalize }} with your SSH client](logins/)
 
-#### 3. Create a screen or tmux session on {{ slurm_cluster_name | capitalize }}
+#### 2. Create a screen or tmux session on {{ slurm_cluster_name | capitalize }}
 
 Optionally start a ```screen``` or ```tmux``` session.  
 Working with ```screen``` or ```tmux``` is beyond the scope of this documentation, but highly recommended.
@@ -54,7 +49,7 @@ Use the ```-S``` argument to give your ```screen``` session a name. E.g. to crea
 screen -S jupyter
 ```
 
-#### 4. Create an interactive Slurm session on {{ slurm_cluster_name | capitalize }}
+#### 3. Create an interactive Slurm session on {{ slurm_cluster_name | capitalize }}
 
 See [Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}](analysis/) for details.  
 Simple example requesting a single core and 1 GB RAM memory for max one hour:
@@ -65,7 +60,7 @@ hostname
 The ```hostname``` command will report the name of the compute node where your interactive Slurm session is running;
 You will need this name later on when creating the SSH tunnel...  
 
-#### 5. Load and start Jupyter in your interactive Slurm session on {{ slurm_cluster_name | capitalize }}
+#### 4. Load and start Jupyter in your interactive Slurm session on {{ slurm_cluster_name | capitalize }}
 
 ```bash
 module load JupyterLab
@@ -90,20 +85,22 @@ E.g.:
 [I 2023-05-23 17:19:26.232 ServerApp] nbclassic | extension was successfully loaded.
 [I 2023-05-23 17:19:26.233 ServerApp] Serving notebooks from local directory: /path/to/dir/from/where/jupyter/was/started/
 [I 2023-05-23 17:19:26.233 ServerApp] Jupyter Server 1.21.0 is running at:
-[I 2023-05-23 17:19:26.233 ServerApp]     http://localhost:8888/lab?token=b23e4350cd845408e22bf14d6fa6902541c188dadb01a09e
-[I 2023-05-23 17:19:26.233 ServerApp]  or http://127.0.0.1:8888/lab?token=b23e4350cd845408e22bf14d6fa6902541c188dadb01a09e
+[I 2023-05-23 17:19:26.233 ServerApp]     http://localhost:8888/lab?token=b23e4350********************************db01a09e
+[I 2023-05-23 17:19:26.233 ServerApp]  or http://127.0.0.1:8888/lab?token=b23e4350********************************db01a09e
 [I 2023-05-23 17:19:26.233 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
 [C 2023-05-23 17:19:26.257 ServerApp] 
     
     To access the server, open this file in a browser:
         file:///home/*******/.local/share/jupyter/runtime/jpserver-16777-open.html
     Or copy and paste one of these URLs:
-        http://localhost:8888/lab?token=b23e4350cd845408e22bf14d6fa6902541c188dadb01a09e
-     or http://127.0.0.1:8888/lab?token=b23e4350cd845408e22bf14d6fa6902541c188dadb01a09e
+        http://localhost:8888/lab?token=b23e4350********************************db01a09e
+     or http://127.0.0.1:8888/lab?token=b23e4350********************************db01a09e
 ```
 Each session needs its own unique port and ```jupyter lab``` automatically selected one that is free.
 You will need this port number later on when creating the SSH tunnel.
 Once the SSH tunnel is established you can user either of the URLs in a web browser on your local computer.
+
+Keep the _token_ safe and treat it like a password to prevent others from hijacking your _Jupyter_ session.
 
 Optionally in case you are running this inside ```screen```:  
 Now press ```CTRL+a``` followed by ```CTRL+d``` to detach from the ```screen```.
@@ -114,7 +111,7 @@ E.g.:
 screen -r jupyter
 ```
 
-#### 6. Create an SSH tunnel on your own computer
+#### 5. Create an SSH tunnel on your own computer
 
 Now we need to create an SSH tunnel from your local client computer to the server and connect to the remote R session.
 
@@ -179,15 +176,15 @@ E.g.:
 ssh -N -L localhost:8889:localhost:8888 {{ groups['jumphost'] | first }}+{{ groups['compute_vm'] | first }}
 ```
 
-#### 7. Using the Jupyter session in a web browser on your own computer
+#### 6. Using the Jupyter session in a web browser on your own computer
 
 You can now connect to the remote _Jupyter_ session simply by pasting the URL in a web browser on your own computer.
-Make to paste the complete URL including the generated session _token_ (e.g. ```http://localhost:8888/lab?token=b23e4350cd845408e22bf14d6fa6902541c188dadb01a09e```) in the address bar.
+Make to paste the complete URL including the generated session _token_ (e.g. ```http://localhost:8888/lab?token=b23e4350********************************db01a09e```) in the address bar.
 Depending on the web browser used the _token_ may be hidden from the address bar once you hit the ```[ENTER]``` key.
 
 ![use Jupyter on your own computer](img/Jupyter.png)
 
-#### 8. Cleaning up
+#### 7. Cleaning up
 
 **Don’t keep Jupyter running forever on {{ slurm_cluster_name | capitalize }}!**
 Make sure to really exit your session on {{ slurm_cluster_name | capitalize }} when you are done to prevent wasting resources,

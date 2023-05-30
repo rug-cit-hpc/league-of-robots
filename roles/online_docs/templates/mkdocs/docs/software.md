@@ -172,7 +172,7 @@ Note: unless you really need a newer version of the full ```foss``` toolchain or
 we suggest you use the latest version that is already deployed on the cluster,
 because a complete new toolchain takes up a lot of space and time to compile.
 
-If you have your own EasyBiuld environment and want to become a member of the deploy admins group in order to deploy software in ```/apps```,
+If you have your own EasyBuild environment and want to become a member of the deploy admins group in order to deploy software in ```/apps```,
 then follow these steps:
 
  * Fork our [easybuild-easyconfigs repo on GitHub](https://github.com/molgenis/take-it-easyconfigs) and create a pull request with the EasyConfig(s) you created.
@@ -208,35 +208,38 @@ Feel free to choose whatever suits your scientific project best, but
 [Conda](https://docs.conda.io) is a package and environment manager originally written in and for the Python language,
 but nowadays it can package and distribute software written in any language.
 
-Anaconda is the name of both the [company developing Anaconda](https://www.anaconda.com) and the name of a large conda _channel/repository_ with curated conda packages.
+Anaconda is the name of both the [company developing Conda](https://www.anaconda.com) and the name of a large conda _channel/repository_ with curated conda packages.
 
 Miniconda is a minimal, bootstrap version of Anaconda that includes only Conda, Python, their dependencies and a small number of utilities.
 
 [Bioconda](https://bioconda.github.io/) is a conda _channel/repo_ with packaged bioinformatics software.
 
-The main difference between EasyBuild and Conda is
+With _Conda_ you use pre-compiled binaries from a conda _channel/repo_ as opposed to compiling the code on {{ slurm_cluster_name | capitalize }}.
+This has the advantage that it is faster and in many cases easier to deploy the software.
+But the are also disadvantages:
 
- * EasyBuild can use pre-compiled binaries as the exception, but prefers to compile software from source on each cluster.
- * Conda on the other hand compiles the software once and then adds the compiled binaries to a repository.
-
-Installing pre-compiled binaries from a conda _channel/repo_ as opposed to compiling the code yourself has the advantage that it is easier and faster,
-but the are also disadvantages:
-
- * The pre-compiled binaries cannot be optimized for different CPU architectures:
-   instead they will use a common denominator and only use instructions most recent generations of CPUs understand.
- * Conda makes assumptions about locations of dependencies during compile time.
-   The pre-compiled binaries will crash if these dependencies are missing or located elsewhere on the machine where you install them with Conda.
+ * The pre-compiled binaries cannot be optimized for different CPU/GPU architectures.
+   * Either they will use a common denominator and only use instructions most generations of CPUs/GPUs understand, which may make the software slow.
+   * Or if the software does use instructions for a specific generation of it will only work on that generation, which may be different than the one for {{ slurm_cluster_name | capitalize }}.
+ * _Conda_ makes assumptions about locations of dependencies during compile time.
+   The pre-compiled binaries will crash at run time if these dependencies are missing or located elsewhere on the machine where you install them.
    Depending on the error message it can be very hard to figure out if there is a problem with the pre-compiled software
    or whether there is a problem with your input data set.
    If you compile the software from source on the cluster instead,
    you will notice during compilation if there are issues due to missing dependencies.
 
+Therefore we strongly suggest to only try _Conda_ as last resort when all else has failed.
+
 ###### Containers
 
-Docker Apptainer
+Container technology is a lightweight form of virtualization, where a piece of software is packaged in a container image file together with all its dependencies.
+The image file can then be used to start instances of the software.
+On {{ slurm_cluster_name | capitalize }} you can use [_Apptainer_ containers](../apptainer/).
 
 ## 5. Language specific installation options for extra/custom packages
 
-
+ * [R packages](../R/)
+ * Perl packages
+ * Python packages
 
 
