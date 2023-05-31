@@ -29,10 +29,10 @@ but you can simply type ```ls``` in a terminal to run that command when ```/usr/
 
 The advantage of packages from the OS is that they are there by default and available to all users of the system.
 The disadvantage of packages from the OS is that there can be only one version of a package in the _default_ location.
-For some scientific analysis you may need a different version version than for another analysis.
-Hence we often need multiple versions of software packages installed side by side and we have to be able to select a specific version for a specific analysis.
+For some scientific analysis you may need a different version than for another analysis.
+Hence, we often need multiple versions of software packages installed side by side and we have to be able to select a specific version for a specific analysis.
 This is where all others options below come into play: the mechanisms vary, 
-but they all - on way or another - modify the _search paths_ to make specific versions of software available in your environment.
+but they all - one way or another - modify the _search paths_ to make specific versions of software available in your environment.
 
 ## 2. Modules installed with EasyBuild by admins
 
@@ -104,20 +104,20 @@ Instead use the [Lua based module system \(Lmod\)](https://github.com/TACC/Lmod)
          11) ncurses/5.9-goolf-1.7.20                                   23) R/3.2.1-goolf-1.7.20
          12) zlib/1.2.8-goolf-1.7.20                                    24) GATK/3.4-46-Java-1.7.0_80
 
-  The GATK was written in Java and therefore the Java dependency was loaded automatically. 
-  R was also loaded as some parts of the GATK use R for creating plots/graphs. 
-  R itself was compiled from scratch and has a large list of dependencies of its own ranging from compilers like the GCC to graphics libs like libpng.  
-  Java and R have binaries, which can be executed without specifying the path to where they are locate on the system, 
+  The _GATK_ was written in _Java_ and therefore the _Java_ dependency was loaded automatically. 
+  _R_ was also loaded as some parts of the _GATK_ use _R_ for creating plots/graphs. 
+  _R_ itself was compiled from scratch and has a large list of dependencies of its own ranging from compilers like _GCC_ to graphics libs like _libpng_.  
+  _Java_ and _R_ have binaries, which can be executed without specifying the path to where they are locate on the system, 
   because the module system has added the directories, where they are located, to the ```${PATH}``` environment variable, which is used as search path for binaries.  
   
-  If the GATK was a binary you could now simply call it without specifying the path to it, 
-  but as the GATK is a Java ```*.jar``` we need to call the java binary and specify the path to the GATK ```*.jar```.
-  To make sure we don't need an absolute path to the GATK ```*.jar``` hard-coded in our jobs/scripts, 
-  the GATK module created an environment variable named ```${EBROOTGATK}```, 
-  so we can resolve the path to the GATK transparently even if it varies per server.  
+  If the _GATK_ was a binary too you could now simply call it without specifying the path to it, 
+  but as the _GATK_ is a ```*.jar``` file we need to call the ```java``` binary and specify the path to the _GATK_ ```*.jar```.
+  To make sure we don't need an absolute path to the _GATK_ ```*.jar``` hard-coded in our jobs/scripts, 
+  the _GATK_ module created an environment variable named ```${EBROOTGATK}```, 
+  so we can resolve the path to the _GATK_ transparently even if it varies per server.  
   
-  The EB stands for [EasyBuild](https://easybuild.io/), which we use to deploy software. 
-  EasyBuild creates environment variables pointing to the root of where the software was installed for each module according to the scheme 
+  The `EB` stands for [EasyBuild](https://easybuild.io/), which we use to deploy software. 
+  _EasyBuild_ creates environment variables pointing to the root of where the software was installed for each module according to the scheme 
   EB + ROOT + [NAMEOFSOFTWAREPACKAGEINCAPITALS]. Hence for myFavoriteApp it would be ```${EBROOTMYFAVORITEAPP}```.  
   
 * Let's see what's installed in ```${EBROOTGATK}```:  
@@ -128,13 +128,13 @@ Instead use the [Lua based module system \(Lmod\)](https://github.com/TACC/Lmod)
         -rw-rw-r-- 1 deployadmin depad  13M Jul  9 23:41 GenomeAnalysisTK.jar
         drwxrwsr-x 2 deployadmin depad 4.0K Aug  5 15:58 resources
 
-* Hence we can now execute the GATK and verify we loaded the correct version like this:
+* Hence we can now execute the _GATK_ and verify we loaded the correct version like this:
 
         java -jar "${EBROOTGATK}/GenomeAnalysisTK.jar" --version
         
         3.4-46-gbc02625
 
-  Note that we did not have to specify a hard-coded path to java nor to the GATK ```*.jar``` file. 
+  Note that we did not have to specify a hard-coded path to java nor to the _GATK_ ```*.jar``` file. 
 
 ###### Missing software
 
