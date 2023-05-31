@@ -33,7 +33,7 @@
     - '/root/mailinglists'
   become: true
 
-- name: 'Install listserv template.'
+- name: 'Install listserv config file.'
   ansible.builtin.template:
     src: "templates/{{ item }}"
     dest: "/root/mailinglists/{{ item }}"
