@@ -279,6 +279,12 @@ function getSubscriptions () {
 	#
 	# Parse subscriptions file.
 	#
+	local _header="$(head -1 "${_subscribtions_file}")"
+	if [[ "${_header:-}" != 'Email|Name' ]]; then
+		log4Bash 'ERROR' "${LINENO}" "${FUNCNAME:-main}" '0' "Header of ${_subscribtions_file} file is malformed."
+		log4Bash 'ERROR' "${LINENO}" "${FUNCNAME:-main}" '0' "       Expected 'Email|Name' and got '${_header:-}'."
+		log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '0' "Failed to parse list of ${_mailinglist} subscribers."
+	fi
 	local _regex='\(([^()]{1,})\)'
 	while IFS='|' read -r -a _subscriber_record_values; do
 		#
