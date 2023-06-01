@@ -5,8 +5,8 @@ But it is still possible to install an ```R``` package in a ```tmp``` group fold
 
 ## Create location for custom R packages and prepend that to the search path for R packages
 
-First you will need to chose a location where you want to install your custom ```R``` packages.
-This path need to be added to the ```${R_LIBS_USER}``` environment variable in your ```${HOME}/.Renviron``` config file.
+First you will need to choose a location where you want to install your custom ```R``` packages.
+This path needs to be added to the ```${R_LIBS_USER}``` environment variable in your ```${HOME}/.Renviron``` config file.
 
 ###### 1. Create a ${HOME}/.Renviron file
 
