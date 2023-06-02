@@ -10,7 +10,7 @@
 
 ## Nextflow introduction
 
-Nextflow is a powerful tool for developing scientific workflows for use on HPC systems. It provides a simple 
+[Nextflow](https://www.nextflow.io) is a powerful tool for developing scientific workflows for use on HPC systems. It provides a simple 
 solution to deploy parallelized workloads at scale using an elegant reactive/functional programming model in 
 a portable manner.
 It supports integration with multiple workload manager including Slurm that we use on {{ slurm_cluster_name 
