@@ -213,7 +213,7 @@ nextflow run \
 main.nf (path you main nf pipeline)    
 ```
 
-## Debugging, tracing and visualisation
+## Debugging & Logging
 
 Nextflow has some great functionality buildin to monitor your pipeline run logs, trace the status of indivual pipeline tasks,
 and visualize this information in a runtime HTML report. This can help you to monitor your pipeline perforance and can be useful for optimalization. 
