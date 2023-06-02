@@ -250,7 +250,7 @@ To create this report add the `-with-report` command line option when launching 
 nextflow run <pipeline name> -with-report [file name]
 ```
 
-### visualisation
+### Timeline Graph
 Nextflow can render an HTML timeline for all processes executed in your pipeline. It genarates a bar graph showing information about 
 runtime of each pipeline step. To enable the creation of the timeline report add the `-with-timeline` option to your run command:
 
