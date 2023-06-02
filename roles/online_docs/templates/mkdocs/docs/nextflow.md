@@ -150,7 +150,7 @@ module load nextflow
 nextflow -C ${CONFIG} run ${PIPELINE}
 ```
 
-Next you can submit your launch_scipts.sh from login node as a normal sbatch submission:
+Next you can submit your ```launch_scipts.sh``` to Slurm on the _User Interface_ with the ```sbatch``` command:
 
 ```
 sbatch launch_scipts.sh /path/to/mypipeline.nf /path/to/myconfig_file.conf
