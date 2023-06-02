@@ -240,7 +240,7 @@ $ nextflow log goofy_kilby
 This can help you to  find the `jobscripts`, `.err` and `.out` files find back for each executed process. 
 This helps you to find out what actually goes on in the backgroup during execution of your pipeline, and helps you during debugging.
 
-### tracing
+### Execution Report
 Nextflow can create an HTML execution report: a single document which includes many useful metrics about a workflow execution.
 It contains general information about Run date, output loction and the version of Nextflow that was used. Also plots are shown 
 for CPU, memory, job duration and disk I/O which can be useful for pipeline optimization.
