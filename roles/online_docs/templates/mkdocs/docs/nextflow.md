@@ -70,7 +70,7 @@ Hola world!
 ```
 ### Changing the default writing location for $NXF_HOME
 Nextflows default home directory is located in `$HOME/.nextflow`. This can cause your home diretory to be flooded.To prevent this
-from happening you can set the $NXF_HOME variable to a location somewhere in /groups/${group}/tmp*/... To do this you can
+from happening you can set the ```${NXF_HOME}``` environment variable to a location somewhere in ```/groups/${group}/tmp*/...``` To do this you can
 add the following command line that looks something like this: `export ${NXF_HOME}='/groups/${group}/tmp*/yourusername/'` for example, 
 and add this to your ${HOME}/.bashrc file.  
 
