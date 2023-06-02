@@ -239,7 +239,8 @@ On {{ slurm_cluster_name | capitalize }} you can use [_Apptainer_ containers](..
 ## 5. Language specific installation options for extra/custom packages
 
  * [R packages](../R/)
+<!--
  * Perl packages
  * Python packages
-
+-->
 
