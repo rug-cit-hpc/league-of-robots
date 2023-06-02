@@ -127,7 +127,7 @@ full capacity since you process is bound to one job on one machine.
 Note that workflow cannot run longer than the maximum wall time available to a single job in the Slurm QOS 
 being used.
 
-for example, create a launch_script.sh containing:
+for example, create a ```launch_script.sh``` containing:
 
 ```
 #!/bin/bash
