@@ -118,7 +118,7 @@ nextflow run /path/to/my_pipeline.nf
 ## How to wrap Nextflow submission to a single Slurm job
 
 A second method is to run the ```nextflow run ...``` command into a batch script and submitting it to Slurm 
-with sbatch. The manager process will run on the allocated compute node, and all tasks are configured to use 
+with ```sbatch```. The manager process will run on the allocated compute node, and all tasks are configured to use 
 the local executor; 
 it's even possible to use srun in your processes. An advantage of this method is that your process can run 
 over multiple days, and is only the initial submission waits in a Slurm queue. And not subprocesses that are 
