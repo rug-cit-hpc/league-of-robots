@@ -1,4 +1,27 @@
 ---
+- name: Install mailx and postfix.
+  ansible.builtin.yum:
+    name:
+      - mailx
+      - postfix
+    state: latest
+    update_cache: true
+  become: true
+
+- name: Update postfix config
+  ansible.builtin.lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^#myhostname = host.domain.tld'
+    line: "myhostname = {{ listserv_api_email_from }}"
+  become: true
+
+- name: "Make sure postfix service is enabled and started."
+  ansible.builtin.systemd:
+    name: "postfix.service"
+    state: started
+    enabled: true
+  become: true
+
 - name: Create directories for mailinglists script.
   ansible.builtin.file:
     path: "{{ item }}"
@@ -10,16 +33,26 @@
     - '/root/mailinglists'
   become: true
 
-- name: 'Install listserv script.'
-  ansible.builtin.copy:
+- name: 'Install listserv config file.'
+  ansible.builtin.template:
     src: "templates/{{ item }}"
     dest: "/root/mailinglists/{{ item }}"
     owner: 'root'
     group: 'root'
     mode: '0750'
   with_items:
-    - 'LDAP2LISTSERV.bash'
     - 'LDAP2LISTSERV.cfg'
+  become: true
+
+- name: 'Copy listserv script.'
+  ansible.builtin.copy:
+    src: "files/{{ item }}"
+    dest: "/root/mailinglists/{{ item }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+  with_items:
+    - 'LDAP2LISTSERV.bash'
   become: true
 
 - name: 'Create cron job to fetch data from an LDAP and manage mailing list subscriptions of our users.'
