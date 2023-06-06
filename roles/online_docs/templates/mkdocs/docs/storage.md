@@ -183,7 +183,7 @@ The report will show 11 columns:
 | Path | Function | (Soft) Quota | (Hard) Limit | Backup | Cleanup | Mounted on UIs | Mounted on DAIs | Mounted on compute nodes |
 |:---- |:-------- | ----------:| ----------:|:------:|:-------:|:--------------:|:---------------:|:------------------------:|
 {% for mount in lfs_mounts | selectattr('lfs', 'match', '^home$') | list %}
-| ```/{{ mount.lfs }}``` | Home dirs from shared file system for personal settings/preferences. | 1 GB | 2 GB | Yes | No | Yes | Yes | Yes |
+| ```/{{ mount.lfs }}``` | Home dirs from shared file system for personal settings/preferences. | 1 GB | 2 GB | No | No | Yes | Yes | Yes |
 {% endfor %}
 {% for mount in lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list %}
 | ```/groups/${group}/{{ mount.lfs }}``` | High Availability shared storage system for permanent data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |
