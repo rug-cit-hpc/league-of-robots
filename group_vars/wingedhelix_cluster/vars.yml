@@ -7,7 +7,7 @@ slurm_version: '22.05.2-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
-    nodes: "{{ stack_prefix }}-vcompute[01-02]"  # Must be in sync with Ansible hostnames listed in inventory.
+    nodes: "{{ stack_prefix }}-node-a[01-02]"  # Must be in sync with Ansible hostnames listed in inventory.
     max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
     max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
     max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
@@ -187,6 +187,15 @@ stack_networks:
       - '192.168.1.0/25'
     type: storage
     external: true
+  - name: vlan1068
+    cidr: '172.23.60.0/24'
+    allow_ingress:
+      - 172.23.60.161/32  # Lustre server
+      - 172.23.60.162/32  # Lustre server
+      - 172.23.60.163/32  # Lustre server
+      - 172.23.60.164/32  # Lustre server
+    type: storage
+    external: false
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
