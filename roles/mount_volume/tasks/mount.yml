@@ -1,0 +1,25 @@
+---
+- name: Mount the volume.
+  block:
+    - name: Try to mount the volume.
+      ansible.posix.mount:
+        path: "{{ volume_path }}"
+        src: "{{ volume_src }}"
+        fstype: "{{ volume_fstype }}"
+        opts: "{{ volume_opts }}"
+        state: mounted
+      become: true
+  rescue:
+    - name: Try to remove metadata_csum feature, which might be too new.
+      ansible.builtin.command:
+        cmd: tune2fs -O ^metadata_csum "{{ volume_device }}"
+      become: true
+    - name: Retry mounting the volume.
+      ansible.posix.mount:
+        path: "{{ volume_path }}"
+        src: "{{ volume_src }}"
+        fstype: "{{ volume_fstype }}"
+        opts: "{{ volume_opts }}"
+        state: mounted
+      become: true
+...
