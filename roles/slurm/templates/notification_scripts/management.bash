@@ -10,14 +10,14 @@ read -r -d '' message << EOM
 Please check and fix my \`slurmbdbd\` and \`slurmctld\` on $(hostname)!  
 The \`scontrol ping\` command reports:
 \`\`\`
-$(scontrol ping)
+$(scontrol ping | tr \" \')
 \`\`\`
 Systemd reports:
 \`\`\`
-$(systemctl status slurmdbd.service)
+$(systemctl status slurmdbd.service | tr \" \')
 \`\`\`
 \`\`\`
-$(systemctl status slurmctld.service)
+$(systemctl status slurmctld.service | tr \" \')
 \`\`\`"
 }
 EOM
