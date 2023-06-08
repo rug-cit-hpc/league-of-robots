@@ -42,6 +42,8 @@
     name: "{{ inventory_hostname }}"
     image: "{{ cloud_image }}"
     flavor: "{{ cloud_flavor }}"
+    boot_from_volume: "{{ openstack_computing_boot_from_volume }}"
+    terminate_volume: "{{ openstack_computing_terminate_volume }}"
     #
     # Security groups are assigned to servers based on the ones assigned
     # to the pre-defined network ports used by a server.
