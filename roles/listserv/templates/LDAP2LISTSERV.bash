@@ -770,17 +770,6 @@ while getopts "l:b:unh" opt; do
 		esac
 done
 
-#
-# Source config file. See commandline help for details of config file format.
-#
-#config_file="$(cd -P "$( dirname "$0" )" && pwd)/${SCRIPT_NAME}.cfg"
-#if [[ -r "${config_file}" && -f "${config_file}" ]]; then
-#	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Sourcing config file ${config_file}..."
-#	source "${config_file}" || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Cannot source ${config_file}."
-#else
-#	log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Config file ${config_file} missing or not accessible."
-#fi
-
 {% endraw %}
 #
 # Mailinglist server
