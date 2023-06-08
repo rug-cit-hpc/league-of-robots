@@ -115,3 +115,14 @@ on the server in the files `/etc/iptables_extras.d/[stack].allow`.
 
 Additionally, the rsyslog accepts only the communication from the clients with certificate singed by apropriate
 certificate authority (each type of logs server has different CA).
+
+## VII. Debugging
+
+Get the connections to the server from the clients
+
+```
+    $ ss -tpn | grep 41514
+    FIN-WAIT-1 0      46     10.0.0.4:41514              45.88.81.169:60964
+    ESTAB      0      0      10.0.0.4:41514              45.88.81.169:40136               users:(("rsyslogd",pid=19623,fd=17))
+    FIN-WAIT-1 0      46     10.0.0.4:41514              45.88.81.169:60274
+```
