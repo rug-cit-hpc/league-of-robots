@@ -7,6 +7,26 @@ ip_addresses:
     wh_internal_storage:
       address: 10.10.2.218
       netmask: /32
+  wh-node-a01:
+    vlan1068:
+      address: 172.23.60.17
+      netmask: /32
+    wh_internal_management:
+      address: 10.10.1.65
+      netmask: /32
+    wh_internal_storage:
+      address: 10.10.2.64
+      netmask: /32
+  wh-node-a02:
+    vlan1068:
+      address: 172.23.60.27
+      netmask: /32
+    wh_internal_management:
+      address: 10.10.1.110
+      netmask: /32
+    wh_internal_storage:
+      address: 10.10.2.73
+      netmask: /32
   wh-porch:
     wh_internal_management:
       address: 10.10.1.148
@@ -39,20 +59,6 @@ ip_addresses:
       address: 195.169.22.152
       netmask: /32
       fqdn: 'NXDOMAIN'
-  wh-vcompute01:
-    wh_internal_management:
-      address: 10.10.1.65
-      netmask: /32
-    wh_internal_storage:
-      address: 10.10.2.64
-      netmask: /32
-  wh-vcompute02:
-    wh_internal_management:
-      address: 10.10.1.110
-      netmask: /32
-    wh_internal_storage:
-      address: 10.10.2.73
-      netmask: /32
   wingedhelix:
     wh_internal_management:
       address: 10.10.1.229
