@@ -25,18 +25,20 @@
   community.general.filesystem:
     fstype: "{{ item.item.type }}"
     dev: "{{ item.item.device }}"
+    force: true
   when: item.rc == 1
   become: true
   loop: "{{ mount_point_status.results }}"
 
 - name: 'Mount the volume.'
-  ansible.posix.mount:
-    path: "{{ item.mount_point }}"
-    src: "{{ item.device }}"
-    fstype: "{{ item.type }}"
-    opts: "{{ item.mount_options }}"
-    state: mounted
-  become: true
+  ansible.builtin.include_tasks:
+    file: mount.yml
+  vars:
+    volume_path: "{{ item.mount_point }}"
+    volume_src: "{{ item.device }}"
+    volume_fstype: "{{ item.type }}"
+    volume_opts: "{{ item.mount_options }}"
+    volume_device: "{{ item.device }}"
   loop: "{{ volumes }}"
 
 - name: 'Recheck the mount point.'

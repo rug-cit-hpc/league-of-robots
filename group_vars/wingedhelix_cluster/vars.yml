@@ -7,7 +7,7 @@ slurm_version: '22.05.2-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
-    nodes: "{{ stack_prefix }}-vcompute[01-02]"  # Must be in sync with Ansible hostnames listed in inventory.
+    nodes: "{{ stack_prefix }}-node-a[01-02]"  # Must be in sync with Ansible hostnames listed in inventory.
     max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
     max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
     max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
@@ -187,6 +187,15 @@ stack_networks:
       - '192.168.1.0/25'
     type: storage
     external: true
+  - name: vlan1068
+    cidr: '172.23.60.0/24'
+    allow_ingress:
+      - 172.23.60.161/32  # Lustre server
+      - 172.23.60.162/32  # Lustre server
+      - 172.23.60.163/32  # Lustre server
+      - 172.23.60.164/32  # Lustre server
+    type: storage
+    external: false
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
@@ -439,6 +448,18 @@ pfs_mounts:
     rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02770,file_mode=0660'
     ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02770,file_mode=0660'
     machines: "{{ groups['chaperone'] }}"
+  - pfs: 'validatie\040TruSightOncology-500'
+    source: '//storage3.umcg.nl/path2$/archief/MolecDiagn'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    machines: "{{ groups['chaperone'] }}"
+  - pfs: 'NGSdata'
+    source: '//storage1.umcg.nl/algemenedata$/appdata/BijzondereHematologie/'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home
     pfs: umcgst12
@@ -454,6 +475,8 @@ lfs_mounts:
       - name: umcg-gst
       - name: umcg-lab
         mode: '2750'
+      - name: umcg-labgnkbh
+      - name: umcg-patho
       - name: umcg-vipt
     rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
   - lfs: prm05
@@ -515,6 +538,66 @@ lfs_mounts:
       - name: umcg-gsad
       - name: umcg-gst
       - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm35
+    pfs: 'validatie\040TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat35
+    pfs: 'validatie\040TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm36
+    pfs: 'validatie\040TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat36
+    pfs: 'validatie\040TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm37
+    pfs: 'validatie\040TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat37
+    pfs: 'validatie\040TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm45
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat45
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm46
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat46
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm47
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat47
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env07
     pfs: umcgst12
