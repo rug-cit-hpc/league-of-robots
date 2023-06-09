@@ -118,3 +118,12 @@ Run:
 - validate that the client certificate was signed with the CA certificate `openssl verify -verbose -CAfile /etc/pki/tls/certs/logs_[type].pem /etc/pki/tls/certs/[hostname].pem`
 
 Sometimes it happens that after several days the logs are lost in `/var/log/messages` and rsyslog gets in the `HUPed` state (checking with `systemctl status rsyslog`). This can happen when logrotate starts. The files `/etc/logrorate.d/syslog` has been updated, so that on every `logrorate` event, the `rsyslog` service will be restarted.
+
+Manually execute the syslog logrotate file itself
+    `logrotate -vf /etc/logrotate.d/syslog`
+
+or alternatively run main `logrotate.conf` file (that should call also all the /etc/logrotate.d/* files) with
+    `logrotate -vf /etc/logrotate.conf`
+
+if logrotate does not work, change the last triggered date in the
+    `vi /var/lib/logrotate/logrotate.status`
