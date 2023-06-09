@@ -11,8 +11,8 @@
 - name: Update postfix config
   ansible.builtin.lineinfile:
     path: /etc/postfix/main.cf
-    regexp: '^#myhostname = host.domain.tld'
-    line: "myhostname = {{ listserv_api_email_from }}"
+    regexp: '^#?myhostname = '
+    line: "myhostname = {{ listserv_domain_name }}"
   become: true
 
 - name: "Make sure postfix service is enabled and started."
@@ -33,21 +33,10 @@
     - '/root/mailinglists'
   become: true
 
-- name: 'Install listserv config file.'
+- name: 'Copy listserv script.'
   ansible.builtin.template:
     src: "templates/{{ item }}"
-    dest: "/root/mailinglists/{{ item }}"
-    owner: 'root'
-    group: 'root'
-    mode: '0750'
-  with_items:
-    - 'LDAP2LISTSERV.cfg'
-  become: true
-
-- name: 'Copy listserv script.'
-  ansible.builtin.copy:
-    src: "files/{{ item }}"
-    dest: "/root/mailinglists/{{ item }}"
+    dest: "/root/mailinglists/LDAP2LISTSERV.bash"
     owner: 'root'
     group: 'root'
     mode: '0750'

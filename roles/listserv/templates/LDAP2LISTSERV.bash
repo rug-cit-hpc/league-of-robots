@@ -1,3 +1,4 @@
+{% raw %}
 #!/bin/bash
 
 #
@@ -14,6 +15,7 @@
 ### Environment and Bash sanity.
 ##
 #
+
 if [[ "${BASH_VERSINFO}" -lt 4 || "${BASH_VERSINFO[0]}" -lt 4 ]]; then
 	echo "Sorry, you need at least bash 4.x to use ${0}." >&2
 	exit 1
@@ -768,24 +770,50 @@ while getopts "l:b:unh" opt; do
 		esac
 done
 
+{% endraw %}
 #
-# Source config file. See commandline help for details of config file format.
+# Mailinglist server
 #
-config_file="$(cd -P "$( dirname "$0" )" && pwd)/${SCRIPT_NAME}.cfg"
-if [[ -r "${config_file}" && -f "${config_file}" ]]; then
-	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Sourcing config file ${config_file}..."
-	source "${config_file}" || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Cannot source ${config_file}."
-else
-	log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Config file ${config_file} missing or not accessible."
-fi
+# We use sending emails combined with "screen-scraping" of the web interface
+# as some rudimentary form of API to interact with the LISTSERV server :o
+#
+listserv_api_email_from="{{ listserv_api_email_from }}"
+listserv_api_email_to="{{ listserv_api_email_to }}"
+listserv_api_webinterface_url="{{ listserv_api_webinterface_url }}"
+listserv_admin_user="{{ listserv_admin_user }}"
+listserv_admin_pass="{{ listserv_admin_pass }}"
+#
+# Entitlement groups a.k.a. LDAP containers.
+#
+# We use an array of entitlements in combination with a fake multi-dimensional hash 
+# using comma's as entitlement,key separator.
+# Hence a key cannot contain a comma!
+#
 
-#ldapcredentials_file="/etc/openldap/readonly-ldapsearch-credentials.bash"
-#if [[ -r "${ldapcredentials_file}" && -f "${ldapcredentials_file}" ]]; then
-#        log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Sourcing config file ${ldapcredentials_file}..."
-#        source "${ldapcredentials_file}" || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Cannot source ${ldapcredentials_file}."
-#else
-#        log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Config file ${ldapcredentials_file} missing or not accessible."
-#fi
+declare -a entitlements=({% for listserv_domain in listserv_credentials %}'{{ listserv_domain }}'{% if not loop.last %} {% endif %}{% endfor %})
+declare -A entitlement_settings=(
+{% for listserv_domain in listserv_credentials %}
+    ['{{ listserv_domain }},ldap_search_uri']='{{ listserv_credentials[listserv_domain]['ldap_uri'] }}'
+    ['{{ listserv_domain }},ldap_search_base']='{{ listserv_credentials[listserv_domain]['ldap_base'] }}'
+    ['{{ listserv_domain }},ldap_user']='{{ listserv_credentials[listserv_domain]['ldap_user'] }}'
+    ['{{ listserv_domain }},ldap_pass']='{{ listserv_credentials[listserv_domain]['ldap_pass'] }}'
+    ['{{ listserv_domain }},mailing_list']='{{ listserv_credentials[listserv_domain]['mailing_list'] }}'
+{% endfor %}
+)
+
+#
+# Accounts that should be excluded from the mailing lists
+# and hence from processing by this script.
+# These are usually functional accounts.
+# The values of this array are used as POSIX bash regex patterns.
+# Some examples:
+#
+declare -a no_subscription_account_name_patterns=(
+        '-guest[0-9]{1,}$'
+        '-dm$'
+        '-ateambot$'
+)
+{% raw %}
 
 if [[ "${update_subscriptions}" -eq '1' ]]; then
 	log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' 'Found option -u: will update mailing list subscriptions.'
@@ -841,3 +869,5 @@ fi
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" 0 "Finished!"
 trap - EXIT
 exit 0
+
+{% endraw %}
