@@ -790,8 +790,7 @@ listserv_admin_pass="{{ listserv_admin_pass }}"
 # Hence a key cannot contain a comma!
 #
 
-#declare -a entitlements=('GD' 'umcg')
-declare -a entitlements=('GD')
+declare -a entitlements=({% for listserv_domain in listserv_credentials %}'{{ listserv_domain }}'{% if not loop.last %} {% endif %}{% endfor %})
 declare -A entitlement_settings=(
 {% for listserv_domain in listserv_credentials %}
     ['{{ listserv_domain }},ldap_search_uri']='{{ listserv_credentials[listserv_domain]['ldap_uri'] }}'

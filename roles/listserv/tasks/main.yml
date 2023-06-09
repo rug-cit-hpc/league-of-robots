@@ -11,7 +11,7 @@
 - name: Update postfix config
   ansible.builtin.lineinfile:
     path: /etc/postfix/main.cf
-    search_string: '#myhostname = virtual.domain.tld'
+    regexp: '^#?myhostname = '
     line: "myhostname = {{ listserv_domain_name }}"
   become: true
 
