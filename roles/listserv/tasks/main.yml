@@ -54,7 +54,7 @@
     job: |
          /bin/bash -c '/root/mailinglists/LDAP2LISTSERV.bash -l ERROR -u -n 2>&1  | /bin/logger'
     cron_file: 'ldap-2-mailinglists'
-    disabled: True
+    disabled: False
   become: true
 
 - name: 'cron job to backup mailing list ones a day.'
@@ -65,8 +65,8 @@
     minute: '15'
     user: 'root'
     job: |
-         /bin/bash -c '/root/mailinglists/LDAP2LISTSERV.bash -l ERROR -u -n -b /root/mailinglists/listserv_backups 2>&1 | /bin/logger
+         /bin/bash -c '/root/mailinglists/LDAP2LISTSERV.bash -l ERROR -u -n -b /root/mailinglists/listserv_backups 2>&1 | /bin/logger'
     cron_file: 'ldap-2-mailinglists'
-    disabled: True
+    disabled: False
   become: true
 ...
