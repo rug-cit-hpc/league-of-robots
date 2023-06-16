@@ -287,6 +287,8 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'ejung'
     groups: ['users', 'solve-rd']
+  - user: 'jbaptist'
+    groups: ['users', 'solve-rd']
 sudoers:
   - who: ['%solve-rd']
     become: 'solve-rd-dm'
