@@ -349,7 +349,25 @@
     opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='rw_options') | first }}"
     state: 'mounted'
   with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
-  when: inventory_hostname in item.rw_machines | default ([])
+  when:
+    - inventory_hostname in item.rw_machines | default ([])
+    - inventory_hostname in groups['deploy_admin_interface'] | default([])
+  become: true
+
+- name: 'Mount "apps" from one "env" Logical File System (LFS) from shared storage read-write as /apps.'
+  ansible.posix.mount:
+    path: '/apps'
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='source') | first }}/\
+          {{ item.pfs }}/{{ item.lfs }}/apps"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='rw_options') | first }}"
+    state: 'mounted'
+  with_items:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
+  when:
+    - inventory_hostname in item.rw_machines | default ([])
+    - inventory_hostname in groups['compute_vm'] | default([]) or
+      inventory_hostname in groups['user_interface'] | default([])
   become: true
 
 - name: 'Mount "apps" from one "env" Logical File System (LFS) from shared storage read-only as /apps.'
@@ -362,7 +380,10 @@
     state: 'mounted'
   with_items:
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
-  when: inventory_hostname in item.ro_machines | default ([])
+  when:
+    - inventory_hostname in item.ro_machines | default ([])
+    - inventory_hostname in groups['compute_vm'] | default([]) or
+      inventory_hostname in groups['user_interface'] | default([])
   become: true
 
 #
