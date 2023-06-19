@@ -585,8 +585,7 @@ lfs_mounts:
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env06
     pfs: local_raid
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
-    rw_machines: "{{ groups['deploy_admin_interface'] }}"
+    rw_machines: "{{ groups['deploy_admin_interface'] + groups['compute_vm'] + groups['user_interface'] }}"
 smb_server_users:
   - name: sbsuser
     uid: 501
