@@ -432,6 +432,18 @@ pfs_mounts:
     rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02770,file_mode=0660'
     ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02770,file_mode=0660'
     machines: "{{ groups['chaperone'] }}"
+  - pfs: 'validatie-TruSightOncology-500'
+    source: '//storage3.umcg.nl/path2$/archief/MolecDiagn'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    machines: "{{ groups['chaperone'] }}"
+  - pfs: 'NGSdata'
+    source: '//storage1.umcg.nl/algemenedata$/appdata/BijzondereHematologie/'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home
     pfs: local_raid
@@ -447,6 +459,8 @@ lfs_mounts:
       - name: umcg-gst
       - name: umcg-lab
         mode: '2750'
+      - name: umcg-labgnkbh
+      - name: umcg-patho
       - name: umcg-vipt
     rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
   - lfs: prm05
@@ -508,6 +522,66 @@ lfs_mounts:
       - name: umcg-gsad
       - name: umcg-gst
       - name: umcg-vipt
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm35
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat35
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm36
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat36
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm37
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat37
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm45
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat45
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm46
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat46
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm47
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat47
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env06
     pfs: local_raid

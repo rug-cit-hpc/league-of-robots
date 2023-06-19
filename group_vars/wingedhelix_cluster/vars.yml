@@ -448,7 +448,7 @@ pfs_mounts:
     rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02770,file_mode=0660'
     ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02770,file_mode=0660'
     machines: "{{ groups['chaperone'] }}"
-  - pfs: 'validatie\040TruSightOncology-500'
+  - pfs: 'validatie-TruSightOncology-500'
     source: '//storage3.umcg.nl/path2$/archief/MolecDiagn'
     type: cifs    # checked with cat /proc/filesystem
     rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
@@ -540,32 +540,32 @@ lfs_mounts:
       - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm35
-    pfs: 'validatie\040TruSightOncology-500'
+    pfs: 'validatie-TruSightOncology-500'
     groups:
       - name: umcg-patho
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat35
-    pfs: 'validatie\040TruSightOncology-500'
+    pfs: 'validatie-TruSightOncology-500'
     groups:
       - name: umcg-patho
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm36
-    pfs: 'validatie\040TruSightOncology-500'
+    pfs: 'validatie-TruSightOncology-500'
     groups:
       - name: umcg-patho
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat36
-    pfs: 'validatie\040TruSightOncology-500'
+    pfs: 'validatie-TruSightOncology-500'
     groups:
       - name: umcg-patho
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: prm37
-    pfs: 'validatie\040TruSightOncology-500'
+    pfs: 'validatie-TruSightOncology-500'
     groups:
       - name: umcg-patho
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat37
-    pfs: 'validatie\040TruSightOncology-500'
+    pfs: 'validatie-TruSightOncology-500'
     groups:
       - name: umcg-patho
     rw_machines: "{{ groups['chaperone'] }}"
