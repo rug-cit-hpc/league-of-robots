@@ -608,7 +608,7 @@ smb_server_shares:
       - path: sequencers
         owner: sbsuser
         group: umcg-lab
-        mode: 2750
+        mode: '2750'
   - name: array
     comment: Share for array scanners
     path: /mnt/local_raid/groups/umcg-gap/tmp05/rawdata/array/IDAT
@@ -620,13 +620,13 @@ smb_server_shares:
       - path: rawdata
         owner: umcg-gap-ateambot
         group: umcg-gap
-        mode: 2770
+        mode: '2770'
       - path: rawdata/array
         owner: umcg-gap-ateambot
         group: umcg-gap
-        mode: 2770
+        mode: '2770'
       - path: rawdata/array/IDAT
         owner: illumina
         group: umcg-gap
-        mode: 2770
+        mode: '2770'
 ...
