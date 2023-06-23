@@ -42,6 +42,7 @@
     name: "{{ inventory_hostname }}"
     image: "{{ cloud_image }}"
     flavor: "{{ cloud_flavor }}"
+    volume_size: "{{ local_volume_size_root }}"
     boot_from_volume: "{{ openstack_computing_boot_from_volume }}"
     terminate_volume: "{{ openstack_computing_terminate_volume }}"
     #
