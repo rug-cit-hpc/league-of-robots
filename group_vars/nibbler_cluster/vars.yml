@@ -239,7 +239,6 @@ regular_groups:
   - 'umcg-micompany'
   - 'umcg-msb'
   - 'umcg-nawijn'
-  - 'umcg-oncogenetics'
   - 'umcg-pmb'
   - 'umcg-pub'
   - 'umcg-radicon'
@@ -333,8 +332,6 @@ regular_users:
     groups: ['umcg-msb']
   - user: 'umcg-nawijn-dm'
     groups: ['umcg-nawijn']
-  - user: 'umcg-oncogenetics-dm'
-    groups: ['umcg-oncogenetics']
   - user: 'umcg-pmb-dm'
     groups: ['umcg-pmb']
   - user: 'umcg-pub-dm'
@@ -519,10 +516,6 @@ sudoers:
   - who: ['%umcg-nawijn-dms']
     become: 'umcg-nawijn-dm'
     name: 'umcg-nawijn-dm'
-    command: 'ALL'  
-  - who: ['%umcg-oncogenetics']
-    become: 'umcg-oncogenetics-dm'
-    name: 'umcg-oncogenetics-dm'
     command: 'ALL'
   - who: ['%umcg-pmb-dms']
     become: 'umcg-pmb-dm'
@@ -598,7 +591,7 @@ volume_group_folders: [
         'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
-        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
+        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb',
         'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
         'umcg-ugli', 'umcg-verbeek', 'umcg-vdakker', 'umcg-visclasataxia', 'umcg-weersma', 'umcg-wijmenga'
       ]},
@@ -693,8 +686,6 @@ lfs_mounts:
       - name: umcg-msb
         mode: '2750'
       - name: umcg-nawijn
-        mode: '2750'
-      - name: umcg-oncogenetics
         mode: '2750'
       - name: umcg-pmb
         mode: '2750'
