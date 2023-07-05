@@ -411,38 +411,38 @@ pfs_mounts:
   - pfs: 'medgen_zincfinger$'
     source: '//storage3.umcg.nl'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
   - pfs: 'medgen_leucinezipper$'
     source: '//storage3.umcg.nl'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
   - pfs: 'medgen_wingedhelix$'
     source: '//storage3.umcg.nl'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
   - pfs: 'GCC'
     source: '//storage1.umcg.nl/algemenedata$/appdata/AdLas'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02770,file_mode=0660'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02770,file_mode=0660'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
   - pfs: 'validatie-TruSightOncology-500'
     source: '//storage3.umcg.nl/path2$/archief/MolecDiagn'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
   - pfs: 'NGSdata'
     source: '//storage1.umcg.nl/algemenedata$/appdata/BijzondereHematologie/'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home
