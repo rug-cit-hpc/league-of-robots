@@ -448,9 +448,14 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp -d "${IP_ADDRESS}" -m multiport --ports 1247,1248,20000:20199 -m state --state NEW,ESTABLISHED -j ACCEPT
 	done
 {% endif%}
+	#
+	# Allow outbound logs.
+	#
+	iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp --dport 41514 -m state --state NEW,ESTABLISHED -j ACCEPT
+	iptables -A INPUT  -i "${EXT_INTERFACE}" -p tcp --sport 41514 -m state --state ESTABLISHED     -j ACCEPT
 {% if iptables_allow_logs_inbound is defined and iptables_allow_logs_inbound | length > 0 %}
 	#
-	# Allow inbound logs
+	# Allow inbound logs.
 	#
 	# logs requires:
 	#  * TCP port 41514: to receive syslogs
