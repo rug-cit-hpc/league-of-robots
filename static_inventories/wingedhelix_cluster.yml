@@ -37,7 +37,7 @@ all:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_ds"
               assign_floating_ip: true
-          local_volume_size_extra: 800
+          local_volume_size_extra: 2000
           iptables_allow_icmp_inbound:
             - "{{ all.ip_addresses['umcg']['net1'] }}"
             - "{{ all.ip_addresses['umcg']['net2'] }}"
@@ -153,7 +153,8 @@ all:
                 security_group: "{{ stack_prefix }}_storage"
               - name: vlan1068
                 security_group: "{{ stack_prefix }}_storage"
-            local_volume_size_extra: 0  # htc-node flavor already includes an extra 200 GB ephemeral disk.
+            # htc-node flavor already includes an extra 200 GB ephemeral disk.
+            # local_volume_size_extra: disabled
             slurm_sockets: 40
             slurm_cores_per_socket: 1
             slurm_real_memory: 181180
