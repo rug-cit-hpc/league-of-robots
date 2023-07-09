@@ -10,6 +10,7 @@
     - ssh_known_hosts
     - swap
     - {role: geerlingguy.repo-epel, become: true}
+    - {role: yum_repos, when: repo_manager == 'none'}
     - logrotate
     - logins
     - static_hostname_lookup

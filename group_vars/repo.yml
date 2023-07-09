@@ -1,0 +1,5 @@
+---
+# This is enforcing that repo server uses `yum_repos` to create
+# yum repositories, since repo servers cannot use Pulp
+repo_manager: 'none'
+...

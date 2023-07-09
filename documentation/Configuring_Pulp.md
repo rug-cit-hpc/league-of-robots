@@ -50,14 +50,14 @@ A Pulp server consists of 3 components:
 
 Three different users are required for a complete Pulp installation.
 
-1. _**repo\_management\_user**_  
+1. _**repo\_management\_user**_
    This is a Linux user/account.
    Users in the Linux admin group can sudo to this user to manage Pulp manually.
    E.g. create/update/delete artifacts, repositories, remotes, publications and distributions.
-2. _**pulp\_api\_user**_  
+2. _**pulp\_api\_user**_
    This is the account used by the *repo_management_user* to login to the Pulp API to work with Pulp.
    The pulp_api_password is for this account.
-3. _**pulp\_user**_:  
+3. _**pulp\_user**_:
    This is a Linux user/account, which is used to run the Pulp daemons/services.
    This is configured in the pulp.pulp_installer.pulp_all_services role our pulp_server role depends on.
    The default *pulp_user* is _**pulp**_
@@ -104,10 +104,10 @@ it has enough dependencies already.
  * Pulp RPM API   https://docs.pulpproject.org/pulp_rpm/restapi.html
  * Pulp RPM API example scripts: https://github.com/pulp/pulp_rpm/tree/master/docs/_scripts
  * Pulp Installer docs https://pulp-installer.readthedocs.io/en/latest/
- * Pulp Squeezer docs are not online (yet). You will need to look at the code  
+ * Pulp Squeezer docs are not online (yet). You will need to look at the code
    either in GitHub: https://github.com/pulp/squeezer
    or once you have this Ansible collection installed from the commandline using: `ansible-doc pulp.squeezer.<module_name>`
- 
+
 # <a name="Create-Server"/> Create Server
 
 ### Use deploy-os_server.yml playbook
@@ -177,7 +177,7 @@ pulp status
 
 ```bash
 #
-# Upload RPM files to create Pulp RPMs and add them to 
+# Upload RPM files to create Pulp RPMs and add them to
 # our Custom Packages for Enterprise Linux (cpel) repo.
 #
 for rpm in $(find umcg-centos7 -name '*.rpm'); do
@@ -205,30 +205,40 @@ for rpm_href in $(pulp --format json rpm content list | jq -r '.[].pulp_href'); 
 done
 ```
 
+##### Declare repo list
+
+```bash
+declare -a pulp_repos
+pulp_repos=(
+    centos7-base
+    centos7-updates
+    centos7-extras
+    epel
+    cpel7
+    irods7
+    lustre7
+    e2fsprogs7
+    ltb7
+    rsyslog7
+)
+```
+
 ##### Add remotes to repos.
 
 ```bash
-pulp rpm repository update --name centos7-base    --remote centos7-base-remote
-pulp rpm repository update --name centos7-updates --remote centos7-updates-remote
-pulp rpm repository update --name centos7-extras  --remote centos7-extras-remote
-pulp rpm repository update --name epel7           --remote epel7-remote
-pulp rpm repository update --name irods7          --remote irods7-remote
-pulp rpm repository update --name lustre7         --remote lustre7-remote
-pulp rpm repository update --name e2fsprogs7      --remote e2fsprogs7-remote
-pulp rpm repository update --name ltb7            --remote ltb7-remote
+# make sure you already have declared pulp_repos array (see ^)
+for repo in "${pulp_repos[@]}"; do
+    pulp rpm repository update --name ${repo} --remote ${repo}-remote
+done
 ```
 
 ##### Sync repos with remotes.
 
 ```bash
-pulp rpm repository sync --name centos7-base
-pulp rpm repository sync --name centos7-updates
-pulp rpm repository sync --name centos7-extras
-pulp rpm repository sync --name epel7
-pulp rpm repository sync --name irods7
-pulp rpm repository sync --name lustre7
-pulp rpm repository sync --name e2fsprogs7
-pulp rpm repository sync --name ltb7
+# make sure you already have declared pulp_repos array (see ^)
+for repo in "${pulp_repos[@]}"; do
+    pulp rpm repository sync --name ${repo}
+done
 ```
 
 ##### Create/update distributions based on new publications based on new repository versions.
@@ -240,18 +250,7 @@ set -u
 stack_prefix='' # Must be filled in; check group_vars (f.e. 'fd').
 stack_name=''   # Must be filled in; check group_vars (f.e. 'fender_cluster').
 
-declare -a pulp_repos
-pulp_repos=(
-    centos7-base
-    centos7-updates
-    centos7-extras
-    epel7
-    cpel7
-    irods7
-    lustre7
-    e2fsprogs7
-    ltb7
-)
+# make sure you already have declared pulp_repos array (see ^)
 
 for repo in "${pulp_repos[@]}"; do
     echo "INFO: Processing distribution name ${stack_prefix}-${repo} with base path ${stack_name%_cluster}/${repo} ..."
@@ -365,7 +364,7 @@ pulp rpm repository list
 pulp rpm remote create --tls-validation false --policy on_demand --name centos7-base-remote    --url http://mirror.centos.org/centos/7/os/x86_64/
 pulp rpm remote create --tls-validation false --policy on_demand --name centos7-updates-remote --url http://mirror.centos.org/centos/7/updates/x86_64/
 pulp rpm remote create --tls-validation false --policy on_demand --name centos7-extras-remote  --url http://mirror.centos.org/centos/7/extras/x86_64/
-pulp rpm remote create                        --policy on_demand --name epel7-remote           --url https://download.fedoraproject.org/pub/epel/7/x86_64/
+pulp rpm remote create                        --policy on_demand --name epel-remote            --url https://download.fedoraproject.org/pub/epel/7/x86_64/
 pulp rpm remote create                        --policy on_demand --name irods7-remote          --url https://packages.irods.org/yum/pool/centos7/x86_64/
 pulp rpm remote create                        --policy on_demand --name lustre7-remote         --url https://downloads.whamcloud.com/public/lustre/latest-release/el7/client/
 #
@@ -375,7 +374,7 @@ pulp rpm remote create                        --policy on_demand --name lustre7-
 pulp rpm repository create --name centos7-base    --remote centos7-base-remote
 pulp rpm repository create --name centos7-updates --remote centos7-updates-remote
 pulp rpm repository create --name centos7-extras  --remote centos7-extras-remote
-pulp rpm repository create --name epel7           --remote epel7-remote
+pulp rpm repository create --name epel            --remote epel-remote
 pulp rpm repository create --name cpel7           # does not have a remote
 pulp rpm repository create --name irods7          --remote irods7-remote
 pulp rpm repository create --name lustre7         --remote lustre7-remote
@@ -386,7 +385,7 @@ pulp rpm repository create --name lustre7         --remote lustre7-remote
 pulp rpm repository sync --name centos7-base
 pulp rpm repository sync --name centos7-updates
 pulp rpm repository sync --name centos7-extras
-pulp rpm repository sync --name epel7
+pulp rpm repository sync --name epel
 pulp rpm repository sync --name irods7
 pulp rpm repository sync --name lustre7
 #
@@ -495,7 +494,7 @@ done
 pulp rpm repository version list --repository centos7-base
 pulp rpm repository version list --repository centos7-updates
 pulp rpm repository version list --repository centos7-extras
-pulp rpm repository version list --repository epel7
+pulp rpm repository version list --repository epel
 pulp rpm repository version list --repository cpel7
 pulp rpm repository version list --repository irods7
 pulp rpm repository version list --repository lustre7
@@ -507,7 +506,7 @@ pulp rpm repository version list --repository lustre7
 pulp rpm publication create --repository centos7-base     --version 1
 pulp rpm publication create --repository centos7-updates  --version 1
 pulp rpm publication create --repository centos7-extras   --version 1
-pulp rpm publication create --repository epel7            --version 1
+pulp rpm publication create --repository epel             --version 1
 pulp rpm publication create --repository cpel7            --version 14
 pulp rpm publication create --repository irods7           --version 1
 pulp rpm publication create --repository lustre7          --version 1
@@ -522,7 +521,7 @@ pulp rpm publication list
 pulp rpm distribution create --name nb-centos7-base    --base-path nibbler/centos7-base    --publication /pulp/api/v3/publications/rpm/rpm/92c4f247-1527-40e2-b2ab-63891a7448e4/
 pulp rpm distribution create --name nb-centos7-updates --base-path nibbler/centos7-updates --publication /pulp/api/v3/publications/rpm/rpm/068e3066-3559-4d00-949f-8ee422005556/
 pulp rpm distribution create --name nb-centos7-extras  --base-path nibbler/centos7-extras  --publication /pulp/api/v3/publications/rpm/rpm/a288bd3e-fdfc-453c-a8a3-b7ae0398d1f5/
-pulp rpm distribution create --name nb-epel7           --base-path nibbler/epel7           --publication /pulp/api/v3/publications/rpm/rpm/6718163f-4a97-46c8-ae08-7f538885da9f/
+pulp rpm distribution create --name nb-epel            --base-path nibbler/epel            --publication /pulp/api/v3/publications/rpm/rpm/6718163f-4a97-46c8-ae08-7f538885da9f/
 pulp rpm distribution create --name nb-cpel7           --base-path nibbler/cpel7           --publication /pulp/api/v3/publications/rpm/rpm/0e7c5260-522b-42f5-af63-e3f35312a036/
 pulp rpm distribution create --name nb-irods7          --base-path nibbler/irods7          --publication /pulp/api/v3/publications/rpm/rpm/a9da6d50-043b-4f7a-b898-2c78553cd7b0/
 pulp rpm distribution create --name nb-lustre7         --base-path nibbler/lustre7         --publication /pulp/api/v3/publications/rpm/rpm/3d8as2d0-323c-eff7-v3qq-asd8d72cw82k/
@@ -534,17 +533,17 @@ pulp rpm distribution list
 # https://nb-repo/pulp/content/nibbler/centos7-base/
 # https://nb-repo/pulp/content/nibbler/centos7-updates/
 # https://nb-repo/pulp/content/nibbler/centos7-extras/
-# https://nb-repo/pulp/content/nibbler/epel7/
+# https://nb-repo/pulp/content/nibbler/epel/
 # https://nb-repo/pulp/content/nibbler/cpel7/
 # https://nb-repo/pulp/content/nibbler/irods7/
 #
 # Download the config.repo file from the server at distribution’s base_path and store it in /etc/yum.repos.d:
 #
-http --verify no https://nb-repo/pulp/content/nibbler/centos7-base/config.repo    > centos7-base.repo 
-http --verify no https://nb-repo/pulp/content/nibbler/centos7-updates/config.repo > centos7-updates.repo 
-http --verify no https://nb-repo/pulp/content/nibbler/centos7-extras/config.repo  > centos7-extras.repo 
-http --verify no https://nb-repo/pulp/content/nibbler/epel7/config.repo           > epel7.repo 
-http --verify no https://nb-repo/pulp/content/nibbler/cpel7/config.repo           > cpel7.repo 
+http --verify no https://nb-repo/pulp/content/nibbler/centos7-base/config.repo    > centos7-base.repo
+http --verify no https://nb-repo/pulp/content/nibbler/centos7-updates/config.repo > centos7-updates.repo
+http --verify no https://nb-repo/pulp/content/nibbler/centos7-extras/config.repo  > centos7-extras.repo
+http --verify no https://nb-repo/pulp/content/nibbler/epel/config.repo            > epel.repo
+http --verify no https://nb-repo/pulp/content/nibbler/cpel7/config.repo           > cpel7.repo
 #
 # Cleanup to remove RPMs no longer used by any repo version / publication.
 # E.g. after deleting a repo (version).
@@ -565,13 +564,13 @@ root@nb-repo $> /usr/local/bin/pulpcore-manager handle-artifact-checksums
 #
 # Updates
 #
-pulp rpm repository sync --name epel7
+pulp rpm repository sync --name epel
 # then you want to list the changes (if version remains thes same, there was no changes, otherwise it automaticaly increments:
-pulp rpm repository version list --repository epel7               
-pulp rpm publication create --repository epel7 --version 2
-pulp rpm distribution show --name nb-epel7
-pulp rpm distribution update --name nb-epel7 --publication /pulp/api/v3/publications/rpm/rpm/a4765571-dc89-47c3-a7d0-ed9b18fad287/
-pulp rpm distribution show --name nb-epel7
+pulp rpm repository version list --repository epel
+pulp rpm publication create --repository epel --version 2
+pulp rpm distribution show --name nb-epel
+pulp rpm distribution update --name nb-epel --publication /pulp/api/v3/publications/rpm/rpm/a4765571-dc89-47c3-a7d0-ed9b18fad287/
+pulp rpm distribution show --name nb-epel
 ```
 
 ### Manual API calls with HTTPie (http) command
@@ -655,7 +654,7 @@ The commands are listed below, but in general, these are the steps to add an rpm
 2. upload artifact to the pulp
 3. create rpm from this new artifact
 4. add the rpm to the correct repository
-5. create publication 
+5. create publication
 6. update distribution with new publication
 7. client side check
 
@@ -732,7 +731,7 @@ collect the returned **pulp_href** and feed it again in the array
 
 ```
 declare -A custom_rpms=(
-    ['ega-fuse-client-2.1.0-1.noarch.rpm']='/pulp/api/v3/content/rpm/packages/362e30bfff-efg7-dbc3-cc23-345feea/' 
+    ['ega-fuse-client-2.1.0-1.noarch.rpm']='/pulp/api/v3/content/rpm/packages/362e30bfff-efg7-dbc3-cc23-345feea/'
 )
 ```
 
@@ -765,7 +764,7 @@ pulp rpm repository version list --repository cpel7
 ```
 
 
-#### 5. create publication 
+#### 5. create publication
 
 First check which publication is currently used by distribution, so you can later compare
 
