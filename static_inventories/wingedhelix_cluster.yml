@@ -214,7 +214,6 @@ wingedhelix_cluster:
     chaperone:
     data_transfer:
     docs:
-    rsyslog:
     nfs_server:
     smb_server:
 ...

@@ -24,6 +24,7 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
+os_distribution: 'centos7'
 figlet_font: 'slant'
 motd: "To solve or not to solve, that's the question."
 additional_etc_hosts:
