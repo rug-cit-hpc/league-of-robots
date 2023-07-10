@@ -208,26 +208,32 @@ done
 ##### Declare repo list
 
 ```bash
-declare -a pulp_repos
-pulp_repos=(
+declare -a pulp_repos_with_remotes
+declare -a all_pulp_repos
+pulp_repos_with_remotes=(
     centos7-base
     centos7-updates
     centos7-extras
     epel
-    cpel7
     irods7
     lustre7
     e2fsprogs7
     ltb7
     rsyslog7
 )
+all_pulp_repos=(
+    "${pulp_repos_with_remotes[@]}"
+    cpel7
+)
 ```
 
 ##### Add remotes to repos.
 
 ```bash
-# make sure you already have declared pulp_repos array (see ^)
-for repo in "${pulp_repos[@]}"; do
+#
+# Make sure you already declared the ${pulp_repos_with_remotes[@]} array: see above.
+#
+for repo in "${pulp_repos_with_remotes[@]}"; do
     pulp rpm repository update --name ${repo} --remote ${repo}-remote
 done
 ```
@@ -235,8 +241,10 @@ done
 ##### Sync repos with remotes.
 
 ```bash
-# make sure you already have declared pulp_repos array (see ^)
-for repo in "${pulp_repos[@]}"; do
+#
+# Make sure you already declared the ${all_pulp_repos[@]} array: see above.
+#
+for repo in "${all_pulp_repos[@]}"; do
     pulp rpm repository sync --name ${repo}
 done
 ```
@@ -249,10 +257,10 @@ set -u
 
 stack_prefix='' # Must be filled in; check group_vars (f.e. 'fd').
 stack_name=''   # Must be filled in; check group_vars (f.e. 'fender_cluster').
-
-# make sure you already have declared pulp_repos array (see ^)
-
-for repo in "${pulp_repos[@]}"; do
+#
+# Make sure you already declared the ${all_pulp_repos[@]} array: see above.
+#
+for repo in "${all_pulp_repos[@]}"; do
     echo "INFO: Processing distribution name ${stack_prefix}-${repo} with base path ${stack_name%_cluster}/${repo} ..."
     #
     # Get latest repository version href for this repo.
