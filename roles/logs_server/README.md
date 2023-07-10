@@ -75,6 +75,8 @@ and on the repository at the
 
    `files/{{stack or library name}}/rsyslog-ca.[key and pem]`
 
+! Note: CA and client certificates are generated with `gnutls`, while the communication has
+been later switched to `openssl`.
 
 ## V. Deploying a new type of logs server f.e. 'diagnostics'
 
