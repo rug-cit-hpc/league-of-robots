@@ -15,6 +15,7 @@ slurm_partitions:
     features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.25G"'
 repo_manager: 'none'
+os_distribution: 'centos7'
 figlet_font: 'ogre'
 motd: |
       =========================================================

@@ -68,6 +68,9 @@ This role is the second of the logs ansible playbooks. It expects predefined
       - CA certificate
       - configures to access the remote rsyslog server over SSL
 
+! Note: CA and client certificates are generated with `gnutls`, while the communication has
+been later switched to `openssl`.
+
 ## III. Redeploying individual client
 
 By default, the playbook always check that the correct CA certificate (one from the
