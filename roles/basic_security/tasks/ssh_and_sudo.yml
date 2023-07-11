@@ -83,4 +83,3 @@
   with_items: "{{ basic_security_sudoers_passworded }}"
   when: basic_security_sudoers_passworded | length > 0
 ...
-
