@@ -1,0 +1,10 @@
+---
+- name: Running > yum_repos < role
+  hosts:
+   - jumphost
+   - cluster
+   - repo
+  roles:
+   - role: yum_repos
+     when: repo_manager == 'none'
+...
