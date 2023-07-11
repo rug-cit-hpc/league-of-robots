@@ -28,7 +28,7 @@
     - sshd
     - static_hostname_lookup
     - node_exporter
-    - {role: geerlingguy.security, become: true}
+    - basic_security
     - {role: logs_client, when: stacks_logs_servers is defined}
     # Disabled monitoring: needs update. See also:
     # https://github.com/rug-cit-hpc/league-of-robots/issues/294

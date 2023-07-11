@@ -14,7 +14,7 @@
     - logrotate
     - {role: geerlingguy.repo-epel, become: true}
     - sshd
-    - {role: geerlingguy.security, become: true}
+    - basic_security
     - logs_server
   hosts: logs
 

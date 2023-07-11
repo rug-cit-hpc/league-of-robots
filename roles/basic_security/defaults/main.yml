@@ -1,0 +1,24 @@
+---
+basic_security_ssh_port: 22
+basic_security_ssh_config_path: /etc/ssh/sshd_config
+basic_security_ssh_password_authentication: 'no'
+basic_security_ssh_permit_root_login: 'no'
+basic_security_ssh_usedns: 'no'
+basic_security_ssh_permit_empty_password: 'no'
+basic_security_ssh_challenge_response_auth: 'no'
+basic_security_ssh_gss_api_authentication: 'no'
+basic_security_ssh_x11_forwarding: 'no'
+basic_security_sshd_name: sshd
+basic_security_sshd_state: started
+basic_security_ssh_restart_handler_state: restarted
+basic_security_ssh_allowed_users: []
+basic_security_ssh_allowed_groups: []
+
+basic_security_sudoers_passwordless: []
+basic_security_sudoers_passworded: []
+
+basic_security_autoupdate_enabled: true
+
+basic_security_fail2ban_enabled: true
+basic_security_fail2ban_custom_configuration_template: 'jail.local.j2'
+...
