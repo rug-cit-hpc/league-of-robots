@@ -14,7 +14,6 @@ all:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_webservers"
               assign_floating_ip: true
-          security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
 build_library:
   children:
     openstack_api:

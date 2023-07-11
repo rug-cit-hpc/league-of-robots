@@ -13,7 +13,7 @@ all:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_jumphosts"
               assign_floating_ip: true
-          security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
+          basic_security_ssh_challenge_response_auth: 'yes' # Required for MFS in sshd_config.
           local_yum_repository: true
     repo:
       hosts:

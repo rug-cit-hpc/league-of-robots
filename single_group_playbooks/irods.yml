@@ -14,7 +14,7 @@
     - logrotate
     - logins
     - sshd
-    - {role: geerlingguy.security, become: true}
+    - basic_security
     - remove
     - update
     - docker

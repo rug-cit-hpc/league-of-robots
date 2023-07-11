@@ -1,0 +1,12 @@
+---
+# Fail2Ban
+- ansible.builtin.include_tasks: fail2ban.yml
+  when: basic_security_fail2ban_enabled | bool
+
+# SSH
+- ansible.builtin.include_tasks: ssh.yml
+
+# Autoupdate
+- ansible.builtin.include_tasks: autoupdate.yml
+  when: basic_security_autoupdate_enabled | bool
+...
