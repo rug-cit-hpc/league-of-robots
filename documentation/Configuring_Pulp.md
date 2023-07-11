@@ -214,7 +214,7 @@ pulp_repos_with_remotes=(
     centos7-base
     centos7-updates
     centos7-extras
-    epel
+    epel7
     irods7
     lustre7
     e2fsprogs7
@@ -372,7 +372,7 @@ pulp rpm repository list
 pulp rpm remote create --tls-validation false --policy on_demand --name centos7-base-remote    --url http://mirror.centos.org/centos/7/os/x86_64/
 pulp rpm remote create --tls-validation false --policy on_demand --name centos7-updates-remote --url http://mirror.centos.org/centos/7/updates/x86_64/
 pulp rpm remote create --tls-validation false --policy on_demand --name centos7-extras-remote  --url http://mirror.centos.org/centos/7/extras/x86_64/
-pulp rpm remote create                        --policy on_demand --name epel-remote            --url https://download.fedoraproject.org/pub/epel/7/x86_64/
+pulp rpm remote create                        --policy on_demand --name epel7-remote           --url https://download.fedoraproject.org/pub/epel/7/x86_64/
 pulp rpm remote create                        --policy on_demand --name irods7-remote          --url https://packages.irods.org/yum/pool/centos7/x86_64/
 pulp rpm remote create                        --policy on_demand --name lustre7-remote         --url https://downloads.whamcloud.com/public/lustre/latest-release/el7/client/
 #
@@ -382,7 +382,7 @@ pulp rpm remote create                        --policy on_demand --name lustre7-
 pulp rpm repository create --name centos7-base    --remote centos7-base-remote
 pulp rpm repository create --name centos7-updates --remote centos7-updates-remote
 pulp rpm repository create --name centos7-extras  --remote centos7-extras-remote
-pulp rpm repository create --name epel            --remote epel-remote
+pulp rpm repository create --name epel7           --remote epel7-remote
 pulp rpm repository create --name cpel7           # does not have a remote
 pulp rpm repository create --name irods7          --remote irods7-remote
 pulp rpm repository create --name lustre7         --remote lustre7-remote
@@ -393,7 +393,7 @@ pulp rpm repository create --name lustre7         --remote lustre7-remote
 pulp rpm repository sync --name centos7-base
 pulp rpm repository sync --name centos7-updates
 pulp rpm repository sync --name centos7-extras
-pulp rpm repository sync --name epel
+pulp rpm repository sync --name epel7
 pulp rpm repository sync --name irods7
 pulp rpm repository sync --name lustre7
 #
@@ -502,7 +502,7 @@ done
 pulp rpm repository version list --repository centos7-base
 pulp rpm repository version list --repository centos7-updates
 pulp rpm repository version list --repository centos7-extras
-pulp rpm repository version list --repository epel
+pulp rpm repository version list --repository epel7
 pulp rpm repository version list --repository cpel7
 pulp rpm repository version list --repository irods7
 pulp rpm repository version list --repository lustre7
@@ -514,7 +514,7 @@ pulp rpm repository version list --repository lustre7
 pulp rpm publication create --repository centos7-base     --version 1
 pulp rpm publication create --repository centos7-updates  --version 1
 pulp rpm publication create --repository centos7-extras   --version 1
-pulp rpm publication create --repository epel             --version 1
+pulp rpm publication create --repository epel7            --version 1
 pulp rpm publication create --repository cpel7            --version 14
 pulp rpm publication create --repository irods7           --version 1
 pulp rpm publication create --repository lustre7          --version 1
@@ -529,7 +529,7 @@ pulp rpm publication list
 pulp rpm distribution create --name nb-centos7-base    --base-path nibbler/centos7-base    --publication /pulp/api/v3/publications/rpm/rpm/92c4f247-1527-40e2-b2ab-63891a7448e4/
 pulp rpm distribution create --name nb-centos7-updates --base-path nibbler/centos7-updates --publication /pulp/api/v3/publications/rpm/rpm/068e3066-3559-4d00-949f-8ee422005556/
 pulp rpm distribution create --name nb-centos7-extras  --base-path nibbler/centos7-extras  --publication /pulp/api/v3/publications/rpm/rpm/a288bd3e-fdfc-453c-a8a3-b7ae0398d1f5/
-pulp rpm distribution create --name nb-epel            --base-path nibbler/epel            --publication /pulp/api/v3/publications/rpm/rpm/6718163f-4a97-46c8-ae08-7f538885da9f/
+pulp rpm distribution create --name nb-epel7           --base-path nibbler/epel7           --publication /pulp/api/v3/publications/rpm/rpm/6718163f-4a97-46c8-ae08-7f538885da9f/
 pulp rpm distribution create --name nb-cpel7           --base-path nibbler/cpel7           --publication /pulp/api/v3/publications/rpm/rpm/0e7c5260-522b-42f5-af63-e3f35312a036/
 pulp rpm distribution create --name nb-irods7          --base-path nibbler/irods7          --publication /pulp/api/v3/publications/rpm/rpm/a9da6d50-043b-4f7a-b898-2c78553cd7b0/
 pulp rpm distribution create --name nb-lustre7         --base-path nibbler/lustre7         --publication /pulp/api/v3/publications/rpm/rpm/3d8as2d0-323c-eff7-v3qq-asd8d72cw82k/
@@ -541,7 +541,7 @@ pulp rpm distribution list
 # https://nb-repo/pulp/content/nibbler/centos7-base/
 # https://nb-repo/pulp/content/nibbler/centos7-updates/
 # https://nb-repo/pulp/content/nibbler/centos7-extras/
-# https://nb-repo/pulp/content/nibbler/epel/
+# https://nb-repo/pulp/content/nibbler/epel7/
 # https://nb-repo/pulp/content/nibbler/cpel7/
 # https://nb-repo/pulp/content/nibbler/irods7/
 #
@@ -550,7 +550,7 @@ pulp rpm distribution list
 http --verify no https://nb-repo/pulp/content/nibbler/centos7-base/config.repo    > centos7-base.repo
 http --verify no https://nb-repo/pulp/content/nibbler/centos7-updates/config.repo > centos7-updates.repo
 http --verify no https://nb-repo/pulp/content/nibbler/centos7-extras/config.repo  > centos7-extras.repo
-http --verify no https://nb-repo/pulp/content/nibbler/epel/config.repo            > epel.repo
+http --verify no https://nb-repo/pulp/content/nibbler/epel7/config.repo           > epel7.repo
 http --verify no https://nb-repo/pulp/content/nibbler/cpel7/config.repo           > cpel7.repo
 #
 # Cleanup to remove RPMs no longer used by any repo version / publication.
@@ -572,13 +572,13 @@ root@nb-repo $> /usr/local/bin/pulpcore-manager handle-artifact-checksums
 #
 # Updates
 #
-pulp rpm repository sync --name epel
+pulp rpm repository sync --name epel7
 # then you want to list the changes (if version remains thes same, there was no changes, otherwise it automaticaly increments:
-pulp rpm repository version list --repository epel
-pulp rpm publication create --repository epel --version 2
-pulp rpm distribution show --name nb-epel
-pulp rpm distribution update --name nb-epel --publication /pulp/api/v3/publications/rpm/rpm/a4765571-dc89-47c3-a7d0-ed9b18fad287/
-pulp rpm distribution show --name nb-epel
+pulp rpm repository version list --repository epel7
+pulp rpm publication create --repository epel7 --version 2
+pulp rpm distribution show --name nb-epel7
+pulp rpm distribution update --name nb-epel7 --publication /pulp/api/v3/publications/rpm/rpm/a4765571-dc89-47c3-a7d0-ed9b18fad287/
+pulp rpm distribution show --name nb-epel7
 ```
 
 ### Manual API calls with HTTPie (http) command
