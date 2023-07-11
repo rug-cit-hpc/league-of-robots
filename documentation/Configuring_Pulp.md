@@ -242,9 +242,9 @@ done
 
 ```bash
 #
-# Make sure you already declared the ${all_pulp_repos[@]} array: see above.
+# Make sure you already declared the ${pulp_repos_with_remotes[@]} array: see above.
 #
-for repo in "${all_pulp_repos[@]}"; do
+for repo in "${pulp_repos_with_remotes[@]}"; do
     pulp rpm repository sync --name ${repo}
 done
 ```
