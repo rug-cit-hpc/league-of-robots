@@ -417,8 +417,8 @@ volume_group_folders: [
 # Shared storage related variables
 #
 lustre_client_networks:
-   - name: tcp20
-     interface: vlan1068
+  - name: tcp20
+    interface: vlan1068
 pfs_mounts:
   - pfs: umcgst12
     device: /dev/vdb
