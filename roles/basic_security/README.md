@@ -7,21 +7,6 @@ See `defaults/main.yml` for variables and their defaults.
 Hence these values are not "YAML" booleans and you cannot use `true` or `false`.
 These values must end up in the sshd.conf as `yes` or `no` and therefore must be treated as strings in YAML.
 
-- A list of users allowed to connect to the host over SSH.  If no user is defined in the list, the task will be skipped.
-  ```
-    basic_security_ssh_allowed_users: []
-    # - anna
-    # - henk
-    # - bobo
-  ```
-
-- A list of groups allowed to connect to the host over SSH.  If no group is defined in the list, the task will be skipped.
-  ```
-    basic_security_ssh_allowed_groups: []
-    # - admins
-    # - sysops
-  ```
-
 - The state of the SSH daemon. Typically this should remain `started`.
   ```
     basic_security_sshd_state: started
@@ -30,12 +15,6 @@ These values must end up in the sshd.conf as `yes` or `no` and therefore must be
 - The state of the `restart ssh` handler. Typically this should remain `restarted`.
   ```
     basic_security_ssh_restart_handler_state: restarted
-  ```
-
-- A list of users who should be added to the sudoers file so they can run any command as root (via `sudo`) either without a password or requiring a password for each command, respectively.
-  ```
-    basic_security_sudoers_passwordless: []
-    basic_security_sudoers_passworded: []
   ```
 
 - Whether to install/enable `yum-cron` (RedHat-based systems).

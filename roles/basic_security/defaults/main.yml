@@ -11,11 +11,6 @@ basic_security_ssh_x11_forwarding: 'no'
 basic_security_sshd_name: sshd
 basic_security_sshd_state: started
 basic_security_ssh_restart_handler_state: restarted
-basic_security_ssh_allowed_users: []
-basic_security_ssh_allowed_groups: []
-
-basic_security_sudoers_passwordless: []
-basic_security_sudoers_passworded: []
 
 basic_security_autoupdate_enabled: true
 

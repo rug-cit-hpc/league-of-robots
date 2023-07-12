@@ -4,7 +4,7 @@
   when: basic_security_fail2ban_enabled | bool
 
 - name: Configure SSH and sudo.
-  ansible.builtin.include_tasks: ssh_and_sudo.yml
+  ansible.builtin.include_tasks: ssh.yml
 
 - name: Configure automatic updates.
   ansible.builtin.include_tasks: autoupdate.yml
