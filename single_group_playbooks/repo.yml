@@ -15,7 +15,7 @@
     - logins
     - static_hostname_lookup
     - sshd
-    - {role: geerlingguy.security, become: true}
+    - basic_security
     - remove
     - update
     - pulp_server

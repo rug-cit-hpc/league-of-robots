@@ -208,26 +208,32 @@ done
 ##### Declare repo list
 
 ```bash
-declare -a pulp_repos
-pulp_repos=(
+declare -a pulp_repos_with_remotes
+declare -a all_pulp_repos
+pulp_repos_with_remotes=(
     centos7-base
     centos7-updates
     centos7-extras
     epel7
-    cpel7
     irods7
     lustre7
     e2fsprogs7
     ltb7
     rsyslog7
 )
+all_pulp_repos=(
+    "${pulp_repos_with_remotes[@]}"
+    cpel7
+)
 ```
 
 ##### Add remotes to repos.
 
 ```bash
-# make sure you already have declared pulp_repos array (see ^)
-for repo in "${pulp_repos[@]}"; do
+#
+# Make sure you already declared the ${pulp_repos_with_remotes[@]} array: see above.
+#
+for repo in "${pulp_repos_with_remotes[@]}"; do
     pulp rpm repository update --name ${repo} --remote ${repo}-remote
 done
 ```
@@ -235,8 +241,10 @@ done
 ##### Sync repos with remotes.
 
 ```bash
-# make sure you already have declared pulp_repos array (see ^)
-for repo in "${pulp_repos[@]}"; do
+#
+# Make sure you already declared the ${pulp_repos_with_remotes[@]} array: see above.
+#
+for repo in "${pulp_repos_with_remotes[@]}"; do
     pulp rpm repository sync --name ${repo}
 done
 ```
@@ -249,10 +257,10 @@ set -u
 
 stack_prefix='' # Must be filled in; check group_vars (f.e. 'fd').
 stack_name=''   # Must be filled in; check group_vars (f.e. 'fender_cluster').
-
-# make sure you already have declared pulp_repos array (see ^)
-
-for repo in "${pulp_repos[@]}"; do
+#
+# Make sure you already declared the ${all_pulp_repos[@]} array: see above.
+#
+for repo in "${all_pulp_repos[@]}"; do
     echo "INFO: Processing distribution name ${stack_prefix}-${repo} with base path ${stack_name%_cluster}/${repo} ..."
     #
     # Get latest repository version href for this repo.
@@ -364,7 +372,7 @@ pulp rpm repository list
 pulp rpm remote create --tls-validation false --policy on_demand --name centos7-base-remote    --url http://mirror.centos.org/centos/7/os/x86_64/
 pulp rpm remote create --tls-validation false --policy on_demand --name centos7-updates-remote --url http://mirror.centos.org/centos/7/updates/x86_64/
 pulp rpm remote create --tls-validation false --policy on_demand --name centos7-extras-remote  --url http://mirror.centos.org/centos/7/extras/x86_64/
-pulp rpm remote create                        --policy on_demand --name epel7-remote            --url https://download.fedoraproject.org/pub/epel/7/x86_64/
+pulp rpm remote create                        --policy on_demand --name epel7-remote           --url https://download.fedoraproject.org/pub/epel/7/x86_64/
 pulp rpm remote create                        --policy on_demand --name irods7-remote          --url https://packages.irods.org/yum/pool/centos7/x86_64/
 pulp rpm remote create                        --policy on_demand --name lustre7-remote         --url https://downloads.whamcloud.com/public/lustre/latest-release/el7/client/
 #
@@ -374,7 +382,7 @@ pulp rpm remote create                        --policy on_demand --name lustre7-
 pulp rpm repository create --name centos7-base    --remote centos7-base-remote
 pulp rpm repository create --name centos7-updates --remote centos7-updates-remote
 pulp rpm repository create --name centos7-extras  --remote centos7-extras-remote
-pulp rpm repository create --name epel7            --remote epel7-remote
+pulp rpm repository create --name epel7           --remote epel7-remote
 pulp rpm repository create --name cpel7           # does not have a remote
 pulp rpm repository create --name irods7          --remote irods7-remote
 pulp rpm repository create --name lustre7         --remote lustre7-remote

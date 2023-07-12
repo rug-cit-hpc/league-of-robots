@@ -5,8 +5,6 @@
 roles:
   - src: geerlingguy.repo-epel
     version: 3.0.0
-  - src: geerlingguy.security
-    version: 2.0.1
   - src: geerlingguy.postgresql
     version: 3.1.1
 collections:
