@@ -1,5 +1,5 @@
 ---
 dependencies:
-    - role: mariadb
-      when: inventory_hostname in groups['sys_admin_interface']
+  - role: mariadb
+    when: inventory_hostname in groups['sys_admin_interface']
 ...
