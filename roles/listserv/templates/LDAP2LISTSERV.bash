@@ -1,4 +1,3 @@
-{% raw %}
 #!/bin/bash
 
 #
@@ -9,6 +8,51 @@
 # 	Local Variables:       _lower_case_with_underscores_and_prefixed_with_underscore
 # 	Environment Variables: UPPER_CASE_WITH_UNDERSCORES
 #
+
+#
+# Mailinglist server
+#
+# We use sending emails combined with "screen-scraping" of the web interface
+# as some rudimentary form of API to interact with the LISTSERV server :o
+#
+listserv_api_email_from="{{ listserv_api_email_from }}"
+listserv_api_email_to="{{ listserv_api_email_to }}"
+listserv_api_webinterface_url="{{ listserv_api_webinterface_url }}"
+listserv_admin_user="{{ listserv_admin_user }}"
+listserv_admin_pass="{{ listserv_admin_pass }}"
+#
+# Entitlement groups a.k.a. LDAP containers.
+#
+# We use an array of entitlements in combination with a fake multi-dimensional hash 
+# using comma's as entitlement,key separator.
+# Hence a key cannot contain a comma!
+#
+
+declare -a entitlements=({% for listserv_domain in listserv_credentials %}'{{ listserv_domain }}'{% if not loop.last %} {% endif %}{% endfor %})
+declare -A entitlement_settings=(
+{% for listserv_domain in listserv_credentials %}
+    ['{{ listserv_domain }},ldap_search_uri']='{{ listserv_credentials[listserv_domain]['ldap_uri'] }}'
+    ['{{ listserv_domain }},ldap_search_base']='{{ listserv_credentials[listserv_domain]['ldap_base'] }}'
+    ['{{ listserv_domain }},ldap_user']='{{ listserv_credentials[listserv_domain]['ldap_user'] }}'
+    ['{{ listserv_domain }},ldap_pass']='{{ listserv_credentials[listserv_domain]['ldap_pass'] }}'
+    ['{{ listserv_domain }},mailing_list']='{{ listserv_credentials[listserv_domain]['mailing_list'] }}'
+{% endfor %}
+)
+
+#
+# Accounts that should be excluded from the mailing lists
+# and hence from processing by this script.
+# These are usually functional accounts.
+# The values of this array are used as POSIX bash regex patterns.
+# Some examples:
+#
+declare -a no_subscription_account_name_patterns=(
+	'-guest[0-9]{1,}$'
+	'-dm$'
+	'-ateambot$'
+)
+
+{% raw %}
 
 #
 ##
@@ -71,55 +115,7 @@ OPTIONS:
 Details:
 
 	Values are always reported with a dot as the decimal seperator (LC_NUMERIC="en_US.UTF-8").
-
-	Values for some variables are imported by sourcing a config.
-	The config file must written in bash syntax as it will get sourced and contain
-	 * LISTSERV credentials
-	 * Entitlements and their associated
-	   * LDAP credentials
-	   * Mailing list name
-	 * Regex patterns of account names that should be skipped / never subscribed.
-	Example given:
-		#
-		# Mailinglist server
-		#
-		# We use sending emails combined with "screen-scraping" of the web interface
-		# as some rudimentary form of API to interact with the LISTSERV server :o
-		#
-		listserv_api_email_from="admin@management.server.domain"
-		listserv_api_email_to="listserv@list.server.domain"
-		listserv_api_webinterface_url='https://list.server.domain/cgi-bin/wa'
-		listserv_admin_user='some_account'
-		listserv_admin_pass='some_passwd'
-		#
-		# Entitlement groups a.k.a. LDAP containers.
-		#
-		# We use an array of entitlements in combination with a fake multi-dimensional hash 
-		# using comma's as entitlement,key separator.
-		# Hence a key cannot contain a comma!
-		#
-		declare -a entitlements=('some_entitlement')
-		declare -A entitlement_settings=(
-			['some_entitlement,ldap_search_base']='ou=some_entitlement,o=rs'
-			['some_entitlement,ldap_user']='some_account'
-			['some_entitlement,ldap_pass']='some_passwd'
-			['some_entitlement,mailing_list']='Entitlement-HPC'
-		)
-		#
-		# Accounts that should be excluded from the mailing lists
-		# and hence from processing by this script.
-		# These are usually functional accounts.
-		# The values of this array are used as POSIX bash regex patterns.
-		# Some examples:
-		#
-		declare -a no_subscription_account_name_patterns=(
-			'-guest[0-9]{1,}$'
-			'-dm$'
-			'-ateambot$'
-		)
-	
-	The config file must be located in same location as this script and have the same basename, 
-	but suffixed with *.cfg instead of *.bash.
+	Values for some variables are inserted using Jinja templating when this script is deployed with Ansible.
 ===============================================================================================================
 
 EOH
@@ -230,7 +226,6 @@ function log4Bash() {
 		fi
 	fi
 }
-
 
 function getSubscriptions () {
 	#
@@ -769,51 +764,6 @@ while getopts "l:b:unh" opt; do
 			;;
 		esac
 done
-
-{% endraw %}
-#
-# Mailinglist server
-#
-# We use sending emails combined with "screen-scraping" of the web interface
-# as some rudimentary form of API to interact with the LISTSERV server :o
-#
-listserv_api_email_from="{{ listserv_api_email_from }}"
-listserv_api_email_to="{{ listserv_api_email_to }}"
-listserv_api_webinterface_url="{{ listserv_api_webinterface_url }}"
-listserv_admin_user="{{ listserv_admin_user }}"
-listserv_admin_pass="{{ listserv_admin_pass }}"
-#
-# Entitlement groups a.k.a. LDAP containers.
-#
-# We use an array of entitlements in combination with a fake multi-dimensional hash 
-# using comma's as entitlement,key separator.
-# Hence a key cannot contain a comma!
-#
-
-declare -a entitlements=({% for listserv_domain in listserv_credentials %}'{{ listserv_domain }}'{% if not loop.last %} {% endif %}{% endfor %})
-declare -A entitlement_settings=(
-{% for listserv_domain in listserv_credentials %}
-    ['{{ listserv_domain }},ldap_search_uri']='{{ listserv_credentials[listserv_domain]['ldap_uri'] }}'
-    ['{{ listserv_domain }},ldap_search_base']='{{ listserv_credentials[listserv_domain]['ldap_base'] }}'
-    ['{{ listserv_domain }},ldap_user']='{{ listserv_credentials[listserv_domain]['ldap_user'] }}'
-    ['{{ listserv_domain }},ldap_pass']='{{ listserv_credentials[listserv_domain]['ldap_pass'] }}'
-    ['{{ listserv_domain }},mailing_list']='{{ listserv_credentials[listserv_domain]['mailing_list'] }}'
-{% endfor %}
-)
-
-#
-# Accounts that should be excluded from the mailing lists
-# and hence from processing by this script.
-# These are usually functional accounts.
-# The values of this array are used as POSIX bash regex patterns.
-# Some examples:
-#
-declare -a no_subscription_account_name_patterns=(
-        '-guest[0-9]{1,}$'
-        '-dm$'
-        '-ateambot$'
-)
-{% raw %}
 
 if [[ "${update_subscriptions}" -eq '1' ]]; then
 	log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' 'Found option -u: will update mailing list subscriptions.'

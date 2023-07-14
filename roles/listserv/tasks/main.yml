@@ -16,17 +16,16 @@
     group: 'root'
   with_items:
     - '/root/mailinglists'
+    - '/root/mailinglists/listserv_backups'
   become: true
 
 - name: Copy listserv script.
   ansible.builtin.template:
-    src: "templates/{{ item }}"
-    dest: "/root/mailinglists/LDAP2LISTSERV.bash"
+    src: 'templates/LDAP2LISTSERV.bash'
+    dest: '/root/mailinglists/LDAP2LISTSERV.bash'
     owner: 'root'
     group: 'root'
     mode: '0750'
-  with_items:
-    - 'LDAP2LISTSERV.bash'
   become: true
 
 - name: Create cron job to manage mailing list subscriptions without creating backups.
