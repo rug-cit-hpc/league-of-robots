@@ -17,8 +17,8 @@
   loop:
     - regexp: '^#?myhostname = '
       line: "myhostname = {{ listserv_domain_name }}"
-    - regexp:
-      line:
+    #- regexp:
+    #  line:
   notify:
     - reload_postfix
   become: true
