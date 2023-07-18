@@ -149,7 +149,7 @@ all:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            nb-vcompute[01:03]:
+            nb-node-a[01:03]:
           vars:
             cloud_flavor: htc-node
             host_networks:
@@ -173,7 +173,7 @@ all:
               - eth2
         gpu_a40:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            nb-vcompute[04:05]:
+            nb-node-b[01:02]:
           vars:
             cloud_flavor: gpu.A40_8
             gpu_count: 8

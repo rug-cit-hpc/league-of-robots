@@ -59,7 +59,7 @@ ip_addresses:
       address: 195.169.22.166
       netmask: /32
       fqdn: 'nb-transfer.hpc.rug.nl'
-  nb-vcompute01:
+  nb-node-a01:
     nb_internal_management:
       address: 10.10.1.172
       netmask: /32
@@ -69,7 +69,7 @@ ip_addresses:
     vlan1068:
       address: 172.23.60.6
       netmask: /32
-  nb-vcompute02:
+  nb-node-a02:
     nb_internal_management:
       address: 10.10.1.246
       netmask: /32
@@ -79,7 +79,7 @@ ip_addresses:
     vlan1068:
       address: 172.23.60.29
       netmask: /32
-  nb-vcompute03:
+  nb-node-a03:
     nb_internal_management:
       address: 10.10.1.32
       netmask: /32
@@ -89,7 +89,7 @@ ip_addresses:
     vlan1068:
       address: 172.23.60.15
       netmask: /32
-  nb-vcompute04:
+  nb-node-b01:
     nb_internal_management:
       address: 10.10.1.197
       netmask: /32
@@ -99,7 +99,7 @@ ip_addresses:
     vlan1068:
       address: 172.23.60.22
       netmask: /32
-  nb-vcompute05:
+  nb-node-b02:
     nb_internal_management:
       address: 10.10.1.229
       netmask: /32
