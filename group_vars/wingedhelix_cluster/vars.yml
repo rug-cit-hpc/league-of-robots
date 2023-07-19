@@ -474,7 +474,7 @@ lfs_mounts:
     pfs: umcgst12
     rw_machines: "{{ groups['cluster'] }}"
   - lfs: tmp07
-    pfs: umcgst12
+    pfs: umcgst04/slice1
     groups:
       - name: umcg-atd
       - name: umcg-gap
@@ -627,11 +627,11 @@ smb_server_interfaces: 192.168.1.0/24  # in addition to 127.0.0.1, which must al
 smb_server_shares:
   - name: ngs
     comment: Share for sequencers
-    path: /mnt/umcgst12/groups/umcg-lab/tmp07/sequencers
+    path: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07/sequencers
     users: sbsuser
     file_mode: '0640'
     dir_mode: '0750'
-    base: /mnt/umcgst12/groups/umcg-lab/tmp07  # This will not be created by the smb_server role and must already exist.
+    base: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07  # This will not be created by the smb_server role and must already exist.
     subtree:  # This will be created if it does not already exist.
       - path: sequencers
         owner: sbsuser
@@ -639,11 +639,11 @@ smb_server_shares:
         mode: '2750'
   - name: array
     comment: Share for array scanners
-    path: /mnt/umcgst12/groups/umcg-gap/tmp07/rawdata/array/IDAT
+    path: /mnt/umcgst04_slice1/groups/umcg-gap/tmp07/rawdata/array/IDAT
     users: illumina
     file_mode: '0660'
     dir_mode: '0770'
-    base: /mnt/umcgst12/groups/umcg-gap/tmp07  # This will not be created by the smb_server role and must already exist.
+    base: /mnt/umcgst04_slice1/groups/umcg-gap/tmp07  # This will not be created by the smb_server role and must already exist.
     subtree:  # This will be created if it does not already exist.
       - path: rawdata
         owner: umcg-gap-ateambot
