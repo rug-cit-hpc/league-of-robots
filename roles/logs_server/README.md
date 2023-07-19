@@ -134,18 +134,22 @@ Get the connections to the server from the clients
     FIN-WAIT-1 0      46     10.0.0.4:41514              45.88.81.169:60274
 ```
 
-### Enable debugging
+### Rsyslog internal logging
 
-Edit `/etc/rsyslog.conf` and add somewhere mid file (just before rules) the lines
+Rsyslog have the option of creating a verbose log information about current activity. This
+internal log information can be redirected into a log file. To start the internal logging,
+edit the `/etc/rsyslog.conf` and add in the middle of the file (just before rules) the lines
 
 ```
 $DebugFile /var/log/rsyslog.log
 $DebugLevel 2
 ```
 
-then restart the service with `systemctl restart rsyslog`.
+and restart the service with `systemctl restart rsyslog`. A new file should appear
+in the `/var/log/rsyslog.log`. Note that the logs are quite verbose and can grow with
+rate of approximately 100MB per hour (with current default settings).
 
-### Remove packages from logs servers
+## VIII. Remove packages from logs servers
 
 ```
   sudo yum remove -y rsyslog* librelp*

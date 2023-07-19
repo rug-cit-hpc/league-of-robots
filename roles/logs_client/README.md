@@ -119,7 +119,7 @@ By default they should be
 then rerun the `single_group_playbooks/logs.yml` or `single_role_playbooks/logs_client.yml`
 playbook.
 
-## Client to server connection
+## IV. Client-server rsyslog connection: opening of the firewall port
 
 Clients connect to servers via `ssh` protocol during the deployment stage. The connection is
 established via clients stacks jumphosts, as those machines are the only ones allowed to connect
@@ -129,7 +129,16 @@ will restart the `iptables.service` and this will add an exception on the server
 rsyslog port for the clients public IP.
 After that, the client can simply directly communicate with the log server.
 
-## V. Client debugging
+## V. Testing
+
+The last step of the role in running a test: injecting a log line in the log client and checking if the line
+will appears on the server side. To run the test, you can execute role with a tag `test`
+
+```
+    ansible-playbook -u sandi -l '!chaperone' single_group_playbooks/logs.yml -t test
+```
+
+## VI. Client debugging
 
 Run:
 
@@ -158,7 +167,11 @@ Networking, check that
  - connections are established with `ss -tan | grep 41514` (or whatever port is used)
  - check that additional hosts are correctly defined (and deployed)
 
-### Remove packages from logs servers
+### Rsyslog internal logging
+
+(see 'Rsyslog internal logging' in the roles/logs_server/README.md)
+
+### VII. Remove packages from logs servers
 
 ```
   sudo yum remove -y rsyslog* librelp*
