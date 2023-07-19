@@ -4,7 +4,7 @@
 
 ## I. Prerequisites
 
-This role is the second role of the ansible logs roles. It expects predefined
+This is the second role of the ansible roles for logs. It relies on predefined
  - (optional) a list of external rsyslog servers (unmanaged by our roles) defined
    in group variables f.e. inside `group_vars/{{ stack_name }}/vars.yml`, for example
    ```
