@@ -2,6 +2,11 @@
 
 (see also ../logs_client/README.md)
 
+To connect to the logs servers you need to declare one of the existing jumhosts, for example
+```
+    export AI_PROXY=portal
+```
+
 ## I. Overview
 
 This playbook is the first half of ansible logs playbooks and independent of the
@@ -128,3 +133,14 @@ Get the connections to the server from the clients
     ESTAB      0      0      10.0.0.4:41514              45.88.81.169:40136               users:(("rsyslogd",pid=19623,fd=17))
     FIN-WAIT-1 0      46     10.0.0.4:41514              45.88.81.169:60274
 ```
+
+### Enable debugging
+
+Edit `/etc/rsyslog.conf` and add somewhere mid file (just before rules) the lines
+
+```
+$DebugFile /var/log/rsyslog.log
+$DebugLevel 2
+```
+
+then restart the service with `systemctl restart rsyslog`.

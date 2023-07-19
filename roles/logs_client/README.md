@@ -4,26 +4,46 @@
 
 ## I. Prerequisites
 
-This role is the second of the logs ansible playbooks. It expects predefined
+This role is the second role of the ansible logs roles. It expects predefined
  - (optional) a list of external rsyslog servers (unmanaged by our roles) defined
-   in group variables f.e. inside ```group_vars/{{ stack_name }}/vars.yml```
+   in group variables f.e. inside `group_vars/{{ stack_name }}/vars.yml`, for example
    ```
-   rsyslog_external_servers:
-    - hostname: 123.45.67.89
-      port: 514
+    logs_ca_name: 'development'
+    stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
+       - name: 'earl1'
+         external_network: 'vlan16' # to retrieve public IP from
+       - name: 'earl2'
+         external_network: 'logs_external_network'
    ```
-   if port is not defined, the default rsyslog port number of 514 is used.
- - (optional) servers defined in the ```static_inventories/logs_library.yml```
-   group named ```logs```. Those _logs_ servers should have already been deployed
-   with `logs_server` playbook. Each of them should already have configured and
-   deployed appropriate CA key and certificates of appropriate type (like 'development',
-   'research' or 'diagnostics').
+   The `logs_ca_name` defines the group of rsyslog server to be used. The group must be already
+   created and CA key and certificate exist in the `files/logs_library/` folder.
+   Currently there are following groups planned: `development`, `research` and `diagnostics`.
+   The `stacks_logs_servers` defines the log server. They must be already created by a
+   `logs_server` role and exist in they `group_vars/logs_library/ip_address.yml` - this defines
+   the specific servers that the logs will be sent to.
+ - The `additional_etc_hosts` variable must include the apropriate logs servers. This is defined
+   in the `group_vars/{{ stack_name }}/vars.yml`
+   ```
+    additional_etc_hosts:
+    ...
+      - group: logs_library
+        nodes:
+          - name: earl2
+        network: logs_external_network
+      - group: logs_library
+        nodes:
+          - name: earl3
+            network: logs_external_network
+    ...
+ - The `yum_repos` role must be deployed on the client and server machines.
+ - The `iptables` role must be deployed on the client and server machines.
+   ```
 
 ## II. Playbook procedure
 
 1. The playbook parses the group vars for the list of (unmanaged) **external** rsyslog servers
    (not managed with Ansible roles from this repo) - the variable defining those
-   servers can be defined in ```group_vars/{{ stack_name}}/vars.yml``` f.e.
+   servers can be defined in `group_vars/{{ stack_name}}/vars.yml` f.e.
    ```
    rsyslog_external_servers:
     - hostname: 172.1.2.123
@@ -60,7 +80,7 @@ This role is the second of the logs ansible playbooks. It expects predefined
 
 3. Steps creating and deploying `rsyslog.conf`
    At the end, the `/etc/rsyslog.conf` file is deployed based on the template from
-   this playbook. It combines all the external (non-managed) rsyslog servers from 
+   this playbook. It combines all the external (non-managed) rsyslog servers from
    step 1 as well as the (managed) rsyslog servers from step 2
     - adds all servers from group rsyslog (rsyslog severs managed by this repo)
     - adds to configuration
@@ -130,3 +150,10 @@ or alternatively run main `logrotate.conf` file (that should call also all the /
 
 if logrotate does not work, change the last triggered date in the
     `vi /var/lib/logrotate/logrotate.status`
+
+Networking, check that
+
+ - the firewall is not blocking client outgoing communication
+ - the firewall is not blocking server incoming communication
+ - connections are established with `ss -tan | grep 41514` (or whatever port is used)
+ - check that additional hosts are correctly defined (and deployed)
