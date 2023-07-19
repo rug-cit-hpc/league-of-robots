@@ -23,7 +23,6 @@ all:
           host_networks:
             - name: EJP-RD-network
               security_group: "{{ stack_prefix }}_cluster"
-          local_volume_size_extra: 1
     deploy_admin_interface:
       hosts:
         mv-dai:
