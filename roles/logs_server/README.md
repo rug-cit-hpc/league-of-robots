@@ -144,3 +144,9 @@ $DebugLevel 2
 ```
 
 then restart the service with `systemctl restart rsyslog`.
+
+### Remove packages from logs servers
+
+```
+  sudo yum remove -y rsyslog* librelp*
+```

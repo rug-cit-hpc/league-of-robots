@@ -157,3 +157,9 @@ Networking, check that
  - the firewall is not blocking server incoming communication
  - connections are established with `ss -tan | grep 41514` (or whatever port is used)
  - check that additional hosts are correctly defined (and deployed)
+
+### Remove packages from logs servers
+
+```
+  sudo yum remove -y rsyslog* librelp*
+```
