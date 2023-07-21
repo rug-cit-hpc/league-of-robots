@@ -28,6 +28,18 @@
   ansible.builtin.include_tasks: client.yml
   when: rsyslogs_ext_ips | length > 0
 
+# Must be deployed first due to the order of checking the scripts in next step
+# and faulty script in rsyslog.d can break deploying rsyslog.conf
+- name: Deploy configuration for managed remote rsyslog servers
+  ansible.builtin.template:
+    src: templates/rsyslog_managed.conf
+    dest: /etc/rsyslog.d/managed.conf
+    force: true
+    mode: '0644'
+    validate: /sbin/rsyslogd -N1 -f %s
+  become: true
+  notify: client_restart_rsyslog
+
 - name: Deploy clients rsyslog.conf
   ansible.builtin.template:
     src: templates/rsyslog.conf
@@ -35,15 +47,6 @@
     force: true
     mode: '0644'
     validate: /sbin/rsyslogd -N1 -f %s
-  become: true
-  notify: client_restart_rsyslog
-
-- name: Deploy configuration for managed remote rsyslog servers
-  ansible.builtin.template:
-    src: templates/rsyslog_managed.conf
-    dest: /etc/rsyslog.d/managed.conf
-    force: true
-    mode: '0644'
   become: true
   notify: client_restart_rsyslog
 

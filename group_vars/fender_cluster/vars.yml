@@ -299,6 +299,12 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'mschlotterbek'
     groups: ['users', 'solve-rd']
+  - user: 'jpark'
+    groups: ['users', 'solve-rd']
+  - user: 'izaharieva'
+    groups: ['users', 'solve-rd']
+  - user: 'kpolavarapu'
+    groups: ['users', 'solve-rd']
 sudoers:
   - who: ['%solve-rd']
     become: 'solve-rd-dm'
