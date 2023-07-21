@@ -28,6 +28,9 @@
     - management.bash
   become: true
 
+- name: Flush handlers.
+  ansible.builtin.meta: flush_handlers
+
 - name: Configure slurm triggers.
   ansible.builtin.command:
     cmd: |

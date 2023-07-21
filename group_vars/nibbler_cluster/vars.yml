@@ -7,7 +7,7 @@ slurm_version: '22.05.2-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
-    nodes: "{{ stack_prefix }}-vcompute[01-03]"  # Must be in sync with Ansible hostnames listed in inventory.
+    nodes: "{{ stack_prefix }}-node-a[01-03]"  # Must be in sync with Ansible hostnames listed in inventory.
     max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
     max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
     max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
@@ -16,7 +16,7 @@ slurm_partitions:
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
   - name: gpu_a40  # Must be in sync with group listed in Ansible inventory.
     default: no
-    nodes: "{{ stack_prefix }}-vcompute[04-05]"  # Must be in sync with Ansible hostnames listed in inventory.
+    nodes: "{{ stack_prefix }}-node-b[01-02]"  # Must be in sync with Ansible hostnames listed in inventory.
     max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['gpu_a40']|list|length }}{% else %}1{% endif %}"
     max_cores_per_node: "{{ groups['gpu_a40'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
     max_mem_per_node: "{{ groups['gpu_a40'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
@@ -604,7 +604,7 @@ lustre_client_networks:
   - name: tcp20
     interface: eth2
 pfs_mounts:
-  - pfs: umcgst04
+  - pfs: umcgst04/slice2
     source: '172.23.60.161@tcp20:172.23.60.162@tcp20:/'
     type: lustre
     rw_options: 'defaults,_netdev,flock'
@@ -612,11 +612,11 @@ pfs_mounts:
     machines: "{{ groups['sys_admin_interface'] }}"
 lfs_mounts:
   - lfs: home
-    pfs: umcgst04
+    pfs: umcgst04/slice2
     quota_type: 'project'
     rw_machines: "{{ groups['cluster'] }}"
   - lfs: tmp02
-    pfs: umcgst04
+    pfs: umcgst04/slice2
     quota_type: 'project'
     quota_pid_increment: 0  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
@@ -727,7 +727,7 @@ lfs_mounts:
 #      - name: umcg-franke-scrna
 #    rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env02
-    pfs: umcgst04
+    pfs: umcgst04/slice2
     quota_type: 'project'
     ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
