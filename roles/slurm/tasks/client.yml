@@ -135,8 +135,8 @@
   become: true
 
 - name: 'Deploy slurm prolog/epilog scripts.'
-  ansible.builtin.copy:
-    src: "files/{{ item }}"
+  ansible.builtin.template:
+    src: "templates/{{ item }}"
     dest: '/etc/slurm/'
     owner: 'root'
     group: 'root'

@@ -17,6 +17,10 @@ munge_gid: 498
 #
 slurm_allow_jobs_to_span_nodes: false
 #
+# Local volume mounted on compute nodes where Slurm can create tmp dirs for each job.
+#
+slurm_local_scratch_dir: '/local'
+#
 # Determine cluster size and smallest node size based on
 #  * number of vcompute nodes in inventory and
 #  * cores per node, mem per node, etc. as specified in group_vars for cluster.

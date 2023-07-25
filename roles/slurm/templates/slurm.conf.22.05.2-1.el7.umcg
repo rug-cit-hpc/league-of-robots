@@ -16,7 +16,7 @@ ProctrackType=proctrack/cgroup
 ReturnToService=1
 TaskPlugin=task/affinity,task/cgroup
 JobSubmitPlugins=lua
-TmpFS=/local
+TmpFS={{ slurm_local_scratch_dir }}
 # Terminate job immediately when one of the processes is crashed or aborted.
 KillOnBadExit=1
 # Job with invalid dependency (by default) stay pending with DependencyNeverSatisfied. This option kills it and sets JOB_CANCELLED.

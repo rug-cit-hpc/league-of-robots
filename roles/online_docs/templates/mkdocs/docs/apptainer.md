@@ -34,13 +34,18 @@
 
 ### In short
 
-> Container is an isolated environment that holds the software and its dependencies and configurations. Containers can be run on any machine with compatible container technology.
-Container instances can be run (deployed) from an existing image. Therefore, users must first either build (create) an image or fetch an existing image (f.e. pull from a public registry). They can also share their prebuilt images with each other to easily distribute software to different systems and can expect to always get the same results.
-> _Apptainer_ and _Docker_ are different implementations of container technology. _Docker_ is the most popular one, but unfortunately not suited for multi-user environments. _Apptainer_ is suited for multi-user environments, was specifically designed for HPC clusters and can run both _Singularity_ as well as _Docker_ container images.
+> A container is an isolated environment that holds the software and its dependencies and configurations.
+> Containers can be run on any machine with compatible container technology.
+> Container instances can be run (deployed) from an existing image.
+> Therefore, users must first either build (create) an image or fetch an existing image (f.e. pull from a public registry).
+> You can also share your images with others to easily distribute software to different systems and can expect to always get the same results.
+> _Apptainer_ and _Docker_ are different implementations of container technology.
+> _Docker_ is the most popular one, but unfortunately not suited for multi-user environments.
+> _Apptainer_ is suited for multi-user environments, was specifically designed for HPC clusters and can run both _Singularity_ as well as _Docker_ container images.
 > Users can deploy containers, and inside those containers can access the same resources as they can access outside of those containers - nothing more.
-> Container technology described here is focused only on building and deploying Linux containers on Linux host systems.
 
-Documentation is available on the official [Apptainer's documentation website](https://apptainer.org/docs/)
+The documentation below is only a _primer_ describing building, deploying and running containers on {{ slurm_cluster_name | capitalize }}.
+For details see the official _Apptainer_ documentation available from the [Apptainer's documentation website](https://apptainer.org/docs/).
 
 ### Containers and apptainer
 
@@ -64,7 +69,7 @@ Apptainer container image
 * is highly portable between various Linux operating systems and environments - it only requires installed Apptainer,
 * container filesystem environment is by default read-only when deployed (this can be partially changed by the user at the runtime - see section `Sandbox`),
 * is usually in format`.sif` (Singularity Image Format), `.sqfs` (SquashFS) or `.img` (image) ext3
-* can be also a directory instead of a single file, containing all the needed files, browsable by the user outside the container.
+* can also be a directory instead of a single file, containing all the needed files, browsable by the user outside the container.
 
 
 ## List of commonly used commands
@@ -385,41 +390,64 @@ Users can shell, import, run, and exec Docker images directly from the Docker Re
 
 `$ apptainer pull --disable-cache centos.sif docker://centos:7.9`
 
-## Isolated runs
+## Using storage from the host system inside containers
 
-**Be careful, by default some folders are automatically shared between host machine and container.** This depends on the options with which container was built and container runtime parameters. Most commonly, on host system user's current working directoy is automatically as `/home` folder inside the container. Badly written or malicious software from inside container, could change and delete current working directory or `/home/` directory on host system. Apptainer provides options to control this exposure, by controlling mount points. User can either limit with arguments `-c` or `-C`
+**Be careful: by default some - but not all - folders from the host system are automatically shared between host and container.**
+The exact list of folders shared between host and container depends on options used when the container image was built as well as on runtime parameters.
+This means that buggy or malicious software inside the container can corrupt or delete the data from the host that is mounted in the container.
+_Apptainer_ provides options to control this exposure, by controlling mount points.
+You can use arguments both to limit/remove mount points as well as add additional mount points.
 
-```
-    $ apptainer run -C mycontainer.sif
-```
+#### Default host folders mounted inside containers running on {{ slurm_cluster_name | capitalize }}
 
-where
+The pre-configured list of paths, that will be mounted inside _Apptainer_ containers,
+is controlled by setting the ```${APPTAINER_BINDPATH}``` environment variable when you login using this code:
 
-```
-       -c, --contain[=false]        use minimal /dev and empty other directories (e.g. /tmp and $HOME) instead of sharing filesystems from your host
-       -C, --containall[=false]     contain not only file systems, but also PID, IPC, and environment
-```
-
-First option will share no folders, while the second one will (inside container) show only processes of the container.
-
-The `--no-mount` flag allows specific system mounts to be disabled, even if they are set in the `apptainer.conf` configuration file by the administrator.
-
-## Mounting host folders inside containers
-
-User can also manually control where the individual hosts folder will be mounted to, by using `--bind` (or short `-B`) argument. For example
-
-```
-    apptainer shell --bind /home/SOMEUSER/mydata:/mnt busybox.sif
+```bash
+APPTAINER_BINDPATH='{{ hpc_env_prefix }}/:{{ hpc_env_prefix }}/:ro'
+readarray -t my_groups < <(groups | tr ' ' '\n')
+for my_group in "${my_groups[@]}"; do
+  if [[ -e "/groups/${my_group}" ]]; then
+    APPTAINER_BINDPATH="${APPTAINER_BINDPATH},/groups/${my_group}"
+  fi
+done
 ```
 
-this will expose host machine users `mydata` folder to `/mnt` folder inside container. User can instead also use `--mount` and `,ro` argument to expose a folder as a read-only inside container, f.e.
+For batch jobs submitted to Slurm and running on a compute node the pre-configured list of paths,
+that will be mounted inside _Apptainer_ containers, is supplemented in the Slurm job prologs using:
 
-```                                                                             
-    apptainer shell --mount type=bind,source=/home/SOMEUSER/mydata,destination=/mnt,ro busybox.sif
+```bash
+if [[ -z "${APPTAINER_BINDPATH:-}" ]]; then
+  export APPTAINER_BINDPATH="{{ slurm_local_scratch_dir }}/${SLURM_JOB_ID}/"
+else
+  export APPTAINER_BINDPATH="${APPTAINER_BINDPATH},{{ slurm_local_scratch_dir }}/${SLURM_JOB_ID}/"
+fi
 ```
+
+These default lists should be sufficient for most use cases, but can be overruled with the commandline arguments described below.
+
+#### Isolated containers
+
+In order to remove/limit mounts you can use the arguments:
+
+ * `-c` or `--contain` to use minimal `/dev` and empty other directories (e.g. `/tmp` and `${HOME}`) instead of sharing filesystems from your host.
+ * `-C` or `--containall` to contain not only file systems, but also PID, IPC, and environment.
+ * `--no-mount /some/path` to disable a mount, even if it was added to the global `/etc/apptainer.conf` configuration file by a system administrator.
+
+E.g.: ```apptainer run -C mycontainer.sif```
+
+#### Mounting host folders inside containers
+
+You can add additional mounts using the arguments:
+
+ * `-B /path/on/host:/path/inside/container` or `--bind /path/on/host:/path/inside/container`  
+   For example `apptainer shell --bind /home/${USER}/mydata:/mnt busybox.sif` will expose the folder `mydata` from the host machine to `/mnt` inside container.
+ * `--mount source=/path/on/host,destination=/path/inside/container,other_options`  
+   This is similar to `--bind`, but allows specification of additional mount options.
+   You can use for example the `ro` argument to expose a folder _read-only_ to a container using  
+   `apptainer shell --mount type=bind,source=/home/SOMEUSER/mydata,destination=/mnt,ro mycontainer.sif`
 
 For more information, check Apptainer's website [about mount points](https://apptainer.org/docs/user/main/bind_paths_and_mounts.html).
-
 
 ## Other considerations
 
