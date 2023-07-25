@@ -2,6 +2,11 @@
 
 (see also ../logs_client/README.md)
 
+To connect to the logs servers you need to declare one of the existing jumhosts, for example
+```
+    export AI_PROXY=portal
+```
+
 ## I. Overview
 
 This playbook is the first half of ansible logs playbooks and independent of the
@@ -127,4 +132,25 @@ Get the connections to the server from the clients
     FIN-WAIT-1 0      46     10.0.0.4:41514              45.88.81.169:60964
     ESTAB      0      0      10.0.0.4:41514              45.88.81.169:40136               users:(("rsyslogd",pid=19623,fd=17))
     FIN-WAIT-1 0      46     10.0.0.4:41514              45.88.81.169:60274
+```
+
+### Rsyslog internal logging
+
+Rsyslog have the option of creating a verbose log information about current activity. This
+internal log information can be redirected into a log file. To start the internal logging,
+edit the `/etc/rsyslog.conf` and add in the middle of the file (just before rules) the lines
+
+```
+$DebugFile /var/log/rsyslog.log
+$DebugLevel 2
+```
+
+and restart the service with `systemctl restart rsyslog`. A new file should appear
+in the `/var/log/rsyslog.log`. Note that the logs are quite verbose and can grow with
+rate of approximately 100MB per hour (with current default settings).
+
+## VIII. Remove packages from logs servers
+
+```
+  sudo yum remove -y rsyslog* librelp*
 ```

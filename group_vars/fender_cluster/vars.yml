@@ -81,6 +81,7 @@ local_admin_users:
   - 'marloes'
   - 'morris'
   - 'pieter'
+  - 'roan'
   - 'sandi'
   - 'wim'
 envsync_user: 'envsync'
@@ -293,6 +294,18 @@ regular_users:
   - user: 'mdabad'
     groups: ['users', 'solve-rd']
   - user: 'mbarrero'
+    groups: ['users', 'solve-rd']
+  - user: 'jkegele'
+    groups: ['users', 'solve-rd']
+  - user: 'mschlotterbek'
+    groups: ['users', 'solve-rd']
+  - user: 'jpark'
+    groups: ['users', 'solve-rd']
+  - user: 'izaharieva'
+    groups: ['users', 'solve-rd']
+  - user: 'kpolavarapu'
+    groups: ['users', 'solve-rd']
+  - user: 'izaganas'
     groups: ['users', 'solve-rd']
 sudoers:
   - who: ['%solve-rd']
