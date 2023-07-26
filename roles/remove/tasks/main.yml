@@ -29,4 +29,10 @@
       - tuned
       - polkit  # Security risk due to bug and we don't need it!
   become: true
+
+- name: 'Remove old Singularity config if present (Superseeded by Apptainer config).'
+  ansible.builtin.file:
+    state: absent
+    path: /etc/singularity/
+  become: true
 ...
