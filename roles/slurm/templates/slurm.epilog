@@ -8,7 +8,7 @@ fi
 #
 # Cleanup job's private tmp dir.
 #
-TMPDIR="/local/${SLURM_JOB_ID:-missing_SLURM_JOB_ID}/"
+TMPDIR="{{ slurm_local_scratch_dir }}/${SLURM_JOB_ID:-missing_SLURM_JOB_ID}/"
 if [[ -e "${TMPDIR}" ]]; then
     rm -Rf "${TMPDIR}"
 fi

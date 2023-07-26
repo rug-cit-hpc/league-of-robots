@@ -10,7 +10,7 @@ fi
 set -e
 set -u
 
-LOCAL_SCRATCH_DIR='/local'
+LOCAL_SCRATCH_DIR='{{ slurm_local_scratch_dir }}'
 #
 # Check if local scratch dir is mountpoint and hence not a dir on the system disk.
 #
