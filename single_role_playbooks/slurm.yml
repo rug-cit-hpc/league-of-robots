@@ -1,7 +1,7 @@
 ---
 - name: Configure Slurm for client and management machines.
   hosts:
-    - compute_vm
+    - compute_node
     - sys_admin_interface
     - user_interface
   roles:

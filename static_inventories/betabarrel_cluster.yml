@@ -139,7 +139,7 @@ all:
           slurm_ethernet_interfaces:
             - em1
             - em3
-    compute_vm:
+    compute_node:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
@@ -188,7 +188,7 @@ administration:
     user_interface:
 cluster:
   children:
-    compute_vm:
+    compute_node:
     administration:
 betabarrel_cluster:
   children:

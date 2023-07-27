@@ -7,7 +7,7 @@
 - name: Deploy Slurm clients.
   ansible.builtin.include_tasks:
     file: client.yml
-  when: inventory_hostname in groups['compute_vm'] or
+  when: inventory_hostname in groups['compute_node'] or
         inventory_hostname in groups['user_interface']
 
 - name: Deploy Slurm notifications for admins.

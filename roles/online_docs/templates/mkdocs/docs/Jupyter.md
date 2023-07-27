@@ -159,9 +159,9 @@ The general syntax is:
 ssh -N -L localhost:<port_number_on_client>:localhost:<port_number_on_server> {{ groups['jumphost'] | first }}+<hostname_of_jupyter_server>
 ```
 The example below uses the same port number on the client side as the one chosen by ```jupyter lab```
-running on {{ slurm_cluster_name | capitalize }} compute node {{ groups['compute_vm'] | first }}.
+running on {{ slurm_cluster_name | capitalize }} compute node {{ groups['compute_node'] | first }}.
 ```bash
-ssh -N -L localhost:8888:localhost:8888 {{ groups['jumphost'] | first }}+{{ groups['compute_vm'] | first }}
+ssh -N -L localhost:8888:localhost:8888 {{ groups['jumphost'] | first }}+{{ groups['compute_node'] | first }}
 ```
 If you get a message like this:
 ```bash
@@ -173,7 +173,7 @@ then the selected port on the client side is not free and already used by anothe
 Try the next port number until you find one that is free: in that case you will not get any message.
 E.g.:
 ```bash
-ssh -N -L localhost:8889:localhost:8888 {{ groups['jumphost'] | first }}+{{ groups['compute_vm'] | first }}
+ssh -N -L localhost:8889:localhost:8888 {{ groups['jumphost'] | first }}+{{ groups['compute_node'] | first }}
 ```
 
 #### 6. Using the Jupyter session in a web browser on your own computer
