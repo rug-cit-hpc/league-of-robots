@@ -1,25 +1,10 @@
 ---
-- name: Install mailx and postfix.
+- name: Install mailx.
   ansible.builtin.yum:
     name:
       - mailx
-      - postfix
     state: latest
     update_cache: true
-  become: true
-
-- name: Update postfix config
-  ansible.builtin.lineinfile:
-    path: /etc/postfix/main.cf
-    regexp: '^#?myhostname = '
-    line: "myhostname = {{ listserv_domain_name }}"
-  become: true
-
-- name: "Make sure postfix service is enabled and started."
-  ansible.builtin.systemd:
-    name: "postfix.service"
-    state: started
-    enabled: true
   become: true
 
 - name: Create directories for mailinglists script.
@@ -31,22 +16,21 @@
     group: 'root'
   with_items:
     - '/root/mailinglists'
+    - '/root/mailinglists/listserv_backups'
   become: true
 
-- name: 'Copy listserv script.'
+- name: Copy listserv script.
   ansible.builtin.template:
-    src: "templates/{{ item }}"
-    dest: "/root/mailinglists/LDAP2LISTSERV.bash"
+    src: 'templates/LDAP2LISTSERV.bash'
+    dest: '/root/mailinglists/LDAP2LISTSERV.bash'
     owner: 'root'
     group: 'root'
     mode: '0750'
-  with_items:
-    - 'LDAP2LISTSERV.bash'
   become: true
 
-- name: 'Create cron job to fetch data from an LDAP and manage mailing list subscriptions of our users.'
+- name: Create cron job to manage mailing list subscriptions without creating backups.
   ansible.builtin.cron:
-    name: Set cron job to fetch data from an LDAP and manage mailing list subscriptions.
+    name: Manage mailing list subscriptions without creating backups.
     weekday: '*'
     hour: '12,15,18'
     minute: '15'
@@ -57,9 +41,9 @@
     disabled: False
   become: true
 
-- name: 'cron job to backup mailing list ones a day.'
+- name: Create cron job to manage mailing list subscriptions and create backup.
   ansible.builtin.cron:
-    name: set cron job to backup mailing list.
+    name: Manage mailing list subscriptions and create backup.
     weekday: '*'
     hour: '09'
     minute: '15'

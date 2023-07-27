@@ -1,4 +1,4 @@
-{% raw %}
+#jinja2: trim_blocks:True, lstrip_blocks: True
 #!/bin/bash
 
 #
@@ -9,6 +9,47 @@
 # 	Local Variables:       _lower_case_with_underscores_and_prefixed_with_underscore
 # 	Environment Variables: UPPER_CASE_WITH_UNDERSCORES
 #
+
+#
+# Mailinglist server
+#
+# We use sending emails combined with "screen-scraping" of the web interface
+# as some rudimentary form of API to interact with the LISTSERV server :o
+#
+listserv_api_email_from="{{ listserv_api_email_from }}"
+listserv_api_email_to="{{ listserv_api_email_to }}"
+listserv_api_webinterface_url="{{ listserv_api_webinterface_url }}"
+listserv_admin_user="{{ listserv_admin_user }}"
+listserv_admin_pass="{{ listserv_admin_pass }}"
+#
+# Entitlement groups a.k.a. LDAP containers a.k.a. LDAP domains.
+#
+# We use an array of listserv_domains in combination with a fake multi-dimensional hash 
+# using listserv_domain and key joined with an underscore to make the hash keys unique.
+#
+
+declare -a listserv_domains=({% for ldap_domain, ldap_config in ldap_domains.items() %}{% if ldap_config['listserv_mailinglist'] is defined %}{% if not loop.first %} {% endif %}'{{ ldap_domain }}'{% endif %}{% endfor %})
+declare -A listserv_configs=(
+{% for ldap_domain, ldap_config in ldap_domains.items() %}
+  {% if ldap_config['listserv_mailinglist'] is defined %}
+    ['{{ ldap_domain }}_mailinglist']='{{ ldap_config['listserv_mailinglist'] }}'
+  {% endif %}
+{% endfor %}
+)
+{% raw %}
+declare ldap_config_file='/etc/openldap/readonly-ldapsearch-credentials.bash'
+#
+# Accounts that should be excluded from the mailing lists
+# and hence from processing by this script.
+# These are usually functional accounts.
+# The values of this array are used as POSIX bash regex patterns.
+# Some examples:
+#
+declare -a no_subscription_account_name_patterns=(
+	'-guest[0-9]{1,}$'
+	'-dm$'
+	'-ateambot$'
+)
 
 #
 ##
@@ -71,55 +112,7 @@ OPTIONS:
 Details:
 
 	Values are always reported with a dot as the decimal seperator (LC_NUMERIC="en_US.UTF-8").
-
-	Values for some variables are imported by sourcing a config.
-	The config file must written in bash syntax as it will get sourced and contain
-	 * LISTSERV credentials
-	 * Entitlements and their associated
-	   * LDAP credentials
-	   * Mailing list name
-	 * Regex patterns of account names that should be skipped / never subscribed.
-	Example given:
-		#
-		# Mailinglist server
-		#
-		# We use sending emails combined with "screen-scraping" of the web interface
-		# as some rudimentary form of API to interact with the LISTSERV server :o
-		#
-		listserv_api_email_from="admin@management.server.domain"
-		listserv_api_email_to="listserv@list.server.domain"
-		listserv_api_webinterface_url='https://list.server.domain/cgi-bin/wa'
-		listserv_admin_user='some_account'
-		listserv_admin_pass='some_passwd'
-		#
-		# Entitlement groups a.k.a. LDAP containers.
-		#
-		# We use an array of entitlements in combination with a fake multi-dimensional hash 
-		# using comma's as entitlement,key separator.
-		# Hence a key cannot contain a comma!
-		#
-		declare -a entitlements=('some_entitlement')
-		declare -A entitlement_settings=(
-			['some_entitlement,ldap_search_base']='ou=some_entitlement,o=rs'
-			['some_entitlement,ldap_user']='some_account'
-			['some_entitlement,ldap_pass']='some_passwd'
-			['some_entitlement,mailing_list']='Entitlement-HPC'
-		)
-		#
-		# Accounts that should be excluded from the mailing lists
-		# and hence from processing by this script.
-		# These are usually functional accounts.
-		# The values of this array are used as POSIX bash regex patterns.
-		# Some examples:
-		#
-		declare -a no_subscription_account_name_patterns=(
-			'-guest[0-9]{1,}$'
-			'-dm$'
-			'-ateambot$'
-		)
-	
-	The config file must be located in same location as this script and have the same basename, 
-	but suffixed with *.cfg instead of *.bash.
+	Values for some variables are inserted using Jinja templating when this script is deployed with Ansible.
 ===============================================================================================================
 
 EOH
@@ -231,14 +224,13 @@ function log4Bash() {
 	fi
 }
 
-
 function getSubscriptions () {
 	#
-	local _entitlement="${1}"
+	local _listserv_domain="${1}"
 	local _login_file="${TMPDIR}/${SCRIPT_NAME}/login_result.html"
 	local _cookie_file="${TMPDIR}/${SCRIPT_NAME}/cookiejar.txt"
-	local _subscribtions_file="${TMPDIR}/${SCRIPT_NAME}/${_entitlement}-subscriptions.list"
-	local _mailinglist="${entitlement_settings[${_entitlement}',mailing_list']}"
+	local _subscribtions_file="${TMPDIR}/${SCRIPT_NAME}/${_listserv_domain}-subscriptions.list"
+	local _mailinglist="${listserv_configs[${_listserv_domain}'_mailinglist']}"
 	#
 	# Login to get cookie, which we store in our cookiejar.
 	#  * LOGIN1 and X are required empty arguments.
@@ -324,7 +316,7 @@ function getSubscriptions () {
 			log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '0' "Backup dir ${backup_dir} cannot be used. Check path and permissions."
 		fi
 		local _backup_ts=`date "+%Y-%m-%d-T%H%M"`
-		local _backup_file="${backup_dir}/${_entitlement}-subscriptions-${_backup_ts}.list"
+		local _backup_file="${backup_dir}/${_listserv_domain}-subscriptions-${_backup_ts}.list"
 		#
 		# We already have the list of subscribers as a temp file: mv this file to the backup dir.
 		#
@@ -339,9 +331,9 @@ function getSubscriptions () {
 #
 function manageSubscriptions () {
 	#
-	local _entitlement="${1}"
-	local _mailinglist="${entitlement_settings[${_entitlement}',mailing_list']}"
-	local _ldif_file="${TMPDIR}/${SCRIPT_NAME}/${_entitlement}.ldif"
+	local _listserv_domain="${1}"
+	local _mailinglist="${listserv_configs[${_listserv_domain}'_mailinglist']}"
+	local _ldif_file="${TMPDIR}/${SCRIPT_NAME}/${_listserv_domain}.ldif"
 	local _ldap_attr_regex='([^: ]{1,})(:{1,2}) ([^:]{1,})'
 	local _timestamp_regex='^([0-9]){4}([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})' # YYYYMMDDhhmm ignores any seocnds and timezomes at the end.
 	local _sn_regex='([^,]{1,}),[[:blank:]]*([^,]{1,})[[:blank:]]*'
@@ -351,10 +343,10 @@ function manageSubscriptions () {
 	#
 	declare -A _accounts=()
 	mixed_stdouterr=$(ldapsearch -LLL -o ldif-wrap=no \
-		-H "${entitlement_settings[${_entitlement}',ldap_search_uri']}" \
-		-D "${entitlement_settings[${_entitlement}',ldap_user']}" \
-		-w "${entitlement_settings[${_entitlement}',ldap_pass']}" \
-		-b "${entitlement_settings[${_entitlement}',ldap_search_base']}" \
+		-H "${domain_configs[${_listserv_domain}'_uri']}" \
+		-D "${domain_configs[${_listserv_domain}'_bind_dn']}" \
+		-w "${domain_configs[${_listserv_domain}'_bind_pw']}" \
+		-b "${domain_configs[${_listserv_domain}'_search_base']}" \
 		"(ObjectClass=person)" ${ldap_fields} 2>&1 > "${_ldif_file}") \
 			|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "ldapsearch failed."
 	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "ldapsearch results were saved to ${_ldif_file}."
@@ -431,7 +423,7 @@ function manageSubscriptions () {
 			#
 			# Parse account name (cn) from dn.
 			#
-			_account_name=$(dn2cnWithEntitlementPrefix "${_directory_record_attributes['dn']}")
+			_account_name=$(dn2cn "${_directory_record_attributes['dn']}")
 			log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Processing _account_name: ${_account_name}."
 			_accounts["${_account_name}"]='found'
 		else
@@ -700,9 +692,9 @@ function sendListservCommand () {
 #
 # Extract a CN from a DN LDAP attribute.
 #
-function dn2cnWithEntitlementPrefix () {
+function dn2cn () {
 	# cn=umcg-someuser,ou=users,ou=umcg,o=rs
-	local _dn="$1"
+	local _dn="${1}"
 	local _cn='MIA'
 	local _regex='cn=([^, ]+)'
 	if [[ ${_dn} =~ ${_regex} ]]; then
@@ -770,51 +762,6 @@ while getopts "l:b:unh" opt; do
 		esac
 done
 
-{% endraw %}
-#
-# Mailinglist server
-#
-# We use sending emails combined with "screen-scraping" of the web interface
-# as some rudimentary form of API to interact with the LISTSERV server :o
-#
-listserv_api_email_from="{{ listserv_api_email_from }}"
-listserv_api_email_to="{{ listserv_api_email_to }}"
-listserv_api_webinterface_url="{{ listserv_api_webinterface_url }}"
-listserv_admin_user="{{ listserv_admin_user }}"
-listserv_admin_pass="{{ listserv_admin_pass }}"
-#
-# Entitlement groups a.k.a. LDAP containers.
-#
-# We use an array of entitlements in combination with a fake multi-dimensional hash 
-# using comma's as entitlement,key separator.
-# Hence a key cannot contain a comma!
-#
-
-declare -a entitlements=({% for listserv_domain in listserv_credentials %}'{{ listserv_domain }}'{% if not loop.last %} {% endif %}{% endfor %})
-declare -A entitlement_settings=(
-{% for listserv_domain in listserv_credentials %}
-    ['{{ listserv_domain }},ldap_search_uri']='{{ listserv_credentials[listserv_domain]['ldap_uri'] }}'
-    ['{{ listserv_domain }},ldap_search_base']='{{ listserv_credentials[listserv_domain]['ldap_base'] }}'
-    ['{{ listserv_domain }},ldap_user']='{{ listserv_credentials[listserv_domain]['ldap_user'] }}'
-    ['{{ listserv_domain }},ldap_pass']='{{ listserv_credentials[listserv_domain]['ldap_pass'] }}'
-    ['{{ listserv_domain }},mailing_list']='{{ listserv_credentials[listserv_domain]['mailing_list'] }}'
-{% endfor %}
-)
-
-#
-# Accounts that should be excluded from the mailing lists
-# and hence from processing by this script.
-# These are usually functional accounts.
-# The values of this array are used as POSIX bash regex patterns.
-# Some examples:
-#
-declare -a no_subscription_account_name_patterns=(
-        '-guest[0-9]{1,}$'
-        '-dm$'
-        '-ateambot$'
-)
-{% raw %}
-
 if [[ "${update_subscriptions}" -eq '1' ]]; then
 	log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' 'Found option -u: will update mailing list subscriptions.'
 else
@@ -824,6 +771,17 @@ if [[ "${notify_users}" -eq '1' ]]; then
 	log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' 'Found option -n: will notify users when they are added to / changed on / deleted from the mailing list.'
 else
 	log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' 'Option -n not specified: will not notify users.'
+fi
+
+#
+# Parse LDAP config file.
+#
+if [[ -e  "${ldap_config_file}" && -r "${ldap_config_file}" ]]; then
+	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME:-main}" '0' "Fetching ldapsearch credentials from config file ${ldap_config_file} ..."
+	# shellcheck source=/dev/null
+	source "${ldap_config_file}"
+else
+	log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "Config file ${ldap_config_file} missing or not readable."
 fi
 
 #
@@ -838,20 +796,24 @@ log4Bash 'TRACE' "${LINENO}" "${FUNCNAME:-main}" '0' "ldap_fields to retrieve = 
 mixed_stdouterr=$(mkdir -m 0700 -p "${TMPDIR}/${SCRIPT_NAME}/" 2>&1) \
 	|| log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Failed to create tmp dir ${TMPDIR}/${SCRIPT_NAME}/."
 #
-# Process entitlement groups.
+# Process LDAP domains.
 #
-for entitlement in ${entitlements[@]}; do
-	log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "Processing entitlement ${entitlement}..."
-	#
-	# Get current subscribers from mailing list server.
-	#
-	declare -A subscriptions=()
-	getSubscriptions "${entitlement}"
-	#
-	# Query LDAP and add/update/delete subscriptions.
-	#
-	manageSubscriptions "${entitlement}"
-done
+if [[ "${#listserv_domains[@]}" -lt 1 ]]; then
+	log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" 0 'The ${listserv_domains[@]} list is empty: there are no mailing lists to process.'
+else
+	for listserv_domain in "${listserv_domains[@]}"; do
+		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "Processing listserv_domain ${listserv_domain}..."
+		#
+		# Get current subscribers from mailing list server.
+		#
+		declare -A subscriptions=()
+		getSubscriptions "${listserv_domain}"
+		#
+		# Query LDAP and add/update/delete subscriptions.
+		#
+		manageSubscriptions "${listserv_domain}"
+	done
+fi
 
 #
 # Cleanup.

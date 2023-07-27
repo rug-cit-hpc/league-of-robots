@@ -71,6 +71,7 @@ ldap_domains:
     #
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
+    listserv_mailinglist: UMCG-HPC
 stack_networks:
   - name: vlan983
     router_network: vlan16
