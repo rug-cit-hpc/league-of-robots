@@ -158,6 +158,7 @@ ldap_domains:
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
+    listserv_mailinglist: GD
     create_ldap: false
 totp:
   machines: "{{ groups['jumphost'] }}"
