@@ -12,7 +12,7 @@
     - {role: yum_local, when: local_yum_repository is defined}
     - {role: yum_repos, when: repo_manager == 'none'}
     - logrotate
-    - {role: geerlingguy.repo-epel, become: true}
+    - epel
     - sshd
     - basic_security
     - logs_server

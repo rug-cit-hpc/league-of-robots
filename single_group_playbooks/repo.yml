@@ -9,7 +9,7 @@
     - ssh_host_signer
     - ssh_known_hosts
     - swap
-    - {role: geerlingguy.repo-epel, become: true}
+    - epel
     - {role: yum_repos, when: repo_manager == 'none'}
     - logrotate
     - logins

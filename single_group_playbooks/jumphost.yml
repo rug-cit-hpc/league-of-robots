@@ -15,7 +15,7 @@
     - logrotate
     - remove
     - update
-    - {role: geerlingguy.repo-epel, become: true}
+    - epel
     - logins
     - role: ldap
       when:
