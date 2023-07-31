@@ -136,7 +136,7 @@ pulp_repos:
       remote_url: http://rpms.adiscon.com/v8-stable/epel-7/x86_64/
       client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/rsyslog7/"
 #
-# List of repos for machines that do not use Pulp or Spacewalk
+# List of repos for machines that do not use Pulp.
 #
 yum_repos:
   centos7:
