@@ -28,7 +28,7 @@ pulp_install_plugins:
   # pulp-container: {}
   # pulp-cookbook: {}
   # pulp-deb: {}
-  pulp-file: {}
+  # pulp-file: {}
   # pulp-gem: {}
   # pulp-maven: {}
   # pulp-npm: {}
