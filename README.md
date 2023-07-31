@@ -115,22 +115,34 @@ cd ${HOME}/git/
 git clone https://github.com/rug-cit-hpc/league-of-robots.git
 cd league-of-robots
 #
+# For older openstacksdk < 0.99 we need the ansible openstack collection 1.x.
+# For newer openstacksdk > 1.00 we need the ansible openstack collection 2.x.
+#
+openstacksdk_major_version='1'  # Change to 0 for older OpenStack SDK.
+#
 # Create Python virtual environment (once)
 #
-python3 -m venv openstacksdk.venv
+python3 -m venv openstacksdk-${openstacksdk_major_version:-1}.venv
 #
 # Activate virtual environment.
 #
-source openstacksdk.venv/bin/activate
+source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
 #
 # Install OpenStack SDK (once) and other python packages.
 #
 pip3 install --upgrade pip
 pip3 install wheel
-pip3 install 'openstacksdk<0.99'
+if [[ "${openstacksdk_major_version:-1}" -eq 0 ]]; then
+  pip3 install "openstacksdk<0.99"
+else
+  pip3 install "openstacksdk==${openstacksdk_major_version:-1}.*"
+fi
 pip3 install ruamel.yaml
 pip3 install netaddr
-pip3 install dnspython  # Required for Ansible lookup plugin community.general.dig
+#
+# Package dnspython is required for Ansible lookup plugin community.general.dig
+#
+pip3 install dnspython
 #
 # On macOS only to prevent this error:
 # crypt.crypt not supported on Mac OS X/Darwin, install passlib python module.
@@ -141,7 +153,9 @@ pip3 install passlib
 # You may skip this step if you already installed Ansible by other means.
 # E.g. with HomeBrew on macOS, with yum or dnf on Linux, etc.
 #
-pip3 install ansible
+# Ansible core 2.13 from Ansible 6.x is latest version compatible with Mitogen.
+#
+pip3 install 'ansible<7'
 #
 # Optional: install Mitogen with pip.
 # Mitogen provides an optional strategy plugin that makes playbooks a lot (up to 7 times!) faster.
@@ -150,13 +164,18 @@ pip3 install ansible
 pip3 install mitogen
 ```
 
-#### 1. First import the required roles and collections for the playbooks:
+#### 1. Import the required roles and collections for the playbooks.
 
 ```bash
-ansible-galaxy install -r requirements.yml
+source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
+export ANSIBLE_ROLES_PATH="${VIRTUAL_ENV}/ansible/ansible_roles/:"
+export ANSIBLE_COLLECTIONS_PATHS="${VIRTUAL_ENV}/ansible/:"
+ansible-galaxy install -r requirements-${openstacksdk_major_version:-1}.yml
 ```
 
-Note: the default location where these dependencies will get installed with the above command is ```${HOME}/.ansible/```.
+Note: the default location where these dependencies will get installed with the ```ansible-galaxy install``` command is ```${HOME}/.ansible/```,
+which is may conflict with versions of roles and collections required for other repos.
+Therefore we set ```ANSIBLE_ROLES_PATH``` and ```ANSIBLE_COLLECTIONS_PATH``` to use a custom path for the dependencies inside the virtual environment we'll use for this repo.
 
 #### 2. Create a `vault_pass.txt`.
 
@@ -190,7 +209,7 @@ To create a new *stack* you will need ```group_vars``` and a static inventory fo
   #
   # Activate Python virtual env created in step 0.
   #
-  source openstacksdk.venv/bin/activate
+  source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
   #
   # Configure this repo for a specific cluster.
   # This will set required ENVIRONMENT variables including
@@ -384,7 +403,7 @@ These shorter subset _playbooks_ can save a lot of time during development, test
   #
   # Activate Python virtual env created in step 0.
   #
-  source openstacksdk.venv/bin/activate
+  source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
   #
   # Initialize the OpenstackSDK
   #

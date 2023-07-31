@@ -4,7 +4,12 @@
 ---
 - name: Get info on routers from OpenStack API.
   openstack.cloud.routers_info:
-  register: api_routers_info
+  register: api_router_info
+
+- name: Rename old var name to new var name for backwards compatibility.
+  ansible.builtin.set_fact:
+    api_router_info: "{{ api_router_info | combine({'routers': api_router_info['openstack_routers']}) }}"
+  when: api_router_info['openstack_routers'] is defined
 
 - name: Create management networks.
   ansible.builtin.include_tasks:
