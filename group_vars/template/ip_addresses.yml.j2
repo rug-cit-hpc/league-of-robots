@@ -42,7 +42,7 @@ ip_addresses:
       address: {{ stack_network.gateway }}
       netmask: /32
     {{ stack_network.router_network }}:
-      address: {{ api_routers_info['routers']
+      address: {{ api_router_info['routers']
                   | selectattr('name', 'equalto', router_name)
                   | map(attribute='external_gateway_info')
                   | map (attribute='external_fixed_ips')
