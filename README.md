@@ -137,6 +137,7 @@ if [[ "${openstacksdk_major_version:-1}" -eq 0 ]]; then
 else
   pip3 install "openstacksdk==${openstacksdk_major_version:-1}.*"
 fi
+pip3 install openstackclient
 pip3 install ruamel.yaml
 pip3 install netaddr
 #
