@@ -20,6 +20,8 @@ jobs:
             openstacksdk_major_version='1'
             python -m venv openstacksdk-${openstacksdk_major_version:-1}.venv
             source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
+            export ANSIBLE_ROLES_PATH="${VIRTUAL_ENV}/ansible/ansible_roles/:"
+            export ANSIBLE_COLLECTIONS_PATHS="${VIRTUAL_ENV}/ansible/:"
             pip install jmespath
             pip install ansible
             pip install ansible-lint
