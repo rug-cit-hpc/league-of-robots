@@ -17,19 +17,20 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            python -m venv venv
-            . venv/bin/activate
+            openstacksdk_major_version='1'
+            python -m venv openstacksdk-${openstacksdk_major_version:-1}.venv
+            source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
             pip install jmespath
             pip install ansible
             pip install ansible-lint
             attempt=1
             until [[ "${attempt}" -gt 3 ]]; do
-                [[ "${attempt}" -gt 1 ]] && sleep 30
-                ansible-galaxy install -r requirements.yml --timeout 120 && status="${?}" && break
-                attempt=$((attempt+1))
+              [[ "${attempt}" -gt 1 ]] && sleep 30
+              ansible-galaxy install -r requirements-${openstacksdk_major_version:-1}.yml --timeout 120 && status="${?}" && break
+              attempt=$((attempt+1))
             done
             if [[ "${status}" -ne 0 ]]; then
-                exit "${status}"
+              exit "${status}"
             fi
             ansible --version
             ansible-lint --version
@@ -40,12 +41,9 @@ jobs:
             set -e
             set -u
             set -o pipefail
-            . venv/bin/activate
-            if [[ -n "${ANSIBLE_ROLES_PATH:-}" ]]; then
-                export ANSIBLE_ROLES_PATH="${HOME}/.ansible/roles/:${ANSIBLE_ROLES_PATH}"
-            else
-                export ANSIBLE_ROLES_PATH="${HOME}/.ansible/roles/"
-            fi
+            source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
+            export ANSIBLE_ROLES_PATH="${VIRTUAL_ENV}/ansible/ansible_roles/:"
+            export ANSIBLE_COLLECTIONS_PATHS="${VIRTUAL_ENV}/ansible/:"
             if ansible-lint -p --nocolor --offline *.yml > lint_results 2>&1; then
               lint_errors=0
             else
