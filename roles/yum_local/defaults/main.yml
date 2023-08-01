@@ -1,4 +1,12 @@
 ---
 local_yum_repository: "false"
-lyr_dir_path: "/usr/local/repo/"
+yum_local_repo_dir: "/usr/local/repo/"
+yum_local_dependencies:
+  RedHat7:
+    - createrepo
+    - yum-plugin-priorities
+  RedHat8:
+    - createrepo_c
+  RedHat9:
+    - createrepo_c
 ...
