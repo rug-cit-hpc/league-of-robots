@@ -1,20 +1,19 @@
 ---
-- name: "Enable powertools repo (dependency for EPEL 8.x)"
-  ansible.builtin.command:
-    cmd: dnf config-manager --set-enabled powertools
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "8"
-  become: true
+- name: Install EPEL for EL 7.
+  ansible.builtin.import_tasks: epel7.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] == "7"
 
-- name: "Enable crb repo (dependency for EPEL 9.x)"
-  ansible.builtin.command:
-    cmd: dnf config-manager --set-enabled crb
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "9"
-  become: true
+- name: Install EPEL for EL 8
+  ansible.builtin.import_tasks: epel8.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] == "8"
 
-- name: Install and enable EPEL repo.
-  ansible.builtin.package:
-    state: latest
-    update_cache: true
-    name: epel-release
-  become: true
+- name: Install EPEL for EL 9.
+  ansible.builtin.import_tasks: epel9.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] == "9"
 ...
