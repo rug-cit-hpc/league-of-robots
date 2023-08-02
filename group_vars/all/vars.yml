@@ -140,51 +140,220 @@ pulp_repos:
 #
 yum_repos:
   centos7:
-    - name: centos7-base
-      description: 'CentOS-7 - Base.'
+    - file: centos7-base.repo
+      id: centos7-base
+      name: 'CentOS-7 - Base.'
       baseurl: http://mirror.centos.org/centos/7/os/x86_64/
-      gpgcheck: 'true'
+      enabled: 1
+      gpgcheck: 1
       gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7'
-    - name: centos7-updates
-      description: 'CentOS-7 - Updates.'
+    - file: centos7-updates.repo
+      id: centos7-updates
+      name: 'CentOS-7 - Updates.'
       baseurl: http://mirror.centos.org/centos/7/updates/x86_64/
-      gpgcheck: 'true'
+      enabled: 1
+      gpgcheck: 1
       gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7'
-    - name: centos7-extras
-      description: 'CentOS-7 - Extras.'
+    - file: centos7-extras.repo
+      id: centos7-extras
+      name: 'CentOS-7 - Extras.'
       baseurl: http://mirror.centos.org/centos/7/extras/x86_64/
-      gpgcheck: 'true'
+      enabled: 1
+      gpgcheck: 1
       gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7'
-    - name: epel7
-      description: 'Extra Packages for Enterprise Linux 7 (EPEL).'
+    - file: epel7.repo
+      id: epel7
+      name: 'Extra Packages for Enterprise Linux 7 (EPEL).'
       baseurl: https://download.fedoraproject.org/pub/epel/7/x86_64/
-      gpgcheck: 'true'
+      enabled: 1
+      gpgcheck: 1
       gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7' # comes preinstalled with epel-release
-    - name: irods7
-      description: 'RENCI iRODS Repository for Enterprise Linux 7.'
+    - file: irods7.repo
+      id: irods7
+      name: 'RENCI iRODS Repository for Enterprise Linux 7.'
       baseurl: https://packages.irods.org/yum/pool/centos7/x86_64/
-      gpgcheck: 'false'
-      gpgkey: ''
-    - name: lustre7
-      description: 'Lustre client Long Term Support (LTS) releases for Enterprise Linux 7.'
+      enabled: 1
+      gpgcheck: 0
+    - file: lustre7.repo
+      id: lustre7
+      name: 'Lustre client Long Term Support (LTS) releases for Enterprise Linux 7.'
       baseurl: https://downloads.whamcloud.com/public/lustre/latest-2.12-release/el7/client/
-      gpgcheck: 'false'
-      gpgkey: ''
-    - name: e2fsprogs7  # Dependency for Lustre project quota.
-      description: 'Ext filesystem utility releases for Enterprise Linux 7.'
+      enabled: 1
+      gpgcheck: 0
+    - file: e2fsprogs7.repo
+      id: e2fsprogs7  # Dependency for Lustre project quota.
+      name: 'Ext filesystem utility releases for Enterprise Linux 7.'
       baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
-      gpgcheck: 'false'
-      gpgkey: ''
-    - name: ltb7
-      description: 'LTB (LDAP Tool Box) project OpenLDAP packages for Enterprise Linux 7.'
+      enabled: 1
+      gpgcheck: 0
+    - file: ltb.repo
+      id: ltb7
+      name: 'LTB (LDAP Tool Box) project OpenLDAP packages for Enterprise Linux 7.'
       baseurl: https://ltb-project.org/rpm/openldap25/7/x86_64/
-      gpgcheck: 'false'
-      gpgkey: ''
-    - name: rsyslog7
-      description: 'Rsyslog (Adiscon CentOS7 for x86_64)'
+      enabled: 1
+      gpgcheck: 0
+    - file: rsyslog7.repo
+      id: rsyslog7
+      name: 'Rsyslog (Adiscon CentOS7 for x86_64)'
       baseurl: http://rpms.adiscon.com/v8-stable/epel-7/x86_64/
-      gpgcheck: 'false'
-      gpgkey: ''
+      enabled: 1
+      gpgcheck: 0
+  rocky9:
+    - file: rocky.repo
+      id: baseos
+      enabled: 1
+      gpgcheck: 1
+    - file: rocky.repo
+      id: baseos-debug
+      enabled: 0
+    - file: rocky.repo
+      id: baseos-source
+      enabled: 0
+    - file: rocky.repo
+      id: appstream
+      enabled: 1
+      gpgcheck: 1
+    - file: rocky.repo
+      id: appstream-debug
+      enabled: 0
+    - file: rocky.repo
+      id: appstream-source
+      enabled: 0
+    - file: rocky.repo
+      id: crb
+      enabled: 1
+      gpgcheck: 1
+    - file: rocky.repo
+      id: crb-debug
+      enabled: 0
+    - file: rocky.repo
+      id: crb-source
+      enabled: 0
+    #
+    # Rocky Addons
+    #
+    - file: rocky-addons.repo
+      id: highavailability
+      enabled: 0
+    - file: rocky-addons.repo
+      id: highavailability-debug
+      enabled: 0
+    - file: rocky-addons.repo
+      id: highavailability-source
+      enabled: 0
+    - file: rocky-addons.repo
+      id: resilientstorage
+      enabled: 0
+    - file: rocky-addons.repo
+      id: resilientstorage-debug
+      enabled: 0
+    - file: rocky-addons.repo
+      id: resilientstorage-source
+      enabled: 0
+    - file: rocky-addons.repo
+      id: nfv
+      enabled: 0
+    - file: rocky-addons.repo
+      id: nfv-debug
+      enabled: 0
+    - file: rocky-addons.repo
+      id: nfv-source
+      enabled: 0
+    - file: rocky-addons.repo
+      id: rt
+      enabled: 0
+    - file: rocky-addons.repo
+      id: rt-debug
+      enabled: 0
+    - file: rocky-addons.repo
+      id: rt-source
+      enabled: 0
+    - file: rocky-addons.repo
+      id: sap
+      enabled: 0
+    - file: rocky-addons.repo
+      id: sap-debug
+      enabled: 0
+    - file: rocky-addons.repo
+      id: sap-source
+      enabled: 0
+    - file: rocky-addons.repo
+      id: saphana
+      enabled: 0
+    - file: rocky-addons.repo
+      id: saphana-debug
+      enabled: 0
+    - file: rocky-addons.repo
+      id: saphana-source
+      enabled: 0
+    #
+    # Rocky Devel
+    #
+    - file: rocky-devel.repo
+      id: devel
+      enabled: 0
+    - file: rocky-devel.repo
+      id: devel-debug
+      enabled: 0
+    - file: rocky-devel.repo
+      id: devel-source
+      enabled: 0
+    #
+    # Rocky Extras
+    #
+    - file: rocky-extras.repo
+      id: extras
+      enabled: 1
+      gpgcheck: 1
+    - file: rocky-extras.repo
+      id: extras-debug
+      enabled: 0
+    - file: rocky-extras.repo
+      id: extras-source
+      enabled: 0
+    - file: rocky-extras.repo
+      id: plus
+      enabled: 0
+    - file: rocky-extras.repo
+      id: plus-debug
+      enabled: 0
+    - file: rocky-extras.repo
+      id: plus-source
+      enabled: 0
+
+#
+#    - id: epel7
+#      name: 'Extra Packages for Enterprise Linux 7 (EPEL).'
+#      baseurl: https://download.fedoraproject.org/pub/epel/7/x86_64/
+#      gpgcheck: 'true'
+#      gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7' # comes preinstalled with epel-release
+#    - id: irods7
+#      name: 'RENCI iRODS Repository for Enterprise Linux 7.'
+#      baseurl: https://packages.irods.org/yum/pool/centos7/x86_64/
+#      gpgcheck: 'false'
+#      gpgkey: ''
+#    - id: lustre7
+#      name: 'Lustre client Long Term Support (LTS) releases for Enterprise Linux 7.'
+#      baseurl: https://downloads.whamcloud.com/public/lustre/latest-2.12-release/el7/client/
+#      gpgcheck: 'false'
+#      gpgkey: ''
+#    - id: e2fsprogs7  # Dependency for Lustre project quota.
+#      name: 'Ext filesystem utility releases for Enterprise Linux 7.'
+#      baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
+#      gpgcheck: 'false'
+#      gpgkey: ''
+#    - id: ltb7
+#      name: 'LTB (LDAP Tool Box) project OpenLDAP packages for Enterprise Linux 7.'
+#      baseurl: https://ltb-project.org/rpm/openldap25/7/x86_64/
+#      gpgcheck: 'false'
+#      gpgkey: ''
+#    - id: rsyslog7
+#      name: 'Rsyslog (Adiscon CentOS7 for x86_64)'
+#      baseurl: http://rpms.adiscon.com/v8-stable/epel-7/x86_64/
+#      gpgcheck: 'false'
+#      gpgkey: ''
+
+
 
 # Iptables additional configurations 
 iptables_extras_dir: '/etc/iptables_extras.d/'
