@@ -12,7 +12,7 @@
   ansible.builtin.yum:
     name: "{{ yum_local_dependencies[distro] }}"
   vars:
-    distro: "{{ 'RedHat' + ansible_facts['distribution_major_version'] }}"
+    distro: "{{ ansible_facts['os_family'] + ansible_facts['distribution_major_version'] }}"
   become: true
 
 - name: Deploy configuration .repo file into /etc/yum.repos.d/
