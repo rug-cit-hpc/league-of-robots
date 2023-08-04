@@ -7,6 +7,9 @@
     create: true
     option: "{{ item }}"
     value: "{{ yum_repo[item] }}"
+    owner: root
+    group: root
+    mode: '0644'
   when: yum_repo[item] is defined
   loop_control:
     label: "{{ item }}={{ yum_repo[item] | default('undefined') }}"
@@ -29,6 +32,9 @@
     create: true
     option: gpgkey
     value: "file://{{ yum_repos_gpgkeys_dir }}/{{ yum_repo['gpgkeysource'] | basename }}"
+    owner: root
+    group: root
+    mode: '0644'
   when: yum_repo['gpgkeysource'] is defined
   become: true
 ...

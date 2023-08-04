@@ -10,22 +10,22 @@
     excludes: 'local_yum.repo'
   register: yum_repos_find_result
 
-#- name: "Remove {{ yum_repos_repo_config_dir }}/*.repo files that do not match repos configured for this host."
-#  ansible.builtin.file:
-#    path: "{{ item }}"
-#    state: absent
-#  loop_control:
-#    label: "{{ item | basename }}"
-#  loop: "{{ yum_repos_find_result.files | map(attribute='path') | list }}"
-#  when: item | basename not in yum_repos[os_distribution] | map(attribute='file') | list
-#  become: true
+- name: "Remove {{ yum_repos_repo_config_dir }}/*.repo files that do not match repos configured for this host."
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop_control:
+    label: "{{ item | basename }}"
+  loop: "{{ yum_repos_find_result.files | map(attribute='path') | list }}"
+  when: item | basename not in yum_repos[os_distribution] | map(attribute='file') | list
+  become: true
 
 - name: Fetch GPG repo keys.
   ansible.builtin.get_url:
     url: "{{ item['gpgkeysource'] }}"
     dest: "{{ yum_repos_gpgkeys_dir }}/{{ item['gpgkeysource'] | basename }}"
-    owner: 'root'
-    group: 'root'
+    owner: root
+    group: root
     mode: '0644'
   loop_control:
     label: "{{ yum_repos_gpgkeys_dir }}/{{ item['gpgkeysource'] | basename }} for {{ item['id'] }}"
