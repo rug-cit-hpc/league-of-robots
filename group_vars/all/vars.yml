@@ -167,7 +167,7 @@ yum_repos:
       baseurl: https://download.fedoraproject.org/pub/epel/7/x86_64/
       enabled: 1
       gpgcheck: 1
-      gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7' # comes preinstalled with epel-release
+      gpgkeysource: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7'
     - file: irods7.repo
       id: irods7
       name: 'RENCI iRODS Repository for Enterprise Linux 7.'
@@ -186,7 +186,7 @@ yum_repos:
       baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
       enabled: 1
       gpgcheck: 0
-    - file: ltb.repo
+    - file: ltb7.repo
       id: ltb7
       name: 'LTB (LDAP Tool Box) project OpenLDAP packages for Enterprise Linux 7.'
       baseurl: https://ltb-project.org/rpm/openldap25/7/x86_64/
@@ -320,41 +320,76 @@ yum_repos:
     - file: rocky-extras.repo
       id: plus-source
       enabled: 0
-
+    #
+    # EPEL
+    #
+    - file: epel.repo
+      id: epel
+      name: 'Extra Packages for Enterprise Linux 9 - $basearch'
+      metalink: 'https://mirrors.fedoraproject.org/metalink?repo=epel-9&arch=$basearch&infra=$infra&content=$contentdir'
+      enabled: 1
+      gpgcheck: 1
+      gpgkeysource: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9'
+    - file: epel.repo
+      id: epel-debuginfo
+      name: 'Extra Packages for Enterprise Linux 9 - $basearch - Debug'
+      metalink: 'https://mirrors.fedoraproject.org/metalink?repo=epel-debug-9&arch=$basearch&infra=$infra&content=$contentdir'
+      enabled: 0
+      gpgcheck: 1
+      gpgkeysource: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9'
+    - file: epel.repo
+      id: epel-source
+      name: 'Extra Packages for Enterprise Linux 9 - $basearch - Source'
+      metalink: 'https://mirrors.fedoraproject.org/metalink?repo=epel-source-9&arch=$basearch&infra=$infra&content=$contentdir'
+      enabled: 0
+      gpgcheck: 1
+      gpgkeysource: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9'
+    #
+    # EPEL Testing
+    #
+    - file: epel-testing.repo
+      id: epel-testing
+      name: 'Extra Packages for Enterprise Linux $releasever - Testing - $basearch'
+      metalink: 'https://mirrors.fedoraproject.org/metalink?repo=testing-epel-9&arch=$basearch&infra=$infra&content=$contentdir'
+      enabled: 0
+      gpgcheck: 1
+      gpgkeysource: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9'
+    - file: epel-testing.repo
+      id: epel-testing-debuginfo
+      name: 'Extra Packages for Enterprise Linux $releasever - Testing - $basearch - Debug'
+      metalink: 'https://mirrors.fedoraproject.org/metalink?repo=testing-debug-epel-9&arch=$basearch&infra=$infra&content=$contentdir'
+      enabled: 0
+      gpgcheck: 1
+      gpgkeysource: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9'
+    - file: epel-testing.repo
+      id: epel-testing-source
+      name: 'Extra Packages for Enterprise Linux $releasever - Testing - $basearch - Source'
+      metalink: 'https://mirrors.fedoraproject.org/metalink?repo=testing-source-epel-9&arch=$basearch&infra=$infra&content=$contentdir'
+      enabled: 0
+      gpgcheck: 1
+      gpgkeysource: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9'
+    #
+    # LTB
+    #
+    - file: ltb.repo
+      id: ltb
+      name: 'LTB (LDAP Tool Box) project OpenLDAP packages for Enterprise Linux 9.'
+      baseurl: 'https://ltb-project.org/rpm/openldap25/9/$basearch'
+      enabled: 1
+      gpgcheck: 1
+      gpgkeysource: 'https://ltb-project.org/documentation/_static/RPM-GPG-KEY-LTB-project'
+    #
+    # rsyslog
+    #
+    - file: rsyslog.repo
+      id: rsyslog-v8-stable
+      name: 'rsyslog v8 (from Adiscon) for EPEL 9.'
+      baseurl: 'https://rpms.adiscon.com/v8-stable/epel-9/$basearch'
+      enabled: 1
+      gpgcheck: 1
+      gpgkeysource: 'https://rpms.adiscon.com/RPM-GPG-KEY-Adiscon'
 #
-#    - id: epel7
-#      name: 'Extra Packages for Enterprise Linux 7 (EPEL).'
-#      baseurl: https://download.fedoraproject.org/pub/epel/7/x86_64/
-#      gpgcheck: 'true'
-#      gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7' # comes preinstalled with epel-release
-#    - id: irods7
-#      name: 'RENCI iRODS Repository for Enterprise Linux 7.'
-#      baseurl: https://packages.irods.org/yum/pool/centos7/x86_64/
-#      gpgcheck: 'false'
-#      gpgkey: ''
-#    - id: lustre7
-#      name: 'Lustre client Long Term Support (LTS) releases for Enterprise Linux 7.'
-#      baseurl: https://downloads.whamcloud.com/public/lustre/latest-2.12-release/el7/client/
-#      gpgcheck: 'false'
-#      gpgkey: ''
-#    - id: e2fsprogs7  # Dependency for Lustre project quota.
-#      name: 'Ext filesystem utility releases for Enterprise Linux 7.'
-#      baseurl: https://downloads.whamcloud.com/public/e2fsprogs/latest/el7/
-#      gpgcheck: 'false'
-#      gpgkey: ''
-#    - id: ltb7
-#      name: 'LTB (LDAP Tool Box) project OpenLDAP packages for Enterprise Linux 7.'
-#      baseurl: https://ltb-project.org/rpm/openldap25/7/x86_64/
-#      gpgcheck: 'false'
-#      gpgkey: ''
-#    - id: rsyslog7
-#      name: 'Rsyslog (Adiscon CentOS7 for x86_64)'
-#      baseurl: http://rpms.adiscon.com/v8-stable/epel-7/x86_64/
-#      gpgcheck: 'false'
-#      gpgkey: ''
-
-
-
 # Iptables additional configurations 
+#
 iptables_extras_dir: '/etc/iptables_extras.d/'
 ...
