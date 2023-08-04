@@ -15,7 +15,6 @@
     - logrotate
     - remove
     - update
-    - epel
     - logins
     - role: ldap
       when:
