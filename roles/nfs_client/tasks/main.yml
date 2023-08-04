@@ -1,6 +1,6 @@
 ---
 - name: Install NFS utils.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name: nfs-utils
   when: pfs_mounts | selectattr('type', 'search', 'nfs') | list | length >= 1
   become: true

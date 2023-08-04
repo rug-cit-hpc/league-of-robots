@@ -62,7 +62,7 @@
   notify: irodsctl_restart
 
 - name: Install additional packages in order to work with remote database (>=4.3.0)
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name:
       - unixODBC-devel
       - python3-devel

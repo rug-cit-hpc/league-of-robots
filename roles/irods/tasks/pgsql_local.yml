@@ -1,12 +1,12 @@
 ---
 - name: Installing postgresql-server
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name: postgresql-server
     state: latest
   become: true
 
 - name: Installing python-psycopg2
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name: python-psycopg2
     state: latest
   become: true

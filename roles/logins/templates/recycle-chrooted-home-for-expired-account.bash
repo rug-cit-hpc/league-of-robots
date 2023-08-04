@@ -15,23 +15,10 @@ if [[ "${BASH_VERSINFO[0]}" -lt 4 ]]; then
 fi
 
 #
-# The LDAP connection details can be fetched from the ldap_config_file,
-# but there is no easy way to get the specifics of the LDAP schema from the ldap_config_file :(
+# The LDAP connection details can be fetched from the readonly-ldapsearch-credentials.bash,
+# which is deployed by the sssd Ansible role from the league-of-robots repo.
 #
-declare ldap_config_file='/etc/ssh/ldap.conf'
-#
-# For eDirectory.
-#
-declare ldap_user_object_class='person'
-#
-# For OpenLDAP.
-#
-#declare ldap_user_object_class='inetOrgPerson'
-#
-# Generic.
-#
-declare ldap_user_expiration_attr='loginexpirationtime'
-declare ldap_user_expiration_regex='^'"${ldap_user_expiration_attr}"': ([0-9]{4})([0-9]{2})([0-9]{2}).+Z$'
+declare ldap_config_file='/etc/openldap/readonly-ldapsearch-credentials.bash'
 declare backup_retention_time='45' # unit = days.
 declare recycle_latency_time='7'   # unit = days.
 declare chroot_base_dir='/groups/{{ data_transfer_only_group }}/'
@@ -60,25 +47,32 @@ function _Usage() {
 
 #
 # Given a username, return expiration date of the account.
+# We'll search all LDAP servers in the order listed.
 #
 function _GetLoginExpirationTime() {
 	local _user="${1}"
 	local _login_expiration_time='9999-99-99'
-	local _query_result
-	local _line
-	_query_result=$(ldapsearch -LLL -o ldif-wrap=no \
-			-H "${LDAP_HOST}" \
-			-D "${LDAP_USER}" \
-			-w "${LDAP_PASS}" \
-			-b "${LDAP_SEARCH_BASE}" \
-			"(&(ObjectClass=${ldap_user_object_class})(cn:dn:=${_user}))" \
-			"${ldap_user_expiration_attr}"
-		)
-	while read -r _line; do
-		if [[ "${_line}" =~ ${ldap_user_expiration_regex} ]]; then
-			_login_expiration_time="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}-${BASH_REMATCH[3]}"
-		fi
-	done < <(printf '%s\n' "${_query_result}")
+	local _ldap_domain
+	for _ldap_domain in "${domain_names[@]}"; do
+		local _query_result
+		local _line
+		local _ldap_user_expiration_regex="${domain_configs[${_ldap_domain}'_user_expiration_regex']}"
+		_query_result=$(ldapsearch -LLL -o ldif-wrap=no \
+				-H "${domain_configs[${_ldap_domain}'_uri']}" \
+				-D "${domain_configs[${_ldap_domain}'_bind_dn']}" \
+				-w "${domain_configs[${_ldap_domain}'_bind_pw']}" \
+				-b "${domain_configs[${_ldap_domain}'_search_base']}" \
+				"(&(ObjectClass=${domain_configs[${_ldap_domain}'_user_object_class']})(cn:dn:=${_user}))" \
+				"${domain_configs[${_ldap_domain}'_user_expiration_date']}"
+			)
+		while read -r _line; do
+			if [[ "${_line}" =~ ${_ldap_user_expiration_regex} ]]; then
+				_login_expiration_time="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}-${BASH_REMATCH[3]}"
+				printf '%s' "${_login_expiration_time}"
+				return
+			fi
+		done < <(printf '%s\n' "${_query_result}")
+	done
 	printf '%s' "${_login_expiration_time}"
 }
 
@@ -141,7 +135,7 @@ function _DeleteOutdatedBackups() {
 	_regex='.backup_([0-9]{4})-([0-9]{2})-([0-9]{2})T.+$'
 	
 	IFS=' ' read -ra _backups <<< "$(find "${chroot_base_dir}" -mindepth 1 -maxdepth 1 -type d | grep backup | grep -o '[^/]*$' | sort | tr '\n' ' ')"
-	for _backup in "${_backups[@]}"; do
+	for _backup in "${_backups[@]:-}"; do
 		if [[ "${_backup}" =~ ${_regex} ]]; then
 			_backup_date="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"
 			local _current_date_in_seconds
@@ -219,10 +213,13 @@ fi
 #
 # Parse LDAP config file.
 #
-LDAP_HOST="$(awk '$1 == "uri" {print $2}' "${ldap_config_file}")"
-LDAP_USER="$(awk '$1 == "binddn" {print $2}' "${ldap_config_file}")"
-LDAP_PASS="$(awk '$1 == "bindpw" {print $2}' "${ldap_config_file}")"
-LDAP_SEARCH_BASE="$(awk '$1 == "base" {print $2}' "${ldap_config_file}")"
+if [[ -e  "${ldap_config_file}" && -r "${ldap_config_file}" ]]; then
+	# shellcheck source=/dev/null
+	source "${ldap_config_file}"
+else
+	logger "FATAL: Config file ${ldap_config_file} missing or not readable."
+	exit 1
+fi
 
 #
 # Compile list of chrooted home dirs and process them.

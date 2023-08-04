@@ -45,7 +45,7 @@
   become: true
 
 - name: Remove RHN/SpaceWalk if it was installed.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: absent
     name:
       - rhn-client-tools

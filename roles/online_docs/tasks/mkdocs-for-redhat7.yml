@@ -1,6 +1,6 @@
 ---
 - name: 'Install Python 3 for CentOS 7.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'latest'
     update_cache: true
     name:

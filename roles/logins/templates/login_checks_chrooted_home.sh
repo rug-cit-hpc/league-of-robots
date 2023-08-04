@@ -23,21 +23,21 @@ LOGGER='logger --tag login_checks'
 # In the second case, cmd cannot be a number and the timeout will be 10 seconds.
 #
 run_with_timeout () {
-	local time=10
-	if [[ $1 =~ ^[0-9]+$ ]]; then time=$1; shift; fi
+	local _time=10
+	if [[ "${1}" =~ ^[0-9]+$ ]]; then _time="${1}"; shift; fi
 	#
 	# Run in a subshell to avoid job control messages.
 	#
-	( "$@" &
-		child=$!
+	( "${@}" &
+		local _child="${!}"
 		#
 		# Avoid default notification in non-interactive shell for SIGTERM.
 		#
 		trap -- "" SIGTERM
-		( sleep $time
-			kill $child 2> /dev/null
+		( sleep "${_time}"
+			kill "${_child}" 2> /dev/null
 		) &
-		wait $child
+		wait "${_child}"
 	)
 }
 
@@ -68,7 +68,7 @@ login_actions () {
 ##
 #
 
-if [ "${PAM_USER}" != 'root' ]; then
+if [[ "${PAM_USER}" != 'root' ]]; then
 	run_with_timeout 10 login_actions
 fi
 

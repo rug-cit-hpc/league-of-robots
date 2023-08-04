@@ -14,7 +14,7 @@
   become: true
 
 - name: 'Install EPEL repo.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: latest
     update_cache: true
     name:
@@ -22,7 +22,7 @@
   become: true
 
 - name: 'Install apache webserver.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: latest
     update_cache: true
     name:
@@ -35,7 +35,7 @@
   become: true
 
 - name: 'Install extra RPMs.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: latest
     update_cache: true
     name:
@@ -80,7 +80,7 @@
   become: true
 
 - name: 'Install Jenkins.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name: jenkins
     state: "{{ jenkins_package_state }}"
     update_cache: true

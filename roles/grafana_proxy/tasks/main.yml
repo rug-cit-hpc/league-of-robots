@@ -1,6 +1,6 @@
 ---
 - name: Install nginx.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name: nginx
     state: latest
     update_cache: true

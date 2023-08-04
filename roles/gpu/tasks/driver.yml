@@ -15,7 +15,7 @@
   become: true
 
 - name: Install yum requirements for gpu driver installation
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'installed'
     update_cache: true
     name:

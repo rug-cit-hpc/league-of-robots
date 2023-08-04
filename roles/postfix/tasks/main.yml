@@ -1,6 +1,6 @@
 ---
 - name: Install postfix.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name:
       - postfix
     state: latest

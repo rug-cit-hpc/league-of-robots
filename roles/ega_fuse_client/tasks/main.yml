@@ -1,6 +1,6 @@
 ---
 - name: Install EGA Fuse client and its dependencies.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: latest
     name:
       - fuse

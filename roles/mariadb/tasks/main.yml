@@ -1,7 +1,7 @@
 # Install  MariaDB.
 ---
 - name: 'Install mariadb-server.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name:
       - 'mariadb-server'
     state: 'latest'
@@ -68,7 +68,7 @@
   register: root_pwd_check
 
 - name: 'Install dependencies to interface with MariaDB/MySQL databases/services.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name:
       - 'MySQL-python'
     state: 'latest'
