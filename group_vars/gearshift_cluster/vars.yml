@@ -584,7 +584,7 @@ lfs_mounts:
       - name: umcg-vdakker
       - name: umcg-weersma
       - name: umcg-wijmenga
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
   - lfs: prm01
     pfs: umcgst10
     groups:
@@ -748,11 +748,11 @@ lfs_mounts:
       - name: umcg-vdakker
       - name: umcg-weersma
       - name: umcg-wijmenga
-    ro_machines: "{{ groups['compute_vm'] }}"
+    ro_machines: "{{ groups['compute_node'] }}"
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env01
     pfs: umcgst10
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ega_fuse_client_mounts:
   cineca: '/groups/umcg-cineca/prm02/ega-fuse-client'

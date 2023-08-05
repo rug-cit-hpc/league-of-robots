@@ -1,0 +1,46 @@
+---
+- name: "Enable powertools repo (dependency for EPEL 8.x)"
+  ansible.builtin.shell:
+    cmd: dnf repolist powertools && dnf config-manager --set-enabled powertools
+  register: epel_dnf_result_powertools
+  changed_when: "'disabled' in epel_dnf_result_powertools.stdout"
+  become: true
+
+- name: Install EPEL repo.
+  ansible.builtin.package:
+    state: latest
+    update_cache: true
+    name: epel-release
+  become: true
+
+#
+# EPEL does not have URLs for major.minor versions.
+#
+- name: 'Patch broken metalink in /etc/yum.repos.d/epel.repo file and replace $releasever with major version number only.'
+  ansible.builtin.replace:
+    path: /etc/yum.repos.d/epel.repo
+    regexp: '\$releasever'
+    replace: '8'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+    backup: true
+  become: true
+
+- name: Check the status of EPEL repo.
+  ansible.builtin.shell:
+    cmd: dnf repolist epel
+  register: epel_dnf_result_epel_before
+  changed_when: false
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "8"
+  become: true
+- name: Enable EPEL repo if disabled
+  ansible.builtin.shell:
+    cmd: dnf config-manager --set-enabled epel && dnf repolist epel
+  register: epel_dnf_result_epel
+  changed_when: 'disabled' in epel_dnf_result_epel_before.stdout" and 'enabled' in epel_dnf_result_epel.stdout"
+  when:
+   - ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "8"
+   - 'disabled' in epel_dnf_result_epel_before.stdout"
+  become: true
+...

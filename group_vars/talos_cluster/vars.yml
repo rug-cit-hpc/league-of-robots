@@ -231,7 +231,7 @@ lfs_mounts:
       - name: umcg-lifelines
         mode: '2750'
       - name: umcg-sysops
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
   - lfs: rsc08
     pfs: umcgst11
     groups:
@@ -239,7 +239,7 @@ lfs_mounts:
       - name: umcg-gsad  
       - name: umcg-lifelines
       - name: umcg-sysops
-    ro_machines: "{{ groups['compute_vm'] }}"
+    ro_machines: "{{ groups['compute_node'] }}"
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: prm08
     pfs: umcgst11
@@ -254,7 +254,7 @@ lfs_mounts:
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env08
     pfs: umcgst11
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ega_fuse_client_mounts:
   cineca: '/groups/umcg-cineca/prm08/ega-fuse-client'

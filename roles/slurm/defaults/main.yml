@@ -25,29 +25,29 @@ slurm_local_scratch_dir: '/local'
 #  * number of vcompute nodes in inventory and
 #  * cores per node, mem per node, etc. as specified in group_vars for cluster.
 #
-slurm_cluster_cores_total: "{{ groups['compute_vm']
+slurm_cluster_cores_total: "{{ groups['compute_node']
     | map('extract', hostvars, 'slurm_max_cpus_per_node')
     | map('int')
     | sum }}"
-slurm_cluster_mem_total: "{{ groups['compute_vm']
+slurm_cluster_mem_total: "{{ groups['compute_node']
     | map('extract', hostvars, 'slurm_max_mem_per_node')
     | map('int')
     | sum }}"
-slurm_cluster_gpus_total: "{{ groups['compute_vm']
+slurm_cluster_gpus_total: "{{ groups['compute_node']
     | map('extract', hostvars, 'gpu_count')
     | select('defined')
     | default([0], true)
     | map('int')
     | sum }}"
-slurm_total_cores_of_smallest_node: "{{ groups['compute_vm']
+slurm_total_cores_of_smallest_node: "{{ groups['compute_node']
     | map('extract', hostvars, 'slurm_max_cpus_per_node')
     | map('int')
     | min }}"
-slurm_total_mem_of_smallest_node: "{{ groups['compute_vm']
+slurm_total_mem_of_smallest_node: "{{ groups['compute_node']
     | map('extract', hostvars, 'slurm_max_mem_per_node')
     | map('int')
     | min }}"
-slurm_total_gpus_of_smallest_node: "{{ groups['compute_vm']
+slurm_total_gpus_of_smallest_node: "{{ groups['compute_node']
     | map('extract', hostvars, 'gpu_count')
     | select('defined')
     | default([0], true)

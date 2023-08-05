@@ -1,7 +1,7 @@
 ---
 - name: GPU installation role
   hosts:
-    - compute_vm
+    - compute_node
   roles:
     - gpu
 ...

@@ -218,7 +218,7 @@
     group: 'root'
     mode: '0755'
     state: 'directory'
-  when: inventory_hostname in groups['compute_vm'] | default([]) or
+  when: inventory_hostname in groups['compute_node'] | default([]) or
         inventory_hostname in groups['user_interface'] | default([]) or
         inventory_hostname in groups['deploy_admin_interface'] | default([]) or
         inventory_hostname in groups['chaperone'] | default([])
@@ -235,7 +235,7 @@
     - "{{ lfs_mounts | selectattr('lfs', 'search', '((tmp)|(rsc)|(prm)|(dat))[0-9]+$')
           | map(attribute='groups') | list | flatten
           | map(attribute='name') | list | unique }}"
-  when: inventory_hostname in groups['compute_vm'] | default([]) or
+  when: inventory_hostname in groups['compute_node'] | default([]) or
         inventory_hostname in groups['user_interface'] | default([]) or
         inventory_hostname in groups['deploy_admin_interface'] | default([]) or
         inventory_hostname in groups['chaperone'] | default([])
@@ -366,7 +366,7 @@
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
   when:
     - inventory_hostname in item.rw_machines | default ([])
-    - inventory_hostname in groups['compute_vm'] | default([]) or
+    - inventory_hostname in groups['compute_node'] | default([]) or
       inventory_hostname in groups['user_interface'] | default([])
   become: true
 
@@ -382,7 +382,7 @@
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
   when:
     - inventory_hostname in item.ro_machines | default ([])
-    - inventory_hostname in groups['compute_vm'] | default([]) or
+    - inventory_hostname in groups['compute_node'] | default([]) or
       inventory_hostname in groups['user_interface'] | default([])
   become: true
 

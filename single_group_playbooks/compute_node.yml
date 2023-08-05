@@ -9,7 +9,7 @@
 
 - name: '###==-> Extra roles for compute nodes. <-==###'
   hosts:
-    - compute_vm
+    - compute_node
   roles:
     - mount_volume
     - slurm

@@ -504,7 +504,7 @@ Local scratch disks on compute nodes have a lot less capacity than large shared 
 but feature lower latency as the data does not have to travel over network to a compute node.
 This makes local scratch space the preferred type of storage for workloads that result in random IO patterns.
 
-{% if groups['compute_vm'] | map('extract', hostvars, 'slurm_local_disk') | map('int') | sum > 0 %}
+{% if groups['compute_node'] | map('extract', hostvars, 'slurm_local_disk') | map('int') | sum > 0 %}
 
 If you want to use local disk space on a node instead of or in addition to the shared storage,
 you need to request local disk space either on the commandline when submitting your job like this:
@@ -626,10 +626,10 @@ echo '==========================================================================
 touch ${SLURM_SUBMIT_DIR}/checkENV-${SLURMD_NODENAME}-${SLURM_JOB_USER}-${SLURM_JOB_ID}.finished
 ```
 
-To submit this script to a specific node like for example _{{ groups['compute_vm'] | first }}_ and with QoS _priority_ for quick debugging:
+To submit this script to a specific node like for example _{{ groups['compute_node'] | first }}_ and with QoS _priority_ for quick debugging:
 
 ```
-sbatch --nodelist={{ groups['compute_vm'] | first }} --qos=priority CheckEnvironment.sh
+sbatch --nodelist={{ groups['compute_node'] | first }} --qos=priority CheckEnvironment.sh
 ```
 
 This script can be supplemented with for example ```ls``` and ```df``` commands to see if certain paths exist, what their permissions are and which filesystems are mounted. 

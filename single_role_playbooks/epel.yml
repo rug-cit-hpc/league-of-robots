@@ -1,0 +1,11 @@
+---
+- hosts:
+    - build_servers
+    - data_transfer
+    - docs
+    - jumphost
+    - logs
+    - repo
+  roles:
+    - role: epel
+...

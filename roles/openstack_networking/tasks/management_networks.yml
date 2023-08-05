@@ -49,7 +49,7 @@
   #  * This hack is based on the router name and will fail if the router name was changed.
   #  * Due to this hack the router will not get updated if it already exists and would need an uppdate.
   #
-  when: api_routers_info['openstack_routers']
+  when: api_router_info['routers']
         | rejectattr('name', 'undefined')
         | selectattr('name', 'equalto', 'Router bridging ' + router_network + ' and ' + network_name)
         | length < 1

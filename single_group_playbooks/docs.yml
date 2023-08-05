@@ -9,10 +9,10 @@
     - admin_users
     - ssh_host_signer
     - iptables
+    - yum_repos
     - logrotate
     - remove
     - update
-    - {role: geerlingguy.repo-epel, become: true}
     - sshd
     - basic_security
     - online_docs
