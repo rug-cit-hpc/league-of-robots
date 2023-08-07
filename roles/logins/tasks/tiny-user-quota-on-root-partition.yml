@@ -61,7 +61,7 @@
   become: true
 
 #
-# This depends on a correctly configured pam-script PAM plugin.
+# This depends on a correctly configured pam-exec PAM plugin.
 #
 - name: 'Install set_quota.sh script.'
   ansible.builtin.copy:

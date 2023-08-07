@@ -125,42 +125,15 @@
     - restart_oddjobd
   become: true
 
-- name: 'Create custom /etc/pam.d/password-auth-local to include pam_exec.so.'
-  ansible.builtin.template:
-    src: password-auth-local
-    dest: /etc/pam.d/password-auth-local
-    owner: root
-    group: root
-    mode: '0600'
-  become: true
+- name: 'Update PAM stack with authconfig.'
+  ansible.builtin.import_tasks: authconfig.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] <= "7"
 
-#
-# This patches old/outdated setups where pam_script.so was added to password-auth-ac.
-# The authconfig utility does not support pam_script.so and when it is used in other roles
-# to update password-auth-ac, custom settings like including pam_script.so will get lost.
-#
-- name: 'Remove pam_script.so from /etc/pam.d/password-auth-ac.'
-  ansible.builtin.lineinfile:
-    path: /etc/pam.d/password-auth-ac
-    state: absent
-    regexp: 'pam_script.so'
-  become: true
-
-- name: 'Enable custom /etc/pam.d/password-auth-local.'
-  ansible.builtin.file:  # noqa risky-file-permissions
-    src: /etc/pam.d/password-auth-local
-    dest: /etc/pam.d/password-auth
-    owner: root
-    group: root
-    state: link
-  become: true
-
-- name: 'Check if we need to update authconfig.'
-  ansible.builtin.command:
-    cmd: /usr/sbin/authconfig --test
-  register: authconfig_test
-  changed_when: ('pam_oddjob_mkhomedir is disabled' in authconfig_test.stdout)
-  notify:
-    - authconfig_enable_mkhomedir
-    - restart_oddjobd
+- name: 'Update PAM stack with authselect.'
+  ansible.builtin.import_tasks: authselect.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
 ...
