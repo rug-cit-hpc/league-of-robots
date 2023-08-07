@@ -1,0 +1,4 @@
+---
+yum_repos_repo_config_dir: '/etc/yum.repos.d/'
+yum_repos_gpgkeys_dir: '/etc/pki/rpm-gpg/'
+...

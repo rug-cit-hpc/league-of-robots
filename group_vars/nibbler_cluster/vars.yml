@@ -716,7 +716,7 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-wijmenga
         mode: '2750'
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
 #  - lfs: prm02
 #    pfs: umcgst01
 #    quota_type: 'project'
@@ -729,6 +729,6 @@ lfs_mounts:
   - lfs: env02
     pfs: umcgst04/slice2
     quota_type: 'project'
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ...

@@ -41,11 +41,16 @@
     mode: '0755'
     state: directory
   become: true
-- name: Install policycoreutils-python package to be used at admin home dir SE-labeling
+- name: "Install policycoreutils python package for admin home dir SE-labeling."
   ansible.builtin.yum:
     state: latest
     update_cache: true
-    name: 'policycoreutils-python'
+    name: >-
+      policycoreutils-python
+      {%- if ansible_facts['distribution_major_version'] >= '8' -%}
+        -utils
+      {%- endif -%}
+  when: ansible_facts['os_family'] == "RedHat"
   become: true
 - name: Make sure home dirs for admin users are correctly labelled for SELinux.
   community.general.sefcontext:

@@ -1,11 +1,11 @@
 ---
 - name: Create a local yum repository.
   ansible.builtin.include_tasks:
-    file: lyr.yml
+    file: yum_local_create.yml
   when: local_yum_repository | bool is true
 
 - name: Remove a local yum repository.
   ansible.builtin.include_tasks:
-    file: lyr_remove.yml
+    file: yum_local_remove.yml
   when: local_yum_repository | bool is false
 ...

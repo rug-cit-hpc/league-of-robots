@@ -115,22 +115,35 @@ cd ${HOME}/git/
 git clone https://github.com/rug-cit-hpc/league-of-robots.git
 cd league-of-robots
 #
+# For older openstacksdk < 0.99 we need the ansible openstack collection 1.x.
+# For newer openstacksdk > 1.00 we need the ansible openstack collection 2.x.
+#
+openstacksdk_major_version='1'  # Change to 0 for older OpenStack SDK.
+#
 # Create Python virtual environment (once)
 #
-python3 -m venv openstacksdk.venv
+python3 -m venv openstacksdk-${openstacksdk_major_version:-1}.venv
 #
 # Activate virtual environment.
 #
-source openstacksdk.venv/bin/activate
+source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
 #
 # Install OpenStack SDK (once) and other python packages.
 #
 pip3 install --upgrade pip
 pip3 install wheel
-pip3 install 'openstacksdk<0.99'
+if [[ "${openstacksdk_major_version:-1}" -eq 0 ]]; then
+  pip3 install "openstacksdk<0.99"
+else
+  pip3 install "openstacksdk==${openstacksdk_major_version:-1}.*"
+fi
+pip3 install openstackclient
 pip3 install ruamel.yaml
 pip3 install netaddr
-pip3 install dnspython  # Required for Ansible lookup plugin community.general.dig
+#
+# Package dnspython is required for Ansible lookup plugin community.general.dig
+#
+pip3 install dnspython
 #
 # On macOS only to prevent this error:
 # crypt.crypt not supported on Mac OS X/Darwin, install passlib python module.
@@ -141,7 +154,9 @@ pip3 install passlib
 # You may skip this step if you already installed Ansible by other means.
 # E.g. with HomeBrew on macOS, with yum or dnf on Linux, etc.
 #
-pip3 install ansible
+# Ansible core 2.13 from Ansible 6.x is latest version compatible with Mitogen.
+#
+pip3 install 'ansible<7'
 #
 # Optional: install Mitogen with pip.
 # Mitogen provides an optional strategy plugin that makes playbooks a lot (up to 7 times!) faster.
@@ -150,13 +165,18 @@ pip3 install ansible
 pip3 install mitogen
 ```
 
-#### 1. First import the required roles and collections for the playbooks:
+#### 1. Import the required roles and collections for the playbooks.
 
 ```bash
-ansible-galaxy install -r requirements.yml
+source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
+export ANSIBLE_ROLES_PATH="${VIRTUAL_ENV}/ansible/ansible_roles/:"
+export ANSIBLE_COLLECTIONS_PATHS="${VIRTUAL_ENV}/ansible/:"
+ansible-galaxy install -r requirements-${openstacksdk_major_version:-1}.yml
 ```
 
-Note: the default location where these dependencies will get installed with the above command is ```${HOME}/.ansible/```.
+Note: the default location where these dependencies will get installed with the ```ansible-galaxy install``` command is ```${HOME}/.ansible/```,
+which is may conflict with versions of roles and collections required for other repos.
+Therefore we set ```ANSIBLE_ROLES_PATH``` and ```ANSIBLE_COLLECTIONS_PATH``` to use a custom path for the dependencies inside the virtual environment we'll use for this repo.
 
 #### 2. Create a `vault_pass.txt`.
 
@@ -190,7 +210,7 @@ To create a new *stack* you will need ```group_vars``` and a static inventory fo
   #
   # Activate Python virtual env created in step 0.
   #
-  source openstacksdk.venv/bin/activate
+  source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
   #
   # Configure this repo for a specific cluster.
   # This will set required ENVIRONMENT variables including
@@ -384,7 +404,7 @@ These shorter subset _playbooks_ can save a lot of time during development, test
   #
   # Activate Python virtual env created in step 0.
   #
-  source openstacksdk.venv/bin/activate
+  source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
   #
   # Initialize the OpenstackSDK
   #
@@ -468,9 +488,13 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
 * Deploy the signed hosts keys.
 * Configure other stuff on the jumphost, which contains amongst others the settings required to access the other machines behind the jumphost.
   ```bash
+  #
+  # CentOS 7.x default_cloud_image_user = centos
+  # Rocky 9.x default_cloud_image_user = cloud-user
+  #
   export ANSIBLE_HOST_KEY_CHECKING=False
-  ansible-playbook -u centos          -l 'jumphost' single_role_playbooks/admin_users.yml
-  ansible-playbook -u [admin_account] -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
+  ansible-playbook -u [default_cloud_image_user] -l 'jumphost' single_role_playbooks/admin_users.yml
+  ansible-playbook -u [admin_account]            -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
   export ANSIBLE_HOST_KEY_CHECKING=True
   ansible-playbook -u [admin_account] -l 'jumphost' cluster.yml
   ```
@@ -478,14 +502,18 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
   For creation of the local admin accounts you must (temporarily) set ```JUMPHOST_USER``` for the jumphost to _your local admin account_,
   because the ```centos``` user will no longer be able to login to the jumphost.
   ```bash
+  #
+  # CentOS 7.x default_cloud_image_user = centos
+  # Rocky 9.x default_cloud_image_user = cloud-user
+  #
   export ANSIBLE_HOST_KEY_CHECKING=False
   export JUMPHOST_USER=[admin_account] # Requires SSH client config as per end user documentation: see above.
-  ansible-playbook -u centos          -l 'repo,cluster'      single_role_playbooks/admin_users.yml
-  ansible-playbook -u root            -l 'docs'              single_role_playbooks/admin_users.yml
+  ansible-playbook -u [default_cloud_image_user] -l 'repo,cluster'      single_role_playbooks/admin_users.yml
+  ansible-playbook -u root                       -l 'docs'              single_role_playbooks/admin_users.yml
   unset JUMPHOST_USER
-  ansible-playbook -u [admin_account] -l 'repo,cluster,docs' single_role_playbooks/ssh_host_signer.yml
+  ansible-playbook -u [admin_account]            -l 'repo,cluster,docs' single_role_playbooks/ssh_host_signer.yml
   export ANSIBLE_HOST_KEY_CHECKING=True
-  ansible-playbook -u [admin_account] -l 'repo,cluster,docs' cluster.yml
+  ansible-playbook -u [admin_account]            -l 'repo,cluster,docs' cluster.yml
   ```
 * (Re-)deploying only a specific role - e.g. *rsyslog_client* - on the previously deployed test cluster *Talos*
   ```bash

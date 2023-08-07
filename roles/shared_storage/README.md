@@ -81,7 +81,7 @@ lfs_mounts: [
     machines: "{{ groups['cluster'] }}" },
   { lfs: 'env08',
     pfs: 'isilon11',
-    machines: "{{ groups['compute_vm'] + groups['user_interface'] }}" },
+    machines: "{{ groups['compute_node'] + groups['user_interface'] }}" },
   { lfs: 'tmp08',
     pfs: 'isilon11',
     groups: [
