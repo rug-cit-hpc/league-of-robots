@@ -26,7 +26,7 @@
   tags:
     - test
 
-- name: Sleep for 15 seconds for logs to propagate to server
+- name: Sleep for 30 seconds for logs to propagate to server
   ansible.builtin.wait_for:
     timeout: 30
   tags:
