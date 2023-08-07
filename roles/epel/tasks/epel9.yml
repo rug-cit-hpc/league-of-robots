@@ -27,10 +27,21 @@
     backup: true
   become: true
 
+- name: Check the status of EPEL repo.
+  ansible.builtin.shell:
+    cmd: dnf repolist epel
+  register: epel_dnf_result_epel_before
+  changed_when: false
+  become: true
+
 - name: Enable EPEL repo.
   ansible.builtin.shell:
-    cmd: dnf repolist epel && dnf config-manager --set-enabled epel
+    cmd: dnf config-manager --set-enabled epel && dnf repolist epel
   register: epel_dnf_result_epel
-  changed_when: "'disabled' in epel_dnf_result_epel.stdout"
+  changed_when:
+    - "'disabled' in epel_dnf_result_epel_before.stdout"
+    - "'enabled' in epel_dnf_result_epel.stdout"
+  when:
+   - "'disabled' in epel_dnf_result_epel_before.stdout"
   become: true
 ...

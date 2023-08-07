@@ -32,15 +32,16 @@
     cmd: dnf repolist epel
   register: epel_dnf_result_epel_before
   changed_when: false
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "8"
   become: true
-- name: Enable EPEL repo if disabled
+
+- name: Enable EPEL repo.
   ansible.builtin.shell:
     cmd: dnf config-manager --set-enabled epel && dnf repolist epel
   register: epel_dnf_result_epel
-  changed_when: 'disabled' in epel_dnf_result_epel_before.stdout" and 'enabled' in epel_dnf_result_epel.stdout"
+  changed_when:
+    - "'disabled' in epel_dnf_result_epel_before.stdout"
+    - "'enabled' in epel_dnf_result_epel.stdout"
   when:
-   - ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "8"
-   - 'disabled' in epel_dnf_result_epel_before.stdout"
+   - "'disabled' in epel_dnf_result_epel_before.stdout"
   become: true
 ...
