@@ -32,8 +32,9 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
-create_ldap: yes
-use_sssd: yes
+use_ldap: true
+create_ldap: true
+use_sssd: true
 ldap_domains:
   stack:
     uri: ldaps://mv-dai

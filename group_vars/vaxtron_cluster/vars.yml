@@ -80,9 +80,9 @@ additional_etc_hosts:
     nodes:
       - name: earl4
         network: vlan16
-use_ldap: yes
-create_ldap: no
-use_sssd: yes
+use_ldap: true
+create_ldap: false
+use_sssd: true
 ldap_domains:
   sram:
     uri: ldaps://sv-sram.id.rug.nl
