@@ -23,7 +23,6 @@ all:
           host_networks:
             - name: EJP-RD-network
               security_group: "{{ stack_prefix }}_cluster"
-          local_volume_size_extra: 1
     deploy_admin_interface:
       hosts:
         mv-dai:
@@ -47,7 +46,7 @@ all:
           slurm_ethernet_interfaces:
             - eth0
             - eth1
-    compute_vm:
+    compute_node:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
@@ -76,7 +75,7 @@ administration:
     ldap_server:
 cluster:
   children:
-    compute_vm:
+    compute_node:
     administration:
 marvin_cluster:
   children:

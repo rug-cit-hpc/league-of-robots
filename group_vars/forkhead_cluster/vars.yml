@@ -15,6 +15,7 @@ slurm_partitions:
     features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.25G"'
 repo_manager: 'none'
+os_distribution: 'centos7'
 figlet_font: 'ogre'
 motd: |
       =========================================================
@@ -262,7 +263,7 @@ lfs_mounts:
       - name: umcg-lab
         mode: '2750'
       - name: umcg-vipt
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
   - lfs: prm05
     pfs: 'medgen_zincfinger$'
     groups:
@@ -325,7 +326,7 @@ lfs_mounts:
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env12
     pfs: pssd
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 smb_server_users:
   - name: sbsuser

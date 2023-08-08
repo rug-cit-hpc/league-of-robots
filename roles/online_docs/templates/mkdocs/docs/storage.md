@@ -47,136 +47,9 @@ Please consult the info below and make sure you know what to store where!
    A four year PhD project is not a single experiment! Split your work in batches / experiments that can be completed in a reasonable amount of time: weeks rather than months.
    Completed means the results were QC-ed and documented, the data that needs to be kept for the long term was migrated to _prm_ storage and the rest was deleted from _tmp_ to make room for new batches / experiments.
 
-## Centrally installed software
+## Software
 
-We deploy software with [EasyBuild](https://github.com/easybuilders/easybuild) in a central place on a Deploy Admin Interface (DAI) server. 
-From there the software is synced to various storage devices that are mounted read-only on User Interface (UI) servers and compute nodes. 
-Do not use hard-coded paths to software in your scripts: these will vary per cluster node and may change without notice in case we need to switch from one _tmp_ storage system to another due to (un)scheduled downtime. 
-Instead use the [Lua based module system \(Lmod\)](https://github.com/TACC/Lmod) to transparently load software in your environment on any of the cluster components / servers.
-
-* To get a list of available apps:
-
-        module avail
-
-* To load an app in your environment if you don't care about the version:
-
-        module load ModuleName
-
-* To load a specific version of an app:
-
-        module load ModuleName/ModuleVersion
-
-* To see which modules are currently active in your environment
-
-        module list
-
-    * Note that some modules may have dependencies on others.  
-      In that case the dependencies are automatically loaded.  
-      Hence ```module list``` may report more loaded modules than you loaded explicitly with ```module load```.
-    * Suggested good practice: always use ```module list``` after ```module load``` in your scripts and write the output to a log file.
-      This ensures you can always trace back which versions of which software and their dependencies were used.
-
-* If you need multiple conflicting versions of apps for different parts of your analysis you can also remove a module and load another version:
-
-        module load ModuleName/SomeVersion
-        module list
-        [analyse some data...]
-        module unload ModuleName
-        module load ModuleName/AnotherVersion
-        module list
-        [analyse more data...]
-
-#### Example for the Genome Analysis Toolkit (GATK).
-
-* List available [Genome Analysis Toolkit \(GATK\)](http://www.broadinstitute.org/gatk/) versions:
-
-        module avail GATK
-        ----------------------------------- /apps/modules/bio -----------------------------------
-        GATK/3.3-0-Java-1.7.0_80    GATK/3.4-0-Java-1.7.0_80    GATK/3.4-46-Java-1.7.0_80 (D)
-
-* To select version 3.4-46-Java-1.7.0_80 and check what got loaded:
-
-        module load GATK/3.4-46-Java-1.7.0_80
-        module list
-
-   which returns:
-
-        To execute GATK run: java -jar ${EBROOTGATK}/GenomeAnalysisTK.jar
-        
-        Currently Loaded Modules:
-          1) GCC/4.8.4                                                  13) libpng/1.6.17-goolf-1.7.20
-          2) numactl/2.0.10-GCC-4.8.4                                   14) NASM/2.11.06-goolf-1.7.20
-          3) hwloc/1.10.1-GCC-4.8.4                                     15) libjpeg-turbo/1.4.0-goolf-1.7.20
-          4) OpenMPI/1.8.4-GCC-4.8.4                                    16) bzip2/1.0.6-goolf-1.7.20
-          5) OpenBLAS/0.2.13-GCC-4.8.4-LAPACK-3.5.0                     17) freetype/2.6-goolf-1.7.20
-          6) gompi/1.7.20                                               18) pixman/0.32.6-goolf-1.7.20
-          7) FFTW/3.3.4-gompi-1.7.20                                    19) fontconfig/2.11.94-goolf-1.7.20
-          8) ScaLAPACK/2.0.2-gompi-1.7.20-OpenBLAS-0.2.13-LAPACK-3.5.0  20) expat/2.1.0-goolf-1.7.20
-          9) goolf/1.7.20                                               21) cairo/1.14.2-goolf-1.7.20
-         10) libreadline/6.3-goolf-1.7.20                               22) Java/1.8.0_45
-         11) ncurses/5.9-goolf-1.7.20                                   23) R/3.2.1-goolf-1.7.20
-         12) zlib/1.2.8-goolf-1.7.20                                    24) GATK/3.4-46-Java-1.7.0_80
-
-  The GATK was written in Java and therefore the Java dependency was loaded automatically. 
-  R was also loaded as some parts of the GATK use R for creating plots/graphs. 
-  R itself was compiled from scratch and has a large list of dependencies of its own ranging from compilers like the GCC to graphics libs like libpng.  
-  Java and R have binaries, which can be executed without specifying the path to where they are locate on the system, 
-  because the module system has added the directories, where they are located, to the ```${PATH}``` environment variable, which is used as search path for binaries.  
-  
-  If the GATK was a binary you could now simply call it without specifying the path to it, 
-  but as the GATK is a Java ```*.jar``` we need to call the java binary and specify the path to the GATK ```*.jar```.
-  To make sure we don't need an absolute path to the GATK ```*.jar``` hard-coded in our jobs/scripts, 
-  the GATK module created an environment variable named ```${EBROOTGATK}```, 
-  so we can resolve the path to the GATK transparently even if it varies per server.  
-  
-  The EB stands for [EasyBuild](https://github.com/easybuilders/easybuild), which we use to deploy software. 
-  EasyBuild creates environment variables pointing to the root of where the software was installed for each module according to the scheme 
-  EB + ROOT + [NAMEOFSOFTWAREPACKAGEINCAPITALS]. Hence for myFavoriteApp it would be ```${EBROOTMYFAVORITEAPP}```.  
-  
-* Let's see what's installed in ```${EBROOTGATK}```:  
-
-        ls -hl "${EBROOTGATK}"
-        
-        drwxrwsr-x 2 deployadmin depad 4.0K Aug  5 15:59 easybuild
-        -rw-rw-r-- 1 deployadmin depad  13M Jul  9 23:41 GenomeAnalysisTK.jar
-        drwxrwsr-x 2 deployadmin depad 4.0K Aug  5 15:58 resources
-
-* Hence we can now execute the GATK and verify we loaded the correct version like this:
-
-        java -jar "${EBROOTGATK}/GenomeAnalysisTK.jar" --version
-        
-        3.4-46-gbc02625
-
-  Note that we did not have to specify a hard-coded path to java nor to the GATK ```*.jar``` file. 
-
-### Missing software
-
-If the software you need is not yet available, please use the following procedure:
-
-  1. First try to install the software on a UI in a ```/groups/${group}/tmp*/...``` folder (without EasyBuild).
-  2. Test the software and evaluate if it is useful to do a proper reproducible deployment.  
-     If yes, continue and otherwise cleanup.
-  3. Depending on time involved in a project:
-      * If you work on the cluster for < 6 months (interns, master student projects, etc.) we don't expect you to learn how to use EasyBuild.  
-        Ask your supervisor first; if he/she is not part of the deploy admins group, you can [send a request to the helpdesk via email](../contact/).
-      * If you work on the cluster for > 6 months it's time to learn how to create an EasyConfig for EasyBuild.  
-        See instructions below:
-        
-#### Create your own personal EasyBuild environment and become member of the deploy admins group
-
- * You can use these steps on a UI to 
-   [create your own personal EasyBuild environment](https://gist.github.com/mmterpstra/d11ec81bf78c169ab6be5911df384496)
-   to deploy software with EasyBuild on a UI in a ```/groups/${group}/tmp*/...``` folder.  
-   Please visit [this page](https://easybuild.readthedocs.io/en/latest/Writing_easyconfig_files.html) to learn how to make an EasyConfig file.
- * Fork our [easybuild-easyconfigs repo on GitHub](https://github.com/molgenis/easybuild-easyconfigs) and create pull request with your newly created EasyConfig(s).
- * If you are not a member of the deploy admins group yet: request membership by [sending an email to the helpdesk](../contact/).  
-   Include in your email:
-     * a link to the pull request.
-     * the path to the module file created at the end of the deployment with EasyBuild in your own personal EasyBuild environment.
-   If the EasyConfig is sane and the software was deployed properly, you've passed the test and will be added to the deploy admins group.
- * If you already are a member of the deploy admins group: login on a DAI server and deploy with EasyBuild in /apps/...
-
-Note: unless you really need a newer version of the ```foss``` toolchain, we suggest you use the same version as for other software already deployed in the cluster.
+See the [Software](../software/) section for both centrally installed software as well as for options to install software in a custom environment.
 
 ## Centrally deployed reference data
 
@@ -310,7 +183,7 @@ The report will show 11 columns:
 | Path | Function | (Soft) Quota | (Hard) Limit | Backup | Cleanup | Mounted on UIs | Mounted on DAIs | Mounted on compute nodes |
 |:---- |:-------- | ----------:| ----------:|:------:|:-------:|:--------------:|:---------------:|:------------------------:|
 {% for mount in lfs_mounts | selectattr('lfs', 'match', '^home$') | list %}
-| ```/{{ mount.lfs }}``` | Home dirs from shared file system for personal settings/preferences. | 1 GB | 2 GB | Yes | No | Yes | Yes | Yes |
+| ```/{{ mount.lfs }}``` | Home dirs from shared file system for personal settings/preferences. | 1 GB | 2 GB | No | No | Yes | Yes | Yes |
 {% endfor %}
 {% for mount in lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | list %}
 | ```/groups/${group}/{{ mount.lfs }}``` | High Availability shared storage system for permanent data. | Several TBs; varies per group |  quota + ~10%| Yes | No | Yes | No | No |

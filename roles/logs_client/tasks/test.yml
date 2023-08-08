@@ -1,26 +1,36 @@
 ---
 - name: Force all services to restart, before we start testing logs clients
   ansible.builtin.meta: flush_handlers
+  tags:
+    - test
 
 - name: Generate random 12-character HEX token
   ansible.builtin.set_fact:
     random_tag: "{{ lookup('community.general.random_string', length=12, override_all=hex_chars) }}"
   vars:
     hex_chars: '0123456789ABCDEF'
+  tags:
+    - test
 
 - name: Print the token
   ansible.builtin.debug:
     msg: "Value for {{ inventory_hostname }} is {{ random_tag }}"
+  tags:
+    - test
 
 - name: Create random log event on the client side with token as a tag
   ansible.builtin.command:
     logger -t "{{ random_tag }}" Rsyslog remote test
   register: rsyslog_remote_test
   changed_when: false
+  tags:
+    - test
 
-- name: Sleep for 15 seconds for logs to propagate to server
+- name: Sleep for 30 seconds for logs to propagate to server
   ansible.builtin.wait_for:
     timeout: 30
+  tags:
+    - test
 
 - name: Check that remote server has token logged
   ansible.builtin.command:
@@ -31,4 +41,6 @@
   delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
   loop: "{{ rsyslogs_ext_ips }}"
   become: true
+  tags:
+    - test
 ...

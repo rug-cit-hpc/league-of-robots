@@ -24,6 +24,7 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
+os_distribution: 'centos7'
 figlet_font: 'slant'
 motd: "To solve or not to solve, that's the question."
 additional_etc_hosts:
@@ -80,6 +81,7 @@ local_admin_users:
   - 'marloes'
   - 'morris'
   - 'pieter'
+  - 'roan'
   - 'sandi'
   - 'wim'
 envsync_user: 'envsync'
@@ -285,6 +287,26 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'atopf'
     groups: ['users', 'solve-rd']
+  - user: 'ejung'
+    groups: ['users', 'solve-rd']
+  - user: 'jbaptist'
+    groups: ['users', 'solve-rd']
+  - user: 'mdabad'
+    groups: ['users', 'solve-rd']
+  - user: 'mbarrero'
+    groups: ['users', 'solve-rd']
+  - user: 'jkegele'
+    groups: ['users', 'solve-rd']
+  - user: 'mschlotterbek'
+    groups: ['users', 'solve-rd']
+  - user: 'jpark'
+    groups: ['users', 'solve-rd']
+  - user: 'izaharieva'
+    groups: ['users', 'solve-rd']
+  - user: 'kpolavarapu'
+    groups: ['users', 'solve-rd']
+  - user: 'izaganas'
+    groups: ['users', 'solve-rd']
 sudoers:
   - who: ['%solve-rd']
     become: 'solve-rd-dm'
@@ -317,7 +339,7 @@ lfs_mounts:
     groups:
       - name: umcg-atd
       - name: solve-rd
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
   - lfs: prm10
     pfs: ecst02
     groups:
@@ -326,7 +348,7 @@ lfs_mounts:
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env10
     pfs: ecst02
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ega_fuse_client_mounts:
   solve_rd: '/groups/solve-rd/prm10/ega-fuse-client'

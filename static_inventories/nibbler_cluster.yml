@@ -13,7 +13,7 @@ all:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_jumphosts"
               assign_floating_ip: true
-          security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
+          basic_security_ssh_challenge_response_auth: 'yes' # Required for MFS in sshd_config.
           local_yum_repository: true
     repo:
       hosts:
@@ -104,7 +104,7 @@ all:
     sys_admin_interface:
       hosts:
         nb-sai:
-          cloud_flavor: m1.small
+          cloud_flavor: m1.medium
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
@@ -112,7 +112,6 @@ all:
               security_group: "{{ stack_prefix }}_storage"
             - name: vlan1068
               security_group: "{{ stack_prefix }}_storage"
-          local_volume_size_extra: 1
     deploy_admin_interface:
       hosts:
         nb-dai:
@@ -145,11 +144,11 @@ all:
             - eth0
             - eth1
             - eth2
-    compute_vm:
+    compute_node:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            nb-vcompute[01:03]:
+            nb-node-a[01:03]:
           vars:
             cloud_flavor: htc-node
             host_networks:
@@ -173,7 +172,7 @@ all:
               - eth2
         gpu_a40:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            nb-vcompute[04:05]:
+            nb-node-b[01:02]:
           vars:
             cloud_flavor: gpu.A40_8
             gpu_count: 8
@@ -204,7 +203,7 @@ administration:
     user_interface:
 cluster:
   children:
-    compute_vm:
+    compute_node:
     administration:
     irods:
 nibbler_cluster:

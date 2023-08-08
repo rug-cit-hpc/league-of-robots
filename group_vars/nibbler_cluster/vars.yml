@@ -7,7 +7,7 @@ slurm_version: '22.05.2-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
-    nodes: "{{ stack_prefix }}-vcompute[01-03]"  # Must be in sync with Ansible hostnames listed in inventory.
+    nodes: "{{ stack_prefix }}-node-a[01-03]"  # Must be in sync with Ansible hostnames listed in inventory.
     max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
     max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
     max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
@@ -16,7 +16,7 @@ slurm_partitions:
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
   - name: gpu_a40  # Must be in sync with group listed in Ansible inventory.
     default: no
-    nodes: "{{ stack_prefix }}-vcompute[04-05]"  # Must be in sync with Ansible hostnames listed in inventory.
+    nodes: "{{ stack_prefix }}-node-b[01-02]"  # Must be in sync with Ansible hostnames listed in inventory.
     max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['gpu_a40']|list|length }}{% else %}1{% endif %}"
     max_cores_per_node: "{{ groups['gpu_a40'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
     max_mem_per_node: "{{ groups['gpu_a40'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
@@ -50,6 +50,7 @@ slurm_qos_limit_fractions:
   interactive-short:
     user: 0.5
 repo_manager: 'pulp'
+os_distribution: 'centos7'
 figlet_font: 'ogre'
 motd: |
       ===============================================================
@@ -239,7 +240,6 @@ regular_groups:
   - 'umcg-micompany'
   - 'umcg-msb'
   - 'umcg-nawijn'
-  - 'umcg-oncogenetics'
   - 'umcg-pmb'
   - 'umcg-pub'
   - 'umcg-radicon'
@@ -333,8 +333,6 @@ regular_users:
     groups: ['umcg-msb']
   - user: 'umcg-nawijn-dm'
     groups: ['umcg-nawijn']
-  - user: 'umcg-oncogenetics-dm'
-    groups: ['umcg-oncogenetics']
   - user: 'umcg-pmb-dm'
     groups: ['umcg-pmb']
   - user: 'umcg-pub-dm'
@@ -519,10 +517,6 @@ sudoers:
   - who: ['%umcg-nawijn-dms']
     become: 'umcg-nawijn-dm'
     name: 'umcg-nawijn-dm'
-    command: 'ALL'  
-  - who: ['%umcg-oncogenetics']
-    become: 'umcg-oncogenetics-dm'
-    name: 'umcg-oncogenetics-dm'
     command: 'ALL'
   - who: ['%umcg-pmb-dms']
     become: 'umcg-pmb-dm'
@@ -598,7 +592,7 @@ volume_group_folders: [
         'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
-        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb', 'umcg-oncogenetics',
+        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb',
         'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
         'umcg-ugli', 'umcg-verbeek', 'umcg-vdakker', 'umcg-visclasataxia', 'umcg-weersma', 'umcg-wijmenga'
       ]},
@@ -607,10 +601,10 @@ volume_group_folders: [
 # Shared storage related variables
 #
 lustre_client_networks:
-   - name: tcp20
-     interface: eth2
+  - name: tcp20
+    interface: eth2
 pfs_mounts:
-  - pfs: umcgst04
+  - pfs: umcgst04/slice2
     source: '172.23.60.161@tcp20:172.23.60.162@tcp20:/'
     type: lustre
     rw_options: 'defaults,_netdev,flock'
@@ -618,11 +612,11 @@ pfs_mounts:
     machines: "{{ groups['sys_admin_interface'] }}"
 lfs_mounts:
   - lfs: home
-    pfs: umcgst04
+    pfs: umcgst04/slice2
     quota_type: 'project'
     rw_machines: "{{ groups['cluster'] }}"
   - lfs: tmp02
-    pfs: umcgst04
+    pfs: umcgst04/slice2
     quota_type: 'project'
     quota_pid_increment: 0  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
@@ -694,8 +688,6 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-nawijn
         mode: '2750'
-      - name: umcg-oncogenetics
-        mode: '2750'
       - name: umcg-pmb
         mode: '2750'
       - name: umcg-pub
@@ -724,7 +716,7 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-wijmenga
         mode: '2750'
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
 #  - lfs: prm02
 #    pfs: umcgst01
 #    quota_type: 'project'
@@ -735,8 +727,8 @@ lfs_mounts:
 #      - name: umcg-franke-scrna
 #    rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env02
-    pfs: umcgst04
+    pfs: umcgst04/slice2
     quota_type: 'project'
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ...

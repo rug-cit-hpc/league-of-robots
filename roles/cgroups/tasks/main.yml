@@ -8,5 +8,5 @@
     # Exclude Slurm-in-a-box machines, which are both user_interface and compute node at the same time,
     # because otherwise configuring cgroups with this role may interfere with the cgroups configured by Slurm.
     #
-    - inventory_hostname not in groups['compute_vm'] | default([])
+    - inventory_hostname not in groups['compute_node'] | default([])
 ...

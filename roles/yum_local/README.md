@@ -74,7 +74,7 @@ In case needed: cleanup needs to be done manually.
 
  - Recommended (if `yumdownloader` program is available), download package to
    local folder
-       # yumdownloader --destdir={{ lyr_dir_path }} vim
+       # yumdownloader --destdir={{ yum_local_repo_dir }} vim
 
  - Alternatively use - for already installed packages
 

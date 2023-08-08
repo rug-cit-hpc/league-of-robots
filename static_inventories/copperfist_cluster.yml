@@ -13,7 +13,7 @@ all:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_jumphosts"
               assign_floating_ip: true
-          security_ssh_challenge_response_auth: 'yes' # geerlingguy.security fix sshd_config 2FA
+          basic_security_ssh_challenge_response_auth: 'yes' # Required for MFS in sshd_config.
           iptables_allow_icmp_inbound:
             - "{{ all.ip_addresses['umcg']['net1'] }}"
             - "{{ all.ip_addresses['umcg']['net2'] }}"
@@ -127,7 +127,7 @@ all:
           slurm_ethernet_interfaces:
             - em1
             - em3
-    compute_vm:
+    compute_node:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
@@ -176,7 +176,7 @@ administration:
     user_interface:
 cluster:
   children:
-    compute_vm:
+    compute_node:
     administration:
 copperfist_cluster:
   children:

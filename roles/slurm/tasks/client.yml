@@ -135,8 +135,8 @@
   become: true
 
 - name: 'Deploy slurm prolog/epilog scripts.'
-  ansible.builtin.copy:
-    src: "files/{{ item }}"
+  ansible.builtin.template:
+    src: "templates/{{ item }}"
     dest: '/etc/slurm/'
     owner: 'root'
     group: 'root'
@@ -187,7 +187,7 @@
     group: 'root'
     mode: '0644'
   when: (inventory_hostname in groups['user_interface']) or
-        (inventory_hostname in groups['compute_vm'])
+        (inventory_hostname in groups['compute_node'])
   become: true
 
 - name: 'Install logrotate config file for slurmd.'

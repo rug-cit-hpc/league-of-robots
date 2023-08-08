@@ -7,7 +7,7 @@ slurm_version: '22.05.2-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
-    nodes: "{{ stack_prefix }}-vcompute[01-02]"  # Must be in sync with Ansible hostnames listed in inventory.
+    nodes: "{{ stack_prefix }}-node-a[01-02]"  # Must be in sync with Ansible hostnames listed in inventory.
     max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
     max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
     max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
@@ -41,6 +41,7 @@ slurm_qos_limit_fractions:
   interactive-short:
     user: 0.5
 repo_manager: 'pulp'
+os_distribution: 'centos7'
 figlet_font: 'ogre'
 motd: |
       =========================================================
@@ -97,13 +98,12 @@ external_jumphosts:
 #
 # Remote logging settings - for diagnostics servers
 #
-# Prepared, but commented out for now
-# logs_ca_name: 'diagnostics'
-# stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
-#    - name: 'earl3'
-#      external_network: 'logs_external_network'
-#    - name: 'earl4'
-#      external_network: 'vlan16' # to retrieve public IP from
+logs_ca_name: 'diagnostics'
+stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
+   - name: 'earl3'
+     external_network: 'logs_external_network'
+   - name: 'earl4'
+     external_network: 'vlan16' # to retrieve public IP from
 #
 # Ldap settings
 #
@@ -158,6 +158,7 @@ ldap_domains:
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
+    listserv_mailinglist: GD
     create_ldap: false
 totp:
   machines: "{{ groups['jumphost'] }}"
@@ -187,6 +188,15 @@ stack_networks:
       - '192.168.1.0/25'
     type: storage
     external: true
+  - name: vlan1068
+    cidr: '172.23.60.0/24'
+    allow_ingress:
+      - 172.23.60.161/32  # Lustre server
+      - 172.23.60.162/32  # Lustre server
+      - 172.23.60.163/32  # Lustre server
+      - 172.23.60.164/32  # Lustre server
+    type: storage
+    external: false
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
@@ -407,6 +417,9 @@ volume_group_folders: [
 #
 # Shared storage related variables
 #
+lustre_client_networks:
+  - name: tcp20
+    interface: vlan1068
 pfs_mounts:
   - pfs: umcgst12
     device: /dev/vdb
@@ -415,36 +428,54 @@ pfs_mounts:
     rw_options: 'defaults,_netdev,noatime,nodiratime,local_lock=flock'
     ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
+  - pfs: umcgst04/slice1
+    source: '172.23.60.161@tcp20:172.23.60.162@tcp20:/'
+    type: lustre
+    rw_options: 'defaults,_netdev,flock'
+    ro_options: 'defaults,_netdev,ro'
+    machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: 'medgen_zincfinger$'
     source: '//storage3.umcg.nl'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
   - pfs: 'medgen_leucinezipper$'
     source: '//storage3.umcg.nl'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
   - pfs: 'medgen_wingedhelix$'
     source: '//storage3.umcg.nl'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
   - pfs: 'GCC'
     source: '//storage1.umcg.nl/algemenedata$/appdata/AdLas'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02770,file_mode=0660'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02770,file_mode=0660'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
+    machines: "{{ groups['chaperone'] }}"
+  - pfs: 'validatie-TruSightOncology-500'
+    source: '//storage3.umcg.nl/path2$/archief/MolecDiagn'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
+    machines: "{{ groups['chaperone'] }}"
+  - pfs: 'NGSdata'
+    source: '//storage1.umcg.nl/algemenedata$/appdata/BijzondereHematologie/'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home
     pfs: umcgst12
     rw_machines: "{{ groups['cluster'] }}"
   - lfs: tmp07
-    pfs: umcgst12
+    pfs: umcgst04/slice1
     groups:
       - name: umcg-atd
       - name: umcg-gap
@@ -454,8 +485,10 @@ lfs_mounts:
       - name: umcg-gst
       - name: umcg-lab
         mode: '2750'
+      - name: umcg-labgnkbh
+      - name: umcg-patho
       - name: umcg-vipt
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
   - lfs: prm05
     pfs: 'medgen_zincfinger$'
     groups:
@@ -516,9 +549,69 @@ lfs_mounts:
       - name: umcg-gst
       - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm35
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat35
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm36
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat36
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm37
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat37
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm45
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat45
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm46
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat46
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm47
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat47
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env07
     pfs: umcgst12
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 smb_server_users:
   - name: sbsuser
@@ -535,34 +628,34 @@ smb_server_interfaces: 192.168.1.0/24  # in addition to 127.0.0.1, which must al
 smb_server_shares:
   - name: ngs
     comment: Share for sequencers
-    path: /mnt/umcgst12/groups/umcg-lab/tmp07/sequencers
+    path: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07/sequencers
     users: sbsuser
-    file_mode: 0640
-    dir_mode: 0750
-    base: /mnt/umcgst12/groups/umcg-lab/tmp07  # This will not be created by the smb_server role and must already exist.
+    file_mode: '0640'
+    dir_mode: '0750'
+    base: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07  # This will not be created by the smb_server role and must already exist.
     subtree:  # This will be created if it does not already exist.
       - path: sequencers
         owner: sbsuser
         group: umcg-lab
-        mode: 2750
+        mode: '2750'
   - name: array
     comment: Share for array scanners
-    path: /mnt/umcgst12/groups/umcg-gap/tmp07/rawdata/array/IDAT
+    path: /mnt/umcgst04_slice1/groups/umcg-gap/tmp07/rawdata/array/IDAT
     users: illumina
-    file_mode: 0660
-    dir_mode: 0770
-    base: /mnt/umcgst12/groups/umcg-gap/tmp07  # This will not be created by the smb_server role and must already exist.
+    file_mode: '0660'
+    dir_mode: '0770'
+    base: /mnt/umcgst04_slice1/groups/umcg-gap/tmp07  # This will not be created by the smb_server role and must already exist.
     subtree:  # This will be created if it does not already exist.
       - path: rawdata
         owner: umcg-gap-ateambot
         group: umcg-gap
-        mode: 2770
+        mode: '2770'
       - path: rawdata/array
         owner: umcg-gap-ateambot
         group: umcg-gap
-        mode: 2770
+        mode: '2770'
       - path: rawdata/array/IDAT
         owner: illumina
         group: umcg-gap
-        mode: 2770
+        mode: '2770'
 ...

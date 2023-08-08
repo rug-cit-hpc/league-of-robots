@@ -2,29 +2,49 @@
 - name: Flush handlers.
   ansible.builtin.meta: flush_handlers
 
-- name: Find all *.repo files in /etc/yum.repos.d/.
+- name: "Find all *.repo files in {{ yum_repos_repo_config_dir }}."
   ansible.builtin.find:
-    paths: '/etc/yum.repos.d/'
+    paths: "{{ yum_repos_repo_config_dir }}"
     use_regex: false
     patterns: '*.repo'
     excludes: 'local_yum.repo'
-  register: yum_existing_repos
+  register: yum_repos_find_result
 
-- name: Remove *.repo files from /etc/yum.repos.d/ that do not correspond to our repos.
+- name: "Remove {{ yum_repos_repo_config_dir }}/*.repo files that do not match repos configured for this host."
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
-  with_items: "{{ yum_existing_repos.files | map(attribute='path') | list }}"
-  when: item | basename | regex_replace('.repo$','') not in yum_repos | map(attribute='name') | list
+  loop_control:
+    label: "{{ item | basename }}"
+  loop: "{{ yum_repos_find_result.files | map(attribute='path') | list }}"
+  when: item | basename not in yum_repos[os_distribution] | map(attribute='file') | list
   become: true
 
-- name: Add custom yum repos.
-  ansible.builtin.yum_repository:
-    name: "{{ item.name }}"
-    description: "{{ item.description }}"
-    baseurl: "{{ item.baseurl }}"
-    gpgcheck: "{{ item.gpgcheck }}"
-    gpgkey: "{{ item.gpgkey }}"
-  with_list: "{{ yum_repos }}"
+- name: Fetch GPG repo keys.
+  ansible.builtin.get_url:
+    url: "{{ item['gpgkeysource'] }}"
+    dest: "{{ yum_repos_gpgkeys_dir }}/{{ item['gpgkeysource'] | basename }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop_control:
+    label: "{{ yum_repos_gpgkeys_dir }}/{{ item['gpgkeysource'] | basename }} for {{ item['id'] }}"
+  loop: "{{ yum_repos[os_distribution] | selectattr('gpgkeysource', 'defined') | flatten(levels=1) }}"
   become: true
+
+- name: Import fetched GPG repo keys.
+  ansible.builtin.rpm_key:
+    state: present
+    key: "{{ yum_repos_gpgkeys_dir }}/{{ item['gpgkeysource'] | basename }}"
+  loop_control:
+    label: "{{ yum_repos_gpgkeys_dir }}/{{ item['gpgkeysource'] | basename }} for {{ item['id'] }}"
+  loop: "{{ yum_repos[os_distribution] | selectattr('gpgkeysource', 'defined') | flatten(levels=1) }}"
+  become: true
+
+- name: "Configure {{ yum_repos_repo_config_dir }}/*.repo files."
+  ansible.builtin.include_tasks: configure_repo_options.yml
+  loop_control:
+    label: "{{ yum_repo.id }}"
+    loop_var: yum_repo
+  loop: "{{ yum_repos[os_distribution] | flatten(levels=1) }}"
 ...

@@ -16,7 +16,7 @@ ip_addresses:
       fqdn: 'NXDOMAIN'
   earl3:
     logs_external_network:
-      address: 51.124.104.127
+      address: 20.13.120.7
       netmask: /32
       fqdn: 'NXDOMAIN'
   earl4:

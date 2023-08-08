@@ -1,6 +1,5 @@
 ---
 external_hrefs:
-  spacewalk: 'https://spacewalkproject.github.io/'
   pulp: 'https://pulpproject.org/'
 known_hosts_hostnames: "\
   {% for jumphost in groups['jumphost'] %}\

@@ -28,5 +28,14 @@
     name:
       - tuned
       - polkit  # Security risk due to bug and we don't need it!
+      - cockpit-system  # EL9 only
+      - cockpit-bridge  # EL9 only
+      - cockpit-ws  # EL9 only
+  become: true
+
+- name: 'Remove old Singularity config if present (Superseeded by Apptainer config).'
+  ansible.builtin.file:
+    state: absent
+    path: /etc/singularity/
   become: true
 ...

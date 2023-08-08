@@ -25,6 +25,7 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
+os_distribution: 'centos7'
 figlet_font: 'ogre'
 motd: |
       =========================================================
@@ -99,6 +100,7 @@ ldap_domains:
     #
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
+    # listserv_mailinglist: Be careful not to use a production mailinglist for testing!
 stack_networks:
   - name: vlan983
     router_network: vlan16
@@ -229,7 +231,7 @@ lfs_mounts:
       - name: umcg-lifelines
         mode: '2750'
       - name: umcg-sysops
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
   - lfs: rsc08
     pfs: umcgst11
     groups:
@@ -237,7 +239,7 @@ lfs_mounts:
       - name: umcg-gsad  
       - name: umcg-lifelines
       - name: umcg-sysops
-    ro_machines: "{{ groups['compute_vm'] }}"
+    ro_machines: "{{ groups['compute_node'] }}"
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: prm08
     pfs: umcgst11
@@ -252,7 +254,7 @@ lfs_mounts:
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env08
     pfs: umcgst11
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ega_fuse_client_mounts:
   cineca: '/groups/umcg-cineca/prm08/ega-fuse-client'

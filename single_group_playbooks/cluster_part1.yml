@@ -11,7 +11,6 @@
     - iptables
     - ssh_known_hosts
     - swap
-    - {role: spacewalk_client, when: repo_manager == 'spacewalk'}
     - {role: pulp_client, when: repo_manager == 'pulp'}
     - {role: yum_repos, when: repo_manager == 'none'}
     - {role: yum_local, when: local_yum_repository is defined}
@@ -23,6 +22,7 @@
     - figlet_motd
     - node_exporter
     - cluster
+    - {role: logs_client, when: stacks_logs_servers is defined}
     - gpu            # needs to run after role 'cluster'
     - resolver
     - coredumps

@@ -1,0 +1,35 @@
+---
+- name: Ensure SSH daemon is running.
+  ansible.builtin.service:
+    name: "{{ basic_security_sshd_name }}"
+    state: "{{ basic_security_sshd_state }}"
+  become: true
+
+- name: Update SSH configuration to be more secure.
+  ansible.builtin.lineinfile:
+    dest: "{{ basic_security_ssh_config_path }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: 'sshd -T -f %s'
+    mode: '0644'
+  with_items:
+    - regexp: "^PasswordAuthentication"
+      line: "PasswordAuthentication {{ basic_security_ssh_password_authentication }}"
+    - regexp: "^PermitRootLogin"
+      line: "PermitRootLogin {{ basic_security_ssh_permit_root_login }}"
+    - regexp: "^Port"
+      line: "Port {{ basic_security_ssh_port }}"
+    - regexp: "^UseDNS"
+      line: "UseDNS {{ basic_security_ssh_usedns }}"
+    - regexp: "^PermitEmptyPasswords"
+      line: "PermitEmptyPasswords {{ basic_security_ssh_permit_empty_password }}"
+    - regexp: "^ChallengeResponseAuthentication"
+      line: "ChallengeResponseAuthentication {{ basic_security_ssh_challenge_response_auth }}"
+    - regexp: "^GSSAPIAuthentication"
+      line: "GSSAPIAuthentication {{ basic_security_ssh_gss_api_authentication }}"
+    - regexp: "^X11Forwarding"
+      line: "X11Forwarding {{ basic_security_ssh_x11_forwarding }}"
+  become: true
+  notify: basic_security_restart_sshd
+...

@@ -11,10 +11,10 @@
     - iptables
     - ssh_known_hosts
     - {role: yum_local, when: local_yum_repository is defined}
+    - {role: yum_repos, when: repo_manager == 'none'}
     - logrotate
     - remove
     - update
-    - {role: geerlingguy.repo-epel, become: true}
     - logins
     - role: ldap
       when:
@@ -27,7 +27,8 @@
     - sshd
     - static_hostname_lookup
     - node_exporter
-    - {role: geerlingguy.security, become: true}
+    - basic_security
+    - {role: logs_client, when: stacks_logs_servers is defined}
     # Disabled monitoring: needs update. See also:
     # https://github.com/rug-cit-hpc/league-of-robots/issues/294
     # - {role: grafana_proxy, when: ansible_hostname == 'airlock'}

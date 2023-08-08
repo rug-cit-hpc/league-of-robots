@@ -63,7 +63,7 @@ all:
           slurm_ethernet_interfaces:
             - eth0
             - eth1
-    compute_vm:
+    compute_node:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
@@ -95,7 +95,7 @@ administration:
     ldap_server:
 cluster:
   children:
-    compute_vm:
+    compute_node:
     administration:
 hyperchicken_cluster:
   children:
@@ -104,5 +104,4 @@ hyperchicken_cluster:
     repo:
     cluster:
     docs:
-    rsyslog:
 ...

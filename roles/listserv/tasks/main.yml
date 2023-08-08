@@ -1,4 +1,12 @@
 ---
+- name: Install mailx.
+  ansible.builtin.yum:
+    name:
+      - mailx
+    state: latest
+    update_cache: true
+  become: true
+
 - name: Create directories for mailinglists script.
   ansible.builtin.file:
     path: "{{ item }}"
@@ -8,23 +16,21 @@
     group: 'root'
   with_items:
     - '/root/mailinglists'
+    - '/root/mailinglists/listserv_backups'
   become: true
 
-- name: 'Install listserv script.'
-  ansible.builtin.copy:
-    src: "templates/{{ item }}"
-    dest: "/root/mailinglists/{{ item }}"
+- name: Copy listserv script.
+  ansible.builtin.template:
+    src: 'templates/LDAP2LISTSERV.bash'
+    dest: '/root/mailinglists/LDAP2LISTSERV.bash'
     owner: 'root'
     group: 'root'
     mode: '0750'
-  with_items:
-    - 'LDAP2LISTSERV.bash'
-    - 'LDAP2LISTSERV.cfg'
   become: true
 
-- name: 'Create cron job to fetch data from an LDAP and manage mailing list subscriptions of our users.'
+- name: Create cron job to manage mailing list subscriptions without creating backups.
   ansible.builtin.cron:
-    name: Set cron job to fetch data from an LDAP and manage mailing list subscriptions.
+    name: Manage mailing list subscriptions without creating backups.
     weekday: '*'
     hour: '12,15,18'
     minute: '15'
@@ -32,19 +38,19 @@
     job: |
          /bin/bash -c '/root/mailinglists/LDAP2LISTSERV.bash -l ERROR -u -n 2>&1  | /bin/logger'
     cron_file: 'ldap-2-mailinglists'
-    disabled: True
+    disabled: False
   become: true
 
-- name: 'cron job to backup mailing list ones a day.'
+- name: Create cron job to manage mailing list subscriptions and create backup.
   ansible.builtin.cron:
-    name: set cron job to backup mailing list.
+    name: Manage mailing list subscriptions and create backup.
     weekday: '*'
     hour: '09'
     minute: '15'
     user: 'root'
     job: |
-         /bin/bash -c '/root/mailinglists/LDAP2LISTSERV.bash -l ERROR -u -n -b /root/mailinglists/listserv_backups 2>&1 | /bin/logger
+         /bin/bash -c '/root/mailinglists/LDAP2LISTSERV.bash -l ERROR -u -n -b /root/mailinglists/listserv_backups 2>&1 | /bin/logger'
     cron_file: 'ldap-2-mailinglists'
-    disabled: True
+    disabled: False
   become: true
 ...

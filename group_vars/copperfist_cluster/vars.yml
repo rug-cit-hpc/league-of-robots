@@ -32,6 +32,7 @@ slurm_qos_limit_fractions:
   interactive-short:
     user: 0.5
 repo_manager: 'none'
+os_distribution: 'centos7'
 figlet_font: 'ogre'
 motd: |
       =========================================================
@@ -411,26 +412,38 @@ pfs_mounts:
   - pfs: 'medgen_zincfinger$'
     source: '//storage3.umcg.nl'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
   - pfs: 'medgen_leucinezipper$'
     source: '//storage3.umcg.nl'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
   - pfs: 'medgen_wingedhelix$'
     source: '//storage3.umcg.nl'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02750,file_mode=0640'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02750,file_mode=0640'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
   - pfs: 'GCC'
     source: '//storage1.umcg.nl/algemenedata$/appdata/AdLas'
     type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm,dir_mode=02770,file_mode=0660'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm,dir_mode=02770,file_mode=0660'
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
+    machines: "{{ groups['chaperone'] }}"
+  - pfs: 'validatie-TruSightOncology-500'
+    source: '//storage3.umcg.nl/path2$/archief/MolecDiagn'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
+    machines: "{{ groups['chaperone'] }}"
+  - pfs: 'NGSdata'
+    source: '//storage1.umcg.nl/algemenedata$/appdata/BijzondereHematologie/'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home
@@ -447,8 +460,10 @@ lfs_mounts:
       - name: umcg-gst
       - name: umcg-lab
         mode: '2750'
+      - name: umcg-labgnkbh
+      - name: umcg-patho
       - name: umcg-vipt
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
   - lfs: prm05
     pfs: 'medgen_zincfinger$'
     groups:
@@ -509,10 +524,69 @@ lfs_mounts:
       - name: umcg-gst
       - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm35
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat35
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm36
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat36
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm37
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat37
+    pfs: 'validatie-TruSightOncology-500'
+    groups:
+      - name: umcg-patho
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm45
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat45
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm46
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat46
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm47
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: dat47
+    pfs: 'NGSdata'
+    groups:
+      - name: umcg-labgnkbh
+    rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env06
     pfs: local_raid
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
-    rw_machines: "{{ groups['deploy_admin_interface'] }}"
+    rw_machines: "{{ groups['deploy_admin_interface'] + groups['compute_node'] + groups['user_interface'] }}"
 smb_server_users:
   - name: sbsuser
     uid: 501
@@ -530,32 +604,32 @@ smb_server_shares:
     comment: Share for sequencers
     path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers
     users: sbsuser
-    file_mode: 0640
-    dir_mode: 0750
+    file_mode: '0640'
+    dir_mode: '0750'
     base: /mnt/local_raid/groups/umcg-lab/tmp06  # This will not be created by the smb_server role and must already exist.
     subtree:  # This will be created if it does not already exist.
       - path: sequencers
         owner: sbsuser
         group: umcg-lab
-        mode: 2750
+        mode: '2750'
   - name: array
     comment: Share for array scanners
     path: /mnt/local_raid/groups/umcg-gap/tmp06/rawdata/array/IDAT
     users: illumina
-    file_mode: 0660
-    dir_mode: 0770
+    file_mode: '0660'
+    dir_mode: '0770'
     base: /mnt/local_raid/groups/umcg-gap/tmp06  # This will not be created by the smb_server role and must already exist.
     subtree:  # This will be created if it does not already exist.
       - path: rawdata
         owner: umcg-gap-ateambot
         group: umcg-gap
-        mode: 2770
+        mode: '2770'
       - path: rawdata/array
         owner: umcg-gap-ateambot
         group: umcg-gap
-        mode: 2770
+        mode: '2770'
       - path: rawdata/array/IDAT
         owner: illumina
         group: umcg-gap
-        mode: 2770
+        mode: '2770'
 ...

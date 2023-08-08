@@ -1,0 +1,38 @@
+---
+- name: Create a repository directory
+  ansible.builtin.file:
+    path: '{{ yum_local_repo_dir }}'
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  become: true
+
+- name: Install a list of packages with a list variable
+  ansible.builtin.yum:
+    name: "{{ yum_local_dependencies[distro] }}"
+  vars:
+    distro: "{{ ansible_facts['os_family'] + ansible_facts['distribution_major_version'] }}"
+  become: true
+
+- name: Deploy configuration .repo file into /etc/yum.repos.d/
+  ansible.builtin.template:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - {src: 'templates/local_yum.repo', dest: '/etc/yum.repos.d/'}
+    - {src: 'templates/README', dest: '{{ yum_local_repo_dir }}'}
+  become: true
+
+- name: Build repository for the first time
+  ansible.builtin.command:
+    cmd: /usr/bin/createrepo {{ yum_local_repo_dir }}
+    creates: '{{ yum_local_repo_dir }}/repodata/repomd.xml'
+  register: cr_result
+  failed_when:
+    - cr_result.rc != 0
+  become: true
+...

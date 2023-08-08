@@ -41,7 +41,7 @@
   ansible.builtin.import_playbook: single_group_playbooks/user_interface.yml
 
 - name: Run playbook for compute nodes.
-  ansible.builtin.import_playbook: single_group_playbooks/compute_vm.yml
+  ansible.builtin.import_playbook: single_group_playbooks/compute_node.yml
 
 - name: Run playbook for documentation servers.
   ansible.builtin.import_playbook: single_group_playbooks/docs.yml

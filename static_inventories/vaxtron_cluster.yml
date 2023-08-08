@@ -1,0 +1,124 @@
+---
+all:
+  children:
+    openstack_api:
+      hosts:
+        localhost:
+          ansible_python_interpreter: /usr/bin/env python
+    jumphost:
+      hosts:
+        foyer:
+          cloud_flavor: general.v1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_jumphosts"
+              assign_floating_ip: true
+          basic_security_ssh_challenge_response_auth: 'yes' # Required for MFS in sshd_config.
+          local_yum_repository: true
+    repo:
+      hosts:
+        vt-repo:
+          cloud_flavor: general.v1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_repo"
+          swap_file_size: 2
+    data_transfer:
+      hosts:
+#        vt-transfer:
+#          cloud_flavor: general.v1.small
+#          host_networks:
+#            - name: "{{ stack_prefix }}_internal_management"
+#              security_group: "{{ stack_prefix }}_ds"
+#              assign_floating_ip: true
+#          local_volume_size_extra: 10000
+    docs:
+      hosts:
+        docs_on_merlin:
+    sys_admin_interface:
+      hosts:
+        vt-sai:
+          cloud_flavor: general.v1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_cluster"
+            - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
+           # - name: vlan985
+           #   security_group: "{{ stack_prefix }}_storage"
+    deploy_admin_interface:
+      hosts:
+        vt-dai:
+          cloud_flavor: general.v1.small
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_cluster"
+            - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
+            #- name: vlan985
+            #  security_group: "{{ stack_prefix }}_storage"
+          local_volume_size_extra: 3000
+    user_interface:
+      hosts:
+        nibbler:
+          cloud_flavor: m1.medium
+          host_networks:
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_cluster"
+            - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
+            #- name: vlan985
+            #  security_group: "{{ stack_prefix }}_storage"
+          #slurm_sockets: 8
+          #slurm_cores_per_socket: 1
+          #slurm_real_memory: 15884
+          #slurm_local_disk: 0
+          #slurm_features: 'tmp02'
+          #slurm_ethernet_interfaces:
+          #  - eth0
+          #  - eth1
+          #  - eth2
+    compute_node:
+      children:
+        regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
+#          hosts:
+#            vt-node-a[01:05]:
+#          vars:
+#            cloud_flavor: htc-node
+#            host_networks:
+#              - name: "{{ stack_prefix }}_internal_management"
+#                security_group: "{{ stack_prefix }}_cluster"
+#              - name: "{{ stack_prefix }}_internal_storage"
+#                security_group: "{{ stack_prefix }}_storage"
+#              - name: vlan985
+#                security_group: "{{ stack_prefix }}_storage"
+#            local_volume_size_extra: 1
+#            slurm_sockets: 40
+#            slurm_cores_per_socket: 1
+#            slurm_real_memory: 181180
+#            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
+#            slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
+#            slurm_local_disk: 975
+#            slurm_features: 'tmp02'
+#            slurm_ethernet_interfaces:
+#              - eth0
+#              - eth1
+#              - eth2
+administration:
+  children:
+    sys_admin_interface:
+    deploy_admin_interface:
+    user_interface:
+cluster:
+  children:
+    compute_node:
+    administration:
+vaxtron_cluster:
+  children:
+    openstack_api:
+    jumphost:
+    repo:
+    cluster:
+    data_transfer:
+    docs:
+...

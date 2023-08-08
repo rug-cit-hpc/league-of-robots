@@ -24,11 +24,26 @@
   run_once: true
 - name: Get info on routers from OpenStack API.
   openstack.cloud.routers_info:
-  register: api_routers_info
+  register: api_router_info
   run_once: true
 - name: Get server info from OpenStack API.
   openstack.cloud.server_info:
   register: api_server_info
+  run_once: true
+- name: Rename old "openstack_networks" dict key to new "networks" dict key for backwards compatibility.
+  ansible.builtin.set_fact:
+    api_network_info: "{{ api_network_info | combine({'networks': api_network_info['openstack_networks']}) }}"
+  when: api_network_info['openstack_networks'] is defined
+  run_once: true
+- name: Rename old "openstack_routers" dict key to new "routers" dict key for backwards compatibility.
+  ansible.builtin.set_fact:
+    api_router_info: "{{ api_router_info | combine({'routers': api_router_info['openstack_routers']}) }}"
+  when: api_router_info['openstack_routers'] is defined
+  run_once: true
+- name: Rename old "openstack_servers" dict key to new "servers" dict key for backwards compatibility.
+  ansible.builtin.set_fact:
+    api_server_info: "{{ api_server_info | combine({'servers': api_server_info['openstack_servers']}) }}"
+  when: api_server_info['openstack_servers'] is defined
   run_once: true
 - name: "Add IP addresses to {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
   ansible.builtin.template:
@@ -36,7 +51,7 @@
     dest: "{{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
     mode: '0644'
   vars:
-    relevant_servers_info: "{{ api_server_info.openstack_servers | selectattr('name', 'in', stack_hosts_created_in_openstack) | list }}"
+    relevant_servers_info: "{{ api_server_info.servers | selectattr('name', 'in', stack_hosts_created_in_openstack) | list }}"
   run_once: true
 - name: "ToDo"
   ansible.builtin.debug:
