@@ -20,6 +20,7 @@
   with_items:
     - "{{ groups['jumphost'] }}"
     - "{{ groups['user_interface'] }}"
+    - "{{ groups['compute_node'] }}"
 
 - name: 'Get Slurm version from scontrol on UI.'
   ansible.builtin.shell:

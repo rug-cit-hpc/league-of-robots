@@ -418,9 +418,9 @@ that will be mounted inside _Apptainer_ containers, is supplemented in the Slurm
 
 ```bash
 if [[ -z "${APPTAINER_BINDPATH:-}" ]]; then
-  export APPTAINER_BINDPATH="{{ slurm_local_scratch_dir }}/${SLURM_JOB_ID}/"
+  export APPTAINER_BINDPATH="{{ hostvars[groups['compute_node'][0]]['slurm_local_scratch_dir'] }}/${SLURM_JOB_ID}/"
 else
-  export APPTAINER_BINDPATH="${APPTAINER_BINDPATH},{{ slurm_local_scratch_dir }}/${SLURM_JOB_ID}/"
+  export APPTAINER_BINDPATH="${APPTAINER_BINDPATH},{{ hostvars[groups['compute_node'][0]]['slurm_local_scratch_dir'] }}/${SLURM_JOB_ID}/"
 fi
 ```
 
