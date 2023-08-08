@@ -49,6 +49,7 @@
     - /etc/pam_script_ses_open
     - /etc/pam-script.d/login_checks_regular_home.sh_ses_open
     - /etc/pam-script.d/login_checks_chrooted_home.sh_ses_open
+    - /etc/pam-script.d/set_quota.sh_ses_open
   become: true
 
 - name: 'Create /etc/pam-script.d/ dir.'

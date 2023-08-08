@@ -1,41 +1,74 @@
 ---
-- name: 'Create custom /etc/pam.d/password-auth-local to include pam_exec.so.'
-  ansible.builtin.template:
-    src: password-auth-local
-    dest: /etc/pam.d/password-auth-local
+- name: "Create custom authselect {{ stack_name }} profile based on a default profile."
+  ansible.builtin.command:
+    cmd: >
+         authselect create-profile "{{ stack_name }}"
+             -b {% if use_sssd | default(false) | bool %}sssd{% else %}minimal{% endif %}
+             --symlink-meta
+    creates: "/etc/authselect/custom/{{ stack_name }}"
+  become: true
+
+- name: 'Include custom config to execute login_checks_regular_home.sh.'
+  ansible.builtin.lineinfile:
+    path: "/etc/authselect/custom/{{ stack_name }}/password-auth"
+    state: present
+    insertafter: '^session'
+    firstmatch: false
+    regexp: 'login_checks_regular_home'
+    line: 'session     optional                                     pam_exec.so  /etc/pam-script.d/login_checks_regular_home.sh    {include if "with-login_checks_regular_home"}'
     owner: root
     group: root
     mode: '0600'
+  when: inventory_hostname in groups['jumphost'] | default([]) or
+        inventory_hostname in groups['data_transfer'] | default([]) or
+        inventory_hostname in groups['cluster'] | default([])
   become: true
 
-#
-# This patches old/outdated setups where pam_script.so was added to password-auth-ac.
-# The authconfig utility does not support pam_script.so and when it is used in other roles
-# to update password-auth-ac, custom settings like including pam_script.so will get lost.
-#
-- name: 'Remove pam_script.so from /etc/pam.d/password-auth-ac.'
+- name: 'Include custom config to execute login_checks_chrooted_home.sh.'
   ansible.builtin.lineinfile:
-    path: /etc/pam.d/password-auth-ac
-    state: absent
-    regexp: 'pam_script.so'
-  become: true
-
-- name: 'Enable custom /etc/pam.d/password-auth-local.'
-  ansible.builtin.file:  # noqa risky-file-permissions
-    src: /etc/pam.d/password-auth-local
-    dest: /etc/pam.d/password-auth
+    path: "/etc/authselect/custom/{{ stack_name }}/password-auth"
+    state: present
+    insertafter: '^session'
+    firstmatch: false
+    regexp: 'login_checks_chrooted_home'
+    line: 'session     optional                                     pam_exec.so  /etc/pam-script.d/login_checks_chrooted_home.sh    {include if "with-login_checks_chrooted_home"}'
     owner: root
     group: root
-    state: link
-    force: true
+    mode: '0600'
+  when: inventory_hostname in groups['data_transfer'] | default([])
   become: true
 
-- name: 'Check if we need to update authconfig.'
+- name: 'Include custom config to execute set_quota.sh.'
+  ansible.builtin.lineinfile:
+    path: "/etc/authselect/custom/{{ stack_name }}/password-auth"
+    state: present
+    insertafter: '^session'
+    firstmatch: false
+    regexp: 'set_quota'
+    line: 'session     optional                                     pam_exec.so  /etc/pam-script.d/set_quota.sh    {include if "with-set_quota"}'
+    owner: root
+    group: root
+    mode: '0600'
+  when: inventory_hostname in groups['jumphost'] | default([]) or
+        inventory_hostname in groups['data_transfer'] | default([])
+  become: true
+
+- name: "Force enable authselect {{ stack_name }} profile."
   ansible.builtin.command:
-    cmd: /usr/sbin/authconfig --test
-  register: authconfig_test
-  changed_when: ('pam_oddjob_mkhomedir is disabled' in authconfig_test.stdout)
-  notify:
-    - authconfig_enable_mkhomedir
-    - restart_oddjobd
+    cmd: >
+         authselect select --force "custom/{{ stack_name }}" with-mkhomedir
+             {% if inventory_hostname in groups['jumphost'] | default([]) or
+                   inventory_hostname in groups['data_transfer'] | default([]) or
+                   inventory_hostname in groups['cluster'] | default([]) %}
+                 with-login_checks_regular_home
+             {% endif %}
+             {% if inventory_hostname in groups['data_transfer'] | default([]) %}
+                 with-login_checks_chrooted_home
+             {% endif %}
+             {% if inventory_hostname in groups['jumphost'] | default([]) or
+                   inventory_hostname in groups['data_transfer'] | default([]) %}
+                 with-set_quota
+             {% endif %}
+  changed_when: true
+  become: true
 ...

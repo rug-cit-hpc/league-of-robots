@@ -26,13 +26,20 @@
 # Cannot simply remount an XFS file system to ebnable quota:
 # Quota must be enabled at boot.
 #
-- name: 'Checking if we need to update GRUB cmdline.'
-  ansible.builtin.shell: "grep 'GRUB_CMDLINE_LINUX=.*rootflags.*' /etc/default/grub"
+- name: 'Checking if GRUB_CMDLINE_LINUX is present in /etc/default/grub.'
+
+- name: 'Checking if GRUB_CMDLINE_LINUX_DEFAULT is present in /etc/default/grub.'
+
+- name: 'Fail if GRUB_CMDLINE_LINUX nor GRUB_CMDLINE_LINUX_DEFAULT is present in /etc/default/grub.'
+
+- name: 'Checking if we need to add or update rootflags for GRUB_CMDLINE_LINUX* in /etc/default/grub.'
+  ansible.builtin.command:
+    cmd: "grep 'GRUB_CMDLINE_LINUX=.*rootflags.*' /etc/default/grub"
   register: grub_config_grep
   changed_when: false
-  failed_when: false
+  failed_when: grub_config_grep.rc >= 2
 
-- name: 'Enable user quota for XFS / in GRUB config.'
+- name: 'Update rootflags to enable user quota for XFS / in GRUB config.'
   ansible.builtin.lineinfile:
     path: '/etc/default/grub'
     backup: true
@@ -46,7 +53,7 @@
   notify: rebuild_grub_config
   become: true
 
-- name: 'Enable user quota for XFS / in GRUB config.'
+- name: 'Add rootflags to enable user quota for XFS / in GRUB config.'
   ansible.builtin.lineinfile:
     path: '/etc/default/grub'
     backup: true
@@ -70,14 +77,5 @@
     owner: root
     group: root
     mode: '0744'
-  become: true
-
-- name: 'Enable set_quota.sh script for certain PAM states.'
-  ansible.builtin.file:  # noqa risky-file-permissions
-    src: "{{ item }}"
-    dest: "/etc/pam-script.d/{{ item }}_ses_open"
-    state: link
-  with_items:
-    - set_quota.sh
   become: true
 ...
