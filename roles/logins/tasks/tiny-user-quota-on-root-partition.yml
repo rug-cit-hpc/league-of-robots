@@ -27,29 +27,55 @@
 # Quota must be enabled at boot.
 #
 - name: 'Checking if GRUB_CMDLINE_LINUX is present in /etc/default/grub.'
+  ansible.builtin.command:
+    cmd: "grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub"
+  register: grub_config_grep_GRUB_CMDLINE_LINUX
+  changed_when: false
+  failed_when: grub_config_grep_GRUB_CMDLINE_LINUX.rc >= 2
 
 - name: 'Checking if GRUB_CMDLINE_LINUX_DEFAULT is present in /etc/default/grub.'
+  ansible.builtin.command:
+    cmd: "grep 'GRUB_CMDLINE_LINUX_DEFAULT=' /etc/default/grub"
+  register: grub_config_grep_GRUB_CMDLINE_LINUX_DEFAULT
+  changed_when: false
+  failed_when: grub_config_grep_GRUB_CMDLINE_LINUX_DEFAULT.rc >= 2
 
-- name: 'Fail if GRUB_CMDLINE_LINUX nor GRUB_CMDLINE_LINUX_DEFAULT is present in /etc/default/grub.'
+- name: 'Fail if Grub config is in an unsupported state.'
+  ansible.builtin.debug:
+    msg: |
+         ***********************************************************************************************************
+         IMPORTANT: Manual work!
+                    Both GRUB_CMDLINE_LINUX and GRUB_CMDLINE_LINUX_DEFAULT are missing from /etc/default/grub
+                    Check the Grub config and documentation ...
+         ***********************************************************************************************************
+  when:
+    - "'GRUB_CMDLINE_LINUX=' not in grub_config_grep_GRUB_CMDLINE_LINUX.stdout"
+    - "'GRUB_CMDLINE_LINUX_DEFAULT=' not in grub_config_grep_GRUB_CMDLINE_LINUX_DEFAULT.stdout"
+  failed_when:
+    - "'GRUB_CMDLINE_LINUX=' not in grub_config_grep_GRUB_CMDLINE_LINUX.stdout"
+    - "'GRUB_CMDLINE_LINUX_DEFAULT=' not in grub_config_grep_GRUB_CMDLINE_LINUX_DEFAULT.stdout"
 
 - name: 'Checking if we need to add or update rootflags for GRUB_CMDLINE_LINUX* in /etc/default/grub.'
   ansible.builtin.command:
-    cmd: "grep 'GRUB_CMDLINE_LINUX=.*rootflags.*' /etc/default/grub"
-  register: grub_config_grep
+    cmd: |
+         grep 'GRUB_CMDLINE_LINUX\(_DEFAULT\)\?=.*rootflags.*' /etc/default/grub
+  register: grub_config_grep_rootflags
   changed_when: false
-  failed_when: grub_config_grep.rc >= 2
+  failed_when: grub_config_grep_rootflags.rc >= 2
 
 - name: 'Update rootflags to enable user quota for XFS / in GRUB config.'
   ansible.builtin.lineinfile:
     path: '/etc/default/grub'
     backup: true
     backrefs: true
-    regexp: '^(GRUB_CMDLINE_LINUX=\")([^\"]*)(\s+rootflags=(\S+))([^\"]*\")$'
-    line: '\1\2 rootflags=uquota,\4\5'
+    regexp: '^(GRUB_CMDLINE_LINUX(_DEFAULT)?=\")([^\"]*)(\s+rootflags=(\S+))([^\"]*\")$'
+    line: '\1\3 rootflags=uquota,\5\6'
     owner: root
     group: root
     mode: '0644'
-  when: ('rootflags' in grub_config_grep.stdout) and ('uquota' not in grub_config_grep.stdout)
+  when:
+    - "'rootflags' in grub_config_grep_rootflags.stdout"
+    - "'uquota' not in grub_config_grep_rootflags.stdout"
   notify: rebuild_grub_config
   become: true
 
@@ -58,12 +84,12 @@
     path: '/etc/default/grub'
     backup: true
     backrefs: true
-    regexp: '^(GRUB_CMDLINE_LINUX=\")([^\"]*)(\")$'
-    line: '\1\2 rootflags=uquota\3'
+    regexp: '^(GRUB_CMDLINE_LINUX(_DEFAULT)?=\")([^\"]*)(\")$'
+    line: '\1\3 rootflags=uquota\4'
     owner: root
     group: root
     mode: '0644'
-  when: "'rootflags' not in grub_config_grep.stdout"
+  when: "'rootflags' not in grub_config_grep_rootflags.stdout"
   notify: rebuild_grub_config
   become: true
 

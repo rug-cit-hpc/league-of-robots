@@ -15,10 +15,13 @@
     insertafter: '^session'
     firstmatch: false
     regexp: 'login_checks_regular_home'
-    line: 'session     optional                                     pam_exec.so  /etc/pam-script.d/login_checks_regular_home.sh    {include if "with-login_checks_regular_home"}'
+    line: '{{ logins_pam_exec_prefix }}  /etc/pam-script.d/login_checks_regular_home.sh    {include if "with-login_checks_regular_home"}'
     owner: root
     group: root
     mode: '0600'
+  vars:
+    # Add the right amount of padding with spaces to keep layout in sync with the rest of the password-auth file
+    logins_pam_exec_prefix: 'session     optional                                     pam_exec.so'
   when: inventory_hostname in groups['jumphost'] | default([]) or
         inventory_hostname in groups['data_transfer'] | default([]) or
         inventory_hostname in groups['cluster'] | default([])
@@ -31,10 +34,13 @@
     insertafter: '^session'
     firstmatch: false
     regexp: 'login_checks_chrooted_home'
-    line: 'session     optional                                     pam_exec.so  /etc/pam-script.d/login_checks_chrooted_home.sh    {include if "with-login_checks_chrooted_home"}'
+    line: '{{ logins_pam_exec_prefix }}  /etc/pam-script.d/login_checks_chrooted_home.sh    {include if "with-login_checks_chrooted_home"}'
     owner: root
     group: root
     mode: '0600'
+  vars:
+    # Add the right amount of padding with spaces to keep layout in sync with the rest of the password-auth file
+    logins_pam_exec_prefix: 'session     optional                                     pam_exec.so'
   when: inventory_hostname in groups['data_transfer'] | default([])
   become: true
 
@@ -45,10 +51,13 @@
     insertafter: '^session'
     firstmatch: false
     regexp: 'set_quota'
-    line: 'session     optional                                     pam_exec.so  /etc/pam-script.d/set_quota.sh    {include if "with-set_quota"}'
+    line: '{{ logins_pam_exec_prefix }}  /etc/pam-script.d/set_quota.sh    {include if "with-set_quota"}'
     owner: root
     group: root
     mode: '0600'
+  vars:
+    # Add the right amount of padding with spaces to keep layout in sync with the rest of the password-auth file
+    logins_pam_exec_prefix: 'session     optional                                     pam_exec.so'
   when: inventory_hostname in groups['jumphost'] | default([]) or
         inventory_hostname in groups['data_transfer'] | default([])
   become: true
