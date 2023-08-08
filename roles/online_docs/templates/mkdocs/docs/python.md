@@ -88,4 +88,4 @@ Create a slurm script with appropriate fields. For more information check also t
 
 Then submit this slurm SLURM job
 
-- `sbatch venv.slurm.sh`
+- `sbatch pyvenv.sh`
