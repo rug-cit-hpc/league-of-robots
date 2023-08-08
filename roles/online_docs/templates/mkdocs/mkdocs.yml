@@ -45,6 +45,7 @@ nav:
     - 'Jupyter notebooks': 'Jupyter.md'
     - 'Apptainer (Singularity)': 'apptainer.md'
     - 'Nextflow': 'nextflow.md'
+    - 'Python (Virtual Environment)': 'python.md'
 {% if 'hyperchicken' in slurm_cluster_name or 'fender' in slurm_cluster_name %}
   - Group Specific Documentation:
     - 'Solve-RD - How to find and work with Solve-RD data': 'solve-rd.md'

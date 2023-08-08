@@ -79,9 +79,9 @@ function lor-config() {
 	# install something like https://github.com/mikefarah/yq
 	# for proper parsing of YAML files.
 	#
-	local _jumphost_block=$(fgrep -A1 'jumphost' "${LOR_DIR}/static_inventories/${_stack_name}.yml" | head -2 | tail -1 | tr -d ' :')
+	local _jumphost_block=$(grep -F -A1 'jumphost' "${LOR_DIR}/static_inventories/${_stack_name}.yml" | head -2 | tail -1 | tr -d ' :')
 	if [[ "${_jumphost_block:-}" == 'hosts' ]]; then
-		local _jumphost=$(fgrep -A2 'jumphost' "${LOR_DIR}/static_inventories/${_stack_name}.yml" | head -3 | tail -1 | tr -d ' :')
+		local _jumphost=$(grep -F -A2 'jumphost' "${LOR_DIR}/static_inventories/${_stack_name}.yml" | head -3 | tail -1 | tr -d ' :')
 	fi
 	#
 	# Init and report current setup.
