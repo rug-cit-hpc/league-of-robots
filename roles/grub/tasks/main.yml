@@ -29,14 +29,16 @@
 
 - name: Set grub timeout in /boot/grub2/grub.cfg
   ansible.builtin.replace:
-   path: '/boot/grub2/grub.cfg'
-   regexp: '(set timeout)=[0-9]*'
-   replace: '\1={{ grub_timeout_sec }}'
+    path: '/boot/grub2/grub.cfg'
+    regexp: '(set timeout)=[0-9]*'
+    replace: '\1={{ grub_timeout_sec }}'
   when: grub2path.stat.exists
   become: true
 
 - name: Reconfigure grub
   ansible.builtin.command: 'grub2-mkconfig --output /boot/grub2/grub.cfg'
+  register: grub2_result
+  changed_when: grub2_result.rc == 0
   when: grub2path.stat.exists
   become: true
 ...
