@@ -11,7 +11,6 @@ all:
     sys_admin_interface:
       hosts:
         forkhead:
-          ansible_host: 10.96.52.12
           host_networks:
             - name: vnet-medgen-t
           local_yum_repository: true # enable local yum repository
