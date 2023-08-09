@@ -31,7 +31,6 @@ all:
     user_interface:
       hosts:
         forkhead:
-          ansible_host: 192.168.122.170
           slurm_sockets: 1
           slurm_cores_per_socket: 4
           slurm_real_memory: 15884
