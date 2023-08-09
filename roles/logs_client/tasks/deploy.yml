@@ -1,0 +1,83 @@
+---
+- name: Install gnutls and newer openssl
+  ansible.builtin.yum:
+    name:
+      - gnutls
+      - gnutls-utils
+      - openssl11
+      - openssl11-devel
+    state: latest
+    update_cache: true
+  become: true
+  notify: client_restart_rsyslog
+
+- name: Install rsyslog and gnutls with all plugins
+  ansible.builtin.yum:
+    name:
+      - librelp
+      - rsyslog
+      - rsyslog-relp
+    state: latest
+    update_cache: true
+    disablerepo: '*'
+    enablerepo: 'rsyslog7'
+  become: true
+  notify: client_restart_rsyslog
+
+- name: Create client keys and certificates, if managed rsyslog servers are present
+  ansible.builtin.include_tasks: client.yml
+  when: rsyslogs_ext_ips | length > 0
+
+# Must be deployed first due to the order of checking the scripts in next step
+# and faulty script in rsyslog.d can break deploying rsyslog.conf
+- name: Deploy configuration for managed remote rsyslog servers
+  ansible.builtin.template:
+    src: templates/rsyslog_managed.conf
+    dest: /etc/rsyslog.d/managed.conf
+    force: true
+    mode: '0644'
+    validate: /sbin/rsyslogd -N1 -f %s
+  become: true
+  notify: client_restart_rsyslog
+
+- name: Deploy clients rsyslog.conf
+  ansible.builtin.template:
+    src: templates/rsyslog.conf
+    dest: /etc/rsyslog.conf
+    force: true
+    mode: '0644'
+    validate: /sbin/rsyslogd -N1 -f %s
+  become: true
+  notify: client_restart_rsyslog
+
+- name: Deploy configuration for unmanaged remote rsyslog servers
+  ansible.builtin.template:
+    src: templates/rsyslog_unmanaged.conf
+    dest: /etc/rsyslog.d/unmanaged.conf
+    force: true
+    mode: '0644'
+  become: true
+  notify: client_restart_rsyslog
+
+- name: Make sure that the rsyslog service is started and enabled
+  ansible.builtin.systemd:
+    name: rsyslog.service
+    state: started
+    enabled: true
+  become: true
+
+- name: Remove problematic /etc/rsyslog.d/listen.conf file
+  ansible.builtin.file:
+    path: /etc/rsyslog.d/listen.conf
+    state: absent
+  become: true
+  notify: client_restart_rsyslog
+
+- name: Fix the syslog logrotate to work correctly with rsyslog
+  ansible.builtin.template:
+    src: templates/syslog.logrotate
+    dest: /etc/logrotate.d/syslog
+    mode: '0644'
+    force: true
+  become: true
+...

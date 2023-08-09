@@ -25,6 +25,7 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
+os_distribution: 'centos7'
 figlet_font: 'ogre'
 motd: |
       =========================================================
@@ -41,14 +42,39 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
+  - group: logs_library
+    nodes:
+      - name: earl1
+        network: vlan16
+  - group: logs_library
+    nodes:
+      - name: earl2
+        network: logs_external_network
+  - group: logs_library
+    nodes:
+      - name: earl3
+        network: logs_external_network
+  - group: logs_library
+    nodes:
+      - name: earl4
+        network: vlan16
+#
+# Remote logging settings - for diagnostics servers
+#
+logs_ca_name: 'development'
+stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
+   - name: 'earl1'
+     external_network: 'vlan16' # to retrieve public IP from
+   - name: 'earl2'
+     external_network: 'logs_external_network'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: yes
 create_ldap: no
 use_sssd: yes
 ldap_domains:
-  grunn:
+  idvault:
     uri: ldaps://172.23.40.249
-    search_base: ou=umcg,o=asds
+    base: ou=umcg,o=asds
     schema: rfc2307
     min_id: 50100000
     max_id: 55999999
@@ -56,13 +82,33 @@ ldap_domains:
     user_name: uid
     user_ssh_public_key: sshPublicKey
     user_member_of: groupMembership
+    user_expiration_date: loginExpirationTime
     group_member: memberUid
     group_object_class: groupofnames
+    #
+    # LDAP is case insensitive, but we use lowercase only for quota field names,
+    # so we can use simple literal strings in comparisons as opposed to regexes
+    # to handle differences in UPPERCASE vs. lowercase.
+    #
+    # The UPPERCASE "LFS" in {{ ldap_domains[domain]['group_quota_*_limit_template'] }} Ansible variables
+    # is a required placeholder that will get replaced with the value of the Logical File System (LFS)
+    # for which we will try to fetch quota limits from the LDAP.
+    # E.g. with
+    #     group_quota_soft_limit_template: 'ruggroupumcgquotaLFSsoft'
+    # the fieldname/key used to lookup the soft quota limit for the prm01 LFS is
+    #     ruggroupumcgquotaprm01soft
+    #
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
-network_public_external_id: vlan16
-network_private_management_id: vlan983
-network_private_storage_id: vlan985
+    # listserv_mailinglist: Be careful not to use a production mailinglist for testing!
+stack_networks:
+  - name: vlan983
+    router_network: vlan16
+    type: management
+    external: true
+  - name: vlan985
+    type: storage
+    external: true
 nameservers: [
   '/gcc-storage001.stor.hpc.local/172.23.40.244',  # Local DNS lookups for shared storage.
   '8.8.4.4',  # Google DNS.
@@ -85,6 +131,7 @@ local_admin_users:
   - 'robin'
   - 'sandi'
   - 'wim'
+  - 'wouter'
 data_transfer_only_group: 'umcg-sftp-only'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
@@ -105,31 +152,60 @@ regular_users:
     groups: ["{{ envsync_group }}"]
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']
-    sudoers: '%umcg-atd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
-    sudoers: '%umcg-atd'
   - user: 'umcg-cineca-dm'
     groups: ['umcg-cineca']
-    sudoers: '%umcg-cineca-dms'
   - user: 'umcg-endocrinology-dm'
     groups: ['umcg-endocrinology']
-    sudoers: '%umcg-endocrinology-dms'
   - user: 'umcg-gcc-dm'
     groups: ['umcg-gcc']
-    sudoers: '%umcg-gcc'
   - user: 'umcg-gsad-ateambot'
     groups: ['umcg-gsad']
-    sudoers: '%umcg-gsad'
   - user: 'umcg-gsad-dm'
     groups: ['umcg-gsad']
-    sudoers: '%umcg-gsad' 
   - user: 'umcg-lifelines-dm'
     groups: ['umcg-lifelines']
-    sudoers: '%umcg-lifelines-dms'
   - user: 'umcg-sysops-dm'
     groups: ['umcg-sysops']
-    sudoers: '%umcg-sysops'
+sudoers:
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-dm'
+    name: 'umcg-atd-dm'
+    command: 'ALL'
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-ateambot'
+    name: 'umcg-atd-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-cineca-dms']
+    become: 'umcg-cineca-dm'
+    name: 'umcg-cineca-dm'
+    command: 'ALL'
+  - who: ['%umcg-endocrinology-dms']
+    become: 'umcg-endocrinology-dm'
+    name: 'umcg-endocrinology-dm'
+    command: 'ALL'
+  - who: ['%umcg-gcc']
+    become: 'umcg-gcc-dm'
+    name: 'umcg-gcc-dm'
+    command: 'ALL'
+  - who: ['%umcg-gsad']
+    become: 'umcg-gsad-ateambot'
+    name: 'umcg-gsad-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gsad']
+    become: 'umcg-gsad-dm'
+    name: 'umcg-gsad-dm'
+    command: 'ALL'
+  - who: ['%umcg-lifelines-dms']
+    become: 'umcg-lifelines-dm'
+    name: 'umcg-lifelines-dm'
+    command: 'ALL'
+  - who: ['%umcg-sysops']
+    become: 'umcg-sysops-dm'
+    name: 'umcg-sysops-dm'
+    command: 'ALL'
+
 #
 # Shared storage related variables
 #
@@ -140,7 +216,6 @@ pfs_mounts:
     rw_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime'
     ro_options: 'defaults,_netdev,vers=4.0,noatime,nodiratime,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
-lustre_quota_type: group
 lfs_mounts:
   - lfs: home
     pfs: umcgst11
@@ -156,7 +231,7 @@ lfs_mounts:
       - name: umcg-lifelines
         mode: '2750'
       - name: umcg-sysops
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
   - lfs: rsc08
     pfs: umcgst11
     groups:
@@ -164,7 +239,7 @@ lfs_mounts:
       - name: umcg-gsad  
       - name: umcg-lifelines
       - name: umcg-sysops
-    ro_machines: "{{ groups['compute_vm'] }}"
+    ro_machines: "{{ groups['compute_node'] }}"
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: prm08
     pfs: umcgst11
@@ -179,7 +254,7 @@ lfs_mounts:
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env08
     pfs: umcgst11
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ega_fuse_client_mounts:
   cineca: '/groups/umcg-cineca/prm08/ega-fuse-client'

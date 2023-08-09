@@ -5,7 +5,8 @@
 
 Key ingredients of the High Performance Computing (HPC) environment of the {{ slurm_cluster_name | capitalize }} cluster
 
- * Linux OS: [CentOS](https://www.centos.org/) {{ hostvars[groups['user_interface'][0]]['ansible_distribution_version'] }} with [{{ repo_manager | capitalize }}]({{ external_hrefs[repo_manager] }}) for package distribution/management.
+ * Linux OS: [CentOS](https://www.centos.org/) {{ hostvars[groups['user_interface'][0]]['ansible_distribution_version'] }}
+   {% if repo_manager | default('none') != 'none' %}with [{{ repo_manager | capitalize }}]({{ external_hrefs[repo_manager] }}) for package distribution/management{% endif %}.
  * Job scheduling: [Slurm Workload Manager](https://slurm.schedmd.com/) {{ slurm_version.stdout }}
  * Module system: [Lmod](https://github.com/TACC/Lmod) {{ lmod_version.stdout }}
  * Deployment of (Bioinformatics) software: [EasyBuild](https://github.com/easybuilders/easybuild)
@@ -16,7 +17,10 @@ Key ingredients of the High Performance Computing (HPC) environment of the {{ sl
  * User Interfaces (UIs): _{% for server in groups['user_interface'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
  * Deploy Admin Interfaces (DAIs): _{% for server in groups['deploy_admin_interface'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
  * Sys Admin Interfaces (SAIs): _{% for server in groups['sys_admin_interface'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
- * Compute Nodes: _{% for server in groups['compute_vm'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
+ * Compute Nodes: _{% for server in groups['compute_node'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
+{% if groups['chaperone'] is defined %}
+ * Chaperones: _{% for server in groups['chaperone'] %}{% if hostvars[server]['ansible_host'] is defined %}{{ hostvars[server]['ansible_host'] }}{% else %}{{ server }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}_
+{% endif %}
 
 ## Shared Storage
 

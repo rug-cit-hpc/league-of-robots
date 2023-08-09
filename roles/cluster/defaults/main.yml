@@ -1,5 +1,7 @@
 ---
 cluster_common_packages:
+  - apptainer
+  - apptainer-suid
   - bash-completion
   - bc
   - bcc-tools
@@ -20,13 +22,14 @@ cluster_common_packages:
   - ncurses-static
   - net-tools
   - openssl
+  - pciutils
+  - openssl11  # Required for openldap-ltb RPMs.
   - qt5-qtbase
   - qt5-qtxmlpatterns
   - readline-static
   - rsync
   - screen
-  - singularity-runtime
-  - singularity
+  - sl
   - strace
   - tcl-devel
   - telnet
@@ -36,4 +39,5 @@ cluster_common_packages:
   - urw-base35-fonts
   - vim
   - wget
+  - yum-utils
 ...

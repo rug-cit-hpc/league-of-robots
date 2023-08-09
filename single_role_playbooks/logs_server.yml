@@ -1,0 +1,7 @@
+---
+- name: Running > logs_server < role
+  hosts: logs
+  roles:
+    - role: logs_server
+      when: groups['logs'] is defined and ( groups['logs']|length>0 )
+...

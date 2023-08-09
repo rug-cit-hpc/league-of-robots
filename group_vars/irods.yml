@@ -17,10 +17,6 @@ iptables_allow_postgresql_outbound:
 
 ir_server_type: 'icat'                     # iRODS Server Type
 ir_yum_packages: '{{ ir_yum_packages_4_3_0 }}' # Picked version of packages (defined in role defaults)
-ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }},{{ inventory_hostname }}\
-  {% for host in groups['jumphost'] %},{{ host }}+{{ ansible_hostname }}{% endfor %}\
-  {% for host in groups['jumphost'] %},{{ host }}+{{ inventory_hostname }}{% endfor %}"
-
 ir_client_server_policy: 'CS_NEG_REQUIRE'  # communicating using SSL (CS_NEG_REQUIRE) or without (CS_NEG_REFUSE
 ir_ssl_certificate_chain_file: 'nemi_irods/localhost_and_chain_umcg-icat01.crt' # iRODS server certificate
 ir_ssl_certificate_key_file: 'nemi_irods/localhost-umcg01.key' # iRODS server certificate's key

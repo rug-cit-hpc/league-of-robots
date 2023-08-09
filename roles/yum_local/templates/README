@@ -1,22 +1,22 @@
 Brief:
    To make a new version of repository, copy file into this folder and then rerun
    createrepo command:
-      # createrepo {{ lyr_dir_path }}
+      # createrepo {{ yum_local_repo_dir }}
 
 
 
 Step by step explanation:
 
- 1. Download the package to the local folder {{ lyr_dir_path }}:
-       # yum reinstall --downloadonly --downloaddir={{ lyr_dir_path }} vim
+ 1. Download the package to the local folder {{ yum_local_repo_dir }}:
+       # yum reinstall --downloadonly --downloaddir={{ yum_local_repo_dir }} vim
     or
-       # yum install --downloadonly --downloaddir={{ lyr_dir_path }} vim
+       # yum install --downloadonly --downloaddir={{ yum_local_repo_dir }} vim
 
     Or if available, use the yumdownloader tool
-       # yumdownloader --destdir={{ lyr_dir_path }} vim
+       # yumdownloader --destdir={{ yum_local_repo_dir }} vim
  
  2. To create/recreate a repository's metadata:
-       # createrepo {{ lyr_dir_path }}
+       # createrepo {{ yum_local_repo_dir }}
  
  3. If search does not show the uploaded package, then manually clean the cache
        # yum clean all

@@ -108,13 +108,25 @@
 - name: 'Create lustre lnet config: part 2.'
   ansible.builtin.command:
     cmd: |
-         lnetctl net add --net "{{ item.name }}" --if "{{ item.interface }}"
-  register: lnetctl_status
+         lnetctl net del --net tcp
+  register: lnetctl_del_status
   changed_when:
-    - lnetctl_status.rc == 0
+    - lnetctl_del_status.rc == 0
   failed_when:
-    - lnetctl_status.rc > 0
-    - '"errno: -17" not in lnetctl_status.stderr'
+    - lnetctl_del_status.rc > 0
+    - '"errno: -2" not in lnetctl_del_status.stderr'
+  become: true
+
+- name: 'Create lustre lnet config: part 3.'
+  ansible.builtin.command:
+    cmd: |
+         lnetctl net add --net "{{ item.name }}" --if "{{ item.interface }}"
+  register: lnetctl_add_status
+  changed_when:
+    - lnetctl_add_status.rc == 0
+  failed_when:
+    - lnetctl_add_status.rc > 0
+    - '"errno: -17" not in lnetctl_add_status.stderr'
   with_items: "{{ lustre_client_networks }}"
   become: true
 
@@ -122,7 +134,7 @@
   ansible.builtin.shell:
     cmd: |
          checksum_old=$(md5sum /etc/lnet.conf)
-         lnetctl export /etc/lnet.conf
+         lnetctl export -b /etc/lnet.conf
          checksum_new=$(md5sum /etc/lnet.conf)
          if [[ "${checksum_old}" != "${checksum_new}" ]]; then
              echo 'lnet.conf has changed.'
@@ -130,5 +142,44 @@
   register: lnetconf_status
   changed_when:
     - '"lnet.conf has changed." in lnetconf_status.stdout'
+  notify:
+    - restart_lnet
+  become: true
+
+- name: Patch lnet.service file for systemd to ignore failure if a Lustre network ID was already loaded.
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/lnet.service
+    backup: true
+    insertafter: '\[Service\]'
+    regexp: '^#?SuccessExitStatus='
+    line: 'SuccessExitStatus=239'  # lustre NID already loaded.
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart_lnet
+  become: true
+
+- name: Patch lnet.service file for systemd to start lnet.service before remote-fs.target.
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/lnet.service
+    backup: true
+    insertafter: '\[Install\]'
+    regexp: '^#?WantedBy='
+    line: 'WantedBy=multi-user.target remote-fs-pre.target'
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - reenable_lnet
+    - restart_lnet
+  become: true
+
+- name: Start lnet.service.
+  ansible.builtin.systemd:
+    name: lnet.service
+    enabled: true
+    state: started
+    daemon_reload: true
   become: true
 ...

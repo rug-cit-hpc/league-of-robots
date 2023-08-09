@@ -1,0 +1,19 @@
+---
+- name: Install EPEL for EL 7.
+  ansible.builtin.import_tasks: epel7.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] == "7"
+
+- name: Install EPEL for EL 8
+  ansible.builtin.import_tasks: epel8.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] == "8"
+
+- name: Install EPEL for EL 9.
+  ansible.builtin.import_tasks: epel9.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] == "9"
+...

@@ -9,32 +9,63 @@
     # Disable Ansible's interpretor detection logic,
     # which would fail to use the interpretor from an activated virtual environment.
     #
-    - ansible_python_interpreter: python
+    ansible_python_interpreter: python
   pre_tasks:
     - name: 'Verify Ansible version meets requirements.'
       ansible.builtin.assert:
         that: "ansible_version.full is version_compare(minimal_ansible_version, '>=')"
         msg: "You must update Ansible to at least {{ minimal_ansible_version }}.x to use this playbook."
       vars:
-        minimal_ansible_version: 2.10
-      run_once: true
+        minimal_ansible_version: 2.11
+      run_once: true  # noqa run-once
       delegate_to: localhost
       connection: local
+    - name: 'Verify that we are running inside a Python virtual environment before we try to fetch dependencies from Ansible Galaxy.'
+      ansible.builtin.assert:
+        that: lookup('ansible.builtin.env', 'VIRTUAL_ENV', default=Undefined) is defined
+      run_once: true  # noqa run-once
+      delegate_to: localhost
+      connection: local
+    - name: 'Verify that collections and roles will be installed inside our Python virtual environment before we try to fetch dependencies from Ansible Galaxy.'
+      ansible.builtin.assert:
+        that: lookup('ansible.builtin.env', item, default=Undefined) is defined
+      run_once: true  # noqa run-once
+      delegate_to: localhost
+      connection: local
+      loop:
+        - ANSIBLE_ROLES_PATH
+        - ANSIBLE_COLLECTIONS_PATHS
     - name: 'Verify that the group_vars were parsed.'
       ansible.builtin.assert:
         that: stack_name is defined
         msg: "FATAL: the stack_name Ansible variable is undefined, which suggests that the group_vars were not parsed."
-      run_once: true
+      run_once: true  # noqa run-once
       delegate_to: localhost
       connection: local
+    - name: 'Get the major version of the installed Python openstacksdk module.'
+      ansible.builtin.shell:
+        cmd: |
+             set -o pipefail
+             pip show openstacksdk | fgrep -i Version | awk '{print $2}' | grep -o '^[0-9]*'
+      run_once: true  # noqa run-once
+      delegate_to: localhost
+      connection: local
+      register: openstacksdk_major_version
+      changed_when: true
     - name: 'Download dependencies from Ansible Galaxy on the Ansible control host.'
       ansible.builtin.command:
-        cmd: ansible-galaxy install -r requirements.yml
-      run_once: true
+        cmd: |
+             ansible-galaxy install
+                            -r requirements-{{ openstacksdk_major_version.stdout }}.yml
+                            {% if ansible_version.full is version_compare('2.14', '>=') %} --timeout 120{% endif %}
+      run_once: true  # noqa run-once
       delegate_to: localhost
       connection: local
-      changed_when: "'installed successfully' in resolved_dependencies.stdout"
       register: resolved_dependencies
+      changed_when: "'installed successfully' in resolved_dependencies.stdout"
+      retries: 3
+      delay: 10
+      until: resolved_dependencies is not failed
     - name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
       ansible.builtin.find:
         paths: "{{ playbook_dir }}/group_vars/"
@@ -47,7 +78,7 @@
       ansible.builtin.include_vars:
         file: "{{ item }}"
         name: "{{ item | dirname | basename }}"
-      with_items: "{{ ip_addresses_files.files | map (attribute='path') | list }}"
+      with_items: "{{ ip_addresses_files.files | map(attribute='path') | list }}"
       delegate_to: localhost
       connection: local
 ...

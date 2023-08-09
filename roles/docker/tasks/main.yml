@@ -25,4 +25,18 @@
     executable: pip3
   become: true
 
+- name: Get service facts
+  ansible.builtin.service_facts:
+
+- name: Update docker service to reload every time after iptables service
+  ansible.builtin.blockinfile:
+    path: /usr/lib/systemd/system/docker.service
+    insertafter: '\[Unit\]'
+    block: |
+      After=iptables.service
+      Requires=iptables.service
+      PartOf=iptables.service
+  notify: 'restart_docker'
+  become: true
+
 ...

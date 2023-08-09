@@ -1,0 +1,70 @@
+#
+# Note:
+#  * This role currently works with cgroups v1
+#    and will need te bo refactored for cgroups v2.
+#  * This role does not use systemd to manage cgroups,
+#    because systemd currently only supports setting limits per user
+#    and does not support setting limits per groups of users (yet).
+#    See: https://github.com/systemd/systemd/issues/12989
+#  * Inspired by discussion at:
+#    https://groups.google.com/g/slurm-users/c/Gt6Vof3E79U
+#
+---
+- name: Install libcgroup.
+  ansible.builtin.yum:
+    state: latest
+    update_cache: true
+    name:
+      - libcgroup
+      - libcgroup-tools
+  notify:
+    - restart_cgconfig
+    - restart_cgred
+  become: true
+
+- name: Determine cpuset.cpus
+  ansible.builtin.command:
+    cmd: grep -o '[0-9]*$' /sys/fs/cgroup/cpuset/cpuset.cpus
+  changed_when: false
+  register: cgroups_cpuset_cpus
+
+- name: Determine cpuset.mems
+  ansible.builtin.command:
+    cmd: cat /sys/fs/cgroup/cpuset/cpuset.mems
+  changed_when: false
+  register: cgroups_cpuset_mems
+
+- name: Install /etc/cgconfig.d/regular_users.conf.
+  ansible.builtin.template:
+    src: templates/regular_users.conf.j2
+    dest: /etc/cgconfig.d/regular_users.conf
+    owner: root
+    group: root
+    mode: '0644'
+  vars:
+    cgroups_cpuset_mems_range: "{{ cgroups_cpuset_mems.stdout }}"
+    cgroups_cpuset_max_core_number: "{{ cgroups_cpuset_cpus.stdout }}"
+  notify: restart_cgconfig
+  become: true
+
+- name: Install /etc/cgrules.conf.
+  ansible.builtin.template:
+    src: templates/cgrules.conf.j2
+    dest: /etc/cgrules.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart_cgred
+  become: true
+
+- name: Make sure services are enabled and started.
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: 'started'
+    enabled: 'yes'
+    daemon_reload: 'yes'
+  with_items:
+    - cgconfig.service
+    - cgred.service
+  become: true
+...

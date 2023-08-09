@@ -1,0 +1,16 @@
+---
+- name: Running update-ca-trust when certificates have changed.
+  ansible.builtin.command:
+    cmd: update-ca-trust extract
+  changed_when: true
+  become: true
+  listen: update-ca-trust
+
+- name: Restart slapd-ltb.service (OpenLDAP server).
+  ansible.builtin.systemd:
+    name: slapd-ltb.service
+    state: restarted
+    daemon_reload: true
+  become: true
+  listen: restart_slapd
+...

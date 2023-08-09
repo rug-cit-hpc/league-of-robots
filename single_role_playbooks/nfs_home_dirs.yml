@@ -8,7 +8,7 @@
      - nfs_home_server
 
 - name: Mount /home on NFS clients.
-  hosts: compute_vm
+  hosts: compute_node
   roles:
      - nfs_home_client
 ...

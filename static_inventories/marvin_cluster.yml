@@ -9,6 +9,10 @@ all:
       hosts:
         dockingport:
           cloud_flavor: s1.small
+          host_networks:
+            - name: EJP-RD-network
+              security_group: "{{ stack_prefix }}_jumphosts"
+              assign_floating_ip: true
     docs:
       hosts:
         docs_on_merlin:
@@ -16,16 +20,24 @@ all:
       hosts:
         mv-sai:
           cloud_flavor: s1.small
-          local_volume_size_extra: 1
+          host_networks:
+            - name: EJP-RD-network
+              security_group: "{{ stack_prefix }}_cluster"
     deploy_admin_interface:
       hosts:
         mv-dai:
           cloud_flavor: s1.small
+          host_networks:
+            - name: EJP-RD-network
+              security_group: "{{ stack_prefix }}_cluster"
           local_volume_size_extra: 200
     user_interface:
       hosts:
         marvin:
           cloud_flavor: s1.large
+          host_networks:
+            - name: EJP-RD-network
+              security_group: "{{ stack_prefix }}_cluster"
           slurm_sockets: 4
           slurm_cores_per_socket: 1
           slurm_real_memory: 7821
@@ -34,13 +46,16 @@ all:
           slurm_ethernet_interfaces:
             - eth0
             - eth1
-    compute_vm:
+    compute_node:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             mv-vcompute[01]:
           vars:
             cloud_flavor: s1.gargantuan
+            host_networks:
+              - name: EJP-RD-network
+                security_group: "{{ stack_prefix }}_cluster"
             local_volume_size_extra: 1
             slurm_sockets: 16
             slurm_cores_per_socket: 1
@@ -60,7 +75,7 @@ administration:
     ldap_server:
 cluster:
   children:
-    compute_vm:
+    compute_node:
     administration:
 marvin_cluster:
   children:

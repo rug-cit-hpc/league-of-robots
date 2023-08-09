@@ -2,6 +2,7 @@
 - hosts:
     - jumphost
     - data_transfer
+    - logs
   roles:
     - admin_users
 - hosts:
@@ -9,6 +10,7 @@
     - cluster
     - docs
     - jenkins
+    - build_servers
   roles:
     - admin_users
 ...

@@ -1,0 +1,7 @@
+---
+- name: GPU installation role
+  hosts:
+    - compute_node
+  roles:
+    - gpu
+...

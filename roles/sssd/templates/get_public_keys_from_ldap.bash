@@ -18,16 +18,16 @@
 declare -a domain_names=({% for ldap_domain, ldap_config in ldap_domains.items() %}'{{ ldap_domain }}'{% if not loop.last %} {% endif %}{% endfor %})
 declare -A domain_configs=(
 {% for ldap_domain, ldap_config in ldap_domains.items() %}
-    [{{ ldap_domain }}_uri]='{{ ldap_config.uri }}'
-    [{{ ldap_domain }}_search_base]='{{ ldap_config.search_base }}'
-    [{{ ldap_domain }}_bind_dn]='{{ ldap_credentials[ldap_domain].bind_dn }}'
-    [{{ ldap_domain }}_bind_pw]='{{ ldap_credentials[ldap_domain].bind_pw }}'
-    [{{ ldap_domain }}_user_object_class]='{{ ldap_config.user_object_class }}'
-    [{{ ldap_domain }}_user_name]='{{ ldap_config.user_name }}'
-    [{{ ldap_domain }}_user_ssh_public_key]='{{ ldap_config.user_ssh_public_key }}'
+    [{{ ldap_domain }}_uri]='{{ ldap_config['uri'] }}'
+    [{{ ldap_domain }}_search_base]='{{ ldap_config['base'] }}'
+    [{{ ldap_domain }}_bind_dn]='{{ ldap_credentials[ldap_domain]['readonly']['dn'] }}'
+    [{{ ldap_domain }}_bind_pw]='{{ ldap_credentials[ldap_domain]['readonly']['pw'] }}'
+    [{{ ldap_domain }}_user_object_class]='{{ ldap_config['user_object_class'] }}'
+    [{{ ldap_domain }}_user_name]='{{ ldap_config['user_name'] }}'
+    [{{ ldap_domain }}_user_ssh_public_key]='{{ ldap_config['user_ssh_public_key'] }}'
 {% endfor %}
 )
-declare admin_gid='{{ auth_groups['admin'].gid }}'
+declare admin_gid='{{ auth_groups['admin']['gid'] }}'
 {% raw %}
 #
 # No more Ansible variables below this point!
@@ -37,7 +37,6 @@ declare user="${1}"
 declare base64='/usr/bin/base64'
 declare grep='/usr/bin/grep'
 declare ldapsearch='/usr/bin/ldapsearch'
-declare sed='/usr/bin/sed'
 declare ssh_keygen='/usr/bin/ssh-keygen'
 declare minimal_rsa_key_size='4096'
 declare -a authorized_keys=()
@@ -73,7 +72,6 @@ function filterKeys() {
 function getPublicKeysFromLDAP() {
   local _ldap
   for _ldap in "${domain_names[@]}"; do
-    local _public_key
     local _uri="${domain_configs[${_ldap}_uri]}"
     local _search_base="${domain_configs[${_ldap}_search_base]}"
     local _bind_dn="${domain_configs[${_ldap}_bind_dn]}"
@@ -82,8 +80,7 @@ function getPublicKeysFromLDAP() {
     local _user_name="${domain_configs[${_ldap}_user_name]}"
     local _user_ssh_public_key_attr="${domain_configs[${_ldap}_user_ssh_public_key]}"
     local _user_ssh_public_key_regex="${_user_ssh_public_key_attr}(::*) (.*)"
-    local _separator
-    local _user_ssh_public_key_value
+    local _ldap_query_results
     #echo 'DEBUG: Querying LDAP using:' 1>&2
     #echo "       ${ldapsearch} -LLL -o ldif-wrap=no" 1>&2
     #echo "    -H ${_uri}"  1>&2
@@ -96,7 +93,7 @@ function getPublicKeysFromLDAP() {
     #
     # Get public keys using ldapsearch command.
     #
-    _user_ssh_public_key_value=$("${ldapsearch}" -LLL -o ldif-wrap=no \
+    _ldap_query_results=$("${ldapsearch}" -LLL -o ldif-wrap=no \
         -H "${_uri}" \
         -D "${_bind_dn}" \
         -w "${_bind_pw}" \
@@ -104,32 +101,40 @@ function getPublicKeysFromLDAP() {
            "(&(ObjectClass=${_user_object_class})(${_user_name}=${user}))" \
            "${_user_ssh_public_key_attr}" \
         | "${grep}" "${_user_ssh_public_key_attr}")
-    if [[ -z "${_user_ssh_public_key_value}" ]]; then
+    if [[ -z "${_ldap_query_results}" ]]; then
       #echo "DEBUG: User ${user} or its ${_user_ssh_public_key_attr} LDAP attribute does not exist in ${_ldap} LDAP." 1>&2
       continue
-    elif [[ "${_user_ssh_public_key_value}" =~ ${_user_ssh_public_key_regex} ]]; then
-      _separator="${BASH_REMATCH[1]}"
-      _user_ssh_public_key_value="${BASH_REMATCH[2]}"
-      #echo "DEBUG: Found ${_user_ssh_public_key_attr} LDAP attribute:" 1>&2
-      #echo "${_user_ssh_public_key_value}" 1>&2
-    else
-      echo "ERROR: Failed to parse LDAP attribute ${_user_ssh_public_key_attr}, which contained: ${_user_ssh_public_key_value:-}." 1>&2
-      continue
     fi
-    if [[ "${_separator}" == ':' ]]; then
-      while read -r _public_key; do
-        test -z "${_public_key:-}" && continue
-        filterKeys "${_public_key}"
-      done < <(printf '%s\n' "${_user_ssh_public_key_value}" && echo)
-    elif [[ "${_separator}" == '::' ]]; then
-      while read -r _public_key; do
-        test -z "${_public_key:-}" && continue
-        filterKeys "${_public_key}"
-      done < <(printf '%s\n' "${_user_ssh_public_key_value}" | "${base64}" -di && echo)
-    else
-      echo "ERROR: Got an unsupported key value separator ${_separator} for LDAP attribute: ${_user_ssh_public_key_value:-}." 1>&2
-      continue
-    fi
+    local _ldap_query_result_line
+    readarray -t _ldap_query_result_lines <<< "${_ldap_query_results}"
+    for _ldap_query_result_line in "${_ldap_query_result_lines[@]}"; do
+      local _separator
+      local _user_ssh_public_key_value
+      local _public_key
+      if [[ "${_ldap_query_result_line}" =~ ${_user_ssh_public_key_regex} ]]; then
+        _separator="${BASH_REMATCH[1]}"
+        _user_ssh_public_key_value="${BASH_REMATCH[2]}"
+        #echo "DEBUG: Found ${_user_ssh_public_key_attr} LDAP attribute:" 1>&2
+        #echo "${_user_ssh_public_key_value}" 1>&2
+      else
+        echo "ERROR: Failed to parse LDAP attribute ${_user_ssh_public_key_attr} in LDAP query result line: ${_ldap_query_result_line:-}." 1>&2
+        continue
+      fi
+      if [[ "${_separator}" == ':' ]]; then
+        while read -r _public_key; do
+          test -z "${_public_key:-}" && continue
+          filterKeys "${_public_key}"
+        done < <(printf '%s\n' "${_user_ssh_public_key_value}" && echo)
+      elif [[ "${_separator}" == '::' ]]; then
+        while read -r _public_key; do
+          test -z "${_public_key:-}" && continue
+          filterKeys "${_public_key}"
+        done < <(printf '%s\n' "${_user_ssh_public_key_value}" | "${base64}" -di && echo)
+      else
+        echo "ERROR: Got an unsupported key value separator ${_separator} in LDAP query result line:: ${_ldap_query_result_line:-}." 1>&2
+        continue
+      fi
+    done
   done
 }
 
@@ -166,8 +171,6 @@ fi
 #
 # Return filtered public keys.
 #
-for authorized_key in "${authorized_keys[@]}"; do
-  printf '%s\n' "${authorized_key}"
-done
+( printf '%s\n' "${authorized_keys[@]}" ) || exit 0
 
 {% endraw %}

@@ -7,15 +7,18 @@ iptables_allow_ssh_inbound:
   - ANY
 iptables_allow_ssh_outbound:
   - ANY
-ssh_host_signer_hostnames: "{{ ansible_hostname }}\
-  {% for network_id in ip_addresses[ansible_hostname] %}\
-    {% if ip_addresses[ansible_hostname][network_id]['fqdn'] is defined and
-          ip_addresses[ansible_hostname][network_id]['fqdn'] | length >= 1 %}\
-      {% if ip_addresses[ansible_hostname][network_id]['fqdn'] == 'NXDOMAIN' %}\
-        ,{{ ip_addresses[ansible_hostname][network_id]['address'] }}\
-      {% else %}\
-        ,{{ ip_addresses[ansible_hostname][network_id]['fqdn'] }}\
+ssh_host_signer_hostnames: "{{ inventory_hostname }}\
+    {% for network_id in ip_addresses[inventory_hostname] %}\
+      {% if ip_addresses[inventory_hostname][network_id]['fqdn'] is defined and
+            ip_addresses[inventory_hostname][network_id]['fqdn'] | length >= 1 %}\
+        {% if ip_addresses[inventory_hostname][network_id]['fqdn'] == 'NXDOMAIN' %}\
+          ,{{ ip_addresses[inventory_hostname][network_id]['address'] }}\
+        {% else %}\
+          ,{{ ip_addresses[inventory_hostname][network_id]['fqdn'] }}\
+        {% endif %}\
       {% endif %}\
-    {% endif %}\
-  {% endfor %}"
+    {% endfor %}"
+# This is enforcing that jumphosts use `yum_repos` for defining repositories,
+# since jumphosts cannot use Pulp
+repo_manager: 'none'
 ...

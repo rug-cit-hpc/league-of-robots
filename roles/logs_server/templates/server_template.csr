@@ -1,0 +1,11 @@
+cn = {{ inventory_hostname }}
+organization = UMCG
+unit = GCC
+state = Groningen
+country = NL
+expiration_days = 1126
+email = "hpc.helpdesk@umcg.nl"
+tls_www_server
+tls_www_client
+encryption_key
+signing_key

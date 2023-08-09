@@ -4,9 +4,9 @@ use_ldap: true  # needed for the sshd template
 # Example of structure of ldap_domains variable in group_vars/.../vars.yml
 #
 # ldap_domains:
-#  default_domain:
+#  stack:
 #    uri: ''
-#    search_base: ''
+#    base: ''
 #    schema: rfc2307
 #    min_id: 10000
 #    max_id: ''
@@ -17,9 +17,17 @@ use_ldap: true  # needed for the sshd template
 #    group_quota_hard_limit_template: ''
 #
 # Example of structure of ldap_credentials variable in group_vars/.../secrets.yml
+# At least a read-only account is required to query the LDAP.
+# If we do not use an external LDAP and need to create one ourselves a read-write admin account is reauired to manage the LDAP content too.
 #
 # ldap_credentials:
-#   default_domain:
-#     bind_dn: some-read-only-user
-#     bind_pw: some-password
+#   stack:
+#     readonly:
+#       dn: 'cn=readonly,....'
+#       pw: '....'
+#       hash: '{ARGON2}$argon2id$v=19$m=65536,t=2,p=1$.....'
+#     admin:
+#       dn: 'cn=admin,....'
+#       pw: '....'
+#       hash: '{ARGON2}$argon2id$v=19$m=65536,t=2,p=1$....'
 ...

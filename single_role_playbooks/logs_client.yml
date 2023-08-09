@@ -1,0 +1,12 @@
+---
+- name: Running > logs_client < role
+  hosts:
+    - jumphost
+    - cluster
+    - repo
+    - logs
+  roles:
+    - role: logs_client
+      when: (syslog_external_servers is defined and ( syslog_external_servers|length>0 )) or
+        ( stacks_logs_servers is defined and ( stacks_logs_servers|length>0 ) )
+...

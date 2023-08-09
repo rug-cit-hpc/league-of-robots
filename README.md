@@ -45,6 +45,7 @@ This repo currently contains code and configs for the following clusters:
 
  * Talos: Development cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
  * Gearshift: [UMCG](https://www.umcg.nl) Research IT production cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
+ * Nibbler: [UMCG](https://www.umcg.nl) Research IT production cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
  * Hyperchicken: Development cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
  * Fender: [Solve-RD](solve-rd.eu/) production cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
 
@@ -79,7 +80,8 @@ The clusters use the following types of storage systems / folders:
 
 Some other stacks of related machines are:
 
- * docs_library: web servers hosting documentation.
+ * ```docs_library```: web servers hosting documentation.
+ * ```jenkins_server```: Continues Integration testing server.
  * ...: iRODS machines
 
 ## Deployment phases
@@ -93,8 +95,8 @@ Deploying a fully functional stack of virtual machines from scratch involves the
     * For the _Shikra_ cloud, which hosts the _Talos_ and _Gearshift_ HPC clusters
       we use the ansible playbooks from the [hpc-cloud](https://git.webhosting.rug.nl/HPC/hpc-cloud) repository
       to create the OpenStack cluster.
-    * For other HPC clusters we use OpenStack clouds from other service providers as is.
- 3. Create, start and configure virtual machines on an OpenStack cluster to create a Slurm HPC cluster.
+    * For other HPC clusters we use OpenStack clouds from other service providers _as is_.
+ 3. Create, start and configure virtual networks and machines on an OpenStack cluster.
     * This repo.
  4. Deploy bioinformatics software and reference datasets.
     * Off topic for this repo.
@@ -103,7 +105,7 @@ Deploying a fully functional stack of virtual machines from scratch involves the
 
 ---
 
-## Details for phase 3. Create, start and configure virtual machines on an OpenStack cluster to create a Slurm HPC cluster.
+## Details for phase 3. Create, start and configure virtual machines on an OpenStack cluster.
 
 #### 0. Clone this repo and configure Python virtual environment.
 
@@ -113,26 +115,48 @@ cd ${HOME}/git/
 git clone https://github.com/rug-cit-hpc/league-of-robots.git
 cd league-of-robots
 #
+# For older openstacksdk < 0.99 we need the ansible openstack collection 1.x.
+# For newer openstacksdk > 1.00 we need the ansible openstack collection 2.x.
+#
+openstacksdk_major_version='1'  # Change to 0 for older OpenStack SDK.
+#
 # Create Python virtual environment (once)
 #
-python3 -m venv openstacksdk.venv
+python3 -m venv openstacksdk-${openstacksdk_major_version:-1}.venv
 #
 # Activate virtual environment.
 #
-source openstacksdk.venv/bin/activate
+source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
 #
 # Install OpenStack SDK (once) and other python packages.
 #
 pip3 install --upgrade pip
 pip3 install wheel
-pip3 install 'openstacksdk<0.99'
+if [[ "${openstacksdk_major_version:-1}" -eq 0 ]]; then
+  pip3 install "openstacksdk<0.99"
+else
+  pip3 install "openstacksdk==${openstacksdk_major_version:-1}.*"
+fi
+pip3 install openstackclient
 pip3 install ruamel.yaml
+pip3 install netaddr
+#
+# Package dnspython is required for Ansible lookup plugin community.general.dig
+#
+pip3 install dnspython
+#
+# On macOS only to prevent this error:
+# crypt.crypt not supported on Mac OS X/Darwin, install passlib python module.
+#
+pip3 install passlib
 #
 # Optional: install Ansible with pip.
 # You may skip this step if you already installed Ansible by other means.
 # E.g. with HomeBrew on macOS, with yum or dnf on Linux, etc.
 #
-pip3 install ansible
+# Ansible core 2.13 from Ansible 6.x is latest version compatible with Mitogen.
+#
+pip3 install 'ansible<7'
 #
 # Optional: install Mitogen with pip.
 # Mitogen provides an optional strategy plugin that makes playbooks a lot (up to 7 times!) faster.
@@ -141,13 +165,18 @@ pip3 install ansible
 pip3 install mitogen
 ```
 
-#### 1. First import the required roles and collections for the playbooks:
+#### 1. Import the required roles and collections for the playbooks.
 
 ```bash
-ansible-galaxy install -r requirements.yml
+source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
+export ANSIBLE_ROLES_PATH="${VIRTUAL_ENV}/ansible/ansible_roles/:"
+export ANSIBLE_COLLECTIONS_PATHS="${VIRTUAL_ENV}/ansible/:"
+ansible-galaxy install -r requirements-${openstacksdk_major_version:-1}.yml
 ```
 
-Note: the default location where these dependencies will get installed with the above command is ```${HOME}/.ansible/```.
+Note: the default location where these dependencies will get installed with the ```ansible-galaxy install``` command is ```${HOME}/.ansible/```,
+which is may conflict with versions of roles and collections required for other repos.
+Therefore we set ```ANSIBLE_ROLES_PATH``` and ```ANSIBLE_COLLECTIONS_PATH``` to use a custom path for the dependencies inside the virtual environment we'll use for this repo.
 
 #### 2. Create a `vault_pass.txt`.
 
@@ -181,7 +210,7 @@ To create a new *stack* you will need ```group_vars``` and a static inventory fo
   #
   # Activate Python virtual env created in step 0.
   #
-  source openstacksdk.venv/bin/activate
+  source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
   #
   # Configure this repo for a specific cluster.
   # This will set required ENVIRONMENT variables including
@@ -258,11 +287,34 @@ ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/munge.k
 ```
 The encrypted ```files/[stack_name]/munge.key``` can now be committed safely.
 
-#### 7. Generate TLS certificate for the LDAP server and encrypt it using Ansible Vault.
+#### 7. Generate TLS certificate, passwords & hashes for the LDAP server and encrypt it using Ansible Vault.
 
-If in ```group_vars/[stack_name]/vars.yml``` you configured:
- * ```create_ldap: yes```: This cluster will create and run its own LDAP server. You will need to create a self-signed TLS certificate for the LDAP server.
- * ```create_ldap: no```: This cluster will use an external LDAP, that was configured & hosted elsewhere, and this step can be skipped.
+If you do not configure any LDAP domains using the ```ldap_domains``` variable (see *ldap_server* role for details) in ```group_vars/[stack_name]/vars.yml```,
+then the machines for the [stack_name] _stack_ will use local accounts created on each machine and this step can be skipped.
+
+If you configured ```ldap_domains``` in ```group_vars/[stack_name]/vars.yml``` and all LDAP domains have  ```create_ldap: false```,
+then this _stack_ will/must use an external LDAP, that was configured & hosted elsewhere, and this step can be skipped.
+
+If you configured one or more LDAP domains with ```create_ldap: true```; E.g.:
+   ```
+   ldap_domains:
+     stack:
+       create_ldap: true
+       .....
+     other_domain:
+       some_config_option: anothervalue
+       create_ldap: true
+       .....
+   ```
+Then this _stack_ will create and run its own LDAP server. You will need to create:
+  * For the LDAP server:
+    * A self-signed TLS certificate.
+    * _Password_ & corresponding _hash_ for the LDAP ```root``` account.
+  * For each LDAP domain hosted on this LDAP server:
+    * A ```readonly``` account with a correct _dn_, _password_ and corresponding _hash_.
+    * An ```admin``` account with a correct _dn_, _password_ and corresponding _hash_.
+
+###### 7a TLS certificate for LDAP server.
 
 Execute:
    ```
@@ -274,20 +326,74 @@ Execute:
    ```
 The encrypted files in ```files/[stack_name]/``` can now be committed safely.
 
+###### 7a passwords and hashes for LDAP accounts.
+
+When an OpenLDAP server is created, you will need passwords and corresponding hashes for the LDAP _root_ account
+as well as for functional accounts for at least one LDAP domain. Therefore the minimal setup in ```group_vars/[stack_name]/secrets.yml``` is something like this:
+
+```
+openldap_root_pw: ''
+openldap_root_hash: ''
+ldap_credentials:
+  stack:
+    readonly:
+      dn: 'cn=readonly,dc={{ use stack_name here }},dc=local'
+      pw: ''
+      hash: ''
+    admin:
+      dn: 'cn={{ use stack_prefix here }}-admin,dc={{ use stack_name here }},dc=local'
+      pw: ''
+      hash: ''
+```
+
+In this example the LDAP domain named ```stack``` is used for users & groups, that were created for and are used only on this _stack_ of infra.
+You may have additional LDAP domains serving as other sources for users and groups.
+
+The `pw` values may have been already generated with the ```generate_secrets.py``` script in step 3.
+If you added additional LDAP domains later you can, decrypt the ```group_vars/[stack_name]/secrets.yml``` with ```ansible-vault```,
+rerun the ```generate_secrets.py``` script to generate additional password values and re-encrypt ```secret.yml``` with ```ansible-vault```.
+
+For each ```pw``` you will need to generate a corresponding hash. You cannot use ```generate_secrets.py``` for that,
+because it requires the ```slappasswd```. Therefore, you have to login on the OpenLDAP servers and use:
+```
+/usr/local/openldap/sbin/slappasswd \
+    -o module-path='/usr/local/openldap/libexec/openldap' \
+    -o module-load='argon2' -h '{ARGON2}' \
+    -s 'pw_value'
+```
+The result is a string with 6 ```$``` separated values like this:
+```
+'{ARGON2}$argon2id$v=19$m=65536,t=2,p=1$7+plp......nDs5J!dSpg$ywJt/ug9j.........qKcdfsgQwEI'
+```
+For the record:
+1. ```{ARGON2}```: identifies which hashing schema was used.
+2. ```argon2id```: lists which Argon 2 algorithm was used.
+3. ```v=19```: version of the Argon 2 algorithm.
+4. ```m=65536,t=2,p=1```: lists values used for arguments for the Argon 2 algorithm.
+5. ```7+plp......nDs5J!dSpg```: The base64 encoded radom salt that was added by ```slappasswd```
+6. ```ywJt/ug9j.........qKcdfsgQwEI````: The base64 encoded hash.
+
+Use the **_entire_** strings as the ```hash``` values in ```group_vars/[stack_name]/secrets.yml```.
+
 #### 8. Running playbooks.
 
-There are two playbooks:
+There are two _wrapper playbooks_:
 
-1. `deploy-os_servers.yml`:
-   * Creates virtual resources in OpenStack: networks, subnets, routers, volumes and finally the virtual machines.
+1. `openstack.yml`:
+   * Creates virtual resources in OpenStack: networks, subnets, routers, ports, volumes and finally the virtual machines.
    * Interacts with the OpenstackSDK / API on localhost.
    * Uses a static inventory from `static_inventories/*.yaml` parsed with our custom inventory plugin `inventory_plugins/yaml_with_jumphost.py`
 1. `cluster.yml`:
-   * Configures the virtual machines created with the `deploy-os_servers.yml` playbook.
+   * Configures the virtual machines created with the `openstack.yml` playbook.
    * Has no dependency on the OpenstackSDK / API.
    * Uses a static inventory from `static_inventories/*.yaml` parsed with our custom inventory plugin `inventory_plugins/yaml_with_jumphost.py`
 
-##### deploy-os_servers.yml
+The _wrapper playbooks_ execute several _roles_ in the right order to create the complete `stack`.
+_Playbooks_ from the `single_role_playbooks/` or `single_group_playbooks/` sub directories can be used to
+(re)deploy individual roles or all roles for only a certain type of machine (inventory group), respectively.
+These shorter subset _playbooks_ can save a lot of time during development, testing or regular maintenance.
+
+##### openstack.yml
 
 * Login to the OpenStack web interface -> _Identity_ -> _Application Credentials_ -> click the _Create Application Credential_ button.  
   This will result in a popup window: specify _Name_, _Expiration Date_, _Expiration Time_, leave the rest empty / use defaults
@@ -298,17 +404,17 @@ There are two playbooks:
   #
   # Activate Python virtual env created in step 0.
   #
-  source openstacksdk.venv/bin/activate
+  source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
   #
   # Initialize the OpenstackSDK
   #
   source ./[Application_Credential_Name]-openrc.sh
   #
-  # Configure this repo for deployment of a specifc stack.
+  # Configure this repo for deployment of a specific stack.
   #
   source ./lor-init
   lor-config [stack_prefix]
-  ansible-playbook deploy-os_servers.yml
+  ansible-playbook openstack.yml
   ```
 
 ##### cluster.yml
@@ -382,9 +488,13 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
 * Deploy the signed hosts keys.
 * Configure other stuff on the jumphost, which contains amongst others the settings required to access the other machines behind the jumphost.
   ```bash
+  #
+  # CentOS 7.x default_cloud_image_user = centos
+  # Rocky 9.x default_cloud_image_user = cloud-user
+  #
   export ANSIBLE_HOST_KEY_CHECKING=False
-  ansible-playbook -u centos          -l 'jumphost' single_role_playbooks/admin_users.yml
-  ansible-playbook -u [admin_account] -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
+  ansible-playbook -u [default_cloud_image_user] -l 'jumphost' single_role_playbooks/admin_users.yml
+  ansible-playbook -u [admin_account]            -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
   export ANSIBLE_HOST_KEY_CHECKING=True
   ansible-playbook -u [admin_account] -l 'jumphost' cluster.yml
   ```
@@ -392,18 +502,22 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
   For creation of the local admin accounts you must (temporarily) set ```JUMPHOST_USER``` for the jumphost to _your local admin account_,
   because the ```centos``` user will no longer be able to login to the jumphost.
   ```bash
+  #
+  # CentOS 7.x default_cloud_image_user = centos
+  # Rocky 9.x default_cloud_image_user = cloud-user
+  #
   export ANSIBLE_HOST_KEY_CHECKING=False
   export JUMPHOST_USER=[admin_account] # Requires SSH client config as per end user documentation: see above.
-  ansible-playbook -u centos          -l 'repo,cluster'      single_role_playbooks/admin_users.yml
-  ansible-playbook -u root            -l 'docs'              single_role_playbooks/admin_users.yml
+  ansible-playbook -u [default_cloud_image_user] -l 'repo,cluster'      single_role_playbooks/admin_users.yml
+  ansible-playbook -u root                       -l 'docs'              single_role_playbooks/admin_users.yml
   unset JUMPHOST_USER
-  ansible-playbook -u [admin_account] -l 'repo,cluster,docs' single_role_playbooks/ssh_host_signer.yml
+  ansible-playbook -u [admin_account]            -l 'repo,cluster,docs' single_role_playbooks/ssh_host_signer.yml
   export ANSIBLE_HOST_KEY_CHECKING=True
-  ansible-playbook -u [admin_account] -l 'repo,cluster,docs' cluster.yml
+  ansible-playbook -u [admin_account]            -l 'repo,cluster,docs' cluster.yml
   ```
-* (Re-)deploying only a specific role - e.g. *slurm_management* - on the previously deployed test cluster *Talos*
+* (Re-)deploying only a specific role - e.g. *rsyslog_client* - on the previously deployed test cluster *Talos*
   ```bash
-  ansible-playbook -u [admin_account] single_role_playbooks/slurm_management.yml
+  ansible-playbook -u [admin_account] single_role_playbooks/rsyslog_client.yml
   ```
 
 #### 9. Verify operation.

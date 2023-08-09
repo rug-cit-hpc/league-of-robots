@@ -24,6 +24,7 @@ slurm_partitions:
     features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
+os_distribution: 'centos7'
 figlet_font: 'lockergnome'
 motd: "To solve or not to solve, that's the question."
 additional_etc_hosts:
@@ -31,21 +32,68 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
-use_ldap: yes
-create_ldap: yes
-ldap_uri: ldaps://hc-dai
-ldap_base: dc=hpc,dc=rug,dc=nl
-ldap_binddn: cn=admin,dc=hpc,dc=rug,dc=nl
-ldap_domain: hpc.rug.nl
+  - group: logs_library
+    nodes:
+      - name: earl1
+        network: vlan16
+  - group: logs_library
+    nodes:
+      - name: earl2
+        network: logs_external_network
+  - group: logs_library
+    nodes:
+      - name: earl3
+        network: logs_external_network
+  - group: logs_library
+    nodes:
+      - name: earl4
+        network: vlan16
+#
+# Remote logging settings - for diagnostics servers
+#
+logs_ca_name: 'development'
+stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
+   - name: 'earl1'
+     external_network: 'vlan16' # to retrieve public IP from
+   - name: 'earl2'
+     external_network: 'logs_external_network'
+#
+# Ldap settings
+#
+use_ldap: true
+use_sssd: true
+ldap_domains:
+  stack:
+    uri: "ldaps://{{ stack_prefix }}-dai"
+    base: "dc={{ stack_name }},dc=local"
+    schema: rfc2307bis
+    min_id: 1000
+    max_id: 21999
+    user_object_class: posixAccount
+    user_name: uid
+    user_ssh_public_key: sshPublicKey
+    user_member_of: memberOf
+    group_member: member
+    create_ldap: true
+    ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
 cloud_image: CentOS7-Cloud
 cloud_user: centos
-network_public_external_id: public
-network_private_management_id: "{{ stack_prefix }}_internal_management"
-network_private_management_cidr: '10.10.1.0/24'
-network_private_management_gw: '10.10.1.1'
-network_private_storage_id: "subnet-nfs-data-2541"
-network_private_storage_cidr: '10.35.141.0/24'
 availability_zone: nova
+stack_networks:
+  - name: "{{ stack_prefix }}_internal_management"
+    cidr: '10.10.1.0/24'
+    gateway: '10.10.1.1'
+    router_network: public
+    type: management
+    external: false
+  - name: subnet-nfs-data-2541
+    cidr: '10.35.141.0/24'
+    allow_ingress:
+      - 10.35.141.251/32  # NFS server
+      - 10.35.141.252/32  # NFS server
+      - 10.35.141.253/32  # NFS server
+    type: storage
+    external: true
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
@@ -73,15 +121,16 @@ regular_groups:
   - 'users'
   - 'solve-rd'
   - 'umcg-atd'
+  - 'umcg-gsad'
 regular_users:
   - user: "{{ envsync_user }}"
     groups: ["{{ envsync_group }}"]
   - user: 'solve-rd-dm'
     groups: ['solve-rd']
-    sudoers: '%solve-rd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
-    sudoers: '%umcg-atd'
+  - user: 'umcg-gsad-dm'
+    groups: ['umcg-gsad']
   - user: 'gvdvries'
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mbijlsma'
@@ -96,12 +145,27 @@ regular_users:
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
   - user: 'mbenjamins'
     groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+  - user: 'umcg-molgenis'
+    groups: ['users', 'umcg-atd', 'umcg-gsad']
+sudoers:
+  - who: ['%solve-rd']
+    become: 'solve-rd-dm'
+    name: 'solve-rd-dm'
+    command: 'ALL'
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-dm'
+    name: 'umcg-atd-dm'
+    command: 'ALL'
+  - who: ['%umcg-gsad']
+    become: 'umcg-gsad-dm'
+    name: 'umcg-gsad-dm'
+    command: 'ALL'
 #
 # Shared storage related variables
 #
 pfs_mounts:
   - pfs: ecst01
-    source: '10.35.141.251:/solve-rd-98599485'
+    source: '10.35.141.252:/solve-rd-98599485'
     type: nfs4
     rw_options: 'defaults,_netdev,noatime,nodiratime,rw'
     ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
@@ -115,16 +179,18 @@ lfs_mounts:
     groups:
       - name: umcg-atd
       - name: solve-rd
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+      - name: umcg-gsad
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
   - lfs: prm09
     pfs: ecst01
     groups:
       - name: umcg-atd
       - name: solve-rd
+      - name: umcg-gsad
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env09
     pfs: ecst01
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ega_fuse_client_mounts:
   solve_rd: '/groups/solve-rd/prm09/ega-fuse-client'

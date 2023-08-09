@@ -1,0 +1,461 @@
+#
+# Note: the network_names_of_all_hosts_created_in_openstack variable used in included tasks is specified in the defaults for this role.
+#
+---
+#
+# Jumphosts security groups.
+#
+- name: "Create security groups for machines in 'jumphost' inventory group."
+  when: "'jumphost' in inventory_groups_with_hosts_created_in_openstack"
+  block:
+    - name: "Create security group for {{ stack_prefix }} jumphosts."
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ stack_prefix }}_jumphosts"
+        description: |
+                     Security group for security hardened jumphosts bridging the external and internal network.
+                     Allows SSH inbound on both port 22 and 443.
+                     Allows ICMP inbound.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rules to {{ stack_prefix }}_jumphosts security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_jumphosts"
+        direction: ingress
+        protocol: "{{ item.protocol }}"
+        port_range_min: "{{ item.port }}"
+        port_range_max: "{{ item.port }}"
+        remote_ip_prefix: 0.0.0.0/0
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - protocol: tcp
+          port: 22  # SSH
+        - protocol: tcp
+          port: 443  # SSH fallback
+        - protocol: tcp
+          port: 636  # LDAPS
+        - protocol: icmp
+          port: -1  # ICMP protocol does not have any ports.
+#
+# Data staging security groups.
+#
+- name: "Create security groups for machines in 'data_transfer' inventory group."
+  when: "'data_transfer' in inventory_groups_with_hosts_created_in_openstack"
+  block:
+    - name: "Create security group for {{ stack_prefix }} data transfer servers."
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ stack_prefix }}_ds"
+        description: |
+                     Security group for data staging severs without access to the internal network.
+                     Allows SSH inbound on both port 22 and 443.
+                     Allows ICMP inbound.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rules to {{ stack_prefix }}_ds security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_ds"
+        direction: ingress
+        protocol: "{{ item.protocol }}"
+        port_range_min: "{{ item.port }}"
+        port_range_max: "{{ item.port }}"
+        remote_ip_prefix: 0.0.0.0/0
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - protocol: tcp
+          port: 22  # SSH
+        - protocol: tcp
+          port: 443  # SSH fallback
+        - protocol: tcp
+          port: 636  # LDAPS; ToDo: restrict to {{ ldap_uri }}
+        - protocol: icmp
+          port: -1  # ICMP protocol does not have any ports.
+#
+# Cluster security groups.
+#
+- name: "Create security groups for machines in 'cluster' inventory group."
+  when: "'cluster' in inventory_groups_with_hosts_created_in_openstack"
+  block:
+    #
+    # Management network security
+    #
+    - name: "Create management network security group for {{ stack_prefix }} cluster machines."
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ stack_prefix }}_cluster"
+        description: |
+                     Management security group for cluster machines behind a jumphost.
+                     Allows SSH and ICMP inbound from machines in the jumphost security group.
+                     Allows any traffic inbound from other machines in the same security group.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rule to {{ stack_prefix }}_cluster security group: allow LDAPS inbound on port 636."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_cluster"
+        direction: ingress
+        protocol: tcp
+        port_range_min: 636
+        port_range_max: 636
+        remote_ip_prefix: 0.0.0.0/0  # ToDo: restrict to {{ ldap_uri }}
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rules to {{ stack_prefix }}_cluster security group: allow inbound traffic from {{ stack_prefix }}_jumphosts security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_cluster"
+        direction: ingress
+        protocol: "{{ item.protocol }}"
+        port_range_min: "{{ item.port }}"
+        port_range_max: "{{ item.port }}"
+        remote_group: "{{ stack_prefix }}_jumphosts"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - protocol: tcp
+          port: 22  # SSH
+        - protocol: icmp
+          port: -1  # ICMP protocol does not have any ports.
+      when: groups['jumphost'] | default([]) | length >= 1
+    - name: "Add rules to {{ stack_prefix }}_cluster security group: allow inbound SSH from external jumphosts."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_cluster"
+        direction: ingress
+        protocol: tcp
+        port_range_min: 22
+        port_range_max: 22
+        remote_ip_prefix: "{{ remote_ip_address }}{{ remote_ip_netmask }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      vars:
+        remote_ip_address: "{{ lookup('vars', item.0.group)['ip_addresses'][item.1.hostname][item.1.network]['address'] }}"
+        remote_ip_netmask: "{{ lookup('vars', item.0.group)['ip_addresses'][item.1.hostname][item.1.network]['netmask'] }}"
+      with_subelements:
+        - "{{ external_jumphosts }}"
+        - hosts
+      when: external_jumphosts | default([]) | length >= 1
+    - name: "Add rules to {{ stack_prefix }}_cluster security group: allow inbound traffic from machines in the same security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_cluster"
+        direction: ingress
+        protocol: "{{ item }}"
+        port_range_min: -1  # For TCP and UDP port range min -1 & max -1 equals min 1 & max 65535, but the latter is not idempotent due to a known bug.
+        port_range_max: -1  # ICMP protocol does not have any ports.
+        remote_group: "{{ stack_prefix }}_cluster"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - tcp
+        - udp
+        - icmp
+    #
+    # Storage network security
+    #
+    - name: "Create storage network security group for {{ stack_prefix }} cluster machines."
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ stack_prefix }}_storage"
+        description: |
+                     Storage security group for cluster machines.
+                     Allows any traffic from storage servers.
+                     Allows any traffic inbound from other machines in the same security group.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      when: stack_networks
+                | selectattr('type', 'equalto', 'storage')
+                | map(attribute='name')
+                | intersect(network_names_of_all_hosts_created_in_openstack)
+                | length >= 1
+    - name: "Add rule to {{ stack_prefix }}_storage security group: allow inbound traffic from external storage servers."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_storage"
+        direction: ingress
+        protocol: "{{ item.1 }}"
+        port_range_min: -1  # For TCP and UDP port range min -1 & max -1 equals min 1 & max 65535, but the latter is not idempotent due to a known bug.
+        port_range_max: -1  # ICMP protocol does not have any ports.
+        remote_ip_prefix: "{{ item.0 }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      vars:
+        storage_networks_for_hosts_created_in_openstack: "{{ stack_networks
+            | selectattr('type', 'equalto', 'storage')
+            | map(attribute='name')
+            | intersect(network_names_of_all_hosts_created_in_openstack)
+            | default([]) }}"
+        storage_networks_allow_ingress: "{{ stack_networks
+            | selectattr('name', 'in', storage_networks_for_hosts_created_in_openstack)
+            | rejectattr('allow_ingress', 'undefined')
+            | map(attribute='allow_ingress')
+            | flatten
+            | unique
+            | default([]) }}"
+      loop: "{{ storage_networks_allow_ingress | product(['tcp', 'udp', 'icmp']) | list }}"
+      when:
+        - storage_networks_for_hosts_created_in_openstack | length >= 1
+        - storage_networks_allow_ingress | length >= 1
+    - name: "Add rules to {{ stack_prefix }}_storage security group: allow inbound traffic from machines in the same security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_storage"
+        direction: ingress
+        protocol: "{{ item }}"
+        port_range_min: -1  # For TCP and UDP port range min -1 & max -1 equals min 1 & max 65535, but the latter is not idempotent due to a known bug.
+        port_range_max: -1  # ICMP protocol does not have any ports.
+        remote_group: "{{ stack_prefix }}_storage"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - tcp
+        - udp
+        - icmp
+      when: stack_networks
+                | selectattr('type', 'equalto', 'storage')
+                | map(attribute='name')
+                | intersect(network_names_of_all_hosts_created_in_openstack)
+                | length >= 1
+#
+# Configure IRODS security group using Openstack API.
+#
+- name: "Create security groups for machines in 'irods' inventory group."
+  when: "'irods' in inventory_groups_with_hosts_created_in_openstack"
+  block:
+    - name: "Create security group for {{ stack_prefix }} IRODs machines."
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ stack_prefix }}_irods"
+        description: |
+                     Security group for iRODS machines.
+                     Allows SSH and ICMP inbound from jumphosts.
+                     Allows DAVRODS on port 443.
+                     Allows iRODS inbound on ports 1247 and 20000-20199.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rules to {{ stack_prefix }}_irods security group: allow inbound traffic from {{ stack_prefix }}_jumphosts security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_irods"
+        direction: ingress
+        protocol: "{{ item.protocol }}"
+        port_range_min: "{{ item.port_min }}"
+        port_range_max: "{{ item.port_max }}"
+        remote_group: "{{ stack_prefix }}_jumphosts"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - protocol: tcp
+          port_min: 22  # SSH
+          port_max: 22  # SSH
+        - protocol: icmp
+          port_min: -1  # ICMP protocol does not have any ports.
+          port_max: -1  # ICMP protocol does not have any ports.
+      when: groups['jumphost'] | default([]) | length >= 1
+    - name: "Add rules to {{ stack_prefix }}_irods security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_irods"
+        direction: ingress
+        protocol: "{{ item.protocol }}"
+        port_range_min: "{{ item.port_min }}"
+        port_range_max: "{{ item.port_max }}"
+        remote_ip_prefix: 0.0.0.0/0
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - protocol: tcp
+          port_min: 443  # DAVRODS
+          port_max: 443  # DAVRODS
+        - protocol: tcp
+          port_min: 636  # LDAPS
+          port_max: 636  # LDAPS
+        - protocol: tcp
+          port_min: 1247  # iRODS
+          port_max: 1247  # iRODS
+        - protocol: tcp
+          port_min: 5432  # iRODS
+          port_max: 5432  # iRODS
+        - protocol: tcp
+          port_min: 20000  # iRODS
+          port_max: 20199  # iRODS
+    - name: "Add rules to {{ stack_prefix }}_irods security group: allow inbound traffic from machines in the same security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_irods"
+        direction: ingress
+        protocol: "{{ item }}"
+        port_range_min: -1  # For TCP and UDP port range min -1 & max -1 equals min 1 & max 65535, but the latter is not idempotent due to a known bug.
+        port_range_max: -1  # ICMP protocol does not have any ports.
+        remote_group: "{{ stack_prefix }}_irods"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - tcp
+        - udp
+        - icmp
+#
+# (Pulp) repo server security group.
+#
+# Note: only local admin accounts on repo machines, so no need for LDAPS traffic on port 636.
+#
+- name: "Create security groups for machines in 'repo' inventory group."
+  when: "'repo' in inventory_groups_with_hosts_created_in_openstack"
+  block:
+    - name: "Create security group for {{ stack_prefix }} repo machines."
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ stack_prefix }}_repo"
+        description: |
+                     Security group for repo machines behind a jumphost.
+                     Allows SSH and ICMP inbound from machines in the jumphost security group.
+                     Allows HTTPS traffic inbound from machines in cluster and irods security group.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rules to {{ stack_prefix }}_repo security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_repo"
+        direction: ingress
+        protocol: "{{ item.protocol }}"
+        port_range_min: "{{ item.port }}"
+        port_range_max: "{{ item.port }}"
+        remote_group: "{{ item.remote_group }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - protocol: tcp
+          port: 22  # SSH
+          remote_group: "{{ stack_prefix }}_jumphosts"
+        - protocol: icmp
+          port: -1  # ICMP protocol does not have any ports.
+          remote_group: "{{ stack_prefix }}_jumphosts"
+        - protocol: tcp
+          port: 443  # HTTPS
+          remote_group: "{{ stack_prefix }}_cluster"
+        - protocol: icmp
+          port: -1  # ICMP protocol does not have any ports.
+          remote_group: "{{ stack_prefix }}_cluster"
+    - name: "Add rules to {{ stack_prefix }}_repo security group: allow inbound traffic from {{ stack_prefix }}_irods security group."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_repo"
+        direction: ingress
+        protocol: "{{ item.protocol }}"
+        port_range_min: "{{ item.port }}"
+        port_range_max: "{{ item.port }}"
+        remote_group: "{{ item.remote_group }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - protocol: tcp
+          port: 443  # HTTPS
+          remote_group: "{{ stack_prefix }}_irods"
+        - protocol: icmp
+          port: -1  # ICMP protocol does not have any ports.
+          remote_group: "{{ stack_prefix }}_irods"
+      when: groups['irods'] | default([]) | length >= 1
+#
+# Webservers security group.
+#
+- name: "Create security groups for webservers in 'docs' or 'jenkins' or 'build_servers' inventory group."
+  when: ('docs' in inventory_groups_with_hosts_created_in_openstack) or
+        ('jenkins' in inventory_groups_with_hosts_created_in_openstack) or
+        ('build_servers' in inventory_groups_with_hosts_created_in_openstack)
+  block:
+    - name: "Create security group for webservers."
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ stack_prefix }}_webservers"
+        description: |
+                     Security group for webservers.
+                     Allows SSH inbound on both port 22
+                     Allows HTTP(S) on port 80 and 443.
+                     Allows ICMP inbound.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rules to {{ stack_prefix }}_webservers security group: allow inbound SSH from external jumphosts."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_webservers"
+        direction: ingress
+        protocol: tcp
+        port_range_min: 22
+        port_range_max: 22
+        remote_ip_prefix: "{{ remote_ip_address }}{{ remote_ip_netmask }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      vars:
+        remote_ip_address: "{{ lookup('vars', item.0.group)['ip_addresses'][item.1.hostname][item.1.network]['address'] }}"
+        remote_ip_netmask: "{{ lookup('vars', item.0.group)['ip_addresses'][item.1.hostname][item.1.network]['netmask'] }}"
+      with_subelements:
+        - "{{ external_jumphosts }}"
+        - hosts
+      when: external_jumphosts | default([]) | length >= 1
+    - name: "Add rules to {{ stack_prefix }}_webservers security group: allow inbound HTTP(S) and ICMP."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_webservers"
+        direction: ingress
+        protocol: "{{ item.protocol }}"
+        port_range_min: "{{ item.port }}"
+        port_range_max: "{{ item.port }}"
+        remote_ip_prefix: 0.0.0.0/0
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - protocol: tcp
+          port: 80  # HTTP
+        - protocol: tcp
+          port: 443  # HTTPS
+        - protocol: icmp
+          port: -1  # ICMP protocol does not have any ports.
+#
+# Logs security groups.
+#
+- name: "Create security groups for machines in 'logs' inventory group."
+  when: "'logs' in inventory_groups_with_hosts_created_in_openstack"
+  block:
+    - name: "Create security group {{ stack_prefix }}_logservers."
+      openstack.cloud.security_group:
+        state: present
+        name: "{{ stack_prefix }}_logservers"
+        description: |
+                     Security group for security hardened logs servers.
+                     Allows SSH inbound on both port 22 and 443.
+                     Allows rsyslog inbound connection on port 41514.
+                     Allows ICMP inbound.
+                     Allows all outbound traffic.
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+    - name: "Add rules to {{ stack_prefix }}_logservers security group: 443, 41514 and ICMP"
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_logservers"
+        direction: ingress
+        protocol: "{{ item.protocol }}"
+        port_range_min: "{{ item.port }}"
+        port_range_max: "{{ item.port }}"
+        remote_ip_prefix: 0.0.0.0/0
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      with_items:
+        - protocol: tcp
+          port: 443  # SSH fallback
+        - protocol: tcp
+          port: 41514  # Rsyslog
+        - protocol: icmp
+          port: -1  # ICMP protocol does not have any ports.
+    - name: "Add rules to {{ stack_prefix }}_logservers security group: allow inbound SSH from external jumphosts."
+      openstack.cloud.security_group_rule:
+        security_group: "{{ stack_prefix }}_logservers"
+        direction: ingress
+        protocol: tcp
+        port_range_min: 22
+        port_range_max: 22
+        remote_ip_prefix: "{{ remote_ip_address }}{{ remote_ip_netmask }}"
+        wait: true
+        timeout: "{{ openstack_api_timeout }}"
+      vars:
+        remote_ip_address: "{{ lookup('vars', item.0.group)['ip_addresses'][item.1.hostname][item.1.network]['address'] }}"
+        remote_ip_netmask: "{{ lookup('vars', item.0.group)['ip_addresses'][item.1.hostname][item.1.network]['netmask'] }}"
+      with_subelements:
+        - "{{ external_jumphosts }}"
+        - hosts
+      when: external_jumphosts | default([]) | length >= 1
+...

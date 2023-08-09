@@ -5,7 +5,7 @@
     name:
       - 'mariadb-server'
     state: 'latest'
-    update_cache: yes
+    update_cache: true
   notify:
     - 'restart_mariadb'
   become: true
@@ -72,7 +72,7 @@
     name:
       - 'MySQL-python'
     state: 'latest'
-    update_cache: yes
+    update_cache: true
   become: true
 
 - name: 'Set MariaDB/MySQL root user password.'
@@ -92,7 +92,8 @@
 # Without explicit flush the handlers will run after the slurm rol tasks,
 # which is too late resulting in Slurm unable to work with the Slurm Accounting DB.
 #
-- meta: flush_handlers
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: 'Give the MariaDB/MySQL master node some time to initialize the database cluster.'
   ansible.builtin.command: bash -c "sleep 60"

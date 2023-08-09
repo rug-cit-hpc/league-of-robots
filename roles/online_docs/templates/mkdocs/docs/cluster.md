@@ -10,8 +10,9 @@ The jobs are submitted to a workload manager, which distributes them efficiently
 
 The key features of the {{ slurm_cluster_name | capitalize }} cluster include:
 
- * Linux OS: [CentOS](https://www.centos.org/) 7.x with [{{ repo_manager | capitalize }}]({{ external_hrefs[repo_manager] }}) for package distribution/management.
- * Completely virtualised on an [OpenStack](https://www.openstack.org/) cloud
+ * Linux OS: [CentOS](https://www.centos.org/) 7.x
+   {% if repo_manager | default('none') != 'none' %}with [{{ repo_manager | capitalize }}]({{ external_hrefs[repo_manager] }}) for package distribution/management{% endif %}.
+ * Completely virtualised on an [OpenStack](https://www.openstack.org/) cloud.
  * Deployment of HPC cluster with [Ansible playbooks](https://docs.ansible.com/ansible/latest/index.html) under version control in a Git repo: [league-of-robots](https://github.com/rug-cit-hpc/league-of-robots)
  * Job scheduling: [Slurm Workload Manager](https://slurm.schedmd.com/)
  * Account management:
@@ -64,7 +65,7 @@ Some of these can be accessed directly by users, whereas others cannot be access
    E.g.: {{ slurm_cluster_name | capitalize }} Jumphost = _{{ groups['jumphost'] | first }}{% if stack_domain | length %}.{{ stack_domain }}{% endif %}_
  * Other machines that are part of the cluster and only accessible using internal network interfaces (schedulers, compute nodes, account servers, etc.)  
    will use a two character prefix _{{ stack_prefix }}_ followed by a dash and the function of the machine.  
-   E.g. {{ slurm_cluster_name | capitalize }} compute node = _{{ groups['compute_vm'] | first }}_
+   E.g. {{ slurm_cluster_name | capitalize }} compute node = _{{ groups['compute_node'] | first }}_
  * SAIs & DAIs may be named after root/carrot varieties or simply use the two character prefix _{{ stack_prefix }}_ plus function of the machine.  
    E.g.: {{ slurm_cluster_name | capitalize }} DAI = _{{ groups['deploy_admin_interface'] | first }}_  
    E.g.: {{ slurm_cluster_name | capitalize }} SAI = _{{ groups['sys_admin_interface'] | first }}_

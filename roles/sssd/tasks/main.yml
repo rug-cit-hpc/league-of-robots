@@ -29,6 +29,36 @@
     - update-ca-trust
     - restart_sssd
 
+- name: Create /etc/openldap/
+  ansible.builtin.file:
+    path: /etc/openldap/
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+#
+# Note that /etc/openldap/*.conf is not required for SSSD nor to make SSH logins work,
+# but it is used
+#   * for tools like the ldapsearch command, which may be used for debugging
+#   * for managing users and groups in a local LDAP with roles/regular_users/tasks/ldap_regular_users.yml
+#   * and by scripts on the cluster: e.g. for fetching quota values.
+#
+- name: Deploy /etc/openldap/*.conf files
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "/etc/openldap/{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - src: openldap-ldap.conf
+      dest: ldap.conf
+    - src: readonly-ldapsearch-credentials.bash
+      dest: readonly-ldapsearch-credentials.bash
+  become: true
+
 - name: Deploy /etc/sssd/sssd.conf
   ansible.builtin.template:
     src: sssd.conf
@@ -40,21 +70,12 @@
     - restart_sssd
   become: true
 
-#
-# Note that /etc/openldap/ldap.conf is not required to make SSH logins work,
-# but is used for tools like the ldapsearch command.
-# We do not deploy /etc/openldap/ldap.conf when sssd is used,
-# because the OpenLDAP config file cannot handle multiple LDAP servers.
-# Hence tools and scripts on our clusters to fetch for example public key or quota values from an LDAP
-# will need to manage LDAP connection settings themselves.
-#
 - name: Remove conflicting configuration files for nslcd and ssh-ldap-wrapper.
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   with_items:
     - /etc/ssh/ldap.conf
-    - /etc/openldap/ldap.conf
     - /usr/libexec/openssh/ssh-ldap-wrapper.bash
   become: true
 

@@ -20,6 +20,7 @@
   with_items:
     - "{{ groups['jumphost'] }}"
     - "{{ groups['user_interface'] }}"
+    - "{{ groups['compute_node'] }}"
 
 - name: 'Get Slurm version from scontrol on UI.'
   ansible.builtin.shell:
@@ -245,7 +246,8 @@
     dest: "/var/www/html/"
     owner: 'no'
     group: 'no'
-    use_ssh_args: true
+    # Temporarily disabled as it is broken in Mitogen 0.3.3. Fix is already merged and will be in next Mitogen version.
+    # use_ssh_args: true
     ssh_connection_multiplexing: true
     rsync_opts:
       # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
@@ -278,7 +280,7 @@
     owner: 'root'
     group: 'root'
     mode: '0750'
-  with_filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
+  with_community.general.filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
   when: item.state == 'directory'
   notify:
     - 'build_mkdocs'
@@ -290,7 +292,8 @@
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/docs/"
     owner: 'no'
     group: 'no'
-    use_ssh_args: true
+    # Temporarily disabled as it is broken in Mitogen 0.3.3. Fix is already merged and will be in next Mitogen version.
+    # use_ssh_args: true
     ssh_connection_multiplexing: true
     rsync_opts:
       # --omit-dir-times  Is required to prevent "sync error: some files/attrs were not transferred"
@@ -328,7 +331,8 @@
     dest: "/srv/mkdocs/{{ slurm_cluster_name }}/tmp/{{ item.dest }}"
     owner: 'no'
     group: 'no'
-    use_ssh_args: true
+    # Temporarily disabled as it is broken in Mitogen 0.3.3. Fix is already merged and will be in next Mitogen version.
+    # use_ssh_args: true
     ssh_connection_multiplexing: true
     recursive: 'yes'
     rsync_opts:
@@ -395,7 +399,7 @@
     owner: 'root'
     group: 'root'
     mode: '0640'
-  with_filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
+  with_community.general.filetree: "{{ playbook_dir }}/roles/online_docs/templates/mkdocs"
   # Exclude temporary *.html preview files, which are also exlcuded in .gitignore and should not be transferred.
   when: item.state == 'file' and '.md.html' not in item.path
   notify:

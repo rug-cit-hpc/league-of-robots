@@ -1,0 +1,8 @@
+---
+- name: Install EPEL repo.
+  ansible.builtin.package:
+    state: latest
+    update_cache: true
+    name: epel-release
+  become: true
+...

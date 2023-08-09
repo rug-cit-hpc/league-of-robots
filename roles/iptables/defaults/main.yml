@@ -55,6 +55,10 @@ iptables_allow_ftp_outbound: []
 #
 iptables_allow_aspera_outbound: []
 #
+# syslog (only inbound)
+#
+iptables_allow_logs_inbound: []
+#
 # iRODS: by definition both inbound and outbound.
 #
 iptables_allow_irods: []
@@ -70,4 +74,8 @@ iptables_log_dropped_packets: false
 # Set to true (default) to ensure other iptables management software is disabled.
 #
 iptables_disable_firewalld: true
+#
+# By default it is set to '/etc/iptables_extras.d/', but is overwritten by group settings
+#
+iptables_extras_dir: '/etc/iptables_extras.d/'
 ...

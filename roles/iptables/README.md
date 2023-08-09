@@ -39,3 +39,14 @@ Finally we configure the IPv4 firewall to:
 We do not use IPv6 and configure the IPv6 firewall to:
  * Allow anything over the loopback interface.
  * Disable anything else over any other interface both internal and external.
+
+
+#### IP & port exceptions
+
+When `/etc/sysconfig/iptables-init.bash` script is executed on an instance, the **exceptions loop** in the end of the script is triggered. It checks if the directory `/etc/iptables_extras.d/` exists, and if it containes any **exception files** that names ends up with `.allow`. Those can contain lines in format `{IP number}{one or more spaces}{port number}`, where each line provides a **remote IP address** and a **local port** that `iptables` should open.
+
+Note:
+ - the exception function is to be used for the dynamic IPs only, that is, those that cannot be otherwise deployed with a playbook
+ - it should work for any service that drops the `IP port` into a file inside the directory
+ - to intialize the exception, the script needs to be exceuted
+ - if the `/etc/iptables_extras.d/` is missing, then the rest of script works normaly and the exceptions are not set

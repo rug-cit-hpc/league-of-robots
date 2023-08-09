@@ -15,6 +15,7 @@ slurm_partitions:
     features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.25G"'
 repo_manager: 'none'
+os_distribution: 'centos7'
 figlet_font: 'ogre'
 motd: |
       =========================================================
@@ -29,9 +30,9 @@ use_ldap: yes
 create_ldap: no
 use_sssd: yes
 ldap_domains:
-  default_domain:
-    uri: ldaps://svrs.id.rug.nl
-    search_base: ou=gd,o=asds
+  stack:
+    uri: "ldaps://{{ slurm_cluster_name }}"
+    base: "dc=rug,dc=nl" # in case of replication, the base and replication_provider_base must match!
     schema: rfc2307
     min_id: 50100000
     max_id: 55999999
@@ -43,16 +44,20 @@ ldap_domains:
     group_object_class: groupofnames
     group_quota_soft_limit_template: ruggroupumcgquotaLFSsoft
     group_quota_hard_limit_template: ruggroupumcgquotaLFS
-ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }},{{ inventory_hostname }}"
+    create_ldap: true
+    ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
+    replication_provider_uri: ldap://172.19.34.180
+    replication_provider_base: dc=rug,dc=nl
+
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
-network_private_management_id: "vnet-medgen-t"
-network_private_management_cidr: '10.96.52.12/24'
-#network_private_storage_id: "{{ stack_prefix }}_internal_storage"
-#network_private_storage_cidr: '10.10.2.0/24'
-
+stack_networks:
+  - name: vnet-medgen-t
+    cidr: '10.96.52.12/24'
+    type: management
+    external: true
 iptables_allow_icmp_inbound:
   - "{{ all.ip_addresses['umcg']['internal1'] }}"
   - "{{ all.ip_addresses['umcg']['basiswerkplek'] }}"
@@ -62,15 +67,15 @@ iptables_allow_ssh_inbound:
   - "{{ all.ip_addresses['umcg']['basiswerkplek'] }}"
   - "{{ all.ip_addresses['umcg']['win10vdi'] }}"
 iptables_allow_ssh_outbound:
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
-
+  - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
+  - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
+  - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 main_backup_folder: '/mnt/pssd_backup/'
 local_backups: # list of folders for cron to make daily backup
   - name: apps # don't modify after once deployed!
     src_path: '/apps'
     frequency:
      - { name: 'daily', hour: '5', minute: '47', day: '*', weekday: '*', month: '*', keep: '60', disabled: 'false' }
-
 local_admin_groups:
   - 'admin'
   - 'docker'
@@ -112,55 +117,107 @@ regular_users:
     groups: ["{{ envsync_group }}", "{{ functional_users_group }}"]
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd', 'umcg-gsad', "{{ functional_users_group }}"]
-    sudoers: '%umcg-atd'
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd', "{{ functional_users_group }}"]
-    sudoers: '%umcg-atd'
   - user: 'umcg-gap-ateambot'
     groups: ['umcg-gap', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gap'
   - user: 'umcg-gap-dm'
     groups: ['umcg-gap', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gap'
   - user: 'umcg-gd-ateambot'
     groups: ['umcg-gd', 'umcg-gap', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gd'
   - user: 'umcg-gd-dm'
     groups: ['umcg-gd', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gd'
   - user: 'umcg-genomescan-ateambot'
     groups: ['umcg-genomescan', "{{ functional_users_group }}"]
-    sudoers: '%umcg-genomescan'
   - user: 'umcg-genomescan-dm'
     groups: ['umcg-genomescan', "{{ functional_users_group }}"]
-    sudoers: '%umcg-genomescan'
   - user: 'umcg-gsad-ateambot'
     groups: ['umcg-gsad', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gsad'
   - user: 'umcg-gsad-dm'
     groups: ['umcg-gsad', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gsad'
   - user: 'umcg-gst-ateambot'
     groups: ['umcg-gst', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gst'
   - user: 'umcg-gst-dm'
     groups: ['umcg-gst', "{{ functional_users_group }}"]
-    sudoers: '%umcg-gst'
   - user: 'umcg-labgnkbh-ateambot'
     groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
-    sudoers: '%umcg-labgnkbh'
   - user: 'umcg-labgnkbh-dm'
     groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
-    sudoers: '%umcg-labgnkbh'
   - user: 'umcg-patho-ateambot'
     groups: ['umcg-patho', "{{ functional_users_group }}"]
-    sudoers: '%umcg-patho'
   - user: 'umcg-patho-dm'
     groups: ['umcg-patho', "{{ functional_users_group }}"]
-    sudoers: '%umcg-patho'
   - user: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
-    sudoers: '%umcg-vipt'
+sudoers:
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-ateambot'
+    name: 'umcg-atd-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-atd']
+    become: 'umcg-atd-dm'
+    name: 'umcg-atd-dm'
+    command: 'ALL'
+  - who: ['%umcg-gap']
+    become: 'umcg-gap-ateambot'
+    name: 'umcg-gap-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gap']
+    become: 'umcg-gap-dm'
+    name: 'umcg-gap-dm'
+    command: 'ALL'
+  - who: ['%umcg-gd']
+    become: 'umcg-gd-ateambot'
+    name: 'umcg-gd-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gd']
+    become: 'umcg-gd-dm'
+    name: 'umcg-gd-dm'
+    command: 'ALL'
+  - who: ['%umcg-genomescan']
+    become: 'umcg-genomescan-ateambot'
+    name: 'umcg-genomescan-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-genomescan']
+    become: 'umcg-genomescan-dm'
+    name: 'umcg-genomescan-dm'
+    command: 'ALL'
+  - who: ['%umcg-gsad']
+    become: 'umcg-gsad-ateambot'
+    name: 'umcg-gsad-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gsad']
+    become: 'umcg-gsad-dm'
+    name: 'umcg-gsad-dm'
+    command: 'ALL'
+  - who: ['%umcg-gst']
+    become: 'umcg-gst-ateambot'
+    name: 'umcg-gst-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-gst']
+    become: 'umcg-gst-dm'
+    name: 'umcg-gst-dm'
+    command: 'ALL'
+  - who: ['%umcg-labgnkbh']
+    become: 'umcg-labgnkbh-ateambot'
+    name: 'umcg-labgnkbh-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-labgnkbh']
+    become: 'umcg-labgnkbh-dm'
+    name: 'umcg-labgnkbh-dm'
+    command: 'ALL'    
+  - who: ['%umcg-patho']
+    become: 'umcg-patho-ateambot'
+    name: 'umcg-patho-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-patho']
+    become: 'umcg-patho-dm'
+    name: 'umcg-patho-dm'
+    command: 'ALL'
+  - who: ['%umcg-vipt']
+    become: 'umcg-vipt-dm'
+    name: 'umcg-vipt-dm'
+    command: 'ALL'
 #
 # Shared storage related variables
 #
@@ -206,7 +263,7 @@ lfs_mounts:
       - name: umcg-lab
         mode: '2750'
       - name: umcg-vipt
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_vm'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
   - lfs: prm05
     pfs: 'medgen_zincfinger$'
     groups:
@@ -269,7 +326,7 @@ lfs_mounts:
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env12
     pfs: pssd
-    ro_machines: "{{ groups['compute_vm'] + groups['user_interface'] }}"
+    ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 smb_server_users:
   - name: sbsuser

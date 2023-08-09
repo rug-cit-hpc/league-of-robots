@@ -15,15 +15,20 @@ iptables_allow_icmp_inbound:
   - "{{ hyperchicken_cluster.ip_addresses['portal']['public'] }}"
   - "{{ nibbler_cluster.ip_addresses['tunnel']['vlan16'] }}"
   - "{{ talos_cluster.ip_addresses['reception']['vlan16'] }}"
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
+  - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
+  - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 iptables_allow_ssh_inbound:
   - "{{ fender_cluster.ip_addresses['corridor']['public'] }}"
   - "{{ gearshift_cluster.ip_addresses['airlock']['vlan16'] }}"
   - "{{ hyperchicken_cluster.ip_addresses['portal']['public'] }}"
   - "{{ nibbler_cluster.ip_addresses['tunnel']['vlan16'] }}"
   - "{{ talos_cluster.ip_addresses['reception']['vlan16'] }}"
-  - "{{ wingedhelix_cluster.ip_addresses['porch']['vlan16'] }}"
+  - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
+  - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
+  - "{{ copperfist_cluster.ip_addresses['cf-porch']['vlan16'] }}"
 iptables_allow_ssh_outbound:
+  - "{{ gearshift_cluster.ip_addresses['airlock']['vlan16'] }}"
   - "{{ hyperchicken_cluster.ip_addresses['portal']['public'] }}"
   - "{{ talos_cluster.ip_addresses['reception']['vlan16'] }}"
 iptables_allow_https_inbound:
@@ -34,19 +39,8 @@ iptables_allow_https_inbound:
   - "{{ all.ip_addresses['rug']['bwp_net'] }}"
   - "{{ all.ip_addresses['rug']['operator'] }}"
   - "{{ all.ip_addresses['gcc']['cloud_net'] }}"
-extra_jumphosts_for_jenkins_server:
-  - 'airlock'     # Gearshift
-  - 'reception'   # Talos
-  - 'portal'      # Hyperchicken
-  - 'corridor'    # Fender
-  - 'dockingport' # Marvin
-  - 'tunnel'      # Nibbler
-  - 'porch'       # Wingedhelix
-ssh_host_signer_hostnames: "{{ ansible_fqdn }},{{ ansible_hostname }}\
-    {% for jumphost_for_this_cluster in groups['jumphost'] | default([]) %}\
-      ,{{ jumphost_for_this_cluster }}+{{ ansible_hostname }}\
-    {% endfor %}\
-    {% for extra_jumphost in extra_jumphosts_for_jenkins_server | default([]) %}\
-      ,{{ extra_jumphost }}+{{ ansible_hostname }}\
-    {% endfor %}"
+  - "{{ all.ip_addresses['github']['hooks1'] }}"
+  - "{{ all.ip_addresses['github']['hooks2'] }}"
+  - "{{ all.ip_addresses['github']['hooks3'] }}"
+  - "{{ all.ip_addresses['github']['hooks4'] }}"
 ...

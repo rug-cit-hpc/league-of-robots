@@ -61,7 +61,8 @@ ip_addresses:
       netmask: /32
   imperator:
     vlan983:
-      address: 172.23.40.34
+      address: 172.23.40.34  # on shikra004
+      #address: 172.23.40.31  # on shikra011
       netmask: /32
   sugarsnax:
     vlan983:

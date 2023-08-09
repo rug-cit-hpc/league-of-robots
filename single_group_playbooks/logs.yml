@@ -1,0 +1,30 @@
+---
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
+
+- name: Configure syslog > servers <
+  roles:
+    - admin_users
+    - ssh_host_signer
+    - iptables
+    - yum_repos
+    - ssh_known_hosts
+    - update
+    - {role: yum_local, when: local_yum_repository is defined}
+    - {role: yum_repos, when: repo_manager == 'none'}
+    - logrotate
+    - sshd
+    - basic_security
+    - logs_server
+  hosts: logs
+
+- name: Configure syslog > clients <
+  roles:
+    - role: logs_client
+  hosts:
+    - jumphost
+    - cluster
+    - repo
+    - syslog
+    - chaperone
+...

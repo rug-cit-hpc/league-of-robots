@@ -12,6 +12,8 @@ all:
       hosts:
         forkhead:
           ansible_host: 10.96.52.12
+          host_networks:
+            - name: vnet-medgen-t
           local_yum_repository: true # enable local yum repository
     deploy_admin_interface:
       hosts:
@@ -24,34 +26,35 @@ all:
               mounted_mode: '2775'
               mount_options: 'bind'
               type: none
+    ldap_server:
+      hosts:
+        forkhead:
     user_interface:
       hosts:
         forkhead:
           ansible_host: 192.168.122.170
           slurm_sockets: 1
-          slurm_cores_per_socket: 4    # 64 after being resized
+          slurm_cores_per_socket: 4
           slurm_real_memory: 15884
           slurm_local_disk: 0
           slurm_features: 'tmp12'
           slurm_ethernet_interfaces:
             - eth0
-            - eth1
-    compute_vm:
+    compute_node:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             forkhead:
           vars:
             slurm_sockets: 1
-            slurm_cores_per_socket: 4    # 64 after being resized
+            slurm_cores_per_socket: 4
             slurm_real_memory: 15884
-            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 8 }}"
-            slurm_max_mem_per_node: "{{ slurm_real_memory - 8 * 2048 }}"
+            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
+            slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
             slurm_local_disk: 0
             slurm_features: 'tmp12'
             slurm_ethernet_interfaces:
               - eth0
-              - eth1
     chaperone:
       hosts:
         fh-chaperone:
@@ -61,9 +64,10 @@ administration:
     sys_admin_interface:
     deploy_admin_interface:
     user_interface:
+    ldap_server:
 cluster:
   children:
-    compute_vm:
+    compute_node:
     administration:
 forkhead_cluster:
   children:
