@@ -29,16 +29,16 @@
 - name: 'Checking if GRUB_CMDLINE_LINUX is present in /etc/default/grub.'
   ansible.builtin.command:
     cmd: "grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub"
-  register: grub_config_grep_GRUB_CMDLINE_LINUX
+  register: grub_config_grep_grub_cmdline_linux
   changed_when: false
-  failed_when: grub_config_grep_GRUB_CMDLINE_LINUX.rc >= 2
+  failed_when: grub_config_grep_grub_cmdline_linux.rc >= 2
 
 - name: 'Checking if GRUB_CMDLINE_LINUX_DEFAULT is present in /etc/default/grub.'
   ansible.builtin.command:
     cmd: "grep 'GRUB_CMDLINE_LINUX_DEFAULT=' /etc/default/grub"
-  register: grub_config_grep_GRUB_CMDLINE_LINUX_DEFAULT
+  register: grub_config_grep_grub_cmdline_linux_default
   changed_when: false
-  failed_when: grub_config_grep_GRUB_CMDLINE_LINUX_DEFAULT.rc >= 2
+  failed_when: grub_config_grep_grub_cmdline_linux_default.rc >= 2
 
 - name: 'Fail if Grub config is in an unsupported state.'
   ansible.builtin.debug:
@@ -49,11 +49,11 @@
                     Check the Grub config and documentation ...
          ***********************************************************************************************************
   when:
-    - "'GRUB_CMDLINE_LINUX=' not in grub_config_grep_GRUB_CMDLINE_LINUX.stdout"
-    - "'GRUB_CMDLINE_LINUX_DEFAULT=' not in grub_config_grep_GRUB_CMDLINE_LINUX_DEFAULT.stdout"
+    - "'GRUB_CMDLINE_LINUX=' not in grub_config_grep_grub_cmdline_linux.stdout"
+    - "'GRUB_CMDLINE_LINUX_DEFAULT=' not in grub_config_grep_grub_cmdline_linux_default.stdout"
   failed_when:
-    - "'GRUB_CMDLINE_LINUX=' not in grub_config_grep_GRUB_CMDLINE_LINUX.stdout"
-    - "'GRUB_CMDLINE_LINUX_DEFAULT=' not in grub_config_grep_GRUB_CMDLINE_LINUX_DEFAULT.stdout"
+    - "'GRUB_CMDLINE_LINUX=' not in grub_config_grep_grub_cmdline_linux.stdout"
+    - "'GRUB_CMDLINE_LINUX_DEFAULT=' not in grub_config_grep_grub_cmdline_linux_default.stdout"
 
 - name: 'Checking if we need to add or update rootflags for GRUB_CMDLINE_LINUX* in /etc/default/grub.'
   ansible.builtin.command:
