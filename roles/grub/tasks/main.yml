@@ -1,5 +1,4 @@
 ---
-
 - name: Install grub tools
   ansible.builtin.yum:
     state: latest
@@ -13,32 +12,19 @@
   register: defaultgrubpath
   become: true
 
-- name: Set grub timeout in /etc/default/grub
+- name: Configure grub timeout in /etc/default/grub
   ansible.builtin.replace:
     path: /etc/default/grub
     regexp: '^(GRUB_TIMEOUT)=[0-9]*$'
     replace: '\1={{ grub_timeout_sec }}'
   when: defaultgrubpath.stat.exists
-  become: true
-
-- name: Check if /boot/grub2/grub.cfg exists
-  ansible.builtin.stat:
-    path: /boot/grub2/grub.cfg
-  register: grub2path
-  become: true
-
-- name: Set grub timeout in /boot/grub2/grub.cfg
-  ansible.builtin.replace:
-    path: '/boot/grub2/grub.cfg'
-    regexp: '(set timeout)=[0-9]*'
-    replace: '\1={{ grub_timeout_sec }}'
-  when: grub2path.stat.exists
+  register: grubfile
   become: true
 
 - name: Reconfigure grub
   ansible.builtin.command: 'grub2-mkconfig --output /boot/grub2/grub.cfg'
   register: grub2_result
   changed_when: grub2_result.rc == 0
-  when: grub2path.stat.exists
+  when: grubfile.changed
   become: true
 ...
