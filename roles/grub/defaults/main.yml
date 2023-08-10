@@ -1,0 +1,4 @@
+---
+# Grub boot timeout delay in seconds
+grub_timeout_sec: '60'
+...
