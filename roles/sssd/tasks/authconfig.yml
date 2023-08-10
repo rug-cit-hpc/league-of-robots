@@ -1,0 +1,25 @@
+#
+# These tasks should only be included on systems using authconfig.
+# On systems were authconfig was superseeded by authselect,
+# authselect will be used in the logins role to take care of
+# configuring /etc/nsswitch.conf and the PAM stack.
+#
+---
+- name: Deploy nsswitch.conf
+  ansible.builtin.copy:
+    src: nsswitch.conf
+    dest: /etc/nsswitch.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart_sssd
+  become: true
+
+- name: Check if we need to update authconfig.
+  ansible.builtin.command:
+    cmd: /usr/sbin/authconfig --test
+  register: authconfig_test
+  changed_when: ('nss_sss is disabled' in authconfig_test.stdout) or ('pam_sss is disabled' in authconfig_test.stdout)
+  notify: authconfig_enable_sssd
+...
