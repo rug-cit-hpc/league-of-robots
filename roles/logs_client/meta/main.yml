@@ -1,9 +1,0 @@
----
-dependencies:
- - role: static_hostname_lookup
- - role: iptables
- - role: yum_repos
-   when: repo_manager == 'none'
- - role: pulp_client
-   when: repo_manager == 'pulp'
-...

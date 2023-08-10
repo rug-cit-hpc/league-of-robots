@@ -4,7 +4,22 @@
 
 ## I. Prerequisites
 
-This is the second role of the ansible roles for logs. It relies on predefined
+### I.a Other roles
+
+The client machines must first already have deployed the following roles
+
+```
+ - role: static_hostname_lookup
+ - role: iptables
+ - role: yum_repos
+   when: repo_manager == 'none'
+ - role: pulp_client
+   when: repo_manager == 'pulp'
+```
+
+### I.b Settings
+
+This role is the second role of the ansible roles for logs. It relies on predefined
  - (optional) a list of external rsyslog servers (unmanaged by our roles) defined
    in group variables f.e. inside `group_vars/{{ stack_name }}/vars.yml`, for example
    ```
