@@ -20,7 +20,9 @@
     - update
     - logins
     - figlet_motd
-    - node_exporter
+    # Disabled monitoring: needs update. See also:
+    # https://github.com/rug-cit-hpc/league-of-robots/issues/294
+    # - node_exporter
     - cluster
     - {role: logs_client, when: stacks_logs_servers is defined}
     - gpu            # needs to run after role 'cluster'

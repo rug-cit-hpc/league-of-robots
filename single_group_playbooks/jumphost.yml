@@ -33,5 +33,4 @@
     # https://github.com/rug-cit-hpc/league-of-robots/issues/294
     # - node_exporter
     # - {role: grafana_proxy, when: ansible_hostname == 'airlock'}
-
 ...
