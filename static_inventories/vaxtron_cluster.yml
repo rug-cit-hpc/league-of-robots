@@ -57,7 +57,7 @@ all:
               security_group: "{{ stack_prefix }}_storage"
             #- name: vlan985
             #  security_group: "{{ stack_prefix }}_storage"
-          local_volume_size_extra: 3000
+          local_volume_size_extra: 1000
     user_interface:
       hosts:
         vaxtron:
