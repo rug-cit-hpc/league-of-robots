@@ -7,7 +7,6 @@
       - sssd
       - sssd-tools
       - openldap-clients
-      - openssh-ldap
       - coreutils
       - grep
       - sed
