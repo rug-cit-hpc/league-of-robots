@@ -87,7 +87,7 @@
 - name: 'Install recycle-chrooted-home-for-expired-account.bash script in /root/.'
   ansible.builtin.template:
     src: recycle-chrooted-home-for-expired-account.bash
-    dest: /root/recycle-chrooted-home-for-expired-account.bash_new
+    dest: /root/recycle-chrooted-home-for-expired-account.bash
     owner: root
     group: root
     mode: '0750'
