@@ -20,11 +20,5 @@
   when: defaultgrubpath.stat.exists
   register: grubfile
   become: true
-
-- name: Reconfigure grub
-  ansible.builtin.command: 'grub2-mkconfig --output /boot/grub2/grub.cfg'
-  register: grub2_result
-  changed_when: grub2_result.rc == 0
-  when: grubfile.changed
-  become: true
+  notify: grub2mkconfig
 ...
