@@ -11,8 +11,7 @@ Using Python `venv` module creates lightweight `virtual environment`, with own i
 
 [More information about Python virtual environment](https://docs.python.org/3/library/venv.html)
 
-Python has several different options on how to install and manage Python packages - here is described the recommended way 
-for our clusters.
+Python has several different options on how to install and manage Python packages - here is described the recommended way for our clusters.
 The steps are
 
 - [first creating the Python virtual environment](#Creating new Python virtual environment)
@@ -32,8 +31,7 @@ To create a new Python virtual environment on the user interface machine (which 
   `python3 --version`
 - Build a Python Virtual Environment
   `python3 -m venv /groups/umcg-GROUP/TMPXX/MY_PYTHON_SUBDIR`
-  and replace the `GROUP`, `TMPXX` and `MY_PYTHON_SUBDIR` with appropriate values. Remember `tmpXX` folders are also 
-available on compute nodes and therefore the compute jobs can access this Python environment.
+  and replace the `GROUP`, `TMPXX` and `MY_PYTHON_SUBDIR` with appropriate values. Remember `tmpXX` folders are also available on compute nodes and therefore the compute jobs can access this Python environment.
 
 
 ## To use the existing environment
