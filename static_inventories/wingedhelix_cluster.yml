@@ -37,7 +37,7 @@ all:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_ds"
               assign_floating_ip: true
-          local_volume_size_extra: 2000
+          local_volume_size_extra: 4300
           iptables_allow_icmp_inbound:
             - "{{ all.ip_addresses['umcg']['net1'] }}"
             - "{{ all.ip_addresses['umcg']['net2'] }}"
@@ -103,7 +103,7 @@ all:
               security_group: "{{ stack_prefix }}_storage"
             - name: vlan990
               security_group: "{{ stack_prefix }}_storage"
-          local_volume_size_extra: 10000
+          local_volume_size_extra: 3072
     deploy_admin_interface:
       hosts:
         wh-dai:
