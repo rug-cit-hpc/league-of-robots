@@ -2,6 +2,17 @@
 
 (see also ../logs_server/README.md)
 
+# TL-DR
+
+(for specific machine, remove '-l jumphost' for the cluster wide)
+
+```
+    ansible-playbook -u [admin] -l jumphost single_role_playbooks/static_hostname_lookup.yml
+    ansible-playbook -u [admin] -l jumphost single_role_playbooks/yum_repos.yml
+    ansible-playbook -u [admin] -l jumphost single_role_playbooks/iptables.yml
+    ansible-playbook -u [admin] -l jumphost single_group_playbooks/logs.yml
+```
+
 ## I. Prerequisites
 
 ### I.a Other roles
