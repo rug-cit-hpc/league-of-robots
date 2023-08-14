@@ -25,6 +25,7 @@
   ansible.builtin.set_fact:
     logs_servers: "{{ stacks_logs_servers }}"
   loop: "{{ stacks_logs_servers | list }}"
+  when: stacks_logs_servers is defined and stacks_logs_servers|length>0
   delegate_to: localhost
   connection: local
   run_once: true
@@ -35,6 +36,7 @@
   ansible.builtin.set_fact:
     rsyslogs_ext_ips: "{{ rsyslogs_ext_ips | default([]) + [item['name']] }}"
   loop: "{{ logs_servers }}"
+  when: logs_servers is defined and logs_servers|length>0
   register: rsys_ext_ips
   delegate_to: 127.0.0.1
   connection: local
