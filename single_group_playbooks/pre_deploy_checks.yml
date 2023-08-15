@@ -75,7 +75,8 @@
       run_once: true  # noqa run-once
       delegate_to: localhost
       connection: local
-    - debug:
+    - name: 'Report the found path to the ansible_builtin_runtime.yml config.'
+      ansible.builtin.debug:
         msg: "INFO: Found {{ find_ansible_builtin_runtime_result.files | map(attribute='path') | first }}"
       run_once: true  # noqa run-once
       delegate_to: localhost
