@@ -175,7 +175,7 @@ pulp_repos:
     - name: lustre
       description: 'Lustre client leatest releases for Enterprise Linux 9.2.'
       # WARNING: There is no LTS release link for el9 yet.
-      # WARNING: When el 9.3 is released the link below will not get updated automatically!
+      # WARNING: When el9.3 is released the link below for el9.2 will not get updated automatically!
       remote_url: https://downloads.whamcloud.com/public/lustre/latest-release/el9.2/client/
       client_baseurl: "https://{{ stack_prefix }}-repo/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/lustre9/"
     #
