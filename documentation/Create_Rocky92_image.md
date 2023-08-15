@@ -49,7 +49,7 @@ Run the playbook:
 tools/openstack-config -p ansible/openstack-images.yml -- --extra-vars "@examples/images.yml"
 ```
 
-The created image is available in: openstack-config/ansible/openstack-config-image-cache/
+The created image is available in: ansible/openstack-config-image-cache/
 
 ### 5. Add parameters to image in OpenStack manually
 
