@@ -19,6 +19,8 @@ pulp_api_host: localhost
 pulp_api_port: 24817
 pulp_api_baseurl: "http://{{ pulp_api_host }}:{{ pulp_api_port }}"
 pulp_default_admin_password: "{{ pulp_api_password }}"
+# Prevent installation of broken EPEL config via RPM from basos repo.
+pulp_repos_epel_enable: false  # EPEL already installed via yum_repos role.
 pulpcore_version: "3.16.9"
 pulp_install_plugins:
   # galaxy-ng: {}
@@ -40,6 +42,13 @@ pulp_settings:
   content_origin: "{{ pulp_webserver_disable_https | default(false) | ternary('http', 'https') }}://{{ ansible_fqdn }}"
 pulp_root_cert_path_on_repo_server: "/etc/pulp/certs/root.crt"
 pulp_root_cert_path_on_control_host: "{{ playbook_dir }}/files/{{ stack_name }}/{{ inventory_hostname }}_pulp_root.crt"
+#
+# List of Pulp server Python dependencies.
+# Generated with
+#           [pulp@{{ stack_prefix }}-repo:/usr/local/lib/pulp]$ source bin activate
+#    (pulp) [pulp@{{ stack_prefix }}-repo:/usr/local/lib/pulp]$ pip freeze
+# after first successful installation.
+#
 prereq_pip_packages:
   - aiodns==3.0.0
   - aiofiles==0.7.0
