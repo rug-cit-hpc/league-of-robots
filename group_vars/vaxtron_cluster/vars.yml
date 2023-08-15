@@ -41,7 +41,6 @@ slurm_qos_limit_fractions:
   interactive-short:
     user: 0.5
 repo_manager: 'pulp'
-os_distribution: 'rocky9'
 figlet_font: 'ogre'
 motd: |
       ===============================================================
