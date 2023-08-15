@@ -66,6 +66,34 @@
       retries: 3
       delay: 10
       until: resolved_dependencies is not failed
+    - name: 'Find the path to ansible_builtin_runtime.yml'
+      ansible.builtin.find:
+        path: "{{ lookup('ansible.builtin.env', 'VIRTUAL_ENV') }}"
+        pattern: 'ansible_builtin_runtime.yml'
+        recurse: true
+      register: find_ansible_builtin_runtime_result
+      run_once: true  # noqa run-once
+      delegate_to: localhost
+      connection: local
+    #- debug:
+    #    msg: "Found {{ find_ansible_builtin_runtime_result.files | map(attribute='path') | first }}"
+    #  run_once: true  # noqa run-once
+    #  delegate_to: localhost
+    #  connection: local
+    - name: 'Patch ansible_builtin_runtime.yml for missing redirects.'
+      ansible.builtin.blockinfile:
+        dest: "{{ find_ansible_builtin_runtime_result.files | map(attribute='path') | first }}"
+        block: |2
+              x509_certificate:
+                redirect: community.crypto.x509_certificate
+              x509_certificate_info:
+                redirect: community.crypto.x509_certificate_info
+        marker: '    # {mark} ANSIBLE MANAGED BLOCK - Patched by league-of-robots/single_group_playbooks/pre_deploy_checks.yml.'
+        insertafter: '  modules:'
+        create: false
+      run_once: true  # noqa run-once
+      delegate_to: localhost
+      connection: local
     - name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
       ansible.builtin.find:
         paths: "{{ playbook_dir }}/group_vars/"
