@@ -16,6 +16,7 @@
     - {role: yum_repos, when: repo_manager == 'none'}
     - {role: yum_local, when: local_yum_repository is defined}
     - static_hostname_lookup
+    - locale
     - logrotate
     - remove
     - update

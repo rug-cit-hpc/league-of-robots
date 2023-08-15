@@ -10,6 +10,7 @@
     - ssh_host_signer
     - iptables
     - yum_repos
+    - locale
     - logrotate
     - remove
     - update
