@@ -150,13 +150,14 @@ pip3 install dnspython
 #
 pip3 install passlib
 #
-# Optional: install Ansible with pip.
+# Optional: install Ansible and the Ansible linter with pip.
 # You may skip this step if you already installed Ansible by other means.
 # E.g. with HomeBrew on macOS, with yum or dnf on Linux, etc.
 #
 # Ansible core 2.13 from Ansible 6.x is latest version compatible with Mitogen.
 #
 pip3 install 'ansible<7'
+pip3 install ansible-lint
 #
 # Optional: install Mitogen with pip.
 # Mitogen provides an optional strategy plugin that makes playbooks a lot (up to 7 times!) faster.

@@ -10,6 +10,9 @@
     user: root
     job: '/bin/systemctl restart systemd-logind'
     cron_file: restart_logind
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] <= "7"
   become: true
 
 - name: 'Patch /etc/pam.d/sshd to allow logins from users in the admin group using ssh even when /etc/nologin is present.'
@@ -23,29 +26,30 @@
     mode: '0644'
   become: true
 
-- name: 'Install yum dependencies.'
-  ansible.builtin.yum:
+- name: 'Install dependencies.'
+  ansible.builtin.package:
     state: 'latest'
     update_cache: true
     name:
-      - pam_script
       - oddjob-mkhomedir
   notify:
     - authconfig_enable_mkhomedir
     - restart_oddjobd
   become: true
 
-- name: 'Enable pam_script.'
+- name: 'Remove symlinks to disable deprecated pam_script.so: replaced with functionality from pam_exec.so.'
   ansible.builtin.file:  # noqa risky-file-permissions
-    src: 'pam_script'
-    dest: "/etc/{{ item }}"
-    state: link
+    path: "{{ item }}"
+    state: absent
   with_items:
-    - pam_script_acct
-    - pam_script_auth
-    - pam_script_passwd
-    - pam_script_ses_close
-    - pam_script_ses_open
+    - /etc/pam_script_acct
+    - /etc/pam_script_auth
+    - /etc/pam_script_passwd
+    - /etc/pam_script_ses_close
+    - /etc/pam_script_ses_open
+    - /etc/pam-script.d/login_checks_regular_home.sh_ses_open
+    - /etc/pam-script.d/login_checks_chrooted_home.sh_ses_open
+    - /etc/pam-script.d/set_quota.sh_ses_open
   become: true
 
 - name: 'Create /etc/pam-script.d/ dir.'
@@ -70,21 +74,6 @@
       inventory_hostname in groups['cluster'] | default([])
   become: true
 
-- name: 'Enable login_checks.sh script for ses_open.'
-  ansible.builtin.file:  # noqa risky-file-permissions
-    src: "{{ item }}"
-    dest: "/etc/pam-script.d/{{ item }}_ses_open"
-    owner: root
-    group: root
-    state: link
-  with_items:
-    - login_checks_regular_home.sh
-  when:
-    - inventory_hostname in groups['jumphost'] | default([]) or
-      inventory_hostname in groups['data_transfer'] | default([]) or
-      inventory_hostname in groups['cluster'] | default([])
-  become: true
-
 - name: 'Install login_checks_chrooted_home.sh script.'
   ansible.builtin.template:
     src: login_checks_chrooted_home.sh
@@ -92,16 +81,6 @@
     owner: root
     group: root
     mode: '0755'
-  when: inventory_hostname in groups['data_transfer'] | default([])
-  become: true
-
-- name: 'Enable login_checks_chrooted_home.sh script for ses_open.'
-  ansible.builtin.file:  # noqa risky-file-permissions
-    src: login_checks_chrooted_home.sh
-    dest: /etc/pam-script.d/login_checks_chrooted_home.sh_ses_open
-    owner: root
-    group: root
-    state: link
   when: inventory_hostname in groups['data_transfer'] | default([])
   become: true
 
@@ -127,12 +106,13 @@
   when: inventory_hostname in groups['data_transfer'] | default([])
   become: true
 
-- name: 'Set tiny quota for regular users on the root partition.'
+- name: 'Set tiny quota for regular users on the XFS root partition.'
   ansible.builtin.include_tasks:
-    file: tiny-user-quota-on-root-partition.yml
+    file: tiny-user-quota-on-xfs-root-partition.yml
   when:
     - inventory_hostname in groups['jumphost'] | default([]) or
       inventory_hostname in groups['data_transfer'] | default([])
+    - hostvars[inventory_hostname]['ansible_mounts'] | selectattr('mount', 'equalto', '/') | map(attribute='fstype') | first == 'xfs'
 
 - name: 'Enable services.'
   ansible.builtin.systemd:
@@ -147,42 +127,15 @@
     - restart_oddjobd
   become: true
 
-- name: 'Create custom /etc/pam.d/password-auth-local to include pam_script.so.'
-  ansible.builtin.copy:
-    src: password-auth-local
-    dest: /etc/pam.d/password-auth-local
-    owner: root
-    group: root
-    mode: '0600'
-  become: true
+- name: 'Update PAM stack with authconfig.'
+  ansible.builtin.import_tasks: authconfig.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] <= "7"
 
-#
-# This patches old/outdated setups where pam_script.so was added to password-auth-ac.
-# The authconfig utility does not support pam_script.so and when it is used in other roles
-# to update password-auth-ac, custom settings like including pam_script.so will get lost.
-#
-- name: 'Remove pam_script.so from /etc/pam.d/password-auth-ac.'
-  ansible.builtin.lineinfile:
-    path: /etc/pam.d/password-auth-ac
-    state: absent
-    regexp: 'pam_script.so'
-  become: true
-
-- name: 'Enable custom /etc/pam.d/password-auth-local.'
-  ansible.builtin.file:  # noqa risky-file-permissions
-    src: /etc/pam.d/password-auth-local
-    dest: /etc/pam.d/password-auth
-    owner: root
-    group: root
-    state: link
-  become: true
-
-- name: 'Check if we need to update authconfig.'
-  ansible.builtin.command:
-    cmd: /usr/sbin/authconfig --test
-  register: authconfig_test
-  changed_when: ('pam_oddjob_mkhomedir is disabled' in authconfig_test.stdout)
-  notify:
-    - authconfig_enable_mkhomedir
-    - restart_oddjobd
+- name: 'Update PAM stack with authselect.'
+  ansible.builtin.import_tasks: authselect.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
 ...

@@ -14,7 +14,7 @@
   become: true
 
 - name: Installing the iRODS Package(s)
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name: '{{ ir_yum_packages }}'
     state: present
   become: true

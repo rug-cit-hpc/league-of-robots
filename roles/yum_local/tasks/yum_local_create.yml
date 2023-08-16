@@ -9,7 +9,7 @@
   become: true
 
 - name: Install a list of packages with a list variable
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name: "{{ yum_local_dependencies[distro] }}"
   vars:
     distro: "{{ ansible_facts['os_family'] + ansible_facts['distribution_major_version'] }}"

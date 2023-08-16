@@ -1,6 +1,6 @@
 ---
 - name: Install docker comunity edition.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name:
       - docker
       - python3-pip

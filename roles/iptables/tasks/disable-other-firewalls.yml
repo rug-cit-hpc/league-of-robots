@@ -1,6 +1,6 @@
 ---
 - name: List installed packages.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     list: installed
   register: yum_list_installed
   changed_when: false

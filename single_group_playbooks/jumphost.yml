@@ -26,11 +26,11 @@
         - use_sssd | default(false) | bool
     - sshd
     - static_hostname_lookup
-    - node_exporter
     - basic_security
     - {role: logs_client, when: stacks_logs_servers is defined}
+    - regular_users
     # Disabled monitoring: needs update. See also:
     # https://github.com/rug-cit-hpc/league-of-robots/issues/294
+    # - node_exporter
     # - {role: grafana_proxy, when: ansible_hostname == 'airlock'}
-    - regular_users
 ...

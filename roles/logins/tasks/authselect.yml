@@ -1,0 +1,83 @@
+---
+- name: "Create custom authselect {{ stack_name }} profile based on a default profile."
+  ansible.builtin.command:
+    cmd: >
+         authselect create-profile "{{ stack_name }}"
+             -b {% if use_sssd | default(false) | bool %}sssd{% else %}minimal{% endif %}
+             --symlink-meta
+    creates: "/etc/authselect/custom/{{ stack_name }}"
+  become: true
+
+- name: 'Include custom config to execute login_checks_regular_home.sh.'
+  ansible.builtin.lineinfile:
+    path: "/etc/authselect/custom/{{ stack_name }}/password-auth"
+    state: present
+    insertafter: '^session'
+    firstmatch: false
+    regexp: 'login_checks_regular_home'
+    line: '{{ logins_pam_exec_prefix }}  /etc/pam-script.d/login_checks_regular_home.sh    {include if "with-login_checks_regular_home"}'
+    owner: root
+    group: root
+    mode: '0600'
+  vars:
+    # Add the right amount of padding with spaces to keep layout in sync with the rest of the password-auth file
+    logins_pam_exec_prefix: 'session     optional                                     pam_exec.so'
+  when: inventory_hostname in groups['jumphost'] | default([]) or
+        inventory_hostname in groups['data_transfer'] | default([]) or
+        inventory_hostname in groups['cluster'] | default([])
+  become: true
+
+- name: 'Include custom config to execute login_checks_chrooted_home.sh.'
+  ansible.builtin.lineinfile:
+    path: "/etc/authselect/custom/{{ stack_name }}/password-auth"
+    state: present
+    insertafter: '^session'
+    firstmatch: false
+    regexp: 'login_checks_chrooted_home'
+    line: '{{ logins_pam_exec_prefix }}  /etc/pam-script.d/login_checks_chrooted_home.sh    {include if "with-login_checks_chrooted_home"}'
+    owner: root
+    group: root
+    mode: '0600'
+  vars:
+    # Add the right amount of padding with spaces to keep layout in sync with the rest of the password-auth file
+    logins_pam_exec_prefix: 'session     optional                                     pam_exec.so'
+  when: inventory_hostname in groups['data_transfer'] | default([])
+  become: true
+
+- name: 'Include custom config to execute set_quota.sh.'
+  ansible.builtin.lineinfile:
+    path: "/etc/authselect/custom/{{ stack_name }}/password-auth"
+    state: present
+    insertafter: '^session'
+    firstmatch: false
+    regexp: 'set_quota'
+    line: '{{ logins_pam_exec_prefix }}  /etc/pam-script.d/set_quota.sh    {include if "with-set_quota"}'
+    owner: root
+    group: root
+    mode: '0600'
+  vars:
+    # Add the right amount of padding with spaces to keep layout in sync with the rest of the password-auth file
+    logins_pam_exec_prefix: 'session     optional                                     pam_exec.so'
+  when: inventory_hostname in groups['jumphost'] | default([]) or
+        inventory_hostname in groups['data_transfer'] | default([])
+  become: true
+
+- name: "Force enable authselect {{ stack_name }} profile."
+  ansible.builtin.command:
+    cmd: >
+         authselect select --force "custom/{{ stack_name }}" with-mkhomedir
+             {% if inventory_hostname in groups['jumphost'] | default([]) or
+                   inventory_hostname in groups['data_transfer'] | default([]) or
+                   inventory_hostname in groups['cluster'] | default([]) %}
+                 with-login_checks_regular_home
+             {% endif %}
+             {% if inventory_hostname in groups['data_transfer'] | default([]) %}
+                 with-login_checks_chrooted_home
+             {% endif %}
+             {% if inventory_hostname in groups['jumphost'] | default([]) or
+                   inventory_hostname in groups['data_transfer'] | default([]) %}
+                 with-set_quota
+             {% endif %}
+  changed_when: true
+  become: true
+...

@@ -68,9 +68,9 @@ stacks_logs_servers:    # selected servers from the 'logs_library' static invent
    - name: 'earl2'
      external_network: 'logs_external_network'
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
-use_ldap: yes
-create_ldap: no
-use_sssd: yes
+use_ldap: true
+create_ldap: false
+use_sssd: true
 ldap_domains:
   idvault:
     uri: ldaps://172.23.40.249

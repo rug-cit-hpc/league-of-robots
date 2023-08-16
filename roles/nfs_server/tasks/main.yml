@@ -3,7 +3,7 @@
 #
 ---
 - name: 'Install NFS utils.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name: nfs-utils
   notify:
     - restart_nfs-server

@@ -37,8 +37,8 @@ additional_etc_hosts:
       - name: gattaca02
         network: public
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
-use_ldap: yes
-create_ldap: no
+use_ldap: true
+create_ldap: false
 ldap_uri: 'ldaps://svrs.id.rug.nl'
 ldap_base: 'ou=umcg,o=asds'
 ldap_binddn: 'cn=clusteradminumcg,o=asds'

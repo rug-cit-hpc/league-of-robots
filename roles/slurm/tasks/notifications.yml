@@ -1,6 +1,6 @@
 ---
 - name: Install Slurm notification dependencies with yum.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'latest'
     update_cache: true
     name:

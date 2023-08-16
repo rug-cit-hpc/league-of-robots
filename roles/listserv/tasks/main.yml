@@ -1,6 +1,6 @@
 ---
 - name: Install mailx.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name:
       - mailx
     state: latest
