@@ -31,7 +31,6 @@
     create: true
     regexp: "{{ client_public_ip.content | trim }} 41514"
     line: "{{ client_public_ip.content | trim }} 41514"
-  run_once: true
   delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
   register: add_ip_to_firewall_extra_allow
   loop: "{{ rsyslogs_ext_ips }}"
