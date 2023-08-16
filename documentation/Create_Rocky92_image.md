@@ -53,7 +53,7 @@ tools/openstack-config -p ansible/openstack-images.yml -- --extra-vars "@example
 
 The created image is available in: ansible/openstack-config-image-cache/
 
-### 5. Add parameters to image in OpenStack manually
+### 5. Upload image in OpenStack and add parameters to image manually
 
 - Add SCSI model: virtio-scsi
 - Add OS type: linux
