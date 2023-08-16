@@ -4,7 +4,7 @@
 ---
 #
 # Adding quota options to /etc/fstab does noting for an XFS root partition,
-# but we add them anyway to get /etc/fstab in sync with what the mount or/proc/mounts will report.
+# but we add them anyway to get /etc/fstab in sync with what the mount or /proc/mounts will report.
 #
 - name: 'Enable user quota for XFS / in /etc/fstab.'
   ansible.builtin.lineinfile:
@@ -23,7 +23,7 @@
   become: true
 
 #
-# Cannot simply remount an XFS file system to ebnable quota:
+# Cannot simply remount an XFS file system to enable quota:
 # Quota must be enabled at boot.
 #
 - name: 'Checking if GRUB_CMDLINE_LINUX is present in /etc/default/grub.'
