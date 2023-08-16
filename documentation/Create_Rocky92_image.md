@@ -26,6 +26,8 @@ For the creation of images, you can use https://github.com/stackhpc/openstack-co
 ```
 git clone https://github.com/stackhpc/openstack-config.git 
 cd openstack-config
+# At the time this documentation was written, you still need code from an unmerged branch/PR:
+git checkout more-images
 python3 -m venv ansible.venv 
 source ansible.venv/bin/activate 
 pip install -U pip 
