@@ -44,7 +44,9 @@ ansible-galaxy collection install \
 
 - Comment images you don't need in ```examples/images.yml```
 
-- Change
+- Change the ```type``` of the image from ```raw``` into ```qcow2```
+
+Change
 
 ```
 openstack_image_rocky92:
