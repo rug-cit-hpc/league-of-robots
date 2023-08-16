@@ -2,9 +2,12 @@
 
 This role can be used to manage all ```yum```/```dnf``` repos on machines,
 which need to be linked to official/public repos directly.
+
 Do **not** use this role to link a machine to self-hosted snapshots of repos
 or systems like _Pulp_, which can be used to _freeze_ repos.
 For _Pulp_ see the ```pulp_client``` role instead.
+
+To make a repository locally (on the machine itself) check ```yum_local``` role instead.
 
 This role will:
  * Manage all ```yum```/```dnf``` repos on hosts.

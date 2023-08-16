@@ -9,6 +9,24 @@ ip_addresses:
       address: 195.169.23.114
       netmask: /32
       fqdn: 'NXDOMAIN'
+  vaxtron:
+    vt_internal_management:
+      address: 10.10.1.123
+      netmask: /32
+    vt_internal_storage:
+      address: 10.10.2.194
+      netmask: /32
+  vt-repo:
+    vt_internal_management:
+      address: 10.10.1.71
+      netmask: /32
+  vt-sai:
+    vt_internal_management:
+      address: 10.10.1.130
+      netmask: /32
+    vt_internal_storage:
+      address: 10.10.2.229
+      netmask: /32
   vt_internal_management-external-router:
     vt_internal_management:
       address: 10.10.1.1

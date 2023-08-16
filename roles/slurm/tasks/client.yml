@@ -42,7 +42,7 @@
   become: true
 
 - name: 'Delete deprecated/unused Slurm packages.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'removed'
     name:
       - slurm-libpmi
@@ -51,7 +51,7 @@
   become: true
 
 - name: 'Install the Slurm client with yum.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'installed'
     update_cache: true
     allow_downgrade: true
@@ -79,7 +79,7 @@
   become: true
 
 - name: 'Install NHC with yum.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'latest'
     update_cache: true
     name:

@@ -1,7 +1,7 @@
 # Register a machine to our ldap
 ---
 - name: Install yum dependencies
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: latest
     update_cache: true
     name:

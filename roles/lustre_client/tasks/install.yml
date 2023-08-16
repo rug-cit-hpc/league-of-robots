@@ -1,6 +1,6 @@
 ---
 - name: Install packages for build environment to support Dynamic Kernel Module Support (DKMS).
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: latest
     update_cache: true
     name:
@@ -57,7 +57,7 @@
   become: true
 
 - name: Install kernel tools/extras required for compiling kernel modules.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: latest
     update_cache: true
     name:
@@ -75,7 +75,7 @@
   ansible.builtin.meta: flush_handlers
 
 - name: Install the Lustre client.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: latest
     update_cache: true
     name:

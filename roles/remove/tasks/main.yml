@@ -23,7 +23,7 @@
   become: true
 
 - name: 'Remove packages we do not need.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: absent
     name:
       - tuned

@@ -25,7 +25,7 @@
   register: rsyslog_ca_cert_on_server
 
 - name: Install gnutls and newer openssl
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name:
       - gnutls
       - gnutls-utils
@@ -39,7 +39,7 @@
   notify: restart-rsyslog.service
 
 - name: Install rsyslog and gnutls with all plugins
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name:
       - rsyslog
       - librelp

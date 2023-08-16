@@ -109,7 +109,7 @@ Subsystem sftp /usr/libexec/openssh/sftp-server -f AUTHPRIV -l INFO -u 0027
 #
 # Get public keys for regular users from LDAP.
 #
-  {% if use_sssd | default(false) | bool%}
+  {% if use_sssd | default(false) | bool %}
 AuthorizedKeysCommand /usr/libexec/openssh/get_public_keys_from_ldap.bash
   {% else %}
 AuthorizedKeysCommand /usr/libexec/openssh/ssh-ldap-wrapper.bash

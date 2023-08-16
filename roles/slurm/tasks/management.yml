@@ -46,7 +46,7 @@
   become: true
 
 - name: 'Install munge.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'latest'
     update_cache: true
     name:
@@ -76,7 +76,7 @@
   become: true
 
 - name: 'Install Slurm management dependencies with yum.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'latest'
     update_cache: true
     name:
@@ -89,7 +89,7 @@
   become: true
 
 - name: 'Delete deprecated/unused Slurm packages.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'removed'
     name:
       - 'slurm-libpmi'
@@ -98,7 +98,7 @@
   become: true
 
 - name: 'Install Slurm management deamons with yum.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'installed'
     update_cache: true
     allow_downgrade: true

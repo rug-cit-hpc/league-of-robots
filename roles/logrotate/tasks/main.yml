@@ -1,6 +1,6 @@
 ---
 - name: Install logrotate.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'latest'
     update_cache: true
     name: logrotate

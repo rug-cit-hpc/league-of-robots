@@ -57,11 +57,11 @@ all:
               security_group: "{{ stack_prefix }}_storage"
             #- name: vlan985
             #  security_group: "{{ stack_prefix }}_storage"
-          local_volume_size_extra: 3000
+          local_volume_size_extra: 1000
     user_interface:
       hosts:
-        nibbler:
-          cloud_flavor: m1.medium
+        vaxtron:
+          cloud_flavor: general.v1.medium
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"

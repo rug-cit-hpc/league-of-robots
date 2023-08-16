@@ -1,12 +1,12 @@
 ---
 - name: 'Install yum-utils, which provides the "needs-restarting" utility.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name: yum-utils
     state: latest
     update_cache: true
   become: true
 - name: 'Update all installed packages (except Slurm and iRODS).'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name: '*'
     state: latest
     update_cache: true

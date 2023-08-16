@@ -6,7 +6,7 @@
   become: true
 
 - name: Install some standard software
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: latest
     update_cache: true
     name: '{{ cluster_common_packages }}'

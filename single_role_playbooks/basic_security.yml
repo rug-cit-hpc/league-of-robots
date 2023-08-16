@@ -1,0 +1,15 @@
+---
+- hosts:
+    - jumphost
+  roles:
+    - basic_security
+- hosts:
+    - build_servers
+    - data_transfer
+    - docs
+    - irods
+    - logs
+    - repo
+  roles:
+    - basic_security
+...

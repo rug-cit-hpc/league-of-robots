@@ -1,13 +1,12 @@
 ---
 - name: Install yum dependencies
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: latest
     update_cache: true
     name:
       - sssd
       - sssd-tools
       - openldap-clients
-      - openssh-ldap
       - coreutils
       - grep
       - sed
@@ -92,17 +91,6 @@
   when: "'nslcd.service' in services"
   become: true
 
-- name: Deploy nsswitch.conf
-  ansible.builtin.copy:
-    src: nsswitch.conf
-    dest: /etc/nsswitch.conf
-    owner: root
-    group: root
-    mode: '0644'
-  notify:
-    - restart_sssd
-  become: true
-
 - name: Deploy custom script to fetch public keys from LDAP servers.
   ansible.builtin.template:
     src: get_public_keys_from_ldap.bash
@@ -140,20 +128,11 @@
     - restart_sssd
   become: true
 
-- name: Enable services.
-  ansible.builtin.systemd:
-    name: sssd
-    state: started
-    enabled: true
-    daemon_reload: true
-  become: true
-
-- name: Check if we need to update authconfig.
-  ansible.builtin.command:
-    cmd: /usr/sbin/authconfig --test
-  register: authconfig_test
-  changed_when: ('nss_sss is disabled' in authconfig_test.stdout) or ('pam_sss is disabled' in authconfig_test.stdout)
-  notify: authconfig_enable_sssd
+- name: 'Update /etc/nsswitch.conf and the PAM stack with authconfig.'
+  ansible.builtin.import_tasks: authconfig.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] <= "7"
 
 - name: Flush handlers.
   ansible.builtin.meta: flush_handlers

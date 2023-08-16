@@ -42,7 +42,7 @@
     state: directory
   become: true
 - name: "Install policycoreutils python package for admin home dir SE-labeling."
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: latest
     update_cache: true
     name: >-

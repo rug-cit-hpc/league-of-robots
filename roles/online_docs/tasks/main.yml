@@ -87,7 +87,7 @@
   become: true
 
 - name: 'Install EPEL repo and rsync.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'latest'
     update_cache: true
     name:
@@ -96,7 +96,7 @@
   become: true
 
 - name: 'Install apache webserver, php and nano.'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: 'latest'
     update_cache: true
     name:
