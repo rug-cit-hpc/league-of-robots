@@ -3,7 +3,7 @@
 
 ## Caution
 
-Making a new Python virtual environment creates a new subfolder, inside which all the binaries, scripts and libraries are copied. After that those are available to be called, which initializes the environemnt. **The initialization of the environment needs to be done before every usage and (even more important) before the installation of packages**. Failing to do so, will resulted in failed commands and (in case of package installation) full home directory, which prevents normal usage of the cluster.
+Making a new Python virtual environment creates a new subfolder, inside which all the binaries, scripts and libraries are copied. After that those are available to be called, which initializes the environemnt. **The initialization of the environment needs to be done before every use and (even more important) before the installation of packages**. Failing to do so, will result in failed commands and (in case of package installation) full home directory, which prevents normal usage of the cluster.
 
 ## Introduction
 
@@ -11,14 +11,14 @@ Using Python `venv` module creates lightweight `virtual environment`, with own i
 
 [More information about Python virtual environment](https://docs.python.org/3/library/venv.html)
 
-Python has several different options of how to install and manage python packages - here is described the recommended way for our clusters.
+Python has several different options on how to install and manage Python packages - here is described the recommended way for our clusters.
 The steps are
 
 - [first creating the Python virtual environment](#Creating new Python virtual environment)
 - [then initialization of the environment](#To use the existing environment)
-- [installing custom package(s) inside this environment](#To install packages inside the python environment)
+- [installing custom package(s) inside this environment](#To install packages inside the Python environment)
 - [deactivation of the virtual environment](#Deactivation of the virtual environment)
-- [and how to submit a slurm job that uses virtual python environment](#Using python virtual environemnt inside slurm job)
+- [and how to submit a slurm job that uses virtual Python environment](#Using Python virtual environemnt inside slurm job)
 
 
 ## Creating new Python virtual environment
@@ -31,7 +31,7 @@ To create a new Python virtual environment on the user interface machine (which 
   `python3 --version`
 - Build a Python Virtual Environment
   `python3 -m venv /groups/umcg-GROUP/TMPXX/MY_PYTHON_SUBDIR`
-  and replace the `GROUP`, `TMPXX` and `MY_PYTHON_SUBDIR` with appropriate values. Remember `tmpXX` folders are also available on compute nodes and therefore the compute jobs can access this python environment.
+  and replace the `GROUP`, `TMPXX` and `MY_PYTHON_SUBDIR` with appropriate values. Remember `tmpXX` folders are also available on compute nodes and therefore the compute jobs can access this Python environment.
 
 
 ## To use the existing environment
@@ -40,13 +40,13 @@ To create a new Python virtual environment on the user interface machine (which 
   `source /groups/umcg-GROUP/TMPXX/MY_PYTHON_SUBDIR/bin/activate`
 
 
-## To install packages inside the python environment
+## To install packages inside the Python environment
 
 - (Recommended) Upgrade `pip` and `wheel` packages, so that that you can install all the latest package versions
   `pip install --upgrade pip wheel`
 - Install package
   `pip install pypackage`
-  where `mypackage` is one or more package from the `https://pypi.org/`.
+  where `mypackage` is one or more packages from the `https://pypi.org/`.
 
 
 # Deactivation of the virtual environment
@@ -54,7 +54,7 @@ To create a new Python virtual environment on the user interface machine (which 
 - to deactivate the virtual environment, simply run command `deactivate`
 
 
-## Using python virtual environemnt inside slurm job
+## Using Python virtual environment inside slurm job
 
 Create a slurm script with appropriate fields. For more information check also the documentation page about [batch jobs](analysis/#1-batch-jobs).
 
@@ -75,14 +75,14 @@ Create a slurm script with appropriate fields. For more information check also t
     module purge
     # to load the latest version of Python
     module load Python
-    # initialize the python virtual environment
+    # initialize the Python virtual environment
     source /groups/umcg-GROUP/TMPXX/MY_PYTHON_SUBDIR/bin/activate
-    # check the python version (useful for debugging)
+    # check the Python version (useful for debugging)
     python3 --version
-    # print the location of python3 executable binary (also useful for debugging)
+    # print the location of Python3 executable binary (also useful for debugging)
     which python3
     
-    # run the python command or in this case some custom python script
+    # run the Python command or in this case some custom Python script
     python3 ./my_python_script.py
 ```
 

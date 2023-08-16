@@ -89,13 +89,12 @@ external_jumphosts:
 #
 # Remote logging settings - for diagnostics servers
 #
-# Prepared, but commented out for now
-# logs_ca_name: 'diagnostics'
-# stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
-#    - name: 'earl3'
-#      external_network: 'logs_external_network'
-#    - name: 'earl4'
-#      external_network: 'vlan16' # to retrieve public IP from
+logs_ca_name: 'diagnostics'
+stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
+   - name: 'earl3'
+     external_network: 'logs_external_network'
+   - name: 'earl4'
+     external_network: 'vlan16' # to retrieve public IP from
 #
 # Ldap settings
 #
