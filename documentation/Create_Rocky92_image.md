@@ -43,8 +43,35 @@ ansible-galaxy collection install \
 ### 4. Adjust playbook to only create a Rocky-9.2 image and add required variables
 
 - Comment images you don't need in ```examples/images.yml```
-- Change ```TYPE``` from raw to qcow2
-- Set ```FS_TYPE``` to xfs (default ext4) 
+
+- Change
+
+```
+openstack_image_rocky92:
+  name: "Rocky-9.2"
+  type: "raw"
+  ....
+```
+
+into
+
+```
+openstack_image_rocky92:
+  name: "Rocky-9.2"
+  type: "qcow2"
+  ....
+```
+
+- Add ```FS_TYPE``` to the section with environment variables to change the default ```ext4``` into ```xfs```; E.g. 
+
+```
+openstack_image_rocky92:
+  name: "Rocky-9.2"
+  ....
+  env:
+    FS_TYPE: "xfs"
+    ....
+```
 
 Run the playbook:
 ```
