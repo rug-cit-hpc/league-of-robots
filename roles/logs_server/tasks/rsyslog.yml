@@ -106,12 +106,66 @@
   ansible.builtin.include_tasks: server_certificate.yml
   register: created_certificate
 
+- name: Checking if "Restart=always" is present in /usr/lib/systemd/system/rsyslog.service
+  ansible.builtin.command:
+    cmd: "grep 'Restart=always' /usr/lib/systemd/system/rsyslog.service"
+  register: rsyslog_service_restart
+  changed_when: false
+  failed_when: rsyslog_service_restart.rc >= 2
+  become: true
+
+- name: Checking if "WatchdogSec=" is present in /usr/lib/systemd/system/rsyslog.service
+  ansible.builtin.command:
+    cmd: "grep 'WatchdogSec=' /usr/lib/systemd/system/rsyslog.service"
+  register: rsyslog_service_watchdogsec
+  changed_when: false
+  failed_when: rsyslog_service_watchdogsec.rc >= 2
+  become: true
+
+- name: Configure the rsyslog service, to restart regardless of exit state
+  ansible.builtin.lineinfile:
+    path: '/usr/lib/systemd/system/rsyslog.service'
+    backup: true
+    insertafter: "[Service]"
+    regexp: '^Restart=.*$'
+    line: 'Restart=always'
+    owner: root
+    group: root
+    mode: '0644'
+  when:
+    - "'Restart=always' not in rsyslog_service_restart.stdout"
+  notify: reconfigure_rsyslog_service
+  become: true
+
+- name: Configure the rsyslog service, to restart after a day
+  ansible.builtin.lineinfile:
+    path: '/usr/lib/systemd/system/rsyslog.service'
+    backup: true
+    insertafter: '\[Service\]'
+    state: present
+    line: 'WatchdogSec=86400'           # 1 day = 86400 seconds
+    owner: root
+    group: root
+    mode: '0644'
+  when:
+    - "'WatchdogSec=' not in rsyslog_service_watchdogsec.stdout"
+  notify: reconfigure_rsyslog_service
+  become: true
+
 - name: Remove problematic /etc/rsyslog.d/listen.conf file
   ansible.builtin.file:
     path: /etc/rsyslog.d/listen.conf
     state: absent
   become: true
   notify: restart-rsyslog.service
+
+- name: Add logrotate to compress and move old logs to subfolder called 'compressed_logs'
+  ansible.builtin.template:
+    src: templates/remote.logrotate
+    dest: /etc/logrotate.d/remote
+    mode: '0644'
+    force: true
+  become: true
 
 - name: Deploy server rsyslog.conf
   ansible.builtin.template:
