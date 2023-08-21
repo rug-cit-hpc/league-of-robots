@@ -10,7 +10,7 @@
   ansible.builtin.yum_repository:
     name: "{{ item.name }}"
     description: "{{ item.description }}"
-    baseurl: "{{ item.client_baseurl }}"
+    baseurl: "https://{{ groups['repo'] | first }}/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/{{ item.name }}/"
     gpgcheck: false
   with_items: "{{ pulp_repos[os_distribution] }}"
   become: true
