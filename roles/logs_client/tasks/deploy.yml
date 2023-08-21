@@ -60,8 +60,8 @@
   notify: client_restart_rsyslog
 
 - name: Deploy the systemd custom rsyslog.service
-  ansible.builtin.template:
-    src: templates/rsyslog.service
+  ansible.builtin.copy:
+    src: files/rsyslog.service
     dest: /usr/lib/systemd/system/rsyslog.service
     force: true
     mode: '0644'
