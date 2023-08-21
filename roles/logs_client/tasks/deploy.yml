@@ -59,6 +59,15 @@
   become: true
   notify: client_restart_rsyslog
 
+- name: Deploy the systemd custom rsyslog.service
+  ansible.builtin.template:
+    src: templates/rsyslog.service
+    dest: /usr/lib/systemd/system/rsyslog.service
+    force: true
+    mode: '0644'
+  become: true
+  notify: systemd_reload
+
 - name: Make sure that the rsyslog service is started and enabled
   ansible.builtin.systemd:
     name: rsyslog.service
@@ -81,49 +90,6 @@
     force: true
   become: true
 
-- name: Checking if "Restart=always" is present in /usr/lib/systemd/system/rsyslog.service
-  ansible.builtin.command:
-    cmd: "grep 'Restart=always' /usr/lib/systemd/system/rsyslog.service"
-  register: rsyslog_service_restart
-  changed_when: false
-  failed_when: rsyslog_service_restart.rc >= 2
-  become: true
-
-- name: Checking if "WatchdogSec=" is present in /usr/lib/systemd/system/rsyslog.service
-  ansible.builtin.command:
-    cmd: "grep 'WatchdogSec=' /usr/lib/systemd/system/rsyslog.service"
-  register: rsyslog_service_watchdogsec
-  changed_when: false
-  failed_when: rsyslog_service_watchdogsec.rc >= 2
-  become: true
-
-- name: Configure the rsyslog service, to restart regardless of exit state
-  ansible.builtin.lineinfile:
-    path: '/usr/lib/systemd/system/rsyslog.service'
-    backup: true
-    insertafter: "[Service]"
-    regexp: '^Restart=.*$'
-    line: 'Restart=always'
-    owner: root
-    group: root
-    mode: '0644'
-  when:
-    - "'Restart=always' not in rsyslog_service_restart.stdout"
-  notify: reconfigure_rsyslog_service
-  become: true
-
-- name: Configure the rsyslog service, to restart after a day
-  ansible.builtin.lineinfile:
-    path: '/usr/lib/systemd/system/rsyslog.service'
-    backup: true
-    insertafter: '\[Service\]'
-    state: present
-    line: 'WatchdogSec=86400'           # 1 day = 86400 seconds
-    owner: root
-    group: root
-    mode: '0644'
-  when:
-    - "'WatchdogSec=' not in rsyslog_service_watchdogsec.stdout"
-  notify: reconfigure_rsyslog_service
-  become: true
+- name: Force all services to restart, before next tasks
+  ansible.builtin.meta: flush_handlers
 ...

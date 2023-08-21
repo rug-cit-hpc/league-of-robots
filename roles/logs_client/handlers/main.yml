@@ -10,13 +10,6 @@
   notify: client_restart_rsyslog
   listen: restart_server_firewall
 
-- name: Restart client rsyslog.service
-  ansible.builtin.service:
-    name: rsyslog.service
-    state: restarted
-  listen: client_restart_rsyslog
-  become: true
-
 - name: Restart server rsyslog.service
   ansible.builtin.service:
     name: rsyslog.service
@@ -30,12 +23,12 @@
   ansible.builtin.systemd:
     daemon_reload: true
   become: true
-  listen: reconfigure_rsyslog_service
+  listen: systemd_reload
 
-- name: Reload or restart the rsyslog
-  ansible.builtin.systemd:
-    name: 'rsyslog.service'
+- name: Restart client rsyslog.service
+  ansible.builtin.service:
+    name: rsyslog.service
     state: restarted
+  listen: client_restart_rsyslog
   become: true
-  listen: reconfigure_rsyslog_service
 ...
