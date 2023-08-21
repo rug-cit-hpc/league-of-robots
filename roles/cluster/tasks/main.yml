@@ -9,7 +9,9 @@
   ansible.builtin.package:
     state: latest
     update_cache: true
-    name: '{{ cluster_common_packages }}'
+    name: "{{ cluster_common_packages[distro] }}"
+  vars:
+    distro: "{{ ansible_facts['os_family'] + ansible_facts['distribution_major_version'] }}"
   tags:
     - software
   become: true
