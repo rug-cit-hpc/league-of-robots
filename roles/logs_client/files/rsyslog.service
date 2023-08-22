@@ -11,12 +11,10 @@ Documentation=https://www.rsyslog.com/doc/
 TimeoutSec=300
 ; restart the service every day, this way we keep the amount of used resources down to bare minimum
 WatchdogSec=86400
-; don't go trough the failed/inactive state, just restart the process
-RestartMode=direct
 ; limit the restart attempts to 5
 StartLimitBurst=5
 ; check the number of failed ^ attempts to this time window
-StartLimitInterval=600
+;StartLimitInterval=600
 Type=notify
 EnvironmentFile=-/etc/sysconfig/rsyslog
 ExecStart=/usr/sbin/rsyslogd -n $SYSLOGD_OPTIONS
