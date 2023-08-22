@@ -141,6 +141,7 @@ Furthermore the role cannot know when you want to sync a _repo_ with a _remote_ 
 
 The following steps must be performed manually for now:
 
+ * Upload custom RPMs to the Pulp server.
  * Add content (RPMs) to a _repository_ for the ones without _remote_.
  * Add a _remote_ to a _repository_.
  * Sync a _repository_ with a _remote_.
@@ -148,10 +149,41 @@ The following steps must be performed manually for now:
  * Create a new _distribition_ for a _publication_.
  * Update the _publication_ for an existing _distribition_.
 
-You can use
+### Upload custom RPMs to Pulp server.
+
+```bash
+#
+# This assumes you have the custom RPMs in a local folder named umcg suffixed with a dash and the ansible {{ os_distribution }} variable.
+# E.g. "umcg-centos7" or "umcg-rocky9".
+# If you use a different local folder with custom RPMs make sure the path to the custom RPMs on the repo server is
+#     /admin/repoadmin/{{ os_distribution }}/*.rpm
+#
+rsync -av --rsync-path 'sudo -u repoadmin rsync' [os_distribution] [admin]@[jumphost]+[stack_prefix]-repo:/admin/repoadmin/
+```
+
+##### Manual work on the Pulp server
+
+The remaining tasks can be performed on the Pulp server in one go with the idempotent function named ```pulp-sync-publish-distribute```,
+which was deployed by the ```pulp_server``` role:
+
+```bash
+ssh [admin]@[jumphost]+[stack_prefix]-repo
+sudo -u repoadmin bash
+cd
+source ./pulp-cli.venv/bin/activate
+set -u
+pulp status
+source ./pulp-init.bash
+pulp-sync-publish-distribute
+```
+
+Alternatively or for debugging issues with ```pulp-sync-publish-distribute``` you can also perform these tasks manually using:
 
  * Either Pulp CLI commands where possible (easier and recommended).
  * Or send raw HTTP GET/PUT calls to the Pulp API using a commandline HTTP client like HTTPie or cURL (harder).
+
+Below are code examples for CentOS 7 machines and corresponding repos.
+Note that other distros like Rocky 9 use a different list of repos.
 
 ##### Upload custom RPMs to repo server.
 
@@ -159,14 +191,14 @@ You can use
 #
 # This assumes you have the custom RPMs in a local folder named "umcg-centos7".
 #
-rsync -av --rsync-path 'sudo -u [repoadmin] rsync' umcg-centos7 [admin]@[jumphost]+[stack_prefix]-repo:/admin/[repoadmin]/
+rsync -av --rsync-path 'sudo -u repoadmin rsync' umcg-centos7 [admin]@[jumphost]+[stack_prefix]-repo:/admin/repoadmin/
 ```
 
 ##### Login and become repoadmin user on repo server.
 
 ```bash
 ssh [admin]@[jumphost]+[stack_prefix]-repo
-sudo -u [repoadmin] bash
+sudo -u repoadmin bash
 cd
 source pulp-cli.venv/bin/activate
 set -u
@@ -180,28 +212,57 @@ pulp status
 # Upload RPM files to create Pulp RPMs and add them to
 # our Custom Packages for Enterprise Linux (cpel) repo.
 #
-for rpm in $(find umcg-centos7 -name '*.rpm'); do
-    rpm_href=$(pulp --format json rpm content upload \
-                    --file "${rpm}" \
-                    --relative-path "$(basename "${rpm}")" \
-                 | jq -r '.pulp_href')
-    if [[ -n "${rpm_href:-}" ]]; then
+for rpm in $(find umcg-* -name '*.rpm'); do
+    #
+    # Get package name from RPM file name.
+    # This is a bit risky regex matching,
+    # but we can only use the package name and cannot use the file name
+    # to check if it was already uploaded to Pulp.
+    #
+    package_name="$(basename "${rpm%%-[vr0-9][0-9.-]*}")"
+    #
+    # Check if the package was already uploaded to Pulp.
+    #
+    rpm_location_href=$(pulp --format json rpm content list \
+                             --name "${package_name}" \
+                        | jq -r '.[0].location_href')
+    if [[ "${rpm_location_href:-}" == "$(basename "${rpm}")" ]]; then
+        echo "INFO: ${rpm} already uploaded to Pulp."
+        rpm_pulp_href=$(pulp --format json rpm content list \
+                                 --name "${package_name}" \
+                            | jq -r '.[0].pulp_href')
+        echo "INFO: Get sha256 checksum for ${rpm} already uploaded to Pulp."
+        rpm_sha256=$(pulp --format json rpm content list \
+                                 --name "${package_name}" \
+                     | jq -r '.[0].sha256')
+        if [[ "${rpm_sha256:-}" != "$(sha256sum "${rpm}")" ]]; then
+            echo "ERROR: sha256 checksum for ${rpm} on disk does match with the checksum for the previously uploaded RPM."
+            echo 'ERROR: This code will not replace an RPM with a newer one.'
+            echo 'ERROR: If you really need to replace the existing RPM, you must delete the old one manually first.'
+            break
+        fi
+    else
+        #
+        # Upload the RPM to create an artifact
+        #
+        echo "INFO: Uploading ${rpm} to Pulp ..."
+        rpm_pulp_href=$(pulp --format json rpm content upload \
+                             --file "${rpm}" \
+                             --relative-path "$(basename "${rpm}")" \
+                        | jq -r '.pulp_href')
+    fi
+    if [[ -n "${rpm_pulp_href:-}" ]]; then
+        #
+        # Add RPM to cpel repo.
+        #
+        echo "INFO: Adding ${rpm} with pulp_href ${rpm_pulp_href:-} to cpel repo ..."
         pulp rpm repository content add \
             --repository cpel7 \
-            --package-href "${rpm_href}"
+            --package-href "${rpm_pulp_href}"
+    else
+        echo "ERROR: failed to get pulp_href for RPM, Cannot add ${rpm} to cpel7 repo."
+        break
     fi
-done
-```
-
-```bash
-#
-# Alternatively, if the RPMs were already uploaded to Pulp
-# and only need to be added to our cpel repo:
-#
-for rpm_href in $(pulp --format json rpm content list | jq -r '.[].pulp_href'); do
-    pulp rpm repository content add \
-        --repository cpel7 \
-        --package-href "${rpm_href}"
 done
 ```
 
