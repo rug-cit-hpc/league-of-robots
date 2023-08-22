@@ -1,0 +1,7 @@
+---
+- name: Remove outdated data from transfer server
+  hosts:
+    - data_transfer
+  roles:
+     - cleanup_gs_data
+...
