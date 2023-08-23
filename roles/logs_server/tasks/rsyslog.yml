@@ -113,7 +113,7 @@
     force: true
     mode: '0644'
   become: true
-  notify: reconfigure_rsyslog_service
+  notify: systemd_reload
 
 - name: Remove problematic /etc/rsyslog.d/listen.conf file
   ansible.builtin.file:
@@ -121,6 +121,39 @@
     state: absent
   become: true
   notify: restart-rsyslog.service
+
+- name: Deploy custom rsyslog.service
+  ansible.builtin.copy:
+    src: files/rsyslog.service
+    dest: /usr/lib/systemd/system/rsyslog.service
+    force: true
+    mode: '0644'
+  notify:
+    - systemd_reload
+    - rsyslog_enable
+  become: true
+
+- name: Deploy rsyslog-restart.service
+  ansible.builtin.copy:
+    src: files/rsyslog-restart.service
+    dest: /usr/lib/systemd/system/rsyslog-restart.service
+    force: true
+    mode: '0644'
+  notify:
+    - systemd_reload
+    - restart_service_enable
+  become: true
+
+- name: Deploy rsyslog-restart.timer
+  ansible.builtin.copy:
+    src: files/rsyslog-restart.timer
+    dest: /usr/lib/systemd/system/rsyslog-restart.timer
+    force: true
+    mode: '0644'
+  notify:
+    - systemd_reload
+    - restart_timer_enable
+  become: true
 
 - name: Add logrotate to compress and move old logs to subfolder called 'compressed_logs'
   ansible.builtin.template:
@@ -140,10 +173,6 @@
   become: true
   notify: restart-rsyslog.service
 
-- name: Start and enable rsyslog service
-  ansible.builtin.systemd:
-    name: rsyslog.service
-    state: started
-    enabled: true
-  become: true
+- name: Force all services to restart, before next tasks
+  ansible.builtin.meta: flush_handlers
 ...
