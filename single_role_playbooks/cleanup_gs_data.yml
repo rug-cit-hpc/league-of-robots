@@ -3,5 +3,5 @@
   hosts:
     - data_transfer
   roles:
-     - cleanup_gs_data
+    - cleanup_gs_data
 ...
