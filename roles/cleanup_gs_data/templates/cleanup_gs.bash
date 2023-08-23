@@ -1,7 +1,7 @@
-# If folder is empty for 1 week -> mail helpdesk
-# If folder is empty for 2 weeks -> delete
-# If folder is not empty, but no .finished file is present (1 week) -> mail helpdesk
-# If folder is not empty, but no .finished file is present (2 weeks) -> delete
+# If folder is empty for 1 week -> notify helpdesk
+# If folder is empty for 2 weeks -> delete folder
+# If folder is not empty and no .finished file is present (1 week) -> notify helpdesk
+# If folder is not empty and no .finished file is present (2 weeks) -> delete folder
 
 #TODO: notifications and removal of folders
 
