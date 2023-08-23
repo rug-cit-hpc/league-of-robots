@@ -20,5 +20,5 @@
     - remove
     - update
     - pulp_server
-#    - {role: logs_client, when: stacks_logs_servers is defined}
+    - {role: logs_client, when: stacks_logs_servers is defined}
 ...
