@@ -5,7 +5,7 @@
     - test
 
 - name: Wait for rsyslog.service to be running (this can take some time ...)
-  service_facts:
+  ansible.builtin.service_facts:
   register: services_status
   until: services_status.ansible_facts.services['rsyslog.service'].state == 'running'
   retries: 24
