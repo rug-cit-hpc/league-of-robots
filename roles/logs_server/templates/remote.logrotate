@@ -1,0 +1,30 @@
+/var/log/remote/*/*/*
+{
+    # run this script for each and every log file
+    nosharedscripts
+    # logrotate each file only if it was modified more than n*24 hours ago
+    prerotate
+        logfile=$1
+        find $logfile -mtime +1 | grep . > /dev/null
+        exit $?
+    endscript
+    # rotate logs once a week
+    weekly
+    # keeping compressed logs for the last ~6 months
+    # during this time, they are already copied
+    rotate 24
+    # compress old logs
+    compress
+    # append the date extension to the compressed logs
+    dateext
+    # move compressed files into copressed_logs subdirectory
+    olddir compressed_logs
+    # create compressed_logs directory, if missing
+    createolddir 0600 root root
+    # after moving and compressing, create a new empty logfile
+    create 0600 root root
+    # after compression and new wilf, inform the rsyslog to reload the file
+    postrotate
+        /usr/bin/systemctl kill -s HUP rsyslog.service >/dev/null 2>&1 || true
+    endscript
+}
