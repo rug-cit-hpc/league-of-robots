@@ -11,7 +11,7 @@ dirToCheck="/groups/umcg-genomescan/"*
 dateInSecNow=$(date +%s)
 
 # Check only dirs, ignore files
-for dir in $(find ${dirToCheck} -maxdepth 1 -type d)
+for dir in $(find "${dirToCheck}" -mindepth 1 -maxdepth 1 -type d)
 do
 	# Check if dir contains data
 	if [[ $(ls -A "${dir}")  ]]
