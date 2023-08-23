@@ -1,0 +1,7 @@
+[Unit]
+Description=Restart rsyslog.service
+Requires=rsyslog.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/systemctl restart rsyslog
