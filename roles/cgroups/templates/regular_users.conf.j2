@@ -27,9 +27,9 @@ group regular_users {
 		cpuset.mems={{ cgroups_cpuset_mems_range }};
 	}
 	memory {
-		memory.limit_in_bytes={{ (ansible_memtotal_mb | float * 0.85 / 1024) | int }}G;
-		memory.soft_limit_in_bytes={{ (ansible_memtotal_mb | float * 0.75 / 1024) | int }}G;
-		memory.memsw.limit_in_bytes={{ (ansible_memtotal_mb | float * 0.85 / 1024) | int }}G;
+		memory.limit_in_bytes={{ (ansible_memtotal_mb | float * 0.80 / 1024) | int }}G;
+		memory.soft_limit_in_bytes={{ (ansible_memtotal_mb | float * 0.70 / 1024) | int }}G;
+		memory.memsw.limit_in_bytes={{ (ansible_memtotal_mb | float * 0.80 / 1024) | int }}G;
 	}
 }
 

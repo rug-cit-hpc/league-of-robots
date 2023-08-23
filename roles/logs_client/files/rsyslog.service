@@ -1,0 +1,31 @@
+[Unit]
+Description=System Logging Service
+;Requires=syslog.socket
+Wants=network.target network-online.target
+After=network.target network-online.target
+Documentation=man:rsyslogd(8)
+Documentation=https://www.rsyslog.com/doc/
+
+[Service]
+; sometimes it takes a long time for the service to cleanly exit
+TimeoutSec=300
+; restart the service every day, this way we keep the amount of used resources down to bare minimum
+WatchdogSec=86400
+; limit the restart attempts to 5
+StartLimitBurst=5
+; check the number of failed ^ attempts to this time window
+;StartLimitInterval=600
+Type=notify
+EnvironmentFile=-/etc/sysconfig/rsyslog
+ExecStart=/usr/sbin/rsyslogd -n $SYSLOGD_OPTIONS
+Restart=on-failure
+UMask=0066
+StandardOutput=null
+Restart=always
+# Increase the default a bit in order to allow many simultaneous
+# files to be monitored, we might need a lot of fds.
+LimitNOFILE=16384
+
+[Install]
+WantedBy=multi-user.target
+;Alias=syslog.service
