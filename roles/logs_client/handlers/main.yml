@@ -10,13 +10,6 @@
   notify: client_restart_rsyslog
   listen: restart_server_firewall
 
-- name: Restart client rsyslog.service
-  ansible.builtin.service:
-    name: rsyslog.service
-    state: restarted
-  listen: client_restart_rsyslog
-  become: true
-
 - name: Restart server rsyslog.service
   ansible.builtin.service:
     name: rsyslog.service
@@ -25,4 +18,17 @@
   loop: "{{ rsyslogs_ext_ips }}"
   become: true
   listen: restart_server_rsyslog
+
+- name: Force systemd to reread configs
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+  listen: systemd_reload
+
+- name: Restart client rsyslog.service
+  ansible.builtin.service:
+    name: rsyslog.service
+    state: restarted
+  listen: client_restart_rsyslog
+  become: true
 ...

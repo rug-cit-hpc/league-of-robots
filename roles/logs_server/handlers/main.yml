@@ -5,4 +5,17 @@
     state: restarted
   listen: restart-rsyslog.service
   become: true
+
+- name: Force systemd to reread configs
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+  listen: reconfigure_rsyslog_service
+
+- name: Reload or restart the rsyslog
+  ansible.builtin.systemd:
+    name: 'rsyslog.service'
+    state: restarted
+  become: true
+  listen: reconfigure_rsyslog_service
 ...

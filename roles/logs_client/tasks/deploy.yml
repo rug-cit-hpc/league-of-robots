@@ -59,6 +59,15 @@
   become: true
   notify: client_restart_rsyslog
 
+- name: Deploy the systemd custom rsyslog.service
+  ansible.builtin.copy:
+    src: files/rsyslog.service
+    dest: /usr/lib/systemd/system/rsyslog.service
+    force: true
+    mode: '0644'
+  become: true
+  notify: systemd_reload
+
 - name: Make sure that the rsyslog service is started and enabled
   ansible.builtin.systemd:
     name: rsyslog.service
@@ -80,4 +89,7 @@
     mode: '0644'
     force: true
   become: true
+
+- name: Force all services to restart, before next tasks
+  ansible.builtin.meta: flush_handlers
 ...

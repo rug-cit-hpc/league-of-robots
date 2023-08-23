@@ -106,12 +106,29 @@
   ansible.builtin.include_tasks: server_certificate.yml
   register: created_certificate
 
+- name: Deploy the systemd custom rsyslog.service
+  ansible.builtin.copy:
+    src: files/rsyslog.service
+    dest: /usr/lib/systemd/system/rsyslog.service
+    force: true
+    mode: '0644'
+  become: true
+  notify: reconfigure_rsyslog_service
+
 - name: Remove problematic /etc/rsyslog.d/listen.conf file
   ansible.builtin.file:
     path: /etc/rsyslog.d/listen.conf
     state: absent
   become: true
   notify: restart-rsyslog.service
+
+- name: Add logrotate to compress and move old logs to subfolder called 'compressed_logs'
+  ansible.builtin.template:
+    src: templates/remote.logrotate
+    dest: /etc/logrotate.d/remote
+    mode: '0644'
+    force: true
+  become: true
 
 - name: Deploy server rsyslog.conf
   ansible.builtin.template:

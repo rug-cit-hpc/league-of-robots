@@ -123,7 +123,16 @@ on the server in the files `/etc/iptables_extras.d/[stack].allow`.
 Additionally, the rsyslog accepts only the communication from the clients with certificate singed by apropriate
 certificate authority (each type of logs server has different CA).
 
-## VII. Debugging
+## VII. Weekly logrotate of collected logs
+
+The script named `/etc/logrotate.d/remote` is weekly collecting all the `/var/log/remote/[machine]/[yyyy-mm]/*`
+logs, creates (if needed) `compressed_logs` subfolder, compress every log, and moves it into the subfolder.
+Then (for the rsyslog to continue to work) recreates an empty log file and then sends `HUP` signal to the rsyslog
+service. As according to the [rsyslog documentation](https://www.rsyslog.com/doc/v8-stable/configuration/modules/omprog.html):
+
+*... Rsyslog will reopen the file whenever it receives a HUP signal. This allows the file to be externally rotated (using a tool like logrotate): after each rotation of the file, make sure a HUP signal is sent to rsyslogd.*
+
+## VIII. Debugging
 
 Get the connections to the server from the clients
 
@@ -149,7 +158,7 @@ and restart the service with `systemctl restart rsyslog`. A new file should appe
 in the `/var/log/rsyslog.log`. Note that the logs are quite verbose and can grow with
 rate of approximately 100MB per hour (with current default settings).
 
-## VIII. Remove packages from logs servers
+## IX. Remove packages from logs servers
 
 ```
   sudo yum remove -y rsyslog* librelp*
