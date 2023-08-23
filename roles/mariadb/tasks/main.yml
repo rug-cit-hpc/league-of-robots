@@ -67,13 +67,17 @@
   failed_when: false
   register: root_pwd_check
 
-- name: 'Install dependencies to interface with MariaDB/MySQL databases/services.'
-  ansible.builtin.package:
-    name:
-      - 'MySQL-python'
-    state: 'latest'
-    update_cache: true
-  become: true
+- name: Install dependencies for EL 7.
+  ansible.builtin.import_tasks: el7-deps.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] == "7"
+
+- name: Install dependencies for EL >= 8.
+  ansible.builtin.import_tasks: el8-deps.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
 
 - name: 'Set MariaDB/MySQL root user password.'
   community.mysql.mysql_user:
