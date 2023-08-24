@@ -8,6 +8,7 @@
     - ssh_host_signer
     - iptables
     - yum_repos
+    - locale
     - ssh_known_hosts
     - update
     - {role: yum_local, when: local_yum_repository is defined}

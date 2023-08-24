@@ -92,7 +92,7 @@
 ##
 #
 
-- name: Install packages with yum.
+- name: Install packages.
   ansible.builtin.package:
     state: 'latest'
     update_cache: true
@@ -248,6 +248,16 @@
   become: true
   become_user: "{{ repo_management_user }}"
   no_log: true
+
+- name: Deploy pulp-init.bash with code to manage Pulp repos.
+  ansible.builtin.template:
+    src: pulp-init.bash.j2
+    dest: "/admin/{{ repo_management_user }}/pulp-init.bash"
+    owner: "{{ repo_management_user }}"
+    group: "{{ repo_management_user }}"
+    mode: '0640'
+  become: true
+  become_user: "{{ repo_management_user }}"
 
 - name: Incomplete pulp squeezer support notification.
   ansible.builtin.debug:

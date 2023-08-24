@@ -58,8 +58,11 @@
   vars:
     # Add the right amount of padding with spaces to keep layout in sync with the rest of the password-auth file
     logins_pam_exec_prefix: 'session     optional                                     pam_exec.so'
-  when: inventory_hostname in groups['jumphost'] | default([]) or
-        inventory_hostname in groups['data_transfer'] | default([])
+  when:
+    - inventory_hostname in groups['jumphost'] | default([]) or
+      inventory_hostname in groups['data_transfer'] | default([])
+    - hostvars[inventory_hostname]['ansible_mounts'] | selectattr('mount', 'equalto', '/') | map(attribute='fstype') | first == 'xfs'
+
   become: true
 
 - name: "Force enable authselect {{ stack_name }} profile."
@@ -76,7 +79,12 @@
              {% endif %}
              {% if inventory_hostname in groups['jumphost'] | default([]) or
                    inventory_hostname in groups['data_transfer'] | default([]) %}
-                 with-set_quota
+                 {% if hostvars[inventory_hostname]['ansible_mounts']
+                       | selectattr('mount', 'equalto', '/')
+                       | map(attribute='fstype')
+                       | first == 'xfs' %}
+                     with-set_quota
+                 {% endif %}
              {% endif %}
   changed_when: true
   become: true

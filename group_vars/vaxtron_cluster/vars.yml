@@ -3,7 +3,7 @@ slurm_cluster_name: 'vaxtron'
 stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'vt'
-slurm_version: 'slurm-23.02.3-1.el9.umcg'
+slurm_version: 'slurm-23.02.4-1.el9.umcg'
 slurm_partitions:
 #  - name: regular  # Must be in sync with group listed in Ansible inventory.
 #    default: yes
@@ -41,7 +41,6 @@ slurm_qos_limit_fractions:
   interactive-short:
     user: 0.5
 repo_manager: 'pulp'
-os_distribution: 'rocky9'
 figlet_font: 'ogre'
 motd: |
       ===============================================================
@@ -137,7 +136,7 @@ pam_weblogin:
   max_uid: "{{ ldap_domains['sram']['max_id'] }}"
   retries: 3
   cache_duration: 3600  # seconds
-cloud_image: RockyLinux-9.2
+cloud_image: RockyLinux-9.2_xfs
 cloud_user: cloud-user
 availability_zone: nova
 stack_networks:

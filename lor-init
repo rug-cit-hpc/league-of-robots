@@ -37,7 +37,7 @@ function lor-config() {
 		set -u
 	fi
 	#
-	# Check if Python venv was initiualized.
+	# Check if Python venv was initialized.
 	#
 	if [[ -z "${VIRTUAL_ENV:-}" ]]; then
 		printf 'ERROR: ${VIRTUAL_ENV} is empty.\n'

@@ -64,23 +64,79 @@
       - kernel
       - kernel-devel
       - kernel-headers
-      - kernel-abi-whitelists
       - kernel-tools
       - kernel-tools-libs
       - kernel-tools-libs-devel
   become: true
   notify: reboot
 
+- name: Install kernel tools/extras required for compiling kernel modules - for RedHat == 7.
+  ansible.builtin.package:
+    state: latest
+    update_cache: true
+    name:
+      - kernel-abi-whitelists
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] == "7"
+  become: true
+  notify: reboot
+
+- name: Install kernel tools/extras required for compiling kernel modules - for RedHat >= 8.
+  ansible.builtin.package:
+    state: latest
+    update_cache: true
+    name:
+      - kernel-abi-stablelists
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
+  become: true
+  notify: reboot
+
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
-- name: Install the Lustre client.
+- name: Install the Lustre client - for RedHat <= 8.
   ansible.builtin.package:
     state: latest
     update_cache: true
     name:
       - lustre-client-dkms
       - lustre-client
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] <= "8"
+  become: true
+
+#
+# Temporary workaround required for el9, because the latest lustre-client-dkms-2.15.3-1.el9.noarch
+# has a dependency on /usr/bin/python2, which is not available for el9.
+# This bug has been fixed in the Lustre repo, but new RPMs are not available yet...
+#
+# Note we cannot use ansible.builtin.package with "skip_broken: true",
+# because that feature is broken in Ansible < 2.14 and does nothing.
+#
+- name: Install the Lustre client - for RedHat >= 9 work around part 1.
+  ansible.builtin.package:
+    state: latest
+    update_cache: true
+    skip_broken: true
+    name:
+      - lustre-client
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "9"
+  become: true
+
+- name: Install the Lustre client - for RedHat >= 9 work around part 2.
+  ansible.builtin.command:
+    cmd: dnf install lustre-client-dkms --skip-broken
+  register: lustre_client_dnf_result
+  changed_when: "'Nothing to do' not in lustre_client_dnf_result.stdout"
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "9"
   become: true
 
 - name: Load the Lustre kernel modules.

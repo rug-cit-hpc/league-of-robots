@@ -1,0 +1,8 @@
+---
+- name: Install language packs.
+  ansible.builtin.package:
+    state: latest
+    update_cache: true
+    name: glibc-langpack-en
+  become: true
+...

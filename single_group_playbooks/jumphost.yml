@@ -12,6 +12,7 @@
     - ssh_known_hosts
     - {role: yum_local, when: local_yum_repository is defined}
     - {role: yum_repos, when: repo_manager == 'none'}
+    - locale
     - logrotate
     - remove
     - update

@@ -1,0 +1,7 @@
+---
+- name: Configure locale for EL 9.
+  ansible.builtin.import_tasks: el9.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] == "9"
+...
