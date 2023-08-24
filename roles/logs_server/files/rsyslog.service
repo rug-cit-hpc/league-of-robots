@@ -8,22 +8,26 @@ Documentation=https://www.rsyslog.com/doc/
 
 [Service]
 ; sometimes it takes a long time for the service to cleanly exit
-TimeoutSec=300
-; restart the service every day, this way we keep the amount of used resources down to bare minimum
-WatchdogSec=86400
-; limit the restart attempts to 5
-StartLimitBurst=5
-; check the number of failed ^ attempts to this time window
-StartLimitInterval=600
+; but default value of 90 seconds seems a bit too low for how the
+; service actually behaved
+TimeoutSec=120
+; increase the limit of the restart attempts from 5 to 10, as this
+; was already an issue in our implementation
+StartLimitBurst=10
+; and at the same time also increase the number of failed attempts
+; interval window from 10 seconds to 30 second
+StartLimitInterval=30
+; make sure the service is always restarted
+Restart=always
+; the rest of the service settings are good, as-is
 Type=notify
 EnvironmentFile=-/etc/sysconfig/rsyslog
 ExecStart=/usr/sbin/rsyslogd -n $SYSLOGD_OPTIONS
 Restart=on-failure
 UMask=0066
 StandardOutput=null
-Restart=always
-# Increase the default a bit in order to allow many simultaneous
-# files to be monitored, we might need a lot of fds.
+; Increase the default a bit in order to allow many simultaneous
+; files to be monitored, we might need a lot of fds.
 LimitNOFILE=16384
 
 [Install]
