@@ -59,14 +59,6 @@
     daemon_reload: 'yes'
   become: true
 
-# This command will fail when the root password was set previously
-- name: 'Check if MariaDB/MySQL root password is set.'
-  ansible.builtin.command:
-    cmd: mysqladmin -u root status
-  changed_when: false
-  failed_when: false
-  register: root_pwd_check
-
 - name: Install dependencies for EL 7.
   ansible.builtin.import_tasks: el7-deps.yml
   when:
@@ -79,17 +71,18 @@
     - ansible_facts['os_family'] == "RedHat"
     - ansible_facts['distribution_major_version'] >= "8"
 
-- name: 'Set MariaDB/MySQL root user password.'
-  community.mysql.mysql_user:
-    name: 'root'
-    host: 'localhost'
-    password: "{{ MYSQL_ROOT_PASSWORD }}"
-    check_implicit_admin: true
-    login_unix_socket: "/var/lib/mysql/mysql.sock"
-    login_user: 'root'
-    login_password: ''
-    state: 'present'
-  when: root_pwd_check.rc == 0
+- name: Gather list of installed packages.
+  ansible.builtin.package_facts:
+    manager: auto
+
+# Not required on MariaDB >= 10.4, which uses sockets by default 
+# and has the password based login for root disabled by default
+# Standard installation has the root account configure with an 'invalid' password.
+#
+- name: Set root password for MariaDB < 10.4.
+  ansible.builtin.import_tasks: set_root_password.yml
+  when:
+    - ansible_facts.packages['mariadb'][0]['version'] is version_compare('10.4', operator='<')
 
 #
 # Must flush handlers explicitly, because this role is included as dependency for Slurm.
