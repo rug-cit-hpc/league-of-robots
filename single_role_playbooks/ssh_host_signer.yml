@@ -1,5 +1,6 @@
 ---
-- hosts:
+- name: Running > ssh_host_signer < and > ssh_known_hosts < roles
+  hosts:
     - jumphost
     - data_transfer
     - repo
