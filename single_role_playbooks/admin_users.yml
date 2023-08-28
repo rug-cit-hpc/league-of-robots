@@ -1,11 +1,13 @@
 ---
-- hosts:
+- name: Running > admin_users < role on first batch of machines
+  hosts:
     - jumphost
     - data_transfer
     - logs
   roles:
     - admin_users
-- hosts:
+- name: Running > admin_users < role on second batch of machines
+  hosts:
     - repo
     - cluster
     - docs
