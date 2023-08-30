@@ -95,5 +95,6 @@
     password: '{{ cloud_console_pass | password_hash("sha512") }}'
     update_password: 'always'
   when: cloud_console_pass is defined and cloud_console_pass | length > 1
+  changed_when: false
   become: true
 ...

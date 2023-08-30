@@ -52,6 +52,7 @@
     decrypt: true
   delegate_to: localhost
   connection: local
+  changed_when: false
   become: false
 
 - name: 'Sign SSH host keys.'
