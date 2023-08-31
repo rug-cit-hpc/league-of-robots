@@ -1,6 +1,6 @@
 ---
 ip_addresses:
-  cf-porch:
+  cf-porch-dce:
     cf_internal_management:
       address: 10.10.1.197
       netmask: /32
@@ -34,6 +34,23 @@ ip_addresses:
       netmask: /32
     vlan16:
       address: 195.169.22.186
+      netmask: /32
+      fqdn: 'NXDOMAIN'
+  cf-porch:
+    cf_internal_management:
+      address: 10.10.1.86
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    external:
+      address: 195.169.23.116
+      netmask: /32
+      fqdn: 'WARNING: Check manually for DNS CNAME records a.k.a. aliases: we cannot reverse lookup an alias automagically.'
+  cf_internal_management-external-router:
+    cf_internal_management:
+      address: 10.10.1.1
+      netmask: /32
+    external:
+      address: 195.169.23.125
       netmask: /32
       fqdn: 'NXDOMAIN'
 ...
