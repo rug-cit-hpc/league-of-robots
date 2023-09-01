@@ -1,5 +1,14 @@
 ---
 ip_addresses:
+  cf-porch:
+    cf_internal_management:
+      address: 10.10.1.86
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    external:
+      address: 195.169.23.116
+      netmask: /32
+      fqdn: 'NXDOMAIN'
   cf-porch-dce:
     cf_internal_management:
       address: 10.10.1.197
@@ -9,13 +18,22 @@ ip_addresses:
       address: 195.169.22.177
       netmask: /32
       fqdn: 'NXDOMAIN'
-  cf-transfer:
+  cf-transfer-dce:
     cf_internal_management:
       address: 10.10.1.24
       netmask: /32
       publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
     vlan16:
       address: 195.169.22.155
+      netmask: /32
+      fqdn: 'NXDOMAIN'
+  cf-transfer:
+    cf_internal_management:
+      address: 10.10.1.42
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    external:
+      address: 195.169.23.88
       netmask: /32
       fqdn: 'NXDOMAIN'
   copperfist:
@@ -28,29 +46,20 @@ ip_addresses:
     vlan990:
       address: 192.168.1.22
       netmask: /32
-  cf_internal_management-vlan16-router:
-    cf_internal_management:
-      address: 10.10.1.1
-      netmask: /32
-    vlan16:
-      address: 195.169.22.186
-      netmask: /32
-      fqdn: 'NXDOMAIN'
-  cf-porch:
-    cf_internal_management:
-      address: 10.10.1.86
-      netmask: /32
-      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
-    external:
-      address: 195.169.23.116
-      netmask: /32
-      fqdn: 'WARNING: Check manually for DNS CNAME records a.k.a. aliases: we cannot reverse lookup an alias automagically.'
   cf_internal_management-external-router:
     cf_internal_management:
       address: 10.10.1.1
       netmask: /32
     external:
       address: 195.169.23.125
+      netmask: /32
+      fqdn: 'NXDOMAIN'
+  cf_internal_management-vlan16-router:
+    cf_internal_management:
+      address: 10.10.1.1
+      netmask: /32
+    vlan16:
+      address: 195.169.22.186
       netmask: /32
       fqdn: 'NXDOMAIN'
 ...
