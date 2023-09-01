@@ -1,12 +1,15 @@
 ---
-- name: Install TOTP tools
-  ansible.builtin.package:
-    state: latest
-    update_cache: true
-    name:
-      - google-authenticator
-      - python-qrcode
-  become: true
+- name: Install TOTP tools for EL 7.
+  ansible.builtin.import_tasks: totp_epel7.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] == "7"
+
+- name: Install TOTP tools for EL >= 8
+  ansible.builtin.import_tasks: totp_epel8.yml
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
 
 - name: Deploy /etc/profile.d/totp_config.sh to configure TOTP MFA when user logs in and TOTP MFA is not configured yet.
   ansible.builtin.template:

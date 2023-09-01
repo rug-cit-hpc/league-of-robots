@@ -46,7 +46,14 @@ function totp-show-QR-code() {
 	# IMPORTANT: Each command below is prefixed with a space,
 	# so secrets/credentials are NOT logged in your bash history.
 	#
-	 qr "otpauth://totp/${USER}?secret=$(head -1 "${totp_config}")&issuer=$(hostname -s)"
+	if [[ -x "$(command -v qr)" ]]; then
+		 qr "otpauth://totp/${USER}?secret=$(head -1 "${totp_config}")&issuer=$(hostname -s)"
+	elif [[ -x "$(command -v qrencode)" ]]; then
+		 qrencode -t ANSI256 "otpauth://totp/${USER}?secret=$(head -1 "${totp_config}")&issuer=$(hostname -s)"
+	else
+		 printf 'ERROR: %s\n' 'Cannot find qr nor qrencode command: cannot generate a QR code.'
+		 return
+	fi
 	 echo
 	 printf 'INFO: %s\n' 'Scan the QR code above using an app for generating Time-based One-Time Passwords (TOTPs).'
 	 echo
