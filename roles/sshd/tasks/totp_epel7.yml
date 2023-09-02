@@ -1,0 +1,10 @@
+---
+- name: Install TOTP tools for EL 7.
+  ansible.builtin.package:
+    state: latest
+    update_cache: true
+    name:
+      - google-authenticator
+      - python-qrcode
+  become: true
+...
