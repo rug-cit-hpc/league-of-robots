@@ -156,7 +156,8 @@ pip3 install passlib
 #
 # Ansible core 2.13 from Ansible 6.x is latest version compatible with Mitogen.
 #
-pip3 install 'ansible<7'
+pip3 install 'ansible<7' # For running playbooks on your local laptop as Ansible control host.
+pip3 install 'ansible<6' # For running playbooks directly on chaperone machines running RHEL8.
 pip3 install ansible-lint
 #
 # Optional: install Mitogen with pip.
