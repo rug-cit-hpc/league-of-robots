@@ -19,7 +19,6 @@ ip_addresses:
       address: 20.61.46.9
       netmask: /32
       fqdn: 'NXDOMAIN'
-      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
   earl3:
     logs_internal_management:
       address: 10.0.0.5
