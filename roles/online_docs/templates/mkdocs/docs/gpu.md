@@ -14,9 +14,9 @@ GPU jobs can be submitted to Slurm with either [sbatch](../analysis/#1-batch-job
 Note that users **can requested only a number of entire GPUs, and NOT a subset of specific GPU resource**. For example, user can requst 1, 2 or more of entire the GPU(s), but cannot request 1 GPU with specific amount of `GPU cores` or `GPU memory`.
 The selection of individual resources is possible on newer GPUs that support [MIG](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html) feature. This feature is available only on newer types, like A30 and A100, but not on our A40.
 
-## Example 1: Submitting a simple job
+## Examples 1 and 2: Submitting a batch and an interactive job
 
-The example of submitting the `gpu_test.sbatch`, that is requesting 2 GPU devices and a command to print the information of allocated GPU devices:
+The example 1 is showing how to submit the `gpu_test.sbatch` file, requesting 2 GPU devices and executing command that prints the information of allocated GPU devices:
 
 ```bash
     $ cat gpu_test.sbatch
@@ -41,7 +41,7 @@ Or can be use as the argument on the command line
     $ sbatch --gres=gpu:{{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}:2 my.sbatch
 ```
 
-To use GPU's in the interactive session, the `srun` command can be directly used
+Example 2 is runnning the interactive job session of the same GPU example - the `srun` command can be directly used
 
 ```bash
     $ mkdir -p /groups/umcg-GROUP/tmpXX/projects/${USER}/gpu_test
@@ -118,7 +118,7 @@ To check the driver and cuda version, run `nvidia-smi` on the compute node and c
     [nibbler UnifiedMemoryPerf]$ cd cuda-samples-12.2/Samples/6_Performance/UnifiedMemoryPerf
     [nibbler UnifiedMemoryPerf]$ # increase the matrix size, so that the calulation takes long enough to capture on nvidia-smi
     [nibbler UnifiedMemoryPerf]$ sed -i 's/maxSampleSizeInMb = 64/maxSampleSizeInMb = 1024/' matrixMultiplyPerf.cu
-    [nibbler UnifiedMemoryPerf]$ srun --qos=interactive-short --gpus-per-node=a40:2 --mem=20G --time=01:00:00 --pty bash -i
+    [nibbler UnifiedMemoryPerf]$ srun --qos=interactive-short --gpus-per-node={{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}:2 --mem=20G --time=01:00:00 --pty bash -i
     [nb-node-b02 UnifiedMemoryPerf]$ ml CUDA/12.2.0          # load CUDA compiler and libraries
     [nb-node-b02 UnifiedMemoryPerf]$ make                    # compile the current example
     [nb-node-b02 UnifiedMemoryPerf]$ # run test on second device (note first device is '0',second is '1' etc.)
