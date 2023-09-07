@@ -50,7 +50,7 @@ all:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            mv-vcompute[01]:
+            mv-vcompute01:
           vars:
             cloud_flavor: s1.gargantuan
             host_networks:

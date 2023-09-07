@@ -32,7 +32,7 @@
   tags:
     - test
 
-- name: Compile the list of logs external IP addresses
+- name: Compile the list of logs server names
   ansible.builtin.set_fact:
     rsyslogs_ext_ips: "{{ rsyslogs_ext_ips | default([]) + [item['name']] }}"
   loop: "{{ logs_servers }}"
