@@ -12,13 +12,11 @@ GPU jobs can be submitted to Slurm with either [sbatch](../analysis/#1-batch-job
  -  `--gpus-per-node={{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}:#`, where `#` is again the number of GPUs requested per node.
 
 Note that users **can requested only a number of entire GPUs, and NOT a subset of specific GPU resource**. For example, user can requst 1, 2 or more of entire the GPU(s), but cannot request 1 GPU with specific amount of `GPU cores` or `GPU memory`.
-The selection individual resources is possible on newer GPUs that support [MIG](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html)feature. This feature is available only on newer types, like A30 and A100, but not on our A40.
+The selection of individual resources is possible on newer GPUs that support [MIG](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html) feature. This feature is available only on newer types, like A30 and A100, but not on our A40.
 
-... Newer versions (like A30 or A100) have option to select how much of individual resources can be requested on the GPU (see [MIG](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html)), but this is not possible with the GPUs that we are currently using (A40).
+## Example 1: Submitting a simple job
 
-## Example 1: submitting simple gpu job
-
-The example of submitting the `gpu_test.sbatch`, that is simply requesting 2 GPU devices and a command to print the information about allocated GPU devices:
+The example of submitting the `gpu_test.sbatch`, that is requesting 2 GPU devices and a command to print the information of allocated GPU devices:
 
 ```bash
     $ cat gpu_test.sbatch
@@ -52,6 +50,7 @@ To use GPU's in the interactive session, the `srun` command can be directly used
     $ echo ${SLURM_GPUS_ON_NODE}
     2  
 ```
+
 replace `GROUP` and `tmpXX` with correct group and tmp filesystem. The returning value is the number of GPU's available for the job. To see more information about the GPU devices that are available inside the job, the `nvidia-smi` command can be used.
 
 ```bash
@@ -82,10 +81,9 @@ replace `GROUP` and `tmpXX` with correct group and tmp filesystem. The returning
     +---------------------------------------------------------------------------------------+
 ```
 
+Note that like any other interactive jobs, this one is also limited to one interactive job per user.
 
-Note that like other interactive jobs, this one is also limited to one interactive job per user.
-
-As you can tell from the example above, once the job is started, the environment variable called `SLURM_GPUS_ON_NODE` is created. It contains the number of available GPU's for the current running job. The value from the example would be set to `2` (out of 8 available GPU's on the node). Furthermore, you can access only the two that are assigned to the job. This means you won't be able to use any other GPU's on the node. This is limited by SLURM's control groups and prevents users consuming resources that they have not requested.
+As you can tell from the example above, once the job has started, the environment variable called `SLURM_GPUS_ON_NODE` is created. It contains the number of available GPU's of the currently running job. The value from the example above would be set to `2` (out of 8 available GPU's on the node). Furthermore, you can access only the two that are assigned to the job. This means you won't be able to use any other GPU's on the node. This is limited by SLURM's control groups and prevents users consuming resources that they have not requested.
 
 To show the current jobs and how much GPU's they are using
 
@@ -100,30 +98,32 @@ To show the current jobs and how much GPU's they are using
 
 and the GPU's used are available on the column before the last.
 
-## Example 2: build and run cuda samples (version 12.2.0 compiled with CUDA/12.2.0)
+## Example 2: Build and run CUDA source sample
 
-Be sure you have the same driver version or higher as the samples version, that is:
+This example shows how to build and run CUDA source sample (version 12.2.0 compiled with CUDA/12.2.0) in the interactive job.
 
+First you must be sure that you have a driver version same or higher as the samples version, that is:
+
+```
     [ driver version ] and [ CUDA version ] >= [ samples version ]
+```
 
-To check the driver and cuda version, run `nvidia-smi` and check the top middle and top right corner of the output.
+To check the driver and cuda version, run `nvidia-smi` on the compute node and check version numbers - they should be printed on the top-middle and top-right corner of the output.
 
 ```bash
-    $ # replace the YYY with apropriate values
-    $ mkdir -p /groups/umcg-YYY/tmpYY/users/umcg-YYY/gpu_apptainer_test
-    $ cd /groups/umcg-YYY/tmpYY/users/umcg-YYY/gpu_apptainer_test
-    $ wget https://github.com/NVIDIA/cuda-samples/archive/refs/tags/v12.2.tar.gz
-    $ tar xvfz v12.2.tar.gz
-    $ cd cuda-samples-12.2/Samples/6_Performance/UnifiedMemoryPerf
-    $ # increase the matrix size, so that the calulation takes long enough to capture on nvidia-smi
-    $ sed -i 's/maxSampleSizeInMb = 64/maxSampleSizeInMb = 1024/' matrixMultiplyPerf.cu
-    $ # load CUDA compiler and libraries
-    $ ml CUDA/12.2.0
-    $ # compile the current example
-    $ make
-    $ # run test on second device (note first device is '0',second is '1' etc.)
-    $ ./UnifiedMemoryPerf -device=1 > gpu_test.log &
-    $ nvidia-smi 
+    [nibbler ~]$ # replace the YYY with apropriate values
+    [nibbler ~]$ mkdir -p /groups/umcg-YYY/tmpYY/users/umcg-YYY/cuda_samples
+    [nibbler ~]$ cd /groups/umcg-YYY/tmpYY/users/umcg-YYY/cuda_samples
+    [nibbler cuda_samples]$ wget https://github.com/NVIDIA/cuda-samples/archive/refs/tags/v12.2.tar.gz -O - | tar -xz
+    [nibbler UnifiedMemoryPerf]$ cd cuda-samples-12.2/Samples/6_Performance/UnifiedMemoryPerf
+    [nibbler UnifiedMemoryPerf]$ # increase the matrix size, so that the calulation takes long enough to capture on nvidia-smi
+    [nibbler UnifiedMemoryPerf]$ sed -i 's/maxSampleSizeInMb = 64/maxSampleSizeInMb = 1024/' matrixMultiplyPerf.cu
+    [nibbler UnifiedMemoryPerf]$ srun --qos=interactive-short --gpus-per-node=a40:2 --mem=20G --time=01:00:00 --pty bash -i
+    [nb-node-b02 UnifiedMemoryPerf]$ ml CUDA/12.2.0          # load CUDA compiler and libraries
+    [nb-node-b02 UnifiedMemoryPerf]$ make                    # compile the current example
+    [nb-node-b02 UnifiedMemoryPerf]$ # run test on second device (note first device is '0',second is '1' etc.)
+    [nb-node-b02 UnifiedMemoryPerf]$ ./UnifiedMemoryPerf -device=1 > gpu_test.log &
+    [nb-node-b02 UnifiedMemoryPerf]$ nvidia-smi 
     Mon Jul 24 12:53:08 2023       
     +---------------------------------------------------------------------------------------+
     | NVIDIA-SMI 535.54.03              Driver Version: 535.54.03    CUDA Version: 12.2     |
@@ -150,16 +150,19 @@ To check the driver and cuda version, run `nvidia-smi` and check the top middle 
     +---------------------------------------------------------------------------------------+
 ```
 
-## Tensorflow python job inside Apptainer, using 1 node with 2 GPU devices and CUDA module
+## Example 3: Tensorflow inside Apptainer
+
+This example shows how to run a Tensorflow python job inside Apptainer, using 1 node with 2 GPU devices and CUDA module.
 
 This example shows how to download the latest GPU tensorflow container image and execute some test job inside it.
 
-To run this example, user must first
+To run this example
+
 1. create the working directory on the `tmp` filesystem and navigate into it
    ```bash
-   # create a working directory and set it as a working directory
-   mkdir /groups/umcg-YYY/tmpYY/users/umcg-YYY/gpu_apptainer_test
-   cd /groups/umcg-YYY/tmpYY/users/umcg-YYY/gpu_apptainer_test
+   [nibbler ~]$ # create a working directory and set it as a working directory
+   [nibbler ~]$ mkdir /groups/umcg-YYY/tmpYY/users/umcg-YYY/gpu_apptainer_test
+   [nibbler ~]$ cd /groups/umcg-YYY/tmpYY/users/umcg-YYY/gpu_apptainer_test
    ```
 2. Create two files
   1. a `apptainer_tensorflow.slurm` - a job description file for the SLURM queuing system
@@ -185,7 +188,7 @@ ml CUDA
 
 ### Running
 # run tensorflow .sif image that is saved in the /apps/data/containers/ and execute the training.py script
-apptainer run -B $(pwd) --nv /apps/data/containers/tensorflow-2.13.0-gpu.sif python training.py
+[nibbler gpu_apptainer_test]$ apptainer run -B $(pwd) --nv /apps/data/containers/tensorflow-2.13.0-gpu.sif python training.py
 ```
 
 and the `training.py` file contains
