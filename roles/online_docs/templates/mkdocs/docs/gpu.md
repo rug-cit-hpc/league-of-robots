@@ -165,8 +165,8 @@ To run this example
    [nibbler ~]$ cd /groups/umcg-YYY/tmpYY/users/umcg-YYY/gpu_apptainer_test
    ```
 2. Create two files
-  1. a `apptainer_tensorflow.slurm` - a job description file for the SLURM queuing system
-  2. a `training.py` - a simplest Tensorflow traning example script, containing only 30 lines
+   1. a `apptainer_tensorflow.slurm` - a job description file for the SLURM queuing system
+   2. a `training.py` - a simplest Tensorflow traning example script, containing only 30 lines
 
 Where `apptainer_tensorflow.slurm` file contains
 
