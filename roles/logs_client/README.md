@@ -15,6 +15,17 @@
 
 ## I. Prerequisites
 
+### Certificate authority
+
+Before attemting to deploy the logs clients role, make sure that your `.ssh/known_hosts` file
+contains the following line
+
+```
+    @cert-authority * ssh-ed25519 [here is the correct key] CA key for logs_library
+```
+
+where key must match the values of the `ssh-host-ca/logs_library-ca.pub` file.
+
 ### I.a Other roles
 
 The client machines must first already have deployed the following roles
