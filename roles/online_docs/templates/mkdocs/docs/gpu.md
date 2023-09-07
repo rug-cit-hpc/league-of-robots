@@ -172,7 +172,7 @@ Where `apptainer_tensorflow.slurm` file contains
 
 ```bash
 #!/bin/bash
-#SBATCH --gres=gpu:{{ slurm_partitions | selectattr('name', 'match', 'gpu*') | map(attribute='name', default='a40') | first }}:2
+#SBATCH --gres=gpu:{{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}:2
 #SBATCH --job-name=apptainer_tf
 #SBATCH --output=apptainer_tf.out
 #SBATCH --error=apptainer_tf.err
