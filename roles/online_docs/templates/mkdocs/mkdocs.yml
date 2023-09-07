@@ -36,6 +36,9 @@ nav:
 {% endif %}
   - Compute:
     - 'Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}': 'analysis.md'
+{% if groups['compute_node'] | map('extract', hostvars, 'gpu_count') | select('defined') | default([0], true) | map('int') | sum > 0 %}
+    - 'GPU jobs - submitting and managing': 'gpu.md'
+{% endif %}
   - Technical Specifications:
     - 'Details on the {{ slurm_cluster_name | capitalize }} HPC environment': 'specifications.md'
   - Software:
