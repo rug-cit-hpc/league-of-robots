@@ -225,10 +225,10 @@ probability_model(x_test[:5])
 
 This basic training python script example
 
-1. loads [MNIST](http://yann.lecun.com/exdb/mnist/) database of handwritten digits
-2. Build a neural network machine learning model that classifies images.
-3. Train this neural network.
-4. Evaluate the accuracy of the model.
+1. loads [MNIST](http://yann.lecun.com/exdb/mnist/) database of handwritten digits,
+2. builds a neural network machine learning model that classifies images,
+3. trains this neural network and
+4. evaluates the accuracy of the model.
 
 ## Additional documentation
 
