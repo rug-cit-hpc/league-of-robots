@@ -237,7 +237,7 @@ This basic training python script example
 3. [CUDA Code Samples](https://developer.nvidia.com/cuda-code-samples)
 4. [Apptainer GPU Support documentation](https://apptainer.org/docs/user/1.1/gpu.html)
 
-{% else %}{# else this group does not have any GPUs and should create a simple content statign this #}
+{% else %}{# else this stack does not have any GPUs and should create a simple content stating this #}
 ## This computer does not have any GPU co-processing hardware
 
 {% endif %}
