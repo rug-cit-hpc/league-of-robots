@@ -11,12 +11,12 @@ GPU jobs can be submitted to Slurm with either [sbatch](../analysis/#1-batch-job
  - `gres=gpu:{{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}:#` argument - where `#` is the number of specific node of nodes to be reserved. For example, a job that uses 1 node with 2 GPU's, would use `gres=gpu:{{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}:2`, where `{{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}` is the type of GPU card requested. Alternatively you can also provide
  -  `--gpus-per-node={{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}:#`, where `#` is again the number of GPUs requested per node.
 
-Note that users **can requested only a number of entire GPUs, and NOT a subset of specific GPU resource**. For example, user can requst 1, 2 or more of entire the GPU(s), but cannot request 1 GPU with specific amount of `GPU cores` or `GPU memory`.
+Note that users can request only a number of **entire** GPUs and hence **NOT partial** GPU resources. For example, you can request 1, 2 or more GPU(s), but you cannot request 1 GPU with a specific amount of `GPU cores` or `GPU memory`.
 The selection of individual resources is possible on newer GPUs that support [MIG](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html) feature. This feature is available only on newer types, like A30 and A100, but not on our A40.
 
 ## Examples 1 and 2: Submitting a batch and an interactive job
 
-The example 1 is showing how to submit the `gpu_test.sbatch` file, requesting 2 GPU devices and executing command that prints the information of allocated GPU devices:
+Example 1 shows how to submit the `gpu_test.sbatch` file, requesting 2 GPU devices and executing a command that prints the information of the allocated GPU devices:
 
 ```bash
     $ cat gpu_test.sbatch
@@ -41,7 +41,7 @@ Or can be use as the argument on the command line
     $ sbatch --gres=gpu:{{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}:2 my.sbatch
 ```
 
-Example 2 is runnning the interactive job session of the same GPU example - the `srun` command can be directly used
+Example 2 runs the same GPU example in an interactive session using `srun`.
 
 ```bash
     $ mkdir -p /groups/umcg-GROUP/tmpXX/projects/${USER}/gpu_test
@@ -51,7 +51,7 @@ Example 2 is runnning the interactive job session of the same GPU example - the 
     2  
 ```
 
-replace `GROUP` and `tmpXX` with correct group and tmp filesystem. The returning value is the number of GPU's available for the job. To see more information about the GPU devices that are available inside the job, the `nvidia-smi` command can be used.
+Replace `GROUP` and `tmpXX` placeholders with correct values for group and tmp filesystem. The returned value is the number of GPU's available for the job. Use the `nvidia-smi` command to see more information about the GPU devices that are available inside the job.
 
 ```bash
     $ nvidia-smi 
@@ -83,7 +83,7 @@ replace `GROUP` and `tmpXX` with correct group and tmp filesystem. The returning
 
 Note that like any other interactive jobs, this one is also limited to one interactive job per user.
 
-As you can tell from the example above, once the job has started, the environment variable called `SLURM_GPUS_ON_NODE` is created. It contains the number of available GPU's of the currently running job. The value from the example above would be set to `2` (out of 8 available GPU's on the node). Furthermore, you can access only the two that are assigned to the job. This means you won't be able to use any other GPU's on the node. This is limited by SLURM's control groups and prevents users consuming resources that they have not requested.
+As you can tell from the example above, once the job has started, the environment variable called `SLURM_GPUS_ON_NODE` is created. It contains the number of available GPU's of the currently running job. The value from the example above would be set to `2`. Furthermore, you can access only the two that are assigned to the job. This means you won't be able to use any other GPU's on the node. This is limited by SLURM's control groups and prevents users consuming resources that they have not requested.
 
 To show the current jobs and how much GPU's they are using
 
@@ -237,7 +237,7 @@ This basic training python script example
 3. [CUDA Code Samples](https://developer.nvidia.com/cuda-code-samples)
 4. [Apptainer GPU Support documentation](https://apptainer.org/docs/user/1.1/gpu.html)
 
-{% else %}{# else this group does not have any GPUs and should create a simple content statign this #}
+{% else %}{# else this stack does not have any GPUs and should create a simple content stating this #}
 ## This computer does not have any GPU co-processing hardware
 
 {% endif %}
