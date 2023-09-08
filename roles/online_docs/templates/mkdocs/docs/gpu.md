@@ -16,7 +16,7 @@ The selection of individual resources is possible on newer GPUs that support [MI
 
 ## Examples 1 and 2: Submitting a batch and an interactive job
 
-The example 1 is showing how to submit the `gpu_test.sbatch` file, requesting 2 GPU devices and executing command that prints the information of allocated GPU devices:
+Example 1 shows how to submit the `gpu_test.sbatch` file, requesting 2 GPU devices and executing a command that prints the information of the allocated GPU devices:
 
 ```bash
     $ cat gpu_test.sbatch
