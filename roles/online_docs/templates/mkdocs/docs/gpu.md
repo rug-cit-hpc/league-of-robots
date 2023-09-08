@@ -41,7 +41,7 @@ Or can be use as the argument on the command line
     $ sbatch --gres=gpu:{{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}:2 my.sbatch
 ```
 
-Example 2 is runnning the interactive job session of the same GPU example - the `srun` command can be directly used
+Example 2 runs the same GPU example in an interactive session using `srun`.
 
 ```bash
     $ mkdir -p /groups/umcg-GROUP/tmpXX/projects/${USER}/gpu_test
