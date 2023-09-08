@@ -83,7 +83,7 @@ Replace `GROUP` and `tmpXX` placeholders with correct values for group and tmp f
 
 Note that like any other interactive jobs, this one is also limited to one interactive job per user.
 
-As you can tell from the example above, once the job has started, the environment variable called `SLURM_GPUS_ON_NODE` is created. It contains the number of available GPU's of the currently running job. The value from the example above would be set to `2` (out of 8 available GPU's on the node). Furthermore, you can access only the two that are assigned to the job. This means you won't be able to use any other GPU's on the node. This is limited by SLURM's control groups and prevents users consuming resources that they have not requested.
+As you can tell from the example above, once the job has started, the environment variable called `SLURM_GPUS_ON_NODE` is created. It contains the number of available GPU's of the currently running job. The value from the example above would be set to `2`. Furthermore, you can access only the two that are assigned to the job. This means you won't be able to use any other GPU's on the node. This is limited by SLURM's control groups and prevents users consuming resources that they have not requested.
 
 To show the current jobs and how much GPU's they are using
 
