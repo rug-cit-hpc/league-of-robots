@@ -234,7 +234,8 @@ This basic training python script example
 
 1. [TensorFlow 2 quickstart for beginners](https://www.tensorflow.org/tutorials/quickstart/beginner)
 2. [NVidia Tesla documentation](https://docs.nvidia.com/datacenter/tesla/)
-3. [Apptainer GPU Support documentation](https://apptainer.org/docs/user/1.1/gpu.html)
+3. [CUDA Code Samples](https://developer.nvidia.com/cuda-code-samples)
+4. [Apptainer GPU Support documentation](https://apptainer.org/docs/user/1.1/gpu.html)
 
 {% else %}{# else this group does not have any GPUs and should create a simple content statign this #}
 ## This computer does not have any GPU co-processing hardware
