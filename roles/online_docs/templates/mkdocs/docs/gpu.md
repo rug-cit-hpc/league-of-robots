@@ -11,7 +11,7 @@ GPU jobs can be submitted to Slurm with either [sbatch](../analysis/#1-batch-job
  - `gres=gpu:{{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}:#` argument - where `#` is the number of specific node of nodes to be reserved. For example, a job that uses 1 node with 2 GPU's, would use `gres=gpu:{{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}:2`, where `{{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}` is the type of GPU card requested. Alternatively you can also provide
  -  `--gpus-per-node={{ groups['compute_node'] | map('extract', hostvars, 'gpu_type') | select('defined') | first }}:#`, where `#` is again the number of GPUs requested per node.
 
-Note that users **can requested only a number of entire GPUs, and NOT a subset of specific GPU resource**. For example, user can requst 1, 2 or more of entire the GPU(s), but cannot request 1 GPU with specific amount of `GPU cores` or `GPU memory`.
+Note that users can request only a number of **entire** GPUs and hence **NOT partial** GPU resources. For example, you can request 1, 2 or more GPU(s), but you cannot request 1 GPU with a specific amount of `GPU cores` or `GPU memory`.
 The selection of individual resources is possible on newer GPUs that support [MIG](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html) feature. This feature is available only on newer types, like A30 and A100, but not on our A40.
 
 ## Examples 1 and 2: Submitting a batch and an interactive job
