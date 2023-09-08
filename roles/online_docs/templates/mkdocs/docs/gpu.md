@@ -100,7 +100,7 @@ and the GPU's used are available on the column before the last.
 
 ## Example 2: Build and run CUDA source sample
 
-This example shows how to build and run CUDA source sample (version 12.2.0 compiled with CUDA/12.2.0) in the interactive job.
+This example shows how to build and run [CUDA code sample](https://developer.nvidia.com/cuda-code-samples) (version 12.2.0 compiled with CUDA/12.2.0) in the interactive job.
 
 First you must be sure that you have a driver version same or higher as the samples version, that is:
 
