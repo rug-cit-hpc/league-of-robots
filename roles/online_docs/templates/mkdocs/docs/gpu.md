@@ -236,7 +236,7 @@ This basic training python script example
 2. [NVidia Tesla documentation](https://docs.nvidia.com/datacenter/tesla/)
 3. [Apptainer GPU Support documentation](https://apptainer.org/docs/user/1.1/gpu.html)
 
-{% else %}{# else this group does not have any GPUs and should create a simple content statign this #}
+{% else %}{# else this stack does not have any GPUs and should create a simple content stating this #}
 ## This computer does not have any GPU co-processing hardware
 
 {% endif %}
