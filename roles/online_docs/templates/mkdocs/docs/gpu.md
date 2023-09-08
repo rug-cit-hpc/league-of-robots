@@ -51,7 +51,7 @@ Example 2 runs the same GPU example in an interactive session using `srun`.
     2  
 ```
 
-replace `GROUP` and `tmpXX` with correct group and tmp filesystem. The returning value is the number of GPU's available for the job. To see more information about the GPU devices that are available inside the job, the `nvidia-smi` command can be used.
+Replace `GROUP` and `tmpXX` placeholders with correct values for group and tmp filesystem. The returned value is the number of GPU's available for the job. Use the `nvidia-smi` command to see more information about the GPU devices that are available inside the job.
 
 ```bash
     $ nvidia-smi 
