@@ -644,6 +644,7 @@ smb_server_shares:
     users: illumina
     file_mode: '0660'
     dir_mode: '0770'
+    enable_acls: false
     base: /mnt/umcgst04_slice1/groups/umcg-gap/tmp07  # This will not be created by the smb_server role and must already exist.
     subtree:  # This will be created if it does not already exist.
       - path: rawdata
