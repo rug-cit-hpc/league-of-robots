@@ -325,7 +325,7 @@ sudoers:
 #
 pfs_mounts:
   - pfs: ecst02
-    source: '10.35.141.253:/solve-rd-98599485/'
+    source: '10.35.141.252:/solve-rd-98599485/'
     type: nfs4
     rw_options: 'defaults,_netdev,noatime,nodiratime,rw'
     ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
