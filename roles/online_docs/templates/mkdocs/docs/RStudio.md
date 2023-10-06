@@ -58,6 +58,10 @@ then you may not be allowed to download that to your local computer.
              brew install libsodium
 
  * [Install both R and RStudio desktop](https://posit.co/download/rstudio-desktop/)
+ * Install a set of compilers and standard libraries, so you can compile R packages from source code
+    * For Linux: consult the documentation of your distro.
+    * For Windows: install [Rtools](https://cran.r-project.org/bin/windows/Rtools/)
+    * For macOS: install _Xcode_ either from the App store or using the ```xcode-select --install``` command in the _Terminal_.
 
 #### 2. Login on {{ slurm_cluster_name | capitalize }}
 
