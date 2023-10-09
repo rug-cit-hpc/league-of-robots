@@ -31,7 +31,7 @@
     availability_zone: "{{ storage_availability_zone | default('nova') }}"
     wait: true
     timeout: "{{ openstack_api_timeout }}"
-  when: local_volume_size_extra is defined
+  when: local_volume_size_extra is defined and local_volume_size_extra > 0
 - name: Create list of network port names for servers.
   ansible.builtin.set_fact:
     instance_nics: "{{ instance_nics | default([]) + [{'port-name': inventory_hostname + '-' + item}] }}"
@@ -73,7 +73,7 @@
     volume: "{{ inventory_hostname }}-volume"
     wait: true
     timeout: "{{ openstack_api_timeout }}"
-  when: local_volume_size_extra is defined
+  when: local_volume_size_extra is defined and local_volume_size_extra > 0
 - name: Assign floating IP to server.
   openstack.cloud.floating_ip:
     server: "{{ inventory_hostname }}"

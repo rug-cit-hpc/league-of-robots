@@ -1,0 +1,9 @@
+---
+- name: Install dependencies to interface with MariaDB/MySQL databases/services for EL 7.
+  ansible.builtin.package:
+    name:
+      - MySQL-python
+    state: latest
+    update_cache: true
+  become: true
+...
