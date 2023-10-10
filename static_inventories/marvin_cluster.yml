@@ -7,10 +7,10 @@ all:
           ansible_python_interpreter: /usr/bin/env python
     jumphost:
       hosts:
-        dockingport:
-          cloud_flavor: s1.small
+        dock:
+          cloud_flavor: c1r2
           host_networks:
-            - name: EJP-RD-network
+            - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_jumphosts"
               assign_floating_ip: true
     docs:
@@ -18,55 +18,43 @@ all:
         docs_on_merlin:
     sys_admin_interface:
       hosts:
-        mv-sai:
-          cloud_flavor: s1.small
+        marvin:
+          cloud_flavor: c4r8
           host_networks:
-            - name: EJP-RD-network
+            - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
+          local_yum_repository: true # enable local yum repository
     deploy_admin_interface:
       hosts:
-        mv-dai:
-          cloud_flavor: s1.small
-          host_networks:
-            - name: EJP-RD-network
-              security_group: "{{ stack_prefix }}_cluster"
-          local_volume_size_extra: 200
+        marvin:
+          local_volume_size_extra: 750
     user_interface:
       hosts:
         marvin:
-          cloud_flavor: s1.large
-          host_networks:
-            - name: EJP-RD-network
-              security_group: "{{ stack_prefix }}_cluster"
           slurm_sockets: 4
           slurm_cores_per_socket: 1
-          slurm_real_memory: 7821
+          slurm_real_memory: 8192
           slurm_local_disk: 0
-          slurm_features: 'prm11,tmp11'
+          slurm_features: 'tmp11'
           slurm_ethernet_interfaces:
             - eth0
-            - eth1
+          #  - eth1
     compute_node:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            mv-vcompute01:
+            marvin:
           vars:
-            cloud_flavor: s1.gargantuan
-            host_networks:
-              - name: EJP-RD-network
-                security_group: "{{ stack_prefix }}_cluster"
-            local_volume_size_extra: 1
-            slurm_sockets: 16
+            slurm_sockets: 4
             slurm_cores_per_socket: 1
-            slurm_real_memory: 64264
+            slurm_real_memory: 8192
             slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
             slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
             slurm_local_disk: 0
             slurm_features: 'tmp11'
             slurm_ethernet_interfaces:
               - eth0
-              - eth1
+            #  - eth1
 administration:
   children:
     sys_admin_interface:
@@ -85,5 +73,5 @@ marvin_cluster:
     docs:
 ldap_server:
   children:
-    mv-dai:
+    marvin:
 ...
