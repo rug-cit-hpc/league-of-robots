@@ -7,22 +7,13 @@ slurm_version: '22.05.2-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
-    nodes: "{{ stack_prefix }}-node-a[01-03]"  # Must be in sync with Ansible hostnames listed in inventory.
+    nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
     max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
     max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
     max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
     local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
     features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
-  - name: user_interface  # Must be in sync with group listed in Ansible inventory.
-    default: no
-    nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
-    max_nodes_per_job: 1
-    max_cores_per_node: 1
-    max_mem_per_node: 1024
-    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
-    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
-    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'none'
 os_distribution: 'centos7'
 figlet_font: 'speed'
@@ -40,11 +31,10 @@ additional_etc_hosts:
       - name: docs_on_merlin
         network: vlan16
 use_ldap: true
-create_ldap: true
 use_sssd: true
 ldap_domains:
   stack:
-    uri: "ldaps://{{ stack_prefix }}-dai"
+    uri: "ldaps://{{ groups['ldap_server'] | first }}"
     base: "dc={{ stack_name }},dc=local"
     schema: rfc2307bis
     min_id: 1000
@@ -56,7 +46,7 @@ ldap_domains:
     group_member: member
     create_ldap: true
     ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
-cloud_image: centos7-v1.02
+cloud_image: CentOS-7-x86_64-GenericCloud-2211
 cloud_user: centos
 availability_zone: nova
 stack_networks:

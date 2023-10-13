@@ -28,6 +28,9 @@ all:
       hosts:
         marvin:
           local_volume_size_extra: 750
+    ldap_server:
+      hosts:
+        marvin:
     user_interface:
       hosts:
         marvin:
@@ -71,7 +74,4 @@ marvin_cluster:
     jumphost:
     cluster:
     docs:
-ldap_server:
-  children:
-    marvin:
 ...

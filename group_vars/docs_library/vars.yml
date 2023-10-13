@@ -64,5 +64,9 @@ external_jumphosts:
   - group: copperfist_cluster
     hosts:
       - hostname: cf-porch
-        network: vlan16
+        network: external
+  - group: marvin_cluster
+    hosts:
+      - hostname: dock
+        network: Internet-GDR
 ...
