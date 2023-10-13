@@ -9,6 +9,7 @@
       - openldap-ltb
       - openldap-ltb-contrib-overlays
       - openldap-ltb-mdb-utils
+      - openldap-clients
       - python-ldap
   notify: restart_slapd
   become: true
@@ -103,7 +104,8 @@
 - name: Modify config using settings in LDIF files.
   ansible.builtin.command:
     cmd: >
-         ldapmodify -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi
+         ldapmodify -Y EXTERNAL
+                    -H 'ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi'
                     -f '/usr/local/openldap/etc/openldap/custom/{{ item }}'
   with_items:
     - attribute-options.ldif
@@ -118,8 +120,9 @@
 - name: Add additional schema LDIF files.
   ansible.builtin.command:
     cmd: >
-         ldapadd -Y EXTERNAL -H ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi
-                    -f '/usr/local/openldap/etc/openldap/custom/{{ item }}'
+         ldapadd -Y EXTERNAL
+                 -H 'ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi'
+                 -f '/usr/local/openldap/etc/openldap/custom/{{ item }}'
   with_items:
     - rfc2307bis.ldif  # Note: this requires core.ldif, cosine.ldif and inetorgperson.ldif, which should already be installed by default.
     - openssh-lpk.ldif
