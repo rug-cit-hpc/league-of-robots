@@ -48,7 +48,4 @@
 
 - name: Run playbook for data transfer servers.
   ansible.builtin.import_playbook: single_group_playbooks/data_transfer.yml
-
-- name: Run playbook for rsyslog servers.
-  ansible.builtin.import_playbook: single_group_playbooks/logs.yml
 ...
