@@ -148,7 +148,7 @@
     path: '/etc/httpd/conf.d/ssl.conf'
     insertafter: '^<VirtualHost.*>'
     regexp: "{{ item.regexp }}"
-    line:  "{{ item.line }}"
+    line: "{{ item.line }}"
     owner: 'root'
     group: 'root'
     mode: '0644'
