@@ -28,6 +28,8 @@
   ansible.builtin.file:
     path: /var/spool/rsyslog
     state: directory
+    owner: root
+    group: root
     mode: '0700'
   become: true
 
