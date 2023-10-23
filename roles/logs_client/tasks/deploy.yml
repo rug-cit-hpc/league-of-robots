@@ -24,6 +24,15 @@
   become: true
   notify: client_restart_rsyslog
 
+- name: Make sure that rsyslog work directory /var/spool/rsyslog is created
+  ansible.builtin.file:
+    path: /var/spool/rsyslog
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+  become: true
+
 - name: Create client keys and certificates, if managed rsyslog servers are present
   ansible.builtin.include_tasks: client.yml
   when: rsyslogs_ext_ips | length > 0
