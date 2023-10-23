@@ -204,6 +204,12 @@ Networking, check that
  - connections are established with `ss -tan | grep 41514` (or whatever port is used)
  - check that additional hosts are correctly defined (and deployed)
 
+Important directories
+
+- /var/lib/rsyslog/
+- /var/spool/rsyslog/
+- /etc/rsyslog.d/
+
 ### Rsyslog internal logging
 
 (see 'Rsyslog internal logging' in the roles/logs_server/README.md)
