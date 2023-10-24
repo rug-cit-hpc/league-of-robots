@@ -110,6 +110,8 @@ all:
               security_group: "{{ stack_prefix }}_cluster"
             - name: "{{ stack_prefix }}_internal_storage"
               security_group: "{{ stack_prefix }}_storage"
+            - name: vlan985
+              security_group: "{{ stack_prefix }}_storage"
             - name: vlan1068
               security_group: "{{ stack_prefix }}_storage"
     deploy_admin_interface:
@@ -120,6 +122,8 @@ all:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
             - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
+            - name: vlan985
               security_group: "{{ stack_prefix }}_storage"
             - name: vlan1068
               security_group: "{{ stack_prefix }}_storage"
@@ -132,6 +136,8 @@ all:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
             - name: "{{ stack_prefix }}_internal_storage"
+              security_group: "{{ stack_prefix }}_storage"
+            - name: vlan985
               security_group: "{{ stack_prefix }}_storage"
             - name: vlan1068
               security_group: "{{ stack_prefix }}_storage"
@@ -155,6 +161,8 @@ all:
               - name: "{{ stack_prefix }}_internal_management"
                 security_group: "{{ stack_prefix }}_cluster"
               - name: "{{ stack_prefix }}_internal_storage"
+                security_group: "{{ stack_prefix }}_storage"
+              - name: vlan985
                 security_group: "{{ stack_prefix }}_storage"
               - name: vlan1068
                 security_group: "{{ stack_prefix }}_storage"
@@ -181,6 +189,8 @@ all:
               - name: "{{ stack_prefix }}_internal_management"
                 security_group: "{{ stack_prefix }}_cluster"
               - name: "{{ stack_prefix }}_internal_storage"
+                security_group: "{{ stack_prefix }}_storage"
+              - name: vlan985
                 security_group: "{{ stack_prefix }}_storage"
               - name: vlan1068
                 security_group: "{{ stack_prefix }}_storage"
