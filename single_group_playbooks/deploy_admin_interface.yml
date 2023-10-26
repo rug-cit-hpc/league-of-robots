@@ -14,4 +14,5 @@
     - mount_volume
     - build_environment
     - envsync
+    - nhc_standalone
 ...

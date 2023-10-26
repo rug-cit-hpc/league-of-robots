@@ -78,7 +78,7 @@
     - 'restart_slurmd'
   become: true
 
-- name: 'Install NHC with yum.'
+- name: 'Install NHC.'
   ansible.builtin.package:
     state: 'latest'
     update_cache: true
@@ -181,7 +181,7 @@
 
 - name: 'Deploy nhc.conf.'
   ansible.builtin.template:
-    src: 'templates/nhc.conf'
+    src: 'templates/nhc_slurm_client.conf'
     dest: '/etc/nhc/nhc.conf'
     owner: 'root'
     group: 'root'
