@@ -61,8 +61,10 @@ function pulp-sync-publish-distribute() {
 	echo '# Upload custom RPM files to create Pulp RPMs'
 	echo '# and add them to our Custom Packages for Enterprise Linux (cpel) repo.'
 	echo '######################################################################################'
-	local _rpm
-	for _rpm in $(find "umcg-${_distro}" -name '*.rpm'); do
+	local _rpm_path
+	for _rpm_path in $(find "umcg-${_distro}" -name '*.rpm'); do
+		local _rpm_file
+		_rpm_file="$(basename "${_rpm_path}")"
 		#
 		# Get package name from RPM file name.
 		# This is a bit risky regex matching,
@@ -70,56 +72,52 @@ function pulp-sync-publish-distribute() {
 		# to check if it was already uploaded to Pulp.
 		#
 		local _package_name
-		_package_name="$(basename "${_rpm%%-[vr0-9][0-9.-]*}")"
-		echo "INFO: Processing ${_package_name} ..."
+		_package_name="${_rpm_file%%-[vr0-9][0-9.-]*}"
+		echo "INFO: Processing RPM ${_rpm_file} with package name ${_package_name} ..."
 		#
 		# Check if the package was already uploaded to Pulp.
 		#
-		local _rpm_location_href
 		local _rpm_pulp_href
-		_rpm_location_href=$(pulp --format json rpm content list \
+		_rpm_pulp_href=$(pulp --format json rpm content list \
 				--name "${_package_name}" \
-				| jq -r '.[0].location_href' \
+				| jq -r ".[] | select(.location_href? | match(\"${_rpm_file}\")) | .pulp_href" \
 				| tr -d '"' \
 				)
-		if [[ "${_rpm_location_href:-}" == "$(basename "${_rpm}")" ]]; then
-			echo "INFO: Get sha256 checksum for $(basename "${_rpm}") already uploaded to Pulp and compare that to the checksum for ${_rpm} on disk ..."
+		if [[ "${_rpm_pulp_href:-}" != '' ]]; then
+			echo "INFO: Get sha256 checksum for ${_rpm_file} already uploaded to Pulp and compare that to the checksum for ${_rpm_path} on disk ..."
 			local _rpm_sha256
-			_rpm_sha256=$(pulp --format json rpm content list \
-					--name "${_package_name}" \
-					| jq -r '.[0].sha256')
-			if [[ "${_rpm_sha256:-}" != "$(sha256sum "${_rpm}" | cut -d ' ' -f 1)" ]]; then
-				echo "ERROR: sha256 checksum for ${_rpm} on disk does match with the checksum for the previously uploaded RPM."
+			_rpm_sha256=$(pulp --format json rpm content show \
+					--href "${_rpm_pulp_href}" \
+					| jq -r '.sha256')
+			if [[ "${_rpm_sha256:-}" != "$(sha256sum "${_rpm_path}" | cut -d ' ' -f 1)" ]]; then
+				echo "ERROR: sha256 checksum for ${_rpm_path} on disk does match with the checksum for the previously uploaded RPM."
 				echo 'ERROR: This code will not replace an RPM with a newer one.'
 				echo 'ERROR: If you really need to replace the existing RPM, you must delete the old one manually first.'
 				return 1
 			fi
-			_rpm_pulp_href=$(pulp --format json rpm content list \
-					--name "${_package_name}" \
-					| jq -r '.[0].pulp_href')
 		else
-			echo "INFO: Uploading ${_rpm} to Pulp ..."
+			echo "INFO: Uploading ${_rpm_path} to Pulp ..."
 			_rpm_pulp_href=$(pulp --format json rpm content upload \
-					--file "${_rpm}" \
-					--relative-path "$(basename "${_rpm}")" \
+					--file "${_rpm_path}" \
+					--relative-path "${_rpm_file}" \
 					| jq -r '.pulp_href')
 		fi
 		if [[ -z "${_rpm_pulp_href:-}" || "${_rpm_pulp_href:-}" == 'null' ]]; then
-			echo "ERROR: failed to get pulp_href for RPM, Cannot add ${_rpm} to ${_cpel_repo} repo."
+			echo "ERROR: failed to get pulp_href for RPM, Cannot add ${_rpm_file} to ${_cpel_repo} repo."
 			return 1
 		fi
 		if [[ "$(pulp --format json rpm repository content list \
-				--repository cpel \
+				--repository "${_cpel_repo}" \
 				--type package \
 				| jq ".[] | select(.pulp_href==\"${_rpm_pulp_href}\").pulp_href" \
 				| tr -d '"' \
 				)" != "${_rpm_pulp_href}" ]]; then
-			echo "INFO: Adding ${_rpm} with pulp_href ${_rpm_pulp_href} to ${_cpel_repo} repo ..."
+			echo "INFO: Adding ${_rpm_file} with pulp_href ${_rpm_pulp_href} to ${_cpel_repo} repo ..."
 			pulp rpm repository content add \
 					--repository "${_cpel_repo}" \
 					--package-href "${_rpm_pulp_href}"
 		else
-			echo "INFO: Skipping ${_rpm}, which was already added to the ${_cpel_repo} repo."
+			echo "INFO: Skipping ${_rpm_path}, which was already added to the ${_cpel_repo} repo."
 		fi
 		echo '======================================================================================'
 	done
