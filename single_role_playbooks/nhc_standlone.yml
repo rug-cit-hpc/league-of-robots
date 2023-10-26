@@ -1,0 +1,8 @@
+---
+- name: Install NHC standalone.
+  hosts:
+    - sys_admin_interface
+    - deploy_admin_interface
+  roles:
+     - nhc_standalone
+...

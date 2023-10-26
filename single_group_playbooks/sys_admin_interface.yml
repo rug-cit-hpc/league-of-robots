@@ -12,6 +12,7 @@
     - sys_admin_interface
   roles:
     - slurm
+    - nhc_standalone
     # Disabled monitoring: needs update. See also:
     # https://github.com/rug-cit-hpc/league-of-robots/issues/294
     # - prom_server
