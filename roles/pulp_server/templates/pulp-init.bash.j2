@@ -62,7 +62,7 @@ function pulp-sync-publish-distribute() {
 	echo '# and add them to our Custom Packages for Enterprise Linux (cpel) repo.'
 	echo '######################################################################################'
 	local _rpm_path
-	for _rpm_path in $(find "umcg-${_distro}" -name '*.rpm'); do
+	while IFS= read -r -d '' _rpm_path; do
 		local _rpm_file
 		_rpm_file="$(basename "${_rpm_path}")"
 		#
@@ -120,7 +120,7 @@ function pulp-sync-publish-distribute() {
 			echo "INFO: Skipping ${_rpm_path}, which was already added to the ${_cpel_repo} repo."
 		fi
 		echo '======================================================================================'
-	done
+	done< <(find "umcg-${_distro}" -name '*.rpm' -print0)
 	echo '######################################################################################'
 	echo '# Add remotes to repos.'
 	echo '######################################################################################'
@@ -145,7 +145,8 @@ function pulp-sync-publish-distribute() {
 		#
 		# Get latest repository version href for this repo.
 		#
-		local _latest_version_href=$(pulp --format json rpm repository show --name "${_pulp_repo}" | jq -r '.latest_version_href')
+		local _latest_version_href
+		_latest_version_href="$(pulp --format json rpm repository show --name "${_pulp_repo}" | jq -r '.latest_version_href')"
 		#
 		# Check if we already have a publication for the latest repository version.
 		#
