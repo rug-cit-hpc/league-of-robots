@@ -17,7 +17,7 @@
   community.general.filesize:
     path: "{{ item.src }}"
     size: "{{ item.size }}G"
-    mode: 0550
+    mode: '0550'
     owner: root
     group: root
     force: false
