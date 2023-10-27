@@ -1,0 +1,6 @@
+---
+- name: Configure partitions
+  ansible.builtin.include_tasks:
+    file: soft_partition.yml
+  when: soft_partitions is defined
+...
