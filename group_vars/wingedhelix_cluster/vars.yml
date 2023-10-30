@@ -94,7 +94,7 @@ external_jumphosts:
   - group: copperfist_cluster
     hosts:
       - hostname: cf-porch
-        network: vlan16
+        network: external
 #
 # Remote logging settings - for diagnostics servers
 #
