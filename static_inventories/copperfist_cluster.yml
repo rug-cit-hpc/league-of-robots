@@ -171,6 +171,7 @@ all:
             - 'umcg-gst'
             - 'umcg-labgnkbh'
             - 'umcg-patho'
+            - 'umcg-pr'
             - 'umcg-vipt'
     smb_server:
       hosts:

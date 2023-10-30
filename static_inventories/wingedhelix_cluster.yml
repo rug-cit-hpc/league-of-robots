@@ -189,6 +189,7 @@ all:
             - 'umcg-gst'
             - 'umcg-labgnkbh'
             - 'umcg-patho'
+            - 'umcg-pr'
             - 'umcg-vipt'
     nfs_server:
       hosts:
