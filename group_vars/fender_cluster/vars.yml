@@ -307,6 +307,12 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'izaganas'
     groups: ['users', 'solve-rd']
+  - user: 'mmaran'
+    groups: ['users', 'solve-rd']
+  - user: 'bmartinez'
+    groups: ['users', 'solve-rd']
+  - user: 'elopez'
+    groups: ['users', 'solve-rd']
 sudoers:
   - who: ['%solve-rd']
     become: 'solve-rd-dm'
