@@ -1,5 +1,5 @@
 ---
-- name: Create a mount point directory if it does not already exist
+- name: Create a mount point directory.
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
