@@ -313,6 +313,20 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'elopez'
     groups: ['users', 'solve-rd']
+  - user: 'oakselkilicarslan'
+    groups: ['users', 'solve-rd']
+  - user: 'mterradas'
+    groups: ['users', 'solve-rd']
+  - user: 'mkarakaya'
+    groups: ['users', 'solve-rd']
+  - user: 'rjimenezheredia'
+    groups: ['users', 'solve-rd']
+  - user: 'gastuti'
+    groups: ['users', 'solve-rd']
+  - user: 'gbonne'
+    groups: ['users', 'solve-rd']
+  - user: 'kabbott'
+    groups: ['users', 'solve-rd']
 sudoers:
   - who: ['%solve-rd']
     become: 'solve-rd-dm'
