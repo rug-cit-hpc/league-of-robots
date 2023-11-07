@@ -109,7 +109,7 @@ all:
     sys_admin_interface:
       hosts:
         nb-sai:
-          cloud_flavor: m1.medium
+          cloud_flavor: m1.large
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
