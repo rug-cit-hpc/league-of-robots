@@ -422,13 +422,13 @@ remote_users_in_local_groups:
 #
 soft_partitions:
   - path: /groups/umcg-lab/tmp07/sequencers
-    src: /root/mount.disk.img
+    src: /groups/umcg-lab/tmp07/sequencers.disk.img
     fstype: xfs
-    size: 1           # in GB
+    size: 300                 # in GB
     user: sbsuser
     group: umcg-lab
     mode: 2750
-    hostname: wingedhelix
+    hostname: wh-sai
 #
 # Local storage variables.
 #

@@ -53,6 +53,10 @@
     - inventory_hostname in item.hostname | default([])
   become: true
 
+- name: Refresh the host facts
+  ansible.builtin.gather_facts:
+  when: soft_partitions | selectattr('hostname', 'equalto', inventory_hostname) | list | length > 0
+
 - name: Set the mount point directory permissions, user and group ownership
   ansible.builtin.file:
     path: "{{ item.path }}"
@@ -62,7 +66,7 @@
     force: false        # don't change if not needed
   with_items: "{{ soft_partitions }}"
   when:
-    - ansible_mounts | selectattr('mount', 'equalto', item.path) | list | length == 0
+    - ansible_mounts | selectattr('mount', 'equalto', item.path) | list | length == 1
     - inventory_hostname in item.hostname | default([])
   become: true
 ...
