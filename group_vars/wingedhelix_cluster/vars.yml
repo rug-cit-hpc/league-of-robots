@@ -421,8 +421,8 @@ remote_users_in_local_groups:
 ## Limit the storage for specific folder, by using a loop mount of formatted file
 #
 soft_partitions:
-  - path: /groups/umcg-lab/tmp07/sequencers
-    src: /groups/umcg-lab/tmp07/sequencers.disk.img
+  - path: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07/sequencers
+    src: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07/sequencers.disk.img
     fstype: xfs
     size: 300                 # in GB
     user: sbsuser
