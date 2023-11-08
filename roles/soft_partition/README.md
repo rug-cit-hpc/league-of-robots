@@ -22,3 +22,8 @@ disk speed, due to the (on how I understand) double filesystem conversion.
 - Unmount the folders
 - Delete the original source files
 - Remove the appropriate entry line from the `/etc/fstab`
+
+## Samba dependency
+
+This role should be run before the `smb_server` (Samba server) role. Samba *can* reuse
+the loop mounted directory only after this role has created one.
