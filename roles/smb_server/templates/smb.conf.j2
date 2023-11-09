@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:True, lstrip_blocks: True
 #
 # smb.conf is the main Samba configuration file.
 #
@@ -25,8 +26,8 @@
     printcap name = /dev/null
     disable spoolss = yes
     max protocol = SMB2
-{% for smb_share in smb_server_shares %}
 
+{% for smb_share in smb_server_shares %}
 [{{ inventory_hostname }}-{{ smb_share['name'] }}]
     comment = {{ smb_share['comment'] }}
     path = {{ smb_share['path'] }}
@@ -36,4 +37,8 @@
     directory mask = {{ smb_share['dir_mode'] }}
     force create mode = {{ smb_share['file_mode'] }}
     force directory mode = {{ smb_share['dir_mode'] }}
+    {% if smb_share['enable_acls'] is defined and smb_share['enable_acls'] is false %}
+    nt acl support = no
+    {% endif %}
+
 {% endfor %}
