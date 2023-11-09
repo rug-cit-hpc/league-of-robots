@@ -1,0 +1,7 @@
+---
+- name: Configure soft partition loop mount filesystem
+  hosts: cluster
+  roles:
+    - role: soft_partition
+      when: soft_partitions is defined
+...

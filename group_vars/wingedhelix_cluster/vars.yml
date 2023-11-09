@@ -418,6 +418,18 @@ remote_users_in_local_groups:
         'umcg-vipt',
     ]
 #
+## Limit the storage for specific folder, by using a loop mount of formatted file
+#
+soft_partitions:
+  - path: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07/sequencers
+    src: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07/sequencers.disk.img
+    fstype: ext3
+    size: 300                 # in GB
+    user: sbsuser
+    group: umcg-lab
+    mode: 2750
+    hostname: wh-sai
+#
 # Local storage variables.
 #
 volume_group_folders: [
