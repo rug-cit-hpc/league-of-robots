@@ -34,6 +34,9 @@
 - name: Run playbook for sys admin interfaces.
   ansible.builtin.import_playbook: single_group_playbooks/sys_admin_interface.yml
 
+- name: Run playbook for Samba server
+  ansible.builtin.import_playbook: single_group_playbooks/smb_server.yml
+
 - name: Run playbook for deploy admin Interfaces.
   ansible.builtin.import_playbook: single_group_playbooks/deploy_admin_interface.yml
 
@@ -48,7 +51,4 @@
 
 - name: Run playbook for data transfer servers.
   ansible.builtin.import_playbook: single_group_playbooks/data_transfer.yml
-
-- name: Run playbook for rsyslog servers.
-  ansible.builtin.import_playbook: single_group_playbooks/logs.yml
 ...

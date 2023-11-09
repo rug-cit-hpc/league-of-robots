@@ -7,59 +7,63 @@ slurm_version: '22.05.2-1.el7.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
-    nodes: "{{ stack_prefix }}-vcompute[01]"  # Must be in sync with Ansible hostnames listed in inventory.
+    nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
     max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
     max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
     max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
     local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
     features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
-  - name: user_interface  # Must be in sync with group listed in Ansible inventory.
-    default: no
-    nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
-    max_nodes_per_job: 1
-    max_cores_per_node: 1
-    max_mem_per_node: 1024
-    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
-    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
-    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
-repo_manager: 'pulp'
+repo_manager: 'none'
 os_distribution: 'centos7'
 figlet_font: 'speed'
-motd: "It is rare, but not unheard of."
+motd: |
+      ===============================================================
+       Welcome to {{ slurm_cluster_name | capitalize }}
+      ===============================================================
+       WARNING: Proof of Concept cluster without any backups.
+       When this cluster has to be redeployed from scratch,
+       all data in home dirs and all group dirs will be lost!
+      ===============================================================
 additional_etc_hosts:
   - group: docs_library
     nodes:
       - name: docs_on_merlin
         network: vlan16
 use_ldap: true
-create_ldap: true
 use_sssd: true
 ldap_domains:
   stack:
-    uri: ldaps://mv-dai
-    base: dc=marvin,dc=cluster,o=id
+    uri: "ldaps://{{ groups['ldap_server'] | first }}"
+    base: "dc={{ stack_name }},dc=local"
     schema: rfc2307bis
     min_id: 1000
-    max_id: 5000
+    max_id: 21999
     user_object_class: posixAccount
     user_name: uid
     user_ssh_public_key: sshPublicKey
-    user_member_of: groupMembership
+    user_member_of: memberOf
     group_member: member
-cloud_image: centos7
+    create_ldap: true
+    ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
+cloud_image: CentOS-7-x86_64-GenericCloud-2211
 cloud_user: centos
-availability_zone: AZ_1
+availability_zone: nova
 stack_networks:
-  - name: EJP-RD-network
+  - name: "{{ stack_prefix }}_internal_management"
     cidr: '10.10.1.0/24'
     gateway: '10.10.1.1'
-    router_network: ext-net-37
+    router_network: 'Internet-GDR'
     type: management
     external: false
-storage_availability_zone: nova
+#  - name: wekavlan???
+#    cidr: '???.???.???.0/24'
+#    allow_ingress:
+#      - ???.???.???.???/32  # Weka server
+#      - ???.???.???.???/32  # Weka server
+#    type: storage
+#    external: false
 nameservers: [
-#  '/em-isi-3126.ebi.ac.uk/10.35.126.201',  # Local DNS lookups for shared storage.
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
 ]
@@ -67,14 +71,11 @@ local_admin_groups:
   - 'admin'
   - 'docker'
 local_admin_users:
-  - 'egon'
   - 'gerben'
-  - 'henkjan'
   - 'marieke'
-  - 'marloes'
   - 'morris'
   - 'pieter'
-  - 'wim'
+  - 'sandi'
 envsync_user: 'envsync'
 envsync_group: 'depad'
 functional_admin_group: 'funad'
@@ -83,104 +84,62 @@ regular_groups:
   - "{{ envsync_group }}"
   - "{{ functional_admin_group }}"
   - 'users'
-  - 'erknet'
-  - 'euro-nmd'
-  - 'ern-liver'
   - 'umcg-atd'
+  - 'umcg-gsad'
 regular_users:
   - user: "{{ envsync_user }}"
     groups: ["{{ envsync_group }}"]
-  - user: 'erknet-dm'
-    groups: ['erknet']
-  - user: 'euro-nmd-dm'
-    groups: ['euro-nmd']
-  - user: 'ern-liver-dm'
-    groups: ['ern-liver']
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
+  - user: 'umcg-gsad-dm'
+    groups: ['umcg-gsad']
   - user: 'gvdvries'
-    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad']
+  - user: 'kdelange'
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad']
+  - user: 'mbenjamins'
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad']
   - user: 'mbijlsma'
-    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad']
   - user: 'mswertz'
-    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad']
   - user: 'pneerincx'
-    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad']
   - user: 'rkanninga'
-    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'erknet', 'euro-nmd','ern-liver']
-  - user: 'umcg-atd-dm'
-    groups: ['users', 'umcg-atd']
-  - user: 'erknet-dm'
-    groups: ['users', 'erknet']
-  - user: 'euro-nmd-dm'
-    groups: ['users', 'euro-nmd']
-  - user: 'ern-liver-dm'
-    groups: ['users', 'ern-liver']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad']
+  - user: 'scimerman'
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad']
 sudoers:
-  - who: ['%erknet']
-    become: 'erknet-dm'
-    name: 'erknet-dm'
-    command: 'ALL'
-  - who: ['%euro-nmd']
-    become: 'euro-nmd-dm'
-    name: 'euro-nmd-dm'
-    command: 'ALL'
-  - who: ['%ern-liver']
-    become: 'ern-liver-dm'
-    name: 'ern-liver-dm'
-    command: 'ALL'
-  - who: ['%umcg-atd,pieter,gerben']
+  - who: ['%umcg-atd']
     become: 'umcg-atd-dm'
     name: 'umcg-atd-dm'
     command: 'ALL'
-  - who: ['%umcg-biogen-dms']
-    become: 'umcg-biogen-dm'
-    name: 'umcg-biogen-dm'
-    command: 'ALL'
-  - who: ['%umcg-bionic-mdd-gwama-dms']
-    become: 'umcg-bionic-mdd-gwama-dm'
-    name: 'umcg-bionic-mdd-gwama-dm'
-    command: 'ALL'
-  - who: ['%umcg-bios']
-    become: 'umcg-bios-dm'
-    name: 'umcg-bios-dm'
-    command: 'ALL'
-  - who: ['%umcg-cineca-dms']
-    become: 'umcg-cineca-dm'
-    name: 'umcg-cineca-dm'
+  - who: ['%umcg-gsad']
+    become: 'umcg-gsad-dm'
+    name: 'umcg-gsad-dm'
     command: 'ALL'
 #
 # Shared storage related variables
 #
 pfs_mounts:
-  - pfs: ecst01
+  - pfs: bnst01
     source: ''
-    type: nfs
+    type: weka
     rw_options: 'defaults,_netdev,noatime,nodiratime'
     ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
 lfs_mounts:
   - lfs: home
-    pfs: ecst01
+    pfs: bnst01
     rw_machines: "{{ groups['cluster'] }}"
   - lfs: tmp11
-    pfs: ecst01
+    pfs: bnst01
     groups:
       - name: umcg-atd
-      - name: erknet
-      - name: euro-nmd
-      - name: ern-liver
+      - name: umcg-gsad
     rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
-  - lfs: prm11
-    pfs: ecst01
-    groups:
-      - name: umcg-atd
-      - name: erknet
-      - name: euro-nmd
-      - name: ern-liver
-    rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env11
-    pfs: ecst01
+    pfs: bnst01
     ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 interfaces:

@@ -1,0 +1,9 @@
+---
+- name: Install dependencies to interface with MariaDB/MySQL databases/services for EL >= 8.
+  ansible.builtin.package:
+    name:
+      - python3-PyMySQL
+    state: latest
+    update_cache: true
+  become: true
+...

@@ -430,7 +430,7 @@ function saveQuotaCache () {
 		"umask 0027; touch ${_lfs_path}.quotacache.new"
 		"printf 'soft=%s\n' ${_soft_quota_limit} >  ${_lfs_path}.quotacache.new"
 		"printf 'hard=%s\n' ${_hard_quota_limit} >> ${_lfs_path}.quotacache.new"
-		"mv ${_lfs_path}.quotacache.new ${_lfs_path}.quotacache"
+		"mv -f ${_lfs_path}.quotacache.new ${_lfs_path}.quotacache"
 	)
 	for _cmd in "${_cmds[@]}"; do
 		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Applying cmd: ${_cmd}"
@@ -665,6 +665,5 @@ fi
 #
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" 0 "Finished!"
 trap - EXIT
-exit 0
 
 {% endraw %}

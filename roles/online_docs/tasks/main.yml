@@ -124,71 +124,58 @@
 
 - name: 'Create symlinks for Apache httpd, so it can find the cert & key in the *.gcc.rug.nl wildcard certificate file.'
   ansible.builtin.file:  # noqa risky-file-permissions
-    src: '/etc/pki/tls/private/wildcard_crt_and_key.pem'
-    dest: "{{ item }}"
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
     state: 'link'
     owner: 'root'
     group: 'root'
     force: true
-  with_items:
-    - '/etc/pki/tls/private/localhost.key'
-    - '/etc/pki/tls/certs/localhost.crt'
+  loop:
+    - dest: '/etc/pki/tls/private/localhost.key'
+      src: '/etc/pki/tls/private/wildcard_crt_and_key.pem'
+    - dest: '/etc/pki/tls/certs/localhost.crt'
+      src: '/etc/pki/tls/private/wildcard_crt_and_key.pem'
+    - dest: '/etc/pki/tls/certs/server-chain.crt'
+      src: '/etc/pki/tls/private/wildcard_crt_and_key.pem'
+  loop_control:
+    label: "{{ item.dest }} -> {{ item.src }}"
   notify:
     - 'restart_httpd'
   become: true
 
-- name: 'Configure ServerName in /etc/httpd/conf.d/ssl.conf'
+- name: 'Configure SSL options in /etc/httpd/conf.d/ssl.conf'
   ansible.builtin.lineinfile:
     path: '/etc/httpd/conf.d/ssl.conf'
     insertafter: '^<VirtualHost.*>'
-    regexp: '^#?ServerName'
-    line: 'ServerName docs.gcc.rug.nl'
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
     owner: 'root'
     group: 'root'
     mode: '0644'
-  notify:
-    - 'restart_httpd'
-  become: true
-
-- name: 'Configure SSLprotocol in /etc/httpd/conf.d/ssl.conf'
-  ansible.builtin.lineinfile:
-    path: '/etc/httpd/conf.d/ssl.conf'
-    insertafter: '^<VirtualHost.*>'
-    regexp: '^#?SSLProtocol .*'
-    line: 'SSLProtocol  all -SSLv3 -TLSv1 -TLSv1.1'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-  notify:
-    - 'restart_httpd'
-  become: true
-
-- name: 'Configure SSLCipherSuite in /etc/httpd/conf.d/ssl.conf'
-  ansible.builtin.lineinfile:
-    path: '/etc/httpd/conf.d/ssl.conf'
-    insertafter: '^<VirtualHost.*>'
-    regexp: '^#?SSLCipherSuite .*'
-    line: "SSLCipherSuite   ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:\
-          ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:\
-          ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:\
-          ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:\
-          ECDHE-RSA-AES128-SHA256"
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-  notify:
-    - 'restart_httpd'
-  become: true
-
-- name: 'Configure SSLHonorCipherOrder in /etc/httpd/conf.d/ssl.conf'
-  ansible.builtin.lineinfile:
-    path: '/etc/httpd/conf.d/ssl.conf'
-    insertafter: '^<VirtualHost.*>'
-    regexp: '^#?SSLHonorCipherOrder'
-    line: 'SSLHonorCipherOrder on'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
+  loop:
+    - regexp: '^#?SSLCertificateKeyFile'
+      line: 'SSLCertificateKeyFile /etc/pki/tls/private/localhost.key'
+    - regexp: '^#?SSLCertificateFile'
+      line: 'SSLCertificateFile /etc/pki/tls/certs/localhost.crt'
+    - regexp: '^#?SSLCertificateChainFile'
+      line: 'SSLCertificateChainFile /etc/pki/tls/certs/server-chain.crt'
+    - regexp: '^#?ServerName'
+      line: "ServerName {{ all_ip_addresses[inventory_hostname].values()
+                           | selectattr('fqdn', 'defined')
+                           | map(attribute='fqdn')
+                           | first }}"
+    - regexp: '^#?SSLProtocol .*'
+      line: 'SSLProtocol  all -SSLv3 -TLSv1 -TLSv1.1'
+    - regexp: '^#?SSLCipherSuite .*'
+      line: "SSLCipherSuite   ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:\
+                              ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:\
+                              ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:\
+                              ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:\
+                              ECDHE-RSA-AES128-SHA256"
+    - regexp: '^#?SSLHonorCipherOrder'
+      line: 'SSLHonorCipherOrder on'
+  loop_control:
+    label: "{{ item.line }}"
   notify:
     - 'restart_httpd'
   become: true

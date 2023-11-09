@@ -307,6 +307,26 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'izaganas'
     groups: ['users', 'solve-rd']
+  - user: 'mmaran'
+    groups: ['users', 'solve-rd']
+  - user: 'bmartinez'
+    groups: ['users', 'solve-rd']
+  - user: 'elopez'
+    groups: ['users', 'solve-rd']
+  - user: 'oakselkilicarslan'
+    groups: ['users', 'solve-rd']
+  - user: 'mterradas'
+    groups: ['users', 'solve-rd']
+  - user: 'mkarakaya'
+    groups: ['users', 'solve-rd']
+  - user: 'rjimenezheredia'
+    groups: ['users', 'solve-rd']
+  - user: 'gastuti'
+    groups: ['users', 'solve-rd']
+  - user: 'gbonne'
+    groups: ['users', 'solve-rd']
+  - user: 'kabbott'
+    groups: ['users', 'solve-rd']
 sudoers:
   - who: ['%solve-rd']
     become: 'solve-rd-dm'
@@ -325,7 +345,7 @@ sudoers:
 #
 pfs_mounts:
   - pfs: ecst02
-    source: '10.35.141.253:/solve-rd-98599485/'
+    source: '10.35.141.252:/solve-rd-98599485/'
     type: nfs4
     rw_options: 'defaults,_netdev,noatime,nodiratime,rw'
     ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
