@@ -423,7 +423,7 @@ remote_users_in_local_groups:
 soft_partitions:
   - path: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07/sequencers
     src: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07/sequencers.disk.img
-    fstype: xfs
+    fstype: ext3
     size: 300                 # in GB
     user: sbsuser
     group: umcg-lab
