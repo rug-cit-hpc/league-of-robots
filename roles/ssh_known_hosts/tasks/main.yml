@@ -1,10 +1,14 @@
 ---
-- name: Create /etc/ssh/ssh_known_hosts file with public key from CA that signed the host keys.
-  ansible.builtin.copy:
+- name: Create /etc/ssh/ssh_known_hosts file with public keys from CAs that signed host keys.
+  ansible.builtin.lineinfile:
     dest: /etc/ssh/ssh_known_hosts
     mode: '0644'
     owner: root
     group: root
     content: "@cert-authority * {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }}"
+    create: true
+    insertbefore: BOF
+    regexp: '(?i)^#?@cert-authority .* for {{ slurm_cluster_name }}$'
+    line: "@cert-authority {{ known_hosts_hostnames }} {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }} for {{ slurm_cluster_name }}"
   become: true
 ...

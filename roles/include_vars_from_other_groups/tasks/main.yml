@@ -1,4 +1,46 @@
 ---
+#- name: "Find all stack dirs in {{ playbook_dir }}/group_vars/*."
+#  ansible.builtin.find:
+#    paths: "{{ playbook_dir }}/group_vars/"
+#    file_type: directory
+#    recurse: false
+#    hidden: false
+#  register: stack_dirs_found
+#  delegate_to: localhost
+#  connection: local
+#  run_once: true
+#
+#- name: Include group_vars per stack.
+#  ansible.builtin.include_vars:
+#    dir: "{{ item }}"
+#    name: "{{ item | dirname | basename }}"
+#    extensions:
+#      - yml
+#      - yaml
+#    ignore_files:
+#      - secrets.yml
+#    ignore_unknown_extensions: true
+#  with_items: "{{ stack_dirs_found.files | map(attribute='path') | list }}"
+#  when: item | dirname | basename != stack_name
+#  register: included_vars_from_other_stacks
+#  delegate_to: localhost
+#  connection: local
+#  run_once: true
+#
+#- name: DEBUG1
+#  debug:
+#    msg: "{{ included_vars_from_other_stacks }}"
+#  delegate_to: localhost
+#  connection: local
+#  run_once: true
+#
+#- name: DEBUG2
+#  debug:
+#    msg: "{{ nibbler }}"
+#  delegate_to: localhost
+#  connection: local
+#  run_once: true
+
 - name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
   ansible.builtin.find:
     paths: "{{ playbook_dir }}/group_vars/"
