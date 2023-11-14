@@ -82,9 +82,10 @@ all:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            vt-node-a[01:02]:
+            vt-node-a01:
           vars:
-            cloud_flavor: baremetal
+            cloud_flavor: umcg_bigmem
+            cloud_image: RockyLinux-9.2_bm
             host_networks:
               - name: "{{ stack_prefix }}_internal_management"
                 security_group: "{{ stack_prefix }}_cluster"
@@ -93,9 +94,9 @@ all:
             #  - name: vlan985
             #    security_group: "{{ stack_prefix }}_storage"
             local_volume_size_extra: 0
-            slurm_sockets: 128
+            slurm_sockets: 64
             slurm_cores_per_socket: 1
-            slurm_real_memory: 524288
+            slurm_real_memory: 2063714
             slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
             slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
             slurm_local_disk: 0
