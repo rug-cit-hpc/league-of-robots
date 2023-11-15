@@ -5,7 +5,6 @@
     mode: '0644'
     owner: root
     group: root
-    content: "@cert-authority * {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }}"
     create: true
     insertbefore: BOF
     regexp: '(?i)^#?@cert-authority .* for {{ slurm_cluster_name }}$'
