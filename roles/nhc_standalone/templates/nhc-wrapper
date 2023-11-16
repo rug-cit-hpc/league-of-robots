@@ -1,0 +1,343 @@
+#!/bin/bash
+#
+# Wrapper utility for NHC
+#
+# This script is intended to provide a convenient wrapper for
+# executing the LBNL Node Health Check (NHC) driver program in an
+# out-of-band (i.e., outside a scheduler/resource manager) context.
+# It provides facilities for passing parameters to NHC, launching
+# specific NHC contexts, and sending notification e-mails when issues
+# are found (and includes some anti-annoyance features too).
+
+trap 'echo "Terminated by signal SIGHUP." ; exit 129' 1
+trap 'echo "Terminated by signal SIGINT." ; exit 130' 2
+trap 'echo "Terminated by signal SIGTERM." ; exit 143' 15
+
+slack_webhook='{{ slurm_notification_slack_webhook }}'
+cluster_name='{{ slurm_cluster_name | capitalize }}'
+
+{% raw %}
+
+function nhc_parse_timespec() {
+	local VARNAME="$1"
+	local i TIMESPEC CHR SECS=0 NUMSTR=''
+
+	if [[ -n "$2" ]]
+	then
+		TIMESPEC="$2"
+	else
+		eval 'TIMESPEC="${'"$VARNAME"'}"'
+	fi
+
+	for ((i=0; i<"${#TIMESPEC}"; i++))
+	do
+		CHR="${TIMESPEC:$i:1}"
+		if [[ -z "${CHR#[0-9]}" ]]
+		then
+			NUMSTR="${NUMSTR}${CHR}"
+		elif [[ -z "${NUMSTR}" ]]
+		then
+			echo "ERROR:  Missing number before character ${CHR} in timespec ${TIMESPEC} at position $i."
+			echo "ERROR:  Parsing terminated.  Using ${SECS} seconds for expiration of old results."
+			break
+		else
+			case "${CHR}" in
+			[Ww])  ((SECS += NUMSTR * 604800)) ;;
+			[Dd])  ((SECS += NUMSTR * 86400))  ;;
+			[Hh])  ((SECS += NUMSTR * 3600))   ;;
+			[Mm])  ((SECS += NUMSTR * 60))     ;;
+			[Ss])  ((SECS += NUMSTR))          ;;
+			[Ff])  FUDGETIME=${NUMSTR}         ;;
+			*)
+			echo "ERROR:  Invalid character ${CHR} encountered in timespec ${TIMESPEC} at position $i."
+			echo "ERROR:  Parsing terminated.  Using ${SECS} seconds for expiration of old results."
+			NUMSTR=""
+			break
+			;;
+			esac
+			NUMSTR=""
+		fi
+	done
+
+	[[ -n "${NUMSTR}" ]] && ((SECS += NUMSTR))
+	eval ${VARNAME}='"${SECS}"'
+}
+
+function nhcwrap_init_env() {
+	umask 0077
+	PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+	if [ -f "/etc/debian_version" ]
+	then
+		SYSCONFIGDIR="/etc/default"
+		LIBEXECDIR="/usr/lib"
+	else
+		SYSCONFIGDIR="/etc/sysconfig"
+		LIBEXECDIR="/usr/libexec"
+	fi
+	if [[ -r "/proc/sys/kernel/hostname" ]]
+	then
+		read HOSTNAME < "/proc/sys/kernel/hostname"
+	else
+		HOSTNAME=$(/bin/hostname)
+	fi
+	HOSTNAME_S=${HOSTNAME/%.*}
+	RET=0
+	export PATH SYSCONFIGDIR LIBEXECDIR HOSTNAME HOSTNAME_S RET
+
+	# Set name of wrapped script/program based on invocation.
+	SUBPROG=${0/#*\/}
+	SUBPROG=${SUBPROG/%-wrapper}
+	export SUBPROG
+
+	unset ARGS STATEDIR NOTIFY EXPIRE PREV_RESULTS
+}
+
+function nhcwrap_help() {
+	local PROGNAME=$0
+	local TITLE UNDERLINE
+
+	PROGNAME="${PROGNAME/#*\/}"
+	TITLE="$PROGNAME Usage"
+	UNDERLINE="${TITLE//?/-}"
+
+	cat <<EOF
+
+${TITLE}
+${UNDERLINE}
+
+Syntax:  ${PROGNAME} [<options>] [<var>=<value> [...]]
+
+ OPTION            DESCRIPTION
+-------------------------------------------------------------------------------
+ -h                Show command line help (this info)
+ -A <args>         Pass <args> to $SUBPROG
+ -D <directory>    Use <directory> for cache/bookkeeping
+ -N 		       Send notification with output of $SUBPROG to Slack
+ -X <timespec>     Expire cached output after <timespec> (e.g., "6h" or "1d")
+ --                Stop parsing command line; pass remaining args to $SUBPROG
+
+ All other command line parameters, if any, are passed directly to $SUBPROG.
+
+ Timespecs may specify weeks (w), days (d), hours (h), minutes (m), and/or
+ seconds (s).  If no suffix is given, seconds are assumed.  Result expiration
+ timespec may have trailing fudge factor (f) in seconds (e.g., 6h10f).
+
+EXAMPLES:
+---------
+ To run $SUBPROG, send notification to slack, and pass parameters "-d -t 60":
+    # ${PROGNAME} -N -- -d -t 60
+  OR
+    # ${PROGNAME} -N -A "-d -t 60"
+
+ To only notify results if they change or every 12 hours:
+    # ${PROGNAME} -N -X 12h
+
+EOF
+}
+
+function nhcwrap_parse_cmdline() {
+	local OPTION
+
+	OPTIND=1
+	while getopts ":A:D:NP:X:h-" OPTION
+	do
+		case "${OPTION}" in
+			A) ARGS="${OPTARG}" ;;
+			D) STATEDIR="${OPTARG}" ;;
+			N) NOTIFY=1 ;;
+			P) SUBPROG="${OPTARG}" ;;
+			X) EXPIRE="${OPTARG}" ;;
+			h) nhcwrap_help ; exit 0 ;;
+			:) echo "ERROR:  Option -${OPTARG} requires an argument." ; nhcwrap_help ; return 1 ;;
+			-) break ;;
+			\?) ((OPTIND--)) ; break ;;
+		esac
+	done
+	shift $((OPTIND-1))
+	ARGLIST=( "${ARGS}" "$@" )
+	return 0
+}
+
+function nhcwrap_finalize_env() {
+	local TMPDIR
+
+	NW_DATEFMT="${NW_DATEFMT:-(%F %T)}"
+	STATEDIR="${STATEDIR:-/tmp/${SUBPROG}-${EUID}}"
+	OUTFILE="$STATEDIR/$SUBPROG.out"
+	SAVEFILE="$STATEDIR/$SUBPROG.save"
+	FUDGETIME="${FUDGETIME:-5}"
+
+	# We have to be very careful about how we create and manage the
+	# state directory since it lives in /tmp by default (in order to
+	# have a good chance of being on a tmpfs in RAM, and so that
+	# normal users can run the wrapper too).
+	if [[ ! -d "$STATEDIR" ]]
+	then
+		# Securely create state directory
+		TMPDIR=$(mktemp -d "${STATEDIR}.XXXXXXXXXXX")
+		mv "${TMPDIR}" "${STATEDIR}"
+	fi
+	chmod 0000 "${STATEDIR}" 2>/dev/null
+	chown $EUID "${STATEDIR}" 2>/dev/null
+	chmod 0700 "${STATEDIR}" 2>/dev/null
+	if [[ -h "${STATEDIR}" || ! -d "${STATEDIR}" || ! -O "${STATEDIR}" || ! -w "${STATEDIR}" ]]
+	then
+		echo "ERROR:  State directory ${STATEDIR} create/chown/chmod failed for uid ${EUID}.  Aborting."
+		exit -1
+	fi
+
+	if [[ "${SUBPROG#*/}" != "${SUBPROG}" ]]
+	then
+		PATH="${SUBPROG%/*}:$PATH"
+		SUBPROG="${SUBPROG##*/}"
+	fi
+
+	if [[ -n "${EXPIRE}" ]]
+	then
+		nhc_parse_timespec EXPIRE
+		echo "Note:  Results will expire after ${EXPIRE} seconds."
+	fi
+}
+
+function nhcwrap_spawn_command() {
+	local RC SAVEFILE_TIME CTIME MTIME NOW
+
+	echo "Executing $SUBPROG ${ARGLIST[*]}" `date "+$NW_DATEFMT"`
+	# Remove output file so that it will be recreated by bash with ctime of now.
+	rm -f "${OUTFILE}"
+	"$SUBPROG" "${ARGLIST[@]}" >& "${OUTFILE}"
+	RC=$?
+
+	# Expire old results file if too old.
+	# NOTE: We do the comparison *after* subprogram execution in an
+	# attempt to minimize jitter caused by variability in the
+	# execution time of the subprogram.  Otherwise the time difference
+	# may be off by however long the subprogram took to run because
+	# the comparison was done *before* subprogram execution but the
+	# timestamp on the results file is *after* the previous execution.
+	if [[ "${EXPIRE}" -gt 0 && -f "${SAVEFILE}" ]]
+	then
+		# Obtain the older of ctime/mtime and use that.
+		SAVEFILE_TIME=$(stat -c '%Y %Z' "${SAVEFILE}")
+		MTIME="${SAVEFILE_TIME// *}"
+		CTIME="${SAVEFILE_TIME//* }"
+		((SAVEFILE_TIME=MTIME<CTIME?MTIME:CTIME))
+		NOW=$(date '+%s')
+		if ((NOW + FUDGETIME - SAVEFILE_TIME >= EXPIRE))
+		then
+			echo "Results file expired after $((NOW-SAVEFILE_TIME)) seconds (+/- ${FUDGETIME}s)."
+			rm -f "${SAVEFILE}"
+		else
+			echo "Results file found with age $((NOW-SAVEFILE_TIME)) seconds (+/- ${FUDGETIME}s)."
+		fi
+	fi
+
+	return $RC
+}
+
+function nhcwrap_check_output() {
+	local PROG_RC=$1 RC
+
+	if [[ -f "${SAVEFILE}" ]]
+	then
+		# We have previous results, so compare them against the new results.
+		grep -o '.*:  [^ ]*' "${OUTFILE}" | sort > "${OUTFILE}.short"
+		grep -o '.*:  [^ ]*' "${SAVEFILE}" | sort > "${SAVEFILE}.short"
+
+		if [[ ! -s "${OUTFILE}" && ! -s "${SAVEFILE}" ]]
+		then
+			# Shortcut for common case:  Both files are zero-byte.
+			echo "Output file matches saved results file (both empty)."
+			rm -f "${OUTFILE}"
+			RC=0
+		elif diff -q "${OUTFILE}.short" "${SAVEFILE}.short" >&/dev/null
+		then
+			# Files are identical.
+			echo "Output file matches saved results file."
+			rm -f "${OUTFILE}"
+			RC=0
+		else
+			# Both files exist, but they differ.
+			echo "Output file does not match saved results file."
+			PREV_RESULTS=$(< "${SAVEFILE}")
+			rm -f "${SAVEFILE}"
+			mv -f "${OUTFILE}" "${SAVEFILE}"
+#			RC=$PROG_RC
+			RC=1
+		fi
+	elif [[ ! -s "${OUTFILE}" ]]
+	then
+		# Empty output and no previous save file.
+		echo "Output file is empty (no saved results file found)."
+		mv -f "${OUTFILE}" "${SAVEFILE}"
+		RC=0
+	else
+		# Non-empty output and no saved results file.
+		echo "Output file is non-empty (no saved results file found)."
+		mv -f "${OUTFILE}" "${SAVEFILE}"
+#		RC=$PROG_RC
+		RC=1
+	fi
+	return $RC
+}
+
+function nhcwrap_report_results() {
+	# If we get here, we have results to report.
+#	if [[ ! -s "${SAVEFILE}" ]]
+	if [[ ! -z "${PREV_RESULTS}" ]]
+	then
+		# We have empty results this time but non-empty previous
+		# results.  This means a prior error is now cleared.
+		if [[ "$NOTIFY" == "1" ]]
+		then
+		
+			read -r -d '' message << EOM
+{
+	"type": "mrkdwn",
+	"text": "*The error(s) on the _${cluster_name}_ cluster are cleared*: 
+\`\`\`
+The following errors on _${cluster_name}_ have now been CLEARED: ${PREV_RESULTS}
+\`\`\`"
+}
+EOM
+			curl -X POST "${slack_webhook}" \
+			-H 'Content-Type: application/json' \
+			-d "${message}"
+			echo "Notification of cleared error sent to slack."
+		else
+			echo -e "The following $SUBPROG errors on $HOSTNAME_S have now been 
+CLEARED:"$'\n\n'"${PREV_RESULTS}"
+		fi
+	else
+
+	read -r -d '' message << EOM
+{
+	"type": "mrkdwn",
+	"text": "*The _${cluster_name}_ cluster needs help*:
+\`\`\`
+$(cat "${SAVEFILE}" | tr \" \')
+\`\`\`"
+}
+EOM
+
+		if [[ "$NOTIFY" == "1" ]]
+		then
+			curl -X POST "${slack_webhook}" \
+			-H 'content-type:application/json' \
+			-d "${message}"
+			echo "Notification has been sent to Slack"
+		else
+			echo "$(< ${SAVEFILE})"
+		fi
+	fi
+	return 0
+}
+
+nhcwrap_init_env
+nhcwrap_parse_cmdline "$@" || exit 99
+nhcwrap_finalize_env
+
+nhcwrap_spawn_command
+nhcwrap_check_output $? || nhcwrap_report_results
+
+{% endraw %}
