@@ -43,7 +43,7 @@
       mode: '0644'
     - src: 'templates/nhc-wrapper'
       dest: '/usr/sbin/nhc-wrapper'
-      mode: '0755' 
+      mode: '0755'
   become: true
 
 - name: 'Create cron for nhc-wrapper'
