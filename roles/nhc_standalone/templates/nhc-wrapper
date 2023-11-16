@@ -4,9 +4,9 @@
 #
 # This script is intended to provide a convenient wrapper for
 # executing the LBNL Node Health Check (NHC) driver program in an
-# out-of-band (i.e., outside a scheduler/resource manager) context.
+# out-of-band (i.e. outside a scheduler/resource manager) context.
 # It provides facilities for passing parameters to NHC, launching
-# specific NHC contexts, and sending notification e-mails when issues
+# specific NHC contexts, and sending notifications when issues
 # are found (and includes some anti-annoyance features too).
 
 trap 'echo "Terminated by signal SIGHUP." ; exit 129' 1
@@ -38,7 +38,7 @@ function nhc_parse_timespec() {
 		elif [[ -z "${NUMSTR}" ]]
 		then
 			echo "ERROR:  Missing number before character ${CHR} in timespec ${TIMESPEC} at position $i."
-			echo "ERROR:  Parsing terminated.  Using ${SECS} seconds for expiration of old results."
+			echo "ERROR:  Parsing terminated. Using ${SECS} seconds for expiration of old results."
 			break
 		else
 			case "${CHR}" in
@@ -47,10 +47,10 @@ function nhc_parse_timespec() {
 			[Hh])  ((SECS += NUMSTR * 3600))   ;;
 			[Mm])  ((SECS += NUMSTR * 60))     ;;
 			[Ss])  ((SECS += NUMSTR))          ;;
-			[Ff])  FUDGETIME=${NUMSTR}         ;;
+			[Ff])  FUDGETIME="${NUMSTR}"       ;;
 			*)
 			echo "ERROR:  Invalid character ${CHR} encountered in timespec ${TIMESPEC} at position $i."
-			echo "ERROR:  Parsing terminated.  Using ${SECS} seconds for expiration of old results."
+			echo "ERROR:  Parsing terminated. Using ${SECS} seconds for expiration of old results."
 			NUMSTR=""
 			break
 			;;
@@ -80,9 +80,8 @@ function nhcwrap_init_env() {
 	else
 		HOSTNAME=$(/bin/hostname)
 	fi
-	HOSTNAME_S=${HOSTNAME/%.*}
 	RET=0
-	export PATH SYSCONFIGDIR LIBEXECDIR HOSTNAME HOSTNAME_S RET
+	export PATH SYSCONFIGDIR LIBEXECDIR HOSTNAME RET
 
 	# Set name of wrapped script/program based on invocation.
 	SUBPROG=${0/#*\/}
@@ -171,7 +170,7 @@ function nhcwrap_finalize_env() {
 	# state directory since it lives in /tmp by default (in order to
 	# have a good chance of being on a tmpfs in RAM, and so that
 	# normal users can run the wrapper too).
-	if [[ ! -d "$STATEDIR" ]]
+	if [[ ! -d "${STATEDIR}" ]]
 	then
 		# Securely create state directory
 		TMPDIR=$(mktemp -d "${STATEDIR}.XXXXXXXXXXX")
@@ -288,7 +287,7 @@ function nhcwrap_report_results() {
 	then
 		# We have empty results this time but non-empty previous
 		# results.  This means a prior error is now cleared.
-		if [[ "$NOTIFY" == "1" ]]
+		if [[ "${NOTIFY}" == "1" ]]
 		then
 		
 			read -r -d '' message << EOM
@@ -305,8 +304,7 @@ EOM
 			-d "${message}"
 			echo "Notification of cleared error sent to slack."
 		else
-			echo -e "The following $SUBPROG errors on $HOSTNAME_S have now been 
-CLEARED:"$'\n\n'"${PREV_RESULTS}"
+			echo "The following errors on ${cluster_name} have now been CLEARED: ${PREV_RESULTS}"
 		fi
 	else
 
@@ -320,7 +318,7 @@ $(cat "${SAVEFILE}" | tr \" \')
 }
 EOM
 
-		if [[ "$NOTIFY" == "1" ]]
+		if [[ "${NOTIFY}" == "1" ]]
 		then
 			curl -X POST "${slack_webhook}" \
 			-H 'content-type:application/json' \
