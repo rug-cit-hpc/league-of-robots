@@ -2,12 +2,9 @@
 #
 # Wrapper utility for NHC
 #
-# This script is intended to provide a convenient wrapper for
-# executing the LBNL Node Health Check (NHC) driver program in an
-# out-of-band (i.e. outside a scheduler/resource manager) context.
-# It provides facilities for passing parameters to NHC, launching
-# specific NHC contexts, and sending notifications when issues
-# are found (and includes some anti-annoyance features too).
+# Wrapper script to execute LBNL Node Health Check (NHC) in stand alone mode;
+# e.g. manually or from a cron job.
+# When you want to use NHC for compute nodes, use the integration with a resource manager like Slurm instead.
 
 trap 'echo "Terminated by signal SIGHUP." ; exit 129' 1
 trap 'echo "Terminated by signal SIGINT." ; exit 130' 2

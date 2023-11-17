@@ -46,7 +46,7 @@
       mode: '0755'
   become: true
 
-- name: 'Create cron for nhc-wrapper'
+- name: 'Create cron job for nhc-wrapper.'
   ansible.builtin.cron:
     name: 'NHC wrapper'
     minute: '*/5'
