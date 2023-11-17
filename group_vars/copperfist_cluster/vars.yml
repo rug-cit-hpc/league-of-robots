@@ -424,15 +424,15 @@ remote_users_in_local_groups:
 #
 ## Limit the storage for specific folder, by using a loop mount of formatted file
 #
-soft_partitions:
-  - path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers/
-    src: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers/sequencers.disk.img
-    fstype: btrfs             # btrfs supports the 4k formatting and works on sequencers
-    size: 1500                 # in GB
-    user: sbsuser
-    group: umcg-lab
-    mode: 2750
-    hostname: betabarrel
+#soft_partitions:
+#  - path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers/
+#    src: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers/sequencers.disk.img
+#    fstype: btrfs             # btrfs supports the 4k formatting and works on sequencers
+#    size: 1500                 # in GB
+#    user: sbsuser
+#    group: umcg-lab
+#    mode: 2750
+#    hostname: betabarrel
 #
 # Local storage variables.
 #
