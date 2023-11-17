@@ -14,7 +14,7 @@
   with_items: "{{ soft_partitions }}"
   become: true
 
-- name: Create a disk image file, to be later formated and mounted - this will take some time ...
+- name: Create a disk image file, to be later formated and mounted - this will take a lot of time ...
   community.general.filesize:
     path: "{{ item.src }}"
     size: "{{ item.size }}G"
