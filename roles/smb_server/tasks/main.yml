@@ -41,7 +41,7 @@
 - name: Create local groups for local linux user, which will be mapped to samba user.
   ansible.builtin.group:
     name: "{{ item.name }}"
-    gid: "{{item.gid }}"
+    gid: "{{ item.gid }}"
     state: present
     local: true
   with_items: "{{ smb_server_users | map(attribute='groups') | list | flatten | unique }}"
