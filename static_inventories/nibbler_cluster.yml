@@ -207,6 +207,7 @@ all:
             slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
             slurm_local_disk: 975
             slurm_features: 'tmp02,gpu,A40'
+            slurm_weight: 10
             slurm_ethernet_interfaces:
               - eth0
               - eth1
