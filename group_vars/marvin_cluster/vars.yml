@@ -56,6 +56,12 @@ stack_networks:
     router_network: 'Internet-GDR'
     type: management
     external: false
+  - name: Weka-vlan4
+    cidr: '10.0.4.0/24'
+    allow_ingress:
+      - '10.0.4.0/24'
+    type: storage
+    external: false
 #  - name: wekavlan???
 #    cidr: '???.???.???.0/24'
 #    allow_ingress:
@@ -123,10 +129,10 @@ sudoers:
 #
 pfs_mounts:
   - pfs: bnst01
-    source: ''
-    type: weka
-    rw_options: 'defaults,_netdev,noatime,nodiratime'
-    ro_options: 'defaults,_netdev,noatime,nodiratime,ro'
+    source: '10.0.4.120:/Bytesnet'
+    type: wekafs
+    rw_options: 'net=udp,num_cores=2'
+    ro_options: 'net=udp,num_cores=2,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
 lfs_mounts:
   - lfs: home

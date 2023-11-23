@@ -143,6 +143,8 @@ Get the connections to the server from the clients
     FIN-WAIT-1 0      46     10.0.0.4:41514              45.88.81.169:60274
 ```
 
+Ssh connection from the client is not working. Check the `iptables` and security groups of openstack.
+
 ### Rsyslog internal logging
 
 Rsyslog have the option of creating a verbose log information about current activity. This
