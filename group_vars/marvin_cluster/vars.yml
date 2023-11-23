@@ -62,13 +62,6 @@ stack_networks:
       - '10.0.4.0/24'
     type: storage
     external: false
-#  - name: wekavlan???
-#    cidr: '???.???.???.0/24'
-#    allow_ingress:
-#      - ???.???.???.???/32  # Weka server
-#      - ???.???.???.???/32  # Weka server
-#    type: storage
-#    external: false
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
