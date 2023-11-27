@@ -27,17 +27,30 @@
       state: directory
   become: true
 
-- name: 'Deploy config files.'
+- name: 'Deploy config and executable files.'
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     owner: root
     group: root
-    mode: '0644'
+    mode: "{{ item.mode }}"
   loop:
     - src: 'templates/nhc_standalone.conf'
       dest: '/etc/nhc/nhc.conf'
+      mode: '0644'
     - src: 'templates/nhc_standalone.sysconfig'
       dest: '/etc/sysconfig/nhc'
+      mode: '0644'
+    - src: 'templates/nhc-wrapper'
+      dest: '/usr/sbin/nhc-wrapper'
+      mode: '0755'
+  become: true
+
+- name: 'Create cron job for nhc-wrapper.'
+  ansible.builtin.cron:
+    name: 'NHC wrapper'
+    minute: '*/5'
+    user: 'root'
+    job: '/usr/sbin/nhc-wrapper -N -D /var/run/nhc/ -X 12h -A "-a"'
   become: true
 ...
