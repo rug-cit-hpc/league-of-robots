@@ -288,9 +288,9 @@ function nhcwrap_report_results() {
 			read -r -d '' message << EOM
 {
 	"type": "mrkdwn",
-	"text": "*The error(s) on the _${cluster_name}_ cluster are cleared*: 
+	"text": "*The error(s) on _$(hostname)_ of the _${cluster_name}_ cluster are cleared*: 
 \`\`\`
-The following errors on _${cluster_name}_ have now been CLEARED: ${PREV_RESULTS}
+The following errors on ${cluster_name} have now been CLEARED: ${PREV_RESULTS}
 \`\`\`"
 }
 EOM
@@ -306,7 +306,7 @@ EOM
 	read -r -d '' message << EOM
 {
 	"type": "mrkdwn",
-	"text": "*The _${cluster_name}_ cluster needs help*:
+	"text": "*The _$(hostname)_ of the _${cluster_name}_ cluster needs help*:
 \`\`\`
 $(cat "${SAVEFILE}" | tr \" \')
 \`\`\`"
