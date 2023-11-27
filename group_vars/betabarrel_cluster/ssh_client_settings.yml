@@ -1,0 +1,20 @@
+---
+ssh_client_jumphosts:
+  - inventory_hostname: bb-porch
+    ssh_hostname: 195.169.22.140
+  - inventory_hostname: az-porch
+    ssh_hostname: 74.234.160.235
+
+ssh_client_known_hosts: "\
+  @cert-authority \
+  bb-porch*,\
+  195.169.22.140,\
+  az-porch*,\
+  74.234.160.235,\
+  *bb-transfer*,\
+  195.169.22.143,\
+  *betabarrel,\
+  *docs_on_merlin,\
+  *bb-* \
+  ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINvebE71gLqMX8Qfouj1JoBOP0PkY9cvWDX2v+f5jGXe CA key for betabarrel_cluster"
+...

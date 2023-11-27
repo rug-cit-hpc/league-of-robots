@@ -1,0 +1,23 @@
+---
+- name: Add public keys from CAs that signed {{ stack_name }} host keys to /etc/ssh/ssh_known_hosts.
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/ssh_known_hosts
+    mode: '0644'
+    owner: root
+    group: root
+    create: true
+    insertbefore: BOF
+    regexp: "(?i)^#?@cert-authority .* for {{ stack_name }}$"
+    line: "@cert-authority * {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }} for {{ stack_name }}"
+  become: true
+
+- name: 'Configure ssh client for external stack.'
+  ansible.builtin.include_tasks:
+    file: configure_ssh_client_for_external_stack.yml
+  vars:
+    external_stack: "{{ item }}"
+  when:
+    - ssh_client_configs is defined
+    - inventory_hostname not in groups['jumphost']
+  loop: "{{ ssh_client_configs }}"
+...

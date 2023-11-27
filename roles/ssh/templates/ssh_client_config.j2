@@ -4,10 +4,6 @@
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost }}* {% endfor %}{% raw %}{% endraw %}
     #
-    # Default account name when not specified explicitly.
-    #
-    User {{ item.user }}
-    #
     # Prevent timeouts
     #
     ServerAliveInterval 60
@@ -17,7 +13,6 @@ Host {% for jumphost in groups['jumphost'] %}{{ jumphost }}* {% endfor %}{% raw 
     # Do not use password based authentication as fallback,
     # which may be confusing and won't work anyway.
     #
-    IdentityFile "~/.ssh/id_ed25519"
     PasswordAuthentication No
     #
     # Multiplex connections to

@@ -1,0 +1,18 @@
+---
+ssh_client_jumphosts:
+  - inventory_hostname: wh-porch
+    ssh_hostname: 195.169.22.170
+
+ssh_client_known_hosts: "\
+  @cert-authority \
+  wh-porch*,\
+  195.169.22.170,\
+  *wh-transfer*,\
+  195.169.22.152,\
+  *wh-sai,\
+  *wh-dai,\
+  *wingedhelix,\
+  *docs_on_merlin,\
+  *wh-* \
+  ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINIY4NPZvDDlQoDNnOFoElNjY28EJDPwP/zptDdWGnFb CA key for Winged Helix"
+...

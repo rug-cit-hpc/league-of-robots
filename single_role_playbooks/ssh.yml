@@ -1,11 +1,11 @@
 ---
-- name: Deploy sshd (server) role on jumphosts.
+- name: Deploy ssh (client) role on jumphosts.
   hosts:
     - jumphost
   roles:
-    - sshd
+    - ssh
 
-- name: Deploy sshd (server) role on machines behind jumphosts.
+- name: Deploy ssh (client) role on machines behind jumphosts.
   hosts:
     - build_servers
     - cluster
@@ -15,5 +15,5 @@
     - jenkins
     - repo
   roles:
-    - sshd
+    - ssh
 ...
