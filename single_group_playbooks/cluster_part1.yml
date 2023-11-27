@@ -8,6 +8,7 @@
   roles:
     - admin_users
     - ssh_host_signer
+    - interfaces
     - iptables
     - ssh_known_hosts
     - grub
