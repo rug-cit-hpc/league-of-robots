@@ -223,6 +223,7 @@ function nhcwrap_spawn_command() {
 		then
 			echo "Results file expired after $((NOW-SAVEFILE_TIME)) seconds (+/- ${FUDGETIME}s)."
 			rm -f "${SAVEFILE}"
+			rm -f "${SAVEFILE}.short"
 		else
 			echo "Results file found with age $((NOW-SAVEFILE_TIME)) seconds (+/- ${FUDGETIME}s)."
 		fi
@@ -258,7 +259,6 @@ function nhcwrap_check_output() {
 			PREV_RESULTS=$(< "${SAVEFILE}")
 			rm -f "${SAVEFILE}"
 			mv -f "${OUTFILE}" "${SAVEFILE}"
-#			RC=$PROG_RC
 			RC=1
 		fi
 	elif [[ ! -s "${OUTFILE}" ]]
@@ -271,7 +271,6 @@ function nhcwrap_check_output() {
 		# Non-empty output and no saved results file.
 		echo "Output file is non-empty (no saved results file found)."
 		mv -f "${OUTFILE}" "${SAVEFILE}"
-#		RC=$PROG_RC
 		RC=1
 	fi
 	return $RC
@@ -279,7 +278,6 @@ function nhcwrap_check_output() {
 
 function nhcwrap_report_results() {
 	# If we get here, we have results to report.
-#	if [[ ! -s "${SAVEFILE}" ]]
 	if [[ ! -z "${PREV_RESULTS}" ]]
 	then
 		# We have empty results this time but non-empty previous
