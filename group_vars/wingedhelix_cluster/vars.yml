@@ -95,6 +95,9 @@ external_jumphosts:
     hosts:
       - hostname: cf-porch
         network: external
+#
+# Configure the SSH client on this stack for logins on other stacks listed in ssh_client_configs.
+#
 ssh_client_configs:
   - betabarrel_cluster
   - copperfist_cluster

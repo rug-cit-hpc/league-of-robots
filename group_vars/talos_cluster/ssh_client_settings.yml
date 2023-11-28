@@ -1,0 +1,15 @@
+---
+ssh_client_jumphosts:
+  - alias: reception
+    hostname: reception.hpc.rug.nl
+
+ssh_client_known_hosts: "\
+  @cert-authority \
+  reception*,\
+  *tl-sai,\
+  *tl-dai,\
+  *talos,\
+  *docs_on_merlin,\
+  *tl-* \
+  ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOUth7HlHn/qVcSlSXFxRdNxtccKnrh0hsWuo4m3FamK UMCG HPC Development CA"
+...

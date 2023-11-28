@@ -8,7 +8,7 @@
     - admin_users
     - ssh_host_signer
     - iptables
-    - ssh_known_hosts
+    - ssh  # client
     - pulp_client
     - static_hostname_lookup
     - locale

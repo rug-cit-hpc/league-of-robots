@@ -9,7 +9,7 @@
     - iptables
     - yum_repos
     - locale
-    - ssh_known_hosts
+    - ssh  # client
     - update
     - {role: yum_local, when: local_yum_repository is defined}
     - {role: yum_repos, when: repo_manager == 'none'}
