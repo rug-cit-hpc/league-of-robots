@@ -11,6 +11,18 @@
     line: "@cert-authority * {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }} for {{ stack_name }}"
   become: true
 
+- name: Make sure /etc/ssh/ssh_config.d/*.conf config files are included.
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/ssh_config
+    mode: '0644'
+    owner: root
+    group: root
+    create: false
+    insertafter: EOF
+    regexp: "(?i)^#?Include /etc/ssh/ssh_config.d/.*$"
+    line: 'Include /etc/ssh/ssh_config.d/*.conf'
+  become: true
+
 - name: 'Configure ssh client for external stack.'
   ansible.builtin.include_tasks:
     file: configure_ssh_client_for_external_stack.yml

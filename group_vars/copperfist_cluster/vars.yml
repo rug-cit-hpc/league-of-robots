@@ -89,6 +89,12 @@ external_jumphosts:
       - hostname: az-porch
         network: az_public
 #
+# Configure the SSH client on this stack for logins on other stacks listed in ssh_client_configs.
+#
+ssh_client_configs:
+  - betabarrel_cluster
+  - wingedhelix_cluster
+#
 # Remote logging settings - for diagnostics servers
 #
 logs_ca_name: 'diagnostics'

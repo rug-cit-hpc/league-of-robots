@@ -1,7 +1,7 @@
 ---
 ssh_client_jumphosts:
-  - inventory_hostname: tunnel
-    ssh_hostname: tunnel.hpc.rug.nl
+  - alias: tunnel
+    hostname: tunnel.hpc.rug.nl
 
 ssh_client_known_hosts: "\
   @cert-authority \

@@ -95,6 +95,10 @@ external_jumphosts:
     hosts:
       - hostname: cf-porch
         network: external
+ssh_client_configs:
+  - betabarrel_cluster
+  - copperfist_cluster
+
 #
 # Remote logging settings - for diagnostics servers
 #

@@ -11,8 +11,8 @@ ssh_client_jumphosts:
   {% else %}
     {% set ssh_hostname = ip_addresses[jumphost][network_id]['fqdn'] %}
   {% endif %}
-  - inventory_hostname: {{ jumphost }}
-    ssh_hostname: {{ ssh_hostname }}
+  - alias: {{ jumphost }}
+    hostname: {{ ssh_hostname }}
 {% endfor %}
 
 ssh_client_known_hosts: "\

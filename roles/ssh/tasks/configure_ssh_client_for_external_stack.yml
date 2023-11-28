@@ -40,7 +40,7 @@
     line: "{{ ssh_client_settings_for_external_stack['ssh_client_known_hosts'] }} for {{ external_stack }}"
   become: true
 
-- name: Create /etc/ssh/ssh_config.d dir.
+- name: Create /etc/ssh/ssh_config.d/ dir.
   ansible.builtin.file:
     path: /etc/ssh/ssh_config.d
     state: directory
@@ -48,8 +48,6 @@
     group: root
     mode: '0755'
   become: true
-
-- meta: end_play
 
 - name: "Create /etc/ssh/ssh_config.d/{{ external_stack }}.conf config file."
   ansible.builtin.template:

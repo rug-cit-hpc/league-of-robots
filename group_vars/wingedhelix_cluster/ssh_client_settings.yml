@@ -1,7 +1,7 @@
 ---
 ssh_client_jumphosts:
-  - inventory_hostname: wh-porch
-    ssh_hostname: 195.169.22.170
+  - alias: wh-porch
+    hostname: 195.169.22.170
 
 ssh_client_known_hosts: "\
   @cert-authority \
