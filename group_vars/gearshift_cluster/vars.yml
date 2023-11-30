@@ -39,6 +39,12 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
+#
+# Configure the SSH client on this stack for logins on other stacks listed in ssh_client_configs.
+#
+ssh_client_configs:
+  - nibbler_cluster
+  - vaxtron_cluster
 use_ldap: true
 create_ldap: false
 use_sssd: true
@@ -104,6 +110,7 @@ local_admin_users:
   - 'hopko'
   - 'kees'
   - 'marieke'
+  - 'max'
   - 'pieter'
   - 'robin'
   - 'sandi'

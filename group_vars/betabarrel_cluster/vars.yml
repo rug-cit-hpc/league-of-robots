@@ -84,10 +84,14 @@ external_jumphosts:
         network: vlan16
   - group: copperfist_cluster
     hosts:
-      - hostname: cf-porch-dce
-        network: vlan16
       - hostname: cf-porch
         network: external
+#
+# Configure the SSH client on this stack for logins on other stacks listed in ssh_client_configs.
+#
+ssh_client_configs:
+  - copperfist_cluster
+  - wingedhelix_cluster
 #
 # Remote logging settings - for diagnostics servers
 #
@@ -163,7 +167,6 @@ iptables_allow_icmp_inbound:
   - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
   - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
   - "{{ betabarrel_cluster.ip_addresses['az-porch']['az_public'] }}"
-  - "{{ copperfist_cluster.ip_addresses['cf-porch-dce']['vlan16'] }}"
   - "{{ copperfist_cluster.ip_addresses['cf-porch']['external'] }}"
 iptables_allow_ssh_inbound:
   - "{{ all.ip_addresses['umcg']['net1'] }}"
@@ -173,13 +176,11 @@ iptables_allow_ssh_inbound:
   - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
   - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
   - "{{ betabarrel_cluster.ip_addresses['az-porch']['az_public'] }}"
-  - "{{ copperfist_cluster.ip_addresses['cf-porch-dce']['vlan16'] }}"
   - "{{ copperfist_cluster.ip_addresses['cf-porch']['external'] }}"
 iptables_allow_ssh_outbound:
   - "{{ wingedhelix_cluster.ip_addresses['wh-porch']['vlan16'] }}"
   - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
   - "{{ betabarrel_cluster.ip_addresses['az-porch']['az_public'] }}"
-  - "{{ copperfist_cluster.ip_addresses['cf-porch-dce']['vlan16'] }}"
   - "{{ copperfist_cluster.ip_addresses['cf-porch']['external'] }}"
 main_backup_folder: '/mnt/local_raid/local_backups/'
 local_backups: # list of folders for cron to make daily backup

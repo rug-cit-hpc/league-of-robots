@@ -41,4 +41,12 @@ ip_addresses:
       address: 45.88.81.146
       netmask: /32
       fqdn: 'NXDOMAIN'
+  hc_internal_management-public-router:
+    hc_internal_management:
+      address: 10.10.1.1
+      netmask: /32
+    public:
+      address: 45.88.81.169
+      netmask: /32
+      fqdn: 'NXDOMAIN'
 ...

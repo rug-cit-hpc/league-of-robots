@@ -33,29 +33,6 @@
   with_items: "{{ regular_users }}"
   become: true
 
-- name: "Create ~/.ssh/conf.d/{{ slurm_cluster_name }} config file."
-  ansible.builtin.template:
-    src: ssh_client_config.j2
-    dest: "/home/{{ item.user }}/.ssh/conf.d/{{ slurm_cluster_name }}"
-    owner: "{{ item.user }}"
-    group: "{{ item.user }}"
-    mode: '0600'
-  with_items: "{{ regular_users }}"
-  become: true
-
-- name: "Add {{ slurm_cluster_name }} settings to ssh client ~/.ssh/known_hosts file."
-  ansible.builtin.lineinfile:
-    path: "/home/{{ item.user }}/.ssh/known_hosts"
-    owner: "{{ item.user }}"
-    group: "{{ item.user }}"
-    mode: '0600'
-    create: true
-    insertbefore: BOF
-    regexp: '(?i)^#?@cert-authority .* for {{ slurm_cluster_name }}$'
-    line: "@cert-authority {{ known_hosts_hostnames }} {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }} for {{ slurm_cluster_name }}"
-  with_items: "{{ regular_users }}"
-  become: true
-
 - name: 'Insert/update block into ~/.bashrc to ensure we can load modules.'
   ansible.builtin.blockinfile:
     path: "/home/{{ item.user }}/.bashrc"

@@ -8,8 +8,9 @@
   roles:
     - admin_users
     - ssh_host_signer
+    - interfaces
     - iptables
-    - ssh_known_hosts
+    - ssh  # client
     - grub
     - swap
     - {role: pulp_client, when: repo_manager == 'pulp'}

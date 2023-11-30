@@ -23,6 +23,8 @@ all:
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
+            - name: "Weka-vlan4"
+              security_group: "{{ stack_prefix }}_storage"
           local_yum_repository: true # enable local yum repository
     deploy_admin_interface:
       hosts:

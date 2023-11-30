@@ -1,15 +1,19 @@
 ---
-- hosts:
+- name: Deploy sshd (server) role on jumphosts.
+  hosts:
     - jumphost
   roles:
     - sshd
 
-- hosts:
-    - repo
+- name: Deploy sshd (server) role on machines behind jumphosts.
+  hosts:
+    - build_servers
     - cluster
     - data_transfer
     - docs
+    - irods
     - jenkins
+    - repo
   roles:
     - sshd
 ...

@@ -30,7 +30,9 @@
 
 - name: Fail if base path for a samba share is missing.
   ansible.builtin.fail:
-    msg: "The base path {{ item['base'] }} is missing for samba share {{ item['name'] }}. Another role should have been deployed first or your config is incomplete."
+    msg:
+      - "The base path {{ item['base'] }} is missing for samba share {{ item['name'] }}."
+      - "Another role should have been deployed first or your config is incomplete."
   vars:
     query: "[?stat.path=='{{ item.base }}'].stat.exists"
   when: smb_server_shares_base_status.results | json_query(query) | first is false
@@ -39,7 +41,7 @@
 - name: Create local groups for local linux user, which will be mapped to samba user.
   ansible.builtin.group:
     name: "{{ item.name }}"
-    gid: "{{item.gid }}"
+    gid: "{{ item.gid }}"
     state: present
     local: true
   with_items: "{{ smb_server_users | map(attribute='groups') | list | flatten | unique }}"
@@ -85,7 +87,7 @@
 - name: Configure passwords for samba users.
   ansible.builtin.shell: |
     set -e
-    set -u 
+    set -u
     set -o pipefail
     smbclient -U '{{ item.name }}%{{ smb_server_credentials[item.name] }}' -L 127.0.0.1 2>&1 > /dev/null \
       || (echo '{{ smb_server_credentials[item.name] }}'; echo '{{ smb_server_credentials[item.name] }}') \
@@ -118,4 +120,3 @@
     daemon_reload: true
   become: true
 ...
-

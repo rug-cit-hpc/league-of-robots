@@ -1,0 +1,16 @@
+---
+ssh_client_jumphosts:
+  - alias: portal
+    hostname: 45.88.81.146
+
+ssh_client_known_hosts: "\
+  @cert-authority \
+  portal*,\
+  45.88.81.146,\
+  *hc-sai,\
+  *hc-dai,\
+  *hyperchicken,\
+  *docs_on_merlin,\
+  *hc-* \
+  ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGGI46GvBra1NFJU7RiUWXJrO5kwMmpD+jc2dkLcmV+K CA key for Hyperchicken"
+...

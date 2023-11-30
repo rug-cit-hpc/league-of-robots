@@ -15,7 +15,6 @@
     name: "cleanup_gs_data"
     hour: "6"
     minute: "0"
-    weekday: "0"
     job: /root/cleanup_gs.bash
     user: root
   become: true

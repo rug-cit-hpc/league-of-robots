@@ -89,6 +89,12 @@ additional_etc_hosts:
     nodes:
       - name: earl4
         network: vlan16
+#
+# Configure the SSH client on this stack for logins on other stacks listed in ssh_client_configs.
+#
+ssh_client_configs:
+  - gearshift_cluster
+  - vaxtron_cluster
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: true
 create_ldap: false
@@ -198,6 +204,7 @@ local_admin_users:
   - 'kim'
   - 'marieke'
   - 'marloes'
+  - 'max'
   - 'morris'
   - 'pieter'
   - 'robin'
@@ -609,7 +616,7 @@ volume_group_folders: [
 #
 lustre_client_networks:
   - name: tcp14
-    interface: eth2
+    interface: eth3
   - name: tcp20
     interface: eth2
 pfs_mounts:

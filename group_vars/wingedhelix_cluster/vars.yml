@@ -94,7 +94,14 @@ external_jumphosts:
   - group: copperfist_cluster
     hosts:
       - hostname: cf-porch
-        network: vlan16
+        network: external
+#
+# Configure the SSH client on this stack for logins on other stacks listed in ssh_client_configs.
+#
+ssh_client_configs:
+  - betabarrel_cluster
+  - copperfist_cluster
+
 #
 # Remote logging settings - for diagnostics servers
 #
@@ -417,6 +424,18 @@ remote_users_in_local_groups:
         'umcg-labgnkbh', 'umcg-patho', 'umcg-pr',
         'umcg-vipt',
     ]
+#
+## Limit the storage for specific folder, by using a loop mount of formatted file
+#
+soft_partitions:
+  - path: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07/sequencers
+    src: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07/sequencers.disk.img
+    fstype: ext3
+    size: 300                 # in GB
+    user: sbsuser
+    group: umcg-lab
+    mode: 2750
+    hostname: wh-sai
 #
 # Local storage variables.
 #

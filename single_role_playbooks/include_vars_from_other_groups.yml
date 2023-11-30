@@ -1,0 +1,5 @@
+---
+- hosts: all,!openstack_api
+  roles:
+  - include_vars_from_other_groups
+...
