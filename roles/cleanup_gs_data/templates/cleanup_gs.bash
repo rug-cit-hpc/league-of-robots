@@ -30,7 +30,9 @@ do
 		elif [[ $(((${dateInSecNow} - $(date -r "${dir}" +%s)) / 86400)) -gt 7 ]]
 		then
 			echo "${dir} is older than 7 days, notification will be send"
-			
+                        dirdate=$(date -r "${dir}")
+                        delete_date=$(date -d "${dirdate} +14 days")
+
 			#
 			# Compile JSON message payload.
 			#
@@ -39,7 +41,8 @@ do
 	"type": "mrkdwn",
 	"text": "*Cleanup alert on _{{ slurm_cluster_name | capitalize }}_*:  
 \`\`\`
-The following data on $(hostname) of the {{ slurm_cluster_name | capitalize }} cluster is older than a week: ${dir}. This data will be deleted when it's older than two weeks!
+The following data on $(hostname) of the {{ slurm_cluster_name | capitalize }} cluster is older than a week: ${dir}. This 
+data will be deleted on ${delete_date}!
 \`\`\`"
 }
 EOM
