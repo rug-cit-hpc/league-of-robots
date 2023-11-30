@@ -9,7 +9,7 @@
     - admin_users
     - ssh_host_signer
     - iptables
-    - ssh_known_hosts
+    - ssh  # client
     - {role: yum_local, when: local_yum_repository is defined}
     - {role: yum_repos, when: repo_manager == 'none'}
     - locale

@@ -118,4 +118,12 @@ ip_addresses:
     subnet-nfs-data-2541:
       address: 10.35.141.226
       netmask: /32
+  fd_internal_management-public-router:
+    fd_internal_management:
+      address: 10.10.1.1
+      netmask: /32
+    public:
+      address: 45.88.81.73
+      netmask: /32
+      fqdn: 'NXDOMAIN'
 ...

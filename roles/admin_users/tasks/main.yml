@@ -41,14 +41,14 @@
     mode: '0755'
     state: directory
   become: true
-- name: "Install policycoreutils python package for admin home dir SE-labeling."
+- name: Install policycoreutils python package for admin home dir SE-labeling.
   ansible.builtin.package:
     state: latest
     update_cache: true
     name: >-
       policycoreutils-python
       {%- if ansible_facts['distribution_major_version'] >= '8' -%}
-        -utils
+      -utils
       {%- endif -%}
   when: ansible_facts['os_family'] == "RedHat"
   become: true
