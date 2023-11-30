@@ -22,6 +22,7 @@ do
 			echo ".finished file found, processing of data should start soon"
 		fi
 	else
+		echo "${dir} is empty, check if it's older than 1 week -> notification"
 		if [[ $(((${dateInSecNow} - $(date -r "${dir}" +%s)) / 86400)) -gt 14 ]]
 		then
 			echo "${dir} is older than 14 days and will be deleted"
