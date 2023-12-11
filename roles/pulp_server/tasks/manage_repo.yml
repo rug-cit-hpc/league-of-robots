@@ -14,7 +14,7 @@
     ansible_python_interpreter: "/admin/{{ repo_management_user }}/pulp-cli.venv/bin/python"
   become: true
   become_user: "{{ repo_management_user }}"
-  #no_log: true
+  no_log: true
 
 - name: "Create {{ pulp_repo['name'] }} repo."
   pulp.squeezer.rpm_repository:
