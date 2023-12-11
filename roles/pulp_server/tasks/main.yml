@@ -212,6 +212,8 @@
     validate_certs: false
     refresh_api_cache: true
   register: pulp_status
+  vars:
+    ansible_python_interpreter: "/admin/{{ repo_management_user }}/pulp-cli.venv/bin/python3"
   become: true
   become_user: "{{ repo_management_user }}"
   no_log: true
@@ -220,34 +222,12 @@
   ansible.builtin.debug:
     var: pulp_status
 
-- name: Create remotes.
-  pulp.squeezer.rpm_remote:
-    name: "{{ item.name }}-remote"
-    url: "{{ item.remote_url }}"
-    policy: on_demand
-    state: present
-    pulp_url: "{{ pulp_api_baseurl }}"
-    username: "{{ pulp_api_user }}"
-    password: "{{ pulp_api_password }}"
-    validate_certs: false
-  with_items: "{{ pulp_repos[os_distribution] | selectattr('remote_url', 'defined') | list }}"
-  become: true
-  become_user: "{{ repo_management_user }}"
-  no_log: true
-
-- name: Create repositories.
-  pulp.squeezer.rpm_repository:
-    name: "{{ item.name }}"
-    description: "{{ item.description }}"
-    state: present
-    pulp_url: "{{ pulp_api_baseurl }}"
-    username: "{{ pulp_api_user }}"
-    password: "{{ pulp_api_password }}"
-    validate_certs: false
-  with_items: "{{ pulp_repos[os_distribution] }}"
-  become: true
-  become_user: "{{ repo_management_user }}"
-  no_log: true
+- name: Manage repos.
+  ansible.builtin.include_tasks: manage_repo.yml
+  loop_control:
+    label: "{{ pulp_repo.name }}"
+    loop_var: pulp_repo
+  loop: "{{ pulp_repos[os_distribution] | flatten(levels=1) }}"
 
 - name: Deploy pulp-init.bash with code to manage Pulp repos.
   ansible.builtin.template:
