@@ -108,7 +108,7 @@ function pulp-sync-publish-distribute() {
 		fi
 		if [[ "$(pulp --format json rpm repository content list \
 				--repository "${_cpel_repo}" \
-				--type package \
+				--all-types \
 				| jq ".[] | select(.pulp_href==\"${_rpm_pulp_href}\").pulp_href" \
 				| tr -d '"' \
 				)" != "${_rpm_pulp_href}" ]]; then

@@ -1,0 +1,33 @@
+---
+- name: "Create {{ pulp_repo['name'] }}-remote."
+  pulp.squeezer.rpm_remote:
+    name: "{{ pulp_repo['name'] }}-remote"
+    url: "{{ pulp_repo['remote_url'] }}"
+    policy: on_demand
+    state: present
+    pulp_url: "{{ pulp_api_baseurl }}"
+    username: "{{ pulp_api_user }}"
+    password: "{{ pulp_api_password }}"
+    validate_certs: false
+  when: pulp_repo['remote_url'] is defined
+  vars:
+    ansible_python_interpreter: "/admin/{{ repo_management_user }}/pulp-cli.venv/bin/python"
+  become: true
+  become_user: "{{ repo_management_user }}"
+  no_log: true
+
+- name: "Create {{ pulp_repo['name'] }} repo."
+  pulp.squeezer.rpm_repository:
+    name: "{{ pulp_repo['name'] }}"
+    description: "{{ pulp_repo['description'] }}"
+    state: present
+    pulp_url: "{{ pulp_api_baseurl }}"
+    username: "{{ pulp_api_user }}"
+    password: "{{ pulp_api_password }}"
+    validate_certs: false
+  vars:
+    ansible_python_interpreter: "/admin/{{ repo_management_user }}/pulp-cli.venv/bin/python"
+  become: true
+  become_user: "{{ repo_management_user }}"
+  no_log: true
+...
