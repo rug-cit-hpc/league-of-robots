@@ -614,8 +614,9 @@ volume_group_folders: [
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb',
-        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-reki', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
-        'umcg-ugli', 'umcg-verbeek', 'umcg-vdakker', 'umcg-visclasataxia', 'umcg-weersma', 'umcg-wijmenga'
+        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-reki', 'umcg-solve-rd', 'umcg-sysops',
+        'umcg-tifn', 'umcg-ukb', 'umcg-ugli', 'umcg-verbeek', 'umcg-vdakker', 'umcg-visclasataxia', 'umcg-weersma',
+        'umcg-wijmenga'
       ]},
 ]
 #
