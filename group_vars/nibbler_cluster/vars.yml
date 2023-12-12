@@ -798,7 +798,7 @@ lfs_mounts:
       - name: umcg-pub
       - name: umcg-radicon
       - name: umcg-rehabilitation
-       - name: umcg-reki
+      - name: umcg-reki
       - name: umcg-solve-rd
       - name: umcg-sysops
       - name: umcg-tifn
