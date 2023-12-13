@@ -313,7 +313,7 @@
   no_log: true
   become: true
 
-- name: 'Deploy cron job to backup the Slurm accounting DB every night. Keep 7 backups.'
+- name: 'Deploy cron job to backup the Slurm accounting DB every night. Keep old backups for 3 days.'
   ansible.builtin.cron:
     name: 'Slurm database backup'
     minute: '11'
@@ -322,7 +322,7 @@
       /bin/cp --backup=numbered /root/slurm/backup/slurm.sql /root/slurm/backup/slurm_bak.sql
       && mysqldump --all-databases -uroot -p{{ MYSQL_ROOT_PASSWORD | quote }} -h localhost --protocol=socket
       > /root/slurm/backup/slurm.sql
-      && /bin/find /root/slurm/backup/slurm_bak.sql.* -mtime +7 -delete
+      && /bin/find /root/slurm/backup/slurm_bak.sql.* -mtime +3 -delete
   tags: 'backup'
   no_log: true
   become: true
