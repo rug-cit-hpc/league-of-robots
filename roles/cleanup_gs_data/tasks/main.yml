@@ -13,7 +13,7 @@
 - name: 'Create cron for weekly cleanup'
   ansible.builtin.cron:
     name: "cleanup_gs_data"
-    hour: "6"
+    hour: "9"
     minute: "0"
     job: /root/cleanup_gs.bash
     user: root
