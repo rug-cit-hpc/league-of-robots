@@ -422,15 +422,15 @@ remote_users_in_local_groups:
 #
 ## Limit the storage for specific folder, by using a loop mount of formatted file
 #
-#soft_partitions:
-#  - path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers/
-#    src: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers/sequencers.disk.img
-#    fstype: btrfs             # btrfs supports the 4k formatting and works on sequencers
-#    size: 1500                 # in GB
-#    user: sbsuser
-#    group: umcg-lab
-#    mode: 2750
-#    hostname: betabarrel
+# soft_partitions:
+#   - path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers_incoming
+#     src: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers/sequencers_incoming.disk.img
+#     fstype: btrfs             # btrfs supports the 4k formatting and works on sequencers
+#     size: 600                 # in GB
+#     user: sbsuser
+#     group: umcg-lab
+#     mode: 2750
+#     hostname: copperfist
 #
 # Local storage variables.
 #
@@ -689,12 +689,14 @@ smb_server_interfaces: 192.168.1.0/24  # in addition to 127.0.0.1, which must al
 smb_server_shares:
   - name: ngs
     comment: Share for sequencers
+    # path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers_incoming
     path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers
     users: sbsuser
     file_mode: '0640'
     dir_mode: '0750'
     base: /mnt/local_raid/groups/umcg-lab/tmp06  # This will not be created by the smb_server role and must already exist.
     subtree:  # This will be created if it does not already exist.
+      # - path: sequencers_incoming
       - path: sequencers
         owner: sbsuser
         group: umcg-lab
