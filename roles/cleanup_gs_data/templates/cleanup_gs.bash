@@ -8,7 +8,7 @@ dirToCheck="/groups/umcg-genomescan/"*
 dateInSecNow=$(date +%s)
 
 # Check only dirs, ignore files
-for dir in $(find ${dirToCheck} -mindepth 1 -maxdepth 1 -type d)
+for dir in $(find ${dirToCheck} -maxdepth 1 -type d)
 do
 	if [[ ! $(ls -A "${dir}") ]]
 	then
@@ -17,11 +17,13 @@ do
 		then
 			echo "${dir} is older than 14 days and will be deleted"
 			rm -rf "${dir}"
+		else
+			echo "${dir} is not yet older than 14 days, will be removed soon."
 		fi
 	else
 		echo "${dir} is not empty, check if .finished file is present and if there's other data"
-		numberOfFiles=$(find "${dir}" -mindepth 1 -maxdepth 1 -type f | wc -l)
-		if [[ ${numberOfFiles} == 1 && $(find "${dir}" -mindepth 1 -maxdepth 1 -type f) == *".finished" ]]
+		numberOfFiles=$(find "${dir}" -maxdepth 1 -type f | wc -l)
+		if [[ ${numberOfFiles} == 1 && $(find "${dir}" -maxdepth 1 -type f) == *".finished" ]]
 		then
 			if [[ $(((${dateInSecNow} - $(date -r "${dir}" +%s)) / 86400)) -gt 14 ]]
 			then
@@ -59,7 +61,7 @@ EOM
 curl -X POST '{{ slurm_notification_slack_webhook }}' \
 	-H 'Content-Type: application/json' \
 	-d "${message}" 
-
+			fi
 		fi
 	fi
 done
