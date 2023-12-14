@@ -1,6 +1,7 @@
 # If folder is empty for 2 weeks -> delete folder
-# If folder is not empty and no .finished file is present (1 week) -> notification
-# If folder is not empty and .finished file is present (2 weeks) -> delete folder
+# If folder is not empty, but only a  .finished file is present (2 weeks) -> delete folder
+# If folder is not empty and no .finished file is present (1 week) -> notification, 2 weeks -> delete folder
+
 #!/bin/bash
 
 dirToCheck="/groups/umcg-genomescan/"*
@@ -18,7 +19,7 @@ do
 			rm -rf "${dir}"
 		fi
 	else
-		echo "There is Data in ${dir}, check if .finished file is present and if there's other data"
+		echo "${dir} is not empty, check if .finished file is present and if there's other data"
 		numberOfFiles=$(find "${dir}" -mindepth 1 -maxdepth 1 -type f | wc -l)
 		if [[ ${numberOfFiles} == 1 && $(find "${dir}" -mindepth 1 -maxdepth 1 -type f) == *".finished" ]]
 		then
@@ -54,7 +55,7 @@ EOM
 
 #
 # Post message to Slack channel.
-#               
+#
 curl -X POST '{{ slurm_notification_slack_webhook }}' \
 	-H 'Content-Type: application/json' \
 	-d "${message}" 
