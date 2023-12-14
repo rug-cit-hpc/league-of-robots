@@ -7,8 +7,8 @@
 dirToCheck="/groups/umcg-genomescan/"*
 dateInSecNow=$(date +%s)
 
-# Check only dirs, ignore files
-for dir in $(find ${dirToCheck} -maxdepth 1 -type d)
+# Check only dirs, ignore files and reverse sort to check subfolders first
+for dir in $(find ${dirToCheck} -maxdepth 1 -type d | sort -r)
 do
 	if [[ ! $(ls -A "${dir}") ]]
 	then
