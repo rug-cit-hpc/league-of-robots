@@ -7,6 +7,7 @@
         name: "{{ inventory_hostname }}-{{ item.name }}"
         network: "{{ item.name }}"
         security_groups: "{{ item.security_group }}"
+        binding_vnic_type: "{{ hostvars[inventory_hostname]['host_type'] | default('normal') }}"
         fixed_ips:
           - ip_address: "{{ ip_addresses[inventory_hostname][item.name]['address'] }}"
         wait: true
@@ -19,6 +20,7 @@
         name: "{{ inventory_hostname }}-{{ item.name }}"
         network: "{{ item.name }}"
         security_groups: "{{ item.security_group }}"
+        binding_vnic_type: "{{ hostvars[inventory_hostname]['host_type'] | default('normal') }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
       with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
@@ -36,7 +38,7 @@
   ansible.builtin.set_fact:
     instance_nics: "{{ instance_nics | default([]) + [{'port-name': inventory_hostname + '-' + item}] }}"
   with_items: "{{ hostvars[inventory_hostname]['host_networks'] | map(attribute='name') }}"
-- name: Create servers.
+- name: Create virtual servers.
   openstack.cloud.server:
     state: present
     name: "{{ inventory_hostname }}"
@@ -66,7 +68,36 @@
     availability_zone: "{{ availability_zone }}"
     wait: true
     timeout: "{{ openstack_api_timeout }}"
+  when: hostvars[inventory_hostname]['host_type'] | default('vm') != 'baremetal'
   register: create_instance_result
+- name: Create baremetal servers.
+  openstack.cloud.server:
+    state: present
+    name: "{{ inventory_hostname }}"
+    image: "{{ cloud_image }}"
+    flavor: "{{ cloud_flavor }}"
+    #
+    # Security groups are assigned to servers based on the ones assigned
+    # to the pre-defined network ports used by a server.
+    #
+    security_groups: "{{ hostvars[inventory_hostname]['host_networks'] | map(attribute='security_group') | unique }}"
+    auto_floating_ip: false
+    nics: "{{ instance_nics }}"
+    userdata: |
+      #cloud-config
+      password: "{{ cloud_console_pass }}"
+      chpasswd: { expire: False }
+      #
+      # Add each entry to ~/.ssh/authorized_keys for the configured user
+      # or the first user defined in the user definition directive.
+      #
+      ssh_authorized_keys:
+      {% for public_key in public_keys_of_local_admins %}{% if 'ssh-rsa' not in public_key %}  - {{ public_key }}
+      {% endif %}{% endfor %}
+    availability_zone: "{{ availability_zone }}"
+    wait: true
+    timeout: "{{ openstack_api_timeout | int + 1200 }}"
+  when: hostvars[inventory_hostname]['host_type'] | default('vm') == 'baremetal'
 - name: Attach persistent storage volume to servers.
   openstack.cloud.server_volume:
     server: "{{ inventory_hostname }}"
@@ -89,6 +120,8 @@
   # Succeeds only the first time and throws error on any subsequent calls.
   # Therefore we use a "when" with a silly complex jinja filter including a JMESpath query
   # to check if the VM already has a floating IP linked to an interface in the correct VXLAN.
+  #
+  # Note: this check currently works for VMs and will fail for baremetal servers.
   #
   when:
     - item.assign_floating_ip is defined

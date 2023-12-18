@@ -82,16 +82,18 @@ all:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            vt-node-a[01:04]:
+            #vt-node-a[01:04]:
+            vt-node-a[01:02]:
           vars:
             cloud_flavor: umcg_bigmem
+            host_type: baremetal
             host_networks:
               - name: "{{ stack_prefix }}_internal_management"
                 security_group: "{{ stack_prefix }}_cluster"
               - name: "{{ stack_prefix }}_internal_storage"
                 security_group: "{{ stack_prefix }}_storage"
-              - name: DH4 Lustre
-                security_group: "{{ stack_prefix }}_storage"
+              #- name: DH4 Lustre
+              #  security_group: "{{ stack_prefix }}_storage"
             local_volume_size_extra: 0
             slurm_sockets: 64
             slurm_cores_per_socket: 1
