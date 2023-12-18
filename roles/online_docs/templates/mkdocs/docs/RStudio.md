@@ -223,7 +223,7 @@ remotes::install_github('RBigData/remoter', ref = github_release())
 
 #### 9. Using the remote R session in RStudio on your own computer
 
-![use RStudio_on your own computer](img/RStudio.png)
+![use RStudio on your own computer](img/RStudio.png)
 
 In _RStudio_ on your own computer you can now connect to the remote R session using:
 ```R
