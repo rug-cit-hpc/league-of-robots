@@ -65,7 +65,7 @@ then you may not be allowed to download that to your local computer.
 
 #### 2. Login on {{ slurm_cluster_name | capitalize }}
 
-[Login on {{ slurm_cluster_name | capitalize }} with your SSH client](logins/)
+[Login on {{ slurm_cluster_name | capitalize }} with your SSH client](../logins/)
 
 #### 3. Create a screen or tmux session on {{ slurm_cluster_name | capitalize }}
 
@@ -84,7 +84,7 @@ screen -S rstudio
 
 #### 4. Create an interactive Slurm session on {{ slurm_cluster_name | capitalize }}
 
-See [Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}](analysis/) for details.  
+See [Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}](../analysis/) for details.  
 Simple example requesting a single core and 1 GB RAM memory for max one hour:
 ```bash
 srun --cpus-per-task=1 --mem=1gb --nodes=1 --qos=interactive --time=01:00:00 --pty bash -i
@@ -148,7 +148,7 @@ Now we need to create an SSH tunnel from your local client computer to the serve
 ###### For Windows clients
 
 The instructions below we assume you use _MobaXterm_ to connect to {{ slurm_cluster_name | capitalize }} as described in
-[SSH config and login to UI via Jumphost for users on Windows](logins-windows/).
+[SSH config and login to UI via Jumphost for users on Windows](../logins-windows/).
 
 ![configure MobaSSHTunnel](img/MobaSSHTunnel1.png)
 
@@ -223,7 +223,7 @@ remotes::install_github('RBigData/remoter', ref = github_release())
 
 #### 9. Using the remote R session in RStudio on your own computer
 
-![use RStudioon your own computer](img/RStudio.png)
+![use RStudio_on your own computer](img/RStudio.png)
 
 In _RStudio_ on your own computer you can now connect to the remote R session using:
 ```R
