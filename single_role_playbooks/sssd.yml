@@ -5,6 +5,6 @@
     - cluster
     - data_transfer
   roles:
-     - sssd
-     - sshd  # Always re-run sshd role after potentially changing the logic to fetch public keys.
+    - sssd
+    - sshd  # Always re-run sshd role after potentially changing the logic to fetch public keys.
 ...

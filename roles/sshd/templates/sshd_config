@@ -23,13 +23,13 @@ Protocol 2
 #
 RequiredRSASize 4096
 
-{% endif %}
 #
 # Disable printing of MOTD by sshd itself,
 # which is already printed by the pluggable authentication module (PAM) motd.so
 # configured in /etc/pam.d/sshd
 #
 PrintMotd no
+{% endif %}
 
 #
 # Supported (Host)Key algorithms by order of preference.
