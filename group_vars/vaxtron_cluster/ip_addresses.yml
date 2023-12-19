@@ -11,50 +11,50 @@ ip_addresses:
       fqdn: 'NXDOMAIN'
   vaxtron:
     DH4 Lustre:
-      address: 172.23.58.84
+      address: 172.23.58.94
       netmask: /32
     lustre:
-      address: 172.23.12.49
+      address: 172.23.12.110
       netmask: /32
     vt_internal_management:
       address: 10.10.1.123
       netmask: /32
   vt-dai:
     DH4 Lustre:
-      address: 172.23.58.36
+      address: 172.23.58.60
       netmask: /32
     lustre:
-      address: 172.23.13.10
+      address: 172.23.14.98
       netmask: /32
     vt_internal_management:
       address: 10.10.1.46
       netmask: /32
   vt-node-a01:
     DH4 Lustre:
-      address: 172.23.58.65
+      address: 172.23.58.46
       netmask: /32
     lustre:
-      address: 172.23.14.156
+      address: 172.23.12.225
       netmask: /32
     vt_internal_management:
       address: 10.10.1.182
       netmask: /32
   vt-node-a02:
     DH4 Lustre:
-      address: 172.23.58.27
+      address: 172.23.58.84
       netmask: /32
     lustre:
-      address: 172.23.13.153
+      address: 172.23.13.91
       netmask: /32
     vt_internal_management:
       address: 10.10.1.112
       netmask: /32
   vt-node-a03:
     DH4 Lustre:
-      address: 172.23.58.68
+      address: 172.23.58.27
       netmask: /32
     lustre:
-      address: 172.23.14.20
+      address: 172.23.13.87
       netmask: /32
     vt_internal_management:
       address: 10.10.1.226
@@ -65,10 +65,10 @@ ip_addresses:
       netmask: /32
   vt-sai:
     DH4 Lustre:
-      address: 172.23.58.42
+      address: 172.23.58.56
       netmask: /32
     lustre:
-      address: 172.23.14.52
+      address: 172.23.12.207
       netmask: /32
     vt_internal_management:
       address: 10.10.1.130
@@ -78,7 +78,7 @@ ip_addresses:
       address: 10.10.1.1
       netmask: /32
     external:
-      address: 195.169.23.107
+      address: 195.169.23.120
       netmask: /32
       fqdn: 'NXDOMAIN'
 ...
