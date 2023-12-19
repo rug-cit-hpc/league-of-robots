@@ -128,6 +128,20 @@
     - restart_sssd
   become: true
 
+- name: Update sssd service to disable out-of-memory (OOM) killer
+  ansible.builtin.lineinfile:
+    path: '/usr/lib/systemd/system/sssd.service'
+    backup: true
+    insertafter: '\[Service\]'
+    regexp: '^#?ExecStartPost='
+    line: "ExecStartPost=/bin/sh -c 'echo \"-1000\" > /proc/${MAINPID}/oom_score_adj'"
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart_sssd
+  become: true
+
 - name: 'Update /etc/nsswitch.conf and the PAM stack with authconfig.'
   ansible.builtin.import_tasks: authconfig.yml
   when:
