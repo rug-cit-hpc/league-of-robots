@@ -31,6 +31,7 @@
   vars:
     network_name: "{{ item }}"
     network_cidr: "{{ stack_networks | selectattr('name', 'equalto', item) | map(attribute='cidr') | first }}"
+    network_mtu_size: "{{ stack_networks | selectattr('name', 'equalto', item) | map(attribute='mtu_size') | first | default(omit) }}"
   with_items: "{{ stack_networks
                   | selectattr('type', 'equalto', 'storage')
                   | selectattr('external', 'equalto', false)
