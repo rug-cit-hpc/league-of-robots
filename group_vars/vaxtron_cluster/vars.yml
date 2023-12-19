@@ -161,6 +161,7 @@ stack_networks:
     router_network: external
     type: management
     external: false
+    mtu_size: '1450'
   - name: DH4 Lustre
     cidr: '172.23.56.0/22'
     allow_ingress:
