@@ -7,7 +7,7 @@ slurm_version: '23.02.4-1.el9.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
-    nodes: "{{ stack_prefix }}-node-a[01-04]"  # Must be in sync with Ansible hostnames listed in inventory.
+    nodes: "{{ stack_prefix }}-node-a[01-03]"  # Must be in sync with Ansible hostnames listed in inventory.
     max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
     max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
     max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
@@ -161,15 +161,18 @@ stack_networks:
     router_network: external
     type: management
     external: false
-  - name: "{{ stack_prefix }}_internal_storage"
-    cidr: '10.10.2.0/24'
-    type: storage
-    external: false
   - name: DH4 Lustre
     cidr: '172.23.56.0/22'
     allow_ingress:
       - 172.23.57.213/32  # Lustre server
       - 172.23.57.214/32  # Lustre server
+    type: storage
+    external: true
+  - name: lustre
+    cidr: '172.23.12.0/22'
+    allow_ingress:
+      - 172.23.15.186/32  # Lustre server
+      - 172.23.15.187/32  # Lustre server
     type: storage
     external: true
 nameservers: [
@@ -598,6 +601,8 @@ volume_group_folders: [
 #
 lustre_client_networks:
   - name: tcp14
+    interface: ens4
+  - name: tcp15
     interface: ens5
 pfs_mounts:
   - pfs: umcgst01
@@ -613,17 +618,11 @@ pfs_mounts:
     ro_options: 'defaults,_netdev,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: umcgst05
-    source: '172.23.57.213@tcp14:172.23.57.214@tcp14:/umcg'
+    source: '172.23.15.186@tcp15:172.23.15.187@tcp15:/umcg'
     type: lustre
     rw_options: 'defaults,_netdev,flock'
     ro_options: 'defaults,_netdev,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
-#  - pfs: umcgst06
-#    source: '172.23.57.213@tcp14:172.23.57.214@tcp14:/umcg'
-#    type: lustre
-#    rw_options: 'defaults,_netdev,flock'
-#    ro_options: 'defaults,_netdev,ro'
-#    machines: "{{ groups['sys_admin_interface'] }}"
 lfs_mounts:
   - lfs: home
     pfs: umcgst05
@@ -634,59 +633,19 @@ lfs_mounts:
     quota_type: 'project'
     quota_pid_increment: 300000  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
-      - name: umcg-aad
-        mode: '2750'
-      - name: umcg-as
-        mode: '2750'
       - name: umcg-atd
         mode: '2750'
       - name: umcg-biogen
         mode: '2750'
-      - name: umcg-bionic-mdd-gwama
-        mode: '2750'
       - name: umcg-bios
         mode: '2750'
-      - name: umcg-cineca
-        mode: '2750'
       - name: umcg-dag3
-        mode: '2750'
-      - name: umcg-datateam
-        mode: '2750'
-      - name: umcg-ejp-rd
-        mode: '2750'
-      - name: umcg-endocrinology
         mode: '2750'
       - name: umcg-fg
         mode: '2750'
       - name: umcg-franke-scrna
         mode: '2750'
-      - name: umcg-fu
-        mode: '2750'
-      - name: umcg-gaf
-        mode: '2750'
-      - name: umcg-gap
-        mode: '2750'
-      - name: umcg-gastrocol
-        mode: '2750'
-      - name: umcg-gcc
-        mode: '2750'
       - name: umcg-gdio
-        mode: '2750'
-      - name: umcg-gonl
-        mode: '2750'
-      - name: umcg-griac
-        mode: '2750'
-      - name: umcg-grip
-        mode: '2750'
-      - name: umcg-gsad
-        mode: '2750'
-      - name: umcg-hematology
-        mode: '2750'
-      - name: umcg-hlhs
-        mode: '2750'
-      - name: umcg-immunogenetics
-        mode: '2750'
-      - name: umcg-impact
         mode: '2750'
       - name: umcg-lifelines
         mode: '2750'
@@ -694,45 +653,13 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-llnext
         mode: '2750'
-      - name: umcg-mic
-        mode: '2750'
-      - name: umcg-micompany
-        mode: '2750'
-      - name: umcg-msb
-        mode: '2750'
-      - name: umcg-nawijn
-        mode: '2750'
-      - name: umcg-pmb
-        mode: '2750'
-      - name: umcg-pub
-        mode: '2750'
-      - name: umcg-radicon
-        mode: '2750'
-      - name: umcg-rehabilitation
-        mode: '2750'
-      - name: umcg-solve-rd
-        mode: '2750'
-      - name: umcg-sysops
-        mode: '2750'
       - name: umcg-tifn
-        mode: '2750'
-      - name: umcg-ukb
         mode: '2750'
       - name: umcg-ugli
         mode: '2750'
-      - name: umcg-verbeek
-        mode: '2750'
-      - name: umcg-vdakker
-        mode: '2750'
-      - name: umcg-visclasataxia
-        mode: '2750'
-      - name: umcg-weersma
-        mode: '2750'
-      - name: umcg-wijmenga
-        mode: '2750'
     rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
 #  - lfs: prm01
-#    pfs: umcgst06
+#    pfs: umcgst05
 #    quota_type: 'project'
 #    quota_pid_increment: 400000  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
 #    groups:
