@@ -10,10 +10,14 @@ dateInSecNow=$(date +%s)
 # Check only dirs, ignore files and reverse sort to check subfolders first
 for dir in $(find ${dirToCheck} -maxdepth 1 -type d | sort -r)
 do
+	#Check ctime instead of mtime and remove /groups from dir to be able to look it up is fs
+	creationTime=$(debugfs -R 'stat '${dir#*/*/} /dev/vdb | awk '/crtime/{print $2}' FS='--')
+	creationTimeSeconds=$(date -d"${creationTime}" +%s)
+
 	if [[ ! $(ls -A "${dir}") ]]
 	then
 		echo "${dir} is empty, check if it's older than 2 week -> delete"
-		if [[ $(((${dateInSecNow} - $(date -r "${dir}" +%s)) / 86400)) -gt 14 ]]
+		if [[ $(((${dateInSecNow} - ${creationTimeSeconds}) / 86400)) -gt 14 ]]
 		then
 			echo "${dir} is older than 14 days and will be deleted"
 			rm -rf "${dir}"
@@ -25,20 +29,22 @@ do
 		numberOfFiles=$(find "${dir}" -maxdepth 1 -type f | wc -l)
 		if [[ ${numberOfFiles} == 1 && $(find "${dir}" -maxdepth 1 -type f) == *".finished" ]]
 		then
-			if [[ $(((${dateInSecNow} - $(date -r "${dir}" +%s)) / 86400)) -gt 14 ]]
+			if [[ $(((${dateInSecNow} - ${creationTimeSeconds}) / 86400)) -gt 14 ]]
 			then
 				echo "${dir} is older than 14 days and will be deleted"
 				rm -rf "${dir}"
+			else
+				echo "${dir} is not yet older than 14 days, will be removed soon."
 			fi
 		else
-			if [[ $(((${dateInSecNow} - $(date -r "${dir}" +%s)) / 86400)) -gt 14 ]]
+			if [[ $(((${dateInSecNow} - ${creationTimeSeconds}) / 86400)) -gt 14 ]]
 			then    
 				echo "${dir} is older than 14 days and will be deleted"
 				rm -rf "${dir}"
-			elif [[ $(((${dateInSecNow} - $(date -r "${dir}" +%s)) / 86400)) -gt 7 ]]
+			elif [[ $(((${dateInSecNow} - ${creationTimeSeconds}) / 86400)) -gt 7 ]]
 			then
 				echo "${dir} is older than 7 days, notification will be send"
-				dirdate=$(date -r "${dir}")
+				dirdate=$(date -r "${creationTime}")
 				delete_date=$(date -d "${dirdate} +14 days")
 
 				#
