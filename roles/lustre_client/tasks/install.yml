@@ -61,6 +61,7 @@
     state: latest
     update_cache: true
     name:
+      - dkms
       - kernel
       - kernel-devel
       - kernel-headers
@@ -88,6 +89,7 @@
     update_cache: true
     name:
       - kernel-abi-stablelists
+      - kernel-rpm-macros
   when:
     - ansible_facts['os_family'] == "RedHat"
     - ansible_facts['distribution_major_version'] >= "8"
@@ -97,46 +99,30 @@
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
-- name: Install the Lustre client - for RedHat <= 8.
+#
+# For EL >= 9.3 we need Lustre >= 2.15.4, because Lustre 2.15.3 will no longer compile with DKMS.
+#
+# At the time this comment was written 2.15.4 was not yet released and we need to
+# * Fetch the source code for 2.15.4-RC2
+# * Patch that to remove the dependency on python2, which is not available in EL 9.x
+#   Simply change "#!/usr/bin/env python2" to "#!/usr/bin/env python3" in contrib/scripts/branch_comm
+#   That script is only used to manage the source code in git and not used by Lustre itself: we do not need it.
+# * Compile code and create RPMs with instructions from
+#   lustre-client-dkms: https://wiki.lustre.org/Compiling_Lustre#Lustre_Client_(DKMS_Packages_only)
+#   lustre-client:      https://wiki.lustre.org/Compiling_Lustre#Lustre_Client_(All_other_Builds)
+# * Add those custom RPMs to the cpel repo on our repo servers.
+# The RPMs
+#  * lustre-client-dkms-2.15.4_RC2-1.el9.noarch.rpm
+#  * lustre-client-2.15.4_RC2-1.el9.x86_64.rpm
+# can then be installed with the normal procedure and the ansible task below.
+#
+- name: Install the Lustre client
   ansible.builtin.package:
     state: latest
     update_cache: true
     name:
       - lustre-client-dkms
       - lustre-client
-  when:
-    - ansible_facts['os_family'] == "RedHat"
-    - ansible_facts['distribution_major_version'] <= "8"
-  become: true
-
-#
-# Temporary workaround required for el9, because the latest lustre-client-dkms-2.15.3-1.el9.noarch
-# has a dependency on /usr/bin/python2, which is not available for el9.
-# This bug has been fixed in the Lustre repo, but new RPMs are not available yet...
-#
-# Note we cannot use ansible.builtin.package with "skip_broken: true",
-# because that feature is broken in Ansible < 2.14 and does nothing.
-#
-- name: Install the Lustre client - for RedHat >= 9 work around part 1.
-  ansible.builtin.package:
-    state: latest
-    update_cache: true
-    skip_broken: true
-    name:
-      - lustre-client
-  when:
-    - ansible_facts['os_family'] == "RedHat"
-    - ansible_facts['distribution_major_version'] >= "9"
-  become: true
-
-- name: Install the Lustre client - for RedHat >= 9 work around part 2.
-  ansible.builtin.command:
-    cmd: dnf install lustre-client-dkms --skip-broken
-  register: lustre_client_dnf_result
-  changed_when: "'Nothing to do' not in lustre_client_dnf_result.stdout"
-  when:
-    - ansible_facts['os_family'] == "RedHat"
-    - ansible_facts['distribution_major_version'] >= "9"
   become: true
 
 - name: Load the Lustre kernel modules.
