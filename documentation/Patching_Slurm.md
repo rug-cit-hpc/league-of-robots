@@ -38,7 +38,25 @@ fi
 
 This must be performed on a _DAI_ with configured ```rpmbuild```.
 
-### 1. Download and unpack Slurm
+### 1. Resolve dependencies
+
+The following packages should be already installed on the DAI, but run ```yum```/```dnf``` as root to make sure they are there and up to date:
+
+##### On RHEL <= 7.x
+
+```
+yum install munge-devel munge-libs mysql-devel pam-devel pkgconfig readline-devel lua lua-devel lua-posix
+```
+
+##### On RHEL >= 8.x
+
+Note: Slurm has support for both ```cgroups``` v1 and v2, but support for v2 is only compiled if the dbus development files are present.
+
+```
+dnf install munge-devel munge-libs mysql-devel pam-devel pkgconfig readline-devel lua lua-devel lua-posix dbus-devel
+```
+
+### 2. Download and unpack Slurm
 
 ```
 wget https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2
@@ -46,7 +64,7 @@ tar -xvjf slurm-${SLURM_VERSION}.tar.bz2
 ```
 
 
-### 2. Patching slurmd source
+### 3. Patching slurmd source
 
 Disabled UID check in **_rpc_stat_jobacct** function of
 ```
@@ -92,7 +110,7 @@ In Slurm versions >= ```23.02.x```:
 	}*/
 ```
 
-### 3. Append umcg suffix to version/release number
+### 4. Append umcg suffix to version/release number
 
 Patch the SLURM ```slurm-${SLURM_VERSION}/slurm.spec``` file.
 
@@ -127,13 +145,13 @@ Make sure to also add the ```.umcg``` suffix to the folder name:
 mv slurm-${SLURM_VERSION} slurm-${SLURM_VERSION}.umcg
 ```
 
-### 4. Create new tar.bz2 source code archive with patched code
+### 5. Create new tar.bz2 source code archive with patched code
 
 ```
 tar -cvjf ~/rpmbuild/SOURCES/slurm-${SLURM_VERSION}.umcg.tar.bz2  slurm-${SLURM_VERSION}.umcg
 ```
 
-### 5. Build patched RPMs
+### 6. Build patched RPMs
 
 ```
 rpmbuild -ta --with lua --with mysql ~/rpmbuild/SOURCES/slurm-${SLURM_VERSION}.umcg.tar.bz2
