@@ -68,12 +68,66 @@ The ```saved_entry``` option reported by ```grub2-editenv list``` should now lis
 saved_entry=e2b217c330724d869b4f2686057579d6-5.14.0-362.13.1.el9_3.x86_64
 ```
 
+Check:
+```
+fgrep linux /boot/loader/entries/*
+```
+When the output contains something like:
+```
+/boot/loader/entries/cbbb383c6a61406bbc99c05e6b23dba9-5.14.0-362.13.1.el9_3.x86_64.conf:linux /boot/vmlinuz-5.14.0-362.13.1.el9_3.x86_64
+```
+That is Ok (the checksum in the path may differ), but when it contains:
+```
+/boot/loader/entries/cbbb383c6a61406bbc99c05e6b23dba9-5.14.0-362.13.1.el9_3.x86_64.conf:linux /vmlinuz-5.14.0-362.13.1.el9_3.x86_64
+```
+it is wrong and the bootloader will look for the kernel in the wrong location. If that happens try to remove and re-install the specific kernel
+```
+dnf remove kernel-5.14.0-362.13.1.el9_3
+dnf install kernel-5.14.0-362.13.1.el9_3
+```
+Now rerunning
+```
+grubby --set-default /boot/vmlinuz-5.14.0-362.13.1.el9_3.x86_64
+```
+should result in something like:
+```
+The default is /boot/loader/entries/cbbb383c6a61406bbc99c05e6b23dba9-5.14.0-362.13.1.el9_3.x86_64.conf with index 2 and kernel /boot/vmlinuz-5.14.0-362.13.1.el9_3.x86_64
+```
+with the correct path to the kernel listed at the end of the line. Next,
+```
+grub2-mkconfig -o /boot/grub2/grub.cfg
+```
+should report something like
+```
+Generating grub configuration file ...
+Found linux image: /boot/vmlinuz-5.14.0-362.13.1.el9_3.x86_64
+Found initrd image: /boot/initramfs-5.14.0-362.13.1.el9_3.x86_64.img
+Found linux image: /boot/vmlinuz-5.14.0-362.8.1.el9_3.x86_64
+Found initrd image: /boot/initramfs-5.14.0-362.8.1.el9_3.x86_64.img
+Found linux image: /boot/vmlinuz-0-rescue-cbbb383c6a61406bbc99c05e6b23dba9
+Found initrd image: /boot/initramfs-0-rescue-cbbb383c6a61406bbc99c05e6b23dba9.img
+Found linux image: /boot/vmlinuz-0-rescue-252dd9aa852f4772b9b50e13a981b03b
+Found initrd image: /boot/initramfs-0-rescue-252dd9aa852f4772b9b50e13a981b03b.img
+Adding boot menu entry for UEFI Firmware Settings ...
+done
+```
+which should now also contain the correct path to the kernel.
+
+See also:
+https://unix.stackexchange.com/questions/170089/does-centos-7-incorrectly-sort-kernel-menu-entries-in-grub-cfg
+*"If you examine /usr/libexec/grubby/grubby-bls for the function get_default_index,
+you will see that it wraps through existing entries and defines their indexes starting with 0 and then incrementing."*
+
 #### 4. Reboot server
 
 Reboot the machine and confirm the machine booted the correct kernel:
 
 ```
 [root]# shutdown -h now
-# Log back in after reboot and check active kernel version
+```
+
+#### 5. Log back in after reboot and check active kernel version
+
+```
 [admin]# uname -a
 ```
