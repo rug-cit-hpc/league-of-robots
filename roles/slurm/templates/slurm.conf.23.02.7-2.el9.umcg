@@ -5,7 +5,7 @@ SlurmUser=slurm
 SlurmctldPort=6817
 SlurmdPort=6818
 AuthType=auth/munge
-StateSaveLocation=/var/spool/slurmctld
+StateSaveLocation={{ slurm_slurmctld_spool_dir }}
 SlurmdSpoolDir=/var/spool/slurmd
 SwitchType=switch/none
 MpiDefault=none
@@ -73,7 +73,7 @@ SlurmctldLogFile=/var/log/slurm/slurmctld.log
 SlurmdDebug=3  # 3 == info (default)
 SlurmdLogFile=/var/log/slurm/slurmd.log
 JobCompType=jobcomp/filetxt
-JobCompLoc=/var/log/slurm/slurm.jobcomp
+JobCompLoc=/var/log/slurm/jobcomp.log
 #
 # Email notifications
 #
