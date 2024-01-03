@@ -1,6 +1,6 @@
 ---
-- name: Configure grub on all hosts
-  hosts: all
+- name: Configure grub on all hosts.
+  hosts: all,!openstack_api
   roles:
     - grub
 ...
