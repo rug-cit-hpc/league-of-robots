@@ -68,22 +68,21 @@ all:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             tl-vcompute[01:03]:
-          vars:
-            cloud_flavor: 4C-8GB
-            host_networks:
-              - name: vlan983
-              - name: vlan985
-            local_volume_size_extra: 100
-            slurm_sockets: 4
-            slurm_cores_per_socket: 1
-            slurm_real_memory: 7820
-            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
-            slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
-            slurm_local_disk: 93000
-            slurm_features: 'tmp08'
-            slurm_ethernet_interfaces:
-              - 'vlan983'
-              - 'vlan985.isilon'
+              cloud_flavor: 4C-8GB
+              host_networks:
+                - name: vlan983
+                - name: vlan985
+              local_volume_size_extra: 100
+              slurm_sockets: 4
+              slurm_cores_per_socket: 1
+              slurm_real_memory: 7820
+              slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
+              slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
+              slurm_local_disk: 93000
+              slurm_features: 'tmp08'
+              slurm_ethernet_interfaces:
+                - 'vlan983'
+                - 'vlan985.isilon'
 administration:
   children:
     sys_admin_interface:
