@@ -21,8 +21,8 @@
   #
   # Hack for Rocky 9.x clusters, which do not have a python (2) anymore.
   #
-  #vars:
-  #  ansible_python_interpreter: /usr/bin/python3
+  # vars:
+  #   ansible_python_interpreter: /usr/bin/python3
   delegate_to: "{{ item }}"
   delegate_facts: true
   with_items:
@@ -43,8 +43,8 @@
   #
   # Hack for Rocky 9.x clusters, which do not have a python (2) anymore.
   #
-  #vars:
-  #  ansible_python_interpreter: /usr/bin/python3
+  # vars:
+  #   ansible_python_interpreter: /usr/bin/python3
   delegate_to: "{{ groups['user_interface'] | first }}"
   changed_when: false
   failed_when: false
@@ -71,8 +71,8 @@
   #
   # Hack for Rocky 9.x clusters, which do not have a python (2) anymore.
   #
-  #vars:
-  #  ansible_python_interpreter: /usr/bin/python3
+  # vars:
+  #   ansible_python_interpreter: /usr/bin/python3
   delegate_to: "{{ groups['user_interface'] | first }}"
   changed_when: false
   failed_when: false

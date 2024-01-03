@@ -16,7 +16,7 @@
   become: true
 
 - name: 'Mount complete Physical File Systems (PFS-ses).'
-  ansible.posix.mount:
+  ansible.posix.mount:  # noqa jinja[spacing]
     path: "/mnt/{{ item.pfs | regex_replace('\\$$', '') | regex_replace('/', '_') }}"
     src: "{{ item.source }}/{{ item.pfs }}"
     fstype: "{{ item.type }}"
@@ -137,7 +137,7 @@
 ##
 #
 - name: 'Unmount shared storage LFS-ses no longer configured to be mounted.'
-  ansible.posix.mount:
+  ansible.posix.mount:  # noqa jinja[spacing]
     path: "{{ item['mount'] }}"
     src: "{{ item['device'] }}"
     state: absent

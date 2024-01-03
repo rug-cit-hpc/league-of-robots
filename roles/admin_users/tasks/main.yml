@@ -42,7 +42,7 @@
     state: directory
   become: true
 - name: Install policycoreutils python package for admin home dir SE-labeling.
-  ansible.builtin.package:
+  ansible.builtin.package:  # noqa jinja[spacing]
     state: latest
     update_cache: true
     name: >-
