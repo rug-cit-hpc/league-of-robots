@@ -24,6 +24,10 @@ external_jumphosts:
     hosts:
       - hostname: tunnel
         network: vlan16
+  - group: vaxtron_cluster
+    hosts:
+      - hostname: foyer
+        network: external
   - group: wingedhelix_cluster
     hosts:
       - hostname: wh-porch
