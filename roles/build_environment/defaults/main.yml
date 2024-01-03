@@ -33,8 +33,10 @@ build_env_dai_deps:
   - 'mariadb-devel'
   - 'man2html'
   - 'lua-devel'
+  - 'lua-posix'
   - 'hwloc-devel'
   - 'hdf5-devel'
+  - 'dbus-devel'
   #
   # Ansible dependencies for managing LDAP entrties and passwords.
   #
