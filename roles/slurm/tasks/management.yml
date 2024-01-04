@@ -159,7 +159,7 @@
       owner: 'slurm'
       group: 'root'
       mode: '0750'
-    - name: '/var/spool/slurm'
+    - name: "{{ slurm_slurmctld_spool_dir }}"
       owner: 'slurm'
       group: 'root'
       mode: '0750'

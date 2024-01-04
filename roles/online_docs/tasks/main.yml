@@ -12,9 +12,17 @@
 # * the default user used to login to the cluster is different from
 # * the default user used to login on the webserver where the docs are hosted
 # as you can specify only one account name with -u on the commandline when running ansible-playbook.
+# This is also problematic when
+# * the path to the python interpreter used on the cluster machines is different from
+# * the path to the python interpreter used on the webserver where the docs are hosted.
 #
 - name: 'Gather facts from hosts, so we can use them in the generated docs.'
   ansible.builtin.setup:
+  #
+  # Hack for Rocky 9.x clusters, which do not have a python (2) anymore.
+  #
+  # vars:
+  #   ansible_python_interpreter: /usr/bin/python3
   delegate_to: "{{ item }}"
   delegate_facts: true
   with_items:
@@ -32,6 +40,11 @@
     warn: false
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
+  #
+  # Hack for Rocky 9.x clusters, which do not have a python (2) anymore.
+  #
+  # vars:
+  #   ansible_python_interpreter: /usr/bin/python3
   delegate_to: "{{ groups['user_interface'] | first }}"
   changed_when: false
   failed_when: false
@@ -55,6 +68,11 @@
     warn: false
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
+  #
+  # Hack for Rocky 9.x clusters, which do not have a python (2) anymore.
+  #
+  # vars:
+  #   ansible_python_interpreter: /usr/bin/python3
   delegate_to: "{{ groups['user_interface'] | first }}"
   changed_when: false
   failed_when: false
@@ -77,7 +95,7 @@
   check_mode: false
   register: 'data_transfer_host_key_fingerprints'
   when:
-    - groups['data_transfer'] is defined
+    - groups['data_transfer'] | first is defined
     - groups['data_transfer'] | first | length >= 1
 
 - name: 'Set selinux in permissive mode.'

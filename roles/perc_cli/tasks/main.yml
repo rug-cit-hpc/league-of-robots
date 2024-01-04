@@ -1,0 +1,9 @@
+---
+- name: 'Install the PowerEdge RAID Controller (PERC) Command Line Interface (CLI).'
+  ansible.builtin.package:
+    state: latest
+    update_cache: true
+    name:
+      - perccli
+  become: true
+...

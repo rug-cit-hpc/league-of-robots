@@ -8,10 +8,10 @@
     - admin_users
     - ssh_host_signer
     - iptables
-    - yum_repos
     - ssh  # client
     - swap
     - {role: yum_repos, when: repo_manager == 'none'}
+    - locale
     - logrotate
     - logins
     - static_hostname_lookup

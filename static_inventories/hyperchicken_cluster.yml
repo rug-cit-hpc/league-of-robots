@@ -68,25 +68,24 @@ all:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             hc-vcompute01:
-          vars:
-            # flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
-            cloud_flavor: 16c64m100d
-            host_networks:
-              - name: "{{ stack_prefix }}_internal_management"
-                security_group: "{{ stack_prefix }}_cluster"
-              - name: subnet-nfs-data-2541
-                security_group: "{{ stack_prefix }}_storage"
-            local_volume_size_extra: 1
-            slurm_sockets: 16
-            slurm_cores_per_socket: 1
-            slurm_real_memory: 64263
-            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
-            slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
-            slurm_local_disk: 975
-            slurm_features: 'tmp09'
-            slurm_ethernet_interfaces:
-              - eth0
-              - eth1
+              # flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
+              cloud_flavor: 16c64m100d
+              host_networks:
+                - name: "{{ stack_prefix }}_internal_management"
+                  security_group: "{{ stack_prefix }}_cluster"
+                - name: subnet-nfs-data-2541
+                  security_group: "{{ stack_prefix }}_storage"
+              local_volume_size_extra: 1
+              slurm_sockets: 16
+              slurm_cores_per_socket: 1
+              slurm_real_memory: 64263
+              slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
+              slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
+              slurm_local_disk: 975
+              slurm_features: 'tmp09'
+              slurm_ethernet_interfaces:
+                - eth0
+                - eth1
 administration:
   children:
     sys_admin_interface:

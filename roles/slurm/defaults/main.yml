@@ -17,6 +17,10 @@ munge_gid: 498
 #
 slurm_allow_jobs_to_span_nodes: false
 #
+# Spool dir where the Slurm control daemon will store state info.
+#
+slurm_slurmctld_spool_dir: "/var/spool/slurm{% if slurm_version is version('23.02', '>=') %}ctld{% endif %}"
+#
 # Local volume mounted on compute nodes where Slurm can create tmp dirs for each job.
 #
 slurm_local_scratch_dir: '/local'

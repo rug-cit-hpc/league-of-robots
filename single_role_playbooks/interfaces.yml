@@ -1,4 +1,13 @@
 ---
 - hosts: cluster
   roles:
-    - interfaces
+    #
+    # ToDo: Management of network interfaces changed in Rocky 9,
+    # which uses NetworkManager and a different way of device naming.
+    # This role needs an update...
+    #
+    - role: interfaces
+      when:
+        - ansible_facts['os_family'] == "RedHat"
+        - ansible_facts['distribution_major_version'] <= "8"
+...

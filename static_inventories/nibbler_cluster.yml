@@ -150,7 +150,7 @@ all:
           slurm_cores_per_socket: 1
           slurm_real_memory: 15884
           slurm_local_disk: 0
-          slurm_features: 'tmp02'
+          slurm_features: 'prm02,prm03,tmp02'
           slurm_ethernet_interfaces:
             - eth0
             - eth1
@@ -160,58 +160,56 @@ all:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             nb-node-a[01:03]:
-          vars:
-            cloud_flavor: htc-node
-            host_networks:
-              - name: "{{ stack_prefix }}_internal_management"
-                security_group: "{{ stack_prefix }}_cluster"
-              - name: "{{ stack_prefix }}_internal_storage"
-                security_group: "{{ stack_prefix }}_storage"
-              - name: vlan985
-                security_group: "{{ stack_prefix }}_storage"
-              - name: vlan1068
-                security_group: "{{ stack_prefix }}_storage"
-            local_volume_size_extra: 1
-            slurm_sockets: 40
-            slurm_cores_per_socket: 1
-            slurm_real_memory: 181180
-            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
-            slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
-            slurm_local_disk: 975
-            slurm_features: 'tmp02'
-            slurm_ethernet_interfaces:
-              - eth0
-              - eth1
-              - eth2
+              cloud_flavor: htc-node
+              host_networks:
+                - name: "{{ stack_prefix }}_internal_management"
+                  security_group: "{{ stack_prefix }}_cluster"
+                - name: "{{ stack_prefix }}_internal_storage"
+                  security_group: "{{ stack_prefix }}_storage"
+                - name: vlan985
+                  security_group: "{{ stack_prefix }}_storage"
+                - name: vlan1068
+                  security_group: "{{ stack_prefix }}_storage"
+              local_volume_size_extra: 1
+              slurm_sockets: 40
+              slurm_cores_per_socket: 1
+              slurm_real_memory: 181180
+              slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
+              slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
+              slurm_local_disk: 975
+              slurm_features: 'tmp02'
+              slurm_ethernet_interfaces:
+                - eth0
+                - eth1
+                - eth2
         gpu_a40:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             nb-node-b[01:02]:
-          vars:
-            cloud_flavor: gpu.A40_8
-            gpu_count: 8
-            gpu_type: 'a40'
-            host_networks:
-              - name: "{{ stack_prefix }}_internal_management"
-                security_group: "{{ stack_prefix }}_cluster"
-              - name: "{{ stack_prefix }}_internal_storage"
-                security_group: "{{ stack_prefix }}_storage"
-              - name: vlan985
-                security_group: "{{ stack_prefix }}_storage"
-              - name: vlan1068
-                security_group: "{{ stack_prefix }}_storage"
-            local_volume_size_extra: 1
-            slurm_sockets: 32
-            slurm_cores_per_socket: 1
-            slurm_real_memory: 110122
-            slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
-            slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
-            slurm_local_disk: 975
-            slurm_features: 'tmp02,gpu,A40'
-            slurm_weight: 10
-            slurm_ethernet_interfaces:
-              - eth0
-              - eth1
-              - eth2
+              cloud_flavor: gpu.A40_8
+              gpu_count: 8
+              gpu_type: 'a40'
+              host_networks:
+                - name: "{{ stack_prefix }}_internal_management"
+                  security_group: "{{ stack_prefix }}_cluster"
+                - name: "{{ stack_prefix }}_internal_storage"
+                  security_group: "{{ stack_prefix }}_storage"
+                - name: vlan985
+                  security_group: "{{ stack_prefix }}_storage"
+                - name: vlan1068
+                  security_group: "{{ stack_prefix }}_storage"
+              local_volume_size_extra: 1
+              slurm_sockets: 32
+              slurm_cores_per_socket: 1
+              slurm_real_memory: 110122
+              slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
+              slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
+              slurm_local_disk: 975
+              slurm_features: 'tmp02,gpu,A40'
+              slurm_weight: 10
+              slurm_ethernet_interfaces:
+                - eth0
+                - eth1
+                - eth2
 administration:
   children:
     sys_admin_interface:

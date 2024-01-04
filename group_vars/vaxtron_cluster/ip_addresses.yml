@@ -10,43 +10,75 @@ ip_addresses:
       netmask: /32
       fqdn: 'NXDOMAIN'
   vaxtron:
+    DH4 Lustre:
+      address: 172.23.58.94
+      netmask: /32
+    lustre:
+      address: 172.23.12.110
+      netmask: /32
     vt_internal_management:
       address: 10.10.1.123
       netmask: /32
-    vt_internal_storage:
-      address: 10.10.2.194
-      netmask: /32
   vt-dai:
+    DH4 Lustre:
+      address: 172.23.58.60
+      netmask: /32
+    lustre:
+      address: 172.23.14.98
+      netmask: /32
     vt_internal_management:
       address: 10.10.1.46
       netmask: /32
-    vt_internal_storage:
-      address: 10.10.2.211
+  vt-node-a01:
+    DH4 Lustre:
+      address: 172.23.58.46
       netmask: /32
-  vt-node-b01:
+    lustre:
+      address: 172.23.12.225
+      netmask: /32
     vt_internal_management:
-      address: 10.10.1.78
+      address: 10.10.1.182
       netmask: /32
-    vt_internal_storage:
-      address: 10.10.2.216
+  vt-node-a02:
+    DH4 Lustre:
+      address: 172.23.58.84
+      netmask: /32
+    lustre:
+      address: 172.23.13.91
+      netmask: /32
+    vt_internal_management:
+      address: 10.10.1.112
+      netmask: /32
+  vt-node-a03:
+    DH4 Lustre:
+      address: 172.23.58.27
+      netmask: /32
+    lustre:
+      address: 172.23.13.87
+      netmask: /32
+    vt_internal_management:
+      address: 10.10.1.226
       netmask: /32
   vt-repo:
     vt_internal_management:
       address: 10.10.1.71
       netmask: /32
   vt-sai:
+    DH4 Lustre:
+      address: 172.23.58.56
+      netmask: /32
+    lustre:
+      address: 172.23.12.207
+      netmask: /32
     vt_internal_management:
       address: 10.10.1.130
-      netmask: /32
-    vt_internal_storage:
-      address: 10.10.2.229
       netmask: /32
   vt_internal_management-external-router:
     vt_internal_management:
       address: 10.10.1.1
       netmask: /32
     external:
-      address: 195.169.23.107
+      address: 195.169.23.120
       netmask: /32
       fqdn: 'NXDOMAIN'
 ...

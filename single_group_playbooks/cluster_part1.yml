@@ -8,14 +8,25 @@
   roles:
     - admin_users
     - ssh_host_signer
-    - interfaces
+    #
+    # ToDo: Management of network interfaces changed in Rocky 9,
+    # which uses NetworkManager and a different way of device naming.
+    # This role needs an update...
+    #
+    - role: interfaces
+      when:
+        - ansible_facts['os_family'] == "RedHat"
+        - ansible_facts['distribution_major_version'] <= "8"
     - iptables
     - ssh  # client
     - grub
     - swap
-    - {role: pulp_client, when: repo_manager == 'pulp'}
-    - {role: yum_repos, when: repo_manager == 'none'}
-    - {role: yum_local, when: local_yum_repository is defined}
+    - role: pulp_client
+      when: repo_manager == 'pulp'
+    - role: yum_repos
+      when: repo_manager == 'none'
+    - role: yum_local
+      when: local_yum_repository is defined
     - static_hostname_lookup
     - locale
     - logrotate
@@ -23,11 +34,14 @@
     - update
     - logins
     - figlet_motd
+    #
     # Disabled monitoring: needs update. See also:
     # https://github.com/rug-cit-hpc/league-of-robots/issues/294
+    #
     # - node_exporter
     - cluster
-    - {role: logs_client, when: stacks_logs_servers is defined}
+    - role: logs_client
+      when: stacks_logs_servers is defined
     - gpu            # needs to run after role 'cluster'
     - resolver
     - coredumps
