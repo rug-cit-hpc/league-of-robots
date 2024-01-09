@@ -308,7 +308,7 @@
          mysqldump --all-databases \
              -uroot -p{{ MYSQL_ROOT_PASSWORD | quote }} \
              -h localhost --protocol=socket \
-             > /root/slurm/backup/slurm.sql
+             | gzip > /root/slurm/backup/slurm.sql.gz
   tags: 'backup'
   no_log: true
   become: true
@@ -319,10 +319,10 @@
     minute: '11'
     hour: '3'
     job: >
-      /bin/cp --backup=numbered /root/slurm/backup/slurm.sql /root/slurm/backup/slurm_bak.sql
+      /bin/cp --backup=numbered /root/slurm/backup/slurm.sql.gz /root/slurm/backup/slurm_bak.sql.gz
       && mysqldump --all-databases -uroot -p{{ MYSQL_ROOT_PASSWORD | quote }} -h localhost --protocol=socket
-      > /root/slurm/backup/slurm.sql
-      && /bin/find /root/slurm/backup/slurm_bak.sql.* -mtime +3 -delete
+      | gzip > /root/slurm/backup/slurm.sql.gz
+      && /bin/find /root/slurm/backup/slurm_bak.sql.gz* -mtime +3 -delete
   tags: 'backup'
   no_log: true
   become: true
