@@ -34,7 +34,7 @@ def generate_secrets(yaml_data, nesting_level):
 				if key == 'cloud_console_pass':
 					pass_length = 12
 				yaml_data[key] = ''.join(
-					random.choice(string.ascii_letters + string.digits + '!?@%[]^_+{}=~.,:/')
+					random.choice(string.ascii_letters + string.digits + '!?@[]^_+{}=~.,:/')
 					for _ in range(pass_length))
 			else:
 				print(padding + '      Preserving existing value ...')
