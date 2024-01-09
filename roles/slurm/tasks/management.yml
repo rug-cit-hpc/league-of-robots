@@ -305,7 +305,7 @@
 
 - name: 'Create Slurm accounting DB backup now.'  # noqa no-changed-when
   ansible.builtin.shell: |
-         mysqldump --all-databases \
+         set -o pipefail && mysqldump --all-databases \
              -uroot -p{{ MYSQL_ROOT_PASSWORD | quote }} \
              -h localhost --protocol=socket \
              | gzip > /root/slurm/backup/slurm.sql.gz
