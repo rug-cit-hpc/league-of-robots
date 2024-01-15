@@ -46,6 +46,13 @@
       mode: '0755'
   become: true
 
+- name: Remove check where number of free inodes are not reported
+  ansible.builtin.replace:
+    path: /etc/nhc/scripts/lbnl_fs.nhc
+    regexp: 'if \[\[ "\$\{DFI_IFREE\[\$DFI_CNT\]}" == "-" \]\]; then[\s\S]{1}.*[\s\S]{1}.*fi'
+    replace: ''
+  become: true
+
 - name: 'Create cron job for nhc-wrapper.'
   ansible.builtin.cron:
     name: 'NHC wrapper'
