@@ -140,14 +140,14 @@ Host *+*+*
 # Double-hop SSH settings to connect via specific jumphosts.
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost }}+* {% endfor %}{% raw %}{% endraw %}
-    ProxyCommand ssh -x -q $(echo "${JUMPHOST_USER:-%r}")@$(echo %h | sed 's/+[^+]*$//'){% if stack_domain | length %}.{{ stack_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p
+    ProxyCommand ssh -x -q $(echo "${JUMPHOST_USER:-%r}")@$(echo %h | sed 's/+[^+]*$//') -W $(echo %h | sed 's/^[^+]*+//'):%p
 #
 # Sometimes port 22 for the SSH protocol is blocked by firewalls; in that case you can try to use SSH on port 443 as fall-back.
 # Do not use port 443 by default for SSH as it officially assigned to HTTPS traffic
 # and some firewalls will cause problems when trying to route SSH over port 443.
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost }}443+* {% endfor %}{% raw %}{% endraw %}
-    ProxyCommand ssh -x -q $(echo "${JUMPHOST_USER:-%r}")@$(echo %h | sed 's/443+[^+]*$//'){% if stack_domain | length %}.{{ stack_domain }}{% endif %} -W $(echo %h | sed 's/^[^+]*+//'):%p -p 443
+    ProxyCommand ssh -x -q $(echo "${JUMPHOST_USER:-%r}")@$(echo %h | sed 's/443+[^+]*$//') -W $(echo %h | sed 's/^[^+]*+//'):%p -p 443
 ```
 
 ## 5. Login
