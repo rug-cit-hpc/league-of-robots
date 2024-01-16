@@ -7,7 +7,7 @@ The [_Jupyter project_](https://jupyter.org/) provides a collection of tools for
 
 _JupyterLab_ is one of the project's most well known products and the latest web-based, interactive development environment for _Jupyter notebooks_, code, and data.
 The documentation below explains how to create and connect to a _JupyterLab_ session on {{ slurm_cluster_name | capitalize }}.
-For documentation on how to use _JupyterLab_ itself see https://jupyterlab.readthedocs.io
+For documentation on how to use _JupyterLab_ itself see [https://jupyterlab.readthedocs.io](https://jupyterlab.readthedocs.io)
 
 ## How to use JupyterLab
 
@@ -70,7 +70,7 @@ _Jupyter_ will now create a session and report
 
  * which _port_ it selected
  * the _secret_ / _cookie_ it generated to secure the session
- * the _URL_ you can use locally to access your _Jupyter_ sessio on {{ slurm_cluster_name | capitalize }}
+ * the _URL_ you can use locally to access your _Jupyter_ session on {{ slurm_cluster_name | capitalize }}
 
 E.g.:
 ```bash
@@ -178,8 +178,8 @@ ssh -N -L localhost:8889:localhost:8888 {{ groups['jumphost'] | first }}+{{ grou
 
 #### 6. Using the Jupyter session in a web browser on your own computer
 
-You can now connect to the remote _Jupyter_ session simply by pasting the URL in a web browser on your own computer.
-Make to paste the complete URL including the generated session _token_ (e.g. ```http://localhost:8888/lab?token=b23e4350********************************db01a09e```) in the address bar.
+You can now connect to the remote _Jupyter_ session by pasting the URL in a web browser on your own computer.
+Make sure to paste the complete URL including the generated session _token_ (e.g. ```http://localhost:8888/lab?token=b23e4350********************************db01a09e```) in the address bar.
 Depending on the web browser used the _token_ may be hidden from the address bar once you hit the ```[ENTER]``` key.
 
 ![use Jupyter on your own computer](img/Jupyter.png)
