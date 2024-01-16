@@ -13,10 +13,10 @@ Note: If you only need to transfer data and prefer a Graphical User Interface (G
 
 If you want to transfer data using the commandline or analyze data on the cluster using jobs:
 
- * You can login to the _UI_ named ```{{ groups['user_interface'] | first }}``` 
-   with the account as specified in your ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}``` 
-   via the _Jumphost_ named ```{{ groups['jumphost'] | first }}{% if stack_domain | length %}.{{ stack_domain }}{% endif %}``` 
-   using the alias ```{{ groups['jumphost'] | first }}+{{ groups['user_interface'] | first }}```. 
+ * You can login to the _UI_ named ```{{ groups['user_interface'] | first }}```
+   with the account as specified in your ```${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}```
+   via the _Jumphost_ named ```{{ groups['jumphost'] | first }}```
+   using the alias ```{{ groups['jumphost'] | first }}+{{ groups['user_interface'] | first }}```.
    Type the following command in a terminal:
 
         ssh {{ groups['jumphost'] | first }}+{{ groups['user_interface'] | first }}

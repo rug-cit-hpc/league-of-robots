@@ -385,14 +385,14 @@ Host *+*+*
 # Double-hop SSH settings to connect via specific jumphosts.
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost}}+* {% endfor %}{% raw %}{% endraw %}
-    ProxyCommand ssh -x -q \$(echo "\${JUMPHOST_USER:-%r}")@\$(echo %h | sed 's/+[^+]*$//'){% if stack_domain | length %}.{{ stack_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p
+    ProxyCommand ssh -x -q \$(echo "\${JUMPHOST_USER:-%r}")@\$(echo %h | sed 's/+[^+]*$//') -W \$(echo %h | sed 's/^[^+]*+//'):%p
 #
 # Sometimes port 22 for the SSH protocol is blocked by firewalls; in that case you can try to use SSH on port 443 as fall-back.
 # Do not use port 443 by default for SSH as it is officially assigned to HTTPS traffic
 # and some firewalls will cause problems with SSH traffic over port 443.
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost}}443+* {% endfor %}{% raw %}{% endraw %}
-    ProxyCommand ssh -x -q \$(echo "\${JUMPHOST_USER:-%r}")@\$(echo %h | sed 's/443+[^+]*$//'){% if stack_domain | length %}.{{ stack_domain }}{% endif %} -W \$(echo %h | sed 's/^[^+]*+//'):%p -p 443
+    ProxyCommand ssh -x -q \$(echo "\${JUMPHOST_USER:-%r}")@\$(echo %h | sed 's/443+[^+]*$//') -W \$(echo %h | sed 's/^[^+]*+//'):%p -p 443
 
 EOF
 }
@@ -503,7 +503,7 @@ manageConfig "${user}" "${private_key_file}"
 #
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Finished configuring your SSH client for logins to {{ slurm_cluster_name | capitalize }}.'
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'You can log in to User Interface {{ groups['user_interface'] | first }}'
-log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    via jumphost {{ groups['jumphost'] | first }}{% if stack_domain | length %}.{{ stack_domain }}{% endif %}'
+log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    via jumphost {{ groups['jumphost'] | first }}'
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    in a terminal with the following SSH command:'
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '        ssh {{ groups['jumphost'] | first }}+{{ groups['user_interface'] | first }}'
 log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'We will now test your connection by executing the above SSH command to login and logout.'
@@ -517,8 +517,11 @@ if ssh {{ groups['jumphost'] | first }}+{{ groups['user_interface'] | first }} e
 	log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Consult the online documentation for additional examples '
 	log4Bash 'INFO' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    and how to transfer data with rsync over SSH.'
 else
-	log4Bash 'ERROR' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Failed to login; check if your network either wired or using WiFi is up.'
-	log4Bash 'WARN' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Consult the online documentation for debugging options.'
+	log4Bash 'ERROR' "${LINENO}" "${FUNCNAME[0]:-main}" '0' 'Failed to login: Consult the online documentation for debugging options and check if'
+	log4Bash 'ERROR' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    * Your wired or WiFi network is up.'
+	log4Bash 'ERROR' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    * You specified the correct account name.'
+	log4Bash 'ERROR' "${LINENO}" "${FUNCNAME[0]:-main}" '0' '    * You specified the correct path to your private key file.'
+	log4Bash 'WARN' "${LINENO}" "${FUNCNAME[0]:-main}" '0' ''
 fi
 read -e -p "Press [ENTER] to exit."
 

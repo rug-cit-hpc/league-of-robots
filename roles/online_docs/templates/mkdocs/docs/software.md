@@ -158,7 +158,7 @@ If the software you need is not yet available, please use the following procedur
 ###### Instructions for deploy admins
 
 Login on the Deploy Admin Interface ```{{ groups['deploy_admin_interface'] | first }}```
-via jumphost ```{{ groups['jumphost'] | first }}{% if stack_domain | length %}.{{ stack_domain }}{% endif %}```
+via jumphost ```{{ groups['jumphost'] | first }}```
 and deploy with EasyBuild in /apps/...
 
 ## 3. Modules installed with EasyBuild by regular users in their own environment
