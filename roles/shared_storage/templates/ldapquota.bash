@@ -104,6 +104,10 @@ OPTIONS:
 	-h   Show this help.
 	-a   Apply (new) settings to the File System(s).
 	     By default this script will only do a "dry run" and fetch + list the settings as stored in the LDAP.
+	 r   Recursively (re)apply p and P attributes on Lustre project quota dirs.
+	     WARNING: this will take a long time when there is a lot of data on the file system.
+	     Under normal conditions this should not be necessary, but it can be used to add these attributes in
+	     case they were lost or in case Lustre project quota is turned on later for exsiting data.
 	-l   Log level.
 	     Must be one of TRACE, DEBUG, INFO (default), WARN, ERROR or FATAL.
 
@@ -390,11 +394,25 @@ function applyLustreQuota () {
 		log4Bash 'WARN' "${LINENO}" "${FUNCNAME:-main}" '0' "   Dry run: the following quota commands would have been executed with the '-a' switch ..."
 	fi
 	if [[ "${_quota_type}" == 'project' ]]; then
-		_cmds=(
-			"chattr +P ${_lfs_path}"
-			"chattr -p ${_id} ${_lfs_path}"
-			"lfs setquota -p ${_id} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
-		)
+		if [[ "${recursive}" -eq 1 ]]; then
+			#
+			# Disabling set -e for recursive chattr is required,
+			# because chattr returns exit 1 when it encounters data that is not a file nor directory.
+			# E.g. it will return exit 1 when it encounters a symlink and
+			# there is no simple commandline argument to skip/ignore symlinks.
+			#
+			_cmds=(
+				"set +e && chattr -R -f +P ${_lfs_path}"
+				"set +e && chattr -R -f -p ${_id} ${_lfs_path}"
+				"lfs setquota -p ${_id} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
+			)
+		else
+			_cmds=(
+				"chattr +P ${_lfs_path}"
+				"chattr -p ${_id} ${_lfs_path}"
+				"lfs setquota -p ${_id} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
+			)
+		fi
 	elif [[ "${_quota_type}" == 'group' ]]; then
 		_cmds=(
 			"lfs setquota -g ${_id} --block-softlimit ${_soft_quota_limit} --block-hardlimit ${_hard_quota_limit} ${_lfs_path}"
@@ -403,7 +421,7 @@ function applyLustreQuota () {
 		log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" '1' "   Unsupported Lustre quota type: ${_quota_type}."
 	fi
 	for _cmd in "${_cmds[@]}"; do
-		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Applying cmd: ${_cmd}"
+		log4Bash 'INFO' "${LINENO}" "${FUNCNAME:-main}" '0' "   Command: ${_cmd}"
 		if [[ "${apply_settings}" -eq 1 ]]; then
 			mixed_stdouterr="$(${_cmd} 2>&1)" || log4Bash 'FATAL' "${LINENO}" "${FUNCNAME:-main}" "${?}" "Failed to execute: ${_cmd}"
 		fi
@@ -585,13 +603,17 @@ function dn2cn () {
 # Get commandline arguments.
 #
 declare apply_settings=0
-while getopts ":l:ah" opt; do
+declare recursive=0
+while getopts ":l:ahr" opt; do
 	case "${opt}" in
 		h)
 			showHelp
 			;;
 		a)
 			apply_settings=1
+			;;
+		r)
+			recursive=1
 			;;
 		l)
 			l4b_log_level="${OPTARG^^}"
