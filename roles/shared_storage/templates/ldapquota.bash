@@ -107,7 +107,7 @@ OPTIONS:
 	 r   Recursively (re)apply p and P attributes on Lustre project quota dirs.
 	     WARNING: this will take a long time when there is a lot of data on the file system.
 	     Under normal conditions this should not be necessary, but it can be used to add these attributes in
-	     case they were lost or in case Lustre project quota is turned on later for exsiting data.
+	     case they were lost or in case Lustre project quota is turned on later for existing data.
 	-l   Log level.
 	     Must be one of TRACE, DEBUG, INFO (default), WARN, ERROR or FATAL.
 
