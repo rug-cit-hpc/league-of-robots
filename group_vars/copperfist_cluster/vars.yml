@@ -424,7 +424,7 @@ remote_users_in_local_groups:
 #
 # soft_partitions:
 #   - path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers_incoming
-#     src: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers/sequencers_incoming.disk.img
+#     src: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers_incoming.disk.img
 #     fstype: btrfs             # btrfs supports the 4k formatting and works on sequencers
 #     size: 600                 # in GB
 #     user: sbsuser
