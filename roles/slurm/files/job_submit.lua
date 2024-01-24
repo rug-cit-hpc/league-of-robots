@@ -95,9 +95,11 @@ function account_exists(group)
         "sacctmgr --parsable2 --noheader list accounts format=account account='%s'", group))
     for line in query:lines() do
         if line == group then
+            query:close()
             return true
         end
     end
+    query:close()
     return false
 end
 
@@ -130,9 +132,11 @@ function association_exists(user, group)
         "sacctmgr --parsable2 --noheader list associations format=user,account user='%s' account='%s'", user, group))
     for line in query:lines() do
         if line == user .. '|' .. group then
+            query:close()
             return true
         end
     end
+    query:close()
     return false
 end
 
@@ -151,7 +155,14 @@ function create_association(user,group)
         return false
     else
         slurm.log_info("Created association of user %s to account %s.", user, group)
-        return true
+        --
+        -- Unfortunately there is no way to refresh slurmctld's cache of the associations,
+        -- so this job submission will fail even if the association was created successfully.
+        --
+        --return true
+        slurm.log_user("Added user %s to Slurm account %s, but due to a Slurm account caching bug this job submission will fail.", user, group)
+        slurm.log_user("Please, simply resubmit this job again!")
+        return slurm.ERROR
     end
 end
 
@@ -160,14 +171,12 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
     -- Get details for the user who is trying to submit a job.
     --
     submit_user = posix.getpasswd(submit_uid)
-    
     --
     -- Force jobs to share nodes when they don't consume all resources on a node.
     --
     if job_desc.shared == 0 then
         job_desc.shared = 1
     end
-    
     --
     -- Check if the job does have a time limit specified.
     -- For some reason (bug?), the nil value is passed as 4294967294.
@@ -176,19 +185,6 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
         slurm.log_error("Walltime missing for job named %s from user %s (uid=%u). You must specify a walltime!", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
         slurm.log_user("Walltime missing for job named %s from user %s (uid=%u). You must specify a walltime!", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
     end
-    
-    --
-    -- Select all partitions by default. 
-    -- Which nodes in which partitions can be used by a job is determined by QoS or constraints a.k.a. features.
-    --
-    job_desc.partition = '' -- This will reset the partition list if the user specified any.
-    local part_names = { }
-    for name, part in pairs(part_list) do
-        part_names[#part_names+1] = tostring(name)
-    end
-    job_desc.partition = table.concat(part_names, ',')
-    slurm.log_debug("Assigned partition(s) %s to job named %s from user %s (uid=%u).", tostring(job_desc.partition), tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
-    
     --
     -- Check if we need a specific file system based on path to job's working directory, *.err file or *.out file.
     -- and adjust features/constraints accordingly. Note: these features may conflict with features/constraints requested by the user.
@@ -233,9 +229,6 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
                     slurm.log_debug("Job's features already contained LFS %s.", tostring(lfs))
                 end
             end
-            -- Assign job to account of group, that was defined ^ based on path.
-            job_desc.account = group
-            slurm.log_debug("Assigned job to account of group %s.", group)
         else
             slurm.log_error(
                  "Job's working dir, *.err file or *.out file is not located in /groups/${group}/tmp*/...\n" ..
@@ -250,21 +243,7 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
             return slurm.ERROR
         end
     end
-    slurm.log_debug("Job's features contains: %s.", tostring(job_desc.features))
-    --
-    -- Check if the user submitting the job is associated to a Slurm account in the Slurm accounting database and
-    -- create the relevant Slurm account and/or Slurm user and/or association if it does not already exist.
-    -- Note: as slurm account we use the group that was found last while parsing job_metadata above.
-    --
-    if not ensure_user_has_slurm_association(submit_uid, tostring(submit_user.name), tostring(group)) then
-        slurm.log_error("Failed to create association in the Slurm accounting database for user %s in account/group %s", tostring(submit_user.name), tostring(group))
-        slurm.log_error("Rejecting job named %s from user %s (uid=%u).", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
-        slurm.log_user(
-                 "Failed to create association in the Slurm accounting database. Contact an admin.\n" ..
-                 "Rejecting job named %s from user %s (uid=%u).", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
-        return slurm.ERROR
-    end
-    
+    slurm.log_debug("Job's feature list contains: %s.", tostring(job_desc.features))
     --
     -- Process final list of features:
     --  1. Check if features are specified in the correct format.
@@ -281,13 +260,28 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
             return slurm.ERROR
         end
         slurm.log_info("features requested (%s) for job named %s from user %s (uid=%u). Will try to find suitable QoS...", tostring(features), tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
-        if string.match(features, 'dev') then
-            job_desc.qos = 'dev'
-        elseif string.match(features, 'ds') or string.match(features, 'prm') then
+        if string.match(features, 'ds') or string.match(features, 'prm') then
             job_desc.qos = 'ds'
         end
     end
-    
+    --
+    -- Check if the user submitting the job is associated to a Slurm account in the Slurm accounting database and
+    -- create the relevant Slurm account and/or Slurm user and/or association if it does not already exist.
+    -- Note: as slurm account we use the group that was found last while parsing job_metadata above.
+    --
+    if not ensure_user_has_slurm_association(submit_uid, tostring(submit_user.name), tostring(group)) then
+        slurm.log_error("Failed to create association in the Slurm accounting database for user %s in account/group %s", tostring(submit_user.name), tostring(group))
+        slurm.log_error("Rejecting job named %s from user %s (uid=%u).", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
+        slurm.log_user(
+                 "Failed to create association in the Slurm accounting database. Contact an admin.\n" ..
+                 "Rejecting job named %s from user %s (uid=%u).", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
+        return slurm.ERROR
+    end
+    --
+    -- Assign job to account of group, that was defined based on paths parsed from job's metadata.
+    --
+    job_desc.account = group
+    slurm.log_info("Assigned job named %s from user %s (uid=%u) to account %s.", job_desc.name, tostring(submit_user.name), job_desc.user_id, tostring(group))
     --
     -- Make sure we have a sanity checked base-QoS.
     --
@@ -297,7 +291,7 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
         --
         slurm.log_debug("No QoS level specified for job named %s from user %s (uid=%u). Will try to lookup default QoS...", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
         if job_desc.default_qos == nil then
-            slurm.log_warn("Failed to fetch a default QoS for job named %s from user %s (uid=%u); will use QoS 'regular'.", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
+            slurm.log_info("Failed to fetch a default QoS for job named %s from user %s (uid=%u); will use QoS 'regular'.", tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
             job_desc.qos = 'regular'
         else
             job_desc.qos = job_desc.default_qos
@@ -314,7 +308,6 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
             slurm.log_debug("QoS %s after stripping sub-QoS suffix.", tostring(job_desc.qos), tostring(qos_suffix .. '$'))
         end
     end
-    
     --
     -- Assign the right sub-QoS to the job.
     --
@@ -329,7 +322,6 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
             break
         end
     end
-    
     --
     -- Sanity check if a valid sub-QOS has been found.
     --
@@ -342,9 +334,35 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
     else
         slurm.log_info("Assigned QoS %s to job named %s from user %s (uid=%u).", new_qos, job_desc.name, tostring(submit_user.name), job_desc.user_id)
     end
-    
+    --
+    -- Select all eligible partitions by default.
+    -- Which nodes in which partitions can be used by a job is determined by QoS or constraints a.k.a. features.
+    --
+    job_desc.partition = '' -- This will reset the partition list if the user specified any.
+    local part_names = { }
+    for name, part in pairs(part_list) do
+        slurm.log_debug("Parsed partition %s with AllowQos %s and DenyQos %s.", tostring(name), tostring(part.allow_qos), tostring(part.deny_qos))
+        if part.allow_qos ~= nil then
+            if string.match(part.allow_qos, job_desc.qos) then
+                part_names[#part_names+1] = tostring(name)
+                slurm.log_debug("QoS %s listed in AllowQos %s: Assigned partition %s to job.", tostring(job_desc.qos), tostring(part.allow_qos), tostring(name))
+            end
+        elseif part.deny_qos ~= nil then
+            if not string.match(part.deny_qos, job_desc.qos) then
+                part_names[#part_names+1] = tostring(name)
+                slurm.log_debug("QoS %s not listed in DenyQos %s: Assigned partition %s to job.", tostring(job_desc.qos), tostring(part.deny_qos), tostring(name))
+            end
+        else
+            --
+            -- No AllowQos nor DenyQos specified for this partition: let's use it.
+            --
+            part_names[#part_names+1] = tostring(name)
+            slurm.log_debug("No AllowQoS nor DenyQos specified for this partition: Assigned partition %s to job.", tostring(name))
+        end
+    end
+    job_desc.partition = table.concat(part_names, ',')
+    slurm.log_info("Assigned partition(s) %s to job named %s from user %s (uid=%u).", tostring(job_desc.partition), tostring(job_desc.name), tostring(submit_user.name), job_desc.user_id)
     return slurm.SUCCESS
-    
 end
 
 function slurm_job_modify(job_desc, job_rec, part_list, modify_uid)
