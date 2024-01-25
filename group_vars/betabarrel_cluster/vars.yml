@@ -256,6 +256,10 @@ regular_users:
     groups: ['umcg-gst', "{{ functional_users_group }}"]
   - user: 'umcg-gst-dm'
     groups: ['umcg-gst', "{{ functional_users_group }}"]
+  - user: 'umcg-lab-ateambot'
+    groups: ['umcg-lab', "{{ functional_users_group }}"]
+  - user: 'umcg-lab-dm'
+    groups: ['umcg-lab', "{{ functional_users_group }}"]
   - user: 'umcg-labgnkbh-ateambot'
     groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
   - user: 'umcg-labgnkbh-dm'
@@ -319,6 +323,14 @@ sudoers:
     become: 'umcg-gst-dm'
     name: 'umcg-gst-dm'
     command: 'ALL'
+  - who: ['%umcg-lab']
+    become: 'umcg-lab-ateambot'
+    name: 'umcg-lab-ateambot'
+    command: 'ALL'
+  - who: ['%umcg-lab']
+    become: 'umcg-lab-dm'
+    name: 'umcg-lab-dm'
+    command: 'ALL'
   - who: ['%umcg-labgnkbh']
     become: 'umcg-labgnkbh-ateambot'
     name: 'umcg-labgnkbh-ateambot'
@@ -326,7 +338,7 @@ sudoers:
   - who: ['%umcg-labgnkbh']
     become: 'umcg-labgnkbh-dm'
     name: 'umcg-labgnkbh-dm'
-    command: 'ALL'    
+    command: 'ALL'
   - who: ['%umcg-patho']
     become: 'umcg-patho-ateambot'
     name: 'umcg-patho-ateambot'
