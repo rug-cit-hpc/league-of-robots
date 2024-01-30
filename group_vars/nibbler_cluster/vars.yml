@@ -260,6 +260,7 @@ regular_groups:
   - 'umcg-rehabilitation'
   - 'umcg-reki'
   - 'umcg-solve-rd'
+  - 'umcg-sommer'
   - 'umcg-sysops'
   - 'umcg-tifn'
   - 'umcg-ukb'
@@ -360,6 +361,8 @@ regular_users:
     groups: ['umcg-reki']
   - user: 'umcg-solve-rd-dm'
     groups: ['umcg-solve-rd']
+  - user: 'umcg-sommer-dm'
+    groups: ['umcg-sommer']
   - user: 'umcg-sysops-dm'
     groups: ['umcg-sysops']
   - user: 'umcg-tifn-dm'
@@ -559,6 +562,10 @@ sudoers:
     become: 'umcg-solve-rd-dm'
     name: 'umcg-solve-rd-dm'
     command: 'ALL'
+ - who: ['%umcg-sommer-dms']
+    become: 'umcg-sommer-dm'
+    name: 'umcg-sommer-dm'
+    command: 'ALL'
   - who: ['%umcg-sysops']
     become: 'umcg-sysops-dm'
     name: 'umcg-sysops-dm'
@@ -614,7 +621,7 @@ volume_group_folders: [
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb',
-        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-reki', 'umcg-solve-rd', 'umcg-sysops',
+        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-reki', 'umcg-solve-rd', 'umcg-sommer', 'umcg-sysops',
         'umcg-tifn', 'umcg-ukb', 'umcg-ugli', 'umcg-verbeek', 'umcg-vdakker', 'umcg-visclasataxia', 'umcg-weersma',
         'umcg-wijmenga'
       ]},
@@ -736,6 +743,8 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-solve-rd
         mode: '2750'
+      - name: umcg-sommer
+        mode: '2750'
       - name: umcg-sysops
         mode: '2750'
       - name: umcg-tifn
@@ -800,6 +809,7 @@ lfs_mounts:
       - name: umcg-rehabilitation
       - name: umcg-reki
       - name: umcg-solve-rd
+      - name: umcg-sommer
       - name: umcg-sysops
       - name: umcg-tifn
       - name: umcg-ukb
@@ -853,6 +863,7 @@ lfs_mounts:
       - name: umcg-radicon
       - name: umcg-rehabilitation
       - name: umcg-solve-rd
+      - name: umcg-sommer
       - name: umcg-sysops
       - name: umcg-tifn
       - name: umcg-ukb
