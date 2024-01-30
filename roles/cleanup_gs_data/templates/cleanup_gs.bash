@@ -11,7 +11,7 @@ dateInSecNow=$(date +%s)
 for dir in $(find ${dirToCheck} -maxdepth 1 -type d | sort -r)
 do
 	#Check ctime instead of mtime and remove /groups from dir to be able to look it up is fs
-	creationTime=$(debugfs -R 'stat '${dir#*/*/} /dev/vdb | awk '/crtime/{print $2}' FS='--')
+	creationTime=$(/sbin/debugfs -R 'stat '${dir#*/*/} /dev/vdb | awk '/crtime/{print $2}' FS='--')
 	creationTimeSeconds=$(date -d"${creationTime}" +%s)
 
 	if [[ ! $(ls -A "${dir}") ]]
