@@ -1,7 +1,7 @@
 #jinja2: trim_blocks:True, lstrip_blocks: True
 ---
 ssh_client_jumphosts:
-{% for jumphost in groups['jumphost'] %}
+{% for jumphost in groups['jumphost'] | default([]) %}
   {% set network_id = ip_addresses[jumphost]
            | dict2items
            | json_query('[?value.fqdn].key')
