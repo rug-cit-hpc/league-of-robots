@@ -49,7 +49,7 @@
       value: 0
     - name: net.ipv6.conf.default.accept_redirects
       value: 0
-    - name:  net.ipv4.tcp_syncookies
+    - name: net.ipv4.tcp_syncookies
       value: 1
     - name: net.ipv4.conf.all.rp_filter
       value: 1
