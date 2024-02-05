@@ -1,11 +1,6 @@
 ---
 # Logs CA key name: 'development', 'research' or 'diagnostics'
 logs_ca_name: 'development'
-
-firewall_allowed_tcp_ports:
-  - "22"                  # SSH.
-  - "{{ rsyslog_port | default('41514') }}"  # defined in inventory
-
 # If possible (higly recommended) define this variables in the group variables,
 # since both playbooks 'rsyslog_server' and 'rsyslog_client' are both using it
 rsyslog_remote_path_key_dir: "/etc/pki/tls/private/"
