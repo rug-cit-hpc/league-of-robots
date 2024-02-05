@@ -26,6 +26,19 @@
     mode: '0644'
   become: true
 
+- name: 'Set default umask 027 for all logins.'
+  ansible.builtin.lineinfile:
+    path: '/etc/login.defs'
+    regexp: '^UMASK(\s+)'
+    line: "UMASK\t\t027"
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
+  become: true
+
 - name: 'Install dependencies.'
   ansible.builtin.package:
     state: 'latest'
