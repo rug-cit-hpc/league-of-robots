@@ -95,7 +95,7 @@
   when:
     - ansible_facts.services is defined
     # The ansible.builtin.service_facts task only registers systemd units with names that ends in .service
-    # Therefore we assume pcscd.socket also exists is pcscd.service exists in ansible_facts.services.
+    # Therefore we assume pcscd.socket also exists if pcscd.service exists in ansible_facts.services.
     - "'pcscd.service' in ansible_facts.services"
   become: true
 ...

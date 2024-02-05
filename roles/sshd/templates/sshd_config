@@ -81,11 +81,28 @@ SyslogFacility AUTHPRIV
 LogLevel VERBOSE
 
 #
+# Connection settings.
+#
+X11Forwarding no
+ClientAliveInterval 300
+LoginGraceTime {{ sshd_login_grace_time }}
+MaxSessions {{ sshd_max_sessions }}
+Compression delayed
+
+#
+# Override default of no subsystems
+# and log sftp level file access that would not be easily logged otherwise.
+#
+Subsystem sftp /usr/libexec/openssh/sftp-server -f AUTHPRIV -l INFO -u 0027
+
+#
 # Authentication methods.
 #
 #  * Never allow direct root login: We have admin users who can sudo.
 #    (see users.yml in the league-of-robots repo)
 #  * Disable password based auth.
+#  * Disable Kerberos and GSSAPI based auth.
+#  * Disable host based auth.
 #  * Enable key pair based auth.
 #    * Fetch public keys from LDAP
 #    * Disable local keys stored in ~/.ssh/ folders except for local admin accounts.
@@ -96,6 +113,7 @@ PasswordAuthentication no
 PermitEmptyPasswords no
 GSSAPIAuthentication no
 GSSAPICleanupCredentials no
+KerberosAuthentication no
 PubkeyAuthentication yes
 {% if inventory_hostname in totp.machines | default([])
    or inventory_hostname in pam_weblogin.machines | default([]) %}
@@ -105,20 +123,9 @@ AuthenticationMethods publickey,keyboard-interactive
 ChallengeResponseAuthentication no
 AuthenticationMethods publickey
 {% endif %}
-
-#
-# Connection settings.
-#
-X11Forwarding no
-ClientAliveInterval 300
-LoginGraceTime {{ sshd_login_grace_time }}
-MaxSessions {{ sshd_max_sessions }}
-
-#
-# Override default of no subsystems
-# and log sftp level file access that would not be easily logged otherwise.
-#
-Subsystem sftp /usr/libexec/openssh/sftp-server -f AUTHPRIV -l INFO -u 0027
+HostbasedAuthentication no
+IgnoreUserKnownHosts yes
+IgnoreRhosts yes
 
 {% if use_ldap | default(true) | bool %}
 #
