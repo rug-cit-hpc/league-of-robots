@@ -1,0 +1,19 @@
+---
+- name: Disable CtrlAltDelBurstAction in /etc/systemd/system.conf.
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/system.conf
+    regexp: '(?i)^#?CtrlAltDelBurstAction'
+    line: 'CtrlAltDelBurstAction=none'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  become: true
+
+- name: Disable systemd ctrl-alt-del.target
+  ansible.builtin.systemd:
+    name: ctrl-alt-del.target
+    enabled: false
+    masked: true
+    daemon_reload: true
+  become: true
+...
