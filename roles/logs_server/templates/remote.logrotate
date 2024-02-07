@@ -27,4 +27,8 @@
     postrotate
         /usr/bin/systemctl kill -s HUP rsyslog.service >/dev/null 2>&1 || true
     endscript
+    # logrotate only files above 1 byte. Without this option, it will rotate
+    # empty files - compressing it = makin 20 bytes .gz file, in replace it
+    # will create empty file again ... which is logrotated next time
+    minsize 1
 }

@@ -193,3 +193,14 @@ Match Group {{ data_transfer_only_group }} LocalPort 443
     PermitTTY no
     ForceCommand /bin/rsync --server --daemon --config=/etc/rsyncd_data_transfer_only_group.conf .
 {% endif %}
+
+{% if inventory_hostname in groups['logs'] | default([]) %}
+#
+# On logs server: configure rysncd module for logstoprm 
+#
+Match User {{ logstoprm.username }} LocalPort 22
+    AllowAgentForwarding no
+    AllowTcpForwarding no
+    PermitTTY no
+    ForceCommand /bin/rsync --server --daemon --config=/etc/rsyncd_logstoprm_server.conf .
+{% endif %}
