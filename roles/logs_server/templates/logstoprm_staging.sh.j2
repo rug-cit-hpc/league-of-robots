@@ -1,0 +1,44 @@
+#!/bin/bash
+
+destination_dir="{{ logstoprm.rsyncd_dir }}"
+
+# {% raw %}
+
+# starting variables
+source_dir="/var/log/remote/"
+
+# check the rest of environment
+test -d "${source_dir}" || \
+  { echo "error directory ${source_dir} does not exist or has wrong permissions" ; exit 1; }
+test -d "${destination_dir}" || \
+  { echo "error directory ${destination_dir} does not exist or has wrong permissions" ; exit 1; }
+
+# main
+cd "${source_dir}"
+
+# - copy, don't move the files
+# - change the ownership
+# - ignore files smaller than 20byes as they are compressed empty files (plus
+#   20 bytes can not contain enough information to help with anything)
+# - copy only files older than 7 days
+# - change ownership: owner=root and group=logstoprm
+# - change permissions for group to read-only
+find ./ -type f -mtime +7 -exec rsync -aR --min-size=21 --chown=root:{% endraw %}{{ logstoprm.group }}{% raw %} --chmod=D750,F640 ./{} /mnt/logstoprm/ \;
+
+#rsync -ar --min-size=21 --chown=root:{% endraw %}{{ logstoprm.group }}{% raw %} --chmod=D750,F640 ${source_dir}/./ ${destination_dir}
+#find . -size +21c -type f -name "*.gz" \
+#   -exec rsync --chown root:{% endraw %}{{ logstoprm.group }}{% raw %} --chmod=D750,F640 {} ${destination_dir} \; \
+#find . -type d -exec chown root:{% endraw %}{{ logstoprm.group }}{% raw %} -R 750 ${destination_dir} \;
+
+# the folder are created while copying, so permissions need to be additionally fixed
+cd ${destination_dir}
+
+
+# TODO
+# - clean zero bytes logs files that have not been changed for more than a week
+#   (logrotate already compressed the logs and left the empty sized ones for
+#   longer time - which should be removed after a while)
+# - remove all old logs after 6 months - in this time they should be copied
+#   anyway
+
+# {% endraw %}

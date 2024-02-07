@@ -30,6 +30,14 @@ local_admin_users:
   - 'pieter'
   - 'sandi'
 
+# a logs collecting variables
+logstoprm:
+  username: 'logstoprm'
+  group: 'logstoprm'
+  pub_key: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDDyh6vTVmfD5oPdKO/9D8q2hAwVJcDOsGMfb9WSI3do scimerman'
+  rsyncd_dir: '/mnt/logstoprm'
+  cron_disabled: false
+
 use_ldap: false
 create_ldap: false
 use_sssd: false
