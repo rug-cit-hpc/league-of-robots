@@ -143,6 +143,7 @@ regular_groups:
   - 'umcg-gap'
   - 'umcg-gastrocol'
   - 'umcg-gcc'
+  - 'umcg-gdi'
   - 'umcg-gdio'
   - 'umcg-gonl'
   - 'umcg-griac'
@@ -220,6 +221,8 @@ regular_users:
     groups: ['umcg-gastrocol']
   - user: 'umcg-gcc-dm'
     groups: ['umcg-gcc']
+  - user: 'umcg-gdi-dm'
+    groups: ['umcg-gdi']
   - user: 'umcg-gdio-dm'
     groups: ['umcg-gdio']
   - user: 'umcg-gonl-dm'
@@ -372,6 +375,10 @@ sudoers:
   - who: ['%umcg-gcc']
     become: 'umcg-gcc-dm'
     name: 'umcg-gcc-dm'
+    command: 'ALL'
+  - who: ['%umcg-gdi-dms']
+    become: 'umcg-gdi-dm'
+    name: 'umcg-gdi-dm'
     command: 'ALL'
   - who: ['%umcg-gdio-dms']
     become: 'umcg-gdio-dm'
@@ -555,6 +562,7 @@ lfs_mounts:
       - name: umcg-gap
       - name: umcg-gastrocol
       - name: umcg-gcc
+      - name: umcg-gdi
       - name: umcg-gdio
       - name: umcg-gonl
         mode: '2750'
@@ -620,6 +628,7 @@ lfs_mounts:
       - name: umcg-gap
       - name: umcg-gastrocol
       - name: umcg-gcc
+      - name: umcg-gdi
       - name: umcg-gdio
       - name: umcg-gonl
       - name: umcg-griac
@@ -673,6 +682,7 @@ lfs_mounts:
       - name: umcg-gap
       - name: umcg-gastrocol
       - name: umcg-gcc
+      - name: umcg-gdi
       - name: umcg-gdio
       - name: umcg-gonl
       - name: umcg-griac
@@ -726,6 +736,7 @@ lfs_mounts:
       - name: umcg-gap
       - name: umcg-gastrocol
       - name: umcg-gcc
+      - name: umcg-gdi
       - name: umcg-gdio
       - name: umcg-gonl
       - name: umcg-griac
