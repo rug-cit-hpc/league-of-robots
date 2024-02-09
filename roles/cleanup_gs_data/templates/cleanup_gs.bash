@@ -44,7 +44,7 @@ do
 			elif [[ $(((${dateInSecNow} - ${creationTimeSeconds}) / 86400)) -gt 7 ]]
 			then
 				echo "${dir} is older than 7 days, notification will be send"
-				dirdate=$(date -r "${creationTime}")
+				dirdate=$(date -d "${creationTime}")
 				delete_date=$(date -d "${dirdate} +14 days")
 
 				#
