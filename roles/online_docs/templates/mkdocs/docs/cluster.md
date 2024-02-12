@@ -10,7 +10,8 @@ The jobs are submitted to a workload manager, which distributes them efficiently
 
 The key features of the {{ slurm_cluster_name | capitalize }} cluster include:
 
- * Linux OS: [CentOS](https://www.centos.org/) 7.x
+ * Linux OS: [{{ hostvars[groups['user_interface'][0]]['ansible_distribution'] }}]({{ external_hrefs[hostvars[groups['user_interface'][0]]['ansible_distribution']] }})
+   version {{ hostvars[groups['user_interface'][0]]['ansible_distribution_version'] }}
    {% if repo_manager | default('none') != 'none' %}with [{{ repo_manager | capitalize }}]({{ external_hrefs[repo_manager] }}) for package distribution/management{% endif %}.
  * Completely virtualised on an [OpenStack](https://www.openstack.org/) cloud.
  * Deployment of HPC cluster with [Ansible playbooks](https://docs.ansible.com/ansible/latest/index.html) under version control in a Git repo: [league-of-robots](https://github.com/rug-cit-hpc/league-of-robots)
