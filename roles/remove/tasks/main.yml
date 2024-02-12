@@ -28,6 +28,7 @@
     name:
       - tuned
       - polkit  # Security risk due to bug and we don't need it!
+      - polkit-pkla-compat # polkit dependency.
       - cockpit-system  # EL9 only
       - cockpit-bridge  # EL9 only
       - cockpit-ws  # EL9 only
