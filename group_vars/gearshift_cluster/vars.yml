@@ -181,6 +181,8 @@ regular_users:
     groups: ['umcg-aad']
   - user: 'umcg-capicebot'
     groups: ['umcg-as']
+  - user: 'umcg-vipbot'
+    groups: ['umcg-as']
   - user: 'umcg-as-dm'
     groups: ['umcg-as']
   - user: 'umcg-atd-ateambot'
@@ -291,6 +293,10 @@ sudoers:
   - who: ['%umcg-as']
     become: 'umcg-capicebot'
     name: 'umcg-capicebot'
+    command: 'ALL'
+  - who: ['%umcg-as']
+    become: 'umcg-vipbot'
+    name: 'umcg-vipbot'
     command: 'ALL'
   - who: ['%umcg-as']
     become: 'umcg-as-dm'
