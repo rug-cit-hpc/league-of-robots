@@ -11,7 +11,7 @@
         fixed_ips:
           #
           # We must specify the subnet ID in addition to the IP address in order for the openstack.cloud.port task to be idempotent.
-          # When the task is not idempotent it will fail to update ports in certain external network,
+          # When the task is not idempotent it will fail to update ports in certain external networks,
           # because we are allowed to create new ports but cannot update existing ones.
           # Theoretically a network can have multiple subnets in OpenStack,
           # but we do not have/use any networks with multiple subnets yet and simply use the first subnet for the required network.
