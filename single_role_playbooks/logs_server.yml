@@ -2,6 +2,7 @@
 - name: Running > logs_server < role
   hosts: logs
   roles:
+    - regular_users
     - sshd
     - rsyncd
     - logs_server

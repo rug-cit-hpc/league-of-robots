@@ -1,39 +1,14 @@
 ---
-- name: 'Create local group for serving the logs via rsnycd'
-  ansible.builtin.group:
-    name: "{{ logstoprm.group }}"
-    state: present
-  become: true
-
-- name: 'Create local user to server the logs via rsyncd'
-  ansible.builtin.user:
-    name: "{{ logstoprm.username }}"
-    group: "{{ logstoprm.group }}"
-    comment: "Logs collecting user for rsyncd"
-    shell: "/bin/bash"
-    password: "!"
-    create_home: true
-    append: false
-  become: true
-
-- name: 'Deploy authorized keys for logs collecting user'
-  ansible.posix.authorized_key:
-    user: "{{ logstoprm.username }}"
-    key: "{{ logstoprm.pub_key }}"
-    state: present
-    exclusive: true
-  become: true
-
 - name: 'Create a directory to place logs with cron and to be collected by rsync module'
   ansible.builtin.file:
     path: '{{ logstoprm.rsyncd_dir }}'
     state: directory
-    mode: '0550'
-    owner: '{{ logstoprm.username }}'
+    mode: '0750'
+    owner: 'root'
     group: '{{ logstoprm.group }}'
   become: true
 
-- name: 'Install cronjobt that stages logs for prm transfer'
+- name: 'Install cronjob that stages logs for prm transfer'
   ansible.builtin.template:
     src: "templates/logstoprm_staging.sh.j2"
     dest: '/root/logstoprm_staging.sh'
