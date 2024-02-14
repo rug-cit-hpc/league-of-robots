@@ -80,6 +80,8 @@ auth_groups:
     gid: 20019
   umcg-pr:
     gid: 20020
+  umcg-logstoprm:
+    gid: 20021
   MEDGEN-NFG GCC Analyse Team:
     gid: 4560734
 #
