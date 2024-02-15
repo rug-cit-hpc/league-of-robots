@@ -3,6 +3,7 @@
   hosts: logs
   roles:
     - regular_users
+    - iptables
     - sshd
     - rsyncd
     - logs_server
