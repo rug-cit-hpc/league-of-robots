@@ -187,6 +187,7 @@ all:
             - 'umcg-gsad'
             - 'umcg-gst'
             - 'umcg-labgnkbh'
+            - 'umcg-logstoprm'
             - 'umcg-patho'
             - 'umcg-pr'
             - 'umcg-vipt'
