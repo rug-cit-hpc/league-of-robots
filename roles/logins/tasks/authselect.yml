@@ -62,7 +62,6 @@
     - inventory_hostname in groups['jumphost'] | default([]) or
       inventory_hostname in groups['data_transfer'] | default([])
     - hostvars[inventory_hostname]['ansible_mounts'] | selectattr('mount', 'equalto', '/') | map(attribute='fstype') | first == 'xfs'
-
   become: true
 
 - name: "Force enable authselect {{ stack_name }} profile."
