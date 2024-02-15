@@ -45,7 +45,7 @@ do
 			then
 				echo "${dir} is older than 7 days, notification will be send"
 				dirdate=$(date -d "${creationTime}")
-				delete_date=$(date -d "${dirdate} +14 days")
+				delete_date=$(date -d "${dirdate} +15 days")
 
 				#
 				# Compile JSON message payload.
