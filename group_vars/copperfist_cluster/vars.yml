@@ -692,6 +692,8 @@ smb_server_shares:
   - name: ngs
     comment: Share for sequencers
     # path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers_incoming
+    # file_mode: '0660'
+    # dir_mode: '0770'
     path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers
     users: sbsuser
     file_mode: '0640'
@@ -703,6 +705,7 @@ smb_server_shares:
         owner: sbsuser
         group: umcg-lab
         mode: '2750'
+        # mode: '2770'
   - name: array
     comment: Share for array scanners
     path: /mnt/local_raid/groups/umcg-gap/tmp06/rawdata/array/IDAT

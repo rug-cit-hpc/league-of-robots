@@ -718,14 +718,14 @@ smb_server_shares:
     comment: Share for sequencers
     path: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07/sequencers_incoming
     users: sbsuser
-    file_mode: '0640'
-    dir_mode: '0750'
+    file_mode: '0660'
+    dir_mode: '0770'
     base: /mnt/umcgst04_slice1/groups/umcg-lab/tmp07  # This will not be created by the smb_server role and must already exist.
     subtree:  # This will be created if it does not already exist.
       - path: sequencers_incoming
         owner: sbsuser
         group: umcg-lab
-        mode: '2750'
+        mode: '2770'
   - name: array
     comment: Share for array scanners
     path: /mnt/umcgst04_slice1/groups/umcg-gap/tmp07/rawdata/array/IDAT
