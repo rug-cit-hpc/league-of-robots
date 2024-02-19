@@ -3,7 +3,7 @@
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
-    mode: '0550'        # protect as much as possible accidental writing into this folder
+    mode: '0550'        # protect (as much as possible) from accidental writing into this folder
     owner: root
     group: root
     # attributes: +i    # man chattr / prevent from anyone to write to this disk
@@ -14,7 +14,7 @@
   with_items: "{{ soft_partitions }}"
   become: true
 
-- name: Create a disk image file, to be later formated and mounted - this will take a lot of time ...
+- name: Create a disk image file - this will take a lot of time ...
   community.general.filesize:
     path: "{{ item.src }}"
     size: "{{ item.size }}G"
@@ -28,7 +28,7 @@
     - inventory_hostname in item.hostname | default([])
   become: true
 
-- name: Create filesystem in the disk image.
+- name: Create filesystem on the disk image
   community.general.filesystem:
     force: false        # prevent formatting the existing filesystem!
     fstype: "{{ item.fstype }}"
@@ -39,7 +39,7 @@
     - inventory_hostname in item.hostname | default([])
   become: true
 
-- name: Mount a loop volume
+- name: Mount a loop volume from disk image
   ansible.posix.mount:
     src: "{{ item.src }}"
     path: "{{ item.path }}"
