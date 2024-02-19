@@ -431,7 +431,7 @@ remote_users_in_local_groups:
 #     size: 600                 # in GB
 #     user: sbsuser
 #     group: umcg-lab
-#     mode: 2750
+#     mode: 2770
 #     hostname: copperfist
 #
 # Local storage variables.
