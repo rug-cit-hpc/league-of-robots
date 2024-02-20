@@ -52,12 +52,6 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
-  - group: all
-    nodes:
-      - name: gattaca01
-        network: public
-      - name: gattaca02
-        network: public
   - group: betabarrel_cluster
     nodes:
       - name: betabarrel
