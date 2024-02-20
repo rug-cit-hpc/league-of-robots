@@ -67,7 +67,7 @@ ip_addresses:
       netmask: '/32'
       fqdn: 'gaf.gcc.rug.nl'
   bb-dragen:
-    public:
+    vlan990:
       address: '192.168.1.61'
       netmask: '/32'
   cf-dragen:
