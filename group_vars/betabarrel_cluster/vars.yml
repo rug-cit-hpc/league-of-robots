@@ -321,11 +321,11 @@ sudoers:
     become: 'umcg-gst-dm'
     name: 'umcg-gst-dm'
     command: 'ALL'
-  - who: ['%umcg-lab']
+  - who: ['%umcg-lab-dms']
     become: 'umcg-lab-ateambot'
     name: 'umcg-lab-ateambot'
     command: 'ALL'
-  - who: ['%umcg-lab']
+  - who: ['%umcg-lab-dms']
     become: 'umcg-lab-dm'
     name: 'umcg-lab-dm'
     command: 'ALL'

@@ -1,0 +1,19 @@
+---
+- name: 'Patch /usr/lib/systemd/user-preset/90-default-user.preset to disable unused units.'
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/user-preset/90-default-user.preset
+    create: false
+    state: present
+    regexp: '#?(dis|en)able\s*{{ item }}'
+    line: 'disable {{ item }}'
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - pipewire.socket
+    - pipewire-pulse.socket
+    - pipewire-media-session.service
+    - wireplumber.service
+    - obex.service
+  become: true
+...

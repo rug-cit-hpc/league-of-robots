@@ -197,7 +197,7 @@ stack_networks:
       - 172.23.60.163/32  # Lustre server
       - 172.23.60.164/32  # Lustre server
     type: storage
-    external: false
+    external: true
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.
@@ -334,11 +334,11 @@ sudoers:
     become: 'umcg-gst-dm'
     name: 'umcg-gst-dm'
     command: 'ALL'
-  - who: ['%umcg-lab']
+  - who: ['%umcg-lab-dms']
     become: 'umcg-lab-ateambot'
     name: 'umcg-lab-ateambot'
     command: 'ALL'
-  - who: ['%umcg-lab']
+  - who: ['%umcg-lab-dms']
     become: 'umcg-lab-dm'
     name: 'umcg-lab-dm'
     command: 'ALL'

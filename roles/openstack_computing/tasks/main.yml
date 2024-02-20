@@ -2,6 +2,24 @@
 # Create network ports, volumes and finally instances a.k.a. servers.
 #
 ---
+#
+# Get networks and routers from API.
+#
+# Note: we fetch info for all networks and reouters relevant or not
+# as filtering directly during the API call is problematic.
+# Will filter the results for the relevant info later on.
+#
+- name: Get info on networks from OpenStack API.
+  openstack.cloud.networks_info:
+  register: api_network_info
+  run_once: true
+- name: Get info on routers from OpenStack API.
+  openstack.cloud.routers_info:
+  register: api_router_info
+  run_once: true
+#
+# Create the servers.
+#
 - name: Create network ports, volumes and servers.
   ansible.builtin.include_tasks:
     file: servers.yml
@@ -17,14 +35,6 @@
 - name: Get info on floating IPs from OpenStack API.
   openstack.cloud.floating_ip_info:
   register: api_fip_info
-  run_once: true
-- name: Get info on networks from OpenStack API.
-  openstack.cloud.networks_info:
-  register: api_network_info
-  run_once: true
-- name: Get info on routers from OpenStack API.
-  openstack.cloud.routers_info:
-  register: api_router_info
   run_once: true
 - name: Get server info from OpenStack API.
   openstack.cloud.server_info:

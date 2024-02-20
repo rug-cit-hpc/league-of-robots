@@ -9,7 +9,15 @@
         security_groups: "{{ item.security_group }}"
         binding_vnic_type: "{{ hostvars[inventory_hostname]['host_type'] | default('normal') }}"
         fixed_ips:
+          #
+          # We must specify the subnet ID in addition to the IP address in order for the openstack.cloud.port task to be idempotent.
+          # When the task is not idempotent it will fail to update ports in certain external networks,
+          # because we are allowed to create new ports but cannot update existing ones.
+          # Theoretically a network can have multiple subnets in OpenStack,
+          # but we do not have/use any networks with multiple subnets yet and simply use the first subnet for the required network.
+          #
           - ip_address: "{{ ip_addresses[inventory_hostname][item.name]['address'] }}"
+            subnet_id: "{{ api_network_info['networks'] | selectattr('name', 'equalto', item.name) | map(attribute='subnet_ids') | first | first }}"
         wait: true
         timeout: "{{ openstack_api_timeout }}"
       with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
