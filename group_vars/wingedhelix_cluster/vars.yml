@@ -52,12 +52,6 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
-  - group: all
-    nodes:
-      - name: gattaca01
-        network: public
-      - name: gattaca02
-        network: public
   - group: betabarrel_cluster
     nodes:
       - name: betabarrel
@@ -340,11 +334,11 @@ sudoers:
     become: 'umcg-gst-dm'
     name: 'umcg-gst-dm'
     command: 'ALL'
-  - who: ['%umcg-lab']
+  - who: ['%umcg-lab-dms']
     become: 'umcg-lab-ateambot'
     name: 'umcg-lab-ateambot'
     command: 'ALL'
-  - who: ['%umcg-lab']
+  - who: ['%umcg-lab-dms']
     become: 'umcg-lab-dm'
     name: 'umcg-lab-dm'
     command: 'ALL'
