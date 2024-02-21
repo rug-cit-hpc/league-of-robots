@@ -17,14 +17,14 @@
 sshd_algorithms:
   centos7:
     # Temporarily disable chacha20-poly1305@openssh.com due to Terrapin Attack: https://terrapin-attack.com/
-    #ciphers: chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+    # ciphers: chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
     ciphers: aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
     kexes: curve25519-sha256@libssh.org,curve25519-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256
     macs: hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com
     keys: ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,ssh-rsa,ssh-rsa-cert-v01@openssh.com
 sshd_crypto_policies:
   - CUSTOM
-  - CVE-2023-48795
+  - CVE-2023-48795 # Terrapin Attack: https://terrapin-attack.com/
 sshd_moduli_minimum: 3072
 data_transfer_only_group: sftp-only
 #
