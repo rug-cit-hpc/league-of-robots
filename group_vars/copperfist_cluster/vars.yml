@@ -45,10 +45,8 @@ additional_etc_hosts:
         network: vlan16
   - group: all
     nodes:
-      - name: gattaca01
-        network: public
-      - name: gattaca02
-        network: public
+      - name: cf-dragen
+        network: vlan990
   - group: betabarrel_cluster
     nodes:
       - name: betabarrel
