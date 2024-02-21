@@ -55,7 +55,36 @@
     file: enable_pam_weblogin.yml
   when: inventory_hostname in pam_weblogin.machines | default([])
 
-- name: Deploy sshd config.
+- name: Deploy config files for patched system wide crypto policies.
+  ansible.builtin.template:
+    src: "{{ item }}.pmod"
+    dest: "/etc/crypto-policies/policies/modules/{{ item }}.pmod"
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ sshd_crypto_policies }}"
+  notify: update-crypto-policies
+  become: true
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
+
+- name: Disable extra sshd config files we do not want to use.
+  ansible.builtin.shell:
+    cmd: |
+         mv "/etc/ssh/sshd_config.d/{{ item }}"{,.disabled}
+    removes: "/etc/ssh/sshd_config.d/{{ item }}"
+    creates: "/etc/ssh/sshd_config.d/{{ item }}.disabled"
+  loop:
+    - 50-cloud-init.conf
+    - 50-redhat.conf
+  notify: restart_sshd
+  become: true
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
+
+- name: Deploy main sshd config.
   ansible.builtin.template:
     src: templates/sshd_config
     dest: /etc/ssh/sshd_config
@@ -66,6 +95,26 @@
   notify: restart_sshd
   become: true
 
+- name: Deploy extra sshd config to use patched system wide crypto policy.
+  ansible.builtin.template:
+    src: 50-crypto-policies.conf
+    dest: /etc/ssh/sshd_config.d/50-crypto-policies.conf
+    owner: root
+    group: root
+    mode: '0644'
+    validate: '/usr/sbin/sshd -T -C user=root -C host=localhost -C addr=localhost -C lport=22 -f %s'
+  notify: restart_sshd
+  become: true
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
+
+#
+# All Diffie-Hellman moduli used for diffie-hellman-group-exchange-sha256 should be at least sshd_moduli_minimum bit long.
+# See also man moduli.
+# Moduli are stored in /etc/ssh/moduli
+# The 5th column of this file contains the length of the moduli.
+#
 - name: Check if /etc/ssh/moduli contains weak (small) values.
   ansible.builtin.shell: awk '$5 < {{ sshd_moduli_minimum }}' /etc/ssh/moduli
   register: sshd_register_moduli
