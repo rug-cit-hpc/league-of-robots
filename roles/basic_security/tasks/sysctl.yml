@@ -1,20 +1,14 @@
 ---
-- name: Install sysctl config file to manage kernel parameters upon next reboot.
+- name: Install sysctl config file to manage kernel and network parameters upon next reboot.
   ansible.builtin.template:
-    src: templates/52-ansible-managed-kernel-params.conf
-    dest: /etc/sysctl.d/52-ansible-managed-kernel-params.conf
+    src: "{{ item }}"
+    dest: "/etc/sysctl.d/{{ item }}"
     owner: root
     group: root
     mode: '0644'
-  become: true
-
-- name: Install sysctl config file to manage network parameters upon next reboot.
-  ansible.builtin.template:
-    src: templates/54-ansible-managed-netwerk-params.conf
-    dest: /etc/sysctl.d/54-ansible-managed-netwerk-params.conf
-    owner: root
-    group: root
-    mode: '0644'
+  loop:
+    - 52-ansible-managed-netwerk-params.conf
+    - 54-ansible-managed-kernel-params.conf
   become: true
 
 - name: Modify sysctl kernel parameters right now.
