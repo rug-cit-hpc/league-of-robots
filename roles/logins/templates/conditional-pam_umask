@@ -1,0 +1,22 @@
+#
+# Skip relaxing umask as defined in /etc/login.defs according to "usersgroups" option when
+#   * the UID indicates this is a system account or
+#   * the username ends with -dm indicating this is a functional data manager account.
+#
+session [success=2 default=ignore] pam_succeed_if.so quiet uid <= {{ sys_uid_max | default(999) }}
+session [success=1 default=ignore] pam_succeed_if.so quiet user =~ *-dm 
+session     optional                   pam_umask.so silent usergroups
+#
+# Skip enforcing strict umask as defined in /etc/login.defs when
+#   * the UID indicates this is not a system account or
+#   * the username does not end with -dm indicating this is a regular user account.
+#
+session [success=2 default=ignore] pam_succeed_if.so quiet uid <= {{ sys_uid_max | default(999) }}
+session [success=1 default=ignore] pam_succeed_if.so quiet user !~ *-dm
+session     optional                   pam_umask.so silent
+#
+# Skip enforcing strict umask as defined in /etc/login.defs when
+#   * the UID indicates this is not a system account.
+#
+session [success=1 default=ignore] pam_succeed_if.so quiet uid > {{ sys_uid_max | default(999) }}
+session     optional                   pam_umask.so silent
