@@ -1,4 +1,5 @@
 ---
+os_distribution: 'centos7'
 #
 # Firewall configuration.
 #
