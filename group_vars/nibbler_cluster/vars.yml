@@ -225,7 +225,6 @@ regular_groups:
   - 'umcg-biogen'
   - 'umcg-bionic-mdd-gwama'
   - 'umcg-bios'
-  - 'umcg-cineca'
   - 'umcg-dag3'
   - 'umcg-datateam'
   - 'umcg-ejp-rd'
@@ -284,8 +283,6 @@ regular_users:
     groups: ['umcg-bionic-mdd-gwama']
   - user: 'umcg-bios-dm'
     groups: ['umcg-bios']
-  - user: 'umcg-cineca-dm'
-    groups: ['umcg-cineca']
   - user: 'umcg-dag3-dm'
     groups: ['umcg-dag3']
   - user: 'umcg-datateam-dm'
@@ -400,10 +397,6 @@ sudoers:
   - who: ['%umcg-bios']
     become: 'umcg-bios-dm'
     name: 'umcg-bios-dm'
-    command: 'ALL'
-  - who: ['%umcg-cineca-dms']
-    become: 'umcg-cineca-dm'
-    name: 'umcg-cineca-dm'
     command: 'ALL'
   - who: ['%umcg-dag3-dms']
     become: 'umcg-dag3-dm'
@@ -604,7 +597,7 @@ volume_group_folders: [
     mode: '2770',
     groups: [
         'umcg-aad', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
-        'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
+        'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdi' ,'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb',
@@ -659,8 +652,6 @@ lfs_mounts:
       - name: umcg-bionic-mdd-gwama
         mode: '2750'
       - name: umcg-bios
-        mode: '2750'
-      - name: umcg-cineca
         mode: '2750'
       - name: umcg-dag3
         mode: '2750'
@@ -759,7 +750,6 @@ lfs_mounts:
       - name: umcg-biogen
       - name: umcg-bionic-mdd-gwama
       - name: umcg-bios
-      - name: umcg-cineca
       - name: umcg-dag3
       - name: umcg-datateam
       - name: umcg-ejp-rd
@@ -813,7 +803,6 @@ lfs_mounts:
       - name: umcg-biogen
       - name: umcg-bionic-mdd-gwama
       - name: umcg-bios
-      - name: umcg-cineca
       - name: umcg-dag3
       - name: umcg-datateam
       - name: umcg-ejp-rd
