@@ -36,6 +36,7 @@
     masked: "{{ false if coredumps_enabled | bool else true }}"
     state: "{% if coredumps_enabled is sameas true %}started{% else %}stopped{% endif %}"
     daemon_reload: true
+  retries: 3  # Tends to fail the first time due to some caching issue.
   loop:
     - systemd-coredump.socket
     - kdump.service
