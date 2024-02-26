@@ -136,7 +136,7 @@ all:
     user_interface:
       hosts:
         nibbler:
-          cloud_flavor: m1.xlarge
+          cloud_flavor: 16c64g40d
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
@@ -146,9 +146,9 @@ all:
               security_group: "{{ stack_prefix }}_storage"
             - name: vlan1068
               security_group: "{{ stack_prefix }}_storage"
-          slurm_sockets: 8
+          slurm_sockets: 16
           slurm_cores_per_socket: 1
-          slurm_real_memory: 15884
+          slurm_real_memory: 64263
           slurm_local_disk: 0
           slurm_features: 'prm02,prm03,tmp02'
           slurm_ethernet_interfaces:
