@@ -151,7 +151,7 @@ The following steps must be performed manually for now:
    * Create a new _distribution_ for a _publication_.
    * Update the _publication_ for an existing _distribution_.
 
-##### Upload custom RPMs to Pulp server.
+#### Manual work - Upload custom RPMs to Pulp server.
 
 ```bash
 #
@@ -163,7 +163,7 @@ The following steps must be performed manually for now:
 rsync -av --rsync-path 'sudo -u repoadmin rsync' [os_distribution] [admin]@[jumphost]+[stack_prefix]-repo:/admin/repoadmin/
 ```
 
-##### Manual work on the Pulp server
+#### Manual work - on the Pulp server
 
 The remaining tasks can be performed on the Pulp server in one go with the idempotent function named ```pulp-sync-publish-distribute```,
 which was deployed by the ```pulp_server``` role:
@@ -187,16 +187,7 @@ Alternatively or for debugging issues with ```pulp-sync-publish-distribute``` yo
 Below are code examples for CentOS 7 machines and corresponding repos.
 Note that other distros like Rocky 9 use a different list of repos.
 
-####### Upload custom RPMs to repo server.
-
-```bash
-#
-# This assumes you have the custom RPMs in a local folder named "umcg-centos7".
-#
-rsync -av --rsync-path 'sudo -u repoadmin rsync' umcg-centos7 [admin]@[jumphost]+[stack_prefix]-repo:/admin/repoadmin/
-```
-
-####### Login and become repoadmin user on repo server.
+##### Manual work - on the Pulp server - Login and become repoadmin user on repo server.
 
 ```bash
 ssh [admin]@[jumphost]+[stack_prefix]-repo
@@ -207,7 +198,7 @@ set -u
 pulp status
 ```
 
-####### Add custom content (RPMs) to a the custom repo without remote.
+##### Manual work - on the Pulp server - Add custom content (RPMs) to a the custom repo without remote.
 
 ```bash
 #
@@ -268,7 +259,7 @@ for rpm in $(find umcg-* -name '*.rpm'); do
 done
 ```
 
-####### Declare repo list
+##### Manual work - on the Pulp server - Declare repo list
 
 ```bash
 declare -a pulp_repos_with_remotes
@@ -290,7 +281,7 @@ all_pulp_repos=(
 )
 ```
 
-####### Add remotes to repos.
+##### Manual work - on the Pulp server - Add remotes to repos.
 
 ```bash
 #
@@ -301,7 +292,7 @@ for repo in "${pulp_repos_with_remotes[@]}"; do
 done
 ```
 
-####### Sync repos with remotes.
+##### Manual work - on the Pulp server - Sync repos with remotes.
 
 ```bash
 #
@@ -312,7 +303,7 @@ for repo in "${pulp_repos_with_remotes[@]}"; do
 done
 ```
 
-####### Create/update distributions based on new publications based on new repository versions.
+##### Manual work - on the Pulp server - Create/update distributions based on new publications based on new repository versions.
 
 ```bash
 set -e
