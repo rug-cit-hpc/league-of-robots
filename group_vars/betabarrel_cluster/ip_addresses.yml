@@ -17,7 +17,7 @@ ip_addresses:
     vlan16:
       address: 195.169.22.143
       netmask: /32
-      fqdn: 'NXDOMAIN'
+      fqdn: 'bb-transfer.hpc.rug.nl'
   betabarrel:
     vlan983:
       address: 172.23.41.225
