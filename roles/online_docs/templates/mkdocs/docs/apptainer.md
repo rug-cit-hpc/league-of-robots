@@ -108,9 +108,12 @@ Apptainer container image
 
 ## Building Apptainer images
 
-In order to use apptainer containers, the image first needs to be built. Images can be built on top of another images (they can be local images or from the Docker repository), which can be done without elevated permissions. On the other hand, if an image is being built from scratch with f.e. `yum` installer, the elevated permissions are needed on the system to execute `sudo apptainer build ...`. 
-
-Normally, regular users don't have elevated permissions on multi-user systems, which is also true on {{ slurm_cluster_name | capitalize }}. Section `Building without elevated permissions` describes how to build images without elevated permissions.
+In order to create a new _Apptainer_ container, you will need to build an container image file. Images can be built on top of other images, which can be local images pulled from a repository like [_Docker Hub_](https://hub.docker.com/).
+When the commands used to build the image do not require elevated permissions, then you can build the image on {{ slurm_cluster_name | capitalize }}.
+If on the other hand commands like `sudo dnf install ...` or `sudo apt-get install ...`, which require root permissions, are used in the recipe to build the image,
+then elevated permissions are also needed to build the container image (e.g. `sudo apptainer build ...`).
+Regular users don't have elevated permissions on a multi-user systems like {{ slurm_cluster_name | capitalize }}.
+Section `Building without elevated permissions` describes workarounds how to build images without elevated permissions.
 
 ### Building without elevated permissions
 
