@@ -232,6 +232,7 @@ yum_repos:
   rocky9:
     - file: rocky.repo
       id: baseos
+      mirrorlist: https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=BaseOS-9
       enabled: 1
       gpgcheck: 1
     - file: rocky.repo
@@ -242,6 +243,7 @@ yum_repos:
       enabled: 0
     - file: rocky.repo
       id: appstream
+      mirrorlist: https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=AppStream-9
       enabled: 1
       gpgcheck: 1
     - file: rocky.repo
@@ -252,6 +254,7 @@ yum_repos:
       enabled: 0
     - file: rocky.repo
       id: crb
+      mirrorlist: https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=CRB-9
       enabled: 1
       gpgcheck: 1
     - file: rocky.repo
@@ -334,6 +337,7 @@ yum_repos:
     #
     - file: rocky-extras.repo
       id: extras
+      mirrorlist: https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=extras-9
       enabled: 1
       gpgcheck: 1
     - file: rocky-extras.repo
