@@ -3,6 +3,10 @@
   hosts:
    - jumphost
    - cluster
+   - build_server
+   - data_transfer
+   - docs
+   - logs
    - repo
   roles:
    - role: yum_repos

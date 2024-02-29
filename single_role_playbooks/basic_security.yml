@@ -4,7 +4,7 @@
   roles:
     - basic_security
 - hosts:
-    - build_servers
+    - build_server
     - data_transfer
     - docs
     - irods
