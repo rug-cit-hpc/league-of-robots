@@ -5,7 +5,7 @@ all:
       hosts:
         localhost:
           ansible_python_interpreter: /usr/bin/env python
-    build_servers:
+    build_server:
       hosts:
         vip_build:
           cloud_flavor: m1.large
@@ -17,7 +17,7 @@ all:
 build_library:
   children:
     openstack_api:
-    build_servers:
+    build_server:
 cluster:
   children:
 ...
