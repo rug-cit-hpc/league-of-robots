@@ -483,6 +483,7 @@ sudoers:
   - who: ['%umcg-sommer-dms']
     become: 'umcg-sommer-dm'
     name: 'umcg-sommer-dm'
+    command: 'ALL'
   - who: ['%umcg-sysops']
     become: 'umcg-sysops-dm'
     name: 'umcg-sysops-dm'
