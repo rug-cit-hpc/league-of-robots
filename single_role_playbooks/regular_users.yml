@@ -5,7 +5,7 @@
     - data_transfer
     - cluster
     - chaperone
-    - build_servers
+    - build_server
   roles:
     - regular_users
 ...

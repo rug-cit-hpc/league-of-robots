@@ -1,6 +1,10 @@
 ############################################################################################
 # Mapping ciphers/algorithms to cipher suites / families is a mess.                        #
-# See Python code in /usr/share/crypto-policies/python/policygenerators/*.py for mappings. #
+# For available mappings see Python code in repo at                                        #
+#     https://gitlab.com/redhat-crypto/fedora-crypto-policies/tree/master\                 #
+#     /python/policygenerators/*.py                                                        #
+# or on the machine at                                                                     #
+#     /usr/share/crypto-policies/python/policygenerators/*.py s.                           #
 # E.g. one of the mappins is:                                                              #
 #    ECDHE-SECP256R1-SHA2-256': 'ecdh-sha2-nistp256',                                      #
 # where                                                                                    #

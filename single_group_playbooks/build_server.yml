@@ -2,9 +2,9 @@
 - name: Import pre deploy checks.
   ansible.builtin.import_playbook: pre_deploy_checks.yml
 
-- name: '###==-> Roles for build library. <-==###'
+- name: '###==-> Roles for build servers. <-==###'
   hosts:
-    - build_servers
+    - build_server
   roles:
     - admin_users
     - ssh_host_signer
