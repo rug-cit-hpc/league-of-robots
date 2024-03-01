@@ -212,7 +212,6 @@ regular_groups:
   - 'umcg-biogen'
   - 'umcg-bionic-mdd-gwama'
   - 'umcg-bios'
-  - 'umcg-cineca'
   - 'umcg-dag3'
   - 'umcg-datateam'
   - 'umcg-ejp-rd'
@@ -224,6 +223,7 @@ regular_groups:
   - 'umcg-gap'
   - 'umcg-gastrocol'
   - 'umcg-gcc'
+  - 'umcg-gdi'
   - 'umcg-gdio'
   - 'umcg-gonl'
   - 'umcg-griac'
@@ -244,7 +244,9 @@ regular_groups:
   - 'umcg-pub'
   - 'umcg-radicon'
   - 'umcg-rehabilitation'
+  - 'umcg-reki'
   - 'umcg-solve-rd'
+  - 'umcg-sommer'
   - 'umcg-sysops'
   - 'umcg-tifn'
   - 'umcg-ukb'
@@ -261,6 +263,8 @@ regular_users:
     groups: ['umcg-aad']
   - user: 'umcg-capicebot'
     groups: ['umcg-as']
+  - user: 'umcg-vipbot'
+    groups: ['umcg-as']
   - user: 'umcg-as-dm'
     groups: ['umcg-as']
   - user: 'umcg-atd-ateambot'
@@ -273,8 +277,6 @@ regular_users:
     groups: ['umcg-bionic-mdd-gwama']
   - user: 'umcg-bios-dm'
     groups: ['umcg-bios']
-  - user: 'umcg-cineca-dm'
-    groups: ['umcg-cineca']
   - user: 'umcg-dag3-dm'
     groups: ['umcg-dag3']
   - user: 'umcg-datateam-dm'
@@ -301,6 +303,8 @@ regular_users:
     groups: ['umcg-gastrocol']
   - user: 'umcg-gcc-dm'
     groups: ['umcg-gcc']
+  - user: 'umcg-gdi-dm'
+    groups: ['umcg-gdi']
   - user: 'umcg-gdio-dm'
     groups: ['umcg-gdio']
   - user: 'umcg-gonl-dm'
@@ -341,8 +345,12 @@ regular_users:
     groups: ['umcg-radicon']
   - user: 'umcg-rehabilitation-dm'
     groups: ['umcg-rehabilitation']
+  - user: 'umcg-reki-dm'
+    groups: ['umcg-reki']
   - user: 'umcg-solve-rd-dm'
     groups: ['umcg-solve-rd']
+  - user: 'umcg-sommer-dm'
+    groups: ['umcg-sommer']
   - user: 'umcg-sysops-dm'
     groups: ['umcg-sysops']
   - user: 'umcg-tifn-dm'
@@ -371,6 +379,10 @@ sudoers:
     name: 'umcg-capicebot'
     command: 'ALL'
   - who: ['%umcg-as']
+    become: 'umcg-vipbot'
+    name: 'umcg-vipbot'
+    command: 'ALL'
+  - who: ['%umcg-as']
     become: 'umcg-as-dm'
     name: 'umcg-as-dm'
     command: 'ALL'
@@ -393,10 +405,6 @@ sudoers:
   - who: ['%umcg-bios']
     become: 'umcg-bios-dm'
     name: 'umcg-bios-dm'
-    command: 'ALL'
-  - who: ['%umcg-cineca-dms']
-    become: 'umcg-cineca-dm'
-    name: 'umcg-cineca-dm'
     command: 'ALL'
   - who: ['%umcg-dag3-dms']
     become: 'umcg-dag3-dm'
@@ -453,6 +461,10 @@ sudoers:
   - who: ['%umcg-gcc']
     become: 'umcg-gcc-dm'
     name: 'umcg-gcc-dm'
+    command: 'ALL'
+  - who: ['%umcg-gdi-dms']
+    become: 'umcg-gdi-dm'
+    name: 'umcg-gdi-dm'
     command: 'ALL'
   - who: ['%umcg-gdio-dms']
     become: 'umcg-gdio-dm'
@@ -534,9 +546,17 @@ sudoers:
     become: 'umcg-rehabilitation-dm'
     name: 'umcg-rehabilitation-dm'
     command: 'ALL'
+  - who: ['%umcg-reki-dms']
+    become: 'umcg-reki-dm'
+    name: 'umcg-reki-dm'
+    command: 'ALL'
   - who: ['%umcg-solve-rd-dms']
     become: 'umcg-solve-rd-dm'
     name: 'umcg-solve-rd-dm'
+    command: 'ALL'
+  - who: ['%umcg-sommer-dms']
+    become: 'umcg-sommer-dm'
+    name: 'umcg-sommer-dm'
     command: 'ALL'
   - who: ['%umcg-sysops']
     become: 'umcg-sysops-dm'
@@ -588,12 +608,12 @@ volume_group_folders: [
     machines: "{{ groups['data_transfer'] }}",
     mode: '2770',
     groups: [
-        'umcg-aad', 'umcg-as', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
-        'umcg-bios', 'umcg-cineca', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
-        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdio', 'umcg-gonl',
+        'umcg-aad', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
+        'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
+        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdi', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb',
-        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-solve-rd', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
+        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-reki', 'umcg-solve-rd', 'umcg-sommer', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
         'umcg-ugli', 'umcg-verbeek', 'umcg-vdakker', 'umcg-visclasataxia', 'umcg-weersma', 'umcg-wijmenga'
       ]},
 ]
@@ -639,6 +659,8 @@ lfs_mounts:
     quota_type: 'project'
     quota_pid_increment: 300000  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
+      - name: umcg-as
+        mode: '2750'
       - name: umcg-atd
         mode: '2750'
       - name: umcg-biogen
@@ -684,7 +706,6 @@ lfs_mounts:
       - name: umcg-biogen
       - name: umcg-bionic-mdd-gwama
       - name: umcg-bios
-      - name: umcg-cineca
       - name: umcg-dag3
       - name: umcg-datateam
       - name: umcg-ejp-rd
@@ -696,6 +717,7 @@ lfs_mounts:
       - name: umcg-gap
       - name: umcg-gastrocol
       - name: umcg-gcc
+      - name: umcg-gdi
       - name: umcg-gdio
       - name: umcg-gonl
       - name: umcg-griac
@@ -716,7 +738,9 @@ lfs_mounts:
       - name: umcg-pub
       - name: umcg-radicon
       - name: umcg-rehabilitation
+      - name: umcg-reki
       - name: umcg-solve-rd
+      - name: umcg-sommer
       - name: umcg-sysops
       - name: umcg-tifn
       - name: umcg-ukb
@@ -737,7 +761,6 @@ lfs_mounts:
       - name: umcg-biogen
       - name: umcg-bionic-mdd-gwama
       - name: umcg-bios
-      - name: umcg-cineca
       - name: umcg-dag3
       - name: umcg-datateam
       - name: umcg-ejp-rd
@@ -749,6 +772,7 @@ lfs_mounts:
       - name: umcg-gap
       - name: umcg-gastrocol
       - name: umcg-gcc
+      - name: umcg-gdi
       - name: umcg-gdio
       - name: umcg-gonl
       - name: umcg-griac
@@ -769,7 +793,9 @@ lfs_mounts:
       - name: umcg-pub
       - name: umcg-radicon
       - name: umcg-rehabilitation
+      - name: umcg-reki
       - name: umcg-solve-rd
+      - name: umcg-sommer
       - name: umcg-sysops
       - name: umcg-tifn
       - name: umcg-ukb
