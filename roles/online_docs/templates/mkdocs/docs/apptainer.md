@@ -108,7 +108,8 @@ Apptainer container image
 
 ## Building Apptainer images
 
-In order to create a new _Apptainer_ container, you will need to build an container image file. Images can be built on top of other images, which can be local images pulled from a repository like [_Docker Hub_](https://hub.docker.com/).
+In order to create a new _Apptainer_ container, you will need to build an container image file.
+Images can be built on top of other images, which can be local images or images pulled from a repository like [_Docker Hub_](https://hub.docker.com/).
 When the commands used to build the image do not require elevated permissions, then you can build the image on {{ slurm_cluster_name | capitalize }}.
 If on the other hand commands like `sudo dnf install ...` or `sudo apt-get install ...`, which require root permissions, are used in the recipe to build the image,
 then elevated permissions are also needed to build the container image (e.g. `sudo apptainer build ...`).
@@ -117,25 +118,26 @@ Section `Building without elevated permissions` describes workarounds how to bui
 
 ### Building without elevated permissions
 
-At the time of writing this documentation (late 2022) the Apptainer documentation exaplains the option of using a `--fakeroot` parameter as a way to bypass some of these limitations. The latest version `1.1.4` has still some know issues with this option and will hopefully be soon resolved.
+_Apptainer_ has a `--fakeroot` argument to bypass some of these limitations.
 
-Fortunately, there are at least two alternatives, as users can either:
-- simply build an `.sif` image file on a system where they have elevated (sudo) permissions, and then copy that `.sif` file to the cluster, or
-- build an image on the cluster itself, but doing via the additional step of using the sandbox option and then convert the sandbox into the `.sif` file. To use this option, read sections `Sandbox` and `Building image as regular user`.
+Fortunately, there are at least two alternatives; you can
+- Either build an image on another system where you do have elevated (sudo) permissions and then copy that `.sif` file to {{ slurm_cluster_name | capitalize }}
+- Or build an image on {{ slurm_cluster_name | capitalize }} itself, but via intermediate _sandbox_ option and then convert the _sandbox_ into the `.sif` file.
+  See sections `Sandbox` and `Building image as regular user` below for details.
 
 ## Sandbox
 
 The _sandbox_ option builds a container image inside a directory, which allows users to:
 
-* to use the  `--fakeroot` option and become root inside container,
-* to change any files inside the container, and those changes *can be* (if used `--writable`) permanently saved,
-* convert the sandbox back to a `*.sif` file.
+* use the  `--fakeroot` option and become root inside container,
+* change any files inside the container, and those changes *can be* saved (when combined with `--writable`),
+* convert the _sandbox_ to a `*.sif` file.
 
-The drawbacks on the other hand are
+The drawbacks are that
 
-* the changes inside the sandbox are not `recorded` in the image (in contrast to the build from `.def` files), and therefore,
+* the changes inside the _sandbox_ are not `recorded` in the image (in contrast to the build from `.def` files), and therefore,
 * the `.sif` file is hard to maintain in the long run,
-* running sandbox often brings lower performance: due to the converting of the image, and (in case of shared remote file system use) the access of individual files inside the sandbox is slower than the use of .sif format.
+* running a _sandbox_ often decreases performance: due to the converting of the image, and the access of individual files inside the sandbox is usually slower than the use of `.sif` format.
 
 Example: Rocky Linux 9 - from Docker repository to sandbox container
 
@@ -190,12 +192,12 @@ or it can be normally run via `apptainer` command, which gives the user more opt
 
 ## Building image as a regular user
 
-(https://sylabs.io/guides/3.0/user-guide/build_a_container.html)
-
 Regular users cannot build an image on the {{ slurm_cluster_name | capitalize }} by executing `sudo apptainer build ...`. Users can therefore either
 
 - build an image on any apptainer Linux machine where they also have elevated permissions (f.e. their laptop, or dedicated apptainer build server), or
 - they can build an image in a sandbox directory mode and then convert that directory to static `.sif` file
+
+See the [Build a Container section in the Apptainer documentation](https://apptainer.org/docs/user/latest/build_a_container.html) for details.
 
 **Example of building an image from the definition file**
 
@@ -297,59 +299,70 @@ You can read more about the definition file on the [Apptainer's documentation we
 
 ## Important
 
-It depends on how the container was built, but often `/home` folder is shared between the container and the host machine. **This means that the users home folder files can be changed or deleted just by running a container**. Make sure you check first (either by running with `shell` option) and then run an isolated environment (check the section about `Isolated runs`).
+It depends on how the container was built, but the `/home` folder is shared between the container and the host machine.
+**This means that the users home folder files can be changed or deleted just by running a container**.
+Make sure you check first (either by running with `shell` option) and then run an isolated environment (check the section about `Isolated runs`).
 
-Word of advice: docker and apptainer repositories are developed and maintained by the community, and therefore **images can and do contain all sorts of software and configurations**. While most of them are safe to use, users should be careful and avoid running containers from unknown sources. They might contain either buggy software or malicious code. Try to run only trusted images and when not sure, first try running inside an isolated environment (check the section about `Isolated runs`).
+The _docker_ and _apptainer_ repositories are developed and maintained by the community, and therefore **images can and do contain all sorts of software and configurations**.
+While most of them are safe to use, users should be careful and avoid running containers from unknown sources; They might contain either buggy software or malicious code.
+Only use trusted images and when not sure, first try running it inside an isolated environment (check the section about `Isolated runs`).
 
-Storage consumption: each container consumes a lot of storage. Making a new container will quickly fill up the disk. Make sure you keep only containers that you need. At the same time, pulling containers from public repositories, stores image layers locally in the `~/.apptainer/cache` folder. Your home folder can be quickly  filled up with these temporary files. Caching should either be disabled or redirected to another location (see the section about `Caching redirect or disable`).
+Containers can consume a lot of storage. Making a new container will quickly fill up the disk. Make sure you:
+* Keep only containers that you need.
+* Either disable cache or use the `${APPTAINER_CACHEDIR}` environment variable to use a folder on a tmp file system instead of the default.
+* Use the `${APPTAINER_TMPDIR}` environment variable to use a folder on a tmp file system instead of the default.
 
-## Caching redirect or disable
+## Cache and tmp folders
 
-By default _Apptainer_ caches all the downloaded image layers. Simply pulling a docker image, e.g.
+By default _Apptainer_ caches all the downloaded image layers in your home dir (`~/.apptainer/cache`).
+In addition _Apptainer_ use a temporary working space where containers are constructed before being packaged into an _Apptainer_ `*.sif` image.
+Temporary space is also used when running containers in unprivileged mode and when performing some operations on file systems that do not fully support `--fakeroot`.
+The default temporary working space is `/tmp`, which is a small shared resource.
+At best running out of disk space in your home dir will only make your own commands and processes fail.
+At worst running out of disk space in `/tmp` will crash the machine and affect all users.
 
+#### ${APPTAINER_CACHEDIR}
+
+To prevent problems with running out of cache disk space, you can
+ * Either run the `apptainer` command with  `--disable-cache` argument. E.g.
+   ```
+   $ apptainer pull --disable-cache alpine.sif docker://alpine
+   ```
+ * Or redirect the cache to an appropriate location on a tmp file system using `APPTAINER_CACHEDIR` environment variable before running `apptainer` commands. E.g.
+   ```bash
+    export APPTAINER_CACHEDIR=/groups/my_group/some_tmp/$(id -un)/apptainer/cache/
+    mkdir -p ${APPTAINER_CACHEDIR}
+    apptainer ......
+    ```
+    where *my_group* and *some_tmp* must be changed into appropriate values.
+
+#### ${APPTAINER_TMPDIR}
+
+To prevent problems with running out of working disk space, you can redirect this to an appropriate location on a tmp file system
+using `APPTAINER_TMPDIR` environment variable before running `apptainer` commands. E.g.
+```bash
+export APPTAINER_TMPDIR=/groups/my_group/some_tmp/$(id -un)/apptainer/tmp/
+mkdir -p ${APPTAINER_TMPDIR}
+apptainer ......
 ```
-    $ apptainer pull gate-9.2.sif docker://opengatecollaboration/gate:9.2-docker
-    INFO:    Converting OCI blobs to SIF format
-    INFO:    Starting build...
-    Getting image source signatures
-    Copying blob c84400a81634 [=============================>--------] 213.6MiB / 273.7MiB
-    Copying blob bdf5ec5a2e5d done  
-    Copying blob ebbbc5f611f3 done  
-    Copying blob 1a930d163dca done  
-    Copying blob 1d58a538c5fc [=======>------------------------------] 219.8MiB / 1.0GiB
-    Copying blob 7da40ae7e7dd done  
-    ...
+where *my_group* and *some_tmp* must be changed into appropriate values.
+
+#### Automatically configure ${APPTAINER_CACHEDIR} and ${APPTAINER_TMPDIR} for each login
+
+Environment variables are set for the duration of your session and lost on logout.
+You can add code to your `~/.bashrc` file to make sure the `${APPTAINER_CACHEDIR}` and `${APPTAINER_TMPDIR}` environment variables are configured each time you login.
+E.g.:
+
+```bash
+apptainer_base_path="/groups/my_group/some_tmp/$(id -un)/apptainer/"
+APPTAINER_TMPDIR="${apptainer_base_path}/tmp"
+APPTAINER_CACHEDIR="${apptainer_base_path}/cache"
+mkdir -p "${APPTAINER_TMPDIR}"
+mkdir -p "${APPTAINER_CACHEDIR}"
+export APPTAINER_TMPDIR
+export APPTAINER_CACHEDIR
 ```
-
-will fail when the default `~/.apptainer/cache` directory is used. It will fill it up until the quota limit for your home directory is reached, which will prevent any further writes making the `apptainer` command fail.
-
-To mitigate this, users can either run the `apptainer` command with argument  `--disable-cache`
-
-```
-    $ apptainer pull --disable-cache alpine.sif docker://alpine
-```
-
-or by redirecting the caching directory to the appropriate folder location. This can be done by setting the environment path variable pointing to the correct cache directory
-
-```
-    export APPTAINER_CACHEDIR=/groups/umcg-MYGROUP/tmpXX/$(id -un)/apptainer_cachedir
-    mkdir $APPTAINER_CACHEDIR
-    apptainer pull docker://alpine
-```
-
-where the user should change uppercase words into appropriate values.
-
-Note: **this variable is set for the duration of login. To make it permanent, the `APPTAINER_CACHEDIR` variable should be defined inside the `~/.bashrc` file or create a cache folder and link users `~/.apptainer/cache` to that folder, f.e.
-
-```
-    # change group and tmp filesystem to appropriate values
-    _new_cache="/groups/umcg-MYGROUP/tmpXX/$(id -un)/apptainer_cache"
-    mkdir -p ${_new_cache}
-    mv ~/.apptainer/cache ${_new_cache}/
-    ln -s ${_new_cache}/cache ~/.apptainer/cache
-```
-
-This will keep all the caches and store them on the `tmp` filesystem.
+Replace *my_group* and *some_tmp* from the example for appropriate values.
 
 ## Running Apptainer on Windows or Mac
 
