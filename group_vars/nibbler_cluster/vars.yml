@@ -598,7 +598,7 @@ volume_group_folders: [
     groups: [
         'umcg-aad', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
         'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
-        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdi' ,'umcg-gdio', 'umcg-gonl',
+        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdi', 'umcg-gdio', 'umcg-gonl',
         'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb',
         'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-reki', 'umcg-solve-rd', 'umcg-sommer',
