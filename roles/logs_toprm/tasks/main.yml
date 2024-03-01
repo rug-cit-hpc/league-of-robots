@@ -1,0 +1,6 @@
+---
+- name: Deploy logstoprm cron scripts
+  ansible.builtin.include_tasks:
+    file: logstoprm.yml
+  when: inventory_hostname in groups['chaperone'] | default([])
+...

@@ -10,6 +10,7 @@
     - cluster
     - regular_users
     - shared_storage
+    - logs_toprm
     - sudoers
     - build_environment
     - envsync
