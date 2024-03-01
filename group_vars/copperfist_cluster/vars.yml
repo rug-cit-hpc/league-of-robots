@@ -278,87 +278,66 @@ sudoers:
   - who: ['%umcg-atd,!charbonb,!hendriksend']
     become: 'umcg-atd-ateambot'
     name: 'umcg-atd-ateambot'
-    command: 'ALL'
   - who: ['%umcg-atd,!charbonb,!hendriksend']
     become: 'umcg-atd-dm'
     name: 'umcg-atd-dm'
-    command: 'ALL'
   - who: ['%umcg-gap,!charbonb,!hendriksend']
     become: 'umcg-gap-ateambot'
     name: 'umcg-gap-ateambot'
-    command: 'ALL'
   - who: ['%umcg-gap,!charbonb,!hendriksend']
     become: 'umcg-gap-dm'
     name: 'umcg-gap-dm'
-    command: 'ALL'
   - who: ['%umcg-gd,!charbonb,!hendriksend']
     become: 'umcg-gd-ateambot'
     name: 'umcg-gd-ateambot'
-    command: 'ALL'
   - who: ['%umcg-gd,!charbonb,!hendriksend']
     become: 'umcg-gd-dm'
     name: 'umcg-gd-dm'
-    command: 'ALL'
   - who: ['%umcg-genomescan']
     become: 'umcg-genomescan-ateambot'
     name: 'umcg-genomescan-ateambot'
-    command: 'ALL'
   - who: ['%umcg-genomescan']
     become: 'umcg-genomescan-dm'
     name: 'umcg-genomescan-dm'
-    command: 'ALL'
   - who: ['%umcg-gsad,!charbonb,!hendriksend']
     become: 'umcg-gsad-ateambot'
     name: 'umcg-gsad-ateambot'
-    command: 'ALL'
   - who: ['%umcg-gsad,!charbonb,!hendriksend']
     become: 'umcg-gsad-dm'
     name: 'umcg-gsad-dm'
-    command: 'ALL'
   - who: ['%umcg-gst']
     become: 'umcg-gst-ateambot'
     name: 'umcg-gst-ateambot'
-    command: 'ALL'
   - who: ['%umcg-gst']
     become: 'umcg-gst-dm'
     name: 'umcg-gst-dm'
-    command: 'ALL'
   - who: ['%umcg-lab-dms']
     become: 'umcg-lab-ateambot'
     name: 'umcg-lab-ateambot'
-    command: 'ALL'
   - who: ['%umcg-lab-dms']
     become: 'umcg-lab-dm'
     name: 'umcg-lab-dm'
-    command: 'ALL'
   - who: ['%umcg-labgnkbh']
     become: 'umcg-labgnkbh-ateambot'
     name: 'umcg-labgnkbh-ateambot'
-    command: 'ALL'
   - who: ['%umcg-labgnkbh']
     become: 'umcg-labgnkbh-dm'
     name: 'umcg-labgnkbh-dm'
-    command: 'ALL'
   - who: ['%umcg-patho']
     become: 'umcg-patho-ateambot'
     name: 'umcg-patho-ateambot'
-    command: 'ALL'
   - who: ['%umcg-patho']
     become: 'umcg-patho-dm'
     name: 'umcg-patho-dm'
-    command: 'ALL'
   - who: ['%umcg-pr']
     become: 'umcg-pr-ateambot'
     name: 'umcg-pr-ateambot'
-    command: 'ALL'
   - who: ['%umcg-pr']
     become: 'umcg-pr-dm'
     name: 'umcg-pr-dm'
-    command: 'ALL'
   - who: ['%umcg-vipt']
     become: 'umcg-vipt-dm'
     name: 'umcg-vipt-dm'
-    command: 'ALL'
 remote_users_in_local_groups:
   - user: 'benjaminsm'
     groups: [
