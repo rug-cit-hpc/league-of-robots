@@ -111,10 +111,8 @@ regular_users:
 sudoers:
   - who: ['%umcg-atd']
     become: 'umcg-atd-dm'
-    name: 'umcg-atd-dm'
   - who: ['%umcg-gsad']
     become: 'umcg-gsad-dm'
-    name: 'umcg-gsad-dm'
 #
 # Shared storage related variables
 #

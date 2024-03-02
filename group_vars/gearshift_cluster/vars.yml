@@ -294,175 +294,118 @@ regular_users:
 sudoers:
   - who: ['%umcg-aad']
     become: 'umcg-aad-dm'
-    name: 'umcg-aad-dm'
   - who: ['%umcg-as']
     become: 'umcg-capicebot'
-    name: 'umcg-capicebot'
   - who: ['%umcg-as']
     become: 'umcg-vipbot'
-    name: 'umcg-vipbot'
   - who: ['%umcg-as']
     become: 'umcg-as-dm'
-    name: 'umcg-as-dm'
   - who: ['%umcg-atd']
     become: 'umcg-atd-ateambot'
-    name: 'umcg-atd-ateambot'
   - who: ['%umcg-atd']
     become: 'umcg-atd-dm'
-    name: 'umcg-atd-dm'
   - who: ['%umcg-biogen-dms']
     become: 'umcg-biogen-dm'
-    name: 'umcg-biogen-dm'
   - who: ['%umcg-bionic-mdd-gwama-dms']
     become: 'umcg-bionic-mdd-gwama-dm'
-    name: 'umcg-bionic-mdd-gwama-dm'
   - who: ['%umcg-bios']
     become: 'umcg-bios-dm'
-    name: 'umcg-bios-dm'
   - who: ['%umcg-cineca-dms']
     become: 'umcg-cineca-dm'
-    name: 'umcg-cineca-dm'
   - who: ['%umcg-dag3-dms']
     become: 'umcg-dag3-dm'
-    name: 'umcg-dag3-dm'
   - who: ['%umcg-datateam']
     become: 'umcg-datateam-dm'
-    name: 'umcg-datateam-dm'
   - who: ['%umcg-ejp-rd-dms']
     become: 'umcg-ejp-rd-dm'
-    name: 'umcg-ejp-rd-dm'
   - who: ['%umcg-endocrinology-dms']
     become: 'umcg-endocrinology-dm'
-    name: 'umcg-endocrinology-dm'
   - who: ['%umcg-gcc']
     become: 'umcg-gcc-dm'
-    name: 'umcg-gcc-dm'
   - who: ['%umcg-fg-dms']
     become: 'umcg-fg-dm'
-    name: 'umcg-fg-dm'
   - who: ['%umcg-franke-scrna-dms']
     become: 'umcg-franke-scrna-dm'
-    name: 'umcg-franke-scrna-dm'
   - who: ['%umcg-fu-dms']
     become: 'umcg-fu-dm'
-    name: 'umcg-fu-dm'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-gaf-ateambot'
-    name: 'umcg-gaf-ateambot'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-gaf-dm'
-    name: 'umcg-gaf-dm'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-gap-ateambot'
-    name: 'umcg-gap-ateambot'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-gap-dm'
-    name: 'umcg-gap-dm'
   - who: ['%umcg-gastrocol-dms']
     become: 'umcg-gastrocol-dm'
-    name: 'umcg-gastrocol-dm'
   - who: ['%umcg-gcc']
     become: 'umcg-gcc-dm'
-    name: 'umcg-gcc-dm'
   - who: ['%umcg-gdi-dms']
     become: 'umcg-gdi-dm'
-    name: 'umcg-gdi-dm'
   - who: ['%umcg-gdio-dms']
     become: 'umcg-gdio-dm'
-    name: 'umcg-gdio-dm'
   - who: ['%umcg-gonl-dms']
     become: 'umcg-gonl-dm'
-    name: 'umcg-gonl-dm'
   - who: ['%umcg-griac-dms']
     become: 'umcg-griac-dm'
-    name: 'umcg-griac-dm'
   - who: ['%umcg-grip-dms']
     become: 'umcg-grip-dm'
-    name: 'umcg-grip-dm'
   - who: ['%umcg-gsad']
     become: 'umcg-gsad-dm'
-    name: 'umcg-gsad-dm'
   - who: ['%umcg-hematology-dms']
     become: 'umcg-hematology-dm'
-    name: 'umcg-hematology-dm'
   - who: ['%umcg-hlhs-dms']
     become: 'umcg-hlhs-dm'
-    name: 'umcg-hlhs-dm'
   - who: ['%umcg-immunogenetics-dms']
     become: 'umcg-immunogenetics-dm'
-    name: 'umcg-immunogenetics-dm'
   - who: ['%umcg-impact']
     become: 'umcg-impact-dm'
-    name: 'umcg-impact-dm'
   - who: ['%umcg-lifelines-dms']
     become: 'umcg-lifelines-dm'
-    name: 'umcg-lifelines-dm'
   - who: ['%umcg-lld-dms']
     become: 'umcg-lld-dm'
-    name: 'umcg-lld-dm'
   - who: ['%umcg-llnext-dms']
     become: 'umcg-llnext-dm'
-    name: 'umcg-llnext-dm'
   - who: ['%umcg-mic-dms']
     become: 'umcg-mic-dm'
-    name: 'umcg-mic-dm'
   - who: ['%umcg-micompany-dms']
     become: 'umcg-micompany-dm'
-    name: 'umcg-micompany-dm'
   - who: ['%umcg-msb']
     become: 'umcg-msb-dm'
-    name: 'umcg-msb-dm'
   - who: ['%umcg-nawijn-dms']
     become: 'umcg-nawijn-dm'
-    name: 'umcg-nawijn-dm'
   - who: ['%umcg-pmb-dms']
     become: 'umcg-pmb-dm'
-    name: 'umcg-pmb-dm'
   - who: ['%umcg-pub-dms']
     become: 'umcg-pub-dm'
-    name: 'umcg-pub-dm'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-radicon-dm'
-    name: 'umcg-radicon-dm'
   - who: ['%umcg-rehabilitation-dms']
     become: 'umcg-rehabilitation-dm'
-    name: 'umcg-rehabilitation-dm'
   - who: ['%umcg-reki-dms']
     become: 'umcg-reki-dm'
-    name: 'umcg-reki-dm'
   - who: ['%umcg-solve-rd-dms']
     become: 'umcg-solve-rd-dm'
-    name: 'umcg-solve-rd-dm'
   - who: ['%umcg-sommer-dms']
     become: 'umcg-sommer-dm'
-    name: 'umcg-sommer-dm'
   - who: ['%umcg-sysops']
     become: 'umcg-sysops-dm'
-    name: 'umcg-sysops-dm'
   - who: ['%umcg-tifn-dms']
     become: 'umcg-tifn-dm'
-    name: 'umcg-tifn-dm'
   - who: ['%umcg-ukb-dms']
     become: 'umcg-ukb-dm'
-    name: 'umcg-ukb-dm'
   - who: ['%umcg-ugli-dms']
     become: 'umcg-ugli-dm'
-    name: 'umcg-ugli-dm'
   - who: ['%umcg-verbeek']
     become: 'umcg-verbeek-dm'
-    name: 'umcg-verbeek-dm'
   - who: ['%umcg-vdakker-dms']
     become: 'umcg-vdakker-dm'
-    name: 'umcg-vdakker-dm'
   - who: ['%umcg-visclasataxia-dms']
     become: 'umcg-visclasataxia-dm'
-    name: 'umcg-visclasataxia-dm'
   - who: ['%umcg-weersma-dms']
     become: 'umcg-weersma-dm'
-    name: 'umcg-weersma-dm'
   - who: ['%umcg-wijmenga-dms']
     become: 'umcg-wijmenga-dm'
-    name: 'umcg-wijmenga-dm'
 #
 # Shared storage related variables
 #

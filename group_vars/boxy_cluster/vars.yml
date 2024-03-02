@@ -15,7 +15,6 @@ regular_users:
 sudoers:
   - who: ['%umcg-lifelines-dms']
     become: 'umcg-lifelines-dm'
-    name: 'umcg-lifelines-dm'
 pfs_mounts:
   - pfs: umcgst08
     source: '172.23.34.213@tcp:172.23.34.214@tcp:'

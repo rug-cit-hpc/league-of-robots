@@ -332,13 +332,10 @@ regular_users:
 sudoers:
   - who: ['%solve-rd']
     become: 'solve-rd-dm'
-    name: 'solve-rd-dm'
   - who: ['%umcg-atd']
     become: 'umcg-atd-dm'
-    name: 'umcg-atd-dm'
   - who: ['%solve-rd']
     become: 'solve-rd-ateambot'
-    name: 'solve-rd-ateambot'
 #
 # Shared storage related variables
 #
