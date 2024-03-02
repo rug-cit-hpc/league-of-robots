@@ -8,7 +8,7 @@ ansible_managed_sudoers_filename_tag: ansible-managed
 #
 # List of file names (without prefix) for all configured sudoers configs:
 # Use name attribute when specified or default to the become attribute when name was not specified.
-# E.g. this: 
+# E.g. this:
 #
 #     sudoers:
 #       - who: ['%some-group']
