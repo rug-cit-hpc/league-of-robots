@@ -1,34 +1,32 @@
 ---
 #
 # Allow passwordless sudo to functional accounts (e.g. for datamanager accounts) for indivual users or %groups.
-# Who can become what can be specified in regular_users variable of group_vars/${clustername}/vars.yml.
+# Who can become what can be specified in the sudoers variable of group_vars/${stackname}/vars.yml.
 #
-
-- name: 'Find all ansible-managed files in /etc/sudoers.d/.'
+- name: "Find all {{ ansible_managed_sudoers_filename_tag }} tagged files in /etc/sudoers.d/."
   ansible.builtin.find:
     paths: '/etc/sudoers.d/'
     use_regex: true
-    patterns: '.*ansible-managed.*'
-  register: ansible_managed_sudoers
+    patterns: ".*{{ ansible_managed_sudoers_filename_tag }}.*"
+  register: found_ansible_managed_sudoers
   become: true
 
-- name: 'Remove outdated ansible-managed files from /etc/sudoers.d/.'
+- name: "Remove outdated {{ ansible_managed_sudoers_filename_tag }} tagged files from /etc/sudoers.d/."
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
-  with_items: "{{ ansible_managed_sudoers.files | map(attribute='path') | list }}"
-  when: item | regex_replace('.*ansible-managed-','') not in sudoers | default([]) | selectattr('name', 'defined') | map(attribute='name') | list
+  loop: "{{ found_ansible_managed_sudoers['files'] | map(attribute='path') | list }}"
+  when: item | regex_replace('.*' + ansible_managed_sudoers_filename_tag + '-', '') not in configured_ansible_managed_sudoers | default([])
   become: true
 
-- name: 'Allow passwordless sudo to functional accounts.'
+- name: "Create {{ ansible_managed_sudoers_filename_tag }} tagged files in /etc/sudoers.d/ for configured sudoers."
   ansible.builtin.template:
-    src: 'templates/92-ansible-managed'
-    dest: "/etc/sudoers.d/92-ansible-managed-{{ item.name }}"
+    src: "templates/92-{{ ansible_managed_sudoers_filename_tag }}"
+    dest: "/etc/sudoers.d/92-{{ ansible_managed_sudoers_filename_tag }}-{{ item['name'] | default(item['become']) }}"
     owner: 'root'
     group: 'root'
     mode: '0440'
     validate: '/usr/sbin/visudo -cf %s'
-  with_items:
-    - "{{ sudoers | default([]) }}"
+  loop: "{{ sudoers | default([]) }}"
   become: true
 ...

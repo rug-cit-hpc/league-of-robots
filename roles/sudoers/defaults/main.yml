@@ -1,0 +1,25 @@
+---
+#
+# Tag / label in the filename of files in /etc/sudoers.d/ managed by this role:
+#  * Required files not yet present will be created
+#  * Files no longer required will be deleted
+#
+ansible_managed_sudoers_filename_tag: ansible-managed
+#
+# List of file names (without prefix) for all configured sudoers configs:
+# Use name attribute when specified or default to the become attribute when name was not specified.
+# E.g. this:
+#
+#     sudoers:
+#       - who: ['%some-group']
+#         become: 'ALL'
+#         name: 'apptainer'
+#         command: '/bin/apptainer'
+#       - who: ['%some-group']
+#         become: 'some-group-dm'
+#
+# will result in name 'apptainer' for the first entry and 'some-group-dm' for the second entry
+#
+configured_ansible_managed_sudoers: "{{ sudoers | default([]) | selectattr('name', 'defined') | map(attribute='name') | list +
+                                        sudoers | default([]) | selectattr('name', 'undefined') | map(attribute='become') | list }}"
+...

@@ -372,228 +372,116 @@ regular_users:
 sudoers:
   - who: ['%umcg-aad']
     become: 'umcg-aad-dm'
-    name: 'umcg-aad-dm'
-    command: 'ALL'
   - who: ['%umcg-as']
     become: 'umcg-capicebot'
-    name: 'umcg-capicebot'
-    command: 'ALL'
   - who: ['%umcg-as']
     become: 'umcg-vipbot'
-    name: 'umcg-vipbot'
-    command: 'ALL'
   - who: ['%umcg-as']
     become: 'umcg-as-dm'
-    name: 'umcg-as-dm'
-    command: 'ALL'
   - who: ['%umcg-atd']
     become: 'umcg-atd-ateambot'
-    name: 'umcg-atd-ateambot'
-    command: 'ALL'
   - who: ['%umcg-atd']
     become: 'umcg-atd-dm'
-    name: 'umcg-atd-dm'
-    command: 'ALL'
   - who: ['%umcg-biogen-dms']
     become: 'umcg-biogen-dm'
-    name: 'umcg-biogen-dm'
-    command: 'ALL'
   - who: ['%umcg-bionic-mdd-gwama-dms']
     become: 'umcg-bionic-mdd-gwama-dm'
-    name: 'umcg-bionic-mdd-gwama-dm'
-    command: 'ALL'
   - who: ['%umcg-bios']
     become: 'umcg-bios-dm'
-    name: 'umcg-bios-dm'
-    command: 'ALL'
   - who: ['%umcg-dag3-dms']
     become: 'umcg-dag3-dm'
-    name: 'umcg-dag3-dm'
-    command: 'ALL'
   - who: ['%umcg-datateam']
     become: 'umcg-datateam-dm'
-    name: 'umcg-datateam-dm'
-    command: 'ALL'
   - who: ['%umcg-ejp-rd-dms']
     become: 'umcg-ejp-rd-dm'
-    name: 'umcg-ejp-rd-dm'
-    command: 'ALL'
   - who: ['%umcg-endocrinology-dms']
     become: 'umcg-endocrinology-dm'
-    name: 'umcg-endocrinology-dm'
-    command: 'ALL'
   - who: ['%umcg-gcc']
     become: 'umcg-gcc-dm'
-    name: 'umcg-gcc-dm'
-    command: 'ALL'
   - who: ['%umcg-fg-dms']
     become: 'umcg-fg-dm'
-    name: 'umcg-fg-dm'
-    command: 'ALL'
   - who: ['%umcg-franke-scrna-dms']
     become: 'umcg-franke-scrna-dm'
-    name: 'umcg-franke-scrna-dm'
-    command: 'ALL'
   - who: ['%umcg-fu-dms']
     become: 'umcg-fu-dm'
-    name: 'umcg-fu-dm'
-    command: 'ALL'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-gaf-ateambot'
-    name: 'umcg-gaf-ateambot'
-    command: 'ALL'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-gaf-dm'
-    name: 'umcg-gaf-dm'
-    command: 'ALL'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-gap-ateambot'
-    name: 'umcg-gap-ateambot'
-    command: 'ALL'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-gap-dm'
-    name: 'umcg-gap-dm'
-    command: 'ALL'
   - who: ['%umcg-gastrocol-dms']
     become: 'umcg-gastrocol-dm'
-    name: 'umcg-gastrocol-dm'
-    command: 'ALL'
   - who: ['%umcg-gcc']
     become: 'umcg-gcc-dm'
-    name: 'umcg-gcc-dm'
-    command: 'ALL'
   - who: ['%umcg-gdi-dms']
     become: 'umcg-gdi-dm'
-    name: 'umcg-gdi-dm'
-    command: 'ALL'
   - who: ['%umcg-gdio-dms']
     become: 'umcg-gdio-dm'
-    name: 'umcg-gdio-dm'
-    command: 'ALL'
   - who: ['%umcg-gonl-dms']
     become: 'umcg-gonl-dm'
-    name: 'umcg-gonl-dm'
-    command: 'ALL'
   - who: ['%umcg-griac-dms']
     become: 'umcg-griac-dm'
-    name: 'umcg-griac-dm'
-    command: 'ALL'
   - who: ['%umcg-grip-dms']
     become: 'umcg-grip-dm'
-    name: 'umcg-grip-dm'
-    command: 'ALL'
   - who: ['%umcg-gsad']
     become: 'umcg-gsad-dm'
-    name: 'umcg-gsad-dm'
-    command: 'ALL'
   - who: ['%umcg-hematology-dms']
     become: 'umcg-hematology-dm'
-    name: 'umcg-hematology-dm'
-    command: 'ALL'
   - who: ['%umcg-hlhs-dms']
     become: 'umcg-hlhs-dm'
-    name: 'umcg-hlhs-dm'
-    command: 'ALL'
   - who: ['%umcg-immunogenetics-dms']
     become: 'umcg-immunogenetics-dm'
-    name: 'umcg-immunogenetics-dm'
-    command: 'ALL'
   - who: ['%umcg-impact']
     become: 'umcg-impact-dm'
-    name: 'umcg-impact-dm'
-    command: 'ALL'
   - who: ['%umcg-lifelines-dms']
     become: 'umcg-lifelines-dm'
-    name: 'umcg-lifelines-dm'
-    command: 'ALL'
   - who: ['%umcg-lld-dms']
     become: 'umcg-lld-dm'
-    name: 'umcg-lld-dm'
-    command: 'ALL'
   - who: ['%umcg-llnext-dms']
     become: 'umcg-llnext-dm'
-    name: 'umcg-llnext-dm'
-    command: 'ALL'
   - who: ['%umcg-mic-dms']
     become: 'umcg-mic-dm'
-    name: 'umcg-mic-dm'
-    command: 'ALL'
   - who: ['%umcg-micompany-dms']
     become: 'umcg-micompany-dm'
-    name: 'umcg-micompany-dm'
-    command: 'ALL'
   - who: ['%umcg-msb']
     become: 'umcg-msb-dm'
-    name: 'umcg-msb-dm'
-    command: 'ALL'
   - who: ['%umcg-nawijn-dms']
     become: 'umcg-nawijn-dm'
-    name: 'umcg-nawijn-dm'
-    command: 'ALL'
   - who: ['%umcg-pmb-dms']
     become: 'umcg-pmb-dm'
-    name: 'umcg-pmb-dm'
-    command: 'ALL' 
   - who: ['%umcg-pub-dms']
     become: 'umcg-pub-dm'
-    name: 'umcg-pub-dm'
-    command: 'ALL'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-radicon-dm'
-    name: 'umcg-radicon-dm'
-    command: 'ALL'
   - who: ['%umcg-rehabilitation-dms']
     become: 'umcg-rehabilitation-dm'
-    name: 'umcg-rehabilitation-dm'
-    command: 'ALL'
   - who: ['%umcg-reki-dms']
     become: 'umcg-reki-dm'
-    name: 'umcg-reki-dm'
-    command: 'ALL'
   - who: ['%umcg-solve-rd-dms']
     become: 'umcg-solve-rd-dm'
-    name: 'umcg-solve-rd-dm'
-    command: 'ALL'
   - who: ['%umcg-sommer-dms']
     become: 'umcg-sommer-dm'
-    name: 'umcg-sommer-dm'
-    command: 'ALL'
   - who: ['%umcg-sysops']
     become: 'umcg-sysops-dm'
-    name: 'umcg-sysops-dm'
-    command: 'ALL'
   - who: ['%umcg-tifn-dms']
     become: 'umcg-tifn-dm'
-    name: 'umcg-tifn-dm'
-    command: 'ALL'
   - who: ['%umcg-ukb-dms']
     become: 'umcg-ukb-dm'
-    name: 'umcg-ukb-dm'
-    command: 'ALL'
   - who: ['%umcg-ugli-dms']
     become: 'umcg-ugli-dm'
-    name: 'umcg-ugli-dm'
-    command: 'ALL'
   - who: ['%umcg-verbeek']
     become: 'umcg-verbeek-dm'
-    name: 'umcg-verbeek-dm'
-    command: 'ALL'
   - who: ['%umcg-vdakker-dms']
     become: 'umcg-vdakker-dm'
-    name: 'umcg-vdakker-dm'
-    command: 'ALL'
   - who: ['%umcg-visclasataxia-dms']
     become: 'umcg-visclasataxia-dm'
-    name: 'umcg-visclasataxia-dm'
-    command: 'ALL'
   - who: ['%umcg-weersma-dms']
     become: 'umcg-weersma-dm'
-    name: 'umcg-weersma-dm'
-    command: 'ALL'
   - who: ['%umcg-wijmenga-dms']
     become: 'umcg-wijmenga-dm'
-    name: 'umcg-wijmenga-dm'
-    command: 'ALL'
 #
 # Local storage variables.
 #
