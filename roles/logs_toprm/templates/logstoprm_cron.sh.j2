@@ -227,7 +227,7 @@ function start_flow(){
 }
 
 {% endraw %}
-earl_servers=( {% for _earl_server in rsyslogs_ext_ips %} "{{ _earl_server }}"{% endfor %} )
+earl_servers=( "{% for _logs_server in logs_external_ips %}{{ _logs_server.ip | first | string }}{% endfor %}"
 {% raw %}
 for _each_earl in "${earl_servers[@]}"; do
    sleep $((RANDOM % _small_delay))        # small random delay, just in case if two systems would run the cron at the same time

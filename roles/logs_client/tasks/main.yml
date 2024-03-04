@@ -38,7 +38,7 @@
   loop: "{{ logs_servers }}"
   when: logs_servers is defined and logs_servers|length>0
   register: rsys_ext_ips
-  delegate_to: 127.0.0.1
+  delegate_to: localhost
   connection: local
   run_once: true
   tags:

@@ -1,28 +1,14 @@
 ---
-# Gathering logs server list                                                    
-- name: Include static inventory logs_library.yml                               
-  ansible.builtin.include_vars:                                                 
-    file: "{{ inventory_dir }}/logs_library.yml"                                
-    name: "logs_servers_library"                                                
-  register: logs_server_library                                                 
-  delegate_to: localhost                                                        
-  connection: local                                                             
-  run_once: true                                                                
-  tags:                                                                         
-    - test
+## Gathering logs server list
+- name: Include static inventory logs_library.yml
+  ansible.builtin.include_vars:
+    file: "{{ inventory_dir }}/logs_library.yml"
+    name: "logs_servers_library"
+  register: logs_server_library
+  delegate_to: localhost
+  connection: local
+  run_once: true
 
-#- name: Compile the list of logs server names
-#  ansible.builtin.set_fact:
-#    rsyslogs_ext_ips: "{{ rsyslogs_ext_ips | default([]) + [item['name']] }}"
-#  loop: "{{ logs_servers }}"
-#  when: logs_servers is defined and logs_servers|length>0
-#  register: rsys_ext_ips
-#  delegate_to: 127.0.0.1
-#  connection: local
-#  run_once: true
-#  tags:
-#    - test
-#
 - name: Collect IP addresses of logs_library
   ansible.builtin.include_vars:
     file: "{{ playbook_dir }}/group_vars/logs_library/ip_addresses.yml"
@@ -30,17 +16,39 @@
   delegate_to: localhost
   connection: local
   run_once: true
-  tags:
-    - test
 
-- name: Compile the list of logs external IP addresses
+- name: Compile the list of logs names
   ansible.builtin.set_fact:
-    rsyslogs_ext_ips: "{{ rsyslogs_ext_ips | default([]) + [ logs_ips.ip_addresses[item['name']][item['external_network']].address ] }}"
-  loop: "{{ logs_servers }}"
-  register: rsys_ext_ips
-  delegate_to: 127.0.0.1
+    logs_names: "{{ logs_servers_library.all.children.logs.hosts | default([]) | flatten }}"
+  register: logs_names_reg
+  delegate_to: localhost
   connection: local
   run_once: true
+
+# - name: Print public ip's of all logs server
+#   debug:
+#     msg: "{{ logs_servers_library.all.children.logs.hosts | flatten }}"
+#
+# - name: Just the logs servers and not the routers
+#   debug:
+#     msg: "{{ logs_ips.ip_addresses[item] | community.general.json_query('*.address') | reject('match', '^((10\\.)|(192\\.)|(172\\.)|(1\\.))') }}" #| selectattr('address', 'defined') }}"
+#   loop: "{{ logs_names }}"
+#
+
+# Public IPs of logs servers are anything by starting with 10., 172., 192. or 1.
+- name: Build a list of logs_server public IPs - from static_inventory and ip_addresses
+  ansible.builtin.set_fact:
+    logs_external_ips: "{{ logs_external_ips | default([]) + [{ 'name' : item, 'ip' : logs_ips.ip_addresses[item] | community.general.json_query('*.address') | reject('match', '^((10\\.)|(192\\.)|(172\\.)|(1\\.))') }] }}"
+  loop: "{{ logs_names }}"
+  register: logs_external_ips_reg
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- name: Print public IP's of logs servers
+  debug:
+    msg: "{{ item.name }} {{ item.ip }} | first | string }}"
+  loop: "{{ logs_external_ips }}"
 
 - name: 'Get {{ logs_toprm_chaperone_user }} home directory'
   ansible.builtin.shell: "set -o pipefail && getent passwd {{ logs_toprm_chaperone_user }}  | awk -F: '{ print $6 }'"
