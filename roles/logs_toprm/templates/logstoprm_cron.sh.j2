@@ -6,7 +6,7 @@ _log_tag="logstoprm"
 # We store all the extra information into the system logs, like civilized people
 trap 'logger -t "${_log_tag}" "The command (${BASH_COMMAND}) had failed on line number (${LINENO})"' ERR
 
-{% if rsyslogs_ext_ips is defined and ( rsyslogs_ext_ips | length > 0 ) %}
+{% if logs_external_ips is defined and ( logs_external_ips | length > 0 ) %}
 
 {% raw %}
 #
@@ -227,7 +227,7 @@ function start_flow(){
 }
 
 {% endraw %}
-earl_servers=( "{% for _logs_server in logs_external_ips %}{{ _logs_server.ip | first | string }}{% endfor %}"
+earl_servers=( {% for _logs_server in logs_external_ips %}"{{ _logs_server.ip | first | string }}" {% endfor %} )
 {% raw %}
 for _each_earl in "${earl_servers[@]}"; do
    sleep $((RANDOM % _small_delay))        # small random delay, just in case if two systems would run the cron at the same time
@@ -235,5 +235,5 @@ for _each_earl in "${earl_servers[@]}"; do
    start_flow
 done
 
-
-{% endif %}\
+{% endraw %}
+{% endif %}

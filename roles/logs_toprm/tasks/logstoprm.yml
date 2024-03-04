@@ -31,14 +31,16 @@
 #
 # - name: Just the logs servers and not the routers
 #   debug:
-#     msg: "{{ logs_ips.ip_addresses[item] | community.general.json_query('*.address') | reject('match', '^((10\\.)|(192\\.)|(172\\.)|(1\\.))') }}" #| selectattr('address', 'defined') }}"
+#     msg: "{{ logs_ips.ip_addresses[item] | community.general.json_query('*.address') |
+#           reject('match', '^((10\\.)|(192\\.)|(172\\.)|(1\\.))') }}" #| selectattr('address', 'defined') }}"
 #   loop: "{{ logs_names }}"
 #
 
 # Public IPs of logs servers are anything by starting with 10., 172., 192. or 1.
 - name: Build a list of logs_server public IPs - from static_inventory and ip_addresses
   ansible.builtin.set_fact:
-    logs_external_ips: "{{ logs_external_ips | default([]) + [{ 'name' : item, 'ip' : logs_ips.ip_addresses[item] | community.general.json_query('*.address') | reject('match', '^((10\\.)|(192\\.)|(172\\.)|(1\\.))') }] }}"
+    logs_external_ips: "{{ logs_external_ips | default([]) + [{ 'name': item, 'ip': logs_ips.ip_addresses[item] | \
+      community.general.json_query('*.address') | reject('match', '^((10\\.)|(192\\.)|(172\\.)|(1\\.))') }] }}"
   loop: "{{ logs_names }}"
   register: logs_external_ips_reg
   delegate_to: localhost
@@ -46,7 +48,7 @@
   run_once: true
 
 - name: Print public IP's of logs servers
-  debug:
+  ansible.builtin.debug:
     msg: "{{ item.name }} {{ item.ip }} | first | string }}"
   loop: "{{ logs_external_ips }}"
 
@@ -59,9 +61,9 @@
 - name: 'Install logstoprm cron .sh script.'
   ansible.builtin.template:
     src: logstoprm_cron.sh.j2
-    dest: "{{ home_path }}/logstoprm_cron.sh"
-    owner: root
-    group: root
-    mode: '0755'
+    dest: "{{ home_path.stdout }}/logstoprm_cron.sh"
+    owner: "{{ logs_toprm_chaperone_user }}"
+    group: "{{ logs_toprm_chaperone_user }}"
+    mode: '0750'
   become: true
 ...
