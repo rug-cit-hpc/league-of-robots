@@ -22,7 +22,7 @@
       inventory_hostname in groups['jumphost'] | default([]) or
       inventory_hostname in groups['chaperone'] | default([]) or
       inventory_hostname in groups['data_transfer'] | default([]) or
-      inventory_hostname in groups['build_server'] | default([])
+      inventory_hostname in groups['build_server'] | default([]) or
       inventory_hostname in groups['logs'] | default([])
     - ldap_domains['stack']['replication_provider_uri'] is not defined
 
