@@ -1,6 +1,6 @@
 ---
 - hosts:
-    - build_servers
+    - build_server
     - data_transfer
     - docs
     - jumphost

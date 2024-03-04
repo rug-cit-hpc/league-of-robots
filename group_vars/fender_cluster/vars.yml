@@ -329,19 +329,15 @@ regular_users:
     groups: ['users', 'solve-rd']
   - user: 'lryba'
     groups: ['users', 'solve-rd']
+  - user: 'hghani'
+    groups: ['users', 'solve-rd']
 sudoers:
   - who: ['%solve-rd']
     become: 'solve-rd-dm'
-    name: 'solve-rd-dm'
-    command: 'ALL'
   - who: ['%umcg-atd']
     become: 'umcg-atd-dm'
-    name: 'umcg-atd-dm'
-    command: 'ALL'
   - who: ['%solve-rd']
     become: 'solve-rd-ateambot'
-    name: 'solve-rd-ateambot'
-    command: 'ALL'
 #
 # Shared storage related variables
 #

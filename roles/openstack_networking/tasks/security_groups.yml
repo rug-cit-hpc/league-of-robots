@@ -355,10 +355,10 @@
 #
 # Webservers security group.
 #
-- name: "Create security groups for webservers in 'docs' or 'jenkins' or 'build_servers' inventory group."
+- name: "Create security groups for webservers in 'docs' or 'jenkins' or 'build_server' inventory group."
   when: ('docs' in inventory_groups_with_hosts_created_in_openstack) or
         ('jenkins' in inventory_groups_with_hosts_created_in_openstack) or
-        ('build_servers' in inventory_groups_with_hosts_created_in_openstack)
+        ('build_server' in inventory_groups_with_hosts_created_in_openstack)
   block:
     - name: "Create security group for webservers."
       openstack.cloud.security_group:
