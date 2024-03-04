@@ -238,6 +238,7 @@ regular_groups:
   - 'umcg-gst'
   - 'umcg-lab'
   - 'umcg-labgnkbh'
+  - 'umcg-logstoprm'
   - 'umcg-patho'
   - 'umcg-pr'
   - 'umcg-vipt'
@@ -352,12 +353,8 @@ sudoers:
     command: 'ALL'
   - who: ['%umcg-labgnkbh']
     become: 'umcg-labgnkbh-dm'
-    name: 'umcg-labgnkbh-dm'
-    command: 'ALL'
   - who: ['%umcg-logstorpm']
     become: 'umcg-logstoprm-dm'
-    name: 'umcg-logstoprm-dm'
-    command: 'ALL'
   - who: ['%umcg-patho']
     become: 'umcg-patho-ateambot'
     name: 'umcg-patho-ateambot'
