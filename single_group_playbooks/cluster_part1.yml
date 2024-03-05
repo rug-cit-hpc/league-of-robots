@@ -6,6 +6,7 @@
   hosts:
     - cluster
   roles:
+    - static_hostname_lookup
     - admin_users
     - ssh_host_signer
     #
@@ -27,7 +28,6 @@
       when: repo_manager == 'none'
     - role: yum_local
       when: local_yum_repository is defined
-    - static_hostname_lookup
     - locale
     - logrotate
     - remove
