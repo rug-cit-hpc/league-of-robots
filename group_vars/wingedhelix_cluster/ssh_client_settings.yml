@@ -8,7 +8,6 @@ ssh_client_known_hosts: "\
   wh-porch*,\
   195.169.22.170,\
   *wh-transfer*,\
-  195.169.22.152,\
   *wh-sai,\
   *wh-dai,\
   *wingedhelix,\
