@@ -44,11 +44,11 @@ ip_addresses:
       address: 10.10.1.153
       netmask: /32
   wh-sai:
-    vlan990:
-      address: 192.168.1.151
-      netmask: /32
     vlan1068:
       address: 172.23.60.32
+      netmask: /32
+    vlan990:
+      address: 192.168.1.151
       netmask: /32
     wh_internal_management:
       address: 10.10.1.71
