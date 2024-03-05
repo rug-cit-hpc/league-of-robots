@@ -89,14 +89,14 @@ Every logs type, needs it's own server, to which the clients can connect.
 
 The steps are:
 - in the `static_inventory/logs_library.yml` define a new instance
-- assign the correct `logs_ca_name` variable for individual instance- example 'diagnostics':
-    `logs_ca_name: 'development'`
+- assign the correct `logs_class` variable for individual instance- example 'diagnostics':
+    `logs_class: 'development'`
 - deploy the new server and run the `single_group_playbooks/logs.yml` on top of it
 - define the client's environment to use the same type of logs servers - example Hyperchicken:
   (edit the `group_vars/hyperchicken_cluster/vars.yml` and configure the lines)
   ```
-    logs_ca_name: 'development'
-    logs_ca_name: 'diagnostics'
+    logs_class: 'development'
+    logs_class: 'diagnostics'
     stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
        - name: 'earl4'
          external_network: 'vlan16' # to retrieve public IP from

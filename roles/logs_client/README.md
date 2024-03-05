@@ -45,14 +45,14 @@ This role is the second role of the ansible roles for logs. It relies on predefi
  - (optional) a list of external rsyslog servers (unmanaged by our roles) defined
    in group variables f.e. inside `group_vars/{{ stack_name }}/vars.yml`, for example
    ```
-    logs_ca_name: 'development'
+    logs_class: 'development'
     stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
        - name: 'earl1'
          external_network: 'vlan16' # to retrieve public IP from
        - name: 'earl2'
          external_network: 'logs_external_network'
    ```
-   The `logs_ca_name` defines the group of rsyslog server to be used. The group must be already
+   The `logs_class` defines the group of rsyslog server to be used. The group must be already
    created and CA key and certificate exist in the `files/logs_library/` folder.
    Currently there are following groups planned: `development`, `research` and `diagnostics`.
    The `stacks_logs_servers` defines the log server. They must be already created by a
@@ -96,7 +96,7 @@ This role is the second role of the ansible roles for logs. It relies on predefi
       - `development` (default) for testing purposes
       - `research`, for the research clusters, and
       - `diagnostics` for the production machines
-    - type can be defined by assigning an appropriate value to the `logs_ca_name` variable (f.e.
+    - type can be defined by assigning an appropriate value to the `logs_class` variable (f.e.
       `research`) in a `groups_vars/[stack]/vars.yml` (for group of computers) or
       `static_inventory/[stack].yml` (to the individual instance).`
 

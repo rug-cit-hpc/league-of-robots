@@ -47,7 +47,7 @@ create_ldap: false
 use_sssd: false
 
 # Logs CA key name: 'development' (default), 'research' or 'diagnostics'
-logs_ca_name: 'development'
+logs_class: 'development'
 
 #
 # Jumphosts from other stack-name infra groups.

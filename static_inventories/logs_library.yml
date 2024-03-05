@@ -9,7 +9,7 @@ all:
       hosts:
         # ExternAl RsysLog 1 - Merlin - Development
         earl1:
-          logs_ca_name: 'development'
+          logs_class: 'development'
           cloud_flavor: m1.small
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
@@ -18,13 +18,13 @@ all:
           local_volume_size_extra: 100
         # ExternAl RsysLog 2 - Azure - Development
         earl2:
-          logs_ca_name: 'development'
+          logs_class: 'development'
         # ExternAl RsysLog 3 - Azure - Diagnostics
         earl3:
-          logs_ca_name: 'diagnostics'
+          logs_class: 'diagnostics'
         # ExternAl RsysLog 4 - Merlin - Diagnostics
         earl4:
-          logs_ca_name: 'diagnostics'
+          logs_class: 'diagnostics'
           cloud_flavor: m1.small
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"

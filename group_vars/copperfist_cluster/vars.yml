@@ -95,7 +95,7 @@ ssh_client_configs:
 #
 # Remote logging settings - for diagnostics servers
 #
-logs_ca_name: 'diagnostics'
+logs_class: 'diagnostics'
 stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
    - name: 'earl3'
      external_network: 'logs_external_network'

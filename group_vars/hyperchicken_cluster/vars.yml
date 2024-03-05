@@ -51,7 +51,7 @@ additional_etc_hosts:
 #
 # Remote logging settings - for diagnostics servers
 #
-logs_ca_name: 'development'
+logs_class: 'development'
 stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
    - name: 'earl1'
      external_network: 'vlan16' # to retrieve public IP from
