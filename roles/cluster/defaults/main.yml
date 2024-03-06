@@ -25,7 +25,7 @@ cluster_common_packages:
     - openssl
     - pciutils
     - python3 
-    - openssl11  # Required for openldap-ltb RPMs.
+    - openssl11 # Required for openldap-ltb RPMs.
     - qt5-qtbase
     - qt5-qtxmlpatterns
     - readline-static
