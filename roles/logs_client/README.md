@@ -42,22 +42,14 @@ The client machines must first already have deployed the following roles
 ### I.b Settings
 
 This role is the second role of the ansible roles for logs. It relies on predefined
- - (optional) a list of external rsyslog servers (unmanaged by our roles) defined
-   in group variables f.e. inside `group_vars/{{ stack_name }}/vars.yml`, for example
+ - (optional) a list of external rsyslog servers (unmanaged by our roles)
+ - (optional) defined in `group_vars/{{ stack_name }}/vars.yml`
    ```
     logs_class: 'development'
-    stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
-       - name: 'earl1'
-         external_network: 'vlan16' # to retrieve public IP from
-       - name: 'earl2'
-         external_network: 'logs_external_network'
    ```
    The `logs_class` defines the group of rsyslog server to be used. The group must be already
    created and CA key and certificate exist in the `files/logs_library/` folder.
    Currently there are following groups planned: `development`, `research` and `diagnostics`.
-   The `stacks_logs_servers` defines the log server. They must be already created by a
-   `logs_server` role and exist in they `group_vars/logs_library/ip_address.yml` - this defines
-   the specific servers that the logs will be sent to.
  - The `additional_etc_hosts` variable must include the apropriate logs servers. This is defined
    in the `group_vars/{{ stack_name }}/vars.yml`
    ```

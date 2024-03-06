@@ -59,3 +59,15 @@
     {% endfor %}
   {% endfor %}
 {% endif %}
+
+{% if logs_server_public_networks is defined and logs_server_public_networks | length >= 1 %}
+#
+# Log servers.
+#
+  {% for logs_class in logs_server_public_networks %}
+      {% for item in logs_server_public_networks[logs_class] %}
+{{ "%-15s" | format(all_ip_addresses[item['name']][item['network']].address) }}    {{ item['name'] }}       # {{ logs_class }}
+      {% endfor %}
+  {% endfor %}
+
+{% endif %}

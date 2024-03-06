@@ -9,48 +9,10 @@
   connection: local
   run_once: true
 
-- name: Collect IP addresses of logs_library
-  ansible.builtin.include_vars:
-    file: "{{ playbook_dir }}/group_vars/logs_library/ip_addresses.yml"
-    name: "logs_ips"
-  delegate_to: localhost
-  connection: local
-  run_once: true
-
-- name: Compile the list of logs names
-  ansible.builtin.set_fact:
-    logs_names: "{{ logs_servers_library.all.children.logs.hosts | default([]) | flatten }}"
-  register: logs_names_reg
-  delegate_to: localhost
-  connection: local
-  run_once: true
-
-# - name: Print public ip's of all logs server
-#   debug:
-#     msg: "{{ logs_servers_library.all.children.logs.hosts | flatten }}"
-#
-# - name: Just the logs servers and not the routers
-#   debug:
-#     msg: "{{ logs_ips.ip_addresses[item] | community.general.json_query('*.address') |
-#           reject('match', '^((10\\.)|(192\\.)|(172\\.)|(1\\.))') }}" #| selectattr('address', 'defined') }}"
-#   loop: "{{ logs_names }}"
-#
-
-# Public IPs of logs servers are anything by starting with 10., 172., 192. or 1.
-- name: Build a list of logs_server public IPs - from static_inventory and ip_addresses
-  ansible.builtin.set_fact:
-    logs_external_ips: "{{ logs_external_ips | default([]) + [{ 'name': item, 'ip': logs_ips.ip_addresses[item] | \
-      community.general.json_query('*.address') | reject('match', '^((10\\.)|(192\\.)|(172\\.)|(1\\.))') }] }}"
-  loop: "{{ logs_names }}"
-  register: logs_external_ips_reg
-  delegate_to: localhost
-  connection: local
-  run_once: true
-
 - name: Print public IP's of logs servers
   ansible.builtin.debug:
-    msg: "{{ item.name }} {{ item.ip }} | first | string }}"
-  loop: "{{ logs_external_ips }}"
+    msg: "{{ '%-15s' | format(all_ip_addresses[item['name']][item['network']].address) }}    {{ item['name'] }}"
+  loop: "{{ logs_server_public_networks[logs_class] }}"
 
 - name: 'Get {{ logs_toprm_chaperone_user }} home directory'
   ansible.builtin.shell: "set -o pipefail && getent passwd {{ logs_toprm_chaperone_user }}  | awk -F: '{ print $6 }'"

@@ -94,15 +94,7 @@ The steps are:
 - deploy the new server and run the `single_group_playbooks/logs.yml` on top of it
 - define the client's environment to use the same type of logs servers - example Hyperchicken:
   (edit the `group_vars/hyperchicken_cluster/vars.yml` and configure the lines)
-  ```
-    logs_class: 'development'
-    logs_class: 'diagnostics'
-    stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
-       - name: 'earl4'
-         external_network: 'vlan16' # to retrieve public IP from
-       - name: 'earl3'
-         external_network: 'logs_external_network'
-  ```
+  `logs_class: 'development'` or `logs_class: 'diagnostics'`
   Where the stacks logs servers values are already defined in the `static_inventory/logs_library.yml`
   file, and in the `group_vars/logs_library/ip_addresses.yml`
 - initialize the apropriate client LOR stack environment and on them deploy the same `single_group_playbooks/logs.yml`

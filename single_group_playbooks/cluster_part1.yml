@@ -41,7 +41,7 @@
     # - node_exporter
     - cluster
     - role: logs_client
-      when: stacks_logs_servers is defined
+      when: logs_class is defined
     - gpu            # needs to run after role 'cluster'
     - resolver
     - coredumps

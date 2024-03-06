@@ -6,7 +6,7 @@ _log_tag="logstoprm"
 # We store all the extra information into the system logs, like civilized people
 trap 'logger -t "${_log_tag}" "The command (${BASH_COMMAND}) had failed on line number (${LINENO})"' ERR
 
-{% if logs_external_ips is defined and ( logs_external_ips | length > 0 ) %}
+{% if logs_server_public_networks is defined and ( logs_server_public_networks|length > 0 ) %}
 
 {% raw %}
 #
@@ -31,17 +31,20 @@ trap 'logger -t "${_log_tag}" "The command (${BASH_COMMAND}) had failed on line 
 _lock_dirs="/mnt/samba/lock_dirs"		# full path
 _hostname="${1:-$(/bin/hostname)}"
 _small_delay="15"       # [seconds] how long should cron wait (after lock directory is created) to start the process
-_max_runtime=1000       # [seconds] how long can cron job run before being killed?
+_max_runtime=80000      # [seconds] how long can cron job run before being killed?
                         # Should be less than time between to cron exections. If daily cron (86400s)
                         # then 80000 is appropriate. Note that the jobs can run longes, as _max_loop is
                         # the one that checks if job is too long, and kills the job if lasts too long
 _max_loops="3"          # how many times should cronjob run and ignore (go to sleep without action), before
                         # starts cleaning stale processes?
 _max_remote_time=21600  # [seconds] how long should current cron ignore the cron job from another host?
-                        # it removes lock folder and files after:
+                        # on top of job running alrady. After that script removes lock folder and files after:
                         #         now + ( _max_runtime * _max_loops ) + _max_remote_time
+# placeholder variables to be later populated
+_earl_ip=''
+_earl_name=''
 # the main command we would like to run inside cron
-_command="echo rsync -a --rsh=\"ssh -l {% endraw %}{{ logs_toprm_earl_user }}{% raw%}\" ${_remote_earl}::logstoprm {% endraw %}{{ logs_toprm_destination }}{% raw%}/${_remote_earl}"
+_command="echo rsync -a --rsh=\"ssh -l {% endraw %}{{ logs_toprm_earl_user }}{% raw%}\" ${_earl_ip}::logstoprm {% endraw %}{{ logs_toprm_destination }}{% raw%}/${_earl_name}"
 
 _script_path_dir="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
@@ -75,7 +78,8 @@ function check_time(){
       #local _time_start=$(cat "${_timefile}" | tail -n1)     # already includes _small_delay, tail, as last one is the most important
 #      echo pwd = $(pwd)
       get_servers_time
-      local _time_created=$(stat -c %Z ${1:-${_hostname}})     # does NOT include _small_delay, tail, as last one is the most important
+      local _time_created
+      _time_created=$(stat -c %Z ${1:-${_hostname}})     # does NOT include _small_delay, tail, as last one is the most important
       _time_delay_start="$((_time_created + _small_delay))"    # add delay to the time of when the lock folder has been created
 #      echo time_created $_time_created
 #      echo time_delay $_time_delay_start
@@ -115,7 +119,7 @@ function killing_pid(){                                                       # 
    if test -n "${1:-}" ; then
       _pids=${1:-}
    elif test -e "${_hostname}/pid"; then
-      _pids=$(cat ${_hostname}/pid | sort -u)
+      _pids=$(sort -u < "${_hostname}/pid")
    else
       logger -t "${_log_tag}" "Error, no pid provided to kill and pid file is missing. Exit 255!"
       exit 255
@@ -158,19 +162,19 @@ function start_flow(){
                _pidfile="${_hostname}/pid"
                # Is pid file inside and it contains pid?
                if test -e "${_pidfile}" && test -n "$(cat ${_pidfile})" ; then   # pidfile exists and is not empty
-                  _running_pid="$(cat "${_pidfile}" | head -n1)"
-                  _pidfile_nr_lines="$(cat "${_pidfile}" | wc -l)"
+                  _running_pid="$(head -n1 < "${_pidfile}")"
+                  _pidfile_nr_lines="$(wc -l < "${_pidfile}")"
                   if [[ "${_pidfile_nr_lines}" -ge "${_max_loops}" ]]; then   # we found this process running too many times, time to kill it
                      killing_pid
                      remove_locks
                   else                                                        # it exist and has a pid
                      logger -t "${_log_tag}" " - the process is already running > let's log this and exit"
-                     echo "${_running_pid}" >> ${_pidfile}                    # duplicating process ID inside pid file
+                     echo "${_running_pid}" >> "${_pidfile}"                  # duplicating process ID inside pid file
                   fi
                else                                                           # we start the process
                   # Executing the main command
                   logger -t "${_log_tag}" "     - yes, let's run the main command"
-                  { ${_command} & }; _child="${!}"
+                  { "${_command}" & }; _child="${!}"
                   echo "${_child}" >> "${_pidfile}"                           # storing process ID inside the pid file
 		  # Next line ensures that process does not run longer than allowed
                   { ( sleep "${_max_runtime}"; \
@@ -227,13 +231,21 @@ function start_flow(){
 }
 
 {% endraw %}
-earl_servers=( {% for _logs_server in logs_external_ips %}"{{ _logs_server.ip | first | string }}" {% endfor %} )
+declare -A earl_servers=(
+{% for logs_class in logs_server_public_networks %}
+{% for logs_server in logs_server_public_networks[logs_class] %}
+    ["{{ logs_server.name }}"]="{{ all_ip_addresses[logs_server.name][logs_server.network].address }}"
+{% endfor %}
+{%- endfor %}
+)
 {% raw %}
-for _each_earl in "${earl_servers[@]}"; do
-   sleep $((RANDOM % _small_delay))        # small random delay, just in case if two systems would run the cron at the same time
-   _remote_earl="${_each_earl}"
+for _each_server in "${!earl_servers[@]}"; do
+   ( sleep $((RANDOM % _small_delay))  # small random delay, just in case if two systems would run the cron at the same time
+   _earl_name="${_each_server}"
+   _earl_ip="${earl_servers[${_each_server}]}"
    start_flow
+   ) 1>/dev/null 2>&1 &                # sent to background, so that if one node fails, others can finish normally
 done
-
+wait
 {% endraw %}
 {% endif %}
