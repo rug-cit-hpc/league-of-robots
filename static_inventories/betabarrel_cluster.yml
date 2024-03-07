@@ -21,6 +21,8 @@ all:
             - "{{ all.ip_addresses['umcg']['net4'] }}"
             - "{{ all.ip_addresses['rug']['bwp_net'] }}"
             - "{{ all.ip_addresses['rug']['operator'] }}"
+          ssh_client_configs:
+            - logs_library
         az-porch:
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
