@@ -21,6 +21,8 @@ all:
             - "{{ all.ip_addresses['umcg']['net4'] }}"
             - "{{ all.ip_addresses['rug']['bwp_net'] }}"
             - "{{ all.ip_addresses['rug']['operator'] }}"
+          ssh_client_configs:
+            - logs_library
     repo:
       hosts:
         wh-repo:
