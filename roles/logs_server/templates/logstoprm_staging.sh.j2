@@ -6,7 +6,7 @@ trap 'logger -t logstoprm-cron "The command (${BASH_COMMAND}) had failed on fine
 
 {% endraw %}
 
-destination_dir="{{ logstoprm.rsyncd_dir }}"
+destination_dir="{{ logstoprm_rsyncd_module.rsyncd_dir }}"
 
 # {% raw %}
 
@@ -37,7 +37,7 @@ cd "${source_dir}"
 logger -t logstoprm "Starting to move log files to ${destination_dir}"
 find ./ -type f -size +21c -mtime +7 -name "*.gz" -exec rsync \
    --remove-source-files --ignore-existing -a -R --min-size=21 \
-   --chown=root:{% endraw %}{{ logstoprm.group }}{% raw %} \
+   --chown=root:{% endraw %}{{ logstoprm_rsyncd_module.group }}{% raw %} \
    --chmod=D750,F640 ./{} /mnt/logstoprm/ 2>>${0}.logs \;
 if [[ "$?" -eq "0" ]]; then
    logger -t logstoprm "Logs have been successfully moved"

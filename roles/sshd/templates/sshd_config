@@ -190,7 +190,7 @@ Match Group {{ data_transfer_only_group }} LocalPort 443
 #
 # On logs server: configure rysncd module for logstoprm 
 #
-Match User {{ logstoprm.username }} LocalPort 22
+Match User {{ logstoprm_rsyncd_module.username }} LocalPort 22
     AllowAgentForwarding no
     AllowTcpForwarding no
     PermitTTY no
