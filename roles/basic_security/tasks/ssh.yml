@@ -12,7 +12,7 @@
     line: "{{ item.line }}"
     state: present
     validate: 'sshd -T -f %s'
-    mode: '0644'
+    mode: '0600'
   with_items:
     - regexp: "^PasswordAuthentication"
       line: "PasswordAuthentication {{ basic_security_ssh_password_authentication }}"

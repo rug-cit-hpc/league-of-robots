@@ -64,6 +64,30 @@
     - hostvars[inventory_hostname]['ansible_mounts'] | selectattr('mount', 'equalto', '/') | map(attribute='fstype') | first == 'xfs'
   become: true
 
+- name: 'Deploy custom config for conditional session umask.'
+  ansible.builtin.template:
+    src: conditional-pam_umask
+    dest: /etc/pam.d/conditional-pam_umask
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: 'Include custom config for conditional session umask in postlogin PAM session config.'
+  ansible.builtin.lineinfile:
+    path: "/etc/authselect/custom/{{ stack_name }}/postlogin"
+    state: present
+    insertbefore: '^session'
+    firstmatch: true
+    regexp: 'session.*pam_umask'
+    line: 'session     substack                   conditional-pam_umask'
+    owner: root
+    group: root
+    mode: '0644'
+  when: inventory_hostname in groups['data_transfer'] | default([]) or
+        inventory_hostname in groups['cluster'] | default([])
+  become: true
+
 - name: "Force enable authselect {{ stack_name }} profile."
   ansible.builtin.command:
     cmd: >

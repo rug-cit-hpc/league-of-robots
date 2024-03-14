@@ -1,17 +1,62 @@
 ---
-- name: 'Install sysctl config file to manage coredumps upon next reboot.'
+- name: Install sysctl config file to manage coredumps upon next reboot.
   ansible.builtin.template:
-    src: 'templates/50-ansible-managed-coredumps.conf'
-    dest: '/etc/sysctl.d/50-ansible-managed-coredumps.conf'
-    owner: 'root'
-    group: 'root'
+    src: templates/50-ansible-managed-coredumps.conf
+    dest: /etc/sysctl.d/50-ansible-managed-coredumps.conf
+    owner: root
+    group: root
     mode: '0644'
   become: true
 
-- name: 'Modify sysctl kernel parameter to manage coredumps right now.'
+- name: Modify sysctl kernel parameters to manage coredumps right now.
   ansible.posix.sysctl:
-    name: kernel.core_pattern
-    value: "{{ coredumps_pattern }}"
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
     sysctl_set: true
+  loop:
+    - name: kernel.core_pattern
+      value: "{{ coredumps_pattern }}"
+    - name: fs.suid_dumpable
+      value: "{{ coredumps_fs_suid_dumpable }}"
+  become: true
+
+- name: Install /etc/security/limits.d/50-ansible-managed-coredump-limits.conf to limit core dump sizes.
+  ansible.builtin.template:
+    src: templates/50-ansible-managed-coredump-limits.conf
+    dest: /etc/security/limits.d/50-ansible-managed-coredump-limits.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Manage coredumps for services controlled by systemd.
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: "{{ coredumps_enabled }}"
+    masked: "{{ false if coredumps_enabled | bool else true }}"
+    state: "{% if coredumps_enabled is sameas true %}started{% else %}stopped{% endif %}"
+    daemon_reload: true
+  retries: 3  # Tends to fail the first time due to some caching issue.
+  loop:
+    - systemd-coredump.socket
+    - kdump.service
+  become: true
+
+- name: Create /etc/systemd/coredump.conf.d/ directory.
+  ansible.builtin.file:
+    name: /etc/systemd/coredump.conf.d/
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Install /etc/systemd/coredump.conf.d/custom.conf to limit core dump sizes for services controlled by systemd.
+  ansible.builtin.template:
+    src: templates/systemd-coredump-limits.conf
+    dest: /etc/systemd/coredump.conf.d/custom.conf
+    owner: root
+    group: root
+    mode: '0644'
   become: true
 ...
