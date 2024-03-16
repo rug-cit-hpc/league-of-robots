@@ -5,6 +5,7 @@ Table of Contents:
 * [Intro](#-intro): About Pulp, concepts and documentation.
 * [Create Server](#-create-server): Create VM for Pulp with Ansible.
 * [Install and configure with Ansible](#-install-and-configure-with-ansible): Deploy Pulp & configure repositories both with Ansible.
+* [Maintenance): Various manual Pulp maintenance tasks.
 * [Configure manually with API](#-configure-manually-with-api): configure repositories manually using the Pulp API.
 
 ---
@@ -142,14 +143,15 @@ Furthermore the role cannot know when you want to sync a _repo_ with a _remote_ 
 The following steps must be performed manually for now:
 
  * Upload custom RPMs to the Pulp server.
- * Add content (RPMs) to a _repository_ for the ones without _remote_.
- * Add a _remote_ to a _repository_.
- * Sync a _repository_ with a _remote_.
- * Create a new _publication_ for a _repository version_.
- * Create a new _distribition_ for a _publication_.
- * Update the _publication_ for an existing _distribition_.
+ * Manual work on the Pulp server:
+   * Add content (RPMs) to a _repository_ for the ones without _remote_.
+   * Add a _remote_ to a _repository_.
+   * Sync a _repository_ with a _remote_.
+   * Create a new _publication_ for a _repository version_.
+   * Create a new _distribution_ for a _publication_.
+   * Update the _publication_ for an existing _distribution_.
 
-### Upload custom RPMs to Pulp server.
+#### Manual work - Upload custom RPMs to Pulp server.
 
 ```bash
 #
@@ -161,7 +163,7 @@ The following steps must be performed manually for now:
 rsync -av --rsync-path 'sudo -u repoadmin rsync' [os_distribution] [admin]@[jumphost]+[stack_prefix]-repo:/admin/repoadmin/
 ```
 
-##### Manual work on the Pulp server
+#### Manual work - on the Pulp server
 
 The remaining tasks can be performed on the Pulp server in one go with the idempotent function named ```pulp-sync-publish-distribute```,
 which was deployed by the ```pulp_server``` role:
@@ -180,21 +182,12 @@ pulp-sync-publish-distribute
 Alternatively or for debugging issues with ```pulp-sync-publish-distribute``` you can also perform these tasks manually using:
 
  * Either Pulp CLI commands where possible (easier and recommended).
- * Or send raw HTTP GET/PUT calls to the Pulp API using a commandline HTTP client like HTTPie or cURL (harder).
+ * Or by sending raw HTTP GET/PUT calls to the Pulp API using a commandline HTTP client like HTTPie or cURL (harder).
 
 Below are code examples for CentOS 7 machines and corresponding repos.
 Note that other distros like Rocky 9 use a different list of repos.
 
-##### Upload custom RPMs to repo server.
-
-```bash
-#
-# This assumes you have the custom RPMs in a local folder named "umcg-centos7".
-#
-rsync -av --rsync-path 'sudo -u repoadmin rsync' umcg-centos7 [admin]@[jumphost]+[stack_prefix]-repo:/admin/repoadmin/
-```
-
-##### Login and become repoadmin user on repo server.
+##### Manual work - on the Pulp server - Login and become repoadmin user on repo server.
 
 ```bash
 ssh [admin]@[jumphost]+[stack_prefix]-repo
@@ -205,7 +198,7 @@ set -u
 pulp status
 ```
 
-##### Add custom content (RPMs) to a the custom repo without remote.
+##### Manual work - on the Pulp server - Add custom content (RPMs) to a the custom repo without remote.
 
 ```bash
 #
@@ -266,7 +259,7 @@ for rpm in $(find umcg-* -name '*.rpm'); do
 done
 ```
 
-##### Declare repo list
+##### Manual work - on the Pulp server - Declare repo list
 
 ```bash
 declare -a pulp_repos_with_remotes
@@ -288,7 +281,7 @@ all_pulp_repos=(
 )
 ```
 
-##### Add remotes to repos.
+##### Manual work - on the Pulp server - Add remotes to repos.
 
 ```bash
 #
@@ -299,7 +292,7 @@ for repo in "${pulp_repos_with_remotes[@]}"; do
 done
 ```
 
-##### Sync repos with remotes.
+##### Manual work - on the Pulp server - Sync repos with remotes.
 
 ```bash
 #
@@ -310,7 +303,7 @@ for repo in "${pulp_repos_with_remotes[@]}"; do
 done
 ```
 
-##### Create/update distributions based on new publications based on new repository versions.
+##### Manual work - on the Pulp server - Create/update distributions based on new publications based on new repository versions.
 
 ```bash
 set -e
@@ -358,6 +351,62 @@ for repo in "${all_pulp_repos[@]}"; do
         --publication "${publication_href}"
 done
 ```
+
+---
+
+# <a name="Maintenance"/> Various manual Pulp maintenance tasks.
+
+### Expired web server certificates
+
+The ```pulp_server``` _role_ will not automatically update web server certificates when they expire.
+When the certificate expires you must:
+
+ * Delete the expired cert manually on the Pulp server:
+   ```
+   rm -f /etc/pulp/certs/pulp_webserver.crt
+   rm -f /etc/pulp/certs/pulp_webserver.key
+   ```
+ * Re-run the  ```pulp_server``` Ansible _role_ to create a new certificate.
+
+Note that when the root cert also expired, then you will need to delete that one too and
+ * Add the new root cert to the league-of-robots repo at ```files/[stack_name]/[stack_prefix]-repo_pulp_root.crt``` and create a PR.
+ * Re-run the  ```pulp_client``` Ansible _role_ to distribute the new root certificate to the clients.
+
+### Cleanup artifacts to remove RPMs no longer used by any repo version / publication.
+
+To remove RPMs no longer used and reclaim disk space
+
+```bash
+ssh [admin]@[jumphost]+[stack_prefix]-repo
+sudo -u repoadmin bash
+cd
+source pulp-cli.venv/bin/activate
+pulp orphans delete
+```
+
+### When the Pulp server fails to start
+
+Check if the RPMs added to our ```cpel``` repos have the required checksums.
+Sometimes the artifacts somehow only received MD5 checksums.
+The default ```ALLOWED_CONTENT_CHECKSUMS = ["sha224", "sha256", "sha384", "sha512"]```
+Pulp also supports ```md5``` and ```sha1```, but those are not by default "allowed" anymore.
+This may result in the error:
+```
+django.core.exceptions.ImproperlyConfigured: There have been identified artifacts with forbidden checksum 'md5'.
+Run 'pulpcore-manager handle-artifact-checksums' first to unset forbidden checksums.
+```
+
+To get a report on the problematic ones:
+```
+root@[stack_prefix]-repo $> /usr/local/bin/pulpcore-manager handle-artifact-checksums --report
+```
+
+To calculate new "allowed" checksums for the problematic ones:
+```
+root@[stack_prefix]-repo $> /usr/local/bin/pulpcore-manager handle-artifact-checksums
+```
+
+ToDo: we need to figure out how to create the correct type of checksums when adding RPMs to our custom ```cpel``` repo.
 
 ---
 
@@ -613,23 +662,6 @@ http --verify no https://nb-repo/pulp/content/nibbler/centos7-updates/config.rep
 http --verify no https://nb-repo/pulp/content/nibbler/centos7-extras/config.repo  > centos7-extras.repo
 http --verify no https://nb-repo/pulp/content/nibbler/epel7/config.repo           > epel7.repo
 http --verify no https://nb-repo/pulp/content/nibbler/cpel7/config.repo           > cpel7.repo
-#
-# Cleanup to remove RPMs no longer used by any repo version / publication.
-# E.g. after deleting a repo (version).
-#
-pulp orphans delete
-#
-# Pulp does not restart anymore, because the RPMs added to our cpel7 repo only received MD5 checksums.
-# The default ALLOWED_CONTENT_CHECKSUMS = ["sha224", "sha256", "sha384", "sha512"]
-# Pulp also supports md5 and sha1, but those are not by default "allowed" anymore.
-# This results in the error:
-#     django.core.exceptions.ImproperlyConfigured: There have been identified artifacts with forbidden checksum 'md5'.
-#     Run 'pulpcore-manager handle-artifact-checksums' first to unset forbidden checksums.
-# ToDo need to figure out how to create the correct type of checksums when adding RPMs to our custom cpel7 repo.
-# To get a report on the problematic ones:
-root@nb-repo $> /usr/local/bin/pulpcore-manager handle-artifact-checksums --report
-# To calculate new "allowed" checksums for the problematic ones:
-root@nb-repo $> /usr/local/bin/pulpcore-manager handle-artifact-checksums
 #
 # Updates
 #

@@ -7,7 +7,7 @@
 
 - name: Deploy ssh (client) role on machines behind jumphosts.
   hosts:
-    - build_servers
+    - build_server
     - cluster
     - data_transfer
     - docs

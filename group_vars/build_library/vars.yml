@@ -48,7 +48,7 @@ regular_users:
 sudoers:
   - who: ['%vipt']
     become: 'ALL'
-    name: 'apptainer' 
+    name: 'apptainer'
     command: '/bin/apptainer'
 use_ldap: false
 create_ldap: false

@@ -1,13 +1,4 @@
 # Default iRODS setup info
-
-firewall_allowed_tcp_ports:                 # list of open ports on iCAT server
-  - "22"    # SSH.
-  - "443"   # davrods SSL
-  - "1247"  # irods
-  - "1248"  # Control Plane Port
-  - "5432"  # PostgreSQL
-  - "20000:20199"  # irods
-
 ir_yum_packages_4_2_11:
   - irods-server-4.2.11-1
   - irods-database-plugin-postgres-4.2.11-1

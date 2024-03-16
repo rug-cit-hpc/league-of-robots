@@ -139,7 +139,11 @@ else
 fi
 pip3 install openstackclient
 pip3 install ruamel.yaml
-pip3 install netaddr
+#
+# Until https://github.com/ansible-collections/ansible.utils/issues/331 is fixed,
+# we cannot use netaddr >= 1.0.0.
+#
+pip3 install 'netaddr<1'
 #
 # Package dnspython is required for Ansible lookup plugin community.general.dig
 #

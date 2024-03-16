@@ -1,10 +1,18 @@
 ---
 #
-# For disabling coredumps:
+# By default we disable creating coredump files on production systems,
+# because these can be huge and writing relatively large files on a file system under heavy load may be so slow,
+# that it causes Slurm to hit the UnkillableStepTimeout limit.
+# This may happen when a job exceeds its requested memory and gets killed by the Out Of Memory (OOM) Killer,
+# which is perfectly normal behaviour.
+# Writing the coredump file can then be so slow that it can take a node offline
+# with STATE=drained and REASON="Kill task failed", which is not what we want.
 #
-coredumps_pattern: '|/bin/false'
+# Change coredumps_enabled to true only for explicit debugging on a test system.
 #
-# For enabling coredumps:
-#
-# coredumps_pattern: 'core'
+coredumps_enabled: false
+coredumps_pattern: "{% if coredumps_enabled is sameas true %}core{% else %}|/bin/false{% endif %}"
+coredumps_fs_suid_dumpable: "{% if coredumps_enabled is sameas true %}2{% else %}0{% endif %}"
+coredumps_soft_limit: "{% if coredumps_enabled is sameas true %}256000{% else %}0{% endif %}"
+coredumps_hard_limit: "{% if coredumps_enabled is sameas true %}512000{% else %}0{% endif %}"
 ...
