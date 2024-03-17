@@ -102,6 +102,15 @@
       ssh_authorized_keys:
       {% for public_key in public_keys_of_local_admins %}{% if 'ssh-rsa' not in public_key %}  - {{ public_key }}
       {% endif %}{% endfor %}
+      {% if local_volume_size_extra is defined and local_volume_size_extra > 0 %}
+      mounts:
+        {% for extra_volume in volumes %}
+        - extra_volume['device']
+          extra_volume['mount_point']
+          extra_volume['type']
+          extra_volume['mount_options']
+        {% endfor %}
+      {% endif %}
     availability_zone: "{{ availability_zone }}"
     wait: true
     timeout: "{{ openstack_api_timeout | int + 1200 }}"

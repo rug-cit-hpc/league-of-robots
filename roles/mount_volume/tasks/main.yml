@@ -21,6 +21,8 @@
   changed_when: false
   loop: "{{ volumes }}"
 
+# ToDo: prevent overwriting already formatted volume.
+
 - name: 'Create a filesystem on the device.'
   community.general.filesystem:
     fstype: "{{ item.item.type }}"
