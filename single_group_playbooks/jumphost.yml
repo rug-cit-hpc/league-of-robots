@@ -6,6 +6,7 @@
   hosts:
     - jumphost
   roles:
+    - static_hostname_lookup
     - admin_users
     - ssh_host_signer
     - iptables
@@ -26,7 +27,6 @@
         - use_ldap | default(true) | bool
         - use_sssd | default(false) | bool
     - sshd
-    - static_hostname_lookup
     - basic_security
     - {role: logs_client, when: stacks_logs_servers is defined}
     - regular_users

@@ -8,7 +8,7 @@ all:
     jumphost:
       hosts:
         cf-porch:
-          cloud_image: RockyLinux-9.2_xfs
+          cloud_image: RockyLinux-9.3_xfs
           os_distribution: 'rocky9'
           ansible_python_interpreter: /usr/bin/python3
           cloud_flavor: general.v1.small
@@ -24,11 +24,13 @@ all:
             - "{{ all.ip_addresses['umcg']['net4'] }}"
             - "{{ all.ip_addresses['rug']['bwp_net'] }}"
             - "{{ all.ip_addresses['rug']['operator'] }}"
+          ssh_client_configs:
+            - logs_library
     data_transfer:
       hosts:
         cf-transfer:
           #cloud_flavor: m1.small
-          cloud_image: RockyLinux-9.2_xfs
+          cloud_image: RockyLinux-9.3_xfs
           os_distribution: 'rocky9'
           cloud_flavor: general.v1.small
           host_networks:

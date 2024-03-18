@@ -18,7 +18,7 @@
 #
 - name: 'Patch /etc/sysconfig/nfs to add --manage-gids option to rpc.mountd.'
   ansible.builtin.lineinfile:
-    dest: /etc/sysconfig/nfs
+    path: /etc/sysconfig/nfs
     regexp: '^#?RPCMOUNTDOPTS='
     line: 'RPCMOUNTDOPTS="--manage-gids"'
     owner: root
@@ -26,6 +26,28 @@
     mode: '0644'
   notify:
     - restart_nfs-server
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] <= "7"
+  become: true
+
+- name: 'Patch /etc/nfs.conf to enable the manage-gids options.'
+  ansible.builtin.lineinfile:
+    path: /etc/nfs.conf
+    insertafter: '\[{{ item }}\]'
+    regexp: '^#?\s*manage-gids='
+    line: 'manage-gids=y'
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - exportd
+    - mountd
+  notify:
+    - restart_nfs-server
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
   become: true
 
 - name: 'Enable and start nfs-server service.'

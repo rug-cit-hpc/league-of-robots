@@ -5,12 +5,12 @@
 - name: 'Satisfy dependencies and install iCAT'
   hosts: irods
   roles:
+    - static_hostname_lookup
     - admin_users
     - ssh_host_signer
     - iptables
     - ssh  # client
     - pulp_client
-    - static_hostname_lookup
     - locale
     - logrotate
     - logins

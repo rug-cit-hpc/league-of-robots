@@ -100,7 +100,7 @@
   ansible.builtin.meta: flush_handlers
 
 #
-# For EL >= 9.3 we need Lustre >= 2.15.4, because Lustre 2.15.3 will no longer compile with DKMS.
+# For EL >= 9.3 we need a patched Lustre >= 2.15.4, because Lustre 2.15.3 will no longer compile with DKMS.
 #
 # At the time this comment was written 2.15.4 was not yet released and we need to
 # * Fetch the source code for 2.15.4-RC2
