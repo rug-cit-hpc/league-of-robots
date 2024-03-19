@@ -9,6 +9,7 @@
   hosts:
     - build_server
     - cluster
+    - chaperone
     - data_transfer
     - docs
     - irods

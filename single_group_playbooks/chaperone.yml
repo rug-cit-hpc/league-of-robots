@@ -7,6 +7,7 @@
     - chaperone
   roles:
     - locale
+    - ssh
     - cluster
     - regular_users
     - shared_storage
