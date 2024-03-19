@@ -26,6 +26,8 @@
     bls_entry_without_machine_id: "{{ item | regex_replace('/boot/loader/entries/[0-9a-z]+([^0-9a-z]+.*)', '\\1') }}"
     updated_bls_entry_path: "/boot/loader/entries/{{ ansible_machine_id }}{{ bls_entry_without_machine_id }}"
   loop: "{{ found_bls_entries['files'] | map(attribute='path') | list }}"
+  register: moved_bls_entry
+  changed_when: "'->' in moved_bls_entry.stdout"
   when:
     - bls_entry_machine_id != ansible_machine_id
     - updated_bls_entry_path not in found_bls_entries['files'] | map(attribute='path') | list
