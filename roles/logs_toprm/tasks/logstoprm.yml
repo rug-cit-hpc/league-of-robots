@@ -28,4 +28,29 @@
     group: "{{ logs_toprm_chaperone_user }}"
     mode: '0750'
   become: true
+
+- name: "Check that the {{ logs_toprm_chaperone_user }} user has already created keys"
+  ansible.builtin.stat:
+    path: "{{ home_path.stdout }}/.ssh/id_ed25519"
+  register: key_details
+  become: true
+  become_user: "{{ logs_toprm_chaperone_user }}"
+
+- name: "OpenSSH is missing, generating it now ... "
+  community.crypto.openssh_keypair:
+    path: "{{ home_path.stdout }}/.ssh/id_ed25519"
+    type: ed25519
+  become: true
+  become_user: "{{ logs_toprm_chaperone_user }}"
+
+- name: 'Create crontab for collecting the logs.'
+  ansible.builtin.cron:
+    name: "logstoprm_cron.sh # Unique ID required to update existing cronjob: do not modify."
+    minute: "41"
+    hour: "*/8"
+    day: "*"
+    user: "{{ logs_toprm_chaperone_user }}"
+    job: /bin/bash -c "{{ home_path.stdout }}//logstoprm_cron.sh"
+  become: true
+  become_user: "{{ logs_toprm_chaperone_user }}"
 ...

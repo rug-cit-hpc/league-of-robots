@@ -236,6 +236,8 @@ all:
               groups: ['umcg-pr', "{{ functional_users_group }}"]
             - user: 'umcg-vipt-dm'
               groups: ['umcg-vipt', "{{ functional_users_group }}"]
+          ssh_client_configs:
+            - logs_library
     nfs_server:
       hosts:
         wh-sai:
