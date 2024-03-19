@@ -33,7 +33,7 @@
   become_user: "{{ logs_toprm_chaperone_user }}"
 
 - name: "Collecting public CA keys for logs servers"
-  ansible.builtin.shell: "{{ playbook_dir }}/ssh-host-ca/logs_library-ca.pub"
+  ansible.builtin.shell: "cat {{ playbook_dir }}/ssh-host-ca/logs_library-ca.pub"
   register: public_ssh_key
   delegate_to: localhost
   connection: local
