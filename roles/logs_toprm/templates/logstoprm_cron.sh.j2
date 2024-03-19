@@ -44,7 +44,7 @@ _max_remote_time=21600  # [seconds] how long should current cron ignore the cron
 # placeholder variables to be later populated
 _earl_name=''
 # the main command we would like to run inside cron
-_command="rsync -a --rsh=\"ssh -l {% endraw %}{{ logs_toprm_earl_user }}{% raw%}\" ${_earl_name}::logstoprm {% endraw %}{{ logs_toprm_destination }}{% raw%}/${_earl_name}"
+_command="echo rsync -a --rsh=\"ssh -l {% endraw %}{{ logs_toprm_earl_user }}{% raw%}\" ${_earl_name}::logstoprm {% endraw %}{{ logs_toprm_destination }}{% raw%}/${_earl_name}"
 
 _script_path_dir="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
