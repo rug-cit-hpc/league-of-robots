@@ -1,7 +1,7 @@
 ---
 - name: Print public IP's of logs servers
   ansible.builtin.debug:
-    msg: "{{ '%-15s' | format(all_ip_addresses[item['name']][item['network']].address) }}    {{ item['name'] }}"
+    msg: "{{ item['name'] }} - {{ '%-15s' | format(all_ip_addresses[item['name']][item['network']].address) }}"
   loop: "{{ logs_server_public_networks[logs_class] }}"
 
 - name: 'Get {{ logs_toprm_chaperone_user }} home directory'
@@ -41,7 +41,8 @@
 
 - name: "Adding public CA key to {{ logs_toprm_chaperone_user }} on chaperone"
   ansible.builtin.copy:
-    content: "@cert-authority earl* {{ public_ssh_key.stdout }}"
+    content: |
+      @cert-authority earl* {{ public_ssh_key.stdout }}
     dest: "{{ home_path.stdout }}/.ssh/ssh_known_hosts"
   become: true
   become_user: "{{ logs_toprm_chaperone_user }}"
@@ -57,7 +58,7 @@
         IdentityFile "~/.ssh/id_ed25519"
         ControlPath ~/.ssh/tmp/%C
         ControlPersist 5m
-    dest: "{{ home_path.stdout }}/.ssh/conf.d/{{ item }}"
+    dest: "{{ home_path.stdout }}/.ssh/conf.d/{{ item['name'] }}"
   loop: "{{ logs_server_public_networks[logs_class] }}"
   become: true
   become_user: "{{ logs_toprm_chaperone_user }}"
