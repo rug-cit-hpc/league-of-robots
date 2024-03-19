@@ -5,6 +5,7 @@
 - name: '###==-> Roles for repo management servers. <-==###'
   hosts: repo
   roles:
+    - static_hostname_lookup
     - admin_users
     - ssh_host_signer
     - iptables
@@ -14,7 +15,6 @@
     - locale
     - logrotate
     - logins
-    - static_hostname_lookup
     - sshd
     - basic_security
     - remove

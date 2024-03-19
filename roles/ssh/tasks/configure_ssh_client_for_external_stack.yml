@@ -17,6 +17,10 @@
     insertbefore: BOF
     regexp: '(?i)^#?@cert-authority .* for {{ external_stack }}$'
     line: "{{ ssh_client_settings_for_external_stack['ssh_client_known_hosts'] }} for {{ external_stack }}"
+  when:
+    - ssh_client_settings_for_external_stack['ssh_client_known_hosts'] is defined
+    - ssh_client_settings_for_external_stack['ssh_client_known_hosts'] is not none
+    - ssh_client_settings_for_external_stack['ssh_client_known_hosts'] | default('') | length >= 1
   become: true
 
 - name: Create /etc/ssh/ssh_config.d/ dir.
@@ -26,6 +30,10 @@
     owner: root
     group: root
     mode: '0755'
+  when:
+    - ssh_client_settings_for_external_stack['ssh_client_jumphosts'] is defined
+    - ssh_client_settings_for_external_stack['ssh_client_jumphosts'] is not none
+    - ssh_client_settings_for_external_stack['ssh_client_jumphosts'] | default('') | length >= 1
   become: true
 
 - name: "Create /etc/ssh/ssh_config.d/{{ external_stack }}.conf config file."
@@ -35,5 +43,9 @@
     owner: root
     group: root
     mode: '0644'
+  when:
+    - ssh_client_settings_for_external_stack['ssh_client_jumphosts'] is defined
+    - ssh_client_settings_for_external_stack['ssh_client_jumphosts'] is not none
+    - ssh_client_settings_for_external_stack['ssh_client_jumphosts'] | default('') | length >= 1
   become: true
 ...

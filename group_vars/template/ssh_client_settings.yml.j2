@@ -41,6 +41,9 @@ ssh_client_known_hosts: "\
   {% for dochost in groups['docs'] | default([]) %}
   *{{ dochost }},\
   {% endfor %}
+  {% for logshost in groups['logs'] | default([]) %}
+  *{{ logshost }},\
+  {% endfor %}
   *{{ stack_prefix }}-* \
   {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }}"
 ...
