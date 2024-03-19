@@ -28,7 +28,8 @@ trap 'logger -t "${_log_tag}" "Command (${BASH_COMMAND}) has failed on line numb
 ## Variables
 #
 
-_lock_dirs="/mnt/samba/lock_dirs"		# full path
+_lock_dirs="{% endraw %}{{ logs_toprm_destination }}{% raw%}/lock_dirs"		# full path
+if [[ ! test -d "${_lock_dirs}" ]]; then mkdir -p ${_lock_dirs}; fi
 _hostname="${1:-$(/bin/hostname)}"
 _small_delay="15"       # [seconds] how long should cron wait (after lock directory is created) to start the process
 _max_runtime=80000      # [seconds] how long can cron job run before being killed?
