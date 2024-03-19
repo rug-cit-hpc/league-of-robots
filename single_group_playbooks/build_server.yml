@@ -9,6 +9,7 @@
     - admin_users
     - ssh_host_signer
     - iptables
+    - grub
     - yum_repos
     - locale
     - logrotate
