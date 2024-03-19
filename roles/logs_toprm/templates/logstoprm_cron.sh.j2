@@ -28,24 +28,23 @@ trap 'logger -t "${_log_tag}" "Command (${BASH_COMMAND}) has failed on line numb
 ## Variables
 #
 
-_lock_dirs="{% endraw %}{{ logs_toprm_destination }}{% raw%}/lock_dirs"		# full path
+_lock_dirs="{% endraw %}{{ logs_toprm_destination }}{% raw%}/lock_dirs"      # full path
 if ! test -d "${_lock_dirs}"; then mkdir -p ${_lock_dirs}; fi
 _hostname="${1:-$(/bin/hostname)}"
-_small_delay="15"       # [seconds] how long should cron wait (after lock directory is created) to start the process
-_max_runtime=80000      # [seconds] how long can cron job run before being killed?
-                        # Should be less than time between to cron exections. If daily cron (86400s)
+_small_delay="30"       # [seconds] how long should cron wait (after lock directory is created) to start the process
+_max_runtime=36000      # [seconds] how long can cron job run before being killed?
+             # ^8h      # Should be less than time between to cron exections. If daily cron (86400s)
                         # then 80000 is appropriate. Note that the jobs can run longes, as _max_loop is
                         # the one that checks if job is too long, and kills the job if lasts too long
 _max_loops="3"          # how many times should cronjob run and ignore (go to sleep without action), before
                         # starts cleaning stale processes?
 _max_remote_time=21600  # [seconds] how long should current cron ignore the cron job from another host?
-                        # on top of job running alrady. After that script removes lock folder and files after:
+                # ^6h   # on top of job running already. Script removes lock folder and files after
                         #         now + ( _max_runtime * _max_loops ) + _max_remote_time
 # placeholder variables to be later populated
-_earl_ip=''
 _earl_name=''
 # the main command we would like to run inside cron
-_command="echo rsync -a --rsh=\"ssh -l {% endraw %}{{ logs_toprm_earl_user }}{% raw%}\" ${_earl_ip}::logstoprm {% endraw %}{{ logs_toprm_destination }}{% raw%}/${_earl_name}"
+_command="rsync -a --rsh=\"ssh -l {% endraw %}{{ logs_toprm_earl_user }}{% raw%}\" ${_earl_name}::logstoprm {% endraw %}{{ logs_toprm_destination }}{% raw%}/${_earl_name}"
 
 _script_path_dir="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
@@ -70,41 +69,26 @@ function check_time(){
    #     now >                                     14       should kill process
    #      _time_delay_start + ( _max_runtime * _max_loops ) + _max_remote_time
    #     file `time` is missing or wrong perms              log
-   # _timefile="${1:-${_hostname}}/time"
-   # if test -e ${_timefile}; then
-   #    if ! test -w ${_timefile} ; then
-   #       logger -t ${0} "Warning: the file ${_timefile} has wrong permissions!"
-   #       return 255
-   #    fi
-      #local _time_start=$(cat "${_timefile}" | tail -n1)     # already includes _small_delay, tail, as last one is the most important
-#      echo pwd = $(pwd)
-      get_servers_time
-      local _time_created
-      _time_created=$(stat -c %Z ${1:-${_hostname}})     # does NOT include _small_delay, tail, as last one is the most important
-      _time_delay_start="$((_time_created + _small_delay))"    # add delay to the time of when the lock folder has been created
-#      echo time_created $_time_created
-#      echo time_delay $_time_delay_start
-#      echo ${1:-${_hostname}}
-      if test -z "${_time_delay_start}"; then logger -t "${_log_tag}" "Error _time_delay_start is empty" ; exit 255; fi  # the time is missing
-      local _time_max_runtime=$((_time_delay_start + _max_runtime))
-      local _time_max_remotetime=$(( _time_delay_start + ( _max_runtime * _max_loops ) + _max_remote_time))
-      if [[ "${_time_now}" -gt "${_time_max_remotetime}" ]]; then
-         logger -t "${_log_tag}" "Remote host runs for too long - returning 14!"
-         return 14   # clean remote host lock directory and files
-      elif [[ "${_time_now}" -gt "${_time_max_runtime}" ]]; then
-         logger -t "${_log_tag}" "Should kill - returning 13!"
-         return 13   # kill
-      elif [[ "${_time_now}" -lt "${_time_delay_start}" ]]; then
-         logger -t "${_log_tag}" "Should wait - returning 1!"
-         return 1    # wait
-      elif [[ "${_time_now}" -gt "${_time_delay_start}" ]]; then
-         logger -t "${_log_tag}" "Should run - returning 0!"
-         return 0    # run
-      fi
-#   else
-#      echo "${_time_now} + ${_small_delay}" | bc > ${_timefile}
-#      return 1
-#   fi
+   get_servers_time
+   local _time_created
+   _time_created=$(stat -c %Z ${1:-${_hostname}})     # does NOT include _small_delay, tail, as last one is the most important
+   _time_delay_start="$((_time_created + _small_delay))"    # add delay to the time of when the lock folder has been created
+   if test -z "${_time_delay_start}"; then logger -t "${_log_tag}" "Error _time_delay_start is empty" ; exit 255; fi  # the time is missing
+   local _time_max_runtime=$((_time_delay_start + _max_runtime))
+   local _time_max_remotetime=$(( _time_delay_start + ( _max_runtime * _max_loops ) + _max_remote_time))
+   if [[ "${_time_now}" -gt "${_time_max_remotetime}" ]]; then
+      logger -t "${_log_tag}" "Remote host runs for too long - returning 14!"
+      return 14   # clean remote host lock directory and files
+   elif [[ "${_time_now}" -gt "${_time_max_runtime}" ]]; then
+      logger -t "${_log_tag}" "Should kill - returning 13!"
+      return 13   # kill
+   elif [[ "${_time_now}" -lt "${_time_delay_start}" ]]; then
+      logger -t "${_log_tag}" "Should wait - returning 1!"
+      return 1    # wait
+   elif [[ "${_time_now}" -gt "${_time_delay_start}" ]]; then
+      logger -t "${_log_tag}" "Should run - returning 0!"
+      return 0    # run
+   fi
 }
 
 function remove_locks(){
@@ -177,17 +161,17 @@ function start_flow(){
                   logger -t "${_log_tag}" "     - yes, let's run the main command"
                   { "${_command}" & }; _child="${!}"
                   echo "${_child}" >> "${_pidfile}"                           # storing process ID inside the pid file
-		  # Next line ensures that process does not run longer than allowed
+                  # Next line ensures that process does not run longer than allowed
                   { ( sleep "${_max_runtime}"; \
                       logger -t "${_log_tag}" "Killing PID ${_child} due to running for too long!"; \
                       killing_pid "${_child}"; \
                   ) & } 1>/dev/null 2>&1
-		  # Next line ensures that process is killed if lock directory disappears
-		  { ( while test -d ${_lock_dir}; do sleep ${_small_delay}; done; \
-		      logger -t "${_log_tag}" "Killing PID ${_child} because the lock dir disappeared!"; \
+        # Next line ensures that process is killed if lock directory disappears
+        { ( while test -d ${_lock_dir}; do sleep ${_small_delay}; done; \
+            logger -t "${_log_tag}" "Killing PID ${_child} because the lock dir disappeared!"; \
                       killing_pid "${_child}"; \
                   ) & } 1>/dev/null 2>&1
-		  wait ${_child} 2>/dev/null || true                          # true ensures that the cleanup is done
+        wait ${_child} 2>/dev/null || true                          # true ensures that the cleanup is done
                   remove_locks                                                # remove the lock files and directories
                   exit 0                                                      # job successfully finished
                fi
@@ -204,7 +188,7 @@ function start_flow(){
                      ;;
                   255)
                      logger -t "${_log_tag}" "Cannot get time of lock directory!"
-		     exit 255
+                     exit 255
                      ;;
                   *)
                      logger -t "${_log_tag}" "Unknown error, should log"
@@ -235,7 +219,7 @@ function start_flow(){
 declare -A earl_servers=(
 {% for logs_class in logs_server_public_networks %}
 {% for logs_server in logs_server_public_networks[logs_class] %}
-    ["{{ logs_server.name }}"]="{{ all_ip_addresses[logs_server.name][logs_server.network].address }}"
+    {{ logs_server.name }}
 {% endfor %}
 {%- endfor %}
 )
@@ -243,7 +227,6 @@ declare -A earl_servers=(
 for _each_server in "${!earl_servers[@]}"; do
    ( sleep $((RANDOM % _small_delay))  # small random delay, just in case if two systems would run the cron at the same time
    _earl_name="${_each_server}"
-   _earl_ip="${earl_servers[${_each_server}]}"
    start_flow
    ) 1>/dev/null 2>&1 &                # sent to background, so that if one node fails, others can finish normally
 done
