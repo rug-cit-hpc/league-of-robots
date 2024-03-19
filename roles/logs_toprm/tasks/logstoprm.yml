@@ -1,14 +1,4 @@
 ---
-## Gathering logs server list
-- name: Include static inventory logs_library.yml
-  ansible.builtin.include_vars:
-    file: "{{ inventory_dir }}/logs_library.yml"
-    name: "logs_servers_library"
-  register: logs_server_library
-  delegate_to: localhost
-  connection: local
-  run_once: true
-
 - name: Print public IP's of logs servers
   ansible.builtin.debug:
     msg: "{{ '%-15s' | format(all_ip_addresses[item['name']][item['network']].address) }}    {{ item['name'] }}"
@@ -39,6 +29,36 @@
   community.crypto.openssh_keypair:
     path: "{{ home_path.stdout }}/.ssh/id_ed25519"
     type: ed25519
+  become: true
+  become_user: "{{ logs_toprm_chaperone_user }}"
+
+- name: "Collecting public CA keys for logs servers"
+  ansible.builtin.shell: "{{ playbook_dir }}/ssh-host-ca/logs_library-ca.pub"
+  register: public_ssh_key
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- name: "Adding public CA key to {{ logs_toprm_chaperone_user }} on chaperone"
+  ansible.builtin.copy:
+    content: "@cert-authority earl* {{ public_ssh_key.stdout }}"
+    dest: "{{ home_path.stdout }}/.ssh/ssh_known_hosts"
+  become: true
+  become_user: "{{ logs_toprm_chaperone_user }}"
+
+- name: "Defining logs servers IP addresses and names for {{ logs_toprm_chaperone_user }} on chaperone"
+  ansible.builtin.copy:
+    content: |
+      Host {{ item['name'] }}
+        HostName {{ '%-15s' | format(all_ip_addresses[item['name']][item['network']].address) }}
+        ServerAliveInterval 60
+        ServerAliveCountMax 5
+        ControlMaster auto
+        IdentityFile "~/.ssh/id_ed25519"
+        ControlPath ~/.ssh/tmp/%C
+        ControlPersist 5m
+    dest: "{{ home_path.stdout }}/.ssh/conf.d/{{ item }}"
+  loop: "{{ logs_server_public_networks[logs_class] }}"
   become: true
   become_user: "{{ logs_toprm_chaperone_user }}"
 
