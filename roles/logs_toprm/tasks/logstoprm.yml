@@ -48,7 +48,7 @@
   ansible.builtin.copy:
     content: |
       @cert-authority earl* {{ public_ssh_key.stdout }}
-    dest: "{{ home_path.stdout }}/.ssh/ssh_known_hosts"
+    dest: "{{ home_path.stdout }}/.ssh/known_hosts"
     mode: '0640'
   become: true
   become_user: "{{ logs_toprm_chaperone_user }}"
