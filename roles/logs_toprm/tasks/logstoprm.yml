@@ -1,8 +1,12 @@
 ---
-- name: Print public IP's of logs servers
+- name: Create a list of all names
+  set_fact:
+    all_log_servers: "{{ logs_server_public_networks | dict2items | map(attribute='value') | flatten }}"
+
+- name: Print every logs server name and public IP
   ansible.builtin.debug:
-    msg: "{{ item['name'] }} - {{ '%-15s' | format(all_ip_addresses[item['name']][item['network']].address) }}"
-  loop: "{{ logs_server_public_networks[logs_class] }}"
+    msg: "{{ item.name }} - {{ '%-15s' | format(all_ip_addresses[item['name']][item['network']].address) }}"
+  loop: "{{ all_log_servers }}"
 
 - name: 'Get {{ logs_toprm_chaperone_user }} home directory'
   ansible.builtin.shell: "set -o pipefail && getent passwd {{ logs_toprm_chaperone_user }}  | awk -F: '{ print $6 }'"
@@ -50,7 +54,7 @@
 - name: "Defining logs servers IP addresses and names for {{ logs_toprm_chaperone_user }} on chaperone"
   ansible.builtin.copy:
     content: |
-      Host {{ item['name'] }}
+      Host {{ item.name }}
         HostName {{ '%-15s' | format(all_ip_addresses[item['name']][item['network']].address) }}
         ServerAliveInterval 60
         ServerAliveCountMax 5
@@ -59,7 +63,7 @@
         ControlPath ~/.ssh/tmp/%C
         ControlPersist 5m
     dest: "{{ home_path.stdout }}/.ssh/conf.d/{{ item['name'] }}"
-  loop: "{{ logs_server_public_networks[logs_class] }}"
+  loop: "{{ all_log_servers }}"
   become: true
   become_user: "{{ logs_toprm_chaperone_user }}"
 
