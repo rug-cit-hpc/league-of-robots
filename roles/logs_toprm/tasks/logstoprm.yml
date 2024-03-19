@@ -58,6 +58,7 @@
     content: |
       Host {{ item.name }}
         HostName {{ '%-15s' | format(all_ip_addresses[item['name']][item['network']].address) }}
+        HostKeyAlias {{ item.name }}
         ServerAliveInterval 60
         ServerAliveCountMax 5
         ControlMaster auto
