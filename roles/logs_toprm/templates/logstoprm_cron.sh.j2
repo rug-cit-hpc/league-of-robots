@@ -216,12 +216,12 @@ function start_flow(){
 }
 
 {% endraw %}
-declare -A earl_servers=(
-{% for logs_class in logs_server_public_networks %}
-{% for logs_server in logs_server_public_networks[logs_class] %}
+declare earl_servers=(
+   {% for logs_class in logs_server_public_networks %}
+   {% for logs_server in logs_server_public_networks[logs_class] %}
     {{ logs_server.name }}
-{% endfor %}
-{%- endfor %}
+   {% endfor %}
+   {%- endfor %}
 )
 {% raw %}
 for _each_server in "${earl_servers[@]}"; do
