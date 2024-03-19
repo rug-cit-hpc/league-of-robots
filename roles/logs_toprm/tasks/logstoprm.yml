@@ -37,7 +37,8 @@
   become_user: "{{ logs_toprm_chaperone_user }}"
 
 - name: "Collecting public CA keys for logs servers"
-  ansible.builtin.shell: "cat {{ playbook_dir }}/ssh-host-ca/logs_library-ca.pub"
+  ansible.builtin.command: "cat {{ playbook_dir }}/ssh-host-ca/logs_library-ca.pub"
+  changed_when: false
   register: public_ssh_key
   delegate_to: localhost
   connection: local
@@ -48,6 +49,7 @@
     content: |
       @cert-authority earl* {{ public_ssh_key.stdout }}
     dest: "{{ home_path.stdout }}/.ssh/ssh_known_hosts"
+    mode: '0640'
   become: true
   become_user: "{{ logs_toprm_chaperone_user }}"
 
@@ -63,6 +65,7 @@
         ControlPath ~/.ssh/tmp/%C
         ControlPersist 5m
     dest: "{{ home_path.stdout }}/.ssh/conf.d/{{ item['name'] }}"
+    mode: '0640'
   loop: "{{ all_log_servers }}"
   become: true
   become_user: "{{ logs_toprm_chaperone_user }}"
