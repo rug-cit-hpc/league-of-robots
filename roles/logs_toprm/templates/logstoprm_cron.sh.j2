@@ -224,7 +224,7 @@ declare -A earl_servers=(
 {%- endfor %}
 )
 {% raw %}
-for _each_server in "${!earl_servers[@]}"; do
+for _each_server in "${earl_servers[@]}"; do
    ( sleep $((RANDOM % _small_delay))  # small random delay, just in case if two systems would run the cron at the same time
    _earl_name="${_each_server}"
    start_flow
