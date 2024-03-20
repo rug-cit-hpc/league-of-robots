@@ -1,4 +1,19 @@
 #!/bin/bash
+#
+# Overview
+# - this script is intended to run as cron on multiple machines at the same time
+# - the only way the machines can communicate is via is via shared filesystem
+#   where a specific directory is located - used by machines to coordinate
+# - the extra information about the machine that is running cron is stored in
+#   additional files inside this `lock directory`
+# - script should be able to work on samba/cifs (isilon), nfs and lustre (tested)
+# - the time is gathered from the cifs server's time, so it does not matter
+#   how different the datetime settings are on the client side
+# Other
+# - for testing you can provide a string as a paramater, and that one will be
+#   regarded in place of hostname (so that you can test and develop on local
+#   machine)
+#
 
 # First configure bash to correctly handle missing variables and errors
 set -eEuo pipefail
@@ -9,20 +24,6 @@ trap 'logger -t "${_log_tag}" "Command (${BASH_COMMAND}) has failed on line numb
 {% if logs_server_public_networks is defined and ( logs_server_public_networks|length > 0 ) %}
 
 {% raw %}
-#
-# - this script is meant to run as cron on multiple machines
-# - the only way the machines can communicate is via is via shared filesystem.
-# - there the specific directory exists that the machines can create and write
-# - the extra information about the machine that is running cron is stored in
-#   additional files inside the lock directory
-# - should work on samba/cifs (isilon), nfs and lustre - tested
-# - the time is gathered from the cifs server's time, so it does not matter
-#   how different the datetime settings are on the client side
-# Other
-# - for testing you can provide a string as a paramater, and that one will be
-#   regarded in place of hostname (so that you can test and develop on local
-#   machine)
-#
 
 #
 ## Variables
@@ -113,7 +114,7 @@ function killing_pid(){                                                       # 
       if ps -u ${USER} -U ${USER} -o pid | grep ${_each_pid}; then
          logger -t "${_log_tag}" "Killing process ${_each_pid}"
          kill -9 ${_each_pid} && \
-           logger -t "${_log_tag}" "Killing process ${_each_pid} - process killed!"
+           logger -t "${_log_tag}" "  ${_each_pid} - process killed!"
       fi
    done
 }
