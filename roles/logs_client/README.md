@@ -1,6 +1,9 @@
 # Ansible role for remote logging - CLIENT
 
-(see also ../logs_server/README.md)
+See also
+
+ - [Logs Servers Readme](../logs_server/README.md)
+ - [Logs ToPrm Readme](../logs_toprm/README.md)
 
 ## TL-DR
 
@@ -13,7 +16,20 @@
     ansible-playbook -u [admin] -l jumphost single_group_playbooks/logs.yml
 ```
 
-## I. Prerequisites
+## I. Definitions
+
+List of interesting variables
+
+ - `logs_class_list` - a list of all available classes (like 'development', 'research', 'diagnostic' ... )
+ - `random_tag` - a string that gets created at the testing, the tag that gets injected into log and after that
+                  searched on the server
+ - `rsyslog_remote_path_cert_dir` - folder on server's side where certificate will be stored
+ - `rsyslog_remote_path_key_dir` - folder on server's side where private key will be stored
+ - `rsyslog_repository_dir` - location withing the LoR where public and private keys of each `logs_class` are stored
+ - `iptables_extras_dir` - folder on each of the logs servers, where the files that define firewall exceptions
+                           of an individual stack are stored
+
+## II. Prerequisites
 
 ### Certificate authority
 
@@ -129,24 +145,14 @@ If it is not, it triggers the process of recreating one.
 
 To recreate the client certificate:
 
-(on the client machine) remove the files
-
-```
-   {{ rsyslog_remote_key_dir }}/{{ inventory_hostname }}.key
-   {{ rsyslog_remote_cert_dir }}/{{ inventory_hostname }}.pem
-   {{ rsyslog_remote_cert_dir }}/{{ rsyslog_ca_cert_file }}
-```
-
-By default they should be
-
-```
-   /etc/pki/tls/private/[machinename].key
-   /etc/pki/tls/certs/[machinename].pem
-   /etc/pki/tls/certs/logs_[type].pem
-```
-
-then rerun the `single_group_playbooks/logs.yml` or `single_role_playbooks/logs_client.yml`
-playbook.
+ - on the client machine remove the following (default locations) files
+   ```
+      /etc/pki/tls/private/[machinename].key
+      /etc/pki/tls/certs/[machinename].pem
+      /etc/pki/tls/certs/logs_[type].pem
+   ```
+ - then rerun the `single_group_playbooks/logs.yml` or `single_role_playbooks/logs_client.yml`
+   playbook.
 
 ## IV. Client-server rsyslog connection: opening of the firewall port
 
