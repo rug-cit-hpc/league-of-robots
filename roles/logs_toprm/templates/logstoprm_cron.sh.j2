@@ -79,17 +79,24 @@ function check_time(){
    local _time_max_runtime=$((_time_delay_start + _max_runtime))
    local _time_max_remotetime=$(( _time_delay_start + ( _max_runtime * _max_loops ) + _max_remote_time))
    if [[ "${_time_now}" -gt "${_time_max_remotetime}" ]]; then
-      logger -t "${_log_tag}" "Remote host runs for too long - returning 14!"
+      logger -t "${_log_tag}" "(check_time) Remote host runs for too long - returning 14!"
       return 14   # clean remote host lock directory and files
    elif [[ "${_time_now}" -gt "${_time_max_runtime}" ]]; then
-      logger -t "${_log_tag}" "Should kill - returning 13!"
+      logger -t "${_log_tag}" "(check_time) Should kill - returning 13!"
       return 13   # kill
    elif [[ "${_time_now}" -lt "${_time_delay_start}" ]]; then
-      logger -t "${_log_tag}" "Should wait - returning 1!"
+      logger -t "${_log_tag}" "(check_time) Should wait - returning 1!"
       return 1    # wait
    elif [[ "${_time_now}" -gt "${_time_delay_start}" ]]; then
-      logger -t "${_log_tag}" "Should run - returning 0!"
+      logger -t "${_log_tag}" "(check_time) Should run - returning 0!"
       return 0    # run
+   fi
+}
+
+function remove_pidfile(){
+   if test -d "${_hostname}"; then
+       logger -t "${_log_tag}" " - cleaning up lock directories ... "
+       rm -f "${_hostname}/pid"
    fi
 }
 
@@ -112,7 +119,7 @@ function killing_pid(){                                                       # 
       exit 255
    fi
    for _each_pid in ${_pids}; do
-      if pgrep -u ${UID} timeout 2>&1 | grep -q ${_each_pid}; then  # killing timeout processes
+      if pgrep -u ${UID} bash 2>&1 | grep -q ${_each_pid}; then  # killing timeout processes
          logger -t "${_log_tag}" "Killing process ${_each_pid}"
          kill -9 ${_each_pid} && \
            logger -t "${_log_tag}" "  ${_each_pid} - process killed!"
@@ -153,6 +160,7 @@ function start_flow(){
                   _pidfile_nr_lines="$(wc -l < "${_pidfile}")"
                   if [[ "${_pidfile_nr_lines}" -ge "${_max_loops}" ]]; then   # we found this process running too many times, time to kill it
                      killing_pid
+                     remove_pidfile
                   else                                                        # it exist and has a pid
                      logger -t "${_log_tag}" "(main)${_earl_name}  - the process is already running > let's log this and exit"
                      echo "${_running_pid}" >> "${_pidfile}"                  # duplicating process ID inside pid file
@@ -160,17 +168,18 @@ function start_flow(){
                else                                                           # we start the process
                   # Executing the main command
                   logger -t "${_log_tag}" "(main)${_earl_name}  - RUNNING MAIN COMMAND"
-                  { "timeout ${_max_runtime} ${_command}" & }; _child="${!}"
+                  timeout "${_max_runtime}" bash -c "${_command}" & _child="${!}"
                   echo "${_child}" >> "${_pidfile}"                           # storing process ID inside the pid file
                   # Next line ensures that process is killed if lock directory disappears
                   {  (  while test -d ${_lock_dir}; do sleep ${_small_delay}; done; \
                         if pgrep -u ${UID} timeout 2>&1 | grep -q ${_child}; then 
                            logger -t "${_log_tag}" "(main)${_earl_name} Killing PID ${_child} because the lock dir disappeared!"; \
-                           killing_pid "${_child}"; \
+                           killing_pid "${_child}"; remove_pidfile; \
                         fi \
                      ) & \
                   } 1>/dev/null 2>&1
                   wait ${_child} 2>/dev/null || true                          # true ensures that the cleanup is done
+                  remove_pidfile
                fi
             else
                check_time || case ${?} in
@@ -228,5 +237,7 @@ for _each_server in "${earl_servers[@]}"; do
    ) 1>/dev/null 2>&1 &                # sent to background, so that if one node fails, others can finish normally
    wait
 done
+wait
+remove_locks
 {% endraw %}
 {% endif %}
