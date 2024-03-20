@@ -1,6 +1,9 @@
 # Ansible role for remote logging - SERVER
 
-(see also ../logs_client/README.md)
+See also
+
+ - [Logs Clients Readme](../logs_toprm/README.md)
+ - [Logs Servers Readme](../logs_server/README.md)
 
 To connect to the logs servers you need to declare one of the existing jumhosts, for example
 ```
