@@ -171,7 +171,7 @@ function start_flow(){
                   timeout "${_max_runtime}" bash -c "${_command}" & _child="${!}"
                   echo "${_child}" >> "${_pidfile}"                           # storing process ID inside the pid file
                   # Next line ensures that process is killed if lock directory disappears
-                  {  (  while test -d ${_lock_dir}; do sleep ${_small_delay}; done; \
+                  {  (  while test -e ${_pidfile} && grep -q "${_child}" ${_pidfile}; do sleep ${_small_delay}; done; \
                         if pgrep -u ${UID} timeout 2>&1 | grep -q ${_child}; then 
                            logger -t "${_log_tag}" "(main)${_earl_name} Killing PID ${_child} because the lock dir disappeared!"; \
                            killing_pid "${_child}"; remove_pidfile; \
