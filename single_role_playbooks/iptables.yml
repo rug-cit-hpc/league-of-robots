@@ -1,5 +1,5 @@
 ---
-- hosts: all,!openstack_api
+- hosts: all,!openstack_api,!chaperone
   roles:
   - 'iptables'
 ...
