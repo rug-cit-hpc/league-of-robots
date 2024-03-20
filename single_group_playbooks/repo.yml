@@ -10,6 +10,7 @@
     - ssh_host_signer
     - iptables
     - ssh  # client
+    - grub
     - swap
     - {role: yum_repos, when: repo_manager == 'none'}
     - locale

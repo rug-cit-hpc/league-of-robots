@@ -1,0 +1,35 @@
+---
+- name: Get all BLS entries from /boot/loader/entries.
+  ansible.builtin.find:
+    paths: '/boot/loader/entries/'
+    use_regex: true
+    patterns: '.*\.conf'
+  register: found_bls_entries
+  become: true
+
+#
+# Rename BLS entry only when
+#  * The Machine ID prefix in the filename does not match the Machine ID from /etc/machine-id,
+#    which is captured in the the discovered Ansible fact variable ansible_machine_id.
+#  * The new BLS entry file name does not already exist. Rescue kernels are listed without version numbers.
+#    E.g. when /boot/loader/entries contains both:
+#        252dd9aa852f4772b9b50e13a981b03b-0-rescue.conf
+#        9e1cbc81b4ee47178f8ae7c186d32534-0-rescue.conf
+#    we do not rename 252dd9aa852f4772b9b50e13a981b03b-0-rescue.conf -> 9e1cbc81b4ee47178f8ae7c186d32534-0-rescue.conf
+#    to prevent overwriting an entry.
+#
+- name: Make sure BLS entry prefixes match machine ID.
+  ansible.builtin.command:
+    cmd: mv -v -n "{{ item }}" "/boot/loader/entries/{{ ansible_machine_id }}{{ bls_entry_without_machine_id }}"
+  vars:
+    bls_entry_machine_id: "{{ item | regex_replace('/boot/loader/entries/([0-9a-z]+)[^0-9a-z]+.*', '\\1') }}"
+    bls_entry_without_machine_id: "{{ item | regex_replace('/boot/loader/entries/[0-9a-z]+([^0-9a-z]+.*)', '\\1') }}"
+    updated_bls_entry_path: "/boot/loader/entries/{{ ansible_machine_id }}{{ bls_entry_without_machine_id }}"
+  loop: "{{ found_bls_entries['files'] | map(attribute='path') | list }}"
+  register: moved_bls_entry
+  changed_when: "'->' in moved_bls_entry.stdout"
+  when:
+    - bls_entry_machine_id != ansible_machine_id
+    - updated_bls_entry_path not in found_bls_entries['files'] | map(attribute='path') | list
+  become: true
+...

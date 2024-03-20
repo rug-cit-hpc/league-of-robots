@@ -10,6 +10,7 @@
     - ssh_host_signer
     - iptables
     - ssh  # client
+    - grub
     - pulp_client
     - locale
     - logrotate
