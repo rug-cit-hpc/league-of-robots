@@ -23,39 +23,9 @@
 - name: Check the mount point.
   ansible.builtin.command: "mountpoint {{ item['mount_point'] }}"
   register: mount_point_status
+  failed_when: mount_point_status.rc not in [0, 32]
   changed_when: false
   loop: "{{ volumes }}"
-#
-#- name: DEBUG 0
-#  debug:
-#    msg: "mount_point_status.results: {{ mount_point_status['results'] | to_nice_yaml }}"
-#
-#- name: DEBUG 1
-#  debug:
-#    msg: "device_status.results: {{ device_status['results'] | to_nice_yaml }}"
-#
-#- name: DEBUG 2
-#  debug:
-#    #msg: "For type {{ item['type'] }} and device {{  item['device'] }}: {{ mount_point_status['results'][item]['item']['rc'] }} {{ device_status.results.item.stdout }}"
-#    msg: "For type {{ item['type'] }} and device {{  item['device'] }} mountpoint status is {{ mount_point_status['results']
-#        | selectattr('item', 'equalto', item)
-#        | map(attribute='rc')
-#        | first }} and device status is {{ device_status['results']
-#        | selectattr('item', 'equalto', item)
-#        | map(attribute='stdout')
-#        | first }}"
-#  when:
-#    - mount_point_status['results']
-#          | selectattr('item', 'equalto', item)
-#          | map(attribute='rc')
-#          | first
-#          == 1
-#    - device_status['results']
-#          | selectattr('item', 'equalto', item)
-#          | map(attribute='stdout')
-#          | first
-#          != item['type']
-#  loop: "{{ volumes }}"
 
 - name: Create a filesystem on the device.
   community.general.filesystem:
@@ -72,7 +42,7 @@
           | selectattr('item', 'equalto', item)
           | map(attribute='rc')
           | first
-          == 1
+          != 0
     - device_status['results']
           | selectattr('item', 'equalto', item)
           | map(attribute='stdout')
