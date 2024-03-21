@@ -23,7 +23,7 @@
 - name: Check the mount point.
   ansible.builtin.command: "mountpoint {{ item['mount_point'] }}"
   register: mount_point_status
-  failed_when: mount_point_status.rc not in [0, 32]
+  failed_when: mount_point_status.rc not in [0, 1, 32]
   changed_when: false
   loop: "{{ volumes }}"
 
