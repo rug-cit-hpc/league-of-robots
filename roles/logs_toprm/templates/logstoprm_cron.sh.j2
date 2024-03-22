@@ -22,15 +22,16 @@ _log_tag="logstoprm"
 trap 'logger -t "${_log_tag}" "Command (${BASH_COMMAND}) has failed on line number (${LINENO})"' ERR
 
 {% if logs_server_public_networks is defined and ( logs_server_public_networks|length > 0 ) %}
-
 {% raw %}
-
 #
 ## Variables
 #
-
+_script_path_dir="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 _lock_dirs="{% endraw %}{{ logs_toprm_destination }}{% raw%}/lock_dirs"      # full path
-if ! test -d "${_lock_dirs}"; then mkdir -p ${_lock_dirs}; logger -t "${_log_tag}" "Created {_lock_dirs}"; fi
+if ! test -d "${_lock_dirs}"; then
+    mkdir -p "${_lock_dirs}"
+    logger -t "${_log_tag}" "Created {_lock_dirs}"
+fi
 _hostname="${1:-$(/bin/hostname)}"
 _small_delay="3"       # [seconds] how long should cron wait (after lock directory is created) to start the process
 _max_runtime=36000      # [seconds] how long can cron job run before being killed?
@@ -44,19 +45,24 @@ _max_remote_time=21600  # [seconds] how long should current cron ignore the cron
                         #         now + ( _max_runtime * _max_loops ) + _max_remote_time
 # placeholder variables to be later populated
 _earl_name=''
-# the main command we would like to run inside cron
-_command="sleep 100"
-#echo rsync -a --rsh=\"ssh -l {% endraw %}{{ logs_toprm_earl_user }}{% raw%}\" ${_earl_name}::logstoprm {% endraw %}{{ logs_toprm_destination }}{% raw%}/${_earl_name}"
 
-_script_path_dir="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+function clean_stale_pidfiles(){
+   local _stale_pidfile="${_lock_dirs}/${_hostname}/pid"
+   if test -e "${_stale_pidfile}"; then
+      local _pid="$(cat ${_stale_pidfile})"
+      if ! pgrep -u ${UID} bash | grep -q ${_pid}; then
+         rm -f "${_stale_pidfile}" && logger -t "${_log_tag}" "(${FUNCNAME}) Removed stale pid file [${_lock_dirs}/${_hostname}/pid]"
+      fi
+   fi
+}
 
-function get_servers_time(){
+function server_time(){
    _timedir=".testtimedir.${_hostname}"
-   test -d ${_timedir} && rmdir ${_timedir} # clean old directory
-   mkdir ${_timedir}
-   _time_now=$(stat -c %Z ${_timedir})      # get server's time
-   rmdir ${_timedir}
-   logger -t "${_log_tag}" " - collected _time_now from server (seconds from epoch): ${_time_now}"
+   test -d "${_timedir}" && rmdir "${_timedir}" # clean old directory
+   mkdir "${_lock_dirs}/${_timedir}"
+   _time_now="$(stat -c %Z ${_timedir})"        # get server's time
+   rmdir "${_lock_dirs}/${_timedir}"
+   logger -t "${_log_tag}" "(${FUNCNAME})    - collected _time_now epoch seconds from server [${_time_now}]"
 }
 
 function check_time(){
@@ -71,31 +77,34 @@ function check_time(){
    #     now >                                     14       should kill process
    #      _time_delay_start + ( _max_runtime * _max_loops ) + _max_remote_time
    #     file `time` is missing or wrong perms              log
-   get_servers_time
+   server_time
    local _time_created
-   _time_created=$(stat -c %Z ${1:-${_hostname}})     # does NOT include _small_delay, tail, as last one is the most important
+   _time_created=$(stat -c %Z ${_lock_dirs}/${1:-${_hostname}})     # does NOT include _small_delay, tail, as last one is the most important
    _time_delay_start="$((_time_created + _small_delay))"    # add delay to the time of when the lock folder has been created
-   if test -z "${_time_delay_start}"; then logger -t "${_log_tag}" "Error _time_delay_start is empty" ; exit 255; fi  # the time is missing
+   if test -z "${_time_delay_start}"; then # the time is missing
+      logger -t "${_log_tag}" "(${FUNCNAME}) Error _time_delay_start is empty"
+      exit 255
+   fi
    local _time_max_runtime=$((_time_delay_start + _max_runtime))
    local _time_max_remotetime=$(( _time_delay_start + ( _max_runtime * _max_loops ) + _max_remote_time))
    if [[ "${_time_now}" -gt "${_time_max_remotetime}" ]]; then
-      logger -t "${_log_tag}" "(check_time) Remote host runs for too long - returning 14!"
+      logger -t "${_log_tag}" "(${FUNCNAME}) Remote host runs for too long - returning 14!"
       return 14   # clean remote host lock directory and files
    elif [[ "${_time_now}" -gt "${_time_max_runtime}" ]]; then
-      logger -t "${_log_tag}" "(check_time) Should kill - returning 13!"
+      logger -t "${_log_tag}" "(${FUNCNAME}) Should kill - returning 13!"
       return 13   # kill
    elif [[ "${_time_now}" -lt "${_time_delay_start}" ]]; then
-      logger -t "${_log_tag}" "(check_time) Should wait - returning 1!"
+      logger -t "${_log_tag}" "(${FUNCNAME}) Should wait - returning 1!"
       return 1    # wait
    elif [[ "${_time_now}" -gt "${_time_delay_start}" ]]; then
-      logger -t "${_log_tag}" "(check_time) Should run - returning 0!"
+      logger -t "${_log_tag}" "(${FUNCNAME}) Should run - returning 0!"
       return 0    # run
    fi
 }
 
 function remove_pidfile(){
    if test -d "${_hostname}"; then
-       logger -t "${_log_tag}" " - cleaning up lock directories ... "
+       logger -t "${_log_tag}" "(${FUNCNAME}) - removing lock pid file ... "
        rm -f "${_hostname}/pid"
    fi
 }
@@ -103,77 +112,78 @@ function remove_pidfile(){
 function remove_locks(){
    # Cleaning up after run
    if test -d "${_hostname}"; then
-      logger -t "${_log_tag}" " - cleaning up lock directories ... "
       rm -f "${_hostname}/"*
-      rmdir ${_hostname}
+      rmdir "${_hostname}" && logger -t "${_log_tag}" "(${FUNCNAME}) - lock directory removed [$(pwd)/${_hostname}]"
    fi
 }
 
-function killing_pid(){                                                       # is either provided as a paramater or gets PIDs from file
+function killing_pid(){ # ${1} is provided PIDs
    if test -n "${1:-}" ; then
       _pids=${1:-}
    elif test -e "${_hostname}/pid"; then
-      _pids=$(sort -u < "${_hostname}/pid")
+      _pids="$(sort -u < "${_hostname}/pid")"
    else
-      logger -t "${_log_tag}" "Error, no pid provided to kill and pid file is missing. Exit 255!"
+      logger -t "${_log_tag}" "(${FUNCNAME}) Error, no pid provided to kill and pid file is missing. Exit 255!"
       exit 255
    fi
    for _each_pid in ${_pids}; do
-      if pgrep -u ${UID} bash 2>&1 | grep -q ${_each_pid}; then  # killing timeout processes
-         logger -t "${_log_tag}" "Killing process ${_each_pid}"
+      if pgrep -u ${UID} bash 2>&1 | grep -q ${_each_pid}; then # killing timeout processes
+         logger -t "${_log_tag}" "(${FUNCNAME}) Killing process ${_each_pid}"
          kill -9 ${_each_pid} && \
-           logger -t "${_log_tag}" "  ${_each_pid} - process killed!"
+           logger -t "${_log_tag}" "(${FUNCNAME})  ${_each_pid} - process killed!"
       fi
    done
 }
 
 function start_flow(){
-   logger -t "${_log_tag}" "Entering main loop (for ${_earl_name})"
+   logger -t "${_log_tag}" "(${FUNCNAME}) Entering main loop [for ${_earl_name}]"
    sync
-   cd ${_script_path_dir}
    if ! test -w ${_lock_dirs}/; then
-      logger -t "${_log_tag}" "(main)${_earl_name}  - top level locking directory is missing - ${_lock_dirs}"
+      logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name}  - top level locking directory is missing [${_lock_dirs}]"
    fi
-   _all_host_count=$(ls -1 ${_lock_dirs} | wc -l)
-   cd ${_lock_dirs}
-   _my_hostname_count=$(find . -name "${_hostname}" | wc -l)
+   _all_host_count="$(ls -1 ${_lock_dirs} | wc -l)"
+   _my_hostname_count="$(find "${_lock_dirs}" -name "${_hostname}" | wc -l)"
    _lock_dir="${_hostname}"
    if [[ "${_all_host_count}" -eq "0" ]]; then
-      logger -t "${_log_tag}" "(main)${_earl_name}  - no other host if running anything right now"
-      logger -t "${_log_tag}" "(main)${_earl_name}  - making lock directory ${_lock_dir}"
-      mkdir "${_lock_dir}" || { logger -t "${_log_tag}" "(main)${_earl_name}    - cannot create lock dir ${_lock_dir}" ; exit 255; }
+      logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name}  - no other host if running anything right now"
+      logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name}  - making lock directory ${_lock_dir}"
+      mkdir "${_lock_dir}" || { logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name}    - cannot create lock dir ${_lock_dir}" ; exit 255; }
       sync
-      sleep ${_small_delay}                                                 # don't rush things
+      sleep ${_small_delay} # don't rush things
       start_flow
-   else                                                                       # hosts are running things
-      logger -t "${_log_tag}" "(main)${_earl_name}  - there are SOME lock dirs"
+   else # hosts are running things
+      logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name}  - there are SOME lock dirs"
       if [[ "${_my_hostname_count}" -gt "0" ]]; then
-         logger -t "${_log_tag}" "(main)${_earl_name}  - this hostname is supposed to be running the command right now"
-         if [[ "${_my_hostname_count}" -eq "${_all_host_count}" ]]; then              # it's only my hostname
-            logger -t "${_log_tag}" "(main)${_earl_name}  - ONLY this hostname is supposed to be running the command right now"
+         logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name}  - this hostname is supposed to be running the command right now"
+         if [[ "${_my_hostname_count}" -eq "${_all_host_count}" ]]; then # it's only my hostname
+            logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name}  - ONLY this machine is allowed to running this script right now"
             if check_time ; then
-               logger -t "${_log_tag}" "(main)${_earl_name}  - we already delayed the start so we can now proceed"
+               logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name}  - we already delayed the start so we can now proceed"
                _pidfile="${_hostname}/pid"
                # Is pid file inside and it contains pid?
-               if test -e "${_pidfile}" && test -n "$(cat ${_pidfile})" ; then   # pidfile exists and is not empty
+               if test -e "${_pidfile}" && test -n "$(cat ${_pidfile})" ; then # pidfile exists and is not empty
                   _running_pid="$(head -n1 < "${_pidfile}")"
                   _pidfile_nr_lines="$(wc -l < "${_pidfile}")"
-                  if [[ "${_pidfile_nr_lines}" -ge "${_max_loops}" ]]; then   # we found this process running too many times, time to kill it
+                  if [[ "${_pidfile_nr_lines}" -ge "${_max_loops}" ]]; then # we found this process running too many times, time to kill it
                      killing_pid
                      remove_pidfile
-                  else                                                        # it exist and has a pid
-                     logger -t "${_log_tag}" "(main)${_earl_name}  - the process is already running > let's log this and exit"
-                     echo "${_running_pid}" >> "${_pidfile}"                  # duplicating process ID inside pid file
+                  else # it exist and has a pid
+                     logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name}  - the process is already running > let's log this and exit"
+                     echo "${_running_pid}" >> "${_pidfile}" # duplicating process ID inside pid file
                   fi
-               else                                                           # we start the process
+               else # we start the process
                   # Executing the main command
-                  logger -t "${_log_tag}" "(main)${_earl_name}  - RUNNING MAIN COMMAND"
+                  test -d "{% endraw %}{{ logs_toprm_destination }}{% raw%}/${_earl_name}/" || mkdir "{% endraw %}{{ logs_toprm_destination }}{% raw%}/${_earl_name}/"
+                  # the main command we would like to run inside cron
+                  _rsync_log_file="${_script_path_dir}/logstoprm_cron.rsync.log"
+                  _command="rsync -a --log-file=${_rsync_log_file} --rsh=\"ssh -l {% endraw %}{{ logs_toprm_earl_user }}{% raw%}\" ${_earl_name}::logstoprm {% endraw %}{{ logs_toprm_destination }}{% raw%}/${_earl_name}/"
+                  logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name}  - RUNNING MAIN COMMAND"
                   timeout "${_max_runtime}" bash -c "${_command}" & _child="${!}"
                   echo "${_child}" >> "${_pidfile}"                           # storing process ID inside the pid file
                   # Next line ensures that process is killed if lock directory disappears
                   {  (  while test -e ${_pidfile} && grep -q "${_child}" ${_pidfile}; do sleep ${_small_delay}; done; \
                         if pgrep -u ${UID} timeout 2>&1 | grep -q ${_child}; then 
-                           logger -t "${_log_tag}" "(main)${_earl_name} Killing PID ${_child} because the lock dir disappeared!"; \
+                           logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name} Killing PID ${_child} because the lock dir disappeared!"; \
                            killing_pid "${_child}"; remove_pidfile; \
                         fi \
                      ) & \
@@ -184,36 +194,35 @@ function start_flow(){
             else
                check_time || case ${?} in
                   1)
-                     logger -t "${_log_tag}" "(main)${_earl_name}    - too early, let's wait ... "
+                     logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name}    - too early, let's wait ... "
                      sleep ${_small_delay} && start_flow         # go to start
                      ;;
                   13|14)
-                     logger -t "${_log_tag}" "(main)${_earl_name}    - we should kill: this process is running for too long"
+                     logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name}    - we should kill: this process is running for too long"
                      killing_pid
                      ;;
                   255)
-                     logger -t "${_log_tag}" "(main)${_earl_name} Cannot get time of lock directory!"
+                     logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name} Cannot get time of lock directory!"
                      exit 255
                      ;;
                   *)
-                     logger -t "${_log_tag}" "(main)${_earl_name} Unknown error, should log"
+                     logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name} Unknown error, should log"
                      ;;
             esac
             fi
          fi
       else
-         logger -t "${_log_tag}" "(main)${_earl_name} - there are other hosts running this script"
-         cd ${_lock_dirs}
+         logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name} - there are other hosts running this script"
          for _each_host in */; do                                             # loop through the hosts directories
             check_time "${_each_host}" || \
                if [[ "$?" -eq "14" ]]; then
-                  logger -t "${_log_tag}" "(main)${_earl_name} This processes is running too long on the '${_each_host}' - removing the lock directory and files inside. Host will clean this processes on own side at next cron!"
+                  logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name} This processes is running too long on the '${_each_host}' - removing the lock directory and files inside. Host will clean this processes on own side at next cron!"
                   rm -f "${_each_host}/"*               # remove all files, the selection of just 'time' and 'pid' could make issues
                                                         # if some other files would appear - like .nfsXXX .tmp or similar
                   rmdir "${_each_host}/"
                fi
          done
-         logger -t "${_log_tag}" "(main)${_earl_name} - removing our host from the race and exit ... "
+         logger -t "${_log_tag}" "(${FUNCNAME}) ${_earl_name} - removing our host from the race and exit ... "
          test -d ${_hostname} && rmdir ${_hostname}
          exit 0
       fi
@@ -229,14 +238,14 @@ declare earl_servers=(
 {%- endfor %}
 )
 {% raw %}
-logger -t "${_log_tag}" "___ Starting ___"
+logger -t "${_log_tag}" "_______ Starting _______"
+cd "${_lock_dirs}"
+clean_stale_pidfiles
 for _each_server in "${earl_servers[@]}"; do
-   ( _earl_name="${_each_server}"
-   start_flow
-   ) 1>/dev/null 2>&1 &                # sent to background, so that if one node fails, others can finish normally
-   wait
+   _earl_name="${_each_server}"
+   start_flow 2>&1 | logger -i -t "${_log_tag}" 
 done
-wait
 remove_locks
+logger -t "${_log_tag}" "_______ Finished_______"
 {% endraw %}
 {% endif %}
