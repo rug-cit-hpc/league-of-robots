@@ -18,3 +18,10 @@ Order
   trigger this script
 
 ![Overview](overview.png)
+
+## Debugging
+
+Checking logs on the chaperone machine
+
+   `root@chaperoneXX ~ # journalctl -t logstoprm`
+
