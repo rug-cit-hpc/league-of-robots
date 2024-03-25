@@ -4,6 +4,7 @@
     list: installed
   register: yum_list_installed
   changed_when: false
+  become: true
 
 - name: Disable the firewalld service if the firewalld package was installed.
   ansible.builtin.systemd:
