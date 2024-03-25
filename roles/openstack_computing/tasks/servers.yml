@@ -63,6 +63,7 @@
     auto_floating_ip: false
     nics: "{{ instance_nics }}"
     userdata: |
+      #jinja2: trim_blocks:True, lstrip_blocks:True
       #cloud-config
       password: "{{ cloud_console_pass }}"
       chpasswd: { expire: False }
@@ -71,8 +72,20 @@
       # or the first user defined in the user definition directive.
       #
       ssh_authorized_keys:
-      {% for public_key in public_keys_of_local_admins %}{% if 'ssh-rsa' not in public_key %}  - {{ public_key }}
-      {% endif %}{% endfor %}
+      {% for public_key in public_keys_of_local_admins %}
+        {% if 'ssh-rsa' not in public_key %}
+        - {{ public_key }}
+        {% endif %}
+      {% endfor %}
+      {% if volumes | default([]) is defined and volumes | default([]) | length > 0 %}
+      mounts:
+        {% for extra_volume in volumes | default([]) %}
+        - - {{ extra_volume['device'] }}
+          - {{ extra_volume['mount_point'] }}
+          - {{ extra_volume['type'] }}
+          - {{ extra_volume['mount_options'] }}
+        {% endfor %}
+      {% endif %}
     availability_zone: "{{ availability_zone }}"
     wait: true
     timeout: "{{ openstack_api_timeout }}"

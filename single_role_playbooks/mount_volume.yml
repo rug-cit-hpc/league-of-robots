@@ -1,4 +1,4 @@
-- name: Mount the ceph volume
+- name: Mount extra volumes.
   hosts:
      - nfs_server
      - compute_node
