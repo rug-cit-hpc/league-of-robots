@@ -441,12 +441,12 @@ pfs_mounts:
     rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
     ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
-  - pfs: 'research$'
-    source: '//storage3.umcg.nl/'
-    type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
-    machines: "{{ groups['chaperone'] }}"
+#  - pfs: 'research$'
+#    source: '//storage3.umcg.nl/'
+#    type: cifs    # checked with cat /proc/filesystem
+#    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+#    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
+#    machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home
     pfs: local_raid
@@ -587,36 +587,36 @@ lfs_mounts:
     groups:
       - name: umcg-labgnkbh
     rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: prm55
-    pfs: 'research$'
-    groups:
-      - name: umcg-pr
-    rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: dat55
-    pfs: 'research$'
-    groups:
-      - name: umcg-pr
-    rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: prm56
-    pfs: 'research$'
-    groups:
-      - name: umcg-pr
-    rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: dat56
-    pfs: 'research$'
-    groups:
-      - name: umcg-pr
-    rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: prm57
-    pfs: 'research$'
-    groups:
-      - name: umcg-pr
-    rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: dat57
-    pfs: 'research$'
-    groups:
-      - name: umcg-pr
-    rw_machines: "{{ groups['chaperone'] }}"
+#  - lfs: prm55
+#    pfs: 'research$'
+#    groups:
+#      - name: umcg-pr
+#    rw_machines: "{{ groups['chaperone'] }}"
+#  - lfs: dat55
+#    pfs: 'research$'
+#    groups:
+#      - name: umcg-pr
+#    rw_machines: "{{ groups['chaperone'] }}"
+#  - lfs: prm56
+#    pfs: 'research$'
+#    groups:
+#      - name: umcg-pr
+#    rw_machines: "{{ groups['chaperone'] }}"
+#  - lfs: dat56
+#    pfs: 'research$'
+#    groups:
+#      - name: umcg-pr
+#    rw_machines: "{{ groups['chaperone'] }}"
+#  - lfs: prm57
+#    pfs: 'research$'
+#    groups:
+#      - name: umcg-pr
+#    rw_machines: "{{ groups['chaperone'] }}"
+#  - lfs: dat57
+#    pfs: 'research$'
+#    groups:
+#      - name: umcg-pr
+#    rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env06
     pfs: local_raid
     rw_machines: "{{ groups['deploy_admin_interface'] + groups['compute_node'] + groups['user_interface'] }}"
