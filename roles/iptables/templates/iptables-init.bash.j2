@@ -174,7 +174,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		{% if ip == 'ANY'%}
 		'0.0.0.0/0'
 		{% else %}
-		'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
 		{% endif %}
 	{% endfor %}
 	)
@@ -220,7 +220,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		{% if ip == 'ANY'%}
 		'0.0.0.0/0'
 		{% else %}
-		'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
 		{% endif %}
 	{% endfor %}
 	)
@@ -243,7 +243,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		{% if ip == 'ANY'%}
 		'0.0.0.0/0'
 		{% else %}
-		'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
 		{% endif %}
 	{% endfor %}
 	)
@@ -261,7 +261,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		{% if ip == 'ANY'%}
 		'0.0.0.0/0'
 		{% else %}
-		'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
 		{% endif %}
 	{% endfor %}
 	)
@@ -279,7 +279,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		{% if ip == 'ANY'%}
 		'0.0.0.0/0'
 		{% else %}
-		'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
 		{% endif %}
 	{% endfor %}
 	)
@@ -299,7 +299,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		{% if ip == 'ANY'%}
 		'0.0.0.0/0'
 		{% else %}
-		'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
 		{% endif %}
 	{% endfor %}
 	)
@@ -317,7 +317,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		{% if ip == 'ANY'%}
 		'0.0.0.0/0'
 		{% else %}
-		'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
 		{% endif %}
 	{% endfor %}
 	)
@@ -340,7 +340,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		{% if ip == 'ANY'%}
 		'0.0.0.0/0'
 		{% else %}
-		'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
 		{% endif %}
 	{% endfor %}
 	)
@@ -382,7 +382,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		{% if ip == 'ANY'%}
 		'0.0.0.0/0'
 		{% else %}
-		'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
 		{% endif %}
 	{% endfor %}
 	)
@@ -411,7 +411,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		{% if ip == 'ANY'%}
 		'0.0.0.0/0'
 		{% else %}
-		'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
 		{% endif %}
 	{% endfor %}
 	)
@@ -439,7 +439,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		{% if ip == 'ANY'%}
 		'0.0.0.0/0'
 		{% else %}
-		'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
 		{% endif %}
 	{% endfor %}
 	)
@@ -465,7 +465,7 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 		{% if ip == 'ANY'%}
 		'0.0.0.0/0'
 		{% else %}
-		'{{ ip.address }}{{ ip.netmask }}'{% if ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
 		{% endif %}
 	{% endfor %}
 	)
