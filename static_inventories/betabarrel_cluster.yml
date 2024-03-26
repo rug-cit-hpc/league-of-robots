@@ -165,7 +165,6 @@ all:
           #
           # Overrule regular_groups compared to rest of Winged Helix:
           # * Do not create local functional_admin_group, which comes from UMCG AD.
-          # * Do not create umcg-lab, which is not used on a chaperone.
           #
           regular_groups:
             - "{{ envsync_group }}"
@@ -176,6 +175,7 @@ all:
             - 'umcg-genomescan'
             - 'umcg-gsad'
             - 'umcg-gst'
+            - 'umcg-lab'
             - 'umcg-labgnkbh'
             - 'umcg-patho'
             - 'umcg-pr'
