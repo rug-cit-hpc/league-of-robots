@@ -129,10 +129,8 @@ function remove_locks(){
    fi
 }
 
-function killing_pid(){ # ${1} is provided PIDs
-   if test -n "${1:-}" ; then
-      _pids=${1:-}
-   elif test -e "${_hostname}/pid"; then
+function killing_pid(){
+   if test -e "${_hostname}/pid"; then
       _pids="$(sort -u < "${_hostname}/pid")"
    else
       logger -t "${_log_tag}" "($$ ${FUNCNAME}) Error, no pid provided to kill and pid file is missing. Exit 255!"
