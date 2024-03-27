@@ -43,7 +43,7 @@ all:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_ds"
               assign_floating_ip: true
-          local_volume_size_extra: 4300
+          local_volume_size_extra: 8300
           iptables_allow_icmp_inbound:
             - "{{ all.ip_addresses['umcg']['net1'] }}"
             - "{{ all.ip_addresses['umcg']['net2'] }}"
