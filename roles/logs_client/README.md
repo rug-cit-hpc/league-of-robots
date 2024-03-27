@@ -37,7 +37,7 @@ Before attemting to deploy the logs clients role, make sure that your `.ssh/know
 contains the following line
 
 ```
-    @cert-authority * ssh-ed25519 [here is the correct key] CA key for logs_library
+    @cert-authority earl* ssh-ed25519 [here is the correct key] CA key for logs_library
 ```
 
 where key must match the values of the `ssh-host-ca/logs_library-ca.pub` file.
@@ -58,6 +58,7 @@ The client machines must first already have deployed the following roles
 ### I.b Settings
 
 This role is the second role of the ansible roles for logs. It relies on predefined
+
  - (optional) a list of external rsyslog servers (unmanaged by our roles)
  - (optional) defined in `group_vars/{{ stack_name }}/vars.yml`
    ```
