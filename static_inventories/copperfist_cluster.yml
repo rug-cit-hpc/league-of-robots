@@ -37,7 +37,7 @@ all:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_ds"
               assign_floating_ip: true
-          local_volume_size_extra: 4300
+          local_volume_size_extra: 8300
           iptables_allow_icmp_inbound:
             - "{{ all.ip_addresses['umcg']['net1'] }}"
             - "{{ all.ip_addresses['umcg']['net2'] }}"
@@ -159,7 +159,6 @@ all:
           #
           # Overrule regular_groups compared to rest of Winged Helix:
           # * Do not create local functional_admin_group, which comes from UMCG AD.
-          # * Do not create umcg-lab, which is not used on a chaperone.
           #
           regular_groups:
             - "{{ envsync_group }}"
@@ -170,6 +169,7 @@ all:
             - 'umcg-genomescan'
             - 'umcg-gsad'
             - 'umcg-gst'
+            - 'umcg-lab'
             - 'umcg-labgnkbh'
             - 'umcg-logstoprm'
             - 'umcg-patho'
