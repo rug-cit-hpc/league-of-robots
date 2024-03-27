@@ -1,0 +1,5 @@
+---
+logs_toprm_destination: "/groups/umcg-logstoprm/prm07"
+logs_toprm_chaperone_user: "umcg-logstoprm-dm"
+logs_toprm_earl_user: "logstoprm"
+...

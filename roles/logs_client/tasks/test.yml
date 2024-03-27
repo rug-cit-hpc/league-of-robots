@@ -42,7 +42,7 @@
   retries: 12
   delay: 5
   delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
-  loop: "{{ rsyslogs_ext_ips }}"
+  loop: "{{ logs_class_list }}"
   become: true
   tags:
     - test

@@ -1,0 +1,29 @@
+---
+- name: 'Create a directory to place logs with cron and to be collected by rsync module'
+  ansible.builtin.file:
+    path: '{{ logstoprm_rsyncd_module.rsyncd_dir }}'
+    state: directory
+    mode: '0750'
+    owner: 'root'
+    group: '{{ logstoprm_rsyncd_module.group }}'
+  become: true
+
+- name: 'Install cronjob that stages logs for prm transfer'
+  ansible.builtin.template:
+    src: "templates/logstoprm_staging.sh.j2"
+    dest: '/root/logstoprm_staging.sh'
+    owner: 'root'
+    group: 'root'
+    mode: '0700'
+  become: true
+
+- name: 'Create cron for staging logs into folder, to be picked by rsync'
+  ansible.builtin.cron:
+    name: 'Stage logs to be later transfered to prm - do not change it manually!'
+    hour: '5'
+    minute: '22'
+    user: 'root'
+    disabled: '{{ logstoprm_rsyncd_module.cron_disabled | default("true") }}'
+    job: /root/logstoprm_staging.sh
+  become: true
+...

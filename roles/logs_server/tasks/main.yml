@@ -3,4 +3,9 @@
   ansible.builtin.include_tasks:
     file: rsyslog.yml
   when: inventory_hostname in groups['logs'] | default([])
+
+- name: Configure storing logs to permanent storage
+  ansible.builtin.include_tasks:
+    file: logs_to_prm.yml
+  when: inventory_hostname in groups['logs'] | default([])
 ...
