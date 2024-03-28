@@ -125,5 +125,12 @@ function lor-config() {
 		printf 'WARNING: Could not find Mitogen strategy plugin in %s\n' "${_ansible_mitogen_search_path}"
 		printf 'INFO: Mitogen strategy plugin is:        %s.\n' 'disabled (default)'
 	fi
+	if [[ -n "${OS_AUTH_URL:-}" ]]; then
+		local _openstack_cloud="${OS_AUTH_URL#*//}"
+		_openstack_cloud="${_openstack_cloud%:*}"
+		printf 'INFO: Using OpenStack cloud:             %s.\n' "${_openstack_cloud}"
+	else
+		printf 'INFO: Using OpenStack cloud:             %s.\n' 'none'
+	fi
 	set "${_previous_opt_nounset_state}"
 }
