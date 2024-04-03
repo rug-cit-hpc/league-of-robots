@@ -3,7 +3,7 @@
 
 set -eE
 # Everything is logged in the system logs with logger
-trap 'logger -t logstoprm-cron "The command (${BASH_COMMAND}) had failed on fine number (${LINENO})"' ERR
+trap 'logger -t logstoprm-cron "The command (${BASH_COMMAND}) failed on line number (${LINENO})"' ERR
 
 {% endraw %}
 
