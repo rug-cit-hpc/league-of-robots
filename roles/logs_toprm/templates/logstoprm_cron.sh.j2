@@ -58,7 +58,7 @@ function clean_stale_pidfiles(){
    if test -e "${_stale_pidfile}"; then
       local _pid
       # first clear all the pids that are not running
-      for _pid in $(cat ${_stale_pidfile}); do
+      for _pid in $(cat "${_stale_pidfile}"); do
          if ! pgrep -u ${UID} "timeout" | grep -q "${_pid}"; then
             sed -i "/${_pid}/d" "${_stale_pidfile}"
             logger -t "${_log_tag}" "($$ ${FUNCNAME}) Removed ${_pid} from pid file"
