@@ -29,7 +29,7 @@
   become: true
   become_user: "{{ logs_toprm_chaperone_user }}"
 
-- name: "OpenSSH is missing, generating it now ... "
+- name: "Create SSH key pair."
   community.crypto.openssh_keypair:
     path: "{{ home_path.stdout }}/.ssh/id_ed25519"
     type: ed25519
