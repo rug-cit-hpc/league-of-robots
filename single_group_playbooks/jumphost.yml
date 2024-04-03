@@ -29,7 +29,8 @@
         - use_sssd | default(false) | bool
     - sshd
     - basic_security
-    - {role: logs_client, when: logs_class is defined }
+    - role: logs_client
+      when: logs_class is defined
     - regular_users
     # Disabled monitoring: needs update. See also:
     # https://github.com/rug-cit-hpc/league-of-robots/issues/294
