@@ -22,12 +22,6 @@
     mode: '0750'
   become: true
 
-- name: "Check that the {{ logs_toprm_chaperone_user }} user has already created keys"
-  ansible.builtin.stat:
-    path: "{{ home_path.stdout }}/.ssh/id_ed25519"
-  register: key_details
-  become: true
-  become_user: "{{ logs_toprm_chaperone_user }}"
 
 - name: "Create SSH key pair."
   community.crypto.openssh_keypair:
