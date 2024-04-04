@@ -66,7 +66,7 @@ function clean_stale_pidfiles(){
       done
       # if file is now empty, remove it whole file
       if test -z "$(cat "${_stale_pidfile}")"; then
-         rm -f "${_stale_pidfile}" && logger -t "${_log_tag}" "($$ ${FUNCNAME}) Removed stale pid file [${_main_lock_dir}/${_hostname}/pid]"
+         rm -f "${_stale_pidfile}" && logger -t "${_log_tag}" "(${$} ${FUNCNAME}) Removed stale pid file [${_main_lock_dir}/${_hostname}/pid]"
       fi
    fi
 }
