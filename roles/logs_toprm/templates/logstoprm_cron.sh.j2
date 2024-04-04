@@ -105,7 +105,7 @@ function check_time(){
       logger -t "${_log_tag}" "(${$} ${FUNCNAME} ${_earl_name})    remote host runs for too long! (returning 14)"
       return 14   # clean remote host lock directory and files
    elif [[ "${_time_now}" -gt "${_time_max_runtime}" ]]; then
-      logger -t "${_log_tag}" "($$ ${FUNCNAME} ${_earl_name})    should kill! (returning 13)"
+      logger -t "${_log_tag}" "(${$} ${FUNCNAME} ${_earl_name})    should kill! (returning 13)"
       return 13   # kill
    elif [[ "${_time_now}" -lt "${_time_delay_start}" ]]; then
       logger -t "${_log_tag}" "($$ ${FUNCNAME} ${_earl_name})    should wait (returning (1)"
