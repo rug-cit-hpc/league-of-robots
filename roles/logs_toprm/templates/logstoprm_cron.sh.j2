@@ -96,7 +96,7 @@ function check_time(){
    _time_created=$(stat -c %Z ${_main_lock_dir}/${1:-${_hostname}})     # does NOT include _small_delay, tail, as last one is the most important
    _time_delay_start="$((_time_created + _small_delay))"    # add delay to the time of when the lock folder has been created
    if test -z "${_time_delay_start}"; then # the time is missing
-      logger -t "${_log_tag}" "($$ ${FUNCNAME} ${_earl_name}) Error _time_delay_start is empty"
+      logger -t "${_log_tag}" "(${$} ${FUNCNAME} ${_earl_name}) Error _time_delay_start is empty"
       exit 200
    fi
    local _time_max_runtime=$((_time_delay_start + _max_runtime))
