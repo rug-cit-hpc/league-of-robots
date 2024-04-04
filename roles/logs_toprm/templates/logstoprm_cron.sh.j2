@@ -90,7 +90,7 @@ function check_time(){
    mkdir "${_main_lock_dir}/${_timedir}"
    _time_now="$(stat -c %Z ${_timedir})"        # get server's time
    rmdir "${_main_lock_dir}/${_timedir}"
-   logger -t "${_log_tag}" "($$ ${FUNCNAME} ${_earl_name})    collected _time_now epoch seconds from server [${_time_now}]"
+   logger -t "${_log_tag}" "(${$} ${FUNCNAME} ${_earl_name})    collected _time_now epoch seconds from server [${_time_now}]"
 
    local _time_created
    _time_created=$(stat -c %Z ${_main_lock_dir}/${1:-${_hostname}})     # does NOT include _small_delay, tail, as last one is the most important
