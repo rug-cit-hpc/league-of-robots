@@ -108,7 +108,7 @@ function check_time(){
       logger -t "${_log_tag}" "(${$} ${FUNCNAME} ${_earl_name})    should kill! (returning 13)"
       return 13   # kill
    elif [[ "${_time_now}" -lt "${_time_delay_start}" ]]; then
-      logger -t "${_log_tag}" "($$ ${FUNCNAME} ${_earl_name})    should wait (returning (1)"
+      logger -t "${_log_tag}" "(${$} ${FUNCNAME} ${_earl_name})    should wait (returning (1)"
       return 1    # wait
    elif [[ "${_time_now}" -ge "${_time_delay_start}" ]]; then
       logger -t "${_log_tag}" "($$ ${FUNCNAME} ${_earl_name})    can run (returning ok 0)"
