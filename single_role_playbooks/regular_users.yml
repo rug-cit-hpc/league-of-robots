@@ -6,6 +6,7 @@
     - cluster
     - chaperone
     - build_server
+    - logs
   roles:
     - regular_users
 ...

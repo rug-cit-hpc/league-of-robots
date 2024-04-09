@@ -11,6 +11,7 @@
     - regular_users
     - shared_storage
     - sudoers
+    - logs_toprm
     - build_environment
     - envsync
 ...

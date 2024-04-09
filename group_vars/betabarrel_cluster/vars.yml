@@ -55,22 +55,6 @@ additional_etc_hosts:
     nodes:
       - name: copperfist
         network: vlan13
-  - group: logs_library
-    nodes:
-      - name: earl1
-        network: vlan16
-  - group: logs_library
-    nodes:
-      - name: earl2
-        network: logs_external_network
-  - group: logs_library
-    nodes:
-      - name: earl3
-        network: logs_external_network
-  - group: logs_library
-    nodes:
-      - name: earl4
-        network: vlan16
 #
 # Jumphosts from other stack-name infra groups.
 # We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
@@ -93,12 +77,7 @@ ssh_client_configs:
 #
 # Remote logging settings - for diagnostics servers
 #
-logs_ca_name: 'diagnostics'
-stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
-   - name: 'earl3'
-     external_network: 'logs_external_network'
-   - name: 'earl4'
-     external_network: 'vlan16' # to retrieve public IP from
+logs_class: 'diagnostics'
 #
 # Ldap settings
 #
@@ -213,6 +192,7 @@ functional_admin_group: 'umcg-funad'
 functional_users_group: 'umcg-funus'  # For all functional accounts. Used in /etc/security/access.conf.
 hpc_env_prefix: '/apps'
 regular_groups:
+# Note, for chaperone machines this is controlled in the static_inventories
   - "{{ envsync_group }}"
   - "{{ functional_admin_group }}"
   - "{{ functional_users_group }}"
@@ -224,10 +204,12 @@ regular_groups:
   - 'umcg-gst'
   - 'umcg-lab'
   - 'umcg-labgnkbh'
+  - 'umcg-logstoprm'
   - 'umcg-patho'
   - 'umcg-pr'
   - 'umcg-vipt'
 regular_users:
+# Note, for chaperone machines this is controlled in the static_inventories
   - user: "{{ envsync_user }}"
     groups: ["{{ envsync_group }}", "{{ functional_users_group }}"]
   - user: 'umcg-atd-ateambot'
@@ -262,6 +244,8 @@ regular_users:
     groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
   - user: 'umcg-labgnkbh-dm'
     groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
+  - user: 'umcg-logstoprm-dm'
+    groups: ['umcg-logstoprm', "{{ functional_users_group }}"]
   - user: 'umcg-patho-ateambot'
     groups: ['umcg-patho', "{{ functional_users_group }}"]
   - user: 'umcg-patho-dm'
@@ -305,6 +289,8 @@ sudoers:
     become: 'umcg-labgnkbh-ateambot'
   - who: ['%umcg-labgnkbh']
     become: 'umcg-labgnkbh-dm'
+  - who: ['%umcg-logstorpm']
+    become: 'umcg-logstoprm-dm'
   - who: ['%umcg-patho']
     become: 'umcg-patho-ateambot'
   - who: ['%umcg-patho']
@@ -320,14 +306,14 @@ remote_users_in_local_groups:
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-patho', 'umcg-pr',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
         'umcg-vipt',
     ]
   - user: 'bijlsmam'
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-patho', 'umcg-pr',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
         'umcg-vipt',
     ]
   - user: 'charbonb'
@@ -339,7 +325,7 @@ remote_users_in_local_groups:
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-patho', 'umcg-pr',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
         'umcg-vipt',
     ]
   - user: 'hendriksend'
@@ -351,28 +337,28 @@ remote_users_in_local_groups:
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-patho', 'umcg-pr',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
         'umcg-vipt',
     ]
   - user: 'kanningaroj'
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-patho', 'umcg-pr',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
         'umcg-vipt',
     ]
   - user: 'neerincxp'
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-patho', 'umcg-pr',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
         'umcg-vipt',
     ]
   - user: 'vriesgb'
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-patho', 'umcg-pr',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
         'umcg-vipt',
     ]
 #
@@ -472,6 +458,7 @@ lfs_mounts:
       - name: umcg-gap
       - name: umcg-gd
       - name: umcg-gsad
+      - name: umcg-logstoprm
       - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat05
@@ -492,6 +479,7 @@ lfs_mounts:
       - name: umcg-gap
       - name: umcg-gd
       - name: umcg-gsad
+      - name: umcg-logstoprm
       - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat06
@@ -512,6 +500,7 @@ lfs_mounts:
       - name: umcg-gap
       - name: umcg-gd
       - name: umcg-gsad
+      - name: umcg-logstoprm
       - name: umcg-vipt
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: dat07

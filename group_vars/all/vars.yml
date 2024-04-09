@@ -80,6 +80,8 @@ auth_groups:
     gid: 20019
   umcg-pr:
     gid: 20020
+  umcg-logstoprm:
+    gid: 20021
   MEDGEN-NFG GCC Analyse Team:
     gid: 4560734
 #
@@ -431,4 +433,20 @@ yum_repos:
 # Iptables additional configurations 
 #
 iptables_extras_dir: '/etc/iptables_extras.d/'
+
+#
+# Used in static_hostname_lookup, logs_client, logs_server and logs_toprm roles
+#
+logs_server_public_networks:
+  development:
+    - name: earl1
+      network: vlan16
+    - name: earl2
+      network: logs_external_network
+  diagnostics:
+    - name: earl3
+      network: logs_external_network
+    - name: earl4
+      network: vlan16
+
 ...

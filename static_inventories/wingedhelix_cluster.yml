@@ -189,9 +189,12 @@ all:
             - 'umcg-gst'
             - 'umcg-lab'
             - 'umcg-labgnkbh'
+            - 'umcg-logstoprm'
             - 'umcg-patho'
             - 'umcg-pr'
             - 'umcg-vipt'
+          ssh_client_configs:
+            - logs_library
     nfs_server:
       hosts:
         wh-sai:

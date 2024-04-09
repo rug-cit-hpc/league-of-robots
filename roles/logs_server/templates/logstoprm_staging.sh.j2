@@ -1,0 +1,59 @@
+#!/bin/bash
+# {% raw %}
+
+set -eE
+# Everything is logged in the system logs with logger
+trap 'logger -t logstoprm-cron "The command (${BASH_COMMAND}) failed on line number (${LINENO})"' ERR
+
+{% endraw %}
+
+# Where the logs will be stored to
+destination_dir="{{ logstoprm_rsyncd_module.rsyncd_dir }}"
+
+# {% raw %}
+
+# Where the logs will be collected
+source_dir="/var/log/remote/"
+
+# check the rest of environment
+test -d "${source_dir}" || \
+  { echo "error directory ${source_dir} does not exist or has wrong permissions" ; exit 1; }
+test -d "${destination_dir}" || \
+  { echo "error directory ${destination_dir} does not exist or has wrong permissions" ; exit 1; }
+cd "${source_dir}"
+
+# Description
+# - find compressed files older than 7 days
+# - ignore files smaller than 20-bytes as they are compressed empty files (plus
+#   20 bytes can not contain enough information to help with anything)
+# - move them (that is: copy and then delete)
+# - and change ownership: owner=root and group=logstoprm
+# - and change permissions for user and group to be able to read-only
+# find flags
+#   --remove-source-files  after they have been successfully copied
+#   -R use                 relative path-names
+#   +21c                   more than 21 characters (bytes)
+# rsync flags
+#   --ignore-existing      don't update files if they already exist on destination
+logger -t logstoprm "Starting to move log files to ${destination_dir}"
+find ./ -type f -size +21c -mtime +7 -name "*.gz" -exec rsync \
+   --remove-source-files --ignore-existing -a -R --min-size=21 \
+   --chown=root:{% endraw %}{{ logstoprm_rsyncd_module.group }}{% raw %} \
+   --chmod=D750,F640 ./{} /mnt/logstoprm/ 2>>${0}.logs \;
+if [[ "$?" -eq "0" ]]; then
+   logger -t logstoprm "Logs have been successfully moved"
+else
+   logger -t logstoprm "There has been error while moving logs"
+fi
+   
+
+# the folder are created while copying, so permissions need to be additionally fixed
+cd ${destination_dir}
+# TODO
+# - clean zero bytes logs files that have not been changed for more than a week
+#   (logrotate already compressed the logs and left the empty sized ones for
+#   longer time - which should be removed after a while)
+# - remove all old logs after 6 months - in this time they should be copied
+#   anyway
+
+# {% endraw %}
