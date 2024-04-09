@@ -114,7 +114,7 @@ function check_time(){
       logger -t "${_log_tag}" "(${$} ${FUNCNAME} ${_earl_name})    can run (returning ok 0)"
       return 0    # run
    else
-      logger -t "${_log_tag}" "($$ ${FUNCNAME} ${_earl_name})    unexpected result (exit 201)"
+      logger -t "${_log_tag}" "(${$} ${FUNCNAME} ${_earl_name})    unexpected result (exit 201)"
       exit 201
    fi
 }
