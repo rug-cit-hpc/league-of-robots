@@ -140,7 +140,7 @@ function killing_pid(){
       if pgrep -u "${UID}" "timeout" 2>&1 | grep -q "${_each_pid}"; then # killing timeout processes
          logger -t "${_log_tag}" "($$ ${FUNCNAME}) Killing process ${_each_pid}"
          kill -9 ${_each_pid} && \
-           logger -t "${_log_tag}" "($$ ${FUNCNAME})  ${_each_pid} killed!"
+           logger -t "${_log_tag}" "(${$} ${FUNCNAME})  ${_each_pid} killed!"
       fi
    done
 }
