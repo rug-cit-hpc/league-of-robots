@@ -42,7 +42,7 @@
   retries: 12
   delay: 5
   delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
-  loop: "{{ logs_class_list }}"
+  loop: "{{ logs_class_servers }}"
   become: true
   tags:
     - test

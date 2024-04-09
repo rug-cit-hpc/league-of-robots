@@ -20,7 +20,7 @@ See also
 
 List of interesting variables
 
- - `logs_class_list` - a list of all available classes (like 'development', 'research', 'diagnostic' ... )
+ - `logs_class_servers` - a list of servers for current `logs_class` (like 'development', 'research', 'diagnostic' ... )
  - `random_tag` - a string that gets created at the testing, the tag that gets injected into log and after that
                   searched on the server
  - `rsyslog_remote_path_cert_dir` - folder on server's side where certificate will be stored

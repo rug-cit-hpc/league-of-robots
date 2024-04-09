@@ -1,7 +1,7 @@
 ---
 - name: Compile the list of logs server names
   ansible.builtin.set_fact:
-    logs_class_list: "{{ logs_class_list | default([]) + [item.name] }}"
+    logs_class_servers: "{{ logs_class_servers | default([]) + [item.name] }}"
   loop: "{{ logs_server_public_networks[logs_class] }}"
   when: logs_class is defined and logs_class|length>0
   register: rsys_ext_ips
