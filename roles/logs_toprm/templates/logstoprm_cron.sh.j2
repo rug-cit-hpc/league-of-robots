@@ -124,7 +124,7 @@ function remove_locks(){
    if test -d "${_lock_dir}"; then
       if test -z "$(cat "${_hostname}/pid")"; then   # check if pidfile contains our process or is empty
          rm -f "${_hostname}/pid" simply remove it
-         rmdir "${_hostname}" && logger -t "${_log_tag}" "($$ ${FUNCNAME})   lock directory removed [$(pwd)/${_hostname}]"
+         rmdir "${_hostname}" && logger -t "${_log_tag}" "(${$} ${FUNCNAME})   lock directory removed [$(pwd)/${_hostname}]"
       fi
    fi
 }
