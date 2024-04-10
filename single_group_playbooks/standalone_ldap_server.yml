@@ -1,0 +1,25 @@
+---
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
+
+- name: '###==-> Roles for jumphosts. <-==###'
+  hosts:
+    - ldap_server
+  roles:
+    - static_hostname_lookup
+    - admin_users
+    - ssh_host_signer
+    - iptables
+    - grub
+    - ssh  # client
+    - {role: yum_local, when: local_yum_repository is defined}
+    - {role: yum_repos, when: repo_manager == 'none'}
+    - locale
+    - logrotate
+    - remove
+    - update
+    - logins
+    - sshd
+    - basic_security
+    - ldap_server
+...
