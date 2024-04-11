@@ -55,22 +55,6 @@ additional_etc_hosts:
     nodes:
       - name: copperfist
         network: vlan13
-  - group: logs_library
-    nodes:
-      - name: earl1
-        network: vlan16
-  - group: logs_library
-    nodes:
-      - name: earl2
-        network: logs_external_network
-  - group: logs_library
-    nodes:
-      - name: earl3
-        network: logs_external_network
-  - group: logs_library
-    nodes:
-      - name: earl4
-        network: vlan16
 #
 # Jumphosts from other stack-name infra groups.
 # We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
@@ -93,12 +77,7 @@ ssh_client_configs:
 #
 # Remote logging settings - for diagnostics servers
 #
-logs_ca_name: 'diagnostics'
-stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
-   - name: 'earl3'
-     external_network: 'logs_external_network'
-   - name: 'earl4'
-     external_network: 'vlan16' # to retrieve public IP from
+logs_class: 'diagnostics'
 #
 # Ldap settings
 #
@@ -225,6 +204,7 @@ regular_groups:
   - 'umcg-gst'
   - 'umcg-lab'
   - 'umcg-labgnkbh'
+  - 'umcg-logstoprm'
   - 'umcg-patho'
   - 'umcg-pr'
   - 'umcg-vipt'
@@ -279,92 +259,48 @@ regular_users:
 sudoers:
   - who: ['%umcg-atd,!charbonb,!hendriksend']
     become: 'umcg-atd-ateambot'
-    name: 'umcg-atd-ateambot'
-    command: 'ALL'
   - who: ['%umcg-atd,!charbonb,!hendriksend']
     become: 'umcg-atd-dm'
-    name: 'umcg-atd-dm'
-    command: 'ALL'
   - who: ['%umcg-gap,!charbonb,!hendriksend']
     become: 'umcg-gap-ateambot'
-    name: 'umcg-gap-ateambot'
-    command: 'ALL'
   - who: ['%umcg-gap,!charbonb,!hendriksend']
     become: 'umcg-gap-dm'
-    name: 'umcg-gap-dm'
-    command: 'ALL'
   - who: ['%umcg-gd,!charbonb,!hendriksend']
     become: 'umcg-gd-ateambot'
-    name: 'umcg-gd-ateambot'
-    command: 'ALL'
   - who: ['%umcg-gd,!charbonb,!hendriksend']
     become: 'umcg-gd-dm'
-    name: 'umcg-gd-dm'
-    command: 'ALL'
   - who: ['%umcg-genomescan']
     become: 'umcg-genomescan-ateambot'
-    name: 'umcg-genomescan-ateambot'
-    command: 'ALL'
   - who: ['%umcg-genomescan']
     become: 'umcg-genomescan-dm'
-    name: 'umcg-genomescan-dm'
-    command: 'ALL'
   - who: ['%umcg-gsad,!charbonb,!hendriksend']
     become: 'umcg-gsad-ateambot'
-    name: 'umcg-gsad-ateambot'
-    command: 'ALL'
   - who: ['%umcg-gsad,!charbonb,!hendriksend']
     become: 'umcg-gsad-dm'
-    name: 'umcg-gsad-dm'
-    command: 'ALL'
   - who: ['%umcg-gst']
     become: 'umcg-gst-ateambot'
-    name: 'umcg-gst-ateambot'
-    command: 'ALL'
   - who: ['%umcg-gst']
     become: 'umcg-gst-dm'
-    name: 'umcg-gst-dm'
-    command: 'ALL'
   - who: ['%umcg-lab-dms']
     become: 'umcg-lab-ateambot'
-    name: 'umcg-lab-ateambot'
-    command: 'ALL'
   - who: ['%umcg-lab-dms']
     become: 'umcg-lab-dm'
-    name: 'umcg-lab-dm'
-    command: 'ALL'
   - who: ['%umcg-labgnkbh']
     become: 'umcg-labgnkbh-ateambot'
-    name: 'umcg-labgnkbh-ateambot'
-    command: 'ALL'
   - who: ['%umcg-labgnkbh']
     become: 'umcg-labgnkbh-dm'
-    name: 'umcg-labgnkbh-dm'
-    command: 'ALL'
   - who: ['%umcg-logstorpm']
     become: 'umcg-logstoprm-dm'
-    name: 'umcg-logstoprm-dm'
-    command: 'ALL'
   - who: ['%umcg-patho']
     become: 'umcg-patho-ateambot'
-    name: 'umcg-patho-ateambot'
-    command: 'ALL'
   - who: ['%umcg-patho']
     become: 'umcg-patho-dm'
-    name: 'umcg-patho-dm'
-    command: 'ALL'
   - who: ['%umcg-pr']
     become: 'umcg-pr-ateambot'
-    name: 'umcg-pr-ateambot'
-    command: 'ALL'
   - who: ['%umcg-pr']
     become: 'umcg-pr-dm'
-    name: 'umcg-pr-dm'
-    command: 'ALL'
   - who: ['%umcg-vipt']
     become: 'umcg-vipt-dm'
-    name: 'umcg-vipt-dm'
-    command: 'ALL'
 remote_users_in_local_groups:
   - user: 'benjaminsm'
     groups: [
@@ -501,12 +437,12 @@ pfs_mounts:
     rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
     ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
     machines: "{{ groups['chaperone'] }}"
-  - pfs: 'research$'
-    source: '//storage3.umcg.nl/'
-    type: cifs    # checked with cat /proc/filesystem
-    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
-    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
-    machines: "{{ groups['chaperone'] }}"
+#  - pfs: 'research$'
+#    source: '//storage3.umcg.nl/'
+#    type: cifs    # checked with cat /proc/filesystem
+#    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+#    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
+#    machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home
     pfs: local_raid
@@ -650,36 +586,36 @@ lfs_mounts:
     groups:
       - name: umcg-labgnkbh
     rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: prm55
-    pfs: 'research$'
-    groups:
-      - name: umcg-pr
-    rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: dat55
-    pfs: 'research$'
-    groups:
-      - name: umcg-pr
-    rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: prm56
-    pfs: 'research$'
-    groups:
-      - name: umcg-pr
-    rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: dat56
-    pfs: 'research$'
-    groups:
-      - name: umcg-pr
-    rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: prm57
-    pfs: 'research$'
-    groups:
-      - name: umcg-pr
-    rw_machines: "{{ groups['chaperone'] }}"
-  - lfs: dat57
-    pfs: 'research$'
-    groups:
-      - name: umcg-pr
-    rw_machines: "{{ groups['chaperone'] }}"
+#  - lfs: prm55
+#    pfs: 'research$'
+#    groups:
+#      - name: umcg-pr
+#    rw_machines: "{{ groups['chaperone'] }}"
+#  - lfs: dat55
+#    pfs: 'research$'
+#    groups:
+#      - name: umcg-pr
+#    rw_machines: "{{ groups['chaperone'] }}"
+#  - lfs: prm56
+#    pfs: 'research$'
+#    groups:
+#      - name: umcg-pr
+#    rw_machines: "{{ groups['chaperone'] }}"
+#  - lfs: dat56
+#    pfs: 'research$'
+#    groups:
+#      - name: umcg-pr
+#    rw_machines: "{{ groups['chaperone'] }}"
+#  - lfs: prm57
+#    pfs: 'research$'
+#    groups:
+#      - name: umcg-pr
+#    rw_machines: "{{ groups['chaperone'] }}"
+#  - lfs: dat57
+#    pfs: 'research$'
+#    groups:
+#      - name: umcg-pr
+#    rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env05
     pfs: local_raid
     rw_machines: "{{ groups['deploy_admin_interface'] + groups['compute_node'] + groups['user_interface'] }}"

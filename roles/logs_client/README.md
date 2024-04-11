@@ -1,6 +1,9 @@
 # Ansible role for remote logging - CLIENT
 
-(see also ../logs_server/README.md)
+See also
+
+ - [Logs Servers Readme](../logs_server/README.md)
+ - [Logs ToPrm Readme](../logs_toprm/README.md)
 
 ## TL-DR
 
@@ -13,7 +16,20 @@
     ansible-playbook -u [admin] -l jumphost single_group_playbooks/logs.yml
 ```
 
-## I. Prerequisites
+## I. Definitions
+
+List of interesting variables
+
+ - `logs_class_servers` - a list of servers for current `logs_class` (like 'development', 'research', 'diagnostic' ... )
+ - `random_tag` - a string that gets created at the testing, the tag that gets injected into log and after that
+                  searched on the server
+ - `rsyslog_remote_path_cert_dir` - folder on server's side where certificate will be stored
+ - `rsyslog_remote_path_key_dir` - folder on server's side where private key will be stored
+ - `rsyslog_repository_dir` - location withing the LoR where public and private keys of each `logs_class` are stored
+ - `iptables_extras_dir` - folder on each of the logs servers, where the files that define firewall exceptions
+                           of an individual stack are stored
+
+## II. Prerequisites
 
 ### Certificate authority
 
@@ -21,7 +37,7 @@ Before attemting to deploy the logs clients role, make sure that your `.ssh/know
 contains the following line
 
 ```
-    @cert-authority * ssh-ed25519 [here is the correct key] CA key for logs_library
+    @cert-authority earl* ssh-ed25519 [here is the correct key] CA key for logs_library
 ```
 
 where key must match the values of the `ssh-host-ca/logs_library-ca.pub` file.
@@ -42,22 +58,15 @@ The client machines must first already have deployed the following roles
 ### I.b Settings
 
 This role is the second role of the ansible roles for logs. It relies on predefined
- - (optional) a list of external rsyslog servers (unmanaged by our roles) defined
-   in group variables f.e. inside `group_vars/{{ stack_name }}/vars.yml`, for example
+
+ - (optional) a list of external rsyslog servers (unmanaged by our roles)
+ - (optional) defined in `group_vars/{{ stack_name }}/vars.yml`
    ```
-    logs_ca_name: 'development'
-    stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
-       - name: 'earl1'
-         external_network: 'vlan16' # to retrieve public IP from
-       - name: 'earl2'
-         external_network: 'logs_external_network'
+    logs_class: 'development'
    ```
-   The `logs_ca_name` defines the group of rsyslog server to be used. The group must be already
+   The `logs_class` defines the group of rsyslog server to be used. The group must be already
    created and CA key and certificate exist in the `files/logs_library/` folder.
    Currently there are following groups planned: `development`, `research` and `diagnostics`.
-   The `stacks_logs_servers` defines the log server. They must be already created by a
-   `logs_server` role and exist in they `group_vars/logs_library/ip_address.yml` - this defines
-   the specific servers that the logs will be sent to.
  - The `additional_etc_hosts` variable must include the apropriate logs servers. This is defined
    in the `group_vars/{{ stack_name }}/vars.yml`
    ```
@@ -96,7 +105,7 @@ This role is the second role of the ansible roles for logs. It relies on predefi
       - `development` (default) for testing purposes
       - `research`, for the research clusters, and
       - `diagnostics` for the production machines
-    - type can be defined by assigning an appropriate value to the `logs_ca_name` variable (f.e.
+    - type can be defined by assigning an appropriate value to the `logs_class` variable (f.e.
       `research`) in a `groups_vars/[stack]/vars.yml` (for group of computers) or
       `static_inventory/[stack].yml` (to the individual instance).`
 
@@ -137,24 +146,14 @@ If it is not, it triggers the process of recreating one.
 
 To recreate the client certificate:
 
-(on the client machine) remove the files
-
-```
-   {{ rsyslog_remote_key_dir }}/{{ inventory_hostname }}.key
-   {{ rsyslog_remote_cert_dir }}/{{ inventory_hostname }}.pem
-   {{ rsyslog_remote_cert_dir }}/{{ rsyslog_ca_cert_file }}
-```
-
-By default they should be
-
-```
-   /etc/pki/tls/private/[machinename].key
-   /etc/pki/tls/certs/[machinename].pem
-   /etc/pki/tls/certs/logs_[type].pem
-```
-
-then rerun the `single_group_playbooks/logs.yml` or `single_role_playbooks/logs_client.yml`
-playbook.
+ - on the client machine remove the following (default locations) files
+   ```
+      /etc/pki/tls/private/[machinename].key
+      /etc/pki/tls/certs/[machinename].pem
+      /etc/pki/tls/certs/logs_[type].pem
+   ```
+ - then rerun the `single_group_playbooks/logs.yml` or `single_role_playbooks/logs_client.yml`
+   playbook.
 
 ## IV. Client-server rsyslog connection: opening of the firewall port
 

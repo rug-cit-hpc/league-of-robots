@@ -1,0 +1,38 @@
+---
+- name: Create dir and log file for module usage tracking on DAIs.
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: 'root'
+    group: "{{ envsync_group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - path: /var/log/lmod
+      type: directory
+      mode: '0750'
+    - path: /var/log/lmod/module_usage
+      type: touch
+      mode: '0640'
+  become: true
+  when: inventory_hostname in groups['deploy_admin_interface'] | default([])
+
+- name: Deploy rsyslog config for collecting module usage tracking on DAIs.
+  ansible.builtin.template:
+    src: 'module_usage.conf.rsyslog.j2'
+    dest: '/etc/rsyslog.d/module_usage.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  become: true
+  when: inventory_hostname in groups['deploy_admin_interface'] | default([])
+  notify: restart_rsyslog
+
+- name: Deploy logrotate config to rotate and compress old module_usage log files on DAIs.
+  ansible.builtin.template:
+    src: module_usage.logrotate
+    dest: /etc/logrotate.d/module_usage
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  become: true
+  when: inventory_hostname in groups['deploy_admin_interface'] | default([])
+...

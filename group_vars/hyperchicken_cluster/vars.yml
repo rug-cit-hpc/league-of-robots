@@ -32,31 +32,10 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
-  - group: logs_library
-    nodes:
-      - name: earl1
-        network: vlan16
-  - group: logs_library
-    nodes:
-      - name: earl2
-        network: logs_external_network
-  - group: logs_library
-    nodes:
-      - name: earl3
-        network: logs_external_network
-  - group: logs_library
-    nodes:
-      - name: earl4
-        network: vlan16
 #
 # Remote logging settings - for diagnostics servers
 #
-logs_ca_name: 'development'
-stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
-   - name: 'earl1'
-     external_network: 'vlan16' # to retrieve public IP from
-   - name: 'earl2'
-     external_network: 'logs_external_network'
+logs_class: 'development'
 #
 # Ldap settings
 #
@@ -150,16 +129,10 @@ regular_users:
 sudoers:
   - who: ['%solve-rd']
     become: 'solve-rd-dm'
-    name: 'solve-rd-dm'
-    command: 'ALL'
   - who: ['%umcg-atd']
     become: 'umcg-atd-dm'
-    name: 'umcg-atd-dm'
-    command: 'ALL'
   - who: ['%umcg-gsad']
     become: 'umcg-gsad-dm'
-    name: 'umcg-gsad-dm'
-    command: 'ALL'
 #
 # Shared storage related variables
 #

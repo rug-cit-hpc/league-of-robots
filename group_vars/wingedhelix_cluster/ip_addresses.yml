@@ -44,11 +44,11 @@ ip_addresses:
       address: 10.10.1.153
       netmask: /32
   wh-sai:
-    vlan990:
-      address: 192.168.1.151
-      netmask: /32
     vlan1068:
       address: 172.23.60.32
+      netmask: /32
+    vlan990:
+      address: 192.168.1.151
       netmask: /32
     wh_internal_management:
       address: 10.10.1.71
@@ -64,7 +64,7 @@ ip_addresses:
     vlan16:
       address: 195.169.22.152
       netmask: /32
-      fqdn: 'NXDOMAIN'
+      fqdn: 'wh-transfer.hpc.rug.nl'
   wingedhelix:
     vlan1068:
       address: 172.23.60.28

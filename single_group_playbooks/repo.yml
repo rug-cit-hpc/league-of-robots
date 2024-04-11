@@ -5,21 +5,23 @@
 - name: '###==-> Roles for repo management servers. <-==###'
   hosts: repo
   roles:
+    - static_hostname_lookup
     - admin_users
     - ssh_host_signer
     - iptables
     - ssh  # client
+    - grub
     - swap
     - {role: yum_repos, when: repo_manager == 'none'}
     - locale
     - logrotate
     - logins
-    - static_hostname_lookup
     - sshd
     - basic_security
     - remove
     - update
-    - {role: logs_client, when: stacks_logs_servers is defined}
+    - role: logs_client
+      when: logs_class is defined
 
 - name: '###==-> Roles for repo management servers. <-==###'
   hosts: repo

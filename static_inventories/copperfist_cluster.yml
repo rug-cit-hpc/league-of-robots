@@ -8,7 +8,7 @@ all:
     jumphost:
       hosts:
         cf-porch:
-          cloud_image: RockyLinux-9.2_xfs
+          cloud_image: RockyLinux-9.3_xfs
           os_distribution: 'rocky9'
           ansible_python_interpreter: /usr/bin/python3
           cloud_flavor: general.v1.small
@@ -24,18 +24,20 @@ all:
             - "{{ all.ip_addresses['umcg']['net4'] }}"
             - "{{ all.ip_addresses['rug']['bwp_net'] }}"
             - "{{ all.ip_addresses['rug']['operator'] }}"
+          ssh_client_configs:
+            - logs_library
     data_transfer:
       hosts:
         cf-transfer:
           #cloud_flavor: m1.small
-          cloud_image: RockyLinux-9.2_xfs
+          cloud_image: RockyLinux-9.3_xfs
           os_distribution: 'rocky9'
           cloud_flavor: general.v1.small
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_ds"
               assign_floating_ip: true
-          local_volume_size_extra: 4300
+          local_volume_size_extra: 8300
           iptables_allow_icmp_inbound:
             - "{{ all.ip_addresses['umcg']['net1'] }}"
             - "{{ all.ip_addresses['umcg']['net2'] }}"
@@ -157,7 +159,6 @@ all:
           #
           # Overrule regular_groups compared to rest of Winged Helix:
           # * Do not create local functional_admin_group, which comes from UMCG AD.
-          # * Do not create umcg-lab, which is not used on a chaperone.
           #
           regular_groups:
             - "{{ envsync_group }}"
@@ -168,10 +169,14 @@ all:
             - 'umcg-genomescan'
             - 'umcg-gsad'
             - 'umcg-gst'
+            - 'umcg-lab'
             - 'umcg-labgnkbh'
+            - 'umcg-logstoprm'
             - 'umcg-patho'
             - 'umcg-pr'
             - 'umcg-vipt'
+          ssh_client_configs:
+            - logs_library
     smb_server:
       hosts:
         copperfist:

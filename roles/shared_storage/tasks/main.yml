@@ -211,6 +211,20 @@
     - not inventory_hostname in groups['nfs_server'] | default([])
   become: true
 
+- name: 'Mount "home" Logical File System (LFS) from shared storage read-only.'
+  ansible.posix.mount:
+    path: "/home"
+    src: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='source') | first }}/\
+          {{ item.pfs }}/{{ item.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'match', item.pfs) | map(attribute='ro_options') | first }}"
+    state: 'mounted'
+  with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'home') | list }}"
+  when:
+    - inventory_hostname in item.ro_machines | default ([])
+    - not inventory_hostname in groups['nfs_server'] | default([])
+  become: true
+
 - name: 'Create root /groups folder.'
   ansible.builtin.file:
     path: '/groups'
@@ -253,6 +267,20 @@
     - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
     - 'groups'
   when: inventory_hostname in item.0.rw_machines | default ([])
+  become: true
+
+- name: 'Mount "tmp" Logical File Systems (LFSs) per group from shared storage read-only.'
+  ansible.posix.mount:
+    path: "/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/\
+          {{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='ro_options') | first }}"
+    state: 'mounted'
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in item.0.ro_machines | default ([])
   become: true
 
 - name: 'Mount "rsc" Logical File Systems (LFSs) per group from shared storage read-write.'
@@ -340,6 +368,25 @@
   when: inventory_hostname in item.0.rw_machines | default ([])
   become: true
 
+- name: 'Mount "dat" Logical File Systems (LFSs) per group from shared storage read-only.'
+  ansible.posix.mount:
+    path: "/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='source') | first }}/\
+          {{ item.0.pfs }}/groups/{{ item.1.name }}/{{ item.0.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='ro_options') | first }}{{ extra_opts }}"
+    state: 'mounted'
+  vars:
+    extra_opts: >-
+      {%- if pfs_mounts | selectattr('pfs', 'equalto', item.0.pfs) | map(attribute='type') | first == 'cifs' -%}
+      ,credentials=/etc/sysconfig/{{ item.0.pfs | regex_replace('\$$', '') }}.cifs,uid={{ item.1.name }}-dm,gid={{ item.1.name }},dir_mode=02770,file_mode=0660
+      {%- endif -%}
+  with_subelements:
+    - "{{ lfs_mounts | selectattr('lfs', 'search', 'dat[0-9]+$') | list }}"
+    - 'groups'
+  when: inventory_hostname in item.0.ro_machines | default ([])
+  become: true
+
 - name: 'Mount "env" Logical File Systems (LFSs) from shared storage read-write.'
   ansible.posix.mount:
     path: "/mnt/{{ item.lfs }}"
@@ -351,6 +398,20 @@
   with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
   when:
     - inventory_hostname in item.rw_machines | default ([])
+    - inventory_hostname in groups['deploy_admin_interface'] | default([])
+  become: true
+
+- name: 'Mount "env" Logical File Systems (LFSs) from shared storage read-only.'
+  ansible.posix.mount:
+    path: "/mnt/{{ item.lfs }}"
+    src: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='source') | first }}/\
+          {{ item.pfs }}/{{ item.lfs }}"
+    fstype: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='type') | first }}"
+    opts: "{{ pfs_mounts | selectattr('pfs', 'equalto', item.pfs) | map(attribute='ro_options') | first }}"
+    state: 'mounted'
+  with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'env[0-9]+$') | list }}"
+  when:
+    - inventory_hostname in item.ro_machines | default ([])
     - inventory_hostname in groups['deploy_admin_interface'] | default([])
   become: true
 

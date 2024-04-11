@@ -8,6 +8,7 @@
     mode: '0644'
   loop:
     - 52-ansible-managed-netwerk-params.conf
+    - 53-ansible-managed-filesystem-params.conf
     - 54-ansible-managed-kernel-params.conf
   become: true
 
@@ -72,13 +73,25 @@
     - name: net.ipv6.conf.all.forwarding
       value: 0
     # FileSystems
-    - name: fs.protected_regular
-      value: 1
     - name: fs.protected_symlinks
       value: 1
     - name: fs.protected_hardlinks
       value: 1
+  become: true
+
+- name: Modify sysctl kernel parameters on RedHat distros >= 8.x right now.
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_set: true
+  loop:
+    # FileSystems
+    - name: fs.protected_regular
+      value: 1
     - name: fs.protected_fifos
       value: 1
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
   become: true
 ...

@@ -69,12 +69,35 @@
     - ansible_facts['os_family'] == "RedHat"
     - ansible_facts['distribution_major_version'] >= "8"
 
-- name: Disable extra sshd config files we do not want to use.
+#
+# Disabling the config files does not work as dnf update will re-create them.
+#
+- name: Re-enable extra sshd config files we do not want to use.
   ansible.builtin.shell:
     cmd: |
-         mv "/etc/ssh/sshd_config.d/{{ item }}"{,.disabled}
-    removes: "/etc/ssh/sshd_config.d/{{ item }}"
-    creates: "/etc/ssh/sshd_config.d/{{ item }}.disabled"
+         mv "/etc/ssh/sshd_config.d/{{ item }}"{.disabled,}
+    removes: "/etc/ssh/sshd_config.d/{{ item }}.disabled"
+    creates: "/etc/ssh/sshd_config.d/{{ item }}"
+  loop:
+    - 50-cloud-init.conf
+    - 50-redhat.conf
+  become: true
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
+
+#
+# We disable every line in extra sshd config files,
+# but do keep these files to prevent a dnf update from recreting them.
+#
+- name: Disable every line in extra sshd config files we do not want to use.
+  ansible.builtin.replace:
+    path: "/etc/ssh/sshd_config.d/{{ item }}"
+    owner: root
+    group: root
+    mode: '0600'
+    regexp: '^([^#][^\n]*)$'
+    replace: '#\1'
   loop:
     - 50-cloud-init.conf
     - 50-redhat.conf
@@ -90,7 +113,7 @@
     dest: /etc/ssh/sshd_config
     owner: root
     group: root
-    mode: '0644'
+    mode: '0600'
     validate: '/usr/sbin/sshd -T -C user=root -C host=localhost -C addr=localhost -C lport=22 -f %s'
   notify: restart_sshd
   become: true
@@ -101,7 +124,7 @@
     dest: /etc/ssh/sshd_config.d/50-crypto-policies.conf
     owner: root
     group: root
-    mode: '0644'
+    mode: '0600'
     validate: '/usr/sbin/sshd -T -C user=root -C host=localhost -C addr=localhost -C lport=22 -f %s'
   notify: restart_sshd
   become: true
@@ -120,6 +143,7 @@
   register: sshd_register_moduli
   changed_when: false
   check_mode: false
+  become: true
 
 - name: Remove weak (small) values from /etc/ssh/moduli.
   ansible.builtin.shell: awk '$5 >= {{ sshd_moduli_minimum }}' /etc/ssh/moduli > /etc/ssh/moduli.new ;
@@ -127,6 +151,15 @@
   when: sshd_register_moduli.stdout | length > 1
   changed_when: sshd_register_moduli.stdout | length > 1
   notify: restart_sshd
+  become: true
+
+- name: Check permissions on /etc/ssh/moduli.
+  ansible.builtin.file:
+    path: /etc/ssh/moduli
+    state: file
+    owner: root
+    group: root
+    mode: '0640'
   become: true
 
 - name: Populate service facts.

@@ -42,31 +42,11 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
-  - group: logs_library
-    nodes:
-      - name: earl1
-        network: vlan16
-  - group: logs_library
-    nodes:
-      - name: earl2
-        network: logs_external_network
-  - group: logs_library
-    nodes:
-      - name: earl3
-        network: logs_external_network
-  - group: logs_library
-    nodes:
-      - name: earl4
-        network: vlan16
 #
 # Remote logging settings - for diagnostics servers
 #
-logs_ca_name: 'development'
-stacks_logs_servers:    # selected servers from the 'logs_library' static inventory
-   - name: 'earl1'
-     external_network: 'vlan16' # to retrieve public IP from
-   - name: 'earl2'
-     external_network: 'logs_external_network'
+logs_class: 'development'
+
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: true
 create_ldap: false
@@ -172,40 +152,22 @@ regular_users:
 sudoers:
   - who: ['%umcg-atd']
     become: 'umcg-atd-dm'
-    name: 'umcg-atd-dm'
-    command: 'ALL'
   - who: ['%umcg-atd']
     become: 'umcg-atd-ateambot'
-    name: 'umcg-atd-ateambot'
-    command: 'ALL'
   - who: ['%umcg-cineca-dms']
     become: 'umcg-cineca-dm'
-    name: 'umcg-cineca-dm'
-    command: 'ALL'
   - who: ['%umcg-endocrinology-dms']
     become: 'umcg-endocrinology-dm'
-    name: 'umcg-endocrinology-dm'
-    command: 'ALL'
   - who: ['%umcg-gcc']
     become: 'umcg-gcc-dm'
-    name: 'umcg-gcc-dm'
-    command: 'ALL'
   - who: ['%umcg-gsad']
     become: 'umcg-gsad-ateambot'
-    name: 'umcg-gsad-ateambot'
-    command: 'ALL'
   - who: ['%umcg-gsad']
     become: 'umcg-gsad-dm'
-    name: 'umcg-gsad-dm'
-    command: 'ALL'
   - who: ['%umcg-lifelines-dms']
     become: 'umcg-lifelines-dm'
-    name: 'umcg-lifelines-dm'
-    command: 'ALL'
   - who: ['%umcg-sysops']
     become: 'umcg-sysops-dm'
-    name: 'umcg-sysops-dm'
-    command: 'ALL'
 
 #
 # Shared storage related variables

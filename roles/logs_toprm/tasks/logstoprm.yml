@@ -1,0 +1,79 @@
+---
+- name: Create a list of all names
+  set_fact:
+    all_log_servers: "{{ logs_server_public_networks | dict2items | map(attribute='value') | flatten }}"
+
+- name: Print every logs server name and public IP
+  ansible.builtin.debug:
+    msg: "{{ item.name }} - {{ '%-15s' | format(all_ip_addresses[item['name']][item['network']].address) }}"
+  loop: "{{ all_log_servers }}"
+
+- name: 'Get {{ logs_toprm_chaperone_user }} home directory'
+  ansible.builtin.shell: "set -o pipefail && getent passwd {{ logs_toprm_chaperone_user }}  | awk -F: '{ print $6 }'"
+  changed_when: false
+  register: home_path
+
+- name: 'Install logstoprm cron .sh script.'
+  ansible.builtin.template:
+    src: logstoprm_cron.sh.j2
+    dest: "{{ home_path.stdout }}/logstoprm_cron.sh"
+    owner: "{{ logs_toprm_chaperone_user }}"
+    group: "{{ logs_toprm_chaperone_user }}"
+    mode: '0750'
+  become: true
+
+
+- name: "Create SSH key pair."
+  community.crypto.openssh_keypair:
+    path: "{{ home_path.stdout }}/.ssh/id_ed25519"
+    type: ed25519
+    comment: "{{ logs_toprm_chaperone_user }}@{{ inventory_hostname }}"
+  become: true
+  become_user: "{{ logs_toprm_chaperone_user }}"
+
+- name: "Collecting public CA keys for logs servers"
+  ansible.builtin.command: "cat {{ playbook_dir }}/ssh-host-ca/logs_library-ca.pub"
+  changed_when: false
+  register: public_ssh_key
+  delegate_to: localhost
+  connection: local
+  run_once: true
+
+- name: "Adding public CA key to {{ logs_toprm_chaperone_user }} on chaperone"
+  ansible.builtin.copy:
+    content: |
+      @cert-authority earl* {{ public_ssh_key.stdout }}
+    dest: "{{ home_path.stdout }}/.ssh/known_hosts"
+    mode: '0640'
+  become: true
+  become_user: "{{ logs_toprm_chaperone_user }}"
+
+- name: "Defining logs servers IP addresses and names for {{ logs_toprm_chaperone_user }} on chaperone"
+  ansible.builtin.copy:
+    content: |
+      Host {{ item.name }}
+        HostName {{ '%-15s' | format(all_ip_addresses[item['name']][item['network']].address) }}
+        HostKeyAlias {{ item.name }}
+        ServerAliveInterval 60
+        ServerAliveCountMax 5
+        ControlMaster auto
+        IdentityFile "~/.ssh/id_ed25519"
+        ControlPath ~/.ssh/tmp/%C
+        ControlPersist 5m
+    dest: "{{ home_path.stdout }}/.ssh/conf.d/{{ item['name'] }}"
+    mode: '0640'
+  loop: "{{ all_log_servers }}"
+  become: true
+  become_user: "{{ logs_toprm_chaperone_user }}"
+
+- name: 'Create crontab for collecting the logs.'
+  ansible.builtin.cron:
+    name: "logstoprm_cron.sh # Unique ID required to update existing cronjob: do not modify."
+    minute: "41"
+    hour: "*/8"
+    day: "*"
+    user: "{{ logs_toprm_chaperone_user }}"
+    job: /bin/bash -c "{{ home_path.stdout }}/logstoprm_cron.sh"
+  become: true
+  become_user: "{{ logs_toprm_chaperone_user }}"
+...

@@ -6,6 +6,7 @@
   hosts:
     - cluster
   roles:
+    - static_hostname_lookup
     - admin_users
     - ssh_host_signer
     #
@@ -27,7 +28,6 @@
       when: repo_manager == 'none'
     - role: yum_local
       when: local_yum_repository is defined
-    - static_hostname_lookup
     - locale
     - logrotate
     - remove
@@ -41,7 +41,7 @@
     # - node_exporter
     - cluster
     - role: logs_client
-      when: stacks_logs_servers is defined
+      when: logs_class is defined
     - gpu            # needs to run after role 'cluster'
     - resolver
     - coredumps

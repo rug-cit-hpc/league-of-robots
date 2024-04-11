@@ -139,7 +139,11 @@ else
 fi
 pip3 install openstackclient
 pip3 install ruamel.yaml
-pip3 install netaddr
+#
+# Until https://github.com/ansible-collections/ansible.utils/issues/331 is fixed,
+# we cannot use netaddr >= 1.0.0.
+#
+pip3 install 'netaddr<1'
 #
 # Package dnspython is required for Ansible lookup plugin community.general.dig
 #
@@ -485,41 +489,37 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
   . ./lor-init
   lor-config tl
   ```
-* Firstly, create the jumphost, which is required to access the other machines.
-* Create local admin accounts.
-* Deploy the signed hosts keys.
-* Configure other stuff on the jumphost, which contains amongst others the settings required to access the other machines behind the jumphost.
+* Define accounts used to deploy playbooks
   ```bash
   #
   # CentOS 7.x default_cloud_image_user = centos
   # Rocky 9.x default_cloud_image_user = cloud-user
   #
-  export ANSIBLE_HOST_KEY_CHECKING=False
-  ansible-playbook -u [default_cloud_image_user] -l 'jumphost' single_role_playbooks/admin_users.yml
-  ansible-playbook -u [admin_account]            -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
-  export ANSIBLE_HOST_KEY_CHECKING=True
-  ansible-playbook -u [admin_account] -l 'jumphost' cluster.yml
+  default_cloud_image_user='centos|cloud-user'
+  lor_admin_user='your_admin_account'
+  ```
+* Firstly, create the jumphost, which is required to access the other machines.
+* Deploy the signed hosts keys and create local admin accounts.
+* Configure other stuff on the jumphost, which contains amongst others the settings required to access the other machines behind the jumphost.
+  ```
+  ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u "${default_cloud_image_user}" -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
+  ansible-playbook -u "${default_cloud_image_user}" -l 'jumphost' single_role_playbooks/admin_users.yml
+  ansible-playbook -u "${lor_admin_user}" -l 'jumphost' cluster.yml
   ```
 * Secondly, deploy the rest of the machines in the same order.
   For creation of the local admin accounts you must (temporarily) set ```JUMPHOST_USER``` for the jumphost to _your local admin account_,
-  because the ```centos``` user will no longer be able to login to the jumphost.
+  because the ```${default_cloud_image_user}``` user will no longer be able to login to the jumphost.
   ```bash
-  #
-  # CentOS 7.x default_cloud_image_user = centos
-  # Rocky 9.x default_cloud_image_user = cloud-user
-  #
-  export ANSIBLE_HOST_KEY_CHECKING=False
-  export JUMPHOST_USER=[admin_account] # Requires SSH client config as per end user documentation: see above.
-  ansible-playbook -u [default_cloud_image_user] -l 'repo,cluster'      single_role_playbooks/admin_users.yml
-  ansible-playbook -u root                       -l 'docs'              single_role_playbooks/admin_users.yml
+  export JUMPHOST_USER='your_admin_account' # Requires SSH client config as per end user documentation: see above.
+  ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost' single_role_playbooks/ssh_host_signer.yml
+  ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost,!docs' single_role_playbooks/admin_users.yml
+  ansible-playbook -u root                          -l 'docs'            single_role_playbooks/admin_users.yml
   unset JUMPHOST_USER
-  ansible-playbook -u [admin_account]            -l 'repo,cluster,docs' single_role_playbooks/ssh_host_signer.yml
-  export ANSIBLE_HOST_KEY_CHECKING=True
-  ansible-playbook -u [admin_account]            -l 'repo,cluster,docs' cluster.yml
+  ansible-playbook -u "${lor_admin_user}" -l '!jumphost' cluster.yml
   ```
 * (Re-)deploying only a specific role - e.g. *rsyslog_client* - on the previously deployed test cluster *Talos*
   ```bash
-  ansible-playbook -u [admin_account] single_role_playbooks/rsyslog_client.yml
+  ansible-playbook -u "${lor_admin_user}" single_role_playbooks/rsyslog_client.yml
   ```
 
 #### 9. Verify operation.

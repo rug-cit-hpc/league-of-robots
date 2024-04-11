@@ -48,7 +48,7 @@
     state: latest
     update_cache: true
     disablerepo: '*'
-    enablerepo: 'rsyslog7'
+    enablerepo: "rsyslog{% if os_distribution == 'centos7' %}7{% endif %}"
   become: true
   notify: restart-rsyslog.service
 

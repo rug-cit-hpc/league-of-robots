@@ -80,6 +80,8 @@ auth_groups:
     gid: 20019
   umcg-pr:
     gid: 20020
+  umcg-logstoprm:
+    gid: 20021
   MEDGEN-NFG GCC Analyse Team:
     gid: 4560734
 #
@@ -155,11 +157,15 @@ pulp_repos:
     - name: e2fsprogs  # Dependency for Lustre project quota.
       description: 'Ext filesystem utility releases for Enterprise Linux 9.'
       remote_url: https://downloads.whamcloud.com/public/e2fsprogs/latest/el9/
-    - name: lustre
-      description: 'Lustre client leatest releases for Enterprise Linux 9.2.'
-      # WARNING: There is no LTS release link for el9 yet.
-      # WARNING: When el9.3 is released the link below for el9.2 will not get updated automatically!
-      remote_url: https://downloads.whamcloud.com/public/lustre/latest-release/el9.2/client/
+    #
+    # Lustre packages still broken and cannot be installed on EL 9.x due to silly Python 2 dependency resulting in:
+    # "nothing provides /usr/bin/python2 needed by lustre-client-dkms-2.15.4-1.el9.noarch from lustre"
+    #
+    #- name: lustre
+    #  description: 'Lustre client leatest releases for Enterprise Linux 9.3.'
+    #  # WARNING: There is no LTS release link for el9 yet.
+    #  # WARNING: When el9.4 is released the link below for el9.3 will not get updated automatically!
+    #  remote_url: https://downloads.whamcloud.com/public/lustre/latest-release/el9.3/client/
     #
     # iRODS is not yet available for EL9.
     #
@@ -232,6 +238,7 @@ yum_repos:
   rocky9:
     - file: rocky.repo
       id: baseos
+      mirrorlist: https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=BaseOS-9
       enabled: 1
       gpgcheck: 1
     - file: rocky.repo
@@ -242,6 +249,7 @@ yum_repos:
       enabled: 0
     - file: rocky.repo
       id: appstream
+      mirrorlist: https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=AppStream-9
       enabled: 1
       gpgcheck: 1
     - file: rocky.repo
@@ -252,6 +260,7 @@ yum_repos:
       enabled: 0
     - file: rocky.repo
       id: crb
+      mirrorlist: https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=CRB-9
       enabled: 1
       gpgcheck: 1
     - file: rocky.repo
@@ -334,6 +343,7 @@ yum_repos:
     #
     - file: rocky-extras.repo
       id: extras
+      mirrorlist: https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=extras-9
       enabled: 1
       gpgcheck: 1
     - file: rocky-extras.repo
@@ -423,4 +433,20 @@ yum_repos:
 # Iptables additional configurations 
 #
 iptables_extras_dir: '/etc/iptables_extras.d/'
+
+#
+# Used in static_hostname_lookup, logs_client, logs_server and logs_toprm roles
+#
+logs_server_public_networks:
+  development:
+    - name: earl1
+      network: vlan16
+    - name: earl2
+      network: logs_external_network
+  diagnostics:
+    - name: earl3
+      network: logs_external_network
+    - name: earl4
+      network: vlan16
+
 ...

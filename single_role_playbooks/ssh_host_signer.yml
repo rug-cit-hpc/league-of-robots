@@ -7,7 +7,7 @@
 
 - name: Deploy ssh_host_signer role on machines behind jumphosts.
   hosts:
-    - build_servers
+    - build_server
     - cluster
     - data_transfer
     - docs

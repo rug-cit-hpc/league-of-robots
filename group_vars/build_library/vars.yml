@@ -48,7 +48,7 @@ regular_users:
 sudoers:
   - who: ['%vipt']
     become: 'ALL'
-    name: 'apptainer' 
+    name: 'apptainer'
     command: '/bin/apptainer'
 use_ldap: false
 create_ldap: false
@@ -79,42 +79,43 @@ external_jumphosts:
       - hostname: tunnel
         network: vlan16
 cluster_common_packages:
-  - apptainer
-  - apptainer-suid
-  - bash-completion
-  - bc
-  - bcc-tools
-  - bind-utils
-  - bzip2
-  - cargo
-  - curl
-  - dos2unix
-  - figlet
-  - git
-  - git-core
-  - gnutls
-  - libsodium
-  - lsof
-  - nano
-  - ncdu
-  - ncurses-static
-  - net-tools
-  - openssl
-  - pciutils
-  - openssl11  # Required for openldap-ltb RPMs.
-  - qt5-qtbase
-  - qt5-qtxmlpatterns
-  - readline-static
-  - rsync
-  - screen
-  - strace
-  - tcl-devel
-  - telnet
-  - tmux
-  - tree
-  - unzip
-  - urw-base35-fonts
-  - vim
-  - wget
-  - yum-utils
+  RedHat7:
+    - apptainer
+    - apptainer-suid
+    - bash-completion
+    - bc
+    - bcc-tools
+    - bind-utils
+    - bzip2
+    - cargo
+    - curl
+    - dos2unix
+    - figlet
+    - git
+    - git-core
+    - gnutls
+    - libsodium
+    - lsof
+    - nano
+    - ncdu
+    - ncurses-static
+    - net-tools
+    - openssl
+    - pciutils
+    - openssl11  # Required for openldap-ltb RPMs.
+    - qt5-qtbase
+    - qt5-qtxmlpatterns
+    - readline-static
+    - rsync
+    - screen
+    - strace
+    - tcl-devel
+    - telnet
+    - tmux
+    - tree
+    - unzip
+    - urw-base35-fonts
+    - vim
+    - wget
+    - yum-utils
 ...

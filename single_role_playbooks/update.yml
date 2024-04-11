@@ -6,8 +6,13 @@
 
 - hosts:
     - repo
+    - build_server
     - cluster
+    - data_transfer
     - docs
+    - irods
+    - jenkins
+    - logs
   roles:
     - update
 ...
