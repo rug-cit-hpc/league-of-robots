@@ -1,0 +1,15 @@
+/var/log/lmod/module_usage
+{
+    #
+    # Rotate log once a week keeping compressed logs with date extension for the last ~6 months
+    #
+    weekly
+    rotate 24
+    compress
+    delaycompress
+    dateext
+    notifempty
+    postrotate
+        /usr/bin/systemctl kill -s HUP rsyslog.service >/dev/null 2>&1 || true
+    endscript
+}
