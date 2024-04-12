@@ -39,9 +39,8 @@ The log file is rotated and compressed weekly resulting in files like this:
 
 In order to summarise module usage for a certain period:
 * login on the DAI
-* decompress the files for the period of interest and
-* pipe the content into ```grep -oP '(?<=module=)([^ ]*)' | sort -t '/' -k 1,1f -k 2,2rV | uniq -c```
-E.g. to summarise module usage for January through April 2024:
+* pipe decompressed file(s) content into grep-sorting command
+An example of summarizing module usage for period between January and April of 2024 is
 ```bash
 zcat /var/log/lmod/module_usage-20240{01..04}*.gz | grep -oP '(?<=module=)([^ ]*)' | sort -t '/' -k 1,1f -k 2,2rV | uniq -c
 ```
