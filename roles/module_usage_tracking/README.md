@@ -13,7 +13,7 @@ This ```module_usage_tracking``` role configures:
 
 We do not store the module usage on each cluster node,
 but forward this info to the cluster's Deploy Admin Interface (DAI) machine,
-which writes this to the log file ```/var/log/lmod/module_usage``` in the format:
+which writes the module usage from all clients to the log file ```/var/log/lmod/module_usage``` in the format:
 
 ```
 YYYY-MM-DDThh:mm:ss+TZ <hostname> ModuleUsageTracking: stack=<stack_prefix> module=<module_name>/<module_version> user=<account_name>
