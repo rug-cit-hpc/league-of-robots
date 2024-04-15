@@ -364,6 +364,18 @@ remote_users_in_local_groups:
         'umcg-vipt',
     ]
 #
+## Limit the storage for specific folder, by using a loop mount of formatted file
+#
+soft_partitions:
+  - path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers_incoming
+    src: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers_incoming.disk.img
+    fstype: btrfs             # btrfs supports the 4k formatting and works on sequencers
+    size: 600                 # in GB
+    user: sbsuser
+    group: umcg-lab
+    mode: 2770
+    hostname: copperfist
+#
 # Local storage variables.
 #
 volume_group_folders: [
@@ -624,16 +636,16 @@ smb_server_interfaces: 192.168.1.0/24  # in addition to 127.0.0.1, which must al
 smb_server_shares:
   - name: ngs
     comment: Share for sequencers
-    path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers
+    path: /mnt/local_raid/groups/umcg-lab/tmp06/sequencers_incoming
     users: sbsuser
-    file_mode: '0640'
-    dir_mode: '0750'
+    file_mode: '0660'
+    dir_mode: '0770'
     base: /mnt/local_raid/groups/umcg-lab/tmp06  # This will not be created by the smb_server role and must already exist.
     subtree:  # This will be created if it does not already exist.
-      - path: sequencers
+      - path: sequencers_incoming
         owner: sbsuser
         group: umcg-lab
-        mode: '2750'
+        mode: '2770'
   - name: array
     comment: Share for array scanners
     path: /mnt/local_raid/groups/umcg-gap/tmp06/rawdata/array/IDAT
