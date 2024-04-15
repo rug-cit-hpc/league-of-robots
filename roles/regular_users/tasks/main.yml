@@ -38,4 +38,10 @@
     file: functional_accounts_on_chaperones.yml
   when:
     - inventory_hostname in groups['chaperone'] | default([])
+
+- name: 'Configure local samba user account.'
+  ansible.builtin.include_tasks:
+    file: samba_users.yml
+  when:
+    - inventory_hostname in groups['smb_server'] | default([])
 ...
