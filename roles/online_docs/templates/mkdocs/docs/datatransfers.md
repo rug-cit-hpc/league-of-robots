@@ -123,37 +123,37 @@ A: We don't expose our large shared file systems to the outside world directly v
    ```
    [Server of Collaborator] <-> [SFTP server] <-> [UI server]
    ```
-   In the example below ''cher-ami.hpc.rug.nl'' is the SFTP server and ''calculon.hpc.rug.nl'' the cluster UI:
+   In the example below ''nb-transfer.hpc.rug.nl'' is the SFTP server and ''nibbler.hpc.rug.nl'' the cluster UI:
    ```
-   [Server of Collaborator] <-> cher-ami.hpc.rug.nl <-> calculon.hpc.rug.nl
+   [Server of Collaborator] <-> nb-transfer.hpc.rug.nl <-> nibbler.hpc.rug.nl
    ```
    The SOP for downloading (uploading is similar, but the data flows in reverse - you get the idea):
 
 1. You send [wiki:RequestAccount instructions to request a guest account] to your collaborator:
 1. Your collaborator creates public-private key pair and e-mails public key to the GCC helpdesk with you on CC.
 1. We create a temporary guest account and link both your public key and the one for your collaborator to the same guest account
-1. You login with key forwarding enabled on ''calculon.hpc.rug.nl''
+1. You login with key forwarding enabled on ''nibbler.hpc.rug.nl''
    ```
-   $your_client> ssh -A umcg-youraccount@calculon.hpc.rug.nl
+   $your_client> ssh -A umcg-youraccount@nibbler.hpc.rug.nl
    ```
 1. You can check if key forwarding worked by issuing the command:
    ```
-   $calculon> ssh-add -l
+   $nibbler> ssh-add -l
    ```
    You should get at least one entry. If you get instead the message "Could not open a connection to your authentication agent.", 
-   the key forwarding failed and your private key is not temporarily available/cached on ''calculon.hpc.rug.nl''. This is essential to login from one of our UI servers to one of our SFTP servers: See [#DebuggingKeyForwarding debugging key forwarding] for help.
+   the key forwarding failed and your private key is not temporarily available/cached on ''nibbler.hpc.rug.nl''. This is essential to login from one of our UI servers to one of our SFTP servers: See [#DebuggingKeyForwarding debugging key forwarding] for help.
 1. You use commandline SFTP to copy the file(s) to the guest account on local storage of the SFTP server.
    Note you must use the SFTP protocol as the guest accounts are restricted to sftp-only shells: there is no ssh, nor scp, nor rsync.
    Detailed [wiki:DataSharing#SFTP_CL instructions for commandline SFTP are here]. The exec summary would be something like this:
    ```
-   $calculon> lftp
-   lftp :~>   open -u umcg-guest[0-9],none -p 22 sftp://cher-ami.hpc.rug.nl
+   $nibbler> lftp
+   lftp :~>   open -u umcg-guest[0-9],none -p 22 sftp://nb-transfer.hpc.rug.nl
    lftp :~>   cd destination_folder_on_remote_server
    lftp :~>   mirror -R folder_on_local_server
    ```
    In the example above
-    * remote_server = SFTP server like for example ''cher-ami.hpc.rug.nl''
-    * local_server  = cluster UI like for example ''calculon.hpc.rug.nl''
+    * remote_server = SFTP server like for example ''nb-transfer.hpc.rug.nl''
+    * local_server  = cluster UI like for example ''nibbler.hpc.rug.nl''
 1. You notify your collaborator he/she can download the data via SFTP from our server using the guest account...
 1. By default guest accounts expire after one month.
 

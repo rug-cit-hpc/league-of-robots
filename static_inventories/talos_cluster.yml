@@ -19,11 +19,11 @@ all:
             - "{{ all.ip_addresses['rug']['bwp_net'] }}"
             - "{{ all.ip_addresses['rug']['operator'] }}"
             - "{{ all.ip_addresses['gcc']['cloud_net'] }}"
-            - "{{ calculon_cluster.ip_addresses['lobby']['vlan16'] }}"
             - "{{ fender_cluster.ip_addresses['corridor']['public'] }}"
             - "{{ gearshift_cluster.ip_addresses['airlock']['vlan16'] }}"
             - "{{ hyperchicken_cluster.ip_addresses['portal']['public'] }}"
             - "{{ nibbler_cluster.ip_addresses['tunnel']['vlan16'] }}"
+            - "{{ vaxtron_cluster.ip_addresses['foyer']['external'] }}"
     repo:
       hosts:
         tl-repo:
