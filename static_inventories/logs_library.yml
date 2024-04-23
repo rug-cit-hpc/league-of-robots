@@ -39,7 +39,7 @@ all:
               security_group: "{{ stack_prefix }}_logservers"
               assign_floating_ip: true
           local_volume_size_extra: 100
-        # ExternAl RsysLog 5 - Merlin - Development
+        # ExternAl RsysLog 5 - Merlin - Research
         earl5:
           logs_class: 'research'
           cloud_flavor: m1.small
