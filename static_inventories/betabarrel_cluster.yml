@@ -43,6 +43,8 @@ all:
     data_transfer:
       hosts:
         bb-transfer:
+          cloud_image: RockyLinux-9.3_xfs
+          os_distribution: 'rocky9'
           cloud_flavor: m1.small
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
