@@ -448,5 +448,8 @@ logs_server_public_networks:
       network: logs_external_network
     - name: earl4
       network: vlan16
+  research:
+    - name: earl5
+      network: vlan16
 
 ...

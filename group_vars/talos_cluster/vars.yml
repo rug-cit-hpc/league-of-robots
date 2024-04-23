@@ -45,7 +45,7 @@ additional_etc_hosts:
 #
 # Remote logging settings - for diagnostics servers
 #
-logs_class: 'development'
+logs_class: 'research'
 
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/umcg-hpc-development-ca"
 use_ldap: true

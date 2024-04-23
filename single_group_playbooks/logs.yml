@@ -10,6 +10,7 @@
     - grub
     - yum_repos
     - locale
+    - regular_users
     - ssh  # client
     - update
     - {role: yum_local, when: local_yum_repository is defined}

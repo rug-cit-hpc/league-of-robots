@@ -37,6 +37,20 @@
     update_cache: true
   become: true
   notify: restart-rsyslog.service
+  when: ansible_facts['distribution_major_version'] <= "7"
+
+- name: Install gnutls and newer openssl
+  ansible.builtin.package:
+    name:
+      - gnutls
+      - gnutls-utils
+      - openssl
+      - openssl-devel
+    state: latest
+    update_cache: true
+  become: true
+  notify: restart-rsyslog.service
+  when: ansible_facts['distribution_major_version'] >= "9"
 
 - name: Install rsyslog and gnutls with all plugins
   ansible.builtin.package:
