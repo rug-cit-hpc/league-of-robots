@@ -15,4 +15,5 @@
     - build_environment
     - envsync
     - nhc_standalone
+    - module_usage_tracking
 ...

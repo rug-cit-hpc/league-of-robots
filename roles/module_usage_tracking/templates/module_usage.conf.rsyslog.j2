@@ -1,0 +1,21 @@
+ruleset(name="ModuleUsageTracking") {
+    if ($programname contains "ModuleUsageTracking") then {
+       action(type="omfile"
+              File="/var/log/lmod/module_usage"
+              dirCreateMode="0750"
+              fileCreateMode="0640"
+              fileOwner="root"
+              fileGroup="{{ envsync_group }}"
+              dirOwner="root"
+              dirGroup="{{ envsync_group }}"
+              Template="RSYSLOG_FileFormat")
+    } else {
+        stop
+    }
+}
+
+module(load="imudp")
+input(type="imudp"
+      port="41515"
+      ruleset="ModuleUsageTracking"
+)
