@@ -1,0 +1,39 @@
+---
+bb_infra_catalog:
+  children:
+    bb_bm_1:
+      vars:
+        make: Dell
+        model: PowerEdge R7525
+        support_expiration_date: 2027-02-12
+        location: DCE
+      hosts:
+        betabarrel:
+          serial: !vault |
+              $ANSIBLE_VAULT;1.2;AES256;all
+              36623236626334343935633732376331353566326434623131326636303136313631333739366635
+              6132343931323134393937326234313364313838363363310a636238616230326535376463663039
+              32633131356339653330373065333333633437636532333031653232393239363337643536353838
+              3963623465383936300a653639616339663864643131663130613830663265623337616366623735
+              3931
+    bb_bm_2:
+      vars:
+        make: Illumina
+        model: Dragen v4
+        support_expiration_date: 
+        location: DCE
+      hosts:
+        bb-dragen:
+          serial:
+    bb_vm_1: 
+      vars:
+        location: Merlin cloud in DCE
+      hosts:
+        bb-porch:
+        bb-transfer:
+    bb_vm_2:
+      vars:
+        location: MIT cloud in CBC and DCE # VMware stretched cluster in multiple data centers.
+      hosts:
+        bb-chaperone
+...

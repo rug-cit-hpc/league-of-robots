@@ -1,0 +1,39 @@
+---
+cf_infra_catalog:
+  children:
+    cf_bm_1:
+      vars:
+        make: Dell
+        model: PowerEdge R7525
+        support_expiration_date: 2027-02-12
+        location: CBC
+      hosts:
+        copperfist:
+          serial: !vault |
+              $ANSIBLE_VAULT;1.2;AES256;all
+              66396662313163333230323166333636396333383862666365353763326537326239373538633236
+              6531353133383831313631656638323033616265366462340a383930613936343734646538313632
+              34343464656131356165636164343131663965313839346337643266613739393565356432666362
+              3137313736356265320a623835636331373235326434336235343265333062353338376161323330
+              3834
+    cf_bm_2:
+      vars:
+        make: Illumina
+        model: Dragen v4
+        support_expiration_date: 
+        location: CBC
+      hosts:
+        cf-dragen:
+          serial:
+    cf_vm_1: 
+      vars:
+        location: Bateleur cloud in CBC
+      hosts:
+        cf-porch:
+        cf-transfer:
+    cf_vm_2:
+      vars:
+        location: MIT cloud in CBC and DCE # VMware stretched cluster in multiple data centers.
+      hosts:
+        cf-chaperone
+...
