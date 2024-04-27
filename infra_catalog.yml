@@ -1,0 +1,27 @@
+---
+- hosts: all
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Infra catalog
+      debug:
+        msg: "{{ hostvars[inventory_hostname]
+                 | subsetattrs(show_attributes)
+                 | to_nice_yaml }}"
+      vars:
+        search_attr_name: location
+        search_attr_value: '.*'
+        show_attributes:
+          - location
+          - type
+          - make
+          - model
+          - serial
+          - support_expiration_date
+          - os_distribution
+          - repo_manager
+          - logs_class
+      when:
+        - hostvars[inventory_hostname][search_attr_name] is defined
+        - hostvars[inventory_hostname][search_attr_name] | regex_search("(?i)" + search_attr_value)
+...
