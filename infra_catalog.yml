@@ -4,14 +4,14 @@
   gather_facts: false
   tasks:
     - name: Infra catalog
-      debug:
+      ansible.builtin.debug:
         #
         # The to_*_yaml filters cannot decrypt vaulted values.
         # Silly workarond is a round trip via the to_json filter,
         # which does support decrypting vaulted values.
         #
         msg: "{{ hostvars[inventory_hostname]
-                 | subsetattrs(show_attributes) 
+                 | subsetattrs(show_attributes)
                  | to_json(vault_to_text=True)
                  | from_json
                  | to_nice_yaml }}"
