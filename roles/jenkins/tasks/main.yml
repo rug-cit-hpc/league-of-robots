@@ -77,7 +77,7 @@
     state: "{{ jenkins_package_state }}"
     update_cache: true
   notify:
-#    - configure_jenkins_users
+    - configure_jenkins_users
     - restart_jenkins
   become: true
 
