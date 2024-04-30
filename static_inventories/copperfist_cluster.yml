@@ -29,7 +29,6 @@ all:
     data_transfer:
       hosts:
         cf-transfer:
-          #cloud_flavor: m1.small
           cloud_image: RockyLinux-9.3_xfs
           os_distribution: 'rocky9'
           cloud_flavor: general.v1.small

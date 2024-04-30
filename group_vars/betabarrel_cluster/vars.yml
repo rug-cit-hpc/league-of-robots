@@ -172,7 +172,6 @@ local_admin_groups:
   - 'admin'
   - 'docker'
 local_admin_users:
-  - 'egon'
   - 'ger'
   - 'gerben'
   - 'henkjan'
@@ -257,9 +256,9 @@ regular_users:
   - user: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
 sudoers:
-  - who: ['%umcg-atd,!charbonb,!hendriksend']
+  - who: ['%umcg-atd']
     become: 'umcg-atd-ateambot'
-  - who: ['%umcg-atd,!charbonb,!hendriksend']
+  - who: ['%umcg-atd']
     become: 'umcg-atd-dm'
   - who: ['%umcg-gap,!charbonb,!hendriksend']
     become: 'umcg-gap-ateambot'
