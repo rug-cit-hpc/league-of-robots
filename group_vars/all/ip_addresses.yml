@@ -61,19 +61,6 @@ ip_addresses:
   #
   # Dedicated raw sequence data conversion servers.
   #
-  gaf:
-    public:
-      address: '195.169.22.215'
-      netmask: '/32'
-      fqdn: 'gaf.gcc.rug.nl'
-  bb-dragen:
-    vlan990:
-      address: '192.168.1.61'
-      netmask: '/32'
-  cf-dragen:
-    vlan990:
-      address: '192.168.1.62'
-      netmask: '/32'
   gcc:
     cloud_net:
       address: '195.169.22.1'
