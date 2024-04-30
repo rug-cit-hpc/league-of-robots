@@ -49,7 +49,7 @@ ansible-playbook infra_catalog.yml -i infra_catalog/betabarrel_cluster.yml  -e '
 #
 # List all infra for any stack and located in a certain datacenter.
 #
-ansible-playbook infra_catalog.yml -i infra_catalog/ -e 'search_attr_name=location' -e'search_attr_value=cbc'
+ansible-playbook infra_catalog.yml -i infra_catalog/ -e 'search_attr_name=location' -e 'search_attr_value=cbc'
 
 #
 # List all infra for any stack and made by a certain vendor.

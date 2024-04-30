@@ -18,13 +18,22 @@ cf_infra_catalog:
               3834
     cf_bm_2:
       vars:
-        make: Illumina
-        model: Dragen v4
+        #
+        # Illumina Dragen v4 server is made by an OEM.
+        #
+        make: Advantech
+        model: SKY-6200
         support_expiration_date: 
         location: CBC
       hosts:
         cf-dragen:
-          serial:
+          serial: !vault |
+              $ANSIBLE_VAULT;1.2;AES256;all
+              62633663653837316334643634623838323332613130393839643537376534633662653938626531
+              3764366638626563396334656663386236633537333533300a386463653237306437323962323933
+              33393661356530626138303037373433663165346365366536633434303264336239313332626134
+              3038643365643031640a323332616335663838316666353764323963386233373434313532663864
+              6638
     cf_vm_1: 
       vars:
         location: Bateleur cloud in CBC

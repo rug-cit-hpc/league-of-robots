@@ -11,10 +11,6 @@ nb_infra_catalog:
         nb-sai:
         nb-repo:
         nb-transfer:
-        nb-node-a01:
-        nb-node-a02:
-        nb-node-a03:
-        nb-node-b01:
-        nb-node-b02:
+        nb-node-a[01:03]:
+        nb-node-b[01:02]:
 ...
- 

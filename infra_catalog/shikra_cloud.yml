@@ -1,0 +1,33 @@
+---
+sc_infra_catalog:
+  children:
+    sc_bm_1:
+      vars:
+        make: Dell
+        model: PowerEdge R630
+        support_expiration_date: ???
+        location: Shikra cloud DCE
+      hosts:
+        shikra-compute001:
+          serial:
+        shikra-compute002:
+          serial:
+        shikra-compute003:
+          serial:
+        shikra-compute004:
+          serial:
+        shikra-compute005:
+          serial:
+        shikra-compute006:
+          serial:
+        shikra-compute007:
+          serial:
+        shikra-compute008:
+          serial:
+        shikra-compute009:
+          serial:
+        shikra-compute010:
+          serial:
+        shikra-compute011:
+          serial:
+...
