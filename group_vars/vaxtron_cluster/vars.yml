@@ -68,7 +68,7 @@ additional_etc_hosts:
   - group: jenkins_server
     nodes:
       - name: jenkins
-        network: vlan16
+        network: external
   - group: build_library
     nodes:
       - name: vip_build
