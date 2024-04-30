@@ -99,7 +99,7 @@ Instead of providing arguments to [sbatch](http://slurm.schedmd.com/sbatch.html)
 #SBATCH --nodes=1
 #SBATCH --open-mode=append
 #SBATCH --export=NONE
-#SBATCH --get-user-env=L
+#SBATCH --get-user-env=60L
 
 [Your actual work...]
 ```
@@ -128,9 +128,9 @@ Commonly used options:
  * ```--error=errorLog.err```
     * Redirects the error output to the desired file. Note that using '~' in the path for you home directory does not work.
     * Note that the error output is is buffered and first written on the local node where the job is running. It is copied to the specified location once the job terminates (regardless of the reason of the job termination).
- * ```--get-user-env=L60```
+ * ```--get-user-env=60L```
     * Replicate the **L**ogin environment (and overrule whatever environment settings were present at job submission time).
-    * The number after the L is the time-out in seconds for replicating the login environment.
+    * The number before the L is the time-out in seconds for replicating the login environment.
       The default is only 8 seconds, which may be too short when config files need to be sourced (from a home dir) and the storage system on which they reside is temporarily slow due to high load.
  * ```--export=NONE```
     * Do not export environment variables present at job submission time to the job's environment. (Use a clean environment with --get-user-env=L60 instead!)
@@ -140,7 +140,7 @@ Commonly used options:
 We highly recommend using the two ```sbatch``` options
 ```
 #SBATCH --export=NONE
-#SBATCH --get-user-env=L60
+#SBATCH --get-user-env=60L
 ```
 in combination with
 ```
