@@ -208,7 +208,7 @@
     - restart_httpd
   become: true
 
-- name: Enable webserver. 
+- name: Enable webserver.
   ansible.builtin.service:
     name: httpd
     enabled: true
