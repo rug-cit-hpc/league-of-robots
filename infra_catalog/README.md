@@ -32,27 +32,27 @@ Examples:
 #
 # List all infra for a specific stack
 #
-ansible-playbook infra_catalog.yml -i infra_catalog/betabarrel_cluster.yml
+ANSIBLE_STDOUT_CALLBACK="infra_catalog" ansible-playbook infra_catalog.yml -i infra_catalog/betabarrel_cluster.yml
 
 #
 # List all infra for a specific stack and located in a certain datacenter.
 # The search_attr_value is a case insensitive Python regex
 #
-ansible-playbook infra_catalog.yml -i infra_catalog/betabarrel_cluster.yml  -e 'search_attr_name=location' -e 'search_attr_value=dce'
+ANSIBLE_STDOUT_CALLBACK="infra_catalog" ansible-playbook infra_catalog.yml -i infra_catalog/betabarrel_cluster.yml  -e 'search_attr_name=location' -e 'search_attr_value=dce'
 
 #
 # List all infra for a specific stack and located in a cloud (can be a VM or bare metal machine)
 # The search_attr_value is a case insensitive Python regex
 #
-ansible-playbook infra_catalog.yml -i infra_catalog/betabarrel_cluster.yml  -e 'search_attr_name=location' -e 'search_attr_value=cloud'
+ANSIBLE_STDOUT_CALLBACK="infra_catalog" ansible-playbook infra_catalog.yml -i infra_catalog/betabarrel_cluster.yml  -e 'search_attr_name=location' -e 'search_attr_value=cloud'
 
 #
 # List all infra for any stack and located in a certain datacenter.
 #
-ansible-playbook infra_catalog.yml -i infra_catalog/ -e 'search_attr_name=location' -e 'search_attr_value=cbc'
+ANSIBLE_STDOUT_CALLBACK="infra_catalog" ansible-playbook infra_catalog.yml -i infra_catalog/ -e 'search_attr_name=location' -e 'search_attr_value=cbc'
 
 #
 # List all infra for any stack and made by a certain vendor.
 #
-ansible-playbook infra_catalog.yml -i infra_catalog/ -e 'search_attr_name=make' -e 'search_attr_value=dell'
+ANSIBLE_STDOUT_CALLBACK="infra_catalog" ansible-playbook infra_catalog.yml -i infra_catalog/ -e 'search_attr_name=make' -e 'search_attr_value=dell'
 ```
