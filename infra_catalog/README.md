@@ -12,7 +12,7 @@ They are only used to keep track of things like
 
 #### Ansible ad-hoc commands to query machines
 
-Some of the info in these inventory file can also be queried using _Ansible ad-hoc commands_ as long as the machine is accessible via SSH.
+Some of the info in these inventory files can also be queried using _Ansible ad-hoc commands_ as long as the machine is accessible via SSH.
 Some examples:
 
 ```bash
