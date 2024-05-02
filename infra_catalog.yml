@@ -1,0 +1,35 @@
+---
+- name: Infra Catalog
+  hosts: all
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Infra catalog
+      ansible.builtin.debug:
+        #
+        # The to_*_yaml filters cannot decrypt vaulted values.
+        # Silly workarond is a round trip via the to_json filter,
+        # which does support decrypting vaulted values.
+        #
+        msg: "{{ hostvars[inventory_hostname]
+                 | subsetattrs(show_attributes)
+                 | to_json(vault_to_text=True)
+                 | from_json
+                 | to_nice_yaml }}"
+      vars:
+        search_attr_name: location
+        search_attr_value: '.*'
+        show_attributes:
+          - location
+          - type
+          - make
+          - model
+          - serial
+          - support_expiration_date
+          - os_distribution
+          - repo_manager
+          - logs_class
+      when:
+        - hostvars[inventory_hostname][search_attr_name] is defined
+        - hostvars[inventory_hostname][search_attr_name] | regex_search("(?i)" + search_attr_value)
+...
