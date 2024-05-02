@@ -1,7 +1,7 @@
 # Infra Catalog
 
 Extra inventory files for keeping track of our infra.
-These inventory file contain values not required for deploying playbooks to configure machines.
+These inventory files contain values not required for deploying playbooks to configure machines.
 They are only used to keep track of things like
 
  * Make
