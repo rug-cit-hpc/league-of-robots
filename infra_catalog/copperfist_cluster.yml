@@ -23,7 +23,7 @@ cf_infra_catalog:
         #
         make: Advantech
         model: SKY-6200
-        support_expiration_date: 
+        support_expiration_date: 2025-03-05
         location: CBC
       hosts:
         cf-dragen:
