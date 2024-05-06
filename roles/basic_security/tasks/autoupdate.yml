@@ -36,7 +36,7 @@
   when:
     - basic_security_autoupdate_enabled
 
-- name: Ignore if package cannot be updated to highest version, and continue to update the rest (RHEL >= 8).
+- name: Ignore in case that one package cannot be updated to highest version, and instead continue to update all the rest (RHEL >= 8).
   ansible.builtin.lineinfile:
     dest: "/etc/dnf/dnf.conf"
     regexp: '^best=.+'
