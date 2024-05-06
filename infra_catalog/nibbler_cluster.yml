@@ -1,0 +1,16 @@
+---
+nb_infra_catalog:
+  children:
+    nb_vm_1: 
+      vars:
+        location: Merlin cloud in DCE
+      hosts:
+        tunnel:
+        nibbler:
+        nb-dai:
+        nb-sai:
+        nb-repo:
+        nb-transfer:
+        nb-node-a[01:03]:
+        nb-node-b[01:02]:
+...

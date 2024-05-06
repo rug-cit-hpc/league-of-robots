@@ -1,0 +1,48 @@
+---
+bb_infra_catalog:
+  children:
+    bb_bm_1:
+      vars:
+        make: Dell
+        model: PowerEdge R7525
+        support_expiration_date: 2027-02-12
+        location: DCE
+      hosts:
+        betabarrel:
+          serial: !vault |
+              $ANSIBLE_VAULT;1.2;AES256;all
+              36623236626334343935633732376331353566326434623131326636303136313631333739366635
+              6132343931323134393937326234313364313838363363310a636238616230326535376463663039
+              32633131356339653330373065333333633437636532333031653232393239363337643536353838
+              3963623465383936300a653639616339663864643131663130613830663265623337616366623735
+              3931
+    bb_bm_2:
+      vars:
+        #
+        # Illumina Dragen v4 server is made by an OEM.
+        #
+        make: Advantech
+        model: SKY-6200
+        support_expiration_date: 2025-03-05
+        location: DCE
+      hosts:
+        bb-dragen:
+          serial: !vault |
+              $ANSIBLE_VAULT;1.2;AES256;all
+              34333765666664343031643835326665303031393863616538313561373435643932613234376137
+              6661373163663637336232663731373838313530613164360a343662326430303062613734326533
+              65363465366262656436653439346136366162643237343565663739386361653730633362623563
+              6366643836663364350a353032626235343738643834353530666265386261666432316236643334
+              3230
+    bb_vm_1: 
+      vars:
+        location: Merlin cloud in DCE
+      hosts:
+        bb-porch:
+        bb-transfer:
+    bb_vm_2:
+      vars:
+        location: MIT cloud in CBC and DCE # VMware stretched cluster in multiple data centers.
+      hosts:
+        bb-chaperone
+...

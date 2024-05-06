@@ -1,0 +1,14 @@
+---
+tl_infra_catalog:
+  children:
+    tl_vm_1: 
+      vars:
+        location: Shikra cloud in DCE
+      hosts:
+        reception:
+        talos:
+        tl-dai:
+        tl-sai:
+        tl-repo:
+        tl-vcompute[01:03]:
+...

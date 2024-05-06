@@ -1,0 +1,14 @@
+---
+hc_infra_catalog:
+  children:
+    hc_vm_1: 
+      vars:
+        location: Embassy cloud by EMBL-EBI
+      hosts:
+        portal:
+        hyperchicken:
+        hc-dai:
+        hc-sai:
+        hc-repo:
+        hc-vcompute01:
+...

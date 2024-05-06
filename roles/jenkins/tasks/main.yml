@@ -13,14 +13,6 @@
     state: permissive
   become: true
 
-- name: 'Install EPEL repo.'
-  ansible.builtin.package:
-    state: latest
-    update_cache: true
-    name:
-      - epel-release
-  become: true
-
 - name: 'Install apache webserver.'
   ansible.builtin.package:
     state: latest
@@ -41,7 +33,7 @@
     name:
       - curl
       - git
-      - java-11-openjdk
+      - java-17-openjdk
       - nano
       - rsync
       - "{{ 'libselinux-python' if ansible_python['version']['major'] < 3 else 'python3-libselinux' }}"
@@ -144,6 +136,7 @@
   retries: 5
   delay: 10
   check_mode: false
+  become: true
 
 - name: 'Remove Jenkins security init scripts after first startup.'
   ansible.builtin.file:
