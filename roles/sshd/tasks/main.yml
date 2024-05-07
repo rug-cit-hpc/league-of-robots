@@ -158,23 +158,7 @@
     path: /etc/crypto-policies/back-ends/opensshserver.config
   register: openssh_policy_file
 
-- name: Unlink /etc/crypto-policies/back-ends/openssh.config.
-  ansible.builtin.shell: "rm -f {{ openssh_policy_destination }} && cp {{ openssh_policy_source }} {{ openssh_policy_destination }} && echo 'changed' || true"
-  register: unlink_command
-  changed_when: '"changed" in unlink_command.stdout'
-  when: openssh_policy_file.stat.islnk is defined and openssh_policy_file.stat.islnk
-  notify: restart_sshd
-  vars:
-    openssh_policy_destination: /etc/crypto-policies/back-ends/opensshserver.config
-    openssh_policy_source: /usr/share/crypto-policies/DEFAULT/opensshserver.txt
-  become: true
-
-- name: Get stats of the FS object
-  ansible.builtin.stat:
-    path: /etc/crypto-policies/back-ends/opensshserver.config
-  register: openssh_policy_file
-
-- name: Unlink /etc/crypto-policies/back-ends/openssh.config.
+- name: Unlink /etc/crypto-policies/back-ends/opensshserver.config.
   ansible.builtin.shell: "rm -f {{ openssh_policy_destination }} && cp {{ openssh_policy_source }} {{ openssh_policy_destination }} && echo 'changed' || true"
   register: unlink_command
   changed_when: '"changed" in unlink_command.stdout'
