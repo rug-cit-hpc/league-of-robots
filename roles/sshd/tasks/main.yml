@@ -169,23 +169,36 @@
     openssh_policy_source: /usr/share/crypto-policies/DEFAULT/opensshserver.txt
   become: true
 
+- name: Get stats of the FS object
+  ansible.builtin.stat:
+    path: /etc/crypto-policies/back-ends/opensshserver.config
+  register: openssh_policy_file
+
+- name: Unlink /etc/crypto-policies/back-ends/openssh.config.
+  ansible.builtin.shell: "rm -f {{ openssh_policy_destination }} && cp {{ openssh_policy_source }} {{ openssh_policy_destination }} && echo 'changed' || true"
+  register: unlink_command
+  changed_when: '"changed" in unlink_command.stdout'
+  when: openssh_policy_file.stat.islnk is defined and openssh_policy_file.stat.islnk
+  notify: restart_sshd
+  vars:
+    openssh_policy_destination: /etc/crypto-policies/back-ends/opensshserver.config
+    openssh_policy_source: /usr/share/crypto-policies/DEFAULT/opensshserver.txt
+  become: true
+
 - name: Remove weak MACs and KexAlgorithms from opensshserver back-end crypto policies.
   ansible.builtin.lineinfile:
     path: /etc/crypto-policies/back-ends/opensshserver.config
-    regexp: "^(.*){{ item }}(,)(.*)$"
-    line: '\1\3'
+    regexp: "^({{ item.0.name }})(.*){{ item.1 }}(,)(.*)$"
+    line: '\1\2\4'
     state: present
     backrefs: true
-  with_items:
-    - hmac-sha1
-    - hmac-sha1-etm
-    - ecdh-sha2-nistp256
-    - ecdh-sha2-nistp384
-    - ecdh-sha2-nistp521
+  loop: "{{ sshd_policy_blacklist[os_distribution] | subelements('values') }}"
+  loop_control:
+    label: "{{ item.0.name }}"
   when:
     - ansible_facts['os_family'] == "RedHat"
     - ansible_facts['distribution_major_version'] >= "8"
-    - unlink_command.changed
+    - openssh_policy_file.stat.islnk is defined and openssh_policy_file.stat.islnk == false
   notify: restart_sshd
   become: true
 
