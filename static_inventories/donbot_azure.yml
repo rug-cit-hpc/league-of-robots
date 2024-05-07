@@ -13,8 +13,7 @@ all:
             - name: donbot_external_network
               security_group: "{{ stack_prefix }}_cluster"
           # Ldap settings
-          use_ldap: true
-          use_sssd: true
+          create_ldap: true
           ldap_domains:
             stack:
               uri: "ldaps://{{ stack_prefix }}"
@@ -31,6 +30,14 @@ all:
               ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
           iptables_allow_ldap_inbound:
             - ANY
+          regular_groups:
+            - 'lsaai'
+          regular_users:
+            - user: "lsaai"
+              groups: "lsaai"
+          cluster_common_packages:
+            RedHat9:
+               - perun-slave-full
 administration:
   children:
     ldap_server:
