@@ -213,4 +213,9 @@
     # Therefore we assume pcscd.socket also exists if pcscd.service exists in ansible_facts.services.
     - "'pcscd.service' in ansible_facts.services"
   become: true
+
+# Flush the handlers, as if the playbook continues without it, it can fail before
+# the end and thus the files (like policy modules) will remain unconfigured
+- name: Flush handlers.
+  ansible.builtin.meta: flush_handlers
 ...
