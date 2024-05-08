@@ -90,6 +90,25 @@
 # We disable every line in extra sshd config files,
 # but do keep these files to prevent a dnf update from recreting them.
 #
+
+# Note: files like /etc/ssh/sshd_config.d/50-cloud-init.conf can be missing
+# and then the task will fail, so we need to check which are there to begin with
+- name: Check which files exist in /etc/ssh/sshd_config.d/
+  stat:
+    path: "/etc/ssh/sshd_config.d/{{ item }}"
+  loop:
+    - 50-cloud-init.conf
+    - 50-redhat.conf
+  register: sshd_config_files_stat
+  become: true
+
+- name: Create variable containing existing files
+  set_fact:
+    sshd_config_files: "{{ sshd_config_files | default([]) + [item.item] }}"
+  loop: "{{ sshd_config_files_stat.results }}"
+  when: item.stat.exists
+  become: true
+
 - name: Disable every line in extra sshd config files we do not want to use.
   ansible.builtin.replace:
     path: "/etc/ssh/sshd_config.d/{{ item }}"
@@ -98,9 +117,7 @@
     mode: '0600'
     regexp: '^([^#][^\n]*)$'
     replace: '#\1'
-  loop:
-    - 50-cloud-init.conf
-    - 50-redhat.conf
+  loop: "{{ sshd_config_files }}"
   notify: restart_sshd
   become: true
   when:
