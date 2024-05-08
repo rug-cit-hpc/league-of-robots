@@ -22,7 +22,7 @@
     line: '@cert-authority * {{ item.stdout }}'
     path: /etc/ssh/ssh_known_hosts
     create: true
-    mode: 0644
+    mode: '0644'
   loop: "{{ ssh_ca_content.results }}"
   loop_control:
     label: "{{ item.item }}"
