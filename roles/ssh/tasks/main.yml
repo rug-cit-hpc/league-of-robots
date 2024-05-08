@@ -5,16 +5,16 @@
     patterns: "*.pub"
     follow: yes
   register: ssh_ca_pub_files
-  changed_when: false
   delegate_to: localhost
   connection: local
 
 - name: Collect content from all the .pub files
   ansible.builtin.command: cat {{ item.path }}
+  loop: "{{ ssh_ca_pub_files.files }}"
   register: ssh_ca_content
+  changed_when: false
   delegate_to: localhost
   connection: local
-  loop: "{{ ssh_ca_pub_files.files }}"
 
 - name: Make sure that /etc/ssh/ssh_known_hosts contains the .pub files
   ansible.builtin.lineinfile:
