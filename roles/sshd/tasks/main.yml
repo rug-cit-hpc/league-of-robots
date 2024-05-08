@@ -204,17 +204,26 @@
       - /etc/crypto-policies/policies/modules/
     patterns: '*.pmod'
   register: sshd_found_crypto_subpolicy_files
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
 
 - name: Create sshd_available_crypto_subpolicies variable
   ansible.builtin.set_fact:
     sshd_available_crypto_subpolicies: "{{ sshd_found_crypto_subpolicy_files.files
         | map(attribute='path') | map('basename') | map('splitext') | map('first')
         | unique | list }}"
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
 
 - name: Create formatted variable sshd_available_crypto_subpolicies_formatted
   ansible.builtin.set_fact:
     sshd_available_crypto_subpolicies_formatted: "{{ sshd_available_crypto_subpolicies
         | join(':') | replace('.pmod', '') }}"
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
 
 # We should always check for the status of the crypto policies
 - name: Check system-wide crypto policies.
@@ -222,12 +231,17 @@
   register: sshd_show_crypto_policies
   changed_when: false
   become: true
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
 
 - name: Notify policy update if set incorrect
   ansible.builtin.debug:
     msg: "'{{ sshd_available_crypto_subpolicies_formatted }}' not in '{{ sshd_show_crypto_policies.stdout }}' -> updating"
   changed_when: true
   when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
     - sshd_available_crypto_subpolicies_formatted not in sshd_show_crypto_policies.stdout
   notify: update-crypto-policies
 
