@@ -3,7 +3,7 @@
   ansible.builtin.find:
     paths: "{{ playbook_dir }}/ssh-host-ca/"
     patterns: "*.pub"
-    follow: yes
+    follow: true
   register: ssh_ca_pub_files
   delegate_to: localhost
   connection: local
@@ -22,6 +22,7 @@
     line: '@cert-authority * {{ item.stdout }}'
     path: /etc/ssh/ssh_known_hosts
     create: true
+    mode: 0644
   loop: "{{ ssh_ca_content.results }}"
   loop_control:
     label: "{{ item.item }}"
