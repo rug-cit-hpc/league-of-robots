@@ -38,6 +38,19 @@ all:
           cluster_common_packages:
             RedHat9:
                - perun-slave-full
+          iptables_allow_ssh_inbound:
+            - "{{ all.ip_addresses['umcg']['net1'] }}"
+            - "{{ all.ip_addresses['umcg']['net2'] }}"
+            - "{{ all.ip_addresses['umcg']['net3'] }}"
+            - "{{ all.ip_addresses['umcg']['net4'] }}"
+            - "{{ all.ip_addresses['lssai']['perun'] }}"
+            - "{{ all.ip_addresses['tunnel']['vlan16'] }}"
+            - "{{ all.ip_addresses['foyer']['external'] }}"
+            - "{{ all.ip_addresses['airlock']['vlan16'] }}"
+            - "{{ all.ip_addresses['corridor']['public'] }}"
+            - "{{ all.ip_addresses['reception']['vlan16'] }}"
+            - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+            - "{{ all.ip_addresses['rug']['operator'] }}"
 administration:
   children:
     ldap_server:
