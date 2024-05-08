@@ -261,3 +261,11 @@ ip_addresses:
       address: '143.55.64.0'
       netmask: '/20'
       desc: 'GitHub webhooks used to send HTTP POST payload to Jenkins'
+  #
+  # LSAAI
+  #
+  lsaai:
+    perun:
+      address: '78.128.247.160'
+      netmask: '/24'
+      desc: 'LSAAI Perun server(s) managing our LSAAI LDAP server'
