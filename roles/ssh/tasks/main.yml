@@ -5,6 +5,7 @@
     patterns: "*.pub"
     follow: yes
   register: ssh_ca_pub_files
+  changed_when: false
   delegate_to: localhost
   connection: local
 
