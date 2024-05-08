@@ -10,7 +10,7 @@
   ansible.builtin.shell:
     cmd: |
          active_policy="$(update-crypto-policies --show)"
-         update-crypto-policies --set "${active_policy%%:*}:{{ sshd_available_crypto_subpolicies | join(':') }}"
+         update-crypto-policies --set "${active_policy%%:*}:{{ sshd_available_crypto_subpolicies | | replace('.pmod','') | join(':') }}"
   changed_when: true
   vars:
     sshd_available_crypto_subpolicies: "{{ sshd_found_crypto_subpolicy_files.files
