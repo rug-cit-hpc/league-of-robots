@@ -225,7 +225,7 @@
 
 - name: Notify policy update if set incorrect
   ansible.builtin.debug:
-    msg: "Calling handler to update crypto policies because '{{ sshd_available_crypto_subpolicies_formatted }}' not in '{{ sshd_show_crypto_policies.stdout }}'"
+    msg: "'{{ sshd_available_crypto_subpolicies_formatted }}' not in '{{ sshd_show_crypto_policies.stdout }}' -> updating"
   changed_when: true
   when:
     - sshd_available_crypto_subpolicies_formatted not in sshd_show_crypto_policies.stdout
