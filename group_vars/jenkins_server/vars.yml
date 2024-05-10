@@ -80,11 +80,11 @@ jenkins_plugins:
   - name: workflow-multibranch
     version: 773.vc4fe1378f1d5
   - name: branch-api
-    version: 2.1148.vce12cfcdf090
+    version: 2.1169.va_f810c56e895
   - name: cloudbees-folder
-    version: 6.722.v8165b_a_cf25e9
+    version: 6.901.vb_4c7a_da_75da_3
   - name: github-branch-source
-    version: 1628.vb_2f51293cb_78
+    version: 1789.v5b_0c0cea_18c3
 jenkins_plugins_install_dependencies: true
 jenkins_prefer_lts: true
 jenkins_shellcheck_version: 0.8.0
