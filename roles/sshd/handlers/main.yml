@@ -1,7 +1,15 @@
 ---
 - name: Update system-wide crypto policies
-  ansible.builtin.include_tasks:
-    file: "{{ playbook_dir }}/roles/sshd/handlers/update-crypto-policies.yml"
+  ansible.builtin.shell:
+    cmd: |
+         active_policy="$(update-crypto-policies --show)"
+         update-crypto-policies --set "${active_policy%%:*}:{{ sshd_available_crypto_subpolicies_formatted }}"
+  register: sshd_update_crypto_policies
+  changed_when:
+    - 'sshd_update_crypto_policies.rc == 0'
+    - '"Setting system policy to" in sshd_update_crypto_policies.stdout'
+    - 'sshd_available_crypto_subpolicies_formatted in sshd_update_crypto_policies.stdout'
+  become: true
   listen: update-crypto-policies
 
 - name: Restart sshd service.
