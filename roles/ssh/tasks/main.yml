@@ -1,14 +1,31 @@
 ---
-- name: Add public keys from CAs that signed {{ stack_name }} host keys to /etc/ssh/ssh_known_hosts.
+- name: Find CA public key files
+  ansible.builtin.find:
+    paths: "{{ playbook_dir }}/ssh-host-ca/"
+    patterns: "*.pub"
+    follow: true
+  register: ssh_ca_pub_files
+  delegate_to: localhost
+  connection: local
+
+- name: Collect content from all the .pub files
+  ansible.builtin.command: cat {{ item.path }}
+  loop: "{{ ssh_ca_pub_files.files }}"
+  register: ssh_ca_content
+  changed_when: false
+  delegate_to: localhost
+  connection: local
+
+- name: Make sure that /etc/ssh/ssh_known_hosts contains the .pub files
   ansible.builtin.lineinfile:
-    dest: /etc/ssh/ssh_known_hosts
-    mode: '0644'
-    owner: root
-    group: root
+    regex: "^#?.*{{ item.stdout }}$"
+    line: '@cert-authority * {{ item.stdout }}'
+    path: /etc/ssh/ssh_known_hosts
     create: true
-    insertbefore: BOF
-    regexp: "(?i)^#?@cert-authority .* for {{ stack_name }}$"
-    line: "@cert-authority * {{ lookup('file', ssh_host_signer_ca_private_key + '.pub') }} for {{ stack_name }}"
+    mode: '0644'
+  loop: "{{ ssh_ca_content.results }}"
+  loop_control:
+    label: "{{ item.item }}"
   become: true
 
 - name: Make sure /etc/ssh/ssh_config.d/*.conf config files are included.
