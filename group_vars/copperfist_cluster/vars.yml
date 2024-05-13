@@ -43,7 +43,7 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
-  - group: all
+  - group: copperfist_cluster
     nodes:
       - name: cf-dragen
         network: vlan990
