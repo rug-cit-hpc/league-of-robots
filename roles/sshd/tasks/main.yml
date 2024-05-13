@@ -69,18 +69,14 @@
     - ansible_facts['os_family'] == "RedHat"
     - ansible_facts['distribution_major_version'] >= "8"
 
-#
-# Disabling the config files does not work as dnf update will re-create them.
-#
-- name: Re-enable extra sshd config files we do not want to use.
-  ansible.builtin.shell:
-    cmd: |
-         mv "/etc/ssh/sshd_config.d/{{ item }}"{.disabled,}
-    removes: "/etc/ssh/sshd_config.d/{{ item }}.disabled"
-    creates: "/etc/ssh/sshd_config.d/{{ item }}"
-  loop:
-    - 50-cloud-init.conf
-    - 50-redhat.conf
+- name: Find extra config files we do not want in /etc/ssh/sshd_config.d/.
+  ansible.builtin.find:
+    paths: '/etc/ssh/sshd_config.d/'
+    use_regex: true
+    patterns:
+      - 50-cloud-init.conf
+      - 50-redhat.conf
+  register: found_extra_sshd_configs
   become: true
   when:
     - ansible_facts['os_family'] == "RedHat"
@@ -92,15 +88,13 @@
 #
 - name: Disable every line in extra sshd config files we do not want to use.
   ansible.builtin.replace:
-    path: "/etc/ssh/sshd_config.d/{{ item }}"
+    path: "{{ item }}"
     owner: root
     group: root
     mode: '0600'
     regexp: '^([^#][^\n]*)$'
     replace: '#\1'
-  loop:
-    - 50-cloud-init.conf
-    - 50-redhat.conf
+  loop: "{{ found_extra_sshd_configs['files'] | map(attribute='path') | list }}"
   notify: restart_sshd
   become: true
   when:
