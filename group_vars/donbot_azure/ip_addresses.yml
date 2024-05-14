@@ -1,0 +1,13 @@
+---
+ip_addresses:
+  ladap:
+    donbot_internal_management:
+      address: 10.3.0.4
+      netmask: /32
+      fqdn: 'NXDOMAIN'
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    donbot_external_network:
+      address: 172.201.133.1
+      netmask: /32
+      fqdn: 'ladap.westeurope.cloudapp.azure.com'
+...

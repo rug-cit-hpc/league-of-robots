@@ -474,6 +474,27 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 	done
 	iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp --sport 41514 -m state --state ESTABLISHED -j ACCEPT
 {% endif%}
+{% if iptables_allow_ldap_inbound is defined and iptables_allow_ldap_inbound | length > 0 %}
+	#
+	# Allow inbound ldap.
+	#
+	# ldap requires:
+	#  * TCP port 636: to receive LDAP
+	#
+	declare -a ALLOW_LDAP_INBOUND=(
+	{% for ip in iptables_allow_ldap_inbound %}
+		{% if ip == 'ANY'%}
+		'0.0.0.0/0'
+		{% else %}
+		'{{ ip.address }}{{ ip.netmask }}'{% if ip.fqdn is defined and ip.fqdn != "NXDOMAIN" %}	# {{ ip.fqdn }}{% elif ip.desc is defined %}	# {{ ip.desc }}{% endif +%}
+		{% endif %}
+	{% endfor %}
+	)
+	for IP_ADDRESS in "${ALLOW_LDAP_INBOUND[@]}"; do
+		iptables -A INPUT  -i "${EXT_INTERFACE}" -p tcp -s "${IP_ADDRESS}" --dport 636 -m state --state NEW,ESTABLISHED -j ACCEPT
+	done
+	iptables -A OUTPUT -o "${EXT_INTERFACE}" -p tcp --sport 636 -m state --state ESTABLISHED -j ACCEPT
+{% endif%}
 done
 
 #

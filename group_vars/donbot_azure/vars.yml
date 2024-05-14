@@ -1,0 +1,67 @@
+---
+stack_prefix: 'db'
+stack_domain: 'donbot'
+stack_name: "{{ stack_domain }}_azure"  # stack_name must match the name of the folder that contains this vars.yml file.
+repo_manager: 'none'
+os_distribution: 'rocky9'
+stack_networks:
+  - name: "{{ stack_prefix }}_internal_management"
+    cidr: '10.3.0.4/16'
+    router_network: donbot_external_network
+    type: management
+    external: true
+    mtu_size: '1450'
+nameservers: [
+  '8.8.4.4',  # Google DNS.
+  '8.8.8.8',  # Google DNS.
+]
+local_admin_groups:
+  - 'admin'
+local_admin_users:
+  - 'gerben'
+  - 'marieke'
+  - 'marloes'
+  - 'morris'
+  - 'pieter'
+  - 'sandi'
+use_ldap: false
+create_ldap: false
+use_sssd: false
+#
+# Jumphosts from other stack-name infra groups.
+# We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
+#
+external_jumphosts:
+  - group: gearshift_cluster
+    hosts:
+    - hostname: airlock
+      network: vlan16
+  - group: talos_cluster
+    hosts:
+      - hostname: reception
+        network: vlan16
+  - group: hyperchicken_cluster
+    hosts:
+      - hostname: portal
+        network: public
+  - group: fender_cluster
+    hosts:
+      - hostname: corridor
+        network: public
+  - group: nibbler_cluster
+    hosts:
+      - hostname: tunnel
+        network: vlan16
+  - group: wingedhelix_cluster
+    hosts:
+      - hostname: wh-porch
+        network: vlan16
+  - group: betabarrel_cluster
+    hosts:
+      - hostname: bb-porch
+        network: vlan16
+  - group: copperfist_cluster
+    hosts:
+      - hostname: cf-porch
+        network: external
+...

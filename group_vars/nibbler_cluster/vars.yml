@@ -73,6 +73,10 @@ additional_etc_hosts:
     nodes:
       - name: vip_build
         network: vlan16
+  - group: donbot_azure
+    nodes:
+      - name: ladap
+        network: donbot_external_network
 #
 # Configure the SSH client on this stack for logins on other stacks listed in ssh_client_configs.
 #

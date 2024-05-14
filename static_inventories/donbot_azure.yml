@@ -1,0 +1,60 @@
+---
+all:
+  children:
+    openstack_api:
+      hosts:
+        localhost:
+          ansible_python_interpreter: /usr/bin/env python
+    ldap_server:
+      hosts:
+        # LsAai lDAP
+        ladap:
+          host_networks:
+            - name: donbot_external_network
+              security_group: "{{ stack_prefix }}_cluster"
+          # Ldap settings
+          create_ldap: true
+          ldap_domains:
+            stack:
+              uri: "ldaps://{{ stack_prefix }}"
+              base: "dc={{ stack_name }},dc=local"
+              schema: rfc2307bis
+              min_id: 1000
+              max_id: 21999
+              user_object_class: posixAccount
+              user_name: uid
+              user_ssh_public_key: sshPublicKey
+              user_member_of: memberOf
+              group_member: member
+              create_ldap: true
+              ldap_db_index: 3  # Indices up to 2 are already used by default for the "config", "monitor" and "example" databases.
+          regular_groups:
+            - 'lsaai'
+          regular_users:
+            - user: "lsaai"
+              groups: "lsaai"
+          cluster_common_packages:
+            RedHat9:
+               - perun-slave-full
+          iptables_allow_ssh_inbound:
+            - "{{ all.ip_addresses['lsaai']['perun'] }}"
+            - "{{ vaxtron_cluster.ip_addresses['foyer']['external'] }}"
+            - "{{ nibbler_cluster.ip_addresses['tunnel']['vlan16'] }}"
+            - "{{ gearshift_cluster.ip_addresses['airlock']['vlan16'] }}"
+            - "{{ fender_cluster.ip_addresses['corridor']['public'] }}"
+            - "{{ talos_cluster.ip_addresses['reception']['vlan16'] }}"
+            - "{{ all.ip_addresses['umcg']['net1'] }}"
+            - "{{ all.ip_addresses['umcg']['net2'] }}"
+            - "{{ all.ip_addresses['umcg']['net3'] }}"
+            - "{{ all.ip_addresses['umcg']['net4'] }}"
+            - "{{ all.ip_addresses['rug']['bwp_net'] }}"
+            - "{{ all.ip_addresses['rug']['operator'] }}"
+          iptables_allow_ssh_outbound:
+            - ANY
+          iptables_allow_icmp_inbound: "{{ iptables_allow_ssh_inbound }}"
+          iptables_allow_ldap_inbound: "{{ iptables_allow_ssh_inbound }}"
+donbot_azure:
+  children:
+    openstack_api:
+    ldap_server:
+...
