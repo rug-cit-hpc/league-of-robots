@@ -1,5 +1,5 @@
 ---
-stack_prefix: 'don'
+stack_prefix: 'db'
 stack_domain: 'donbot'
 stack_name: "{{ stack_domain }}_azure"  # stack_name must match the name of the folder that contains this vars.yml file.
 repo_manager: 'none'
