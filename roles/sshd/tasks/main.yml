@@ -216,7 +216,7 @@
 #
 # Flush handlers, because if the playbook continues without it,
 # then it can fail before the end and thus the files (like policy modules) will remain unconfigured.
-# 
+#
 - name: Flush handlers.
   ansible.builtin.meta: flush_handlers
 ...
