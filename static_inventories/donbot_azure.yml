@@ -53,15 +53,8 @@ all:
             - ANY
           iptables_allow_icmp_inbound: "{{ iptables_allow_ssh_inbound }}"
           iptables_allow_ldap_inbound: "{{ iptables_allow_ssh_inbound }}"
-administration:
-  children:
-    ldap_server:
-#cluster:
-#  children:
-#    administration:
 donbot_azure:
   children:
     openstack_api:
-    administration:
-    jumphost:
+    ldap_server:
 ...
