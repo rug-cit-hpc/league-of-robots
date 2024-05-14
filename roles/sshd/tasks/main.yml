@@ -190,7 +190,8 @@
   become: true
 
 - name: Get active system-wide crypto policies.
-  ansible.builtin.command: update-crypto-policies --show
+  ansible.builtin.command:
+    cmd: update-crypto-policies --show
   register: sshd_show_crypto_policies
   changed_when: false
   become: true
@@ -219,4 +220,47 @@
 #
 - name: Flush handlers.
   ansible.builtin.meta: flush_handlers
+
+- name: Get active system-wide crypto policies again after applying custom config.
+  ansible.builtin.command:
+    cmd: update-crypto-policies --show
+  register: sshd_show_crypto_policies
+  changed_when: false
+  become: true
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
+
+- name: Check if the system-wide crypto policies were configured correctly.
+  ansible.builtin.debug:
+    msg: "ERROR: {{ item }} not in {{ sshd_active_crypto_policies }}."
+  loop: "{{ sshd_found_crypto_subpolicy_files.files
+        | map(attribute='path') | map('basename') | map('splitext') | map('first')
+        | unique | list }}"
+  vars:
+    sshd_active_crypto_policies: "{{ sshd_show_crypto_policies.stdout | split(':') }}"
+  changed_when: false
+  failed_when: item not in sshd_active_crypto_policies
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
+    - item not in sshd_active_crypto_policies
+
+- name: Check if the configured system-wide crypto policies were applied correctly.
+  ansible.builtin.command:
+    cmd: |
+         {{ item.cmd }}
+  register: sshd_check_crypto_policies
+  changed_when: false
+  loop:
+    - cmd: 'update-crypto-policies --is-applied'
+      result: 'The configured policy is applied'
+    - cmd: 'update-crypto-policies --check'
+      result: 'The configured policy matches the generated policy'
+  failed_when:
+    - item.result not in sshd_check_crypto_policies.stdout
+  become: true
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
 ...
