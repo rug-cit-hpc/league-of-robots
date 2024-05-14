@@ -69,6 +69,20 @@
     - ansible_facts['os_family'] == "RedHat"
     - ansible_facts['distribution_major_version'] >= "8"
 
+#
+# Find all subpolicy files: The result should contain all the sub policy files we just deployed,
+# but may also contain additional sub policy files added by for example a security update.
+#
+- name: Find all subpolicy files.
+  ansible.builtin.find:
+    paths:
+      - /etc/crypto-policies/policies/modules/
+    patterns: '*.pmod'
+  register: sshd_found_crypto_subpolicy_files
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - ansible_facts['distribution_major_version'] >= "8"
+
 - name: Find extra config files we do not want in /etc/ssh/sshd_config.d/.
   ansible.builtin.find:
     paths: '/etc/ssh/sshd_config.d/'
@@ -175,35 +189,7 @@
     - "'pcscd.service' in ansible_facts.services"
   become: true
 
-- name: Find all subpolicy files.
-  ansible.builtin.find:
-    paths:
-      - /etc/crypto-policies/policies/modules/
-    patterns: '*.pmod'
-  register: sshd_found_crypto_subpolicy_files
-  when:
-    - ansible_facts['os_family'] == "RedHat"
-    - ansible_facts['distribution_major_version'] >= "8"
-
-- name: Create sshd_available_crypto_subpolicies variable
-  ansible.builtin.set_fact:
-    sshd_available_crypto_subpolicies: "{{ sshd_found_crypto_subpolicy_files.files
-        | map(attribute='path') | map('basename') | map('splitext') | map('first')
-        | unique | list }}"
-  when:
-    - ansible_facts['os_family'] == "RedHat"
-    - ansible_facts['distribution_major_version'] >= "8"
-
-- name: Create formatted variable sshd_available_crypto_subpolicies_formatted
-  ansible.builtin.set_fact:
-    sshd_available_crypto_subpolicies_formatted: "{{ sshd_available_crypto_subpolicies
-        | join(':') | replace('.pmod', '') }}"
-  when:
-    - ansible_facts['os_family'] == "RedHat"
-    - ansible_facts['distribution_major_version'] >= "8"
-
-# We should always check for the status of the crypto policies
-- name: Check system-wide crypto policies.
+- name: Get active system-wide crypto policies.
   ansible.builtin.command: update-crypto-policies --show
   register: sshd_show_crypto_policies
   changed_when: false
@@ -212,18 +198,25 @@
     - ansible_facts['os_family'] == "RedHat"
     - ansible_facts['distribution_major_version'] >= "8"
 
-- name: Notify policy update if set incorrect
+- name: Check if we need to update the system-wide crypto policies.
   ansible.builtin.debug:
-    msg: "'{{ sshd_available_crypto_subpolicies_formatted }}' not in '{{ sshd_show_crypto_policies.stdout }}' -> updating"
-  changed_when: true
+    msg: "{{ item }} not in {{ sshd_active_crypto_policies }} -> notifying handler."
+  loop: "{{ sshd_found_crypto_subpolicy_files.files
+        | map(attribute='path') | map('basename') | map('splitext') | map('first')
+        | unique | list }}"
+  vars:
+    sshd_active_crypto_policies: "{{ sshd_show_crypto_policies.stdout | split(':') }}"
+  changed_when: item not in sshd_active_crypto_policies
   when:
     - ansible_facts['os_family'] == "RedHat"
     - ansible_facts['distribution_major_version'] >= "8"
-    - sshd_available_crypto_subpolicies_formatted not in sshd_show_crypto_policies.stdout
+    - item not in sshd_active_crypto_policies
   notify: update-crypto-policies
 
-# Flush the handlers, as if the playbook continues without it, it can fail before
-# the end and thus the files (like policy modules) will remain unconfigured
+#
+# Flush handlers, because if the playbook continues without it,
+# then it can fail before the end and thus the files (like policy modules) will remain unconfigured.
+# 
 - name: Flush handlers.
   ansible.builtin.meta: flush_handlers
 ...
