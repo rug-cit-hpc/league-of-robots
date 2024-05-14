@@ -476,9 +476,9 @@ for EXT_INTERFACE in "${EXTERNAL_INTERFACES[@]:-}"; do
 {% endif%}
 {% if iptables_allow_ldap_inbound is defined and iptables_allow_ldap_inbound | length > 0 %}
 	#
-	# Allow inbound logs.
+	# Allow inbound ldap.
 	#
-	# logs requires:
+	# ldap requires:
 	#  * TCP port 636: to receive LDAP
 	#
 	declare -a ALLOW_LDAP_INBOUND=(
