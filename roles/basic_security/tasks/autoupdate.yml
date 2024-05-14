@@ -35,4 +35,13 @@
   become: true
   when:
     - basic_security_autoupdate_enabled
+
+- name: Ignore in case that one package cannot be updated to highest version, and instead continue to update all the rest (RHEL >= 8).
+  ansible.builtin.lineinfile:
+    dest: "/etc/dnf/dnf.conf"
+    regexp: '^best=.+'
+    line: 'best=False'
+    mode: '0644'
+  when: ansible_distribution_major_version | int >= 8
+  become: true
 ...
