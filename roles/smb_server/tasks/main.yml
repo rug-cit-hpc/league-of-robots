@@ -51,6 +51,8 @@
   register: smb_server_create_users
   changed_when: "'Added user' in smb_server_create_users.stdout"
   loop: "{{ smb_server_users }}"
+  loop_control:
+    label: "{{ item.name }}"
   become: true
   no_log: true
 
@@ -67,6 +69,8 @@
   register: smb_server_check_users
   changed_when: "'New SMB password' in smb_server_check_users.stdout"
   loop: "{{ smb_server_users }}"
+  loop_control:
+    label: "{{ item.name }}"
   become: true
   no_log: true
 
