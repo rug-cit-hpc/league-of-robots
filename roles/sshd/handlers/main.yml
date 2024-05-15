@@ -3,12 +3,12 @@
   ansible.builtin.shell:
     cmd: |
          active_policy="$(update-crypto-policies --show)"
-         update-crypto-policies --set "${active_policy%%:*}:{{ sshd_available_crypto_subpolicies_formatted }}"
-  register: sshd_update_crypto_policies
-  changed_when:
-    - 'sshd_update_crypto_policies.rc == 0'
-    - '"Setting system policy to" in sshd_update_crypto_policies.stdout'
-    - 'sshd_available_crypto_subpolicies_formatted in sshd_update_crypto_policies.stdout'
+         update-crypto-policies --set "${active_policy%%:*}:{{ sshd_available_crypto_subpolicies | join(':') }}"
+  vars:
+    sshd_available_crypto_subpolicies: "{{ sshd_found_crypto_subpolicy_files.files
+        | map(attribute='path') | map('basename') | map('splitext') | map('first')
+        | unique | list }}"
+  changed_when: true
   become: true
   listen: update-crypto-policies
 
