@@ -8,7 +8,7 @@ all:
     jumphost:
       hosts:
         tunnel:
-          cloud_flavor: m1.small
+          cloud_flavor: umcg.v1.vm.1-2-0
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_jumphosts"
@@ -18,7 +18,7 @@ all:
     repo:
       hosts:
         nb-repo:
-          cloud_flavor: m1.small
+          cloud_flavor: umcg.v1.vm.1-2-0
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_repo"
@@ -26,7 +26,7 @@ all:
     data_transfer:
       hosts:
         nb-transfer:
-          cloud_flavor: m1.small
+          cloud_flavor: umcg.v1.vm.1-2-0
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_ds"
@@ -93,7 +93,7 @@ all:
 #          ir_db_name: 'ICAT'                                # test-db iRODS database name
 #          ir_admin_pwd: '{{ icatV_test_admin_pwd }}'        # test-db iRODS Vaulted irods admin password
 #      vars:
-#        cloud_flavor: m1.large
+#        cloud_flavor: umcg.v1.vm.4-8-0
 #        host_networks:
 #          - name: "{{ stack_prefix }}_internal_management"
 #            security_group: "{{ stack_prefix }}_irods"
@@ -109,7 +109,7 @@ all:
     sys_admin_interface:
       hosts:
         nb-sai:
-          cloud_flavor: m1.large
+          cloud_flavor: umcg.v1.vm.4-8-0
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
@@ -122,7 +122,7 @@ all:
     deploy_admin_interface:
       hosts:
         nb-dai:
-          cloud_flavor: m1.large
+          cloud_flavor: umcg.v1.vm.4-8-0
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
@@ -136,7 +136,7 @@ all:
     user_interface:
       hosts:
         nibbler:
-          cloud_flavor: 16c64g40d
+          cloud_flavor: umcg.v1.vm.16-64-0
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
@@ -160,7 +160,7 @@ all:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             nb-node-a[01:03]:
-              cloud_flavor: htc-node
+              cloud_flavor: umcg.v1.vm.126-500-0
               host_networks:
                 - name: "{{ stack_prefix }}_internal_management"
                   security_group: "{{ stack_prefix }}_cluster"
@@ -171,9 +171,9 @@ all:
                 - name: vlan1068
                   security_group: "{{ stack_prefix }}_storage"
               local_volume_size_extra: 1
-              slurm_sockets: 40
+              slurm_sockets: 126
               slurm_cores_per_socket: 1
-              slurm_real_memory: 181180
+              slurm_real_memory: 500000
               slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
               slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
               slurm_local_disk: 975
@@ -185,7 +185,7 @@ all:
         gpu_a40:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             nb-node-b[01:02]:
-              cloud_flavor: gpu.A40_8
+              cloud_flavor: umcg.v1.vm.64-128-0.8a40
               gpu_count: 8
               gpu_type: 'a40'
               host_networks:
@@ -198,9 +198,9 @@ all:
                 - name: vlan1068
                   security_group: "{{ stack_prefix }}_storage"
               local_volume_size_extra: 1
-              slurm_sockets: 32
+              slurm_sockets: 64
               slurm_cores_per_socket: 1
-              slurm_real_memory: 110122
+              slurm_real_memory: 131072
               slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
               slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
               slurm_local_disk: 975

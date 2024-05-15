@@ -3,7 +3,7 @@ slurm_cluster_name: 'nibbler'
 stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'nb'
-slurm_version: '22.05.2-1.el7.umcg'
+slurm_version: '23.02.7-2.el9.umcg'
 slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
@@ -50,7 +50,7 @@ slurm_qos_limit_fractions:
   interactive-short:
     user: 0.5
 repo_manager: 'pulp'
-os_distribution: 'centos7'
+os_distribution: 'rocky9'
 figlet_font: 'ogre'
 motd: |
       ===============================================================
@@ -141,8 +141,8 @@ pam_weblogin:
   max_uid: "{{ ldap_domains['sram']['max_id'] }}"
   retries: 3
   cache_duration: 3600  # seconds
-cloud_image: CentOS 7
-cloud_user: centos
+cloud_image: RockyLinux-9.3_xfs
+cloud_user: cloud-user
 availability_zone: nova
 stack_networks:
   - name: "{{ stack_prefix }}_internal_management"
@@ -185,7 +185,6 @@ local_admin_groups:
   - 'admin'
   - 'docker'
 local_admin_users:
-  - 'egon'
   - 'ger'
   - 'gerben'
   - 'henkjan'
