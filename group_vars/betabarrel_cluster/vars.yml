@@ -204,6 +204,7 @@ regular_groups:
   - 'umcg-lab'
   - 'umcg-labgnkbh'
   - 'umcg-logstoprm'
+  - 'umcg-ogm'
   - 'umcg-patho'
   - 'umcg-pr'
   - 'umcg-vipt'
@@ -245,6 +246,8 @@ regular_users:
     groups: ['umcg-labgnkbh', "{{ functional_users_group }}"]
   - user: 'umcg-logstoprm-dm'
     groups: ['umcg-logstoprm', "{{ functional_users_group }}"]
+  - user: 'umcg-ogm-dm'
+    groups: ['umcg-ogm', "{{ functional_users_group }}"]
   - user: 'umcg-patho-ateambot'
     groups: ['umcg-patho', "{{ functional_users_group }}"]
   - user: 'umcg-patho-dm'
@@ -290,6 +293,8 @@ sudoers:
     become: 'umcg-labgnkbh-dm'
   - who: ['%umcg-logstorpm']
     become: 'umcg-logstoprm-dm'
+  - who: ['%umcg-ogm']
+    become: 'umcg-ogm-dm'
   - who: ['%umcg-patho']
     become: 'umcg-patho-ateambot'
   - who: ['%umcg-patho']
@@ -305,15 +310,15 @@ remote_users_in_local_groups:
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
-        'umcg-vipt',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-ogm', 'umcg-patho',
+        'umcg-pr', 'umcg-vipt',
     ]
   - user: 'bijlsmam'
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
-        'umcg-vipt',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-ogm', 'umcg-patho',
+        'umcg-pr', 'umcg-vipt',
     ]
   - user: 'charbonb'
     groups: [
@@ -324,8 +329,8 @@ remote_users_in_local_groups:
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
-        'umcg-vipt',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-ogm', 'umcg-patho',
+        'umcg-pr', 'umcg-vipt',
     ]
   - user: 'hendriksend'
     groups: [
@@ -336,29 +341,29 @@ remote_users_in_local_groups:
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
-        'umcg-vipt',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-ogm', 'umcg-patho',
+        'umcg-pr', 'umcg-vipt',
     ]
   - user: 'kanningaroj'
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
-        'umcg-vipt',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-ogm', 'umcg-patho',
+        'umcg-pr', 'umcg-vipt',
     ]
   - user: 'neerincxp'
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
-        'umcg-vipt',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-ogm', 'umcg-patho',
+        'umcg-pr', 'umcg-vipt',
     ]
   - user: 'vriesgb'
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
         'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-patho', 'umcg-pr',
-        'umcg-vipt',
+        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-ogm', 'umcg-patho',
+        'umcg-pr', 'umcg-vipt',
     ]
 #
 ## Limit the storage for specific folder, by using a loop mount of formatted file
@@ -615,6 +620,11 @@ lfs_mounts:
 #    groups:
 #      - name: umcg-pr
 #    rw_machines: "{{ groups['chaperone'] }}"
+  - lfs: prm67
+    pfs: 'ogm'
+    groups:
+      - name: umcg-ogm
+    rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env05
     pfs: local_raid
     rw_machines: "{{ groups['deploy_admin_interface'] + groups['compute_node'] + groups['user_interface'] }}"
