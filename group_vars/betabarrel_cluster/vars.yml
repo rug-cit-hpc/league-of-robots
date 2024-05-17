@@ -447,6 +447,12 @@ pfs_mounts:
 #    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
 #    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
 #    machines: "{{ groups['chaperone'] }}"
+  - pfs: 'ogm'
+    source: '//storage3.umcg.nl/algemenedata$/appdata/medgen/'
+    type: cifs    # checked with cat /proc/filesystem
+    rw_options: 'vers=3.0,mfsymlinks,rw,soft,perm'
+    ro_options: 'vers=3.0,mfsymlinks,ro,soft,perm'
+    machines: "{{ groups['chaperone'] }}"
 lfs_mounts:
   - lfs: home
     pfs: local_raid
