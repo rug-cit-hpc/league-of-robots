@@ -55,7 +55,6 @@ all:
           iptables_allow_ldap_inbound: "{{ iptables_allow_ssh_inbound }}"
           perun_facility_name: "umcg-gcc"
           perun_service_whitelist: "ldap_lsaai"
-
 donbot_azure:
   children:
     openstack_api:
