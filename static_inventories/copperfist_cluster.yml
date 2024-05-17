@@ -171,6 +171,7 @@ all:
             - 'umcg-lab'
             - 'umcg-labgnkbh'
             - 'umcg-logstoprm'
+            - 'umcg-ogm'
             - 'umcg-patho'
             - 'umcg-pr'
             - 'umcg-vipt'
