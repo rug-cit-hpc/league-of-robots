@@ -1,0 +1,11 @@
+#!/bin/bash
+# Pre-file for LDAP service providing authz information.
+LDAP_LOGIN="{{ ldap_domains['stack']['base'] }}"
+LDAP_PASSWORD="{{ ldap_credentials['stack']['admin']['pw'] }}"
+LDAP_URL="ldaps://{% for network_id in ip_addresses[inventory_hostname] %}
+      {%- if ip_addresses[inventory_hostname][network_id]['fqdn'] is defined and
+             ip_addresses[inventory_hostname][network_id]['fqdn'] | length >= 1 and
+             ip_addresses[inventory_hostname][network_id]['fqdn'] != 'NXDOMAIN' -%}
+          {{ ip_addresses[inventory_hostname][network_id]['fqdn'] }}
+      {%- endif %}
+    {%- endfor %}:636"
