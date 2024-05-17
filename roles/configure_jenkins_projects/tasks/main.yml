@@ -5,7 +5,7 @@
     state: directory
     owner: jenkins
     group: jenkins
-    mode: '0740'
+    mode: '0755'
   become: true
 
 - name: Copy XML project configuration file to destination folder
@@ -15,7 +15,7 @@
     dest: "{{ jenkins_xml_dest }}/{{ item }}_config.xml"
     owner: jenkins
     group: jenkins
-    mode: '0740'
+    mode: '0755'
   loop: "{{ jenkins_projects }}"
 
 - name: Get a list of existing Jenkins projects
