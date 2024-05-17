@@ -76,7 +76,7 @@ external_jumphosts:
 jenkins_plugins:
   - warnings-ng
   - name: git
-    version: 4.11.5
+    version: 5.2.2
   - name: workflow-multibranch
     version: 773.vc4fe1378f1d5
   - name: branch-api
@@ -85,6 +85,25 @@ jenkins_plugins:
     version: 6.901.vb_4c7a_da_75da_3
   - name: github-branch-source
     version: 1789.v5b_0c0cea_18c3
+  - name: analysis-model-api
+    version: 12.3.3
+  - name: ghprb
+    version: 1.142.2
+  - name: github-api
+    version: 1.318-461.v7a_c09c9fa_d63
+  - name: git-client
+    version: 4.7.0
+  - name: github
+    version: 1.38.0
+  - name: matrix-auth
+    version: 3.2.2
+  - name: workflow-api
+    version: 1291.v51fd2a_625da_7
+  - name: workflow-job
+    version: 1400.v7fd111b_ec82f
+  - name: workflow-multibrach
+    version: 773.vc4fe1378f1d5
+
 jenkins_plugins_install_dependencies: true
 jenkins_prefer_lts: true
 jenkins_shellcheck_version: 0.8.0
