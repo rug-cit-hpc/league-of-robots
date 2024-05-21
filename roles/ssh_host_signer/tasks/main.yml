@@ -4,6 +4,28 @@
     name: "{{ hostvars[inventory_hostname].fqdn | default(inventory_hostname) }}"
   become: true
 
+- name: '(Re)create RSA host key with 4096 bits.'
+  community.crypto.openssh_keypair:
+    path: "{{ ssh_host_signer_key_directory }}/ssh_host_rsa_key"
+    type: rsa
+    size: 4096
+  become: true
+
+- name: "Fix permissions for RSA host key."
+  ansible.builtin.file:
+    path: "{{ ssh_host_signer_key_directory }}/{{ item.filename }}"
+    owner: root
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - filename: ssh_host_rsa_key
+      group: ssh_keys
+      mode: '0640'
+    - filename: ssh_host_rsa_key.pub
+      group: root
+      mode: '0644'
+  become: true
+
 - name: 'Find SSH host keys.'
   ansible.builtin.find:
     path: "{{ ssh_host_signer_key_directory }}"
