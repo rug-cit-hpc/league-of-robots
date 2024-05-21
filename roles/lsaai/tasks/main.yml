@@ -64,8 +64,8 @@
 
 - name: Duplicate the ldap > ldap_lsaai in /opt/perun/lib/
   ansible.builtin.copy:
-    src: /opt/perun/lib/ldap
-    dest: /opt/perun/lib/ldap_lsaai
+    src: /opt/perun/lib/ldap/
+    dest: /opt/perun/lib/ldap_lsaai/
     owner: root
     group: lsaai
     remote_src: true
