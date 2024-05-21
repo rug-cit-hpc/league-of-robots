@@ -9,3 +9,5 @@ LDAP_URL="ldaps://{% for network_id in ip_addresses[inventory_hostname] %}
           {{ ip_addresses[inventory_hostname][network_id]['fqdn'] }}
       {%- endif %}
     {%- endfor %}:636"
+LDAP_FILTER_USERS="(objectclass=inetOrgPerson)"
+LDAP_FILTER_GROUPS="(objectclass=groupOfNames)"
