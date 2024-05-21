@@ -15,7 +15,7 @@
     dest: "{{ jenkins_xml_dest }}/{{ item }}_config.xml"
     owner: jenkins
     group: jenkins
-    mode: '0755'
+    mode: '0664'
   loop: "{{ jenkins_projects }}"
 
 - name: Get a list of existing Jenkins projects
