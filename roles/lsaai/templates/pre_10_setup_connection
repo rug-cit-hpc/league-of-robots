@@ -2,11 +2,13 @@
 # Pre-file for LDAP service providing authz information.
 LDAP_LOGIN="{{ ldap_domains['stack']['base'] }}"
 LDAP_PASSWORD="{{ ldap_credentials['stack']['admin']['pw'] }}"
-LDAP_URL="ldaps://{% for network_id in ip_addresses[inventory_hostname] %}
+LDAP_URL="ldaps://{% set first = False %}{% for network_id in ip_addresses[inventory_hostname] %}
       {%- if ip_addresses[inventory_hostname][network_id]['fqdn'] is defined and
              ip_addresses[inventory_hostname][network_id]['fqdn'] | length >= 1 and
-             ip_addresses[inventory_hostname][network_id]['fqdn'] != 'NXDOMAIN' -%}
-          {{ ip_addresses[inventory_hostname][network_id]['fqdn'] }}
+             ip_addresses[inventory_hostname][network_id]['fqdn'] != 'NXDOMAIN' and
+             not first -%}
+               {{ ip_addresses[inventory_hostname][network_id]['fqdn'] }}
+               {% set first = True %}
       {%- endif %}
     {%- endfor %}:636"
 LDAP_FILTER_USERS="(objectclass=inetOrgPerson)"
