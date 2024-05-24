@@ -1,3 +1,5 @@
+#jinja2: trim_blocks:True, lstrip_blocks: True
+{% set example_tmp_lfs = lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | map(attribute='lfs') | first %}
 # Installing custom R packages
 
 Installation of ```R``` packages for all cluster users can be requested via the helpdesk,
@@ -24,12 +26,12 @@ If the file already exists the touch command will only update the last modificat
 
 #### 2. Add ${R_LIBS} to your ${HOME}/.Renviron file
 
-If the path you chose for your custom R package is in the ```tmp09``` folder of the group named ```my-favorite-group```
+If the path you chose for your custom R package is in the ```{{ example_tmp_lfs }}``` folder of the group named ```my-favorite-group```
 and the R version for which you want to compile your extra R packages is 4.2.2,
 then add something like this to your ```~/.Renviron``` file:
 
 ```bash
-R_LIBS="/groups/my-favorite-group/tmp09/R-packages/x86_64-pc-linux-gnu-library/4.2:${R_LIBS}"
+R_LIBS="/groups/my-favorite-group/{{ example_tmp_lfs }}/R-packages/x86_64-pc-linux-gnu-library/4.2:${R_LIBS}"
 ```
 
 ###### Note ${R_LIBS} versus ${R_LIBS_USER}
@@ -44,7 +46,7 @@ when you mix custom R packages with R packages from other sources like for examp
 The `%p` and `%v` expansions for _platform_ and _version_, which are available for ```${R_LIBS_USER}```
 cannot be used with ```${R_LIBS}```, so something like this
 ```bash
-R_LIBS="/groups/my-favorite-group/tmp09/R-packages/%p-library/%v:${R_LIBS}"
+R_LIBS="/groups/my-favorite-group/{{ example_tmp_lfs }}/R-packages/%p-library/%v:${R_LIBS}"
 ```
 will *not* work.
 
@@ -60,7 +62,7 @@ when upgrading to another minor or another major version (e.g. 4.2.2 -> 4.3.1 or
 Create the folder if it does not already exist. E.g.:
 
 ```bash
-mkdir -p -m 770 "/groups/my-favorite-group/tmp09/R-packages/x86_64-pc-linux-gnu-library/4.2"
+mkdir -p -m 770 "/groups/my-favorite-group/{{ example_tmp_lfs }}/R-packages/x86_64-pc-linux-gnu-library/4.2"
 ```
 
 Next, load either a _bare_ ```R``` or load ```RPlus```, which is a bundle of lots of ```R``` packages already pre-installed on {{ slurm_cluster_name | capitalize }}.
@@ -75,7 +77,7 @@ By default new ```R``` packages will be installed in the first folder reported b
 
 ```R
 R> .libPaths()
-[1] "/groups/my-favorite-group/tmp09/R-packages/x86_64-pc-linux-gnu-library/4.2"
+[1] "/groups/my-favorite-group/{{ example_tmp_lfs }}/R-packages/x86_64-pc-linux-gnu-library/4.2"
 [2] "/apps/software/R/4.2.2-foss-2022a-bare/lib64/R/library"
 ```
 
