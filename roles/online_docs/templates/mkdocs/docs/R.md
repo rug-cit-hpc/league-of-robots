@@ -48,7 +48,7 @@ cannot be used with ```${R_LIBS}```, so something like this
 ```bash
 R_LIBS="/groups/my-favorite-group/{{ example_tmp_lfs }}/R-packages/%p-library/%v:${R_LIBS}"
 ```
-will *not* work.
+will __*not*__ work.
 
 ###### Note about version numbers in the path
 
