@@ -1,0 +1,73 @@
+---
+- name: "Create the folder structure for the scripts"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop:
+    - path: /opt/perun/
+      owner: root
+      group: lsaai
+      mode: '0750'
+    - path: /etc/perun/ldap_lsaai.d/
+      owner: root
+      group: lsaai
+      mode: '0750'
+  become: true
+
+- name: "Install configuration scripts"
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - src: 'pre_10_setup_connection'
+      dest: '/etc/perun/ldap_lsaai.d/pre_10_setup_connection'
+      mode: '0640'
+      owner: root
+      group: lsaai
+    - src: 'process-ldap_lsaai.sh'
+      dest: '/opt/perun/bin/process-ldap_lsaai.sh'
+      mode: '0750'
+      owner: root
+      group: lsaai
+    - src: 'perunv3.conf'
+      dest: '/etc/perunv3.conf'
+      mode: '0640'
+      owner: root
+      group: lsaai
+  become: true
+
+- name: "Collect the status of important files and directories"
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: collect_status
+  loop:
+    - /etc/perun/ldap_lsaai.d/
+    - /etc/perunv3.conf
+    - /etc/perun/ldap_lsaai.d/pre_10_setup_connection
+    - /opt/perun/bin/process-ldap_lsaai.sh
+  become: true
+
+- name: "Check that important files and directories are in place"
+  ansible.builtin.fail:
+    msg: "Path '{{ item.item }}'"
+  when:
+    - item.stat.exists is false
+  loop: "{{ collect_status.results }}"
+  loop_control:
+    label: "{{ item.stat.exists }}"
+
+- name: Duplicate the ldap > ldap_lsaai in /opt/perun/lib/
+  ansible.builtin.copy:
+    src: /opt/perun/lib/ldap/
+    dest: /opt/perun/lib/ldap_lsaai/
+    owner: root
+    group: lsaai
+    remote_src: true
+  become: true
+...
