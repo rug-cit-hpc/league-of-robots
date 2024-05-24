@@ -17,3 +17,8 @@ roles/HPCplaybooks
 roles/HPCplaybooks/*
 ssh-host-ca/umcg-hpc-ca
 ssh-host-ca/*production*
+#
+# For debugging locally only
+#
+debug.yml
+roles/custom_debug
