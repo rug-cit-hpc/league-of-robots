@@ -1,0 +1,6 @@
+---
+- name: Deploy lsaai role on ldap_server
+  hosts:
+    - ldap_server
+  roles:
+    - lsaai

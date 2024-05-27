@@ -1,4 +1,13 @@
 ---
+- name: Make sure projects destination folder exists
+  ansible.builtin.file:
+    path: "{{ jenkins_xml_dest }}"
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: '0755'
+  become: true
+
 - name: Copy XML project configuration file to destination folder
   become: true
   ansible.builtin.template:
@@ -6,7 +15,7 @@
     dest: "{{ jenkins_xml_dest }}/{{ item }}_config.xml"
     owner: jenkins
     group: jenkins
-    mode: '0755'
+    mode: '0664'
   loop: "{{ jenkins_projects }}"
 
 - name: Get a list of existing Jenkins projects
@@ -27,7 +36,7 @@
          update-job "{{ item }}" < "{{ jenkins_xml_dest }}/{{ item }}_config.xml"
   loop: "{{ jenkins_projects }}"
   when: item in "{{ existing_jenkins_jobs.stdout_lines }}"
-
+  become: true
 
 - name: Create Jenkins project if it does not exist yet
   ansible.builtin.shell:

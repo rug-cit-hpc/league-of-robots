@@ -1,0 +1,27 @@
+---
+- name: Import pre deploy checks.
+  ansible.builtin.import_playbook: pre_deploy_checks.yml
+
+- name: '###==-> Roles for standalone LDAP servers. <-==###'
+  hosts:
+    - ldap_server
+  roles:
+    - static_hostname_lookup
+    - admin_users
+    - ssh_host_signer
+    - iptables
+    - grub
+    - ssh             # client
+    - {role: yum_repos, when: repo_manager == 'none'}
+    - locale
+    - logrotate
+    - remove
+    - update
+    - logins
+    - sshd
+    - basic_security
+    - ldap_server
+    - regular_users   # to create lsaai user
+    - cluster         # to install perun software
+    - lsaai           # configure lsaai scripts and config files
+...

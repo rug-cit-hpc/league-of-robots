@@ -1,0 +1,48 @@
+---
+cf_infra_catalog:
+  children:
+    cf_bm_1:
+      vars:
+        make: Dell
+        model: PowerEdge R7525
+        support_expiration_date: 2027-02-12
+        location: CBC
+      hosts:
+        copperfist:
+          serial: !vault |
+              $ANSIBLE_VAULT;1.2;AES256;all
+              66396662313163333230323166333636396333383862666365353763326537326239373538633236
+              6531353133383831313631656638323033616265366462340a383930613936343734646538313632
+              34343464656131356165636164343131663965313839346337643266613739393565356432666362
+              3137313736356265320a623835636331373235326434336235343265333062353338376161323330
+              3834
+    cf_bm_2:
+      vars:
+        #
+        # Illumina Dragen v4 server is made by an OEM.
+        #
+        make: Advantech
+        model: SKY-6200
+        support_expiration_date: 2025-03-05
+        location: CBC
+      hosts:
+        cf-dragen:
+          serial: !vault |
+              $ANSIBLE_VAULT;1.2;AES256;all
+              62633663653837316334643634623838323332613130393839643537376534633662653938626531
+              3764366638626563396334656663386236633537333533300a386463653237306437323962323933
+              33393661356530626138303037373433663165346365366536633434303264336239313332626134
+              3038643365643031640a323332616335663838316666353764323963386233373434313532663864
+              6638
+    cf_vm_1: 
+      vars:
+        location: Bateleur cloud in CBC
+      hosts:
+        cf-porch:
+        cf-transfer:
+    cf_vm_2:
+      vars:
+        location: MIT cloud in CBC and DCE # VMware stretched cluster in multiple data centers.
+      hosts:
+        cf-chaperone
+...

@@ -61,19 +61,6 @@ ip_addresses:
   #
   # Dedicated raw sequence data conversion servers.
   #
-  gaf:
-    public:
-      address: '195.169.22.215'
-      netmask: '/32'
-      fqdn: 'gaf.gcc.rug.nl'
-  bb-dragen:
-    vlan990:
-      address: '192.168.1.61'
-      netmask: '/32'
-  cf-dragen:
-    vlan990:
-      address: '192.168.1.62'
-      netmask: '/32'
   gcc:
     cloud_net:
       address: '195.169.22.1'
@@ -274,3 +261,11 @@ ip_addresses:
       address: '143.55.64.0'
       netmask: '/20'
       desc: 'GitHub webhooks used to send HTTP POST payload to Jenkins'
+  #
+  # LSAAI
+  #
+  lsaai:
+    perun:
+      address: '78.128.247.160'
+      netmask: '/24'
+      desc: 'LSAAI Perun server(s) managing our LSAAI LDAP server'
