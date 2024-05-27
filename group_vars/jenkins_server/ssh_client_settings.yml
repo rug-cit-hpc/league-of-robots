@@ -1,0 +1,8 @@
+---
+ssh_client_jumphosts:
+
+ssh_client_known_hosts: "\
+  @cert-authority \
+  *jenkins-* \
+  ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGHLvucjPf0DapDUQgIY9ztwgiqOk0rg4czggKRuTK4Q CA key for jenkins_server"
+...

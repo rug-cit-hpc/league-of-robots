@@ -8,4 +8,9 @@ skip_list:
   - 'experimental'  # All rules tagged as experimental.
   - 'name[template]'  # Allow jinja templating anywhere in a task name.
   - 'var-naming[no-role-prefix]'  # Temporarily disable this new check: will be fixed in a dedicated PR.
+  #
+  # https://github.com/ansible/ansible-lint/issues/4035
+  # https://github.com/ansible/ansible-lint/issues/4168
+  #
+  - 'name[casing]'  # Temporarily disable this new check: bug causes false positive errors when handler uses 'listen'.
 ...

@@ -84,6 +84,8 @@ auth_groups:
     gid: 20021
   MEDGEN-NFG GCC Analyse Team:
     gid: 4560734
+  lsaai:
+    gid: 20022
 #
 # Default for a group of users that are only allowd to transfer data.
 # Is used by the sshd role and listed in
@@ -418,7 +420,7 @@ yum_repos:
       baseurl: 'https://ltb-project.org/rpm/openldap25/9/$basearch'
       enabled: 1
       gpgcheck: 1
-      gpgkeysource: 'https://ltb-project.org/documentation/_static/RPM-GPG-KEY-LTB-project'
+      gpgkeysource: 'https://ltb-project.org/documentation/_static/RPM-GPG-KEY-LTB-PROJECT-SECURITY'
     #
     # rsyslog
     #
@@ -429,6 +431,13 @@ yum_repos:
       enabled: 1
       gpgcheck: 1
       gpgkeysource: 'https://rpms.adiscon.com/RPM-GPG-KEY-Adiscon'
+    - file: perun.repo
+      id: perun
+      name: 'Perun IdM Slave Scripts'
+      baseurl: 'https://homeproj.cesnet.cz/rpm/perunv3/stable/noarch/'
+      enabled: 1
+      gpgcheck: 1
+      gpgkeysource: 'https://homeproj.cesnet.cz/rpm/perunv3/RPM-GPG-KEY-perunv3'
 #
 # Iptables additional configurations 
 #

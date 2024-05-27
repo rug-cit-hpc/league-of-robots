@@ -42,6 +42,10 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
+  - group: donbot_azure
+    nodes:
+      - name: ladap
+        network: donbot_external_network
 #
 # Remote logging settings - for diagnostics servers
 #
