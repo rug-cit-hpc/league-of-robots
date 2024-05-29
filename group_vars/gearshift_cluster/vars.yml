@@ -488,6 +488,8 @@ lfs_mounts:
       - name: umcg-mic
       - name: umcg-micompany
       - name: umcg-msb
+      - name: umcg-muhas
+        mode: '2750'
       - name: umcg-nawijn
         mode: '2750'
       - name: umcg-pmb
@@ -554,6 +556,7 @@ lfs_mounts:
       - name: umcg-mic
       - name: umcg-micompany
       - name: umcg-msb
+      - name: umcg-muhas
       - name: umcg-nawijn
       - name: umcg-pmb
       - name: umcg-pub
@@ -582,7 +585,6 @@ lfs_mounts:
       - name: umcg-biogen
       - name: umcg-bionic-mdd-gwama
       - name: umcg-bios
-      - name: umcg-cineca
       - name: umcg-dag3
       - name: umcg-datateam
       - name: umcg-ejp-rd
@@ -610,6 +612,7 @@ lfs_mounts:
       - name: umcg-mic
       - name: umcg-micompany
       - name: umcg-msb
+      - name: umcg-muhas
       - name: umcg-nawijn
       - name: umcg-pmb
       - name: umcg-pub
@@ -638,7 +641,6 @@ lfs_mounts:
       - name: umcg-biogen
       - name: umcg-bionic-mdd-gwama
       - name: umcg-bios
-      - name: umcg-cineca
       - name: umcg-dag3
       - name: umcg-datateam
       - name: umcg-ejp-rd
