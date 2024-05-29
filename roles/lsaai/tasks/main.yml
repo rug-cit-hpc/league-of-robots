@@ -68,6 +68,64 @@
     dest: /opt/perun/lib/ldap_lsaai/
     owner: root
     group: lsaai
+    mode: '0750'
     remote_src: true
   become: true
+
+
+- name: Deploy LDIF files for configuring LSAAI ldap
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/tmp/configure_lsaai-{{ item }}"
+    owner: lsaai
+    group: lsaai
+    mode: '0600'
+  with_items:
+    - ldap_groups_ou.ldif
+    - ldap_users_ou.ldif
+  register: lsaii_ldif_deploy
+  notify: lsaai_ldapadd
+  become: true
+
+- name: Check the ldap server if the configuration have already been done
+  ansible.builtin.shell:
+    cmd: >
+      set -o pipefail &&
+      /usr/local/openldap/bin/ldapsearch -x -H "ldap://localhost"
+      -D "{{ ldap_credentials['stack']['admin']['dn'] }}"
+      -b "{{ item}},{{ ldap_domains['stack']['base'] }}"
+      -w "{{ ldap_credentials['stack']['admin']['pw'] }}"
+      -LLL "ou=perun" | grep -q 'dn:'
+  register: lsaai_ldapsearch
+  failed_when: lsaai_ldapsearch.rc > 1
+  changed_when: lsaai_ldapsearch.rc == 1
+  loop:
+    - ou=groups
+    - ou=users
+  notify: lsaai_ldapadd
+  become: true
+  become_user: lsaai
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Check the ldap server if the configuration is now correctly deployed
+  ansible.builtin.shell:
+    cmd: >
+      set -o pipefail &&
+      /usr/local/openldap/bin/ldapsearch -x -H "ldap://localhost"
+      -D "{{ ldap_credentials['stack']['admin']['dn'] }}"
+      -b "{{ item }},{{ ldap_domains['stack']['base'] }}"
+      -w "{{ ldap_credentials['stack']['admin']['pw'] }}"
+      -LLL "ou=perun" | grep -q 'dn:'
+  register: lsaai_ldapsearch_again
+  failed_when: lsaai_ldapsearch_again.rc == 1
+  when: lsaai_ldapsearch.changed
+  changed_when: false
+  loop:
+    - ou=groups
+    - ou=users
+  notify: lsaai_ldapadd
+  become: true
+  become_user: lsaai
 ...

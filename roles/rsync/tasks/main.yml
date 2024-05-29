@@ -24,7 +24,6 @@
           | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|'
   args:
     executable: /bin/bash
-    warn: no
   changed_when: false
   check_mode: no
   register: rsync_version_managed_host
@@ -50,7 +49,6 @@
           | sed 's|^rsync *version *\([0-9\.]*\).*$|\1|'
   args:
     executable: /bin/bash
-    warn: no
   changed_when: false
   check_mode: no
   register: rsync_version_control_host
