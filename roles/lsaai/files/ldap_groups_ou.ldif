@@ -1,0 +1,9 @@
+dn: ou=groups,dc=donbot_azure,dc=local
+ou: groups
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=perun,ou=groups,dc=donbot_azure,dc=local
+ou: perun
+objectClass: top
+objectClass: organizationalUnit
