@@ -159,6 +159,7 @@ regular_groups:
   - 'umcg-mic'
   - 'umcg-micompany'
   - 'umcg-msb'
+  - 'umcg-muhas'
   - 'umcg-nawijn'
   - 'umcg-pmb'
   - 'umcg-pub'
@@ -257,6 +258,8 @@ regular_users:
     groups: ['umcg-micompany']
   - user: 'umcg-msb-dm'
     groups: ['umcg-msb']
+  - user: 'umcg-muhas-dm'
+    groups: ['umcg-muhas']
   - user: 'umcg-nawijn-dm'
     groups: ['umcg-nawijn']
   - user: 'umcg-pmb-dm'
@@ -372,6 +375,8 @@ sudoers:
     become: 'umcg-micompany-dm'
   - who: ['%umcg-msb']
     become: 'umcg-msb-dm'
+  - who: ['%umcg-muhas-dms']
+    become: 'umcg-muhas-dm'
   - who: ['%umcg-nawijn-dms']
     become: 'umcg-nawijn-dm'
   - who: ['%umcg-pmb-dms']
