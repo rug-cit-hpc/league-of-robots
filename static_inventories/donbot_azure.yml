@@ -35,7 +35,7 @@ all:
               groups: "lsaai"
           cluster_common_packages:
             RedHat9:
-               - perun-slave-full
+               - perun-slave-process-ldap
           iptables_allow_ssh_inbound:
             - "{{ all.ip_addresses['lsaai']['perun'] }}"
             - "{{ vaxtron_cluster.ip_addresses['foyer']['external'] }}"
@@ -53,6 +53,8 @@ all:
             - ANY
           iptables_allow_icmp_inbound: "{{ iptables_allow_ssh_inbound }}"
           iptables_allow_ldap_inbound: "{{ iptables_allow_ssh_inbound }}"
+          perun_facility_name: "umcg-gcc"
+          perun_service_whitelist: "ldap_lsaai"
 donbot_azure:
   children:
     openstack_api:
