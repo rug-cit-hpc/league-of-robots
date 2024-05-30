@@ -1,0 +1,9 @@
+dn: ou=users,dc=donbot_azure,dc=local
+ou: users
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=perun,ou=users,dc=donbot_azure,dc=local
+ou: perun
+objectClass: top
+objectClass: organizationalUnit
