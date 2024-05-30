@@ -32,6 +32,10 @@ use_sssd: false
 # We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
 #
 external_jumphosts:
+  - group: nibbler_cluster
+    hosts:
+      - hostname: tunnel
+        network: vlan16
   - group: gearshift_cluster
     hosts:
     - hostname: airlock
@@ -48,10 +52,6 @@ external_jumphosts:
     hosts:
       - hostname: corridor
         network: public
-  - group: nibbler_cluster
-    hosts:
-      - hostname: tunnel
-        network: vlan16
   - group: wingedhelix_cluster
     hosts:
       - hostname: wh-porch
