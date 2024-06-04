@@ -109,6 +109,7 @@ totp:
     - "{{ all.ip_addresses['umcg']['net2']['address'] }}{{ all.ip_addresses['umcg']['net2']['netmask'] }}"
     - "{{ all.ip_addresses['umcg']['net3']['address'] }}{{ all.ip_addresses['umcg']['net3']['netmask'] }}"
     - "{{ all.ip_addresses['umcg']['net4']['address'] }}{{ all.ip_addresses['umcg']['net4']['netmask'] }}"
+    - "{{ copperfist_cluster.ip_addresses['copperfist']['vlan13']['address'] }}{{ copperfist_cluster.ip_addresses['copperfist']['vlan13']['netmask'] }}"
 cloud_image: CentOS 7
 cloud_user: centos
 availability_zone: nova

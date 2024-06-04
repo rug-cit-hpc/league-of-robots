@@ -111,6 +111,7 @@ totp:
     - "{{ all.ip_addresses['umcg']['net2']['address'] }}{{ all.ip_addresses['umcg']['net2']['netmask'] }}"
     - "{{ all.ip_addresses['umcg']['net3']['address'] }}{{ all.ip_addresses['umcg']['net3']['netmask'] }}"
     - "{{ all.ip_addresses['umcg']['net4']['address'] }}{{ all.ip_addresses['umcg']['net4']['netmask'] }}"
+    - "{{ betabarrel_cluster.ip_addresses['betabarrel']['vlan13']['address'] }}{{ betabarrel_cluster.ip_addresses['betabarrel']['vlan13']['netmask'] }}"
 cloud_image: CentOS 7
 cloud_user: centos
 availability_zone: nova
