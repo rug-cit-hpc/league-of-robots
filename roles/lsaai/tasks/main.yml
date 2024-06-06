@@ -5,6 +5,7 @@
     find /usr/local/openldap/etc/openldap/slapd.d/cn\=config/ -name "olcDatabase=*mdb*" |
     sed 's/.*{\([0-9]\+\)}.*/\1/'
   register: openldap_list_databases
+  changed_when: false
   become: true
 
 - name: "Get the list of namingContexts from all databases"
