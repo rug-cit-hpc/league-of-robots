@@ -1,9 +1,17 @@
 ---
+- name: "Get indexes of the openldap databases"
+  ansible.builtin.shell: >
+    set -eEuo pipefail &&
+    find /usr/local/openldap/etc/openldap/slapd.d/cn\=config/ -name "olcDatabase=*mdb*" |
+    sed 's/.*{\([0-9]\+\)}.*/\1/'
+  register: openldap_list_databases
+  become: true
+
 - name: "Get the list of namingContexts from all databases"
   community.general.ldap_search:
     server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
     dn: "olcDatabase={% raw %}{{% endraw %}{{ item }}{% raw %}}{% endraw %}mdb,cn=config"
-  loop: "{{ range(1, ldap_domains | community.general.json_query('*.ldap_db_index') | max + 1) }}"
+  loop: "{{ openldap_list_databases.stdout_lines | sort | unique | list }}"
   failed_when: false # it's not an error if database does not exist
   changed_when: false
   register: ldap_naming_contexts
