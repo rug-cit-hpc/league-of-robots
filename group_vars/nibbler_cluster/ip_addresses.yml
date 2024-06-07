@@ -117,6 +117,10 @@ ip_addresses:
     vlan985:
       address: 172.23.59.113
       netmask: /32
+  nb-repo:
+    nb_internal_management:
+      address: 10.10.1.137
+      netmask: /32
   nb-repo7:
     nb_internal_management:
       address: 10.10.1.56
