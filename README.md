@@ -503,6 +503,11 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
 * Configure other stuff on the jumphost, which contains amongst others the settings required to access the other machines behind the jumphost.
   ```
   ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u "${default_cloud_image_user}" -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
+  #
+  # May be optional/required: when you use an image for EL version x.y and x.y+1 or newer is already published,
+  # then the repo URLs in the image will not work anymore and need to be patched by the yum_repos role.
+  #
+  #ansible-playbook -u "${default_cloud_image_user}" -l 'jumphost' single_role_playbooks/yum_repos.yml --extra-vars 'repo_manager=none'
   ansible-playbook -u "${default_cloud_image_user}" -l 'jumphost' single_role_playbooks/admin_users.yml
   ansible-playbook -u "${lor_admin_user}" -l 'jumphost' cluster.yml
   ```
@@ -512,8 +517,12 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
   ```bash
   export JUMPHOST_USER='your_admin_account' # Requires SSH client config as per end user documentation: see above.
   ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost' single_role_playbooks/ssh_host_signer.yml
-  ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost,!docs' single_role_playbooks/admin_users.yml
-  ansible-playbook -u root                          -l 'docs'            single_role_playbooks/admin_users.yml
+  #
+  # May be optional/required: when you use an image for EL version x.y and x.y+1 or newer is already published,
+  # then the repo URLs in the image will not work anymore and need to be patched by the yum_repos role.
+  #
+  #ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost' single_role_playbooks/yum_repos.yml --extra-vars 'repo_manager=none'
+  ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost' single_role_playbooks/admin_users.yml
   unset JUMPHOST_USER
   ansible-playbook -u "${lor_admin_user}" -l '!jumphost' cluster.yml
   ```
