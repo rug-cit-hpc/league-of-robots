@@ -74,10 +74,10 @@ additional_etc_hosts:
     nodes:
       - name: docs_on_merlin
         network: vlan16
-  - group: jenkins_server
-    nodes:
-      - name: jenkins
-        network: vlan16
+#   - group: jenkins_server
+#     nodes:
+#       - name: jenkins
+#         network: vlan16
   - group: build_library
     nodes:
       - name: vip_build
