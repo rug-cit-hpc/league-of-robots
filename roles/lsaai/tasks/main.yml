@@ -1,4 +1,38 @@
 ---
+- name: "Get indexes of the openldap databases"
+  ansible.builtin.shell: >
+    set -eEuo pipefail &&
+    find /usr/local/openldap/etc/openldap/slapd.d/cn\=config/ -name "olcDatabase=*mdb*" |
+    sed 's/.*{\([0-9]\+\)}.*/\1/'
+  register: openldap_list_databases
+  changed_when: false
+  become: true
+
+- name: "Get the list of namingContexts from all databases"
+  community.general.ldap_search:
+    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
+    dn: "olcDatabase={% raw %}{{% endraw %}{{ item }}{% raw %}}{% endraw %}mdb,cn=config"
+  loop: "{{ openldap_list_databases.stdout_lines | sort | unique | list }}"
+  failed_when: false # it's not an error if database does not exist
+  changed_when: false
+  register: ldap_naming_contexts
+  become: true
+
+- name: "Find example database that contains definitions of 'dc=my-domain,dc=com' and remove it"
+  community.general.ldap_entry:
+    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
+    dn: "olcDatabase={% raw %}{{% endraw %}{{ item.item }}{% raw %}}{% endraw %}mdb,cn=config"
+    state: absent
+    recursive: true
+    objectClass:
+      - olcDatabaseConfig
+      - olcMdbConfig
+  loop: "{{ ldap_naming_contexts.results }}"
+  when:
+    - "item.results is defined"
+    - "'dc=my-domain,dc=com' in item.results | to_json"
+  become: true
+
 - name: "Create the folder structure for the scripts"
   ansible.builtin.file:
     path: "{{ item.path }}"

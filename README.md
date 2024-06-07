@@ -320,11 +320,32 @@ Then this _stack_ will create and run its own LDAP server. You will need to crea
     * A ```readonly``` account with a correct _dn_, _password_ and corresponding _hash_.
     * An ```admin``` account with a correct _dn_, _password_ and corresponding _hash_.
 
-###### 7a TLS certificate for LDAP server.
+##### 7a TLS certificate for LDAP server.
 
-Execute:
+Create key and CA certificate with one command
    ```
    openssl req -x509 -nodes -days 1825 -newkey rsa:4096 -keyout files/[stack_name]/ldap.key -out files/[stack_name]/ldap.crt
+   ```
+
+where you must correctly provide the following values
+
+   ```
+     Country Name (2 letter code) [XX]:NL
+     State or Province Name (full name) []:Groningen
+     Locality Name (eg, city) [Default City]:Groningen
+     Organization Name (eg, company) [Default Company Ltd]:UMCG
+     Organizational Unit Name (eg, section) []:GCC
+     Common Name (eg, your name or your server's hostname) []:ladap
+     Email Address []:hpc.helpdesk@umcg.nl
+ 
+   ```
+
+Note that the `Common Name` must be the address of the ldap server. Based on the type of the network access to the machine:
+  - if internal network only is going to be used, then input short name (like `fd-dai` or `ladap`),
+  - if it is going to be used externally then provide fqdn (like `ladap.westeurope.cloudapp.azure.com`).
+
+
+   ```
    openssl dhparam -out files/[stack_name]/dhparam.pem 4096
    ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/ldap.key
    ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/ldap.crt
@@ -332,7 +353,7 @@ Execute:
    ```
 The encrypted files in ```files/[stack_name]/``` can now be committed safely.
 
-###### 7a passwords and hashes for LDAP accounts.
+##### 7b passwords and hashes for LDAP accounts.
 
 When an OpenLDAP server is created, you will need passwords and corresponding hashes for the LDAP _root_ account
 as well as for functional accounts for at least one LDAP domain. Therefore the minimal setup in ```group_vars/[stack_name]/secrets.yml``` is something like this:
