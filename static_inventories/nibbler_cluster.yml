@@ -121,7 +121,7 @@ all:
               security_group: "{{ stack_prefix }}_storage"
     deploy_admin_interface:
       hosts:
-        nb-dai:
+        nb-dai-9:
           cloud_flavor: umcg.v1.vm.4-8
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
