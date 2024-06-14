@@ -1,14 +1,21 @@
+#jinja2: trim_blocks:True, lstrip_blocks: True
+{% set example_tmp_lfs = lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | map(attribute='lfs') | first %}
 # Installing custom R packages
 
-Installing ```R``` packages for public use (and future ```RPlus``` modules can be requested via the helpdesk).
-But it is still possible to install an ```R``` package in a ```tmp``` group folder yourself and optionally share it with your colleagues.
+Installation of ```R``` packages for all cluster users can be requested via the helpdesk,
+which will add them to a future ```RPlus``` module.
+Making a new ```RPlus``` module is not something the helpdesk can do quickly though:
+we maintain a list of more than 1500 R packages and compiling a new module can take a lot of time.
+
+It is also possible to install custom```R``` packages in a ```tmp``` group folder yourself
+and optionally share it with your colleagues as long as they have access to the same group folder.
 
 ## Create location for custom R packages and prepend that to the search path for R packages
 
 First you will need to choose a location where you want to install your custom ```R``` packages.
-This path needs to be added to the ```${R_LIBS_USER}``` environment variable in your ```${HOME}/.Renviron``` config file.
+This path needs to be added to the ```${R_LIBS}``` environment variable in your ```${HOME}/.Renviron``` config file.
 
-###### 1. Create a ${HOME}/.Renviron file
+#### 1. Create a ${HOME}/.Renviron file
 
 ```bash
 touch ${HOME}/.Renviron
@@ -17,32 +24,60 @@ touch ${HOME}/.Renviron
 This will create a ```.Renviron``` file in your home dir if you did not already have one.
 If the file already exists the touch command will only update the last modification time stamp of the file and leave the content unchanged.
 
-###### 2. Add ${R_LIBS_USER} to ${HOME}/.Renviron file
+#### 2. Add ${R_LIBS} to your ${HOME}/.Renviron file
 
-E.g. if the path you chose for your custom R package is in the ```tmp09``` folder of the group named ```my-favorite-group```,
+If the path you chose for your custom R package is in the ```{{ example_tmp_lfs }}``` folder of the group named ```my-favorite-group```
+and the R version for which you want to compile your extra R packages is 4.2.2,
 then add something like this to your ```~/.Renviron``` file:
 
 ```bash
-R_LIBS_USER=/groups/my-favorite-group/tmp09/R-packages/%p-library/%v
+R_LIBS="/groups/my-favorite-group/{{ example_tmp_lfs }}/R-packages/x86_64-pc-linux-gnu-library/4.2:${R_LIBS}"
 ```
 
-Note the `%p` and `%v` expand to the _platform_ and _version_ of the used R module, respectively.
+###### Note ${R_LIBS} versus ${R_LIBS_USER}
 
-###### 3. Start R and make sure the ${R_LIBS_USER} path exists
+The R documentation instructs users to set ```${R_LIBS_USER}``` instead of ```${R_LIBS}```.
+```${R_LIBS_USER}``` is used together with ```${R_LIBS_SITE}``` and hard-coded paths added at compile time to create ```${R_LIBS}```.
+When you use ```${R_LIBS_USER}``` though, your custom folder for R packages will end up in the wrong order in ```${R_LIBS}```
+when you mix custom R packages with R packages from other sources like for example the ```RPlus``` module.
 
-Load either a _bare_ ```R``` or load ```RPlus```, which is a bundle of lots of ```R``` packages already pre-installed on {{ slurm_cluster_name | capitalize }}.
+###### Note % expansions do not work in ${R_LIBS}
+
+The `%p` and `%v` expansions for _platform_ and _version_, which are available for ```${R_LIBS_USER}```
+cannot be used with ```${R_LIBS}```, so something like this
+```bash
+R_LIBS="/groups/my-favorite-group/{{ example_tmp_lfs }}/R-packages/%p-library/%v:${R_LIBS}"
+```
+will __*not*__ work.
+
+###### Note about version numbers in the path
+
+When you upgrade to another patch level for the same major & minor version of R (e.g. 4.2.2 -> 4.2.3),
+then you can use the same path.
+But you will want to update the path in your ```${HOME}/.Renviron``` and recompile the R packages
+when upgrading to another minor or another major version (e.g. 4.2.2 -> 4.3.1 or 4.2.2 -> 5.0.1).
+
+#### 3. Make sure the custom path added to ${R_LIBS} exists
+
+Create the folder if it does not already exist. E.g.:
+
+```bash
+mkdir -p -m 770 "/groups/my-favorite-group/{{ example_tmp_lfs }}/R-packages/x86_64-pc-linux-gnu-library/4.2"
+```
+
+Next, load either a _bare_ ```R``` or load ```RPlus```, which is a bundle of lots of ```R``` packages already pre-installed on {{ slurm_cluster_name | capitalize }}.
 
 ```bash
 module load RPlus
 R
 ```
 
-Next use the ```.libPaths()``` function in ```R``` to check the value(s) for the paths where ```R``` will search for extra packages.
+Now, use the ```.libPaths()``` function in ```R``` to check the value(s) for the paths where ```R``` will search for extra packages.
 By default new ```R``` packages will be installed in the first folder reported by ```.libPaths()```
 
 ```R
 R> .libPaths()
-[1] "/groups/my-favorite-group/tmp09/R-packages/x86_64-pc-linux-gnu-library/4.2"
+[1] "/groups/my-favorite-group/{{ example_tmp_lfs }}/R-packages/x86_64-pc-linux-gnu-library/4.2"
 [2] "/apps/software/R/4.2.2-foss-2022a-bare/lib64/R/library"
 ```
 
@@ -55,32 +90,14 @@ R> .libPaths()
 ```
 
 Then this most likely means that the path specified in ```${R_LIBS_USER}``` does not exist yet;
-In that case create the path, quit ```R``` and restart ```R``` using
-```R
-R> # Check the value of ${R_LIBS_USER}
-R> Sys.getenv('R_LIBS_USER')
-R> # Create the ${R_LIBS_USER} path recursively
-R> dir.create(Sys.getenv('R_LIBS_USER'), recursive = TRUE)
-R> # Quit R
-R> q()
-```
-```bash
-# Start R again
-R
-```
-```R
-R> # Use .libPaths again to make sure your ${R_LIBS_USER} path is the first path listed
-R> .libPaths()
-[1] "/groups/my-favorite-group/tmp09/R-packages/x86_64-pc-linux-gnu-library/4.2"
-[2] "/apps/software/R/4.2.2-foss-2022a-bare/lib64/R/library" 
-```
+In that case quit ```R```, double check for typos and whether the folder was created correctly on the file system.
 
 ## Install custom R packages
 
 With your custom folder for ```R``` packages present on the file system and listed as the first item by the ```.libPaths``` function,
 you can now install packages. Below are examples of installing packages from different sources.
 
-###### A. Install R package from the Comprehensive R Archive Network (CRAN) repository
+#### A. Install R package from the Comprehensive R Archive Network (CRAN) repository
 
 Load and start R.
 

@@ -1,0 +1,7 @@
+#!/bin/bash
+# Pre-file for LDAP service providing authz information.
+LDAP_LOGIN="{{ ldap_credentials['stack']['admin']['dn'] }}"
+LDAP_PASSWORD="{{ ldap_credentials['stack']['admin']['pw'] }}"
+LDAP_URL="ldap://localhost"
+LDAP_FILTER_USERS="(objectclass=inetOrgPerson)"
+LDAP_FILTER_GROUPS="(objectclass=groupOfNames)"

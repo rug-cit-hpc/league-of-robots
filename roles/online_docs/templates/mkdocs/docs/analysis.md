@@ -1,4 +1,6 @@
 #jinja2: trim_blocks:False
+{% set example_tmp_lfs = lfs_mounts | selectattr('lfs', 'search', 'tmp[0-9]+$') | map(attribute='lfs') | first %}
+{% set example_prm_lfs = lfs_mounts | selectattr('lfs', 'search', 'prm[0-9]+$') | map(attribute='lfs') | first %}
 # Crunch - How to manage jobs on {{ slurm_cluster_name | capitalize }}
 
 {{ slurm_cluster_name | capitalize }} uses the [Slurm Workload Manager](https://slurm.schedmd.com/)
@@ -120,8 +122,8 @@ Commonly used options:
     * Requests X GB of local scratch disk space total per job
  * ```--time=hh:mm:ss```
     * Sets the **w**ork **all**ocation **time** a.k.a. walltime to the specified value in hours:minutes:seconds.
- * ```--constraint=tmp04```
-    * Request a node with a specific feature label/tag; in this example a specific shared storage system named ```tmp04```.
+ * ```--constraint={{ example_tmp_lfs }}```
+    * Request a node with a specific feature label/tag; in this example a specific shared storage system named ```{{ example_tmp_lfs }}```.
  * ```--output=outputLog.out```
     * Redirects the standard output to the desired file. Note that using '~' in the path for your home directory does not work.
     * Note that the standard output is buffered and first written on the local node where the job is running. It is copied to the specified location once the job terminates (regardless of the reason of the job termination).
@@ -481,11 +483,11 @@ quota
 Shared storage systems available on a node are listed as node _**features**_, which can be requested as a resources of the type _constraint_ when submitting jobs with ```sbatch```.
 You can request a node with a specific shared storage system on the commandline using the ```--constraint=filesystem``` argument like for example:
 ```
-sbatch --constraint=tmp04 myScript.sh
+sbatch --constraint={{ example_tmp_lfs }} myScript.sh
 ```
 Alternatively you can use an ```#SBATCH``` comment in the header of your script and request a node with access to multiple file systems like for example:
 ```
-#SBATCH --constraint="tmp02&prm02"
+#SBATCH --constraint="{{ example_tmp_lfs }}&{{ example_prm_lfs }}"
 ```
 Note that when specifying multiple features they must be joined with an ampersand and the list must be quoted.
 

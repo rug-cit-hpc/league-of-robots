@@ -1,6 +1,6 @@
 ---
 - name: Install grub tools.
-  ansible.builtin.yum:
+  ansible.builtin.package:
     state: latest
     update_cache: true
     name: 'grub2-tools'
