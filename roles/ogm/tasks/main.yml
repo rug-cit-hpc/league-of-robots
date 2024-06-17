@@ -1,4 +1,5 @@
 ---
-- debug:
-    msg: "Printing on the correct chaperone only"
+- name: Install and configure OGM backup
+  ansible.builtin.include_tasks: script_and_cron.yml
+  when: ogm_enabled
 ...
