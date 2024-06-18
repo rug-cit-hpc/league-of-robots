@@ -1,5 +1,8 @@
 ---
 os_distribution: 'centos7'
+# This is enforcing that docs server uses `yum_repos` to create
+# yum repositories, since docs servers do not use Pulp.
+repo_manager: 'none'
 #
 # Firewall configuration.
 #
