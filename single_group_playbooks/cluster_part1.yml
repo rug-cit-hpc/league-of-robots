@@ -9,8 +9,8 @@
   hosts:
     - cluster
   roles:
-   - role: yum_local
-     when: local_yum_repository is defined
+    - role: yum_local
+      when: local_yum_repository is defined
     #
     # ToDo: Management of network interfaces changed in Rocky 9,
     # which uses NetworkManager and a different way of device naming.
