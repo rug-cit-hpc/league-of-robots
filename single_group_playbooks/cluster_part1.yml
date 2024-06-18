@@ -2,13 +2,15 @@
 - name: Import pre deploy checks.
   ansible.builtin.import_playbook: pre_deploy_checks.yml
 
+- name: Import initialization playbook for all hosts.
+  ansible.builtin.import_playbook: init.yml
+
 - name: '###==-> Basic roles for all cluster machines part 1. <-==###'
   hosts:
     - cluster
   roles:
-    - static_hostname_lookup
-    - admin_users
-    - ssh_host_signer
+    - role: yum_local
+      when: local_yum_repository is defined
     #
     # ToDo: Management of network interfaces changed in Rocky 9,
     # which uses NetworkManager and a different way of device naming.
@@ -22,12 +24,6 @@
     - ssh  # client
     - grub
     - swap
-    - role: pulp_client
-      when: repo_manager == 'pulp'
-    - role: yum_repos
-      when: repo_manager == 'none'
-    - role: yum_local
-      when: local_yum_repository is defined
     - locale
     - logrotate
     - remove
@@ -42,7 +38,7 @@
     - cluster
     - role: logs_client
       when: logs_class is defined
-    - gpu            # needs to run after role 'cluster'
+    - gpu  # Needs to run after 'cluster' role.
     - resolver
     - coredumps
 ...
