@@ -17,10 +17,10 @@
 # Stack {{ stack_name }} hosts.
 #
 {% set this_host_network_names = host_networks
+    | default([])
     | map(attribute='name')
     | flatten
-    | unique
-    | default([]) %}
+    | unique %}
 {% for other_host in groups['all'] %}
   {% if hostvars[other_host]['host_networks'] is defined %}
     {% set other_host_network_names = hostvars[other_host]['host_networks']

@@ -1,0 +1,6 @@
+---
+- name: Deploy OGM role on chaperone
+  hosts:
+    - chaperone
+  roles:
+    - ogm

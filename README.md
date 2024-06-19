@@ -53,7 +53,12 @@ Deployment and functional administration of all clusters is a joined effort of t
 [Genomics Coordination Center (GCC)](http://wiki.gcc.rug.nl/)
 and the 
 [Center for Information Technology (CIT)](https://www.rug.nl/society-business/centre-for-information-technology/)
-from the [University Medical Center](https://www.umcg.nl) and [University](https://www.rug.nl) of Groningen, in collaboration with [ELIXIR compute platform](https://www.elixir-europe.org/platforms/compute), [EXCELERATE](https://www.elixir-europe.org/about-us/how-funded/eu-projects/excelerate), [EU-Solve-RD](http://solve-rd.eu/), European Joint Project for Rare disease and [CORBEL](https://www.corbel-project.eu/home.html) projects.
+from the [University Medical Center](https://www.umcg.nl) and [University](https://www.rug.nl) of Groningen,
+in collaboration with [ELIXIR compute platform](https://www.elixir-europe.org/platforms/compute),
+[EXCELERATE](https://www.elixir-europe.org/about-us/how-funded/eu-projects/excelerate),
+[EU-Solve-RD](http://solve-rd.eu/),
+[European Joint Programme on Rare Diseases](https://www.ejprarediseases.org/) and
+[CORBEL](https://www.corbel-project.eu/home.html) projects.
 
 #### Cluster components
 
@@ -519,31 +524,20 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
   default_cloud_image_user='centos|cloud-user'
   lor_admin_user='your_admin_account'
   ```
-* Firstly, create the jumphost, which is required to access the other machines.
-* Deploy the signed hosts keys and create local admin accounts.
-* Configure other stuff on the jumphost, which contains amongst others the settings required to access the other machines behind the jumphost.
+* Firstly, create the jumphost, which is required to access the other machines.  
+  Deploy the signed hosts keys and create local admin accounts with ```init.yml``` and
+  configure other stuff on the jumphost (contains amongst others the settings required to access the other machines behind the jumphost)
+  with ```cluster.yml```:
   ```
-  ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u "${default_cloud_image_user}" -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
-  #
-  # May be optional/required: when you use an image for EL version x.y and x.y+1 or newer is already published,
-  # then the repo URLs in the image will not work anymore and need to be patched by the yum_repos role.
-  #
-  #ansible-playbook -u "${default_cloud_image_user}" -l 'jumphost' single_role_playbooks/yum_repos.yml --extra-vars 'repo_manager=none'
-  ansible-playbook -u "${default_cloud_image_user}" -l 'jumphost' single_role_playbooks/admin_users.yml
+  ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u "${default_cloud_image_user}" -l 'jumphost' single_group_playbooks/init.yml
   ansible-playbook -u "${lor_admin_user}" -l 'jumphost' cluster.yml
   ```
-* Secondly, deploy the rest of the machines in the same order.
-  For creation of the local admin accounts you must (temporarily) set ```JUMPHOST_USER``` for the jumphost to _your local admin account_,
-  because the ```${default_cloud_image_user}``` user will no longer be able to login to the jumphost.
+* Secondly, deploy the rest of the machines in the same order.  
+  For ```init.yml``` you must (temporarily) set ```JUMPHOST_USER``` for access to the jumphost to _your local admin account_,
+  because the ```${default_cloud_image_user}``` user will no longer be able to login to the jumphost:
   ```bash
-  export JUMPHOST_USER='your_admin_account' # Requires SSH client config as per end user documentation: see above.
-  ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost' single_role_playbooks/ssh_host_signer.yml
-  #
-  # May be optional/required: when you use an image for EL version x.y and x.y+1 or newer is already published,
-  # then the repo URLs in the image will not work anymore and need to be patched by the yum_repos role.
-  #
-  #ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost' single_role_playbooks/yum_repos.yml --extra-vars 'repo_manager=none'
-  ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost' single_role_playbooks/admin_users.yml
+  export JUMPHOST_USER="${lor_admin_user}" # Requires SSH client config as per end user documentation: see above.
+  ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost' single_group_playbooks/init.yml
   unset JUMPHOST_USER
   ansible-playbook -u "${lor_admin_user}" -l '!jumphost' cluster.yml
   ```
