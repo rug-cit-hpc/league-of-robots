@@ -41,7 +41,7 @@
     mode: '0755'
     state: directory
   become: true
-- block:
+- block:  # noqa name[missing]
     - name: Install latest version of policycoreutils python package for admin home dir SE-labeling.
       ansible.builtin.package:  # noqa jinja[spacing]
         state: latest
