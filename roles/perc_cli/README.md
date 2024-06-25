@@ -25,4 +25,10 @@ sudo su
 #
 /opt/MegaRAID/perccli/perccli64 /c0/e252/s0 set good
 /opt/MegaRAID/perccli/perccli64 /c0 add vd r0 drives=252:0
+#
+# Optionally delete Virtual Drive (VD) if it was misconfigured
+# and recreate it again. The first VD is somehow always number 239.
+#
+/opt/MegaRAID/perccli/perccli64 /c0/v239 delete
+/opt/MegaRAID/perccli/perccli64 /c0 add vd r0 drives=252:0
 ```
