@@ -53,7 +53,7 @@ ip_addresses:
     DH4 Lustre:
       address: 172.23.58.40
       netmask: /32
-   lustre:
+    lustre:
      address: 172.23.12.50
      netmask: /32
     vt_internal_management:
@@ -63,7 +63,7 @@ ip_addresses:
     DH4 Lustre:
       address: 172.23.58.87
       netmask: /32
-   lustre:
+    lustre:
      address: 172.23.12.51
      netmask: /32
     vt_internal_management:
