@@ -8,7 +8,7 @@ all:
     jumphost:
       hosts:
         wh-porch:
-          cloud_flavor: m1.small
+          cloud_flavor: umcg.v1.vm.1-2
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_jumphosts"
@@ -26,7 +26,7 @@ all:
     repo:
       hosts:
         wh-repo:
-          cloud_flavor: m1.small
+          cloud_flavor: umcg.v1.vm.1-2
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_repo"
@@ -34,7 +34,7 @@ all:
     data_transfer:
       hosts:
         wh-transfer:
-          cloud_flavor: m1.small
+          cloud_flavor: umcg.v1.vm.1-2
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_ds"
@@ -95,7 +95,7 @@ all:
     sys_admin_interface:
       hosts:
         wh-sai:
-          cloud_flavor: m1.large
+          cloud_flavor: umcg.v1.vm.4-8
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
@@ -109,7 +109,7 @@ all:
     deploy_admin_interface:
       hosts:
         wh-dai:
-          cloud_flavor: m1.large
+          cloud_flavor: umcg.v1.vm.4-8
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
@@ -124,7 +124,7 @@ all:
     user_interface:
       hosts:
         wingedhelix:
-          cloud_flavor: m1.xlarge
+          cloud_flavor: umcg.v1.vm.8-16
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
