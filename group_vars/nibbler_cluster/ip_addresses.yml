@@ -28,19 +28,6 @@ ip_addresses:
 #      netmask: /32
   nb-dai:
     nb_internal_management:
-      address: 10.10.1.75
-      netmask: /32
-    nb_internal_storage:
-      address: 10.10.2.61
-      netmask: /32
-    vlan1068:
-      address: 172.23.60.3
-      netmask: /32
-    vlan985:
-      address: 172.23.59.22
-      netmask: /32
-  nb-dai-9:
-    nb_internal_management:
       address: 10.10.1.78
       netmask: /32
     nb_internal_storage:
@@ -116,19 +103,6 @@ ip_addresses:
       netmask: /32
     vlan985:
       address: 172.23.59.177
-      netmask: /32
-  nb-node-c01:
-    nb_internal_management:
-      address: 10.10.1.81
-      netmask: /32
-    nb_internal_storage:
-      address: 10.10.2.175
-      netmask: /32
-    vlan1068:
-      address: 172.23.60.16
-      netmask: /32
-    vlan985:
-      address: 172.23.59.113
       netmask: /32
   nb-repo:
     nb_internal_management:
