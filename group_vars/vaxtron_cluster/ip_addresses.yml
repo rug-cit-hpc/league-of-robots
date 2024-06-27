@@ -56,9 +56,6 @@ ip_addresses:
     lustre:
       address: 172.23.12.50
       netmask: /32
-   lustre:
-     address: 172.23.12.50
-     netmask: /32
     vt_internal_management:
       address: 10.10.1.142
       netmask: /32
@@ -69,9 +66,6 @@ ip_addresses:
     lustre:
       address: 172.23.12.51
       netmask: /32
-   lustre:
-     address: 172.23.12.51
-     netmask: /32
     vt_internal_management:
       address: 10.10.1.79
       netmask: /32

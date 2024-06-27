@@ -95,6 +95,41 @@
       run_once: true  # noqa run-once
       delegate_to: localhost
       connection: local
+    #
+    # Workaround for bugs related to ansible_remote_tmp dir handling by Mitogen.
+    # See https://github.com/mitogen-hq/mitogen/issues/632
+    # Will patch ..../ansible_mitogen//target.py if Mitogen was installed.
+    #
+    - name: 'Find the path to target.py'
+      ansible.builtin.find:
+        path: "{{ lookup('ansible.builtin.env', 'VIRTUAL_ENV') }}"
+        pattern: 'target.py'
+        recurse: true
+      register: find_target_py_result
+      run_once: true  # noqa run-once
+      delegate_to: localhost
+      connection: local
+    - name: "Report the found path to Mitogen's target.py."
+      ansible.builtin.debug:
+        msg: "INFO: Found {{ item }}"
+      run_once: true  # noqa run-once
+      delegate_to: localhost
+      connection: local
+      loop: "{{ find_target_py_result.files | map(attribute='path') | list }}"
+      when: find_target_py_result.files | map(attribute='path') | first is defined
+    - name: 'Patch Mitogen to disable noexec check for file system hosting ansible_remote_tmp.'
+      ansible.builtin.replace:
+        dest: "{{ item }}"
+        #             if not os.access(tmp.name, os.X_OK):
+        regexp: '^(\s*)if not os\.access\(tmp\.name, os\.X_OK\):$'
+        replace: '\1if False:'
+        after: 'def\s+is_good_temp_dir'
+        backup: true
+      run_once: true  # noqa run-once
+      delegate_to: localhost
+      connection: local
+      loop: "{{ find_target_py_result.files | map(attribute='path') | list }}"
+      when: find_target_py_result.files | map(attribute='path') | first is defined
     - name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
       ansible.builtin.find:
         paths: "{{ playbook_dir }}/group_vars/"

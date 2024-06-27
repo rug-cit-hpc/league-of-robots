@@ -143,11 +143,11 @@ all:
             - ens5
     compute_node:
       children:
-        regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
+        regular_big_vm:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            wh-node-a[01:02]:
+            wh-node-b01:
           vars:
-            cloud_flavor: htc-node
+            cloud_flavor: umcg.v1.vm.63-500
             host_networks:
               - name: "{{ stack_prefix }}_internal_management"
                 security_group: "{{ stack_prefix }}_cluster"
@@ -155,14 +155,13 @@ all:
                 security_group: "{{ stack_prefix }}_storage"
               - name: vlan1068
                 security_group: "{{ stack_prefix }}_storage"
-            # htc-node flavor already includes an extra 200 GB ephemeral disk.
-            # local_volume_size_extra: disabled
-            slurm_sockets: 40
+            local_volume_size_extra: 1
+            slurm_sockets: 63
             slurm_cores_per_socket: 1
-            slurm_real_memory: 180604
+            slurm_real_memory: 491355
             slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
             slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
-            slurm_local_disk: 190000
+            slurm_local_disk: 900
             slurm_features: 'tmp07'
             slurm_ethernet_interfaces:
               - ens3
