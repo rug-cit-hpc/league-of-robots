@@ -148,7 +148,7 @@ all:
               security_group: "{{ stack_prefix }}_storage"
           slurm_sockets: 16
           slurm_cores_per_socket: 1
-          slurm_real_memory: 64263
+          slurm_real_memory: 63790
           slurm_local_disk: 0
           slurm_features: 'prm02,prm03,tmp02'
           slurm_ethernet_interfaces:
@@ -159,7 +159,7 @@ all:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            nb-node-a[01:03]:
+            nb-node-a[01:05]:
           vars:
             cloud_flavor: umcg.v1.vm.63-500
             host_networks:
@@ -187,7 +187,7 @@ all:
           hosts:
             nb-node-b[01:02]:
           vars:
-            cloud_flavor: umcg.v1.vm.31-125.8a40
+            cloud_flavor: umcg.v1.vm.31-120.8a40
             gpu_count: 8
             gpu_type: 'a40'
             host_networks:
@@ -202,7 +202,7 @@ all:
             local_volume_size_extra: 1
             slurm_sockets: 31
             slurm_cores_per_socket: 1
-            slurm_real_memory: 125000
+            slurm_real_memory: 117398
             slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
             slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
             slurm_local_disk: 900
