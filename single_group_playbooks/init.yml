@@ -1,0 +1,26 @@
+---
+- name: Initialization roles for most hosts.
+  hosts:
+    - jumphost
+    - repo
+    - cluster
+    - irods
+    - ldap_server
+  roles:
+    - role: static_hostname_lookup
+
+- name: Initialization roles for most hosts.
+  hosts: all,!openstack_api,!chaperone
+  roles:
+    - ssh_host_signer
+    #
+    # Either pulp_client or yum_repos must be deployed first
+    # before any other role that installs/updates RPMs.
+    # Note: Static host names in /etc/hosts are required for Pulp clients to resolve the Pulp server.
+    #
+    - role: pulp_client
+      when: repo_manager == 'pulp'
+    - role: yum_repos
+      when: repo_manager == 'none'
+    - admin_users
+...
