@@ -86,6 +86,8 @@ auth_groups:
     gid: 4560734
   lsaai:
     gid: 20022
+  umcg-ogm:
+    gid: 20023
 #
 # Default for a group of users that are only allowd to transfer data.
 # Is used by the sshd role and listed in

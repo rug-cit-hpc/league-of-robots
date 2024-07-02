@@ -53,7 +53,12 @@ Deployment and functional administration of all clusters is a joined effort of t
 [Genomics Coordination Center (GCC)](http://wiki.gcc.rug.nl/)
 and the 
 [Center for Information Technology (CIT)](https://www.rug.nl/society-business/centre-for-information-technology/)
-from the [University Medical Center](https://www.umcg.nl) and [University](https://www.rug.nl) of Groningen, in collaboration with [ELIXIR compute platform](https://www.elixir-europe.org/platforms/compute), [EXCELERATE](https://www.elixir-europe.org/about-us/how-funded/eu-projects/excelerate), [EU-Solve-RD](http://solve-rd.eu/), European Joint Project for Rare disease and [CORBEL](https://www.corbel-project.eu/home.html) projects.
+from the [University Medical Center](https://www.umcg.nl) and [University](https://www.rug.nl) of Groningen,
+in collaboration with [ELIXIR compute platform](https://www.elixir-europe.org/platforms/compute),
+[EXCELERATE](https://www.elixir-europe.org/about-us/how-funded/eu-projects/excelerate),
+[EU-Solve-RD](http://solve-rd.eu/),
+[European Joint Programme on Rare Diseases](https://www.ejprarediseases.org/) and
+[CORBEL](https://www.corbel-project.eu/home.html) projects.
 
 #### Cluster components
 
@@ -320,11 +325,32 @@ Then this _stack_ will create and run its own LDAP server. You will need to crea
     * A ```readonly``` account with a correct _dn_, _password_ and corresponding _hash_.
     * An ```admin``` account with a correct _dn_, _password_ and corresponding _hash_.
 
-###### 7a TLS certificate for LDAP server.
+##### 7a TLS certificate for LDAP server.
 
-Execute:
+Create key and CA certificate with one command
    ```
    openssl req -x509 -nodes -days 1825 -newkey rsa:4096 -keyout files/[stack_name]/ldap.key -out files/[stack_name]/ldap.crt
+   ```
+
+where you must correctly provide the following values
+
+   ```
+     Country Name (2 letter code) [XX]:NL
+     State or Province Name (full name) []:Groningen
+     Locality Name (eg, city) [Default City]:Groningen
+     Organization Name (eg, company) [Default Company Ltd]:UMCG
+     Organizational Unit Name (eg, section) []:GCC
+     Common Name (eg, your name or your server's hostname) []:ladap
+     Email Address []:hpc.helpdesk@umcg.nl
+ 
+   ```
+
+Note that the `Common Name` must be the address of the ldap server. Based on the type of the network access to the machine:
+  - if internal network only is going to be used, then input short name (like `fd-dai` or `ladap`),
+  - if it is going to be used externally then provide fqdn (like `ladap.westeurope.cloudapp.azure.com`).
+
+
+   ```
    openssl dhparam -out files/[stack_name]/dhparam.pem 4096
    ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/ldap.key
    ansible-vault encrypt --encrypt-vault-id [stack_name] files/[stack_name]/ldap.crt
@@ -332,7 +358,7 @@ Execute:
    ```
 The encrypted files in ```files/[stack_name]/``` can now be committed safely.
 
-###### 7a passwords and hashes for LDAP accounts.
+##### 7b passwords and hashes for LDAP accounts.
 
 When an OpenLDAP server is created, you will need passwords and corresponding hashes for the LDAP _root_ account
 as well as for functional accounts for at least one LDAP domain. Therefore the minimal setup in ```group_vars/[stack_name]/secrets.yml``` is something like this:
@@ -498,22 +524,20 @@ Once configured correctly you should be able to do a multi-hop SSH via a jumphos
   default_cloud_image_user='centos|cloud-user'
   lor_admin_user='your_admin_account'
   ```
-* Firstly, create the jumphost, which is required to access the other machines.
-* Deploy the signed hosts keys and create local admin accounts.
-* Configure other stuff on the jumphost, which contains amongst others the settings required to access the other machines behind the jumphost.
+* Firstly, create the jumphost, which is required to access the other machines.  
+  Deploy the signed hosts keys and create local admin accounts with ```init.yml``` and
+  configure other stuff on the jumphost (contains amongst others the settings required to access the other machines behind the jumphost)
+  with ```cluster.yml```:
   ```
-  ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u "${default_cloud_image_user}" -l 'jumphost' single_role_playbooks/ssh_host_signer.yml
-  ansible-playbook -u "${default_cloud_image_user}" -l 'jumphost' single_role_playbooks/admin_users.yml
+  ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u "${default_cloud_image_user}" -l 'jumphost' single_group_playbooks/init.yml
   ansible-playbook -u "${lor_admin_user}" -l 'jumphost' cluster.yml
   ```
-* Secondly, deploy the rest of the machines in the same order.
-  For creation of the local admin accounts you must (temporarily) set ```JUMPHOST_USER``` for the jumphost to _your local admin account_,
-  because the ```${default_cloud_image_user}``` user will no longer be able to login to the jumphost.
+* Secondly, deploy the rest of the machines in the same order.  
+  For ```init.yml``` you must (temporarily) set ```JUMPHOST_USER``` for access to the jumphost to _your local admin account_,
+  because the ```${default_cloud_image_user}``` user will no longer be able to login to the jumphost:
   ```bash
-  export JUMPHOST_USER='your_admin_account' # Requires SSH client config as per end user documentation: see above.
-  ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost' single_role_playbooks/ssh_host_signer.yml
-  ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost,!docs' single_role_playbooks/admin_users.yml
-  ansible-playbook -u root                          -l 'docs'            single_role_playbooks/admin_users.yml
+  export JUMPHOST_USER="${lor_admin_user}" # Requires SSH client config as per end user documentation: see above.
+  ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u "${default_cloud_image_user}" -l '!jumphost' single_group_playbooks/init.yml
   unset JUMPHOST_USER
   ansible-playbook -u "${lor_admin_user}" -l '!jumphost' cluster.yml
   ```

@@ -1,0 +1,21 @@
+---
+- name: Deploy backup script
+  ansible.builtin.template:
+    src: templates/ogm_backup.sh.j2
+    dest: ~umcg-ogm-dm/ogm_backup.sh
+    owner: umcg-ogm-dm
+    group: umcg-ogm-dm
+    mode: '0750'
+  become: true
+
+- name: 'Create cron job to make daily backup with the script'
+  ansible.builtin.cron:
+    name: Backup_OGM_data  # Unique ID required to update existing cronjob: do not modify.
+    weekday: '*'
+    hour: '02'
+    minute: '31'
+    user: 'umcg-ogm-dm'
+    job: /bin/bash -c '~/ogm_backup.sh'
+    cron_file: 'ogm_backup'
+  become: true
+...

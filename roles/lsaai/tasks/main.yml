@@ -1,4 +1,45 @@
 ---
+- name: Install perun-slave-process-ldap-lsaai repo.
+  ansible.builtin.package:
+    state: latest
+    update_cache: true
+    name: perun-slave-process-ldap-lsaai
+  become: true
+
+- name: "Get indexes of the openldap databases"
+  ansible.builtin.shell: >
+    set -eEuo pipefail &&
+    find /usr/local/openldap/etc/openldap/slapd.d/cn\=config/ -name "olcDatabase=*mdb*" |
+    sed 's/.*{\([0-9]\+\)}.*/\1/'
+  register: openldap_list_databases
+  changed_when: false
+  become: true
+
+- name: "Get the list of namingContexts from all databases"
+  community.general.ldap_search:
+    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
+    dn: "olcDatabase={% raw %}{{% endraw %}{{ item }}{% raw %}}{% endraw %}mdb,cn=config"
+  loop: "{{ openldap_list_databases.stdout_lines | sort | unique | list }}"
+  failed_when: false # it's not an error if database does not exist
+  changed_when: false
+  register: ldap_naming_contexts
+  become: true
+
+- name: "Find example database that contains definitions of 'dc=my-domain,dc=com' and remove it"
+  community.general.ldap_entry:
+    server_uri: "ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi"
+    dn: "olcDatabase={% raw %}{{% endraw %}{{ item.item }}{% raw %}}{% endraw %}mdb,cn=config"
+    state: absent
+    recursive: true
+    objectClass:
+      - olcDatabaseConfig
+      - olcMdbConfig
+  loop: "{{ ldap_naming_contexts.results }}"
+  when:
+    - "item.results is defined"
+    - "'dc=my-domain,dc=com' in item.results | to_json"
+  become: true
+
 - name: "Create the folder structure for the scripts"
   ansible.builtin.file:
     path: "{{ item.path }}"
@@ -62,12 +103,58 @@
   loop_control:
     label: "{{ item.stat.exists }}"
 
-- name: Duplicate the ldap > ldap_lsaai in /opt/perun/lib/
+- name: Deploy LDIF files for configuring LSAAI ldap
   ansible.builtin.copy:
-    src: /opt/perun/lib/ldap/
-    dest: /opt/perun/lib/ldap_lsaai/
-    owner: root
+    src: "{{ item }}"
+    dest: "/tmp/configure_lsaai-{{ item }}"
+    owner: lsaai
     group: lsaai
-    remote_src: true
+    mode: '0600'
+  with_items:
+    - ldap_groups_ou.ldif
+    - ldap_users_ou.ldif
+  register: lsaii_ldif_deploy
+  notify: lsaai_ldapadd
   become: true
+
+- name: Check the ldap server if the configuration have already been done
+  ansible.builtin.shell:
+    cmd: >
+      set -o pipefail &&
+      /usr/local/openldap/bin/ldapsearch -x -H "ldap://localhost"
+      -D "{{ ldap_credentials['stack']['admin']['dn'] }}"
+      -b "{{ item }},{{ ldap_domains['stack']['base'] }}"
+      -w "{{ ldap_credentials['stack']['admin']['pw'] }}"
+      -LLL "ou=perun" | grep -q 'dn:'
+  register: lsaai_ldapsearch
+  failed_when: lsaai_ldapsearch.rc > 1
+  changed_when: lsaai_ldapsearch.rc == 1
+  loop:
+    - ou=groups
+    - ou=users
+  notify: lsaai_ldapadd
+  become: true
+  become_user: lsaai
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Check the ldap server if the configuration is now correctly deployed
+  ansible.builtin.shell:
+    cmd: >
+      set -o pipefail &&
+      /usr/local/openldap/bin/ldapsearch -x -H "ldap://localhost"
+      -D "{{ ldap_credentials['stack']['admin']['dn'] }}"
+      -b "{{ item }},{{ ldap_domains['stack']['base'] }}"
+      -w "{{ ldap_credentials['stack']['admin']['pw'] }}"
+      -LLL "ou=perun" | grep -q 'dn:'
+  register: lsaai_ldapsearch_again
+  failed_when: lsaai_ldapsearch_again.rc == 1
+  changed_when: false
+  when: lsaai_ldapsearch.changed # noqa: no-handler
+  loop:
+    - ou=groups
+    - ou=users
+  become: true
+  become_user: lsaai
 ...

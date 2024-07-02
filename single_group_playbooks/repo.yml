@@ -2,17 +2,16 @@
 - name: Import pre deploy checks.
   ansible.builtin.import_playbook: pre_deploy_checks.yml
 
+- name: Import initialization playbook for all hosts.
+  ansible.builtin.import_playbook: init.yml
+
 - name: '###==-> Roles for repo management servers. <-==###'
   hosts: repo
   roles:
-    - static_hostname_lookup
-    - admin_users
-    - ssh_host_signer
     - iptables
     - ssh  # client
     - grub
     - swap
-    - {role: yum_repos, when: repo_manager == 'none'}
     - locale
     - logrotate
     - logins

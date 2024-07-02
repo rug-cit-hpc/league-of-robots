@@ -10,9 +10,18 @@
   ansible.builtin.yum_repository:
     name: "{{ item.name }}"
     description: "{{ item.description }}"
-    baseurl: "https://{{ groups['repo'] | first }}/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/{{ item.name }}/"
+    baseurl: "{{ pulp_server_url }}"
     gpgcheck: false
-  with_items: "{{ pulp_repos[os_distribution] }}"
+  vars:
+    pulp_server_url: >-
+        {%- if repo_manager == 'pulp' -%}
+          https://{{ groups['repo'] | first }}/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/{{ item.name }}/
+        {%- else -%}
+          none
+        {%- endif -%}"
+  loop: "{{ pulp_repos[os_distribution] | flatten(levels=1) }}"
+  loop_control:
+    label: "name: {{ item.name }} | desc: {{ item.description }} | url: {{ pulp_server_url }}"
   become: true
 
 - name: Copy pulp web server certificates to pulp clients.
