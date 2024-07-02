@@ -1,6 +1,0 @@
-#
-# Code owners config to automatically request Pull Request reviews from the relevant teams.
-#
-# Order is important; the last matching pattern takes precedence. 
-#
-* @rug-cit-hpc/gcc
