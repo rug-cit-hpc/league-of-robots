@@ -157,4 +157,17 @@
     - ou=users
   become: true
   become_user: lsaai
+
+- name: Install LDIF schema file for LSAAI extra fields
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/usr/local/openldap/etc/openldap/custom/{{ item }}"
+    owner: root
+    group: root
+    mode: '0640'
+  with_items:
+    - lsaai_schema.ldif
+  register: lsaii_schema_deploy
+  notify: lsaai_schema_extend
+  become: true
 ...
