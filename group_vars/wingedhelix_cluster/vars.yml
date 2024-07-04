@@ -407,6 +407,7 @@ ogm_servers:       # the FQDN address that chaperone has access to
       - /home/bionano/access/web/Server/Log
       - /home/bionano/access/web/Server/anchorFiles
       - /home/ADMINIT/pg_dump
+    psql_dump_location: /home/ADMINIT/pg_dump
 #
 # Local storage variables.
 #
