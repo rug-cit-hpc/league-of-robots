@@ -5,14 +5,14 @@ stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name
 stack_prefix: 'wh'
 slurm_version: '23.02.7-2.el9.umcg'
 slurm_partitions:
-  - name: regular  # Must be in sync with group listed in Ansible inventory.
+  - name: regular_big_vm  # Must be in sync with group listed in Ansible inventory.
     default: yes
-    nodes: "{{ stack_prefix }}-node-a[01-02]"  # Must be in sync with Ansible hostnames listed in inventory.
-    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
-    max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
-    max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
-    local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
-    features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    nodes: "{{ stack_prefix }}-node-b01"  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular_big_vm']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['regular_big_vm'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['regular_big_vm'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['regular_big_vm'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['regular_big_vm'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
   - name: user_interface  # Must be in sync with group listed in Ansible inventory.
     default: no
@@ -392,8 +392,8 @@ soft_partitions:
 #
 ## Optical genome mapping
 #
-ogm_servers:       # the FQDN address that chaperone has access to
-  - server: bas1.umcg.nl
+ogm_servers:
+  - server: bas1.umcg.nl  # FQDN of OGM machine to backup.
     user: ADMINIT
     prm_location: /groups/umcg-ogm/prm67
     backup_commands:
@@ -442,8 +442,8 @@ pfs_mounts:
   - pfs: umcgst04/slice1
     source: '172.23.60.161@tcp20:172.23.60.162@tcp20:/'
     type: lustre
-    rw_options: 'defaults,_netdev,flock'
-    ro_options: 'defaults,_netdev,ro'
+    rw_options: 'defaults,_netdev,flock,noverbose,noencrypt'
+    ro_options: 'defaults,_netdev,ro,noverbose,noencrypt'
     machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: 'medgen_zincfinger$'
     source: '//storage5.umcg.nl'

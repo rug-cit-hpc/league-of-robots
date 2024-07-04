@@ -21,7 +21,7 @@
 
 - name: 'Create cron job to make daily backup with the script'
   ansible.builtin.cron:
-    name: Daily backup of OGM - deployed with ansible do not change anything!
+    name: Backup_OGM_data  # Unique ID required to update existing cronjob: do not modify.
     weekday: '*'
     hour: '02'
     minute: '31'

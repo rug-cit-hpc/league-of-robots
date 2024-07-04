@@ -1,4 +1,11 @@
 ---
+- name: Install perun-slave-process-ldap-lsaai repo.
+  ansible.builtin.package:
+    state: latest
+    update_cache: true
+    name: perun-slave-process-ldap-lsaai
+  become: true
+
 - name: "Get indexes of the openldap databases"
   ansible.builtin.shell: >
     set -eEuo pipefail &&
@@ -96,17 +103,6 @@
   loop_control:
     label: "{{ item.stat.exists }}"
 
-- name: Duplicate the ldap > ldap_lsaai in /opt/perun/lib/
-  ansible.builtin.copy:
-    src: /opt/perun/lib/ldap/
-    dest: /opt/perun/lib/ldap_lsaai/
-    owner: root
-    group: lsaai
-    mode: '0750'
-    remote_src: true
-  become: true
-
-
 - name: Deploy LDIF files for configuring LSAAI ldap
   ansible.builtin.copy:
     src: "{{ item }}"
@@ -161,4 +157,17 @@
     - ou=users
   become: true
   become_user: lsaai
+
+- name: Install LDIF schema file for LSAAI extra fields
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/usr/local/openldap/etc/openldap/custom/{{ item }}"
+    owner: root
+    group: root
+    mode: '0640'
+  with_items:
+    - lsaai_schema.ldif
+  register: lsaii_schema_deploy
+  notify: lsaai_schema_extend
+  become: true
 ...

@@ -33,9 +33,6 @@ all:
           regular_users:
             - user: "lsaai"
               groups: "lsaai"
-          cluster_common_packages:
-            RedHat9:
-               - perun-slave-process-ldap
           iptables_allow_ssh_inbound:
             - "{{ all.ip_addresses['lsaai']['perun'] }}"
             - "{{ vaxtron_cluster.ip_addresses['foyer']['external'] }}"
