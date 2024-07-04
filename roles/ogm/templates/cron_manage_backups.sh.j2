@@ -1,0 +1,39 @@
+#!/bin/bash
+set -ue
+
+#
+# This script is meant to be run daily, where it should
+#  - check if weekly backup was created (that daily backup renamed/moved to ~.weekly)
+#  - remove oldest daily backups when there are more than 31 of already existing
+#  - remove oldest weekly backups when there are more than 52 of them already existing
+#
+
+#
+## Preparing variables
+#
+{% for each_ogm_server in ogm_servers %}
+_PRM_MOUNT="{{ each_ogm_server['prm_location'] }}"
+# check if mount point is set
+if ! mountpoint -q "${_PRM_MOUNT}"; then
+   logger -t ogm_backup "${0}: backup folder '${_PRM_MOUNT}' is not mounted, exiting the backup script!"
+   exit 1
+fi
+_OGM_SERVER="{{ each_ogm_server['server'] | default("error_remote_server")}}"
+_OGM_USER="{{ each_ogm_server['user'] | default("error_remote_user") }}"
+_PRM_SERVER_DIR="${_PRM_MOUNT}/${_OGM_SERVER}"
+
+#
+## Check if this weeks backup has been made and if not, make it
+#
+
+
+#
+## Remove daily backups if greater than 31 (= 1 month)
+#
+
+#
+## Remove WEEKLY backups if greater than 52 (= 1 year)
+#
+
+
+{% endfor %}
