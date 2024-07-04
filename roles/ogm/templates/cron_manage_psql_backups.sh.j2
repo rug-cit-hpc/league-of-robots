@@ -1,0 +1,67 @@
+#!/bin/bash
+set -ueo pipefail
+
+#
+# Script is for daily runs, doing
+#  - check if weekly backup was created (that daily backup renamed/moved to ~.weekly)
+#  - remove oldest daily backups when there are more than 31 of already existing
+#  - remove oldest weekly backups when there are more than 52 of them already existing
+#
+
+#
+## Preparing variables
+#
+{% for each_ogm_server in ogm_servers %}
+_PRM_MOUNT="{{ each_ogm_server['prm_location'] }}"
+# check if mount point is set
+if ! mountpoint -q "${_PRM_MOUNT}"; then
+   logger -t ogm_backup "${0}: backup folder '${_PRM_MOUNT}' is not mounted, exiting the backup script!"
+   exit 1
+fi
+_OGM_SERVER="{{ each_ogm_server['server'] | default("error_remote_server")}}"
+_OGM_USER="{{ each_ogm_server['user'] | default("error_remote_user") }}"
+_PRM_SERVER_DIR="${_PRM_MOUNT}/${_OGM_SERVER}"
+
+#
+## Check if this weeks backup has been made and if not, make it
+#
+
+# Change to the backup directory
+BACKUP_DIR="${_PRM_SERVER_DIR}/home/ADMINIT/pg_dump"
+cd "${BACKUP_DIR:-does_not_exists}" || { echo "Failed to change directory to ${BACKUP_DIR}"; exit 1; }
+DAILY_KEEP=31     # one month worth
+WEEKLY_KEEP=52    # one year worth
+
+# Check if weekly backup has been done this week
+if ! ls ${BACKUP_DIR}/*-weekly-$(date +%Y%U).sql.gz 1>/dev/null 2>&1; then
+   # Make a copy of the latest backup as a weekly backup
+   LATEST=$(ls -1 ${BACKUP_DIR}/*.sql.gz | tail -n 1)
+   echo "Making WEEKLY backup: $(date +%Y%m%d-%H%M%S)-weekly-$(date +%Y%U).sql.gz"
+   cp ${LATEST} ${BACKUP_DIR}/$(date +%Y%m%d-%H%M%S)-weekly-$(date +%Y%U).sql.gz
+fi
+
+#
+## CLEANING up DAILY backups
+#
+DAILY_COUNT="$(ls -1 *.sql.gz | grep -v weekly | wc -l)"
+if [[ "${DAILY_COUNT}" -gt "${DAILY_KEEP}" ]]; then
+  DELETE_DAILY_COUNT=$((DAILY_COUNT - DAILY_KEEP))
+  # find the oldest files and delete them (not weekly)
+  echo Deleted DAILY backups: $(ls -1 *.sql.gz | grep -v weekly | head -n "${DELETE_DAILY_COUNT}")
+  ls -1 *.sql.gz | grep -v weekly | head -n "${DELETE_DAILY_COUNT}" | xargs rm -f
+fi
+
+#
+## CLEANING up WEEKLY backups
+#
+WEEKLY_COUNT="$(ls -1 *-weekly-*.sql.gz | wc -l)"
+if [[ "${WEEKLY_COUNT}" -gt "${WEEKLY_KEEP}" ]]; then
+  DELETE_WEEKLY_COUNT=$((WEEKLY_COUNT - WEEKLY_KEEP))
+  # find the oldest weekly backups and delete them
+  echo Deleted WEEKLY backups: $(ls -1 *-weekly-*.sql.gz | head -n "${DELETE_WEEKLY_COUNT}")
+  ls -1 *-weekly-*.sql.gz | head -n "${DELETE_WEEKLY_COUNT}" | xargs rm -f
+fi
+
+
+
+{% endfor %}

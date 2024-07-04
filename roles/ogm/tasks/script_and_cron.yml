@@ -1,11 +1,22 @@
 ---
 - name: Deploy backup script
   ansible.builtin.template:
-    src: templates/ogm_backup.sh.j2
-    dest: ~umcg-ogm-dm/ogm_backup.sh
-    owner: umcg-ogm-dm
-    group: umcg-ogm-dm
-    mode: '0750'
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - src: templates/ogm_backup.sh.j2
+      dest: ~umcg-ogm-dm/ogm_backup.sh
+      owner: umcg-ogm-dm
+      group: umcg-ogm-dm
+      mode: '0750'
+    - src: templates/cron_manage_psql_backups.sh.j2
+      dest: ~umcg-ogm-dm/cron_manage_psql_backups.sh.j2
+      owner: umcg-ogm-dm
+      group: umcg-ogm-dm
+      mode: '0750'
   become: true
 
 - name: 'Create cron job to make daily backup with the script'
