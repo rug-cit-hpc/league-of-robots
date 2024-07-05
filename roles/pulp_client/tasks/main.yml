@@ -18,7 +18,7 @@
           https://{{ groups['repo'] | first }}/pulp/content/{{ stack_name | regex_replace('_cluster$', '') }}/{{ item.name }}/
         {%- else -%}
           none
-        {%- endif -%}"
+        {%- endif -%}
   loop: "{{ pulp_repos[os_distribution] | flatten(levels=1) }}"
   loop_control:
     label: "name: {{ item.name }} | desc: {{ item.description }} | url: {{ pulp_server_url }}"
@@ -49,8 +49,10 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
-  with_items: "{{ yum_repo_configs.files | map(attribute='path') | list }}"
-  when: item | basename | regex_replace('.repo$','') not in pulp_repos[os_distribution] | map(attribute='name') | list
+  loop: "{{ yum_repo_configs.files | map(attribute='path') | list }}"
+  vars:
+    pulp_repo_names: "{{ pulp_repos[os_distribution] | map(attribute='name') | list }}"
+  when: item | basename | regex_replace('.repo$','') not in pulp_repo_names
   become: true
 
 - name: Remove RHN/SpaceWalk if it was installed.

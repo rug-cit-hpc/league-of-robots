@@ -116,6 +116,12 @@
 #  * lustre-client-2.15.4_RC2-1.el9.x86_64.rpm
 # can then be installed with the normal procedure and the ansible task below.
 #
+# For EL >= 9.4 we need Lustre >= 2.15.5, because Lustre 2.15.4 will no longer compile with DKMS.
+#
+# At the time this comment was written 2.15.5 was not yet released and we need to
+# * Fetch the source code for 2.15.5-RC1
+# * Use the same procedure as above to compile lustre-*2.15.5_RC1-1.el9.*.rpm RPMs.
+#
 - name: Install the Lustre client
   ansible.builtin.package:
     state: latest
