@@ -93,7 +93,7 @@ all:
 #          ir_db_name: 'ICAT'                                # test-db iRODS database name
 #          ir_admin_pwd: '{{ icatV_test_admin_pwd }}'        # test-db iRODS Vaulted irods admin password
 #      vars:
-#        cloud_flavor: umcg.v1.vm.4-8-0
+#        cloud_flavor: umcg.v1.vm.4-8
 #        host_networks:
 #          - name: "{{ stack_prefix }}_internal_management"
 #            security_group: "{{ stack_prefix }}_irods"
