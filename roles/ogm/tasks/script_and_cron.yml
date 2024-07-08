@@ -7,13 +7,13 @@
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
   loop:
-    - src: templates/ogm_backup.sh.j2
-      dest: ~umcg-ogm-dm/ogm_backup.sh
+    - src: templates/ogm_cron_make_backup.sh.j2
+      dest: ~umcg-ogm-dm/ogm_make_backup.sh
       owner: umcg-ogm-dm
       group: umcg-ogm-dm
       mode: '0750'
-    - src: templates/cron_manage_psql_backups.sh.j2
-      dest: ~umcg-ogm-dm/cron_manage_psql_backups.sh.j2
+    - src: templates/ogm_cron_clean_psql_backups.sh.j2
+      dest: ~umcg-ogm-dm/manage_psql_backups.sh
       owner: umcg-ogm-dm
       group: umcg-ogm-dm
       mode: '0750'
@@ -21,12 +21,27 @@
 
 - name: 'Create cron job to make daily backup with the script'
   ansible.builtin.cron:
-    name: Backup_OGM_data  # Unique ID required to update existing cronjob: do not modify.
-    weekday: '*'
-    hour: '02'
-    minute: '31'
-    user: 'umcg-ogm-dm'
-    job: /bin/bash -c '~/ogm_backup.sh'
-    cron_file: 'ogm_backup'
+    name: "{{ item.name }}"
+    weekday: "{{ item.weekday }}"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+    user: "{{ item.user }}"
+    job: "{{ item.job }}"
+    cron_file: "{{ item.cron_file }}"
+  loop:
+   - name: 'Backup_OGM_data  # Unique ID required to update existing cronjob: do not modify.'
+     weekday: '*'
+     hour: '02'
+     minute: '31'
+     user: 'umcg-ogm-dm'
+     job: /bin/bash -c '~/ogm_make_backup.sh'
+     cron_file: 'ogm_make_backup'
+   - name: 'Clean_OGM_psql_backups  # Unique ID required to update existing cronjob: do not modify.'
+     weekday: '*'
+     hour: '07'
+     minute: '23'
+     user: 'umcg-ogm-dm'
+     job: /bin/bash -c '~/manage_psql_backups.sh'
+     cron_file: 'ogm_clean_psql_backups'
   become: true
 ...
