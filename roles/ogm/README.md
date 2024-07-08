@@ -7,7 +7,7 @@ Prerequisites
  - backup server can access OGM machine (firewall opened and login configured)
    - login credentials are defined by variables `server` and `user`
  - the permanent storage location on backup server (destination of backup data) is already configured
-   - `psql_dump_location` define the location on the OGM machine where SQL database is dumped, before the backup server is picking it
+   - `psql_dump_location` defines the location on the OGM machine where the PostgreSQL database is dumped before the backup server picks it up.
    
 
 ## Configuration
