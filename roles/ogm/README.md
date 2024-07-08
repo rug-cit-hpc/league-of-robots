@@ -34,7 +34,7 @@ Structure of the variable
 ```
 
  - `backup_commands` is a list of commands that are executed on an OGM machine before the data is copied to the backup server.
- - `backup_source_dirs` are list of directories on the OGM machine, which are rsync-ed to the backup server
+ - `backup_source_dirs` is a list of directories on the OGM machine, which are rsync-ed to the backup server.
 
 
 ## Debugging
