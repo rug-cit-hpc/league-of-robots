@@ -1,22 +1,24 @@
 # OGM
 
 Role deploys the backup and backup-management scripts for the Optical Genome Mapping.
-Role is controlled by a variable `ogm_servers` inside the `group_vars/[cluster]/vars.yml`.
+It is entirely controlled by a variable `ogm_servers` inside the `group_vars/[cluster]/vars.yml`.
 
-Role expects
- - that remote OGM server is accessible from the backup server, and that access credentials are already configured
-   - this is controlled by variables `server` and `user`
+Prerequisites
+ - backup server can access OGM machine (firewall opened and login configured)
+   - login credentials are defined by variables `server` and `user`
  - the permanent storage location on backup server (destination of backup data) is already configured
    - `psql_dump_location` define the location on the OGM machine where SQL database is dumped, before the backup server is picking it
    
 
-Example structure of the variable is:
+## Configuration
+
+Structure of the variable
 
 ```
     ogm_servers:
-      - server: bas1.umcg.nl  # FQDN of OGM machine to backup.
-        user: ADMINIT         # username of remote machine
-        prm_location: /groups/umcg-ogm/prm67
+      - server: bas1.umcg.nl  # FQDN of OGM machine to backup
+        user: ADMINIT         # username on OGM machine
+        prm_location: /groups/umcg-ogm/prm67     # destination for backups on backup server
         backup_commands:
           - label: "pg_dump: create"
             command: sudo -u postgres bash -c 'cd; pg_dump --no-owner --no-privileges IrysView_Dev | /usr/bin/gzip -f -6' > pg_dump/$(date +%Y%m%d-%H%M%S).sql.gz
@@ -31,6 +33,10 @@ Example structure of the variable is:
         psql_dump_location: /home/ADMINIT/pg_dump
 ```
 
-Variables
  - `backup_commands` are list of commands that are executed on OGM machine before the data is copied to backup server
  - `backup_source_dirs` are list of directories on the OGM machine, which are rsync-ed to the backup server
+
+
+## Debugging
+
+All logs are stored in the system's journal with a tag `ogm_backup`.
