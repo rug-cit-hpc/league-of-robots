@@ -1,7 +1,7 @@
 # OGM
 
 Role deploys the backup and backup-management scripts for the Optical Genome Mapping.
-It is entirely controlled by a variable `ogm_servers` inside the `group_vars/[cluster]/vars.yml`.
+It is entirely controlled by a variable `ogm_servers` in `group_vars/[stack_name]/vars.yml`.
 
 Prerequisites
  - backup server can access OGM machine (firewall opened and login configured)
