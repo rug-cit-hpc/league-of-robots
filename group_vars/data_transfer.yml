@@ -1,4 +1,5 @@
 ---
+repo_manager: 'none'
 iptables_allow_icmp_inbound:
   - ANY
 iptables_allow_https_inbound:
