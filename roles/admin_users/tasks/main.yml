@@ -41,17 +41,30 @@
     mode: '0755'
     state: directory
   become: true
-- name: Install policycoreutils python package for admin home dir SE-labeling.
-  ansible.builtin.package:  # noqa jinja[spacing]
-    state: latest
-    update_cache: true
-    name: >-
-      policycoreutils-python
-      {%- if ansible_facts['distribution_major_version'] >= '8' -%}
-      -utils
-      {%- endif -%}
-  when: ansible_facts['os_family'] == "RedHat"
-  become: true
+- block:  # noqa name[missing]
+    - name: Install latest version of policycoreutils python package for admin home dir SE-labeling.
+      ansible.builtin.package:  # noqa jinja[spacing]
+        state: latest
+        update_cache: true
+        name: >-
+          policycoreutils-python
+          {%- if ansible_facts['distribution_major_version'] >= '8' -%}
+          -utils
+          {%- endif -%}
+      when: ansible_facts['os_family'] == "RedHat"
+      become: true
+  rescue:
+    - name: Install any version of policycoreutils python package for admin home dir SE-labeling.
+      ansible.builtin.package:  # noqa jinja[spacing]
+        state: installed
+        update_cache: true
+        name: >-
+          policycoreutils-python
+          {%- if ansible_facts['distribution_major_version'] >= '8' -%}
+          -utils
+          {%- endif -%}
+      when: ansible_facts['os_family'] == "RedHat"
+      become: true
 - name: Make sure home dirs for admin users are correctly labelled for SELinux.
   community.general.sefcontext:
     target: "{{ item.target }}"
