@@ -33,7 +33,7 @@ Structure of the variable
         psql_dump_location: /home/ADMINIT/pg_dump
 ```
 
- - `backup_commands` are list of commands that are executed on OGM machine before the data is copied to backup server
+ - `backup_commands` is a list of commands that are executed on an OGM machine before the data is copied to the backup server.
  - `backup_source_dirs` are list of directories on the OGM machine, which are rsync-ed to the backup server
 
 
