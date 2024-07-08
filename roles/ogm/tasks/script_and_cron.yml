@@ -8,7 +8,7 @@
     mode: "{{ item.mode }}"
   loop:
     - src: templates/ogm_cron_make_backup.sh.j2
-      dest: ~umcg-ogm-dm/ogm_make_backup.sh
+      dest: ~umcg-ogm-dm/make_backup.sh
       owner: umcg-ogm-dm
       group: umcg-ogm-dm
       mode: '0750'
@@ -34,7 +34,7 @@
      hour: '02'
      minute: '31'
      user: 'umcg-ogm-dm'
-     job: /bin/bash -c '~/ogm_make_backup.sh'
+     job: /bin/bash -c '~/make_backup.sh'
      cron_file: 'ogm_make_backup'
    - name: 'Clean_OGM_psql_backups  # Unique ID required to update existing cronjob: do not modify.'
      weekday: '*'
