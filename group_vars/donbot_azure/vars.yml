@@ -24,9 +24,9 @@ local_admin_users:
   - 'morris'
   - 'pieter'
   - 'sandi'
+use_sssd: true
 use_ldap: false
 create_ldap: false
-use_sssd: false
 #
 # Jumphosts from other stack-name infra groups.
 # We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
