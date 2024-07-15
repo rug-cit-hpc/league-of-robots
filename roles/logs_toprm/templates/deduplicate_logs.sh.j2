@@ -2,7 +2,7 @@
 set -eEuo pipefail
 _log_tag="logstoprm"
 # We store all the extra information into the system logs, like civilized people
-trap 'logger -t "${_log_tag}" "${$} Command (${BASH_COMMAND}) failed on line number (${LINENO})"' ERR
+trap 'logger -t "${_log_tag}" "${0} Command (${BASH_COMMAND}) failed on line number (${LINENO})"' ERR
 
 # This script checkes all the files for the duplicates
 #  - first it collects the list of all the files
