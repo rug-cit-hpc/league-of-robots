@@ -14,34 +14,36 @@ trap 'logger -t "${_log_tag}" "${$} Command (${BASH_COMMAND}) failed on line num
 #    - if not, then merge both files into one, keep only unique lines
 #  - finally make one file a hardlink to another (to reduce storage),
 #    but keep each file, or rsync would recreate them at the next run
+
 {% raw %}
+_base_dir="{% endraw %}{{ logs_toprm_destination }}{% raw %}"
+cd "${_base_dir}"
+# find all files that are not hardlinkes = skip already done ones
+_all_files="$(find ./ -type f -links 1)"
+_count=0
 
-BASE_DIR="{% endraw %}{{ logs_toprm_destination }}{% raw %}"
-cd "${BASE_DIR}"
-ALL_FILES="$(find ./ -type f)"
-
-REPLICAS_LIST="${BASE_DIR:-/wrong/dir}/replicas.list"
-rm -f "${REPLICAS_LIST:-error}"
-
-while IFS= read -r _LINE; do
-    _earl="$(echo "${_LINE}" | awk -F'/' '{print $2}')"
-    _machine="$(echo "${_LINE}" | awk -F'/' '{print $3}')"
-    _file="$(echo "${_LINE}" | awk -F'/' '{print $6}')"
-    echo "earl=${_earl} machine=${_machine} file=${_file}"
-    REPLICA=$(awk -F '/' -v aearl="${_earl}" -v amachine="${_machine}" -v afile="${_file}" '$2 != aearl && $3 == amachine && $6 == afile { print $0 }' <<< "${ALL_FILES}")
-    if [[ -n "${REPLICA}" ]]; then
-        if ! diff ${_LINE} ${REPLICA} > /dev/null ; then
+logger -t "${_log_tag}" "${0}  Starting to deduplicate files in the ${_base_dir}"
+while IFS= read -r _line; do
+    _earl="$(echo "${_line}" | awk -F'/' '{print $2}')"
+    _machine="$(echo "${_line}" | awk -F'/' '{print $3}')"
+    _file="$(echo "${_line}" | awk -F'/' '{print $6}')"
+    _replica=$(awk -F '/' -v aearl="${_earl}" -v amachine="${_machine}" -v afile="${_file}" '$2 != aearl && $3 == amachine && $6 == afile { print $0 }' <<< "${_all_files}")
+    if [[ -n "${_replica}" ]]; then
+        if ! diff ${_line} ${_replica} > /dev/null ; then
             # merge both files into one, keep only unique lines from each
-            zcat ${_LINE} ${REPLICA} 2>/dev/null | sort -u | gzip > "${_LINE}.tmp" && sync
-            mv -f "${_LINE}.tmp" "${_LINE}"
+            zcat ${_line} ${_replica} 2>/dev/null | sort -u | gzip > "${_line}.tmp" && sync
+            mv -f "${_line}.tmp" "${_line}"
         else
             # files are the same, then only change the timestamp to right now
             # so that rsync will never overwrite it anymore
-            touch ${_LINE}
+            touch ${_line}
         fi
         # now hard link them together - it does not take extra storage and it works with
         # rsync -au which does not update if newer exist
-        ln -f ${_LINE} ${REPLICA}
+        ln -f ${_line} ${_replica}
+        _count=$(( _count + 1))
     fi
-done <<< "${ALL_FILES}"
+done <<< "${_all_files}"
+logger -t "${_log_tag}" "${0}  Successfully finished deduplicating. Deduplicated ${_count} files."
+{% endraw %}
 
