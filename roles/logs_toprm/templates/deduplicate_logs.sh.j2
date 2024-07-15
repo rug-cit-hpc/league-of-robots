@@ -1,0 +1,47 @@
+#!/bin/bash
+set -eEuo pipefail
+_log_tag="logstoprm"
+# We store all the extra information into the system logs, like civilized people
+trap 'logger -t "${_log_tag}" "${$} Command (${BASH_COMMAND}) failed on line number (${LINENO})"' ERR
+
+# This script checkes all the files for the duplicates
+#  - first it collects the list of all the files
+#  - then iterates through each file and looks for the duplicate
+#  - duplicates are log files of similar path and same
+#      ./ [earl*] / [machine] / compressed_files / [log type]-[date]
+#  - checks if the files are the same
+#    - if so, then update the timestamp
+#    - if not, then merge both files into one, keep only unique lines
+#  - finally make one file a hardlink to another (to reduce storage),
+#    but keep each file, or rsync would recreate them at the next run
+{% raw %}
+
+BASE_DIR="{% endraw %}{{ logs_toprm_destination }}{% raw %}"
+cd "${BASE_DIR}"
+ALL_FILES="$(find ./ -type f)"
+
+REPLICAS_LIST="${BASE_DIR:-/wrong/dir}/replicas.list"
+rm -f "${REPLICAS_LIST:-error}"
+
+while IFS= read -r _LINE; do
+    _earl="$(echo "${_LINE}" | awk -F'/' '{print $2}')"
+    _machine="$(echo "${_LINE}" | awk -F'/' '{print $3}')"
+    _file="$(echo "${_LINE}" | awk -F'/' '{print $6}')"
+    echo "earl=${_earl} machine=${_machine} file=${_file}"
+    REPLICA=$(awk -F '/' -v aearl="${_earl}" -v amachine="${_machine}" -v afile="${_file}" '$2 != aearl && $3 == amachine && $6 == afile { print $0 }' <<< "${ALL_FILES}")
+    if [[ -n "${REPLICA}" ]]; then
+        if ! diff ${_LINE} ${REPLICA} > /dev/null ; then
+            # merge both files into one, keep only unique lines from each
+            zcat ${_LINE} ${REPLICA} 2>/dev/null | sort -u | gzip > "${_LINE}.tmp" && sync
+            mv -f "${_LINE}.tmp" "${_LINE}"
+        else
+            # files are the same, then only change the timestamp to right now
+            # so that rsync will never overwrite it anymore
+            touch ${_LINE}
+        fi
+        # now hard link them together - it does not take extra storage and it works with
+        # rsync -au which does not update if newer exist
+        ln -f ${_LINE} ${REPLICA}
+    fi
+done <<< "${ALL_FILES}"
+
