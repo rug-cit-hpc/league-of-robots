@@ -18,8 +18,9 @@ trap 'logger -t "${_log_tag}" "${$} Command (${BASH_COMMAND}) failed on line num
 {% raw %}
 _base_dir="{% endraw %}{{ logs_toprm_destination }}{% raw %}"
 cd "${_base_dir}"
-# find all files that are not hardlinkes = skip already done ones
-_all_files="$(find ./ -type f -links 1)"
+# find all files that are not already hardlinked (=skip ones that are already done)
+# note: '-links 1' returns one or more links, therefore '<2' is needed
+_all_files="$(find ./ -type f -links -2)"
 _count=0
 
 logger -t "${_log_tag}" "${0}  Starting to deduplicate files in the ${_base_dir}"
