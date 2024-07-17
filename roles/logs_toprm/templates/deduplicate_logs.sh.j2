@@ -16,12 +16,15 @@ trap 'logger -t "${_log_tag}" "${0##*/}  Script was interrupted by external proc
 #  - finally make one file a hardlink to another (to reduce storage),
 #    but keep each file, or rsync would recreate them at the next run
 
+_DEBUG=false
+[[ "${1}" == "-d" ]] && _DEBUG=true
+
 # Local log prepare
 _script_path_dir="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 _log_file="${_script_path_dir}/${0##*/}.log"
 if test -e "${_log_file}"; then
    if test -e "${_log_file}.old"; then
-      cat "${_log_file}.old" "${_log_file}" 2>/dev/null | tail -n 10000 > "${_log_file}.tmp" # Keep only 10k of old rsync logs
+      cat "${_log_file}.old" "${_log_file}" 2>/dev/null | tail -n 100000 > "${_log_file}.tmp" # Keep only 10k of old rsync logs
       mv "${_log_file}.tmp" "${_log_file}.old"
    else
       cp ${_log_file} ${_log_file}.old
@@ -34,30 +37,34 @@ _base_dir="{% endraw %}{{ logs_toprm_destination }}{% raw %}"
 cd "${_base_dir}"
 # find all files that are not already hardlinked (=skip ones that are already done)
 # note: '-links 1' returns one or more links, therefore '>1' and '<2' is needed
-_all_files="$(find "${_base_dir}" -path "*earl*" -type f -links 1 -and -links -2 -printf "%P %n\n")"
-_all_paths=$(awk '{ print $1 }' <<< "${_all_files}")
-
+_all_inodes="$(find "${_base_dir}" -path "*earl*" -type f -printf "%i %P\n" | sort -k1)"
+_all_non_hardlinked=$()
+_all_paths=$(awk '{ print $2 }' <<< "${_all_inodes}" | sort)
+_total_count=$(wc -l <<< "${_all_inodes}")
+_index=0
 _count_deduplicated=0
+${_DEBUG} && echo "${_all_inodes}" > ~/"${_log_file}.all_inodes"
 logger -t "${_log_tag}" "${0##*/}  Starting to deduplicate files in the ${_base_dir}"
 while IFS= read -r _line; do
-   _path=$(awk -F' ' '{print $1}' <<< "${_line}")
-   _hardlinks=$(awk -F' ' '{print $2}' <<< "${_line}")
+   _path=$(awk -F' ' '{print $2}' <<< "${_line}")
+   _inode=$(awk -F' ' '{print $1}' <<< "${_line}")
    _earl="$(awk -F'/' '{print $1}' <<< "${_path}")"
    _machine="$(awk -F'/' '{print $2}' <<< "${_path}")"
    _month="$(awk -F'/' '{print $3}' <<< "${_path}")"
    _file="$(awk -F'/' '{print $5}' <<< "${_path}")"
    echo "- ${_path}" >> "${_log_file}"
    _replica_path=$(awk -F '/' -v aearl="${_earl}" -v amachine="${_machine}" -v amonth="${_month}" -v afile="${_file}" '$1 != aearl && $2 == amachine && $5 == afile' <<< "${_all_paths}")
-   if [[ "${_hardlinks}" -eq "1" ]]; then
+   _count_this_inode="$(awk -v inode="${_inode}" '$1 == inode { c++; } END { print c; }' <<< "${_all_inodes}")"
+   if [[ "${_count_this_inode}" -eq "1" ]]; then
       if [[ -n "${_replica_path}" ]]; then
-         echo "  ${_replica_path}" >> "${_log_file}"
+         ${_DEBUG} && echo "  ${_replica_path}" >> "${_log_file}"
          if ! diff ${_path} ${_replica_path} > /dev/null ; then
-            echo "    are different" >> "${_log_file}"
+            ${_DEBUG} && echo "    are different" >> "${_log_file}"
             # merge both files into one, keep only unique lines from each
             zcat ${_path} ${_replica_path} 2>/dev/null | sort -u | gzip > "${_path}.tmp" && sync
             mv -f "${_path}.tmp" "${_path}"
          else
-            echo "    are same - touching date" >> "${_log_file}"
+            ${_DEBUG} && echo "    are same - touching date" >> "${_log_file}"
             # files are the same, then only change the timestamp to right now
             # so that rsync will never overwrite it anymore
             touch ${_path}
@@ -68,12 +75,14 @@ while IFS= read -r _line; do
          ln -f ${_path} ${_replica_path}
          _count_deduplicated=$(( _count_deduplicated + 1))
       else
-         echo "    no duplicated file for ${_path}" >> "${_log_file}"
+         ${_DEBUG} && echo "    no duplicated file for ${_path}" >> "${_log_file}"
       fi
    else
-      echo "    ${_hardlinks} hardlinks for file ${_path}" >> "${_log_file}"
+      echo "    ${_count_this_inode} hardlinks for file ${_path}" >> "${_log_file}"
    fi
-done <<< "${_all_files}"
+   _index=$(( _index + 1 ))
+   ${_DEBUG} && echo "Progress ${_index} of ${_total_count}" >> "${_log_file}"
+done <<< "${_all_inodes}"
 logger -t "${_log_tag}" "${0##*/}  Successfully finished deduplicating. Deduplicated ${_count_deduplicated} files."
 
 {% endraw %}
