@@ -161,20 +161,27 @@ stack_networks:
     router_network: vlan13
     type: management
     external: false
-  - name: vlan985
+  - name: vlan985  # DH4 Lustre
     cidr: '172.23.56.0/22'
     allow_ingress:
       - 172.23.57.213/32  # Lustre server
       - 172.23.57.214/32  # Lustre server
     type: storage
     external: true
-  - name: vlan1068
+  - name: vlan1068  # Private Lustre
     cidr: '172.23.60.0/24'
     allow_ingress:
       - 172.23.60.161/32  # Lustre server
       - 172.23.60.162/32  # Lustre server
       - 172.23.60.163/32  # Lustre server
       - 172.23.60.164/32  # Lustre server
+    type: storage
+    external: true
+  - name: vlan1073  # DH5 Lustre
+    cidr: '172.23.12.0/22'
+    allow_ingress:
+      - 172.23.15.186/32  # Lustre server
+      - 172.23.15.187/32  # Lustre server
     type: storage
     external: true
 nameservers: [

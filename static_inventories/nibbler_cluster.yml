@@ -119,6 +119,8 @@ all:
               security_group: "{{ stack_prefix }}_storage"
             - name: vlan1068
               security_group: "{{ stack_prefix }}_storage"
+            - name: vlan1073
+              security_group: "{{ stack_prefix }}_storage"
     deploy_admin_interface:
       hosts:
         nb-dai:
@@ -131,6 +133,8 @@ all:
             - name: vlan985
               security_group: "{{ stack_prefix }}_storage"
             - name: vlan1068
+              security_group: "{{ stack_prefix }}_storage"
+            - name: vlan1073
               security_group: "{{ stack_prefix }}_storage"
           local_volume_size_extra: 3000
     user_interface:
@@ -146,6 +150,8 @@ all:
               security_group: "{{ stack_prefix }}_storage"
             - name: vlan1068
               security_group: "{{ stack_prefix }}_storage"
+            - name: vlan1073
+              security_group: "{{ stack_prefix }}_storage"
           slurm_sockets: 16
           slurm_cores_per_socket: 1
           slurm_real_memory: 63790
@@ -155,6 +161,7 @@ all:
             - ens3
             - ens4
             - ens5
+            - ens6
     compute_node:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
@@ -171,6 +178,9 @@ all:
                 security_group: "{{ stack_prefix }}_storage"
               - name: vlan1068
                 security_group: "{{ stack_prefix }}_storage"
+              # DH5 not used on compute nodes (yet).
+              #- name: vlan1073
+              #  security_group: "{{ stack_prefix }}_storage"
             local_volume_size_extra: 1
             slurm_sockets: 63
             slurm_cores_per_socket: 1
@@ -183,6 +193,8 @@ all:
               - ens3
               - ens4
               - ens5
+              # DH5 not used on compute nodes (yet).
+              #- ens6
         gpu_a40:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             nb-node-b[01:02]:
@@ -199,6 +211,9 @@ all:
                 security_group: "{{ stack_prefix }}_storage"
               - name: vlan1068
                 security_group: "{{ stack_prefix }}_storage"
+              # DH5 not used on compute nodes (yet).
+              #- name: vlan1073
+              #  security_group: "{{ stack_prefix }}_storage"
             local_volume_size_extra: 1
             slurm_sockets: 31
             slurm_cores_per_socket: 1
@@ -212,6 +227,8 @@ all:
               - ens3
               - ens4
               - ens5
+              # DH5 not used on compute nodes (yet).
+              #- ens6
 administration:
   children:
     sys_admin_interface:
