@@ -15,9 +15,9 @@
     - grub
     - locale
     - logrotate
-    - remove   
-    - update   
-    - sshd     
-    - jenkins 
+    - remove
+    - update
+    - sshd
+    - jenkins
     - configure_jenkins_projects
 ...
