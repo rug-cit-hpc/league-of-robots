@@ -22,8 +22,8 @@ Order
 ## Logs
 
 There are logs in the home folder of `~umcg-logstoprm` in two files
- - `~/logstoprm_cron_rsync.log` contains last cron's rsync log
- - `~logstoprm_cron_rsync.log` contains past 10k lines of previous logs
+ - `~/logstoprm_cron.sh.cron.log` contains last cron's rsync run, and `.old` contains past 100k lines of previous runs
+ - `~/deduplicate_logs.sh.log` contains logs from deduplication run and `.old` contains past 100k lines of previous runs
 
 Scripts logs go into system logs with tag `logstoprm` > see debugging below.
 
