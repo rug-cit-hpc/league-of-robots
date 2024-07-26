@@ -23,4 +23,6 @@
     - rsyncd
     - regular_users
     - mount_volume
+    - role: cleanup_gs_data
+      when: '"umcg-genomescan" in regular_groups'
 ...

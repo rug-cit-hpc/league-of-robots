@@ -84,6 +84,7 @@
     state: directory
     suffix: tmp_certs_dir
   register: temp_certs_dir
+  delegate_to: localhost
   connection: local
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
 

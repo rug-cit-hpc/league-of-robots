@@ -14,6 +14,15 @@ slurm_partitions:
     local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
     features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.25G"'
+  - name: dragen  # Must be in sync with group listed in Ansible inventory.
+    default: no
+    nodes: bb-dragen  # Must be in sync with Ansible hostnames listed in inventory.
+    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['dragen']|list|length }}{% else %}1{% endif %}"
+    max_cores_per_node: "{{ groups['dragen'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
+    max_mem_per_node: "{{ groups['dragen'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
+    local_disk: "{{ groups['dragen'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
+    features: "{{ groups['dragen'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
+    extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.25G" PreemptMode=off'
 slurm_qos_limit_fractions:
   regular-medium:
     group: 1
@@ -39,10 +48,6 @@ motd: |
           Welcome to {{ slurm_cluster_name | capitalize }}
       =========================================================
 additional_etc_hosts:
-  - group: docs_library
-    nodes:
-      - name: docs_on_merlin
-        network: vlan16
   - group: betabarrel_cluster
     nodes:
       - name: bb-dragen
@@ -50,11 +55,11 @@ additional_etc_hosts:
   - group: betabarrel_cluster
     nodes:
       - name: betabarrel
-        network: vlan13
+        network: vlan990
   - group: copperfist_cluster
     nodes:
       - name: copperfist
-        network: vlan13
+        network: vlan990
 #
 # Jumphosts from other stack-name infra groups.
 # We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
@@ -457,7 +462,7 @@ pfs_mounts:
 lfs_mounts:
   - lfs: home
     pfs: local_raid
-    rw_machines: "{{ groups['cluster'] }}"
+    rw_machines: "{{ groups['user_interface'] }}"
   - lfs: tmp05
     pfs: local_raid
     groups:
@@ -471,9 +476,9 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-labgnkbh
       - name: umcg-patho
-      - name: umcg-pr
+#     - name: umcg-pr
       - name: umcg-vipt
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] }}"
   - lfs: prm05
     pfs: 'medgen_zincfinger$'
     groups:
@@ -634,7 +639,7 @@ lfs_mounts:
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env05
     pfs: local_raid
-    rw_machines: "{{ groups['deploy_admin_interface'] + groups['compute_node'] + groups['user_interface'] }}"
+    rw_machines: "{{ groups['deploy_admin_interface'] + groups['user_interface'] }}"
 smb_server_users:
   - name: sbsuser
     uid: 501
