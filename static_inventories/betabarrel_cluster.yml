@@ -26,6 +26,23 @@ all:
             - "{{ all.ip_addresses['rug']['operator'] }}"
           ssh_client_configs:
             - logs_library
+          additional_etc_hosts:
+            - group: docs_library
+              nodes:
+                - name: docs_on_merlin
+                  network: vlan16
+            - group: betabarrel_cluster
+              nodes:
+                - name: bb-dragen
+                  network: vlan16
+            - group: betabarrel_cluster
+              nodes:
+                - name: betabarrel
+                  network: vlan13
+            - group: copperfist_cluster
+              nodes:
+                - name: copperfist
+                  network: vlan13
         az-porch:
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
