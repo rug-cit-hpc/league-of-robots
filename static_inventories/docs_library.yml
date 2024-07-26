@@ -7,8 +7,8 @@ all:
           ansible_python_interpreter: /usr/bin/env python
     docs:
       hosts:
-        docs_on_merlin:
-          cloud_flavor: m1.small
+        docs_on_bateleur:
+          cloud_flavor: 1C4R10D
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_webservers"
