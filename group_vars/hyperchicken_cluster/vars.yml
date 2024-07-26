@@ -83,17 +83,12 @@ nameservers: [
 ]
 local_admin_groups:
   - 'admin'
-  - 'docker'
 local_admin_users:
-  - 'egon'
   - 'gerben'
-  - 'henkjan'
   - 'marieke'
   - 'marloes'
-  - 'morris'
   - 'pieter'
   - 'sandi'
-  - 'wim'
 envsync_user: 'envsync'
 envsync_group: 'depad'
 functional_admin_group: 'funad'
