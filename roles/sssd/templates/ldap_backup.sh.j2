@@ -1,7 +1,7 @@
 #!/bin/bash
 
 _ldap_credentials="/etc/openldap/readonly-ldapsearch-credentials.bash"
-source ${_ldap_credentials}
+source "${_ldap_credentials}"
 
 _ldap_dest="/root/ldap_backup"
 test -e "${_ldap_credentials}" || exit 1
