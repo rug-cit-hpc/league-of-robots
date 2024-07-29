@@ -40,7 +40,7 @@ if test -e "${_log_file}"; then
       cat "${_log_file}.old" "${_log_file}" 2>/dev/null | tail -n 100000 > "${_log_file}.tmp"
       mv "${_log_file}.tmp" "${_log_file}.old"
    else
-      cp ${_log_file} ${_log_file}.old
+      cp "${_log_file}" "${_log_file}.old"
    fi
 fi
 
