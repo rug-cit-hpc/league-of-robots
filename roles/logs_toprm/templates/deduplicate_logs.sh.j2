@@ -31,7 +31,7 @@ for (( i=1; i<=$#; i++ )); do
 done
 
 # Managing log history - and limit to 100k of lines of old logs
-echo "" > "${_log_file}"
+touch "${_log_file}"
 if test -e "${_log_file}"; then
    if test -e "${_log_file}.old"; then
       cat "${_log_file}.old" "${_log_file}" 2>/dev/null | tail -n 100000 > "${_log_file}.tmp"
