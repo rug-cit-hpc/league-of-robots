@@ -1,4 +1,7 @@
 #!/bin/bash
+
+_base_dir="{{ logs_toprm_destination }}"
+
 {% raw %}
 set -eEuo pipefail
 _log_tag="logstoprm"
@@ -41,8 +44,8 @@ if test -e "${_log_file}"; then
    fi
 fi
 
-_base_dir="{% endraw %}{{ logs_toprm_destination }}{% raw %}"
 cd "${_base_dir}"
+
 _deduplicate_all="$(find "${_base_dir}" -path "*earl*" -type f -printf "%i %P\n" | sort -k1)"
 _all_info_with_single_inode="$(awk '{ a[$1]++; b[$1]=$0; } END { for (i in a) { if (a[i] == "1") { print a[i]" "b[i] } } }' <<< "${_deduplicate_all}")"
 _all_paths_with_single_inode="$(cut -d' ' -f3 <<< "${_all_info_with_single_inode}")"
