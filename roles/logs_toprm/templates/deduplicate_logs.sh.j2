@@ -43,6 +43,7 @@ if test -e "${_log_file}"; then
       cp "${_log_file}" "${_log_file}.old"
    fi
 fi
+echo "------ $(date)------" > "${_log_file}"
 
 cd "${_base_dir}"
 
