@@ -88,7 +88,7 @@ all:
             - "{{ copperfist_cluster.ip_addresses['copperfist']['vlan13'] }}"
     docs:
       hosts:
-        docs_on_merlin:
+        docs-on-bateleur:
     sys_admin_interface:
       hosts:
         copperfist:
