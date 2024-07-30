@@ -38,7 +38,7 @@ touch "${_log_file}"
 if test -e "${_log_file}"; then
    if test -e "${_log_file}.old"; then
       cat "${_log_file}.old" "${_log_file}" 2>/dev/null | tail -n 100000 > "${_log_file}.tmp"
-      mv "${_log_file}.tmp" "${_log_file}.old"
+      mv -f "${_log_file}.tmp" "${_log_file}.old"
    else
       cp "${_log_file}" "${_log_file}.old"
    fi
