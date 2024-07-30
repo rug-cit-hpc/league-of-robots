@@ -63,9 +63,9 @@ while IFS= read -r _path; do
    if [[ -n "${_replica_path}" ]]; then
       _this_inode=$(awk -F '/' -v aearl="${_earl}" -v amachine="${_machine}" -v amonth="${_month}" -v afile="${_file}" '$3 == aearl && $4 == amachine && $7 == afile { print $2 }' <<< "${_all_info_with_single_inode}")
       _replica_inode=$(awk -F '/' -v aearl="${_earl}" -v amachine="${_machine}" -v amonth="${_month}" -v afile="${_file}" '$3 != aearl && $4 == amachine && $7 == afile { print $2 }' <<< "${_all_info_with_single_inode}")
-      ${_debug} && echo "  ${_replica_path}" >> "${_log_file}"
+      echo "  ${_replica_path}" >> "${_log_file}"
       if ! diff -q ${_path} ${_replica_path} > /dev/null ; then
-         ${_debug} && echo "    different > merging into one" >> "${_log_file}"
+         ${_debug} && echo "    different > merging into ${_path}.merged" >> "${_log_file}"
          # merge both files into one, keep only unique lines from each
          zcat ${_path} ${_replica_path} 2>/dev/null | sort -u | gzip > "${_path}.merged"
          # rm -f "${_path}"
