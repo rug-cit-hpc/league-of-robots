@@ -83,6 +83,7 @@ while IFS= read -r _path; do
       test -e ${_replica_path} && rm -f ${_replica_path}
       ln ${_path} ${_replica_path}
       _count_deduplicated=$(( _count_deduplicated + 1))
+      sleep 0.1  # this is needed, or the cifs get's overloaded
    else
       ${_debug} && echo "    no duplicated file for ${_path}" >> "${_log_file}"
    fi
