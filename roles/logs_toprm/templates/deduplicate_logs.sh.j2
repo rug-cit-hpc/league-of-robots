@@ -83,12 +83,14 @@ while IFS= read -r _path; do
       test -e ${_replica_path} && rm -f ${_replica_path}
       ln ${_path} ${_replica_path}
       _count_deduplicated=$(( _count_deduplicated + 1))
-      sleep 0.1  # this is needed, or the cifs get's overloaded
    else
       ${_debug} && echo "    no duplicated file for ${_path}" >> "${_log_file}"
+      echo "    making a duplication of the file in the ${_path}.duplicate" >> "${_log_file}"
+      ln "${_path}" "${_path}.duplicate"
    fi
    _index=$(( _index + 1 ))
    ${_debug} && echo "Progress ${_index} of ${_todo_count}" >> "${_log_file}"
+   sleep 0.1  # this is needed, or the cifs get's overloaded
 done <<< "${_all_paths_with_single_inode}"
 logger -t "${_log_tag}" "${0##*/}  Successfully finished deduplicating. Deduplicated ${_count_deduplicated} files."
 {% endraw %}
