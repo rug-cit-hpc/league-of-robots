@@ -55,6 +55,7 @@ _index=0
 _count_deduplicated=0
 logger -t "${_log_tag}" "${0##*/}  Starting to deduplicate files in the ${_base_dir}"
 while IFS= read -r _path; do
+   test -e "${_path}" || continue
    _earl="$(awk -F'/' '{print $1}' <<< "${_path}")"
    _machine="$(awk -F'/' '{print $2}' <<< "${_path}")"
    _month="$(awk -F'/' '{print $3}' <<< "${_path}")"
