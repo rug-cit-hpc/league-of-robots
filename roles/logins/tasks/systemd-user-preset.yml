@@ -1,10 +1,8 @@
 ---
 - name: Check if /usr/lib/systemd/user-preset/90-default-user.preset file exists.
   ansible.builtin.find:
-    paths: '/usr/lib/systemd/user-preset/'
-    use_regex: true
-    patterns:
-      - 90-default-user.preset
+    paths: /usr/lib/systemd/user-preset/
+    patterns: '90-default-user.preset'
   register: found_preset_file
   become: true
   when:
@@ -13,7 +11,7 @@
 
 - name: 'Patch /usr/lib/systemd/user-preset/90-default-user.preset to disable unused units.'
   ansible.builtin.replace:
-    path: found_preset_file
+    path: /usr/lib/systemd/user-preset/90-default-user.preset
     regexp: '#?(dis|en)able\s*{{ item }}'
     replace: 'disable {{ item }}'
     owner: root
@@ -26,5 +24,5 @@
     - wireplumber.service
     - obex.service
   become: true
-  when: found_preset_file|bool == true
+  when: not found_preset_file.files == []
 ...
