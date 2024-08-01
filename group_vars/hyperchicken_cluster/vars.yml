@@ -30,8 +30,8 @@ motd: "To solve or not to solve, that's the question."
 additional_etc_hosts:
   - group: docs_library
     nodes:
-      - name: docs_on_merlin
-        network: vlan16
+      - name: docs-on-bateleur
+        network: external
   - group: donbot_azure
     nodes:
       - name: ladap

@@ -34,7 +34,7 @@ all:
 #          local_volume_size_extra: 10000
     docs:
       hosts:
-        docs_on_merlin:
+        docs-on-bateleur:
     sys_admin_interface:
       hosts:
         vt-sai:
