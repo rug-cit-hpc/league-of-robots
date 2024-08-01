@@ -8,6 +8,14 @@ ip_addresses:
       address: 129.125.60.196
       netmask: /32
       fqdn: 'airlock.hpc.rug.nl'
+  airlock9:
+    vlan983:
+      address: 172.23.40.22
+      netmask: /32
+#     vlan16:
+#       address: 129.125.60.196
+#       netmask: /32
+#       fqdn: 'airlock.hpc.rug.nl'
   gs-vcompute01:
     vlan983:
       address: 172.23.40.81

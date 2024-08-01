@@ -8,6 +8,14 @@ ip_addresses:
       address: 129.125.60.18
       netmask: /32
       fqdn: 'reception.hpc.rug.nl'
+  reception9:
+    vlan983:
+      address: 172.23.40.26
+      netmask: /32
+#     vlan16:
+#       address: 129.125.60.18
+#       netmask: /32
+#       fqdn: 'reception.hpc.rug.nl'
   talos:
     vlan983:
       address: 172.23.40.92
