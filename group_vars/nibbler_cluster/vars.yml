@@ -63,12 +63,12 @@ motd: |
 additional_etc_hosts:
   - group: docs_library
     nodes:
-      - name: docs_on_merlin
-        network: vlan16
-#   - group: jenkins_server
-#     nodes:
-#       - name: jenkins
-#         network: vlan16
+      - name: docs-on-bateleur
+        network: external
+  - group: jenkins_server
+    nodes:
+      - name: jenkins
+        network: external
   - group: build_library
     nodes:
       - name: vip_build

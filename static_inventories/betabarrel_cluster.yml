@@ -29,8 +29,8 @@ all:
           additional_etc_hosts:
             - group: docs_library
               nodes:
-                - name: docs_on_merlin
-                  network: vlan16
+                - name: docs-on-bateleur
+                  network: external
             - group: betabarrel_cluster
               nodes:
                 - name: bb-dragen
@@ -119,7 +119,7 @@ all:
             - "{{ copperfist_cluster.ip_addresses['copperfist']['vlan13'] }}"
     docs:
       hosts:
-        docs_on_merlin:
+        docs-on-bateleur:
     sys_admin_interface:
       hosts:
         betabarrel:
