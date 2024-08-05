@@ -28,8 +28,8 @@ motd: |
 additional_etc_hosts:
   - group: docs_library
     nodes:
-      - name: docs_on_merlin
-        network: vlan16
+      - name: docs-on-bateleur
+        network: external
 use_ldap: true
 use_sssd: true
 ldap_domains:

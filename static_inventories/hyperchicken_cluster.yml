@@ -25,7 +25,7 @@ all:
               security_group: "{{ stack_prefix }}_repo"
     docs:
       hosts:
-        docs_on_merlin:
+        docs-on-bateleur:
     sys_admin_interface:
       hosts:
         hc-sai:

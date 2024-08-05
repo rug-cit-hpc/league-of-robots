@@ -4,8 +4,8 @@
 ---
 - name: 'Check OS version of target host.'
   ansible.builtin.fail:
-    msg: 'This role requires RedHat/CentOS version >= 7.x'
-  when: ansible_facts['os_family'] != "RedHat" or ansible_facts['distribution_major_version'] <= "6"
+    msg: 'This role requires RedHat/CentOS version >= 9.x'
+  when: ansible_facts['os_family'] != "RedHat" or ansible_facts['distribution_major_version'] < "9"
 
 #
 # This is currently problematic when
@@ -18,11 +18,6 @@
 #
 - name: 'Gather facts from hosts, so we can use them in the generated docs.'
   ansible.builtin.setup:
-  #
-  # Hack for Rocky 9.x clusters, which do not have a python (2) anymore.
-  #
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
   delegate_to: "{{ item }}"
   delegate_facts: true
   with_items:
@@ -40,11 +35,6 @@
     warn: false
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
-  #
-  # Hack for Rocky 9.x clusters, which do not have a python (2) anymore.
-  #
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
   delegate_to: "{{ groups['user_interface'] | first }}"
   changed_when: false
   failed_when: false
@@ -68,11 +58,6 @@
     warn: false
   environment:
     SOURCE_HPC_ENV: "True"   # Required to source our modules.bashrc in non-interactive shells.
-  #
-  # Hack for Rocky 9.x clusters, which do not have a python (2) anymore.
-  #
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
   delegate_to: "{{ groups['user_interface'] | first }}"
   changed_when: false
   failed_when: false
@@ -105,22 +90,25 @@
     state: 'permissive'
   become: true
 
-- name: 'Install EPEL repo and rsync.'
+- name: 'Install rsync.'
   ansible.builtin.package:
     state: 'latest'
     update_cache: true
     name:
-      - 'epel-release'
       - 'rsync'
   become: true
 
-- name: 'Install apache webserver, php and nano.'
+- name: 'Install nano, PHP, Pythopn and Apache webserver.'
   ansible.builtin.package:
     state: 'latest'
     update_cache: true
     name:
       - 'nano'
       - 'php'
+      - 'python3'
+      - 'python3-pip'
+      - 'python3-jinja2'
+      - 'python3-markupsafe'
       - 'httpd'
       - 'mod_ssl'
   notify:
@@ -184,15 +172,7 @@
                            | map(attribute='fqdn')
                            | first }}"
     - regexp: '^#?SSLProtocol .*'
-      line: 'SSLProtocol  all -SSLv3 -TLSv1 -TLSv1.1'
-    - regexp: '^#?SSLCipherSuite .*'
-      line: "SSLCipherSuite   ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:\
-                              ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:\
-                              ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:\
-                              ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:\
-                              ECDHE-RSA-AES128-SHA256"
-    - regexp: '^#?SSLHonorCipherOrder'
-      line: 'SSLHonorCipherOrder on'
+      line: 'SSLProtocol  all -SSLv3 -TLSv1 -TLSv1.1 -TLSv1.2'
   loop_control:
     label: "{{ item.line }}"
   notify:
@@ -219,10 +199,14 @@
     - 'httpd'
   become: true
 
-- name: 'Install MkDocs on RedHat 7.x.'
-  ansible.builtin.include_tasks:
-    file: mkdocs-for-redhat7.yml
-  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] >= "7"
+- name: 'Install MkDocs and deps using pip.'
+  ansible.builtin.pip:
+    name:
+      - 'MarkupSafe<2.1'  # Newer MarkupSafe is incompatible with python3-jinja2 2.11.3 RPM on Rocky 9.
+      - 'mkdocs'
+    executable: 'pip3'
+    state: 'latest'
+  become: true
 
 - name: 'Create base directories for MarkDown and HTML files.'
   ansible.builtin.file:
