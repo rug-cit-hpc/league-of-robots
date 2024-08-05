@@ -1,13 +1,15 @@
 #!/bin/bash
+set -euo pipefail
 
 _ldap_credentials="/etc/openldap/readonly-ldapsearch-credentials.bash"
+if test -e "${_ldap_credentials}"; then
+   logger -t ldap_backup "${0}: Error, no LDAP credentials file ${_ldap_credentials}"
+   exit 1
+fi
 source "${_ldap_credentials}"
 
 _ldap_dest="/root/ldap_backup"
-test -e "${_ldap_credentials}" || exit 1
-
-_daily_keep=31     # one month worth
-_weekly_keep=52    # one year worth
+cd "${_ldap_dest}"
 
 for _each_ldap in "${domain_names[@]}"; do
    echo "> running backup for ${_each_ldap} <"
@@ -16,36 +18,14 @@ for _each_ldap in "${domain_names[@]}"; do
       echo " - running backup for ${_scope}"
       _scope_destination="${_ldap_dest}/${_each_ldap}/${_scope}"
       test -e "${_scope_destination}" || mkdir "${_scope_destination}"
-      /usr/bin/ldapsearch -H "${domain_configs[${_each_ldap}'_uri']}" -D"${domain_configs[${_each_ldap}'_bind_dn']}" -b"${domain_configs[${_each_ldap}'_search_base']}" -w"${domain_configs[${_each_ldap}'_bind_pw']}" "(objectClass=person)" -LLL | gzip > "${_scope_destination}"/$(date +%Y-%m-%dT%H-%M-%S).ldif.gz
       cd "${_scope_destination}" || { logger -t ldap_backup "${0}: Error, problem with changing dir to ${_scope_destination}"; exit 1; }
+      /usr/bin/ldapsearch -H "${domain_configs[${_each_ldap}'_uri']}" -D"${domain_configs[${_each_ldap}'_bind_dn']}" -b"${domain_configs[${_each_ldap}'_search_base']}" -w"${domain_configs[${_each_ldap}'_bind_pw']}" "(objectClass=person)" -LLL | gzip > "${_scope_destination}/daily-$(date +%u).ldif.gz"
       ## Check if this weeks backup has been made and if not, make it
-      ##
-      if ! ls "${_scope_destination}"/*-weekly-$(date +%Y%U).ldif.gz 1>/dev/null 2>&1; then
+      if ! test -e "${_scope_destination}/weekly-$(date +%Y%U).ldif.gz"; then
          # Make a copy of the _latest backup as a weekly backup
          _latest=$(ls -1 "${_scope_destination}"/*.ldif.gz | tail -n 1)
-         logger -t ldap_backup "${0}: Making WEEKLY backup: $(date +%Y%m%d-%H%M%S)-weekly-$(date +%Y%U).ldif.gz"
-         cp -l "${_latest}" "${_scope_destination}/$(date +%Y%m%d-%H%M%S)-weekly-$(date +%Y%U).ldif.gz"
-      fi
-      
-      ## CLEANING up DAILY backups
-      ##
-      # grep is needed, because ls's pattern globbing is insufficient/not doing the job
-      _daily_count="$(ls -1 *.ldif.gz | grep -v weekly | wc -l)"
-      if [[ "${_daily_count}" -gt "${_daily_keep}" ]]; then
-        _delete_daily_count=$((_daily_count - _daily_keep))
-        # find the oldest files and delete them (not weekly)
-        logger -t ldap_backup "${0}: $(echo -e "Deleted DAILY backups:\n$(ls -1 *.ldif.gz | grep -v weekly | head -n "${_delete_daily_count}" | sed 's/^/  - /')")"
-        ls -1 *.ldif.gz | grep -v weekly | head -n "${_delete_daily_count}" | xargs rm -f
-      fi
-      
-      ## CLEANING up WEEKLY backups
-      ##
-      _weekly_count="$(ls -1 *-weekly-*.ldif.gz | wc -l)"
-      if [[ "${_weekly_count}" -gt "${_weekly_keep}" ]]; then
-        _delete_weekly_count=$((_weekly_count - _weekly_keep))
-        # find the oldest weekly backups and delete them
-        logger -t ldap_backup "${0}: $(echo -e "Deleted WEEKLY backups:\n$(ls -1 *-weekly-*.ldif.gz | head -n "${_delete_weekly_count}" | sed 's/^/  - /')")"
-        ls -1 *-weekly-*.ldif.gz | head -n "${_delete_weekly_count}" | xargs rm -f
+         logger -t ldap_backup "${0}: Making WEEKLY backup (weekly-$(date +%Y%U).ldif.gz) out of today's backup"
+         cp "${_scope_destination}/daily-$(date +%u).ldif.gz" "${_scope_destination}/weekly-$(date +%Y%U).ldif.gz"
       fi
    done
 done
