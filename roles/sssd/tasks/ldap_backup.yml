@@ -15,11 +15,6 @@
     owner: root
     group: root
     mode: '0700'
-  when:
-    - ldap_domains is defined
-    - ldap_domains | length > 0
-    - create_ldap is false
-    - inventory_hostname in groups['sys_admin_interface'] | default([])
   become: true
 
 - name: 'Install daily cron for ldap backups'
