@@ -2,7 +2,7 @@
 set -euo pipefail
 
 _ldap_credentials="/etc/openldap/readonly-ldapsearch-credentials.bash"
-if test -e "${_ldap_credentials}"; then
+if ! test -e "${_ldap_credentials}"; then
    logger -t ldap_backup "${0}: Error, no LDAP credentials file ${_ldap_credentials}"
    exit 1
 fi
