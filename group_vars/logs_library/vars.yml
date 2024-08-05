@@ -2,10 +2,10 @@
 stack_prefix: 'logs'
 stack_domain: ''
 stack_name: "{{ stack_prefix }}_library"  # stack_name must match the name of the folder that contains this vars.yml file.
-cloud_image: CentOS 7
-cloud_user: centos
+os_distribution: 'rocky9'
+cloud_image: RockyLinux-9.3_xfs
+cloud_user: cloud-user
 availability_zone: nova
-os_distribution: 'centos7'
 stack_networks:
   - name: "{{ stack_prefix }}_internal_management"
     cidr: '10.10.1.0/24'
