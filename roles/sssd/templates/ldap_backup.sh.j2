@@ -30,6 +30,6 @@ for _each_ldap in "${domain_names[@]}"; do
       fi
 
       # Backup-compress all files that are not from this year
-      find . ! -path . ! -name "daily-*.ldif.gz" ! -name "weekly-$(date +%Y)*.ldif.gz" -exec tar --remove-files -czf "${_ldap_dest}/${_each_ldap}/backup-${_scope}-$(tr -dc A-Za-z0-9 </dev/urandom | head -c 8).tar.gz {}" +
+      find . ! -path . ! -name "daily-*.ldif.gz" ! -name "weekly-$(date +%Y)*.ldif.gz" -exec tar --remove-files -czf "${_ldap_dest}/${_each_ldap}/backup-${_scope}-$(tr -dc A-Za-z0-9 </dev/urandom | head -c 8).tar.gz" {} +
    done
 done
