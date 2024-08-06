@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-umask 0277
+umask 0077
 
 _ldap_credentials="/etc/openldap/readonly-ldapsearch-credentials.bash"
 if ! test -e "${_ldap_credentials}"; then
