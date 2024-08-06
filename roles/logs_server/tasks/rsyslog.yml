@@ -31,8 +31,8 @@
       - gnutls-utils
       - python-firewall
       - firewalld
-      - "openssl{% if os_distribution == 'centos7' %}11{% endif %}"
-      - "openssl{% if os_distribution == 'centos7' %}11{% endif %}-devel"
+      - openssl11
+      - openssl11-devel
     state: latest
     update_cache: true
   become: true
