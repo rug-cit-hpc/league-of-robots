@@ -7,7 +7,7 @@ all:
           ansible_python_interpreter: /usr/bin/env python
     docs:
       hosts:
-        docs_on_merlin:
+        docs-on-bateleur:
     sys_admin_interface:
       hosts:
         forkhead:

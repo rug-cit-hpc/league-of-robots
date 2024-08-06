@@ -63,11 +63,11 @@ motd: |
 additional_etc_hosts:
   - group: docs_library
     nodes:
-      - name: docs_on_merlin
-        network: vlan16
+      - name: docs-on-bateleur
+        network: external
   - group: jenkins_server
     nodes:
-      - name: jenkins-rocky
+      - name: jenkins
         network: external
   - group: build_library
     nodes:
@@ -522,13 +522,51 @@ pfs_mounts:
     rw_options: 'defaults,_netdev,flock'
     ro_options: 'defaults,_netdev,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
+  - pfs: umcgst06
+    source: '172.23.15.186@tcp15:172.23.15.187@tcp15:/umcgdh5'
+    type: lustre
+    rw_options: 'defaults,_netdev,flock'
+    ro_options: 'defaults,_netdev,ro'
+    machines: "{{ groups['sys_admin_interface'] }}"
 lfs_mounts:
   - lfs: home
-    pfs: umcgst05
+    pfs: umcgst06
     quota_type: 'project'
     rw_machines: "{{ groups['cluster'] }}"
   - lfs: tmp03
     pfs: umcgst05
+    quota_type: 'project'
+    quota_pid_increment: 300000  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
+    groups:
+      - name: umcg-as
+        mode: '2750'
+      - name: umcg-atd
+        mode: '2750'
+      - name: umcg-biogen
+        mode: '2750'
+      - name: umcg-bios
+        mode: '2750'
+      - name: umcg-dag3
+        mode: '2750'
+      - name: umcg-fg
+        mode: '2750'
+      - name: umcg-franke-scrna
+        mode: '2750'
+      - name: umcg-gdio
+        mode: '2750'
+      - name: umcg-lifelines
+        mode: '2750'
+      - name: umcg-lld
+        mode: '2750'
+      - name: umcg-llnext
+        mode: '2750'
+      - name: umcg-tifn
+        mode: '2750'
+      - name: umcg-ugli
+        mode: '2750'
+    ro_machines: "{{ groups['user_interface'] }}"
+  - lfs: tmp04
+    pfs: umcgst06
     quota_type: 'project'
     quota_pid_increment: 300000  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
@@ -678,8 +716,8 @@ lfs_mounts:
       - name: umcg-weersma
       - name: umcg-wijmenga
     rw_machines: "{{ groups['user_interface'] }}"
-  - lfs: env03
-    pfs: umcgst05
+  - lfs: env04
+    pfs: umcgst06
     quota_type: 'project'
     ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"

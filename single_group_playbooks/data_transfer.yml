@@ -16,17 +16,13 @@
     - remove
     - update
     - logins
-    - role: ldap
-      when:
-        - use_ldap | default(true) | bool
-        - not use_sssd | default(false) | bool
     - role: sssd
-      when:
-        - use_ldap | default(true) | bool
-        - use_sssd | default(false) | bool
+      when: use_sssd | default(false) | bool
     - sshd
     - basic_security
     - rsyncd
     - regular_users
     - mount_volume
+    - role: cleanup_gs_data
+      when: '"umcg-genomescan" in regular_groups'
 ...

@@ -50,8 +50,8 @@ motd: |
 additional_etc_hosts:
   - group: docs_library
     nodes:
-      - name: docs_on_merlin
-        network: vlan16
+      - name: docs-on-bateleur
+        network: external
   - group: betabarrel_cluster
     nodes:
       - name: betabarrel
@@ -407,6 +407,7 @@ ogm_servers:
       - /home/bionano/access/web/Server/Log
       - /home/bionano/access/web/Server/anchorFiles
       - /home/ADMINIT/pg_dump
+    psql_dump_location: /home/ADMINIT/pg_dump
 #
 # Local storage variables.
 #

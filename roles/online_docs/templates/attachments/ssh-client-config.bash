@@ -298,10 +298,28 @@ function manageConfig() {
 		mv "${HOME}/.ssh/config.new" "${HOME}/.ssh/config"
 	fi
 	#
-	# Create cluster specific config file
+	# Create cluster specific config file.
 	#
 	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Creating or updating ${HOME}/.ssh/conf.d/{{ slurm_cluster_name }} ..."
-	cat <<EOF > "${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}"
+	cat <<EOFGENERIC > "${HOME}/.ssh/conf.d/generic"
+#
+# Generic settings for key management.
+#
+IgnoreUnknown UseKeychain
+    UseKeychain yes
+IgnoreUnknown AddKeysToAgent
+    AddKeysToAgent yes
+#
+# Universal jumphost settings for triple-hop SSH.
+#
+Host *+*+*
+    ProxyCommand ssh -x -q \$(echo "\${JUMPHOST_USER:-%r}")@\$(echo %h | sed 's/+[^+]*$//') -W \$(echo %h | sed 's/^[^+]*+[^+]*+//'):%p
+EOFGENERIC
+	#
+	# Create cluster specific config file.
+	#
+	log4Bash 'DEBUG' "${LINENO}" "${FUNCNAME[0]:-main}" '0' "Creating or updating ${HOME}/.ssh/conf.d/{{ slurm_cluster_name }} ..."
+	cat <<EOFSTACK > "${HOME}/.ssh/conf.d/{{ slurm_cluster_name }}"
 #
 # Special comment lines parsed by our mount-cluster-drives script to create sshfs mounts.
 # (Will be ignored by OpenSSH.)
@@ -312,16 +330,13 @@ function manageConfig() {
 #
 
 #
-# Generic stuff: only for macOS clients.
-#
-IgnoreUnknown UseKeychain
-    UseKeychain yes
-IgnoreUnknown AddKeysToAgent
-    AddKeysToAgent yes
-#
 # Host settings.
 #
 Host{% for jumphost in groups['jumphost'] %} {{ jumphost }}*{% endfor %}
+    #
+    # Include generic settings for multiple stacks.
+    #
+    Include conf.d/generic
     #
     # Default account name when not specified explicitly.
     #
@@ -377,11 +392,6 @@ Host {{ jumphost }}
     HostKeyAlias {{ jumphost }}
 {% endfor -%}
 #
-# Universal jumphost settings for triple-hop SSH.
-#
-Host *+*+*
-    ProxyCommand ssh -x -q \$(echo %h | sed 's/+[^+]*$//') -W \$(echo %h | sed 's/^[^+]*+[^+]*+//'):%p
-#
 # Double-hop SSH settings to connect via specific jumphosts.
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost}}+* {% endfor %}{% raw %}{% endraw %}
@@ -393,8 +403,7 @@ Host {% for jumphost in groups['jumphost'] %}{{ jumphost}}+* {% endfor %}{% raw 
 #
 Host {% for jumphost in groups['jumphost'] %}{{ jumphost}}443+* {% endfor %}{% raw %}{% endraw %}
     ProxyCommand ssh -x -q \$(echo "\${JUMPHOST_USER:-%r}")@\$(echo %h | sed 's/443+[^+]*$//') -W \$(echo %h | sed 's/^[^+]*+//'):%p -p 443
-
-EOF
+EOFSTACK
 }
 
 #

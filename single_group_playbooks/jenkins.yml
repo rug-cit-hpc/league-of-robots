@@ -9,6 +9,8 @@
   hosts:
     - jenkins
   roles:
+    - {role: yum_local, when: local_yum_repository is defined}
+    - epel
     - iptables
     - grub
     - locale

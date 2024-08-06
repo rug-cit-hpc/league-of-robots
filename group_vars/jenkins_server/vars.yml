@@ -77,8 +77,6 @@ jenkins_plugins:
   - warnings-ng
   - name: git
     version: 5.2.2
-  - name: workflow-multibranch
-    version: 773.vc4fe1378f1d5
   - name: branch-api
     version: 2.1169.va_f810c56e895
   - name: cloudbees-folder
@@ -88,7 +86,7 @@ jenkins_plugins:
   - name: analysis-model-api
     version: 12.3.3
   - name: ghprb
-    version: 1.142.2
+    version: 1.42.2
   - name: github-api
     version: 1.318-461.v7a_c09c9fa_d63
   - name: git-client
@@ -101,8 +99,16 @@ jenkins_plugins:
     version: 1291.v51fd2a_625da_7
   - name: workflow-job
     version: 1400.v7fd111b_ec82f
-  - name: workflow-multibrach
+  - name: workflow-multibranch
     version: 773.vc4fe1378f1d5
+  - name: workflow-basic-steps
+    version: 1058.vcb_fc1e3a_21a_9
+  - name: workflow-durable-task-step
+    version: 1353.v1891a_b_01da_18
+  - name: workflow-scm-step
+    version: 427.v4ca_6512e7df1
+  - name: pipeline-stage-step
+    version: 312.v8cd10304c27a_
 
 jenkins_plugins_install_dependencies: true
 jenkins_prefer_lts: true

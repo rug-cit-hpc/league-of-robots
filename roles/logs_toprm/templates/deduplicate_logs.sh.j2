@@ -1,0 +1,97 @@
+#!/bin/bash
+
+_base_dir="{{ logs_toprm_destination }}"
+
+{% raw %}
+set -eEuo pipefail
+_log_tag="logstoprm"
+# We store all the extra information into the system logs, like civilized people
+trap 'logger -t "${_log_tag}" "${0##*/}  Command (${BASH_COMMAND}) failed on line number (${LINENO})"' ERR TERM
+trap 'logger -t "${_log_tag}" "${0##*/}  Script was interrupted by external process / user."' INT QUIT
+
+# This script checkes all the files for the duplicates
+#  - first it collects the list of all the files
+#  - then iterates through each file and looks for the duplicate
+#  - duplicates are log files of similar path and same
+#      ./ [earl*] / [machine] / compressed_files / [log type]-[date]
+#  - checks if the files are the same
+#    - if so, then update the timestamp
+#    - if not, then merge both files into one, keep only unique lines
+#  - finally make one file a hardlink to another (to reduce storage),
+#    but keep each file, or rsync would recreate them at the next run
+
+# Default variables
+_debug=false
+_script_path_dir="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+_log_file="${_script_path_dir}/${0##*/}.log"
+
+# Shell arguments
+for (( i=1; i<=$#; i++ )); do
+   [[ "${1}" == "-h" || "${1}" == "--help" ]] && echo -e "Usage\n\t${0} -d\n\t${0} -f /log/output/file" && exit
+   [[ "${1}" == "-d" ]] && _debug=true
+   [[ "${1}" == "-l" ]] && shift && _log_file="${1}"
+   shift
+done
+
+# Managing log history - and limit to 100k of lines of old logs
+touch "${_log_file}"
+if test -e "${_log_file}"; then
+   if test -e "${_log_file}.old"; then
+      cat "${_log_file}.old" "${_log_file}" 2>/dev/null | tail -n 100000 > "${_log_file}.tmp"
+      mv -f "${_log_file}.tmp" "${_log_file}.old"
+   else
+      cp "${_log_file}" "${_log_file}.old"
+   fi
+fi
+echo "------ $(date)------" > "${_log_file}"
+
+cd "${_base_dir}"
+
+_deduplicate_all="$(find "${_base_dir}" -path "*earl*" -type f -printf "%i %P\n" | sort -k1)"
+_all_info_with_single_inode="$(awk '{ a[$1]++; b[$1]=$0; } END { for (i in a) { if (a[i] == "1") { print a[i]" "b[i] } } }' <<< "${_deduplicate_all}")"
+_all_paths_with_single_inode="$(cut -d' ' -f3 <<< "${_all_info_with_single_inode}")"
+_todo_count=$(wc -l <<< "${_all_paths_with_single_inode}")
+_index=0
+_count_deduplicated=0
+logger -t "${_log_tag}" "${0##*/}  Starting to deduplicate files in the ${_base_dir}"
+while IFS= read -r _path; do
+   test -e "${_path}" || continue
+   _earl="$(awk -F'/' '{print $1}' <<< "${_path}")"
+   _machine="$(awk -F'/' '{print $2}' <<< "${_path}")"
+   _month="$(awk -F'/' '{print $3}' <<< "${_path}")"
+   _file="$(awk -F'/' '{print $5}' <<< "${_path}")"
+   echo "- ${_path}" >> "${_log_file}"
+   _replica_path=$(awk -F '/' -v aearl="${_earl}" -v amachine="${_machine}" -v amonth="${_month}" -v afile="${_file}" '$1 != aearl && $2 == amachine && $5 == afile' <<< "${_all_paths_with_single_inode}")
+   if [[ -n "${_replica_path}" ]]; then
+      _this_inode=$(awk -F '/' -v aearl="${_earl}" -v amachine="${_machine}" -v amonth="${_month}" -v afile="${_file}" '$3 == aearl && $4 == amachine && $7 == afile { print $2 }' <<< "${_all_info_with_single_inode}")
+      _replica_inode=$(awk -F '/' -v aearl="${_earl}" -v amachine="${_machine}" -v amonth="${_month}" -v afile="${_file}" '$3 != aearl && $4 == amachine && $7 == afile { print $2 }' <<< "${_all_info_with_single_inode}")
+      echo "  ${_replica_path}" >> "${_log_file}"
+      if ! diff -q ${_path} ${_replica_path} > /dev/null ; then
+         ${_debug} && echo "    different > merging into ${_path}.merged" >> "${_log_file}"
+         # merge both files into one, keep only unique lines from each
+         zcat ${_path} ${_replica_path} 2>/dev/null | sort -u | gzip > "${_path}.merged"
+         # rm -f "${_path}"
+         mv -f "${_path}.merged" "${_path}"
+      else
+         ${_debug} && echo "    are same - touching date" >> "${_log_file}"
+         # files are the same, then only change the timestamp to right now
+         # so that rsync will never overwrite it anymore
+         touch ${_path}
+      fi
+      # now hard link them together - it does not take extra storage and it works with
+      # rsync -au which does not update if newer exist
+      echo "    linking ${_path} and ${_replica_path}" >> "${_log_file}"
+      test -e ${_replica_path} && rm -f ${_replica_path}
+      ln ${_path} ${_replica_path}
+      _count_deduplicated=$(( _count_deduplicated + 1))
+   else
+      ${_debug} && echo "    no duplicated file for ${_path}" >> "${_log_file}"
+      echo "    making a duplication of the file in the ${_path}.duplicate" >> "${_log_file}"
+      ln "${_path}" "${_path}.duplicate"
+   fi
+   _index=$(( _index + 1 ))
+   ${_debug} && echo "Progress ${_index} of ${_todo_count}" >> "${_log_file}"
+   sleep 0.1  # this is needed, or the cifs get's overloaded
+done <<< "${_all_paths_with_single_inode}"
+logger -t "${_log_tag}" "${0##*/}  Successfully finished deduplicating. Deduplicated ${_count_deduplicated} files."
+{% endraw %}

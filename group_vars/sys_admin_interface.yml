@@ -1,0 +1,7 @@
+---
+#
+# Local volume size (root partition) for SAIs: use larger than default volume, 
+# because we need to store Slurm database & Slurm database backups.
+#
+local_volume_size_root: 45
+...

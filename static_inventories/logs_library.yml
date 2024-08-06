@@ -21,8 +21,6 @@ all:
         # ExternAl RsysLog 2 - Azure - Development
         earl2:
           logs_class: 'development'
-          cloud_image: CentOS 7
-          os_distribution: 'centos7'
         # ExternAl RsysLog 3 - Azure - Diagnostics
         earl3:
           logs_class: 'diagnostics'

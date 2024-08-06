@@ -2,4 +2,9 @@
 # This is enforcing that repo server uses `yum_repos` to create
 # yum repositories, since repo servers cannot use Pulp
 repo_manager: 'none'
+#
+# Local volume size (root partition) for repo machines: use larger than default volume,
+# because we need to cache/freeze packages.
+#
+local_volume_size_root: 42
 ...

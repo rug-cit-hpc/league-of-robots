@@ -29,6 +29,8 @@
       value: 1
     - name: kernel.kexec_load_disabled
       value: 1
+    - name: kernel.sysrq
+      value: 1
     # Network
     - name: net.core.bpf_jit_harden
       value: 2

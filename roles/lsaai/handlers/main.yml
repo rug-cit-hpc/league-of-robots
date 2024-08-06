@@ -15,4 +15,20 @@
   become: true
   become_user: lsaai
   listen: lsaai_ldapadd
+
+- name: Extend LDAP with LSAAI extra fields
+  ansible.builtin.command:
+    cmd: >
+      /usr/local/openldap/bin/ldapadd
+      -Y EXTERNAL
+      -H 'ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi'
+      -f /usr/local/openldap/etc/openldap/custom/lsaai.ldif
+  register: lsaai_schema_extend_result
+  failed_when: lsaai_ldapadd_result.rc != 0
+  changed_when:
+    - lsaai_schema_extend_result.rc == 0
+    - "'adding new entry' in lsaai_schema_extend_result.stdout"
+    - "'cn=lsaai,cn=schema,cn=config' in lsaai_schema_extend_result.stdout"
+  become: true
+  listen: lsaai_schema_extend
 ...
