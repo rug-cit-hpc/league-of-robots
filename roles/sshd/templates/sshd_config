@@ -17,7 +17,7 @@ UseDNS no
 Protocol 2
 
 {% if ansible_facts['os_family'] == "RedHat"
-  and ansible_facts['distribution_major_version'] >= "8" %}
+  and ansible_facts['distribution_major_version'] >= "9" %}
 #
 # Minimal RSA key size
 #
