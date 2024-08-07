@@ -31,7 +31,7 @@ all:
               nodes:
                 - name: docs-on-bateleur
                   network: external
-            - group: betabarrel_cluster
+            - group: copperfist_cluster
               nodes:
                 - name: cf-dragen
                   network: vlan16
