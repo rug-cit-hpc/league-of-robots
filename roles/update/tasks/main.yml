@@ -16,9 +16,9 @@
 - name: 'Install cron job to reboot server regularly to activate kernel updates.'
   ansible.builtin.cron:
     name: 'Reboot to load new kernel.'
-    weekday: '1'
+    weekday: '2'
     minute: '45'
-    hour: '11'
+    hour: '4'
     user: root
     job: /bin/needs-restarting -r >/dev/null 2>&1 || /sbin/shutdown -r +60 "Restarting to apply updates..."
     cron_file: reboot
