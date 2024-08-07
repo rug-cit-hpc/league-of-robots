@@ -46,6 +46,9 @@ all:
               security_group: "{{ stack_prefix }}_logservers"
               assign_floating_ip: true
           local_volume_size_extra: 100
+        # ExternAl RsysLog 6 - Azure - Development
+        earl6:
+          logs_class: 'research'
 logs_library:
   children:
     openstack_api:
