@@ -126,6 +126,15 @@
   notify: restart_sshd
   become: true
 
+- name: Create /etc/ssh/sshd_config.d if it does not exist
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0655'
+  become: true
+
 - name: Deploy extra sshd config to use patched system wide crypto policy.
   ansible.builtin.template:
     src: 50-crypto-policies.conf
