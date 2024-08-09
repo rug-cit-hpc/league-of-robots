@@ -29,9 +29,7 @@ sshd_algorithms:
     keys: ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,ssh-rsa,ssh-rsa-cert-v01@openssh.com
 sshd_crypto_policies:
   oracle8:
-#    - DEFAULT
-    - CUSTOM
-    - CVE-2023-48795 # Terrapin Attack: https://terrapin-attack.com/
+    - DEFAULT
   rocky9:
     - CUSTOM
     - CVE-2023-48795 # Terrapin Attack: https://terrapin-attack.com/
