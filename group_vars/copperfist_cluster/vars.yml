@@ -468,7 +468,7 @@ pfs_mounts:
 lfs_mounts:
   - lfs: home
     pfs: local_raid
-    rw_machines: "{{ groups['cluster'] }}"
+    rw_machines: "{{ groups['user_interface'] }}"
   - lfs: tmp06
     pfs: local_raid
     groups:
@@ -482,9 +482,9 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-labgnkbh
       - name: umcg-patho
-      - name: umcg-pr
+#      - name: umcg-pr
       - name: umcg-vipt
-    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
+    rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] }}"
   - lfs: prm05
     pfs: 'medgen_zincfinger$'
     groups:
@@ -645,7 +645,7 @@ lfs_mounts:
     rw_machines: "{{ groups['chaperone'] }}"
   - lfs: env06
     pfs: local_raid
-    rw_machines: "{{ groups['deploy_admin_interface'] + groups['compute_node'] + groups['user_interface'] }}"
+    rw_machines: "{{ groups['deploy_admin_interface'] + groups['user_interface'] }}"
 smb_server_users:
   - name: sbsuser
     uid: 501
