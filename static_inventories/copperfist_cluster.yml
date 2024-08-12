@@ -160,9 +160,9 @@ all:
                 - mount_point: '/local'
                   device: '/mnt/local_raid/local'
                   mounted_owner: root
-                  mounted_group: root    
+                  mounted_group: root
                   mounted_mode: '2755'
-                  mount_options: 'bind'
+                  mount_options: 'bind,nofail'
                   type: none
               slurm_sockets: 2
               slurm_cores_per_socket: 64
@@ -179,12 +179,19 @@ all:
             cf-dragen:
               ansible_host: cf-porch+copperfist+cf-dragen
               volumes:
+                - mount_point: '/staging'
+                  device: 'LABEL=staging'
+                  mounted_owner: root
+                  mounted_group: root
+                  mounted_mode: '0755'
+                  mount_options: 'defaults,noatime,nofail'
+                  type: xfs
                 - mount_point: '/local'
                   device: '/staging/slurm'
                   mounted_owner: root
-                  mounted_group: root                 
-                  mounted_mode: '2755'
-                  mount_options: 'bind'
+                  mounted_group: root
+                  mounted_mode: '0755'
+                  mount_options: 'bind,nofail'
                   type: none
               slurm_sockets: 2
               slurm_cores_per_socket: 16

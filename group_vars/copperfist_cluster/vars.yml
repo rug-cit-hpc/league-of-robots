@@ -392,20 +392,33 @@ soft_partitions:
 #
 # Local storage variables.
 #
-volume_group_folders: [
-  { mount_point: '/groups',
-    machines: "{{ groups['data_transfer'] }}",
-    mode: '2750',
-    groups: [
-        "{{ data_transfer_only_group }}"
-      ]},
-  { mount_point: '/groups',
-    machines: "{{ groups['data_transfer'] }}",
-    mode: '2770',
-    groups: [
-        'umcg-genomescan', 'umcg-gst'
-      ]},
-]
+volume_folders:
+  - mount_point: '/groups'
+    machines: "{{ groups['data_transfer'] }}"
+    folders:
+      - rel_paths:
+          - "{{ data_transfer_only_group }}"
+        mode: '2750'
+        owner: root
+        group: "{{ data_transfer_only_group }}"
+      - rel_paths:
+          - umcg-genomescan
+          - umcg-gst
+        mode: '2770'
+        owner: root
+  - mount_point: '/staging'
+    machines: "{{ groups['dragen'] }}"
+    folders:
+      - rel_paths:
+          - development
+        mode: '0770'
+        owner: umcg-atd-ateambot
+        group: umcg-atd
+      - rel_paths:
+          - slurm
+        mode: '0755'
+        owner: root
+        group: root
 #
 # Shared storage related variables
 #
