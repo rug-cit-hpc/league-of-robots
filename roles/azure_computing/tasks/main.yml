@@ -1,0 +1,90 @@
+#
+# Create network ports, volumes and finally instances a.k.a. servers.
+#
+---
+# Get network info
+- name: Get facts for all virtual networks from Azure
+  azure_rm_virtualnetwork_info:
+    resource_group: "{{ azure_resource_group }}"
+  register: api_network_info
+  run_once: true
+# Create the servers.
+- name: Create network ports, volumes and servers.
+  ansible.builtin.include_tasks:
+    file: azure_servers.yml
+  when:
+    - hostvars[inventory_hostname]['azure_flavor'] is defined
+#- name: Get info on floating IPs from OpenStack API.
+#  openstack.cloud.floating_ip_info:
+#  register: api_fip_info
+#  run_once: true
+#- name: Get server info from OpenStack API.
+#  openstack.cloud.server_info:
+#  register: api_server_info
+#  run_once: true
+#
+- name: Get the existing network interface of the VM
+  azure.azcollection.azure_rm_networkinterface_info:
+    resource_group: "{{ azure_resource_group }}"
+    name: "{{ inventory_hostname }}_nic"
+  register: nic_info
+  when:
+    - hostvars[inventory_hostname]['azure_flavor'] is defined
+
+- name: Display VM's IP address
+  debug:
+    msg:
+      - "nic_info: {{ nic_info }}"
+      - "nic: {{ nic }}"
+      - "public_ip: {{ public_ip }}"
+  when:
+    - hostvars[inventory_hostname]['azure_flavor'] is defined
+
+- name: Extract public IP addresses
+  set_fact:
+    public_ip_addresses: "{{ public_ip | json_query('*.ip_address') }}"
+  when:
+    - hostvars[inventory_hostname]['azure_flavor'] is defined
+
+- name: Display VM's IP address
+  debug:
+    msg:
+      - "> {{ nic_info.networkinterfaces[0].ip_configurations[0].private_ip_address }}"
+      - "> {{ public_ip_addresses }}"
+  when:
+    - hostvars[inventory_hostname]['azure_flavor'] is defined
+
+- meta: end_play
+
+- name: "Add IP addresses to {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/group_vars/template/ip_addresses.yml.j2"
+    dest: "{{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
+    mode: '0644'
+  vars:
+    relevant_servers_info: "{{ api_server_info.servers | selectattr('name', 'in', stack_hosts_created_in_openstack) | list }}"
+  run_once: true
+- name: "Create {{ playbook_dir }}/group_vars/{{ stack_name }}/ssh_client_settings.yml.new"
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/group_vars/template/ssh_client_settings.yml.j2"
+    dest: "{{ playbook_dir }}/group_vars/{{ stack_name }}/ssh_client_settings.yml.new"
+    mode: '0644'
+  run_once: true
+- name: "ToDo"
+  ansible.builtin.debug:
+    msg: |
+         ***********************************************************************************************************
+         IMPORTANT: Manual work!
+                    Ansible created:
+                        {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new
+                        {{ playbook_dir }}/group_vars/{{ stack_name }}/ssh_client_settings.yml.new
+                    Please inspect these files carefully with:
+                        diff -y {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
+                        diff -y {{ playbook_dir }}/group_vars/{{ stack_name }}/ssh_client_settings.yml{.new,}
+                    and if both are Ok execute:
+                        mv {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
+                        mv {{ playbook_dir }}/group_vars/{{ stack_name }}/ssh_client_settings.yml{.new,}
+         ***********************************************************************************************************
+  run_once: true
+  failed_when: true  # Make sure to always interrupt any playbook here.
+...

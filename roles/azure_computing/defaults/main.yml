@@ -1,0 +1,10 @@
+---
+openstack_api_timeout: 180
+stack_hosts_created_in_azure: "{{ hostvars
+    | json_query('* | [?azure_flavor] | [].inventory_hostname')
+    | flatten
+    | unique }}"
+azure_computing_boot_from_volume: true
+azure_computing_terminate_volume: true
+cloud_user: centos
+...

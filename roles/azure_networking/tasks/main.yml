@@ -1,0 +1,30 @@
+#
+# Create vxlans, routers and security groups.
+#
+---
+- name: Create security groups.
+  ansible.builtin.include_tasks:
+    file: security_groups.yml
+- name: Create management networks.
+  ansible.builtin.include_tasks:
+    file: management_networks.yml
+  vars:
+    network_name: "{{ item }}"
+    network_cidr: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='cidr') | first }}"
+  with_items: "{{ azure_networks
+                  | selectattr('type', 'equalto', 'management')
+                  | selectattr('external', 'equalto', false)
+                  | map(attribute='name') }}"
+
+# Todo
+# - name: Create storage networks.
+#   ansible.builtin.include_tasks:
+#     file: storage_networks.yml
+#   vars:
+#     network_name: "{{ item }}"
+#     network_cidr: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='cidr') | first }}"
+#   with_items: "{{ azure_networks
+#                   | selectattr('type', 'equalto', 'storage')
+#                   | selectattr('external', 'equalto', false)
+#                   | map(attribute='name') }}"
+...

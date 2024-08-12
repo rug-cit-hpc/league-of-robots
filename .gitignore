@@ -17,6 +17,10 @@ roles/HPCplaybooks
 roles/HPCplaybooks/*
 ssh-host-ca/umcg-hpc-ca
 ssh-host-ca/*production*
+# Ignore everything in `.azure/` folder, except .`azure/config` and `.azure/clouds.config`
+.azure/*
+!.azure/config
+!.azure/clouds.config
 #
 # For debugging locally only
 #
