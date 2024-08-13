@@ -16,7 +16,7 @@
         that: "ansible_version.full is version_compare(minimal_ansible_version, '>=')"
         msg: "You must update Ansible to at least {{ minimal_ansible_version }}.x to use this playbook."
       vars:
-        minimal_ansible_version: 2.11
+        minimal_ansible_version: 2.13
       run_once: true  # noqa run-once
       delegate_to: localhost
       connection: local
@@ -34,7 +34,7 @@
       connection: local
       loop:
         - ANSIBLE_ROLES_PATH
-        - ANSIBLE_COLLECTIONS_PATHS
+        - ANSIBLE_COLLECTIONS_PATH
     - name: 'Verify that the group_vars were parsed.'
       ansible.builtin.assert:
         that: stack_name is defined

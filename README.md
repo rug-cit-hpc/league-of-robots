@@ -123,32 +123,28 @@ cd league-of-robots
 # For older openstacksdk < 0.99 we need the ansible openstack collection 1.x.
 # For newer openstacksdk > 1.00 we need the ansible openstack collection 2.x.
 #
-openstacksdk_major_version='1'  # Change to 0 for older OpenStack SDK.
+openstacksdk_major_version='3'  # Change for older OpenStack SDK.
 #
 # Create Python virtual environment (once)
 #
-python3 -m venv openstacksdk-${openstacksdk_major_version:-1}.venv
+python3 -m venv openstacksdk-${openstacksdk_major_version:-3}.venv
 #
 # Activate virtual environment.
 #
-source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
+source openstacksdk-${openstacksdk_major_version:-3}.venv/bin/activate
 #
 # Install OpenStack SDK (once) and other python packages.
 #
 pip3 install --upgrade pip
 pip3 install wheel
-if [[ "${openstacksdk_major_version:-1}" -eq 0 ]]; then
+if [[ "${openstacksdk_major_version:-3}" -eq 0 ]]; then
   pip3 install "openstacksdk<0.99"
 else
-  pip3 install "openstacksdk==${openstacksdk_major_version:-1}.*"
+  pip3 install "openstacksdk==${openstacksdk_major_version:-3}.*"
 fi
 pip3 install openstackclient
 pip3 install ruamel.yaml
-#
-# Until https://github.com/ansible-collections/ansible.utils/issues/331 is fixed,
-# we cannot use netaddr >= 1.0.0.
-#
-pip3 install 'netaddr<1'
+pip3 install netaddr
 #
 # Package dnspython is required for Ansible lookup plugin community.general.dig
 #
@@ -163,9 +159,9 @@ pip3 install passlib
 # You may skip this step if you already installed Ansible by other means.
 # E.g. with HomeBrew on macOS, with yum or dnf on Linux, etc.
 #
-# Ansible core 2.13 from Ansible 6.x is latest version compatible with Mitogen.
+# Ansible core 2.16 from Ansible 9.x is latest version compatible with Mitogen.
 #
-pip3 install 'ansible<7' # For running playbooks on your local laptop as Ansible control host.
+pip3 install 'ansible<10' # For running playbooks on your local laptop as Ansible control host.
 pip3 install 'ansible<6' # For running playbooks directly on chaperone machines running RHEL8.
 pip3 install ansible-lint
 #
@@ -179,14 +175,14 @@ pip3 install mitogen
 #### 1. Import the required roles and collections for the playbooks.
 
 ```bash
-source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
+source openstacksdk-${openstacksdk_major_version:-3}.venv/bin/activate
 export ANSIBLE_ROLES_PATH="${VIRTUAL_ENV}/ansible/ansible_roles/:"
-export ANSIBLE_COLLECTIONS_PATHS="${VIRTUAL_ENV}/ansible/:"
-ansible-galaxy install -r requirements-${openstacksdk_major_version:-1}.yml
+export ANSIBLE_COLLECTIONS_PATH="${VIRTUAL_ENV}/ansible/:"
+ansible-galaxy install -r requirements-${openstacksdk_major_version:-3}.yml
 ```
 
 Note: the default location where these dependencies will get installed with the ```ansible-galaxy install``` command is ```${HOME}/.ansible/```,
-which is may conflict with versions of roles and collections required for other repos.
+which may conflict with versions of roles and collections required for other repos.
 Therefore we set ```ANSIBLE_ROLES_PATH``` and ```ANSIBLE_COLLECTIONS_PATH``` to use a custom path for the dependencies inside the virtual environment we'll use for this repo.
 
 #### 2. Create a `vault_pass.txt`.
@@ -221,7 +217,7 @@ To create a new *stack* you will need ```group_vars``` and a static inventory fo
   #
   # Activate Python virtual env created in step 0.
   #
-  source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
+  source openstacksdk-${openstacksdk_major_version:-3}.venv/bin/activate
   #
   # Configure this repo for a specific cluster.
   # This will set required ENVIRONMENT variables including
@@ -436,7 +432,7 @@ These shorter subset _playbooks_ can save a lot of time during development, test
   #
   # Activate Python virtual env created in step 0.
   #
-  source openstacksdk-${openstacksdk_major_version:-1}.venv/bin/activate
+  source openstacksdk-${openstacksdk_major_version:-3}.venv/bin/activate
   #
   # Initialize the OpenstackSDK
   #
