@@ -25,7 +25,7 @@ ip_addresses:
     {{ each_network.name }}:
       address: {{ private_ip_results['networkinterfaces'][0]['ip_configurations'][0]['private_ip_address'] }}
       netmask: /32
-      {% if hostvars[each_hostname][each_network.name]['assign_floating_ip'] is defined and hostvars[each_hostname][each_network.name]['assign_floating_ip'] is true %}
+      {% if each_network.assign_floating_ip is defined and each_network.assign_floating_ip is true %}
       publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
       {% endif %}
     {% endif %}
