@@ -47,15 +47,26 @@
       {% endif %}
   register: nic
 
-- name: Print VMs NICs
-  debug:
-    msg:
-      - "{{ vm_nics | from_yaml }}"
-  vars:
-    vm_nics: |
-      {% for item in hostvars[inventory_hostname]['host_networks'] %}
-      - {{ inventory_hostname }}-{{ item.name }}_nic
-      {% endfor %}
+- name: Assign FQDN to all the public IPs
+  azure_rm_publicipaddress:
+    resource_group: "{{ azure_resource_group }}"
+    name: "{{ inventory_hostname }}-{{ item.name }}_public_ip"
+    allocation_method: static
+    domain_name_label: "{{ inventory_hostname }}-{{ (item.name | ansible.builtin.hash('sha1'))[:4] }}" 
+  with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
+  when:
+    - item.assign_floating_ip is defined
+    - item.assign_floating_ip is true
+
+# - name: Print VMs NICs
+#   debug:
+#     msg:
+#       - "{{ vm_nics | from_yaml }}"
+#   vars:
+#     vm_nics: |
+#       {% for item in hostvars[inventory_hostname]['host_networks'] %}
+#       - {{ inventory_hostname }}-{{ item.name }}_nic
+#       {% endfor %}
 
 - name: Create an Azure VM
   azure.azcollection.azure_rm_virtualmachine:
