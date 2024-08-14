@@ -23,7 +23,6 @@ ip_addresses:
     {{ each_network.name }}:
       address: {{ public_ip_results['publicipaddresses'][0]['ip_address'] }}
       netmask: /32
-      test = {{ public_ip_results['publicipaddresses'][0] }} 
       {% if public_ip_results['publicipaddresses'][0]['dns_settings']['fqdn'] is defined %}
       {% set fqdn = public_ip_results['publicipaddresses'][0]['dns_settings']['fqdn'] %}
       fqdn: '{{ fqdn }}'

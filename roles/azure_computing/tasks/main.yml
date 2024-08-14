@@ -62,10 +62,10 @@
     resource_group: "{{ azure_resource_group }}"
   register: azure_vms_info
 
-- debug:
-    msg: "{{ relevant_servers_info }}"
-  vars:
-    relevant_servers_info: "{{ azure_vms_info.vms | selectattr('name', 'in', stack_hosts_created_in_azure ) | list }}"
+# - debug:
+#     msg: "{{ relevant_servers_info }}"
+#   vars:
+#     relevant_servers_info: "{{ azure_vms_info.vms | selectattr('name', 'in', stack_hosts_created_in_azure ) | list }}"
 
 - name: "Add IP addresses to {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses_azure.yml.new"
   ansible.builtin.template:
