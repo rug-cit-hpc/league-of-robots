@@ -23,8 +23,7 @@ azure_image:
     publisher: 'resf'
     sku: '9-base'
     version: 'latest'
-#azure_resource_group: 'logs'
-azure_resource_group: 'testing'
+azure_resource_group: "{{ stack_prefix }}_testing"
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.

@@ -1,104 +1,60 @@
 ---
-#- debug: msg="{{ hostvars[inventory_hostname]['host_networks'] | selectattr('name', 'equalto', stack_prefix ~ '_internal_management') | map(attribute='assign_floating_ip', default=false) | bool }}"
-#- meta: end_play
-- name: "Create internal network interfaces"
-  block:
-    # Internal IP only - without public IP's
-    - name: Create an internal only network interface and dynamically assign IP
-      azure.azcollection.azure_rm_networkinterface:
-        resource_group: "{{ azure_resource_group }}"
-        name: "{{ inventory_hostname }}-{{ item.name }}_nic"
-        location: "{{ azure_location }}"
-        ip_configurations:
-          - name: "az0"
-        subnet_name: "{{ item.name }}_subnet"
-        virtual_network: "{{ item.name }}"
-        enable_accelerated_networking: true
-        security_group: "{{ item.security_group }}"
-        create_with_security_group: false # default is true, but we already created it
-      register: nic
-      with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
-      when:
-        - ip_addresses[inventory_hostname][item.name]['address'] is not defined
-        - item.assign_floating_ip is not defined
-
-    - name: Create an internal only network interface and assign existing IP
-      azure.azcollection.azure_rm_networkinterface:
-        resource_group: "{{ azure_resource_group }}"
-        name: "{{ inventory_hostname }}-{{ item.name }}_nic"
-        location: "{{ azure_location }}"
-        ip_configurations:
-          - name: "az0"
-            private_ip_address: "{{ ip_addresses[inventory_hostname][item.name]['address'] }}"
-        subnet_name: "{{ item.name }}_subnet"
-        virtual_network: "{{ item.name }}"
-        enable_accelerated_networking: true
-        security_group: "{{ item.security_group }}"
-        create_with_security_group: false # default is true, but we already created it
-      register: nic
-      with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
-      when:
-        - ip_addresses[inventory_hostname][item.name]['address'] is defined
-        - item.assign_floating_ip is not defined
-
-    # With Public IP's
-    - name: Create public IP
-      azure.azcollection.azure_rm_publicipaddress:
-        resource_group: "{{ azure_resource_group }}"
-        location: "{{ azure_location }}"
-        name: "{{ inventory_hostname }}-{{ item.name }}_public_ip"
-        allocation_method: Static
-        sku: Standard
-      register: public_ip
-      with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
-      when: item.assign_floating_ip is defined
-
-    - name: Create an internal only network interface and dynamically assign IP
-      azure.azcollection.azure_rm_networkinterface:
-        resource_group: "{{ azure_resource_group }}"
-        name: "{{ inventory_hostname }}-{{ item.name }}_nic"
-        location: "{{ azure_location }}"
-        ip_configurations:
-          - name: "az0"
-        subnet_name: "{{ item.name }}_subnet"
-        virtual_network: "{{ item.name }}"
-        enable_accelerated_networking: true
-        security_group: "{{ item.security_group }}"
-        create_with_security_group: false # default is true, but we already created it
-      register: nic
-      with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
-      when:
-        - ip_addresses[inventory_hostname][item.name]['address'] is not defined
-        - item.assign_floating_ip is defined
-
-    - name: Create an internal only network interface and assign existing IP
-      azure.azcollection.azure_rm_networkinterface:
-        resource_group: "{{ azure_resource_group }}"
-        name: "{{ inventory_hostname }}-{{ item.name }}_nic"
-        location: "{{ azure_location }}"
-        ip_configurations:
-          - name: "az0"
-            private_ip_address: "{{ ip_addresses[inventory_hostname][item.name]['address'] }}"
-          - name: "pub0"
-            public_ip_address_name: "{{ inventory_hostname }}-{{ item.name }}_public_ip"
-        subnet_name: "{{ item.name }}_subnet"
-        virtual_network: "{{ item.name }}"
-        enable_accelerated_networking: true
-        security_group: "{{ item.security_group }}"
-        create_with_security_group: false # default is true, but we already created it
-      register: nic
-      with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
-      when:
-        - ip_addresses[inventory_hostname][item.name]['address'] is defined
-        - item.assign_floating_ip is defined
-
-- set_fact:
+- name: Compile facts for VMs
+  ansible.builtin.set_fact:
     public_keys: |
       {% for public_key in public_keys_of_local_admins %}
       {% if 'ssh-rsa' not in public_key %}
       - path: "/home/{{ cloud_user }}/.ssh/authorized_keys"
         key_data: {{ public_key }}
       {% endif %}
+      {% endfor %}
+
+- debug:
+    msg: "{{ vm_ip_configs | from_yaml }}"
+  with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
+  vars:
+    vm_ip_configs: |
+      - name: "{{ inventory_hostname }}-{{ item.name }}"
+      {% if ip_addresses[inventory_hostname][item.name]['address'] is defined %}
+        private_ip_address: {{ ip_addresses[inventory_hostname][item.name]['address'] }}
+      {% endif %}
+      {% if item.assign_floating_ip is defined %}
+        public_ip_address_name: "{{ inventory_hostname }}-{{ item.name }}_public_ip"
+      {% endif %}
+
+- name: Create network interfaces for VM
+  azure.azcollection.azure_rm_networkinterface:
+    name: "{{ inventory_hostname }}-{{ item.name }}_nic"
+    location: "{{ azure_location }}"
+    resource_group: "{{ azure_resource_group }}"
+    virtual_network: "{{ item.name }}"
+    subnet_name: "{{ item.name }}_subnet"
+    ip_configurations: "{{ vm_ip_configs | from_yaml }}"
+    enable_accelerated_networking: True
+    create_with_security_group: True
+    security_group: "{{ item.security_group }}"
+  with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
+  vars:
+    vm_ip_configs: |
+      - name: "{{ inventory_hostname }}-{{ item.name }}"
+      {% if ip_addresses[inventory_hostname][item.name]['address'] is defined %}
+        private_ip_address: {{ ip_addresses[inventory_hostname][item.name]['address'] }}
+        private_ip_allocation_method: "Static"
+      {% endif %}
+      {% if item.assign_floating_ip is defined and item.assign_floating_ip is true %}
+        public_ip_address_name: "{{ inventory_hostname }}-{{ item.name }}_public_ip"
+        public_ip_allocation_method: "Static"
+      {% endif %}
+  register: nic
+
+- name: Print VMs NICs
+  debug:
+    msg:
+      - "{{ vm_nics | from_yaml }}"
+  vars:
+    vm_nics: |
+      {% for item in hostvars[inventory_hostname]['host_networks'] %}
+      - {{ inventory_hostname }}-{{ item.name }}_nic
       {% endfor %}
 
 - name: Create an Azure VM
@@ -108,7 +64,7 @@
     location: "{{ azure_location }}"
     vm_size: "{{ azure_flavor }}"
     admin_username: "{{ cloud_user }}"
-    ssh_password_enabled: false
+    ssh_password_enabled: False
     ssh_public_keys: "{{ public_keys | from_yaml }}"
     custom_data: |
       #jinja2: trim_blocks:True, lstrip_blocks:True
@@ -125,7 +81,7 @@
         - {{ public_key }}
         {% endif %}
       {% endfor %}
-    network_interfaces: "{{ inventory_hostname}}_nic"
+    network_interface_names: "{{ vm_nics | from_yaml }}"
 #    storage_container: "{{ inventory_hostname}}_blobs"
 #    storage_blob: "{{ inventory_hostname}}_osdisk.vhd"
     managed_disk_type: Standard_LRS
@@ -141,16 +97,13 @@
       product: "{{ azure_image[os_distribution].offer }}"
       publisher: "{{ azure_image[os_distribution].publisher }}"
     started: false
-#TODO   started: true
+  vars:
+    vm_nics: |
+      {% for item in hostvars[inventory_hostname]['host_networks'] %}
+      - {{ inventory_hostname }}-{{ item.name }}_nic
+      {% endfor %}
 
-
-# - name: Create managed disk
-#   azure_rm_manageddisk:
-#     name: "{{ inventory_hostname }}_mymanaged_disk"
-#     location: "{{ azure_location }}"
-#     resource_group: "{{ azure_resource_group }}"
-#     disk_size_gb: "{{ local_volume_size_extra }}"
-#   when: local_volume_size_extra is defined and local_volume_size_extra > 0
+# TODO   started: true
 
 - name: Mount the managed disk to VM
   azure.azcollection.azure_rm_manageddisk:

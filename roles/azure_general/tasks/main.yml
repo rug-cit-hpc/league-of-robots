@@ -1,5 +1,5 @@
 ---
-- name: Create resource group
+- name: "Create resource group {{ azure_resource_group }} in {{ azure_location }}"
   azure.azcollection.azure_rm_resourcegroup:
     name: "{{ azure_resource_group }}"
     location: "{{ azure_location }}"
