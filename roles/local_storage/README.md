@@ -8,8 +8,8 @@ for example when a bind mount must be created in a location on an extra file sys
 
 The `local_storage` role uses two variables that must be configured in the `group_vars` or `static_inventory`:
 
-* local_mounts: List of devices to mount (or folders to bind mount). (*Required*)
-* local_mount_subfolders: List of subfolders to create on the local mounts. (*Optional*)
+* **`local_mounts`**: List of devices to mount (or folders to bind mount). (**Required**)
+* **`local_mount_subfolders`**: List of subfolders to create on the local mounts. (**Optional**)
 
 
 ## Defining file systems to be mounted
