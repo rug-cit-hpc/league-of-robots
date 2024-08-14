@@ -411,7 +411,7 @@ ogm_servers:
 #
 # Local storage variables.
 #
-volume_folders:
+local_mount_subfolders:
   - mount_point: '/groups'
     machines: "{{ groups['data_transfer'] }}"
     folders:

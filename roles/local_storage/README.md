@@ -1,22 +1,23 @@
-# mount_volume role
+# local_storage role
 
-This role mounts local volumes and supported both mounting devices as well as bind mounts.
+This role mounts local file systems and supported both mounting devices as well as bind mounts.
 A folder for the _mount point_ will be created automatically,
 but the location where the _mount point_ is created must already exist.
-Hence the order of of mounts may be relevant.
+Hence the order of of mounts may be relevant;
+for example when a bind mount must be created in a location on an extra file system that must be mounted first.
 
-The `mount_volume` role uses two variables that must be configured in the `group_vars` or `static_inventory`:
+The `local_storage` role uses two variables that must be configured in the `group_vars` or `static_inventory`:
 
-* volumes: List of devices to mount (*required*)
-* volume_folders: List of devices to mount (*required*)
+* local_mounts: List of devices to mount (or folders to bind mount). (*Required*)
+* local_mount_subfolders: List of subfolders to create on the local mounts. (*Optional*)
 
 
-## Defining volumes to be mounted
+## Defining file systems to be mounted
 
 Example of mounting a real device first and then mounting a sub folder from that device as bind mount elsewhere:
 
 ```yaml
-  volumes:
+  local_mounts:
     - mount_point: '/staging'
       device: 'LABEL=staging'
       mounted_owner: root
@@ -36,15 +37,15 @@ Example of mounting a real device first and then mounting a sub folder from that
 Note:
  * The `device` will be formatted if it isn't formatted yet.
  * The `device` should be listed the same way it is listed in `/etc/fstab`
-   and can be identiefied using a `LABEL`, an `UUID` or a path like `/dev/vdb`.
+   and can be identified using a `LABEL`, an `UUID` or a path like `/dev/vdb`.
 
-## Defining folders to be created on the mounted volumes
+## Defining subfolders to be created on the mounted file systems
 
-Optionally the `mount_volume` role can create sub folders on the mounted volume.
+Optionally the `local_storage` role can create subfolders on the mounted file systems.
 Below is an example for a GD stack:
 
 ```yaml
-volume_folders:
+local_mount_subfolders:
   - mount_point: '/groups'
     machines: "{{ groups['data_transfer'] }}"
     folders:
@@ -75,4 +76,4 @@ volume_folders:
 
 Note: 
  * Specifying the `group` is optional. When left out the `group` will default to the same value as the item from `rel_paths`.
-   This is useful when `rel_paths` contains a list of folders for groups, which should all be put in their own `group`.
+   This is useful when `rel_paths` contains a list of subfolders for groups, which should all be put in their own `group`.

@@ -472,7 +472,7 @@ sudoers:
 #
 # Vaxtron does not have a data_transfer server yet...
 #
-# volume_folders:
+# local_mount_subfolders:
 #   - mount_point: '/groups'
 #     machines: "{{ groups['data_transfer'] }}"
 #     folders:

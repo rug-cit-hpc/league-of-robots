@@ -146,7 +146,7 @@ all:
     deploy_admin_interface:
       hosts:
         betabarrel:
-          volumes:
+          local_mounts:
             - mount_point: '/apps'
               device: '/mnt/env05/apps/'
               mounted_owner: root
@@ -170,7 +170,7 @@ all:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             betabarrel:
-              volumes:
+              local_mounts:
                 - mount_point: '/local'
                   device: '/mnt/local_raid/local'
                   mounted_owner: root
@@ -192,7 +192,7 @@ all:
           hosts:
             bb-dragen:
               ansible_host: bb-porch+betabarrel+bb-dragen
-              volumes:
+              local_mounts:
                 - mount_point: '/staging'
                   device: 'LABEL=staging'
                   mounted_owner: root

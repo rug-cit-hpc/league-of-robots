@@ -1,9 +1,9 @@
 ---
-- name: Compile list of volumes to mount for NFS servers.
+- name: Compile list of local file systems to mount for NFS servers.
   ansible.builtin.set_fact:
-    volumes: "{{ volumes | default([]) + [volume] }}"
+    local_mounts: "{{ local_mounts | default([]) + [local_mount] }}"
   vars:
-    volume:
+    local_mount:
       mount_point: "/mnt/{{ item['pfs'] }}"
       device: "{{ item['device'] }}"
       mounted_owner: root
@@ -14,11 +14,11 @@
   when: inventory_hostname in groups['nfs_server'] | default([])
   with_items: "{{ pfs_mounts | selectattr('type', 'search', 'nfs') | selectattr('device', 'defined') | list }}"
 
-- name: Check if volume source is a device.
+- name: Check if file system source is a device.
   ansible.builtin.stat:
     path: "{{ item.device }}"
-  register: mount_volume_device_stat
-  loop: "{{ volumes }}"
+  register: local_storage_device_stat
+  loop: "{{ local_mounts }}"
 
 - name: Create a file system on unformatted device.
   ansible.builtin.include_tasks:
@@ -28,14 +28,14 @@
     volume_device: "{{ item.device }}"
     volume_type: "{{ item.type }}"
   when:
-    - mount_volume_device_stat['results']
+    - local_storage_device_stat['results']
       | selectattr('item', 'equalto', item)
       | map(attribute='stat')
       | map(attribute='isblk')
       | first is true
-  loop: "{{ volumes }}"
+  loop: "{{ local_mounts }}"
 
-- name: Mount the volume.
+- name: Mount the local file system.
   ansible.builtin.include_tasks:
     file: mount.yml
   vars:
@@ -44,14 +44,14 @@
     volume_fstype: "{{ item.type }}"
     volume_opts: "{{ item.mount_options }}"
     volume_device: "{{ item.device }}"
-  loop: "{{ volumes }}"
+  loop: "{{ local_mounts }}"
 
 - name: Recheck the mount point.
   ansible.builtin.command: "mountpoint {{ item.mount_point }}"
-  register: mount_point_status
+  register: local_storage_mount_point_status
   failed_when: false
   changed_when: false
-  loop: "{{ volumes }}"
+  loop: "{{ local_mounts }}"
 
 - name: Configure permissions for mounted file system.
   ansible.builtin.file:
@@ -62,17 +62,17 @@
     mode: "{{ item.item.mounted_mode }}"
   when: item.rc == 0
   become: true
-  loop: "{{ mount_point_status.results }}"
+  loop: "{{ local_storage_mount_point_status.results }}"
 
-- name: Create sub folders on volumes.
+- name: Create sub folders on local file systems.
   ansible.builtin.include_tasks:
     file: create_sub_folders.yml
   vars:
     mount_point: "{{ item.1.mount_point }}"
     folders: "{{ item.1.folders | list }}"
   when:
-    - volume_folders is defined
+    - local_mount_subfolders is defined
     - item.0.mount_point == item.1.mount_point
     - inventory_hostname in item.1.machines
-  loop: "{{ volumes | product(volume_folders) | list }}"
+  loop: "{{ local_mounts | product(local_mount_subfolders) | list }}"
 ...
