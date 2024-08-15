@@ -6,10 +6,6 @@
 - name: Configure SSH and sudo.
   ansible.builtin.include_tasks: ssh.yml
 
-- name: Configure automatic updates.
-  ansible.builtin.include_tasks: autoupdate.yml
-  when: basic_security_autoupdate_enabled | bool
-
 - name: Configure systemd.
   ansible.builtin.include_tasks: systemd.yml
   when:
