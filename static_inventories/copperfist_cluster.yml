@@ -29,9 +29,9 @@ all:
           additional_etc_hosts:
             - group: docs_library
               nodes:
-                - name: docs_on_merlin
-                  network: vlan16
-            - group: betabarrel_cluster
+                - name: docs-on-bateleur
+                  network: external
+            - group: copperfist_cluster
               nodes:
                 - name: cf-dragen
                   network: vlan16
@@ -199,13 +199,14 @@ all:
                 - enp5s0  # BMC
                 - ens3f0.16  # VLAN16
               slurm_weight: 10
+              slurm_version: '20.11.9-1.el8.umcg'
               os_distribution: 'oracle8'
               local_yum_repository: true # enable local yum repository
               additional_etc_hosts:
                 - group: docs_library
                   nodes: 
-                    - name: docs_on_merlin
-                      network: vlan16
+                    - name: docs-on-bateleur
+                      network: external
                 - group: copperfist_cluster
                   nodes:
                     - name: cf-dragen
