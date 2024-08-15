@@ -108,7 +108,7 @@ Syntax:  ${PROGNAME} [<options>] [<var>=<value> [...]]
  -h                Show command line help (this info)
  -A <args>         Pass <args> to $SUBPROG
  -D <directory>    Use <directory> for cache/bookkeeping
- -N 		       Send notification with output of $SUBPROG to Slack
+ -N                Send notification with output of $SUBPROG to Slack
  -X <timespec>     Expire cached output after <timespec> (e.g., "6h" or "1d")
  --                Stop parsing command line; pass remaining args to $SUBPROG
 
