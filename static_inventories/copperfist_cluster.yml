@@ -199,6 +199,7 @@ all:
                 - enp5s0  # BMC
                 - ens3f0.16  # VLAN16
               slurm_weight: 10
+              slurm_version: '20.11.9-1.el8.umcg'
               os_distribution: 'oracle8'
               local_yum_repository: true # enable local yum repository
               additional_etc_hosts:
