@@ -108,7 +108,7 @@ Syntax:  ${PROGNAME} [<options>] [<var>=<value> [...]]
  -h                Show command line help (this info)
  -A <args>         Pass <args> to $SUBPROG
  -D <directory>    Use <directory> for cache/bookkeeping
- -N 		       Send notification with output of $SUBPROG to Slack
+ -N                Send notification with output of $SUBPROG to Slack
  -X <timespec>     Expire cached output after <timespec> (e.g., "6h" or "1d")
  --                Stop parsing command line; pass remaining args to $SUBPROG
 
@@ -284,26 +284,28 @@ function nhcwrap_report_results() {
 		# results.  This means a prior error is now cleared.
 		if [[ "${NOTIFY}" == "1" ]]
 		then
-		
 			read -r -d '' message << EOM
 {
 	"type": "mrkdwn",
-	"text": "*The error(s) on _$(hostname)_ of the _${cluster_name}_ cluster are cleared*: 
+	"text": "*The _$(hostname)_ of the _${cluster_name}_ cluster is healthy again*:
 \`\`\`
-The following errors on ${cluster_name} have now been CLEARED: ${PREV_RESULTS}
+The following error(s) on ${cluster_name} have now been CLEARED:
+${PREV_RESULTS}
 \`\`\`"
 }
 EOM
+			echo -n "Notifying Slack channel that the NHC error was cleared ... "
 			curl -X POST "${slack_webhook}" \
-			-H 'Content-Type: application/json' \
-			-d "${message}"
-			echo "Notification of cleared error sent to slack."
+				-H 'Content-Type: application/json' \
+				-d "${message}"
+			echo
 		else
 			echo "The following errors on ${cluster_name} have now been CLEARED: ${PREV_RESULTS}"
 		fi
 	else
-
-	read -r -d '' message << EOM
+		if [[ "${NOTIFY}" == "1" ]]
+		then
+			read -r -d '' message << EOM
 {
 	"type": "mrkdwn",
 	"text": "*The _$(hostname)_ of the _${cluster_name}_ cluster needs help*:
@@ -312,13 +314,11 @@ $(cat "${SAVEFILE}" | tr \" \')
 \`\`\`"
 }
 EOM
-
-		if [[ "${NOTIFY}" == "1" ]]
-		then
+			echo -n "Notifying Slack channel for new NHC error ... "
 			curl -X POST "${slack_webhook}" \
-			-H 'content-type:application/json' \
-			-d "${message}"
-			echo "Notification has been sent to Slack"
+				-H 'content-type:application/json' \
+				-d "${message}"
+			echo
 		else
 			echo "$(< ${SAVEFILE})"
 		fi
