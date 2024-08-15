@@ -38,7 +38,7 @@
       group: root
       mode: '0755'
       state: directory
-    - name: '/var/run/nhc_standalone'
+    - name: '/var/run/nhc'
       owner: root
       group: root
       mode: '0700'
@@ -76,6 +76,6 @@
     name: 'NHC wrapper'
     minute: '*/5'
     user: 'root'
-    job: '/usr/sbin/nhc-wrapper -N -P nhc_standalone -D /var/run/nhc_standalone/ -X 12h -A "-a"'
+    job: '/usr/sbin/nhc-wrapper -N -P nhc_standalone -D /var/run/nhc/ -X 12h -A "-a"'
   become: true
 ...
