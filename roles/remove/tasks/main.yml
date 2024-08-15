@@ -3,7 +3,7 @@
 # Note we delete the subscription-manager RPMs,
 # but the docker RPMs have a silly dependency on this subscription-manager.
 # So if anything installs Docker later on, then it could re-enable the subscription-manager.
-# Therefore we also explicitly disable it in the confio file if that exists.
+# Therefore we also explicitly disable it in the config file if that exists.
 #
 - name: Check if /etc/yum/pluginconf.d/subscription-manager.conf exists.
   ansible.builtin.stat:
