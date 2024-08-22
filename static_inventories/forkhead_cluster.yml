@@ -18,7 +18,7 @@ all:
     deploy_admin_interface:
       hosts:
         forkhead:
-          volumes:
+          local_mounts:
             - mount_point: '/apps'
               device: '/mnt/env12/apps/'
               mounted_owner: root
