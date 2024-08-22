@@ -77,6 +77,7 @@ external_jumphosts:
 # Configure the SSH client on this stack for logins on other stacks listed in ssh_client_configs.
 #
 ssh_client_configs:
+  - logs_library
   - betabarrel_cluster
   - copperfist_cluster
 #
