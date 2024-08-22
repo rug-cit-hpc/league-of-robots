@@ -273,7 +273,7 @@
   register: sshd_check_crypto_policies
   changed_when: false
   failed_when:
-    - "'The configured policy matches the generated policy' not in sshd_check_crypto_policies"
+    - "'The configured policy matches the generated policy' not in sshd_check_crypto_policies.stdout"
   become: true
   when:
     - ansible_facts['os_family'] == "RedHat"
