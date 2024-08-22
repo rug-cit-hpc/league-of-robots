@@ -484,7 +484,7 @@ volume_group_folders: [
         'umcg-aad', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
         'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
         'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdi', 'umcg-gdio', 'umcg-gonl',
-        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
+        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-hlhs', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
         'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb',
         'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-reki', 'umcg-solve-rd', 'umcg-sommer', 'umcg-sysops', 'umcg-tifn', 'umcg-ukb',
         'umcg-ugli', 'umcg-verbeek', 'umcg-vdakker', 'umcg-visclasataxia', 'umcg-weersma', 'umcg-wijmenga'
@@ -585,6 +585,8 @@ lfs_mounts:
       - name: umcg-franke-scrna
         mode: '2750'
       - name: umcg-gdio
+        mode: '2750'
+      - name: umcg-hlhs
         mode: '2750'
       - name: umcg-lifelines
         mode: '2750'
