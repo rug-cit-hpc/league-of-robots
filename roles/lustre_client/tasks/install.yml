@@ -230,4 +230,7 @@
     state: started
     daemon_reload: true
   become: true
+
+- name: Flush handlers for Lustre client.
+  ansible.builtin.meta: flush_handlers
 ...
