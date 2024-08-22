@@ -137,6 +137,7 @@ source openstacksdk-${openstacksdk_major_version:-3}.venv/bin/activate
 #
 pip3 install --upgrade pip
 pip3 install wheel
+pip3 install setuptools  # No longer part of default Python >= 3.12.x, but we need it.
 if [[ "${openstacksdk_major_version:-3}" -eq 0 ]]; then
   pip3 install "openstacksdk<0.99"
 else
