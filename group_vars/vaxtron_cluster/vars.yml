@@ -485,6 +485,7 @@ sudoers:
 #           - regular_group_placeholder
 #         mode: '2770'
 #         owner: root
+
 #
 # Shared storage related variables
 #
@@ -580,6 +581,8 @@ lfs_mounts:
       - name: umcg-franke-scrna
         mode: '2750'
       - name: umcg-gdio
+        mode: '2750'
+      - name: umcg-hlhs
         mode: '2750'
       - name: umcg-lifelines
         mode: '2750'
