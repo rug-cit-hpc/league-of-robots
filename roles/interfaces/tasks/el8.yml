@@ -15,8 +15,8 @@
 #
 - name: Deploy /etc/systemd/network/99-default.link for customised udev network device renaming policy ordering.
   ansible.builtin.template:
-    src: 99-default.link 
-    dest: /etc/systemd/network/99-default.link 
+    src: 99-default.link
+    dest: /etc/systemd/network/99-default.link
     owner: 'root'
     group: 'root'
     mode: '0644'
