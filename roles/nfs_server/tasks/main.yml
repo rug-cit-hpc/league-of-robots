@@ -1,5 +1,5 @@
 #
-# This role may depend on the mount_volume role to mount the filesystems that must be exported over NFS.
+# This role may depend on the local_storage role to mount the filesystems that must be exported over NFS.
 #
 ---
 - name: 'Install NFS utils.'
