@@ -37,8 +37,6 @@ regular_users:
     groups: ['vipt']
   - user: 'bcharbon'
     groups: ['vipt']
-  - user: 'rsietsma'
-    groups: ['vipt']
   - user: 'svandenhoek'
     groups: ['vipt']
   - user: 'mbijlsma'

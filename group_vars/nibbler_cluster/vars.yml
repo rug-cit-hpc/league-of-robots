@@ -469,27 +469,59 @@ sudoers:
 #
 # Local storage variables.
 #
-volume_group_folders: [
-  { mount_point: '/groups',
-    machines: "{{ groups['data_transfer'] }}",
-    mode: '2750',
-    groups: [
-        "{{ data_transfer_only_group }}"
-      ]},
-  { mount_point: '/groups',
-    machines: "{{ groups['data_transfer'] }}",
-    mode: '2770',
-    groups: [
-        'umcg-aad', 'umcg-atd', 'umcg-biogen', 'umcg-bionic-mdd-gwama',
-        'umcg-bios', 'umcg-dag3', 'umcg-datateam', 'umcg-ejp-rd', 'umcg-endocrinology', 'umcg-franke-scrna',
-        'umcg-gaf', 'umcg-gap', 'umcg-gastrocol', 'umcg-gcc', 'umcg-gdi', 'umcg-gdio', 'umcg-gonl',
-        'umcg-griac', 'umcg-gsad', 'umcg-hematology', 'umcg-impact', 'umcg-lifelines', 'umcg-lld',
-        'umcg-llnext', 'umcg-micompany', 'umcg-mmbimg', 'umcg-msb',
-        'umcg-pmb', 'umcg-pub', 'umcg-radicon', 'umcg-rehabilitation', 'umcg-reki', 'umcg-solve-rd', 'umcg-sommer',
-        'umcg-tifn', 'umcg-ukb', 'umcg-ugli', 'umcg-verbeek', 'umcg-vdakker', 'umcg-visclasataxia', 'umcg-weersma',
-        'umcg-wijmenga'
-      ]},
-]
+local_mount_subfolders:
+  - mount_point: '/groups'
+    machines: "{{ groups['data_transfer'] }}"
+    folders:
+      - rel_paths:
+          - "{{ data_transfer_only_group }}"
+        mode: '2750'
+        owner: root
+        group: "{{ data_transfer_only_group }}"
+      - rel_paths:
+          - umcg-aad
+          - umcg-atd
+          - umcg-biogen
+          - umcg-bionic-mdd-gwama
+          - umcg-bios
+          - umcg-dag3
+          - umcg-datateam
+          - umcg-ejp-rd
+          - umcg-endocrinology
+          - umcg-franke-scrna
+          - umcg-gaf
+          - umcg-gap
+          - umcg-gastrocol
+          - umcg-gcc
+          - umcg-gdi
+          - umcg-gdio
+          - umcg-gonl
+          - umcg-griac
+          - umcg-gsad
+          - umcg-hematology
+          - umcg-impact
+          - umcg-lifelines
+          - umcg-lld
+          - umcg-llnext
+          - umcg-micompany
+          - umcg-mmbimg
+          - umcg-msb
+          - umcg-pmb
+          - umcg-radicon
+          - umcg-rehabilitation
+          - umcg-reki
+          - umcg-solve-rd
+          - umcg-sommer
+          - umcg-tifn
+          - umcg-ukb
+          - umcg-ugli
+          - umcg-verbeek
+          - umcg-vdakker
+          - umcg-visclasataxia
+          - umcg-weersma
+          - umcg-wijmenga
+        mode: '2770'
+        owner: root
 #
 # Shared storage related variables
 #
