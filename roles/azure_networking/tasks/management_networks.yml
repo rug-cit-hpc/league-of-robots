@@ -1,0 +1,23 @@
+---
+- name: "Create {{ network_name }} network"
+  azure.azcollection.azure_rm_virtualnetwork:
+    name: "{{ network_name }}"
+    resource_group: "{{ azure_resource_group }}"
+    location: "{{ azure_location }}"
+    address_prefixes_cidr:
+      - "{{ network_cidr }}"
+    dns_servers: "{{ nameservers | list }}"
+    tags:
+      testing: testing
+      delete: on-exit
+
+- name: "Create a subnet {{ network_name }}_subnet in a {{ network_name }}"
+  azure.azcollection.azure_rm_subnet:
+    name: "{{ network_name }}_subnet"
+    resource_group: "{{ azure_resource_group }}"
+    address_prefix: "{{ network_cidr }}"
+    virtual_network: "{{ network_name }}"
+    security_group: "{{ stack_prefix }}_cluster"
+    state: "present"
+  register: subnet_result
+...

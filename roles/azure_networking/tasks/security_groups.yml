@@ -1,0 +1,161 @@
+---
+# Notes about security groups of Azure
+#  - they work differently than Openstack
+#  - they can be stacked, but need to be correctly weighted in order to work
+#  - therefore I decided that I will use them in following structure
+#     - 1xx are for publicly exposed ports
+#     - 2xx for network cidr limited port access
+#     - 3xx are for everything else: storage or vlans ports
+
+#
+# Jumphost: receive 22 and 443 from anywhere, block ICMP
+#
+- name: "Create security groups for machines in 'jumphost' inventory group."
+  when: "'jumphost' in inventory_groups_with_hosts_created_in_azure"
+  block:
+    - name: "Create security group {{ stack_prefix }}_jumphosts."
+      azure.azcollection.azure_rm_securitygroup:
+        resource_group: "{{ azure_resource_group }}"
+        name: "{{ stack_prefix }}_jumphosts"
+        purge_rules: true
+        rules:
+          - name: SSH
+            protocol: Tcp
+            destination_port_range: 22
+            source_address_prefix: '*'
+            access: Allow
+            priority: 101
+          - name: SSH_fallback
+            protocol: Tcp
+            destination_port_range: 443
+            source_address_prefix: '*'
+            access: Allow
+            priority: 102
+          - name: ICMP
+            protocol: Icmp
+            source_address_prefix: '*'
+            access: Deny
+            priority: 103
+#
+# Cluster: limit connection only from the nodes from the same network.
+#
+- name: inventory_groups_with_hosts_created_in_azure
+  debug:
+    msg: "{{ inventory_groups_with_hosts_created_in_azure }}"
+- name: network_names_of_all_hosts_created_in_azure
+  debug:
+    msg: "{{ network_names_of_all_hosts_created_in_azure }}"
+- name: "Create security groups for machines in 'cluster' inventory group."
+  when: "stack_prefix ~ '_internal_management' in network_names_of_all_hosts_created_in_azure"
+# or 'cluster' in inventory_groups_with_hosts_created_in_azure"
+  block:
+    - name: "Create security group {{ stack_prefix }}_cluster"
+      azure.azcollection.azure_rm_securitygroup:
+        resource_group: "{{ azure_resource_group }}"
+        name: "{{ stack_prefix }}_cluster"
+        purge_rules: true
+        rules:
+          - name: SSH
+            protocol: Tcp
+            destination_port_range: 22
+            source_address_prefix: "{{ network_cidr }}"
+            access: Allow
+            priority: 201
+          - name: SSH_fallback
+            protocol: Tcp
+            destination_port_range: 443
+            source_address_prefix: "{{ network_cidr }}"
+            access: Allow
+            priority: 202
+          - name: ICMP
+            protocol: Icmp
+            source_address_prefix: "{{ network_cidr }}"
+            access: Allow
+            priority: 203
+      vars:
+        network_name: "{{ item }}"
+        network_cidr: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='cidr') | first }}"
+    #    network_gateway: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='gateway') | first }}"
+    #    network_mtu_size: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='mtu_size') | first | default(omit) }}"
+    #    router_network: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='router_network') | first }}"
+      with_items: "{{ azure_networks
+                    | selectattr('type', 'equalto', 'management')
+                    | selectattr('external', 'equalto', false)
+                    | map(attribute='name')
+                    | intersect(network_names_of_all_hosts_created_in_azure)    
+                    | default([]) }}"
+#
+# Logs
+#
+- name: "Create security groups for machines in 'logs' inventory group."
+  when: "'logs' in inventory_groups_with_hosts_created_in_azure"
+  block:
+    - name: "Create security group {{ stack_prefix }}_logservers"
+      azure.azcollection.azure_rm_securitygroup:
+        resource_group: "{{ azure_resource_group }}"
+        name: "{{ stack_prefix }}_logservers"
+        purge_rules: true
+        rules:
+          - name: SSH
+            protocol: Tcp
+            destination_port_range: 22
+            source_address_prefix: "*"
+            direction: Inbound
+            access: Allow
+            priority: 101
+          - name: SSH_fallback
+            protocol: Tcp
+            destination_port_range: 443
+            source_address_prefix: "*"
+            direction: Inbound
+            access: Allow
+            priority: 102
+          - name: Rsyslog
+            protocol: Tcp
+            destination_port_range: 41514
+            source_address_prefix: "*"
+            direction: Inbound
+            access: Allow
+            priority: 103
+          - name: ICMP
+            protocol: Icmp
+            source_address_prefix: "{{ network_cidr }}"
+            direction: Inbound
+            access: Allow
+            priority: 104
+      vars:
+        network_name: "{{ item }}"
+        network_cidr: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='cidr') | first }}"
+    #    network_gateway: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='gateway') | first }}"
+    #    network_mtu_size: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='mtu_size') | first | default(omit) }}"
+    #    router_network: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='router_network') | first }}"
+      with_items: "{{ azure_networks
+                    | selectattr('type', 'equalto', 'management')
+                    | selectattr('external', 'equalto', false)
+                    | map(attribute='name')
+                    | intersect(network_names_of_all_hosts_created_in_azure)    
+                    | default([]) }}"
+# TO-DO
+## Data staging security groups.
+#        - name: ssh
+#          protocol: Tcp
+#          destination_port_range: 22
+#          source_address_prefix: '*'
+#          priority: 101
+#        - name: ssh_fallback
+#          protocol: Tcp
+#          destination_port_range: 443
+#          source_address_prefix: '*'
+#          priority: 102
+#        - name: ICMP
+#          protocol: Icmp
+#          source_address_prefix: '*'
+#          priority: 103
+## (Pulp) repo server security group.
+#        - protocol: tcp
+#          port: 22  # SSH
+#        - protocol: tcp
+#          port: 443  # HTTPS
+#        - protocol: icmp
+#          port: -1  # ICMP protocol does not have any ports.
+...
