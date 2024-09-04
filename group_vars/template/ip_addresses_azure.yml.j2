@@ -6,6 +6,7 @@
 ip_addresses:
 {% for server_info in relevant_servers_info | sort(attribute='name') %}
   {% set each_hostname = server_info.name %}
+  {% if hostvars[each_hostname]['azure_flavor'] is defined %}
   {{ each_hostname }}:
   {% for each_network in hostvars[each_hostname]['host_networks'] | default([]) | sort %}
     {% for private_ip_results in hostvars[each_hostname]['nic_info']['results'] %}
@@ -20,7 +21,7 @@ ip_addresses:
     {% endfor %}
     {% for public_ip_results in hostvars[each_hostname]['public_ips']['results'] %}
     {% if public_ip_results['item']['name'] == each_network.name %}
-    {{ each_network.name }}:
+    {{ each_network.name }}_public:
       address: {{ public_ip_results['publicipaddresses'][0]['ip_address'] }}
       netmask: /32
       {% if public_ip_results['publicipaddresses'][0]['dns_settings']['fqdn'] is defined %}
@@ -32,5 +33,6 @@ ip_addresses:
     {% endif %}
     {% endfor %}
   {% endfor %}
+  {% endif %}
 {% endfor %}
 ...
