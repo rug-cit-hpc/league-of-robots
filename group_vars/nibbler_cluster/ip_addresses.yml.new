@@ -1,31 +1,5 @@
 ---
 ip_addresses:
-#  irods-catalogus:
-#    nb_internal_management:
-#      address: 10.10.1.121
-#      netmask: /32
-#    nb_internal_management_13:
-#      address: 10.10.3.154
-#      netmask: /32
-#      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
-#    vlan13:
-#      address: 129.125.55.10
-#      netmask: /32
-#      fqdn: 'umcg-icat01.hpc.rug.nl'
-#  irods-test:
-#    nb_internal_management:
-#      address: 10.10.1.182
-#      netmask: /32
-#    nb_internal_management_13:
-#      address: 10.10.3.17
-#      netmask: /32
-#  irods-test-db:
-#    nb_internal_management:
-#      address: 10.10.1.114
-#      netmask: /32
-#    nb_internal_management_13:
-#      address: 10.10.3.97
-#      netmask: /32
   nb-dai:
     nb_internal_management:
       address: 10.10.1.78
@@ -35,9 +9,6 @@ ip_addresses:
       netmask: /32
     vlan1068:
       address: 172.23.60.31
-      netmask: /32
-    vlan1073:
-      address: 172.23.14.112
       netmask: /32
     vlan985:
       address: 172.23.59.250
@@ -147,9 +118,6 @@ ip_addresses:
     vlan1068:
       address: 172.23.60.7
       netmask: /32
-    vlan1073:
-      address: 172.23.14.213
-      netmask: /32
     vlan985:
       address: 172.23.59.171
       netmask: /32
@@ -171,9 +139,6 @@ ip_addresses:
       netmask: /32
     vlan1068:
       address: 172.23.60.4
-      netmask: /32
-    vlan1073:
-      address: 172.23.14.232
       netmask: /32
     vlan985:
       address: 172.23.59.144

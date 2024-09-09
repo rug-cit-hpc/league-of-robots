@@ -161,20 +161,27 @@ stack_networks:
     router_network: vlan13
     type: management
     external: false
-  - name: vlan985
+  - name: vlan985  # DH4 Lustre
     cidr: '172.23.56.0/22'
     allow_ingress:
       - 172.23.57.213/32  # Lustre server
       - 172.23.57.214/32  # Lustre server
     type: storage
     external: true
-  - name: vlan1068
+  - name: vlan1068  # Private Lustre
     cidr: '172.23.60.0/24'
     allow_ingress:
       - 172.23.60.161/32  # Lustre server
       - 172.23.60.162/32  # Lustre server
       - 172.23.60.163/32  # Lustre server
       - 172.23.60.164/32  # Lustre server
+    type: storage
+    external: true
+  - name: vlan1073  # DH5 Lustre
+    cidr: '172.23.12.0/22'
+    allow_ingress:
+      - 172.23.15.186/32  # Lustre server
+      - 172.23.15.187/32  # Lustre server
     type: storage
     external: true
 nameservers: [
@@ -529,6 +536,8 @@ lustre_client_networks:
     interface: ens5
   - name: tcp20
     interface: ens6
+#   - name: tcp15
+#     interface: ens7
 pfs_mounts:
   - pfs: umcgst01
     source: '172.23.57.213@tcp14:172.23.57.214@tcp14:/umcg'
@@ -536,6 +545,12 @@ pfs_mounts:
     rw_options: 'defaults,_netdev,flock'
     ro_options: 'defaults,_netdev,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
+#   - pfs: umcgst01
+#     source: '172.23.15.186@tcp15:172.23.15.187@tcp15:/umcgdh5'
+#     type: lustre
+#     rw_options: 'defaults,_netdev,flock'
+#     ro_options: 'defaults,_netdev,ro'
+#     machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: umcgst02
     source: '172.23.57.213@tcp14:172.23.57.214@tcp14:/umcg'
     type: lustre
