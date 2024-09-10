@@ -207,7 +207,6 @@ regular_groups:
   - "{{ data_transfer_only_group }}"
   - "{{ envsync_group }}"
   - "{{ functional_admin_group }}"
-  - 'umcg-aad'
   - 'umcg-atd'
   - 'umcg-biogen'
   - 'umcg-bionic-mdd-gwama'
@@ -240,6 +239,7 @@ regular_groups:
   - 'umcg-micompany'
   - 'umcg-msb'
   - 'umcg-nawijn'
+  - 'umcg-nephrology'
   - 'umcg-pmb'
   - 'umcg-pub'
   - 'umcg-radicon'
@@ -258,8 +258,6 @@ regular_groups:
 regular_users:
   - user: "{{ envsync_user }}"
     groups: ["{{ envsync_group }}"]
-  - user: 'umcg-aad-dm'
-    groups: ['umcg-aad']
   - user: 'umcg-atd-ateambot'
     groups: ['umcg-atd']
   - user: 'umcg-atd-dm'
@@ -330,6 +328,8 @@ regular_users:
     groups: ['umcg-msb']
   - user: 'umcg-nawijn-dm'
     groups: ['umcg-nawijn']
+  - user: 'umcg-nephrology-dm'
+    groups: ['umcg-nephrology']
   - user: 'umcg-pmb-dm'
     groups: ['umcg-pmb']
   - user: 'umcg-pub-dm'
@@ -361,8 +361,6 @@ regular_users:
   - user: 'umcg-wijmenga-dm'
     groups: ['umcg-wijmenga']
 sudoers:
-  - who: ['%umcg-aad']
-    become: 'umcg-aad-dm'
   - who: ['%umcg-atd']
     become: 'umcg-atd-ateambot'
   - who: ['%umcg-atd']
@@ -435,6 +433,8 @@ sudoers:
     become: 'umcg-msb-dm'
   - who: ['%umcg-nawijn-dms']
     become: 'umcg-nawijn-dm'
+  - who: ['%umcg-nephrology-dms']
+    become: 'umcg-nephrology-dm'
   - who: ['%umcg-pmb-dms']
     become: 'umcg-pmb-dm'
   - who: ['%umcg-pub-dms']
@@ -478,7 +478,6 @@ local_mount_subfolders:
         owner: root
         group: "{{ data_transfer_only_group }}"
       - rel_paths:
-          - umcg-aad
           - umcg-atd
           - umcg-biogen
           - umcg-bionic-mdd-gwama
@@ -505,6 +504,7 @@ local_mount_subfolders:
           - umcg-micompany
           - umcg-mmbimg
           - umcg-msb
+          - umcg-nephrology
           - umcg-pmb
           - umcg-radicon
           - umcg-rehabilitation
@@ -558,8 +558,6 @@ lfs_mounts:
     quota_type: 'project'
     quota_pid_increment: 0  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
-      - name: umcg-aad
-        mode: '2750'
       - name: umcg-atd
         mode: '2750'
       - name: umcg-biogen
@@ -624,6 +622,8 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-nawijn
         mode: '2750'
+      - name: umcg-nephrology
+        mode: '2750'
       - name: umcg-pmb
         mode: '2750'
       - name: umcg-pub
@@ -660,7 +660,6 @@ lfs_mounts:
     quota_type: 'project'
     quota_pid_increment: 0  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
-      - name: umcg-aad
       - name: umcg-atd
       - name: umcg-biogen
       - name: umcg-bionic-mdd-gwama
@@ -713,7 +712,6 @@ lfs_mounts:
     quota_type: 'project'
     quota_pid_increment: 200000  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     groups:
-      - name: umcg-aad
       - name: umcg-atd
       - name: umcg-biogen
       - name: umcg-bionic-mdd-gwama
@@ -746,6 +744,7 @@ lfs_mounts:
       - name: umcg-micompany
       - name: umcg-msb
       - name: umcg-nawijn
+      - name: umcg-nephrology
       - name: umcg-pmb
       - name: umcg-pub
       - name: umcg-radicon
