@@ -19,7 +19,7 @@ for _each_ldap in "${domain_names[@]}"; do
       test -e "${_scope_destination}" || mkdir "${_scope_destination}"
       cd "${_scope_destination}" || { logger -t ldap_backup "${0}: Error, problem with changing dir to ${_scope_destination}"; exit 1; }
       logger -t ldap_backup "$0: running backup for ${_each_ldap} / ${_scope}"
-      /usr/bin/ldapsearch -H "${domain_configs[${_each_ldap}'_uri']}" -D"${domain_configs[${_each_ldap}'_bind_dn']}" -b"${domain_configs[${_each_ldap}'_search_base']}" -w"${domain_configs[${_each_ldap}'_bind_pw']}" "(objectClass=person)" -LLL | gzip > "${_scope_destination}/daily-$(date +%u).ldif.gz"
+      /usr/bin/ldapsearch -H "${domain_configs[${_each_ldap}'_uri']}" -D"${domain_configs[${_each_ldap}'_bind_dn']}" -b"${domain_configs[${_each_ldap}'_search_base']}" -w"${domain_configs[${_each_ldap}'_bind_pw']}" "(objectClass=${_scope})" -LLL | gzip > "${_scope_destination}/daily-$(date +%u).ldif.gz"
 
       ## Check if this weeks backup has been made and if not, make it
       if ! test -e "${_scope_destination}/weekly-$(date +%Y%U).ldif.gz"; then
