@@ -155,7 +155,7 @@
     #   repo_management_user@repo> pip install --upgrade pulp-cli
     #   repo_management_user@repo> pip freeze > pulp-cli-requirements.txt
     #
-    src: 'files/pulp-cli-requirements.txt'
+    src: "files/pulp-cli-requirements-{{ os_distribution }}.txt"
     dest: "/admin/{{ repo_management_user }}/pulp-cli-requirements.txt"
     owner: "{{ repo_management_user }}"
     group: "{{ repo_management_user }}"
