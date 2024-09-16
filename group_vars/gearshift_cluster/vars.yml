@@ -131,7 +131,6 @@ regular_groups:
   - 'umcg-biogen'
   - 'umcg-bionic-mdd-gwama'
   - 'umcg-bios'
-  - 'umcg-cineca'
   - 'umcg-dag3'
   - 'umcg-datateam'
   - 'umcg-ejp-rd'
@@ -198,8 +197,6 @@ regular_users:
     groups: ['umcg-bionic-mdd-gwama']
   - user: 'umcg-bios-dm'
     groups: ['umcg-bios']
-  - user: 'umcg-cineca-dm'
-    groups: ['umcg-cineca']
   - user: 'umcg-dag3-dm'
     groups: ['umcg-dag3']
   - user: 'umcg-datateam-dm'
@@ -313,8 +310,6 @@ sudoers:
     become: 'umcg-bionic-mdd-gwama-dm'
   - who: ['%umcg-bios']
     become: 'umcg-bios-dm'
-  - who: ['%umcg-cineca-dms']
-    become: 'umcg-cineca-dm'
   - who: ['%umcg-dag3-dms']
     become: 'umcg-dag3-dm'
   - who: ['%umcg-datateam']
@@ -460,7 +455,6 @@ lfs_mounts:
       - name: umcg-biogen
       - name: umcg-bionic-mdd-gwama
       - name: umcg-bios
-      - name: umcg-cineca
       - name: umcg-dag3
       - name: umcg-datateam
       - name: umcg-ejp-rd
@@ -533,7 +527,6 @@ lfs_mounts:
       - name: umcg-biogen
       - name: umcg-bionic-mdd-gwama
       - name: umcg-bios
-      - name: umcg-cineca
       - name: umcg-dag3
       - name: umcg-datateam
       - name: umcg-ejp-rd
@@ -694,7 +687,6 @@ lfs_mounts:
     ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ega_fuse_client_mounts:
-  cineca: '/groups/umcg-cineca/prm02/ega-fuse-client'
   solve_rd: '/groups/umcg-solve-rd/prm02/ega-fuse-client'
 ega_fuse_client_java_home: '/etc/alternatives/jre_11_openjdk'
 ...
