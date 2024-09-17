@@ -155,12 +155,6 @@ stack_networks:
     cidr: '10.10.2.0/24'
     type: storage
     external: false
-  - name: "{{ stack_prefix }}_internal_management_13"
-    cidr: '10.10.3.0/24'
-    gateway: '10.10.3.1'
-    router_network: vlan13
-    type: management
-    external: false
   - name: vlan985
     cidr: '172.23.56.0/22'
     allow_ingress:
