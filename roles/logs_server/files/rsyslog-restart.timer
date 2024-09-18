@@ -5,8 +5,8 @@ Requires=rsyslog.service rsyslog-restart.service
 [Timer]
 ; after boot wait for 15min before start the time for the first time 
 OnBootSec=15min
-; timer can be executed anytime
-OnCalendar=* *-*-* *:*:*
+; timer can be executed once an hour
+OnCalendar=* *-*-* *:29:*
 ; execute the timer every 24 hours
 OnUnitActiveSec=24hour
 ; command to be executed
