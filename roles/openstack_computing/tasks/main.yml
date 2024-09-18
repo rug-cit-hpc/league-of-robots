@@ -75,13 +75,13 @@
          ***********************************************************************************************************
          IMPORTANT: Manual work!
                     Ansible created:
-                        {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new
+                        {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses_azure.yml.new
                         {{ playbook_dir }}/group_vars/{{ stack_name }}/ssh_client_settings.yml.new
                     Please inspect these files carefully with:
                         diff -y {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
-                        diff -y {{ playbook_dir }}/group_vars/{{ stack_name }}/ssh_client_settings.yml{.new,}
+                        diff -y {{ playbook_dir }}/group_vars/{{ stack_name }}/ssh_client_settings_azure.yml{.new,}
                     and if both are Ok execute:
-                        mv {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
+                        mv {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses_azure.yml{.new,}
                         mv {{ playbook_dir }}/group_vars/{{ stack_name }}/ssh_client_settings.yml{.new,}
          ***********************************************************************************************************
   run_once: true
