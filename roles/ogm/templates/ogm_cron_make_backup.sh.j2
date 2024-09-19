@@ -1,6 +1,11 @@
 #!/bin/bash
 set -ue
 
+# Logging with logger is not permanently stored > a local log file is used instead
+_script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+_script_name=$( basename -- "${BASH_SOURCE[0]}" )
+_log_file="${_script_dir}/${_script_name}.log"
+
 #
 ## Preparing variables
 #
@@ -8,27 +13,32 @@ set -ue
 _PRM_MOUNT="{{ each_ogm_server['prm_location'] }}"
 # check if mount point is set
 if ! mountpoint -q "${_PRM_MOUNT}"; then
-   logger -t ogm_backup "${0}: backup folder '${_PRM_MOUNT}' is not mounted, exiting the backup script!"
+   echo "${0}: ${_OGM_SERVER} backup folder '${_PRM_MOUNT}' is not mounted, exiting the backup script!" >> ${_log_file}
    exit 1
 fi
 _OGM_SERVER="{{ each_ogm_server['server'] | default("error_remote_server")}}"
 _OGM_USER="{{ each_ogm_server['user'] | default("error_remote_user") }}"
 _PRM_SERVER_DIR="${_PRM_MOUNT}/${_OGM_SERVER}"
 
+if ! test -d "${_PRM_SERVER_DIR}"; then
+   echo "Directory missing, making one now (${_PRM_SERVER_DIR}) ..." >> ${_log_file}
+   mkdir -m 0750 "${_PRM_SERVER_DIR}"
+fi
+
 #
 ## Running commands on remote server
 #
 {% if each_ogm_server['backup_commands'] is defined and each_ogm_server['backup_commands'] | length > 0 %}
 {% for each_command in each_ogm_server['backup_commands'] %}
-logger -t ogm_backup "${0}: started command {{ each_command['label'] }} ..."
+echo "${0}: ${_OGM_SERVER} started command {{ each_command['label'] }} ..." >> ${_log_file}
 # Postgres dump of entire database, compressed and stored in the postgres location
 # Prevent timeout during long dump operation, max 4h
 ssh -o ServerAliveInterval=120 -o ServerAliveCountMax=120 "${_OGM_USER}"@"${_OGM_SERVER}" "{{ each_command['command'] }}"
 EXITVALUE=$?
 if [[ "${EXITVALUE}" -eq "0" ]]; then
-   logger -t ogm_backup "${0}: running command '{{ each_command['label'] }}' succeed"
+   echo "${0}: ${_OGM_SERVER} running command '{{ each_command['label'] }}' succeed" >> ${_log_file}
 else
-   logger -t ogm_backup "${0}: running command '{{ each_command['label'] }}' failed (exited with ${EXITVALUE})"
+   echo "${0}: ${_OGM_SERVER} running command '{{ each_command['label'] }}' failed (exited with ${EXITVALUE})" >> ${_log_file}
 fi
 
 {% endfor %}
@@ -41,14 +51,18 @@ fi
 {% for each_directory in each_ogm_server['backup_source_dirs'] %}
 _SERVER_EACHDIR="{{ each_directory | default("wrong_server_dir")}}"
 _PRM_EACHDIR="/${_PRM_SERVER_DIR:-error_prm_dir}/${_SERVER_EACHDIR:-error_server_dir}"
-test -d "${_PRM_EACHDIR}" || echo "${_PRM_EACHDIR} does not exist"
-logger -t ogm_backup "${0}: backup ${_SERVER_EACHDIR} started"
+if ! test -d "${_PRM_EACHDIR}"; then
+   echo "Directory missing, making one now (${_PRM_EACHDIR}) ..." >> ${_log_file}
+   mkdir -m 0750 -p "${_PRM_EACHDIR}"
+fi
+
+echo "${0}: ${_OGM_SERVER} backup ${_SERVER_EACHDIR} started" >> ${_log_file}
 rsync -rtogp --log-file="${_PRM_SERVER_DIR}/rsync.${_SERVER_EACHDIR##*\/}.log" --bwlimit=50m --rsync-path='sudo -u root rsync' "${_OGM_USER}"@"${_OGM_SERVER}":"${_SERVER_EACHDIR}"/ "${_PRM_EACHDIR}"/ 2>&1 1>/dev/null
 EXITVALUE=$?
 if [[ "${EXITVALUE}" -eq "0" ]]; then
-   logger -t ogm_backup "${0}: backup of ${_SERVER_EACHDIR} successfully finished"
+   echo "${0}: ${_OGM_SERVER} backup of ${_SERVER_EACHDIR} successfully finished" >> ${_log_file}
 else
-   logger -t ogm_backup "${0}: backup of ${_SERVER_EACHDIR} had an error: ${EXITVALUE}"
+   echo "${0}: ${_OGM_SERVER} backup of ${_SERVER_EACHDIR} had an error: ${EXITVALUE}" >> ${_log_file}
 fi
 
 {% endfor %}
