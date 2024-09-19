@@ -20,6 +20,7 @@
   pulp.squeezer.rpm_repository:
     name: "{{ pulp_repo['name'] }}"
     description: "{{ pulp_repo['description'] }}"
+    remote: "{{ omit if pulp_repo['remote_url'] is not defined else pulp_repo['name'] + '-remote' }}"
     state: present
     pulp_url: "{{ pulp_api_baseurl }}"
     username: "{{ pulp_api_user }}"

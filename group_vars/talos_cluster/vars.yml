@@ -139,8 +139,6 @@ regular_users:
     groups: ['umcg-atd']
   - user: 'umcg-atd-dm'
     groups: ['umcg-atd']
-  - user: 'umcg-cineca-dm'
-    groups: ['umcg-cineca']
   - user: 'umcg-endocrinology-dm'
     groups: ['umcg-endocrinology']
   - user: 'umcg-gcc-dm'
@@ -158,8 +156,6 @@ sudoers:
     become: 'umcg-atd-dm'
   - who: ['%umcg-atd']
     become: 'umcg-atd-ateambot'
-  - who: ['%umcg-cineca-dms']
-    become: 'umcg-cineca-dm'
   - who: ['%umcg-endocrinology-dms']
     become: 'umcg-endocrinology-dm'
   - who: ['%umcg-gcc']
@@ -191,7 +187,6 @@ lfs_mounts:
     pfs: umcgst11
     groups:
       - name: umcg-atd
-      - name: umcg-cineca
       - name: umcg-endocrinology
       - name: umcg-gcc
       - name: umcg-gsad  
@@ -212,7 +207,6 @@ lfs_mounts:
     pfs: umcgst11
     groups:
       - name: umcg-atd
-      - name: umcg-cineca
       - name: umcg-gcc
       - name: umcg-gsad  
       - name: umcg-lifelines
@@ -224,7 +218,6 @@ lfs_mounts:
     ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ega_fuse_client_mounts:
-  cineca: '/groups/umcg-cineca/prm08/ega-fuse-client'
   solve_rd: '/groups/umcg-solve-rd/prm08/ega-fuse-client'
 ega_fuse_client_java_home: '/etc/alternatives/jre_11_openjdk'
 ...
