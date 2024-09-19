@@ -8,9 +8,6 @@ all:
     jumphost:
       hosts:
         portal:
-          cloud_image: RockyLinux-9.3_xfs
-          os_distribution: 'rocky9'
-          ansible_python_interpreter: /usr/bin/python3
           cloud_flavor: 1c2m20d
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
@@ -35,7 +32,6 @@ all:
               security_group: "{{ stack_prefix }}_cluster"
             - name: subnet-nfs-data-2541
               security_group: "{{ stack_prefix }}_storage"
-          local_volume_size_extra: 1
     deploy_admin_interface:
       hosts:
         hc-dai:
@@ -60,7 +56,7 @@ all:
               security_group: "{{ stack_prefix }}_storage"
           slurm_sockets: 4
           slurm_cores_per_socket: 1
-          slurm_real_memory: 7820
+          slurm_real_memory: 7685
           slurm_local_disk: 0
           slurm_features: 'prm09,tmp09'
           slurm_ethernet_interfaces:
@@ -70,7 +66,7 @@ all:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
-            hc-vcompute01:
+            hc-node-a01:
               # flavor_vcompute: htc-node # Quota currently too small for 40 core compute nodes.
               cloud_flavor: 16c64m100d
               host_networks:
@@ -81,7 +77,7 @@ all:
               local_volume_size_extra: 1
               slurm_sockets: 16
               slurm_cores_per_socket: 1
-              slurm_real_memory: 64263
+              slurm_real_memory: 63790
               slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
               slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
               slurm_local_disk: 975
