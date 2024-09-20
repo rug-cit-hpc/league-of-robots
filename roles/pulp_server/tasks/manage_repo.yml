@@ -11,7 +11,7 @@
     validate_certs: false
   when: pulp_repo['remote_url'] is defined
   vars:
-    ansible_python_interpreter: "/admin/{{ repo_management_user }}/pulp-cli.venv/bin/python"
+    ansible_python_interpreter: "/admin/{{ repo_management_user }}/pulp-cli.venv/bin/python3"
   become: true
   become_user: "{{ repo_management_user }}"
   no_log: true
@@ -27,7 +27,7 @@
     password: "{{ pulp_api_password }}"
     validate_certs: false
   vars:
-    ansible_python_interpreter: "/admin/{{ repo_management_user }}/pulp-cli.venv/bin/python"
+    ansible_python_interpreter: "/admin/{{ repo_management_user }}/pulp-cli.venv/bin/python3"
   become: true
   become_user: "{{ repo_management_user }}"
   no_log: true
