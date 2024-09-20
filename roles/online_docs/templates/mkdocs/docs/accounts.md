@@ -30,6 +30,8 @@ Every groups is managed by group owner. This person is therefore reponsible for
  - being only contact person regarding the group decisions, and responding on time when requested
  - financial costs made by the group
 
+To create a new group, simply contact [helpdesk](../contact/) and we will provide you all the information.
+
 ## 2. Security and privacy.
 
 ### 2.1. Asymmetric key cryptography
