@@ -51,13 +51,13 @@ if ! test -d "${_PRM_EACHDIR}"; then
    mkdir -m 0750 -p "${_PRM_EACHDIR}"
 fi
 
-echo "$(date +%Y%m%d-%H%M%S) ${0}: ${_OGM_SERVER} backup ${_SERVER_EACHDIR} started"
+echo "$(date +%Y%m%d-%H%M%S) ${0} ${_OGM_SERVER}: backup begin ${_SERVER_EACHDIR}"
 rsync -rtogp --log-file="${_PRM_SERVER_DIR}/rsync.${_SERVER_EACHDIR##*\/}.log" --bwlimit=50m --rsync-path='sudo -u root rsync' "${_OGM_USER}"@"${_OGM_SERVER}":"${_SERVER_EACHDIR}"/ "${_PRM_EACHDIR}"/ 2>&1 1>/dev/null
 EXITVALUE=$?
 if [[ "${EXITVALUE}" -eq "0" ]]; then
-   echo "$(date +%Y%m%d-%H%M%S) ${0}: ${_OGM_SERVER} backup of ${_SERVER_EACHDIR} successfully finished"
+   echo "$(date +%Y%m%d-%H%M%S) ${0} ${_OGM_SERVER}: backup ended ${_SERVER_EACHDIR} (success)"
 else
-   echo "$(date +%Y%m%d-%H%M%S) ${0}: ${_OGM_SERVER} backup of ${_SERVER_EACHDIR} had an error: ${EXITVALUE}"
+   echo "$(date +%Y%m%d-%H%M%S) ${0} ${_OGM_SERVER}: backup error ${_SERVER_EACHDIR} with exit value of ${EXITVALUE}"
 fi
 
 {% endfor %}
