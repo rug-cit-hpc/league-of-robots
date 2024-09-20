@@ -1,9 +1,38 @@
 #jinja2: trim_blocks:False
 # Request an account
 
-## 1. Accounts, security and privacy.
+## 1. Accounts
 
-#### Asymmetric key cryptography
+### 1.1. Requesting and account
+
+If you have your own funding and would like to make a new separate group, please read 1.2.
+
+Users can be only added to the existing groups. Therefore before requesting the account on the cluster, user must
+
+ - read this documentation, in particular this page, and sections of Generating key pairs
+ - have active contract with UMCG
+ 
+Then user must write email to the [helpdesk](../contact/) and
+
+ - CC group owner(s), asking for approval to be added to their group
+ - CC department secretary where user is working, asking the end date of user's contract
+ - attach *public* key (.pub) of user's public/private keypair (do not send private key)
+
+Both group owner and secretary must then reply directly to helpdesk. Only when we receive all this information, then we can proceed to create an account for you.
+
+### 1.2. Requesting Groups
+
+Every groups is managed by group owner. This person is therefore reponsible for
+
+ - individual user to be added or removed from their group (only group owners decide this)
+ - (depends on the system) appointing data managers - individuals from the group, that have elevated rights on data storage
+ - behaviour of all the users within the group
+ - being only contact person regarding the group decisions, and responding on time when requested
+ - financial costs made by the group
+
+## 2. Security and privacy.
+
+### 2.1. Asymmetric key cryptography
 
 We use asymmetric key cryptography to secure accounts. Hence you will get an account name, but no password. Instead of a password we use two digital keys:
 
@@ -24,7 +53,7 @@ The cluster uses your public key on the server side to decrypt the login request
 The benefit of using key pairs as opposed to passwords is that the secret used to login can remain private if you create the key pair yourself and send _**only**_ the public key to the helpdesk.
 Hence we do not have a copy/record/backup of your private key on the server side: if you loose the private key, you have to create a new pair and send the new public key to the helpdesk.
 
-#### Security & Privacy
+### 2.2. Security & Privacy
 
 * When you request an account your email address will be added automatically to a low volume mailinglist, 
   which is used for information regarding the clusters like maintenance announcements.
@@ -37,7 +66,7 @@ Hence we do not have a copy/record/backup of your private key on the server side
   Therefore **never ever put privacy sensitive data in the meta-data of files nor of folders**!
   * Your full name, email address, group memberships and role in a group (regular user or data manager or group owner) are visible to all other users.
 
-## 2. Generate a public/private key pair
+## 3. Generate a public/private key pair
 
 Use the instructions for your operating system:
 
