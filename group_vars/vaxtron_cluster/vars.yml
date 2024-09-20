@@ -512,6 +512,12 @@ pfs_mounts:
     rw_options: 'defaults,_netdev,flock'
     ro_options: 'defaults,_netdev,ro'
     machines: "{{ groups['sys_admin_interface'] }}"
+  - pfs: umcgst05
+    source: '172.23.15.186@tcp15:172.23.15.187@tcp15:/umcgdh5'
+    type: lustre
+    rw_options: 'defaults,_netdev,flock'
+    ro_options: 'defaults,_netdev,ro'
+    machines: "{{ groups['sys_admin_interface'] }}"
   - pfs: umcgst06
     source: '172.23.15.186@tcp15:172.23.15.187@tcp15:/umcgdh5'
     type: lustre
@@ -675,6 +681,14 @@ lfs_mounts:
       - name: umcg-vdakker
       - name: umcg-weersma
       - name: umcg-wijmenga
+    rw_machines: "{{ groups['user_interface'] }}"
+  - lfs: rsc04
+    pfs: umcgst05
+    quota_type: 'project'
+    quota_pid_increment: 100000  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
+    groups:
+      - name: umcg-biogen
+    ro_machines: "{{ groups['compute_node'] }}"
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env04
     pfs: umcgst06
