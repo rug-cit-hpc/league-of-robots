@@ -88,6 +88,8 @@ auth_groups:
     gid: 20022
   umcg-ogm:
     gid: 20023
+  umcg-pgx:
+    gid: 20024
 #
 # Default for a group of users that are only allowd to transfer data.
 # Is used by the sshd role and listed in

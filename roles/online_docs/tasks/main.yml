@@ -49,7 +49,7 @@
     cmd: |
       set -o pipefail
       unset MODULEPATH
-      source ~/.modulesrc >/dev/null 2>&1
+      source /etc/skel/.bashrc >/dev/null 2>&1
       lmod -v | sed '/^$/d' | sed 's|^.*Version \([0-9\.]*\).*$|\1|' | head -1
   args:
     executable: '/bin/bash'

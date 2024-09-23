@@ -132,7 +132,6 @@ regular_groups:
   - 'umcg-biogen'
   - 'umcg-bionic-mdd-gwama'
   - 'umcg-bios'
-  - 'umcg-cineca'
   - 'umcg-dag3'
   - 'umcg-datateam'
   - 'umcg-ejp-rd'
@@ -162,6 +161,7 @@ regular_groups:
   - 'umcg-msb'
   - 'umcg-muhas'
   - 'umcg-nawijn'
+  - 'umcg-pgx'
   - 'umcg-pmb'
   - 'umcg-pub'
   - 'umcg-radicon'
@@ -199,8 +199,6 @@ regular_users:
     groups: ['umcg-bionic-mdd-gwama']
   - user: 'umcg-bios-dm'
     groups: ['umcg-bios']
-  - user: 'umcg-cineca-dm'
-    groups: ['umcg-cineca']
   - user: 'umcg-dag3-dm'
     groups: ['umcg-dag3']
   - user: 'umcg-datateam-dm'
@@ -263,6 +261,8 @@ regular_users:
     groups: ['umcg-muhas']
   - user: 'umcg-nawijn-dm'
     groups: ['umcg-nawijn']
+  - user: 'umcg-pgx-dm'
+    groups: ['umcg-pgx']
   - user: 'umcg-pmb-dm'
     groups: ['umcg-pmb']
   - user: 'umcg-pub-dm'
@@ -314,8 +314,6 @@ sudoers:
     become: 'umcg-bionic-mdd-gwama-dm'
   - who: ['%umcg-bios']
     become: 'umcg-bios-dm'
-  - who: ['%umcg-cineca-dms']
-    become: 'umcg-cineca-dm'
   - who: ['%umcg-dag3-dms']
     become: 'umcg-dag3-dm'
   - who: ['%umcg-datateam']
@@ -380,6 +378,8 @@ sudoers:
     become: 'umcg-muhas-dm'
   - who: ['%umcg-nawijn-dms']
     become: 'umcg-nawijn-dm'
+  - who: ['%umcg-pgx-dms']
+    become: 'umcg-pgx-dm'
   - who: ['%umcg-pmb-dms']
     become: 'umcg-pmb-dm'
   - who: ['%umcg-pub-dms']
@@ -461,7 +461,6 @@ lfs_mounts:
       - name: umcg-biogen
       - name: umcg-bionic-mdd-gwama
       - name: umcg-bios
-      - name: umcg-cineca
       - name: umcg-dag3
       - name: umcg-datateam
       - name: umcg-ejp-rd
@@ -497,6 +496,8 @@ lfs_mounts:
       - name: umcg-muhas
         mode: '2750'
       - name: umcg-nawijn
+        mode: '2750'
+      - name: umcg-pgx
         mode: '2750'
       - name: umcg-pmb
       - name: umcg-pub
@@ -534,7 +535,6 @@ lfs_mounts:
       - name: umcg-biogen
       - name: umcg-bionic-mdd-gwama
       - name: umcg-bios
-      - name: umcg-cineca
       - name: umcg-dag3
       - name: umcg-datateam
       - name: umcg-ejp-rd
@@ -564,6 +564,7 @@ lfs_mounts:
       - name: umcg-msb
       - name: umcg-muhas
       - name: umcg-nawijn
+      - name: umcg-pgx
       - name: umcg-pmb
       - name: umcg-pub
       - name: umcg-radicon
@@ -620,6 +621,7 @@ lfs_mounts:
       - name: umcg-msb
       - name: umcg-muhas
       - name: umcg-nawijn
+      - name: umcg-pgx
       - name: umcg-pmb
       - name: umcg-pub
       - name: umcg-radicon
@@ -673,6 +675,7 @@ lfs_mounts:
       - name: umcg-micompany
       - name: umcg-msb
       - name: umcg-nawijn
+      - name: umcg-pgx
       - name: umcg-pmb
       - name: umcg-pub
       - name: umcg-radicon
@@ -695,7 +698,6 @@ lfs_mounts:
     ro_machines: "{{ groups['compute_node'] + groups['user_interface'] }}"
     rw_machines: "{{ groups['deploy_admin_interface'] }}"
 ega_fuse_client_mounts:
-  cineca: '/groups/umcg-cineca/prm02/ega-fuse-client'
   solve_rd: '/groups/umcg-solve-rd/prm02/ega-fuse-client'
 ega_fuse_client_java_home: '/etc/alternatives/jre_11_openjdk'
 ...

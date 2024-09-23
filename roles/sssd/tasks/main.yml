@@ -154,7 +154,6 @@
   when:
     - ldap_domains is defined
     - ldap_domains | length > 0
-    - create_ldap is false
     - inventory_hostname in groups['sys_admin_interface'] | default([])
 
 - name: Flush handlers.
