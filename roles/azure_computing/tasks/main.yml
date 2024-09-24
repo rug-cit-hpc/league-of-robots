@@ -15,7 +15,6 @@
     - hostvars[inventory_hostname]['azure_flavor'] is defined
   register: nic_info
 
-# Get and print VMs public IP
 - name: Get VMs public IP
   azure_rm_publicipaddress_info:
     resource_group: "{{ azure_resource_group }}"
@@ -25,47 +24,10 @@
     - hostvars[inventory_hostname]['azure_flavor'] is defined
   register: public_ips
 
-#- name: Create private IP variables
-#  ansible.builtin.set_fact:
-#    vm_private_ip: "{{ nic_info | json_query('results[].networkinterfaces[].ip_configurations[].private_ip_address') }}"
-#  when:
-#    - hostvars[inventory_hostname]['azure_flavor'] is defined
-#    - nic_info is defined
-#
-#- name: Create private IP variables
-#  ansible.builtin.set_fact:
-#    vm_public_ip: "{{ public_ips | json_query('results[].publicipaddresses[].ip_address') }}"
-#    vm_dns_settings: "{{ public_ips | json_query('results[].publicipaddresses[].dns_settings.fqdn') }}"
-#  when:
-#    - hostvars[inventory_hostname]['azure_flavor'] is defined
-#    - public_ips is defined
-#
-#- name: Print private IP address
-#  debug:
-#    msg:
-#      - "> Private IP: {{ vm_private_ip }}"
-#      - "> FQDN: {{ vm_dns_settings }}"
-#  when:
-#    - hostvars[inventory_hostname]['azure_flavor'] is defined
-#    - vm_private_ip is defined
-#
-#- name: Print public IP addresses
-#  debug:
-#    msg:
-#      - "> Public IP: {{ vm_public_ip }}"
-#  when:
-#    - hostvars[inventory_hostname]['azure_flavor'] is defined
-#    - public_ips is defined
-
 - name: Get facts for all virtual machines of a resource group
   azure_rm_virtualmachine_info:
     resource_group: "{{ azure_resource_group }}"
   register: azure_vms_info
-
-# - debug:
-#     msg: "{{ relevant_servers_info }}"
-#   vars:
-#     relevant_servers_info: "{{ azure_vms_info.vms | selectattr('name', 'in', stack_hosts_created_in_azure ) | list }}"
 
 - name: "Add IP addresses to {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses_azure.yml.new"
   ansible.builtin.template:

@@ -58,16 +58,6 @@
     - item.assign_floating_ip is defined
     - item.assign_floating_ip is true
 
-# - name: Print VMs NICs
-#   debug:
-#     msg:
-#       - "{{ vm_nics | from_yaml }}"
-#   vars:
-#     vm_nics: |
-#       {% for item in hostvars[inventory_hostname]['host_networks'] %}
-#       - {{ inventory_hostname }}-{{ item.name }}_nic
-#       {% endfor %}
-
 - name: Create an Azure VM
   azure.azcollection.azure_rm_virtualmachine:
     resource_group: "{{ azure_resource_group }}"
@@ -93,11 +83,7 @@
         {% endif %}
       {% endfor %}
     network_interface_names: "{{ vm_nics | from_yaml }}"
-#    storage_container: "{{ inventory_hostname}}_blobs"
-#    storage_blob: "{{ inventory_hostname}}_osdisk.vhd"
     managed_disk_type: Standard_LRS
-#    boot_diagnostics:
-#      enabled: true
     image:
       offer: "{{ azure_image[os_distribution].offer }}"
       publisher: "{{ azure_image[os_distribution].publisher }}"
