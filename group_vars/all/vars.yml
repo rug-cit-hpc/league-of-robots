@@ -657,4 +657,8 @@ logs_server_public_networks:
       network: vlan16
     - name: earl6
       network: logs_external_network
+#
+## Azure
+#
+azure_location: westeurope
 ...

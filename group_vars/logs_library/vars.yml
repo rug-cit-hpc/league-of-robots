@@ -20,7 +20,6 @@ azure_networks:
     external: false
     cidr: '10.10.1.0/24'
     type: management
-azure_location: westeurope
 azure_image:
   rocky9:
     offer: 'rockylinux-x86_64'

@@ -19,4 +19,14 @@ ip_addresses:
       address: 13.95.19.210
       netmask: /32
       fqdn: 'earl3-6b85.westeurope.cloudapp.azure.com'
+  earl6:
+    logs_internal_management:
+      address: 10.0.0.4
+      netmask: /32
+      fqdn: 'NXDOMAIN'
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    logs_external_network:
+      address: 20.13.126.173
+      netmask: /32
+      fqdn: 'NXDOMAIN'
 ...

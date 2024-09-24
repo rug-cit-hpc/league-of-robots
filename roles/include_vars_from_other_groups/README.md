@@ -1,12 +1,14 @@
 # Role to include variables from other stack groups.
 
-## group_vars/{{ stackname }}/ ip_addresses.yml
+## group_vars/[stack_name]/ip_addresses[manual|openstack|azure].yml
 
-The `ip_addresses.yml` files are
- * either generated with a playbook that creates machines by talking to the OpenStack API
-   and using the template from `group_vars/template/ip_addresses.yml.j2`
- * or manually created for stacks for which the machines are only configured with Ansible,
-   but not not created via the OpenStack API. E.g. `group_vars/all/ip_addresses.yml` was created manually.
+The `ip_addresses_[manual|openstack|azure].yml` files are
+ - `ip_addresses_manual.yml` is manually created for machines of the stack that are manually deployed - that is, they 
+   are neither deployed with OpenStack nor Azure APIs.
+ - `ip_addresses_openstack.yml` is generated with a playbook that creates machines by talking to the OpenStack API
+   and using the template from `group_vars/template/ip_addresses_openstack.yml.j2`
+ - `ip_addresses_azure.yml` is likewise generated with a playbook that creates machines by talking to the Azure API
+   and using the template from `group_vars/template/ip_addresses_azure.yml.j2`
 
 The data structure in an `ip_addresses.yml` file is a 2 level deep nested dict.
 For machines it can be something like this:
@@ -43,7 +45,7 @@ ip_addresses:
 
 ## Data structures provided by this role
 
-The info from all `ip_addresses.yml` files (recursively) found in the group_vars is combined into 2 data structures,
+The info from all `ip_addresses[manual|openstack|azure].yml` files (recursively) found in the group_vars is combined into 2 data structures,
 which are available to other roles when a dependency in this role is defined in the role's `meta/main.yml` like this:
 
 ```

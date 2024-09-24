@@ -1,7 +1,7 @@
 ---
 - name: Create network ports for servers.
   block:
-    - name: "Use pre-defined address from group_vars/{{ stack_name }}/ip_addresses.yml."
+    - name: "Use pre-defined address from group_vars/{{ stack_name }}/ip_addresses_openstack.yml."
       openstack.cloud.port:
         state: present
         name: "{{ inventory_hostname }}-{{ item.name }}"
