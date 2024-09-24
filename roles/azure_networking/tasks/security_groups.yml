@@ -47,7 +47,6 @@
     msg: "{{ network_names_of_all_hosts_created_in_azure }}"
 - name: "Create security groups for machines in 'cluster' inventory group."
   when: "stack_prefix ~ '_internal_management' in network_names_of_all_hosts_created_in_azure"
-# or 'cluster' in inventory_groups_with_hosts_created_in_azure"
   block:
     - name: "Create security group {{ stack_prefix }}_cluster"
       azure.azcollection.azure_rm_securitygroup:
@@ -75,9 +74,6 @@
       vars:
         network_name: "{{ item }}"
         network_cidr: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='cidr') | first }}"
-    #    network_gateway: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='gateway') | first }}"
-    #    network_mtu_size: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='mtu_size') | first | default(omit) }}"
-    #    router_network: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='router_network') | first }}"
       with_items: "{{ azure_networks
                     | selectattr('type', 'equalto', 'management')
                     | selectattr('external', 'equalto', false)
@@ -126,9 +122,6 @@
       vars:
         network_name: "{{ item }}"
         network_cidr: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='cidr') | first }}"
-    #    network_gateway: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='gateway') | first }}"
-    #    network_mtu_size: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='mtu_size') | first | default(omit) }}"
-    #    router_network: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='router_network') | first }}"
       with_items: "{{ azure_networks
                     | selectattr('type', 'equalto', 'management')
                     | selectattr('external', 'equalto', false)
