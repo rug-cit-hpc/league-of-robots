@@ -147,34 +147,21 @@
     - rsyslog_enable
   become: true
 
-- name: Deploy rsyslog-restart.service
-  ansible.builtin.copy:
-    src: files/rsyslog-restart.service
-    dest: /usr/lib/systemd/system/rsyslog-restart.service
-    force: true
-    mode: '0644'
-  notify:
-    - systemd_reload
-    - restart_service_enable
-  become: true
-
-- name: Deploy rsyslog-restart.timer
-  ansible.builtin.copy:
-    src: files/rsyslog-restart.timer
-    dest: /usr/lib/systemd/system/rsyslog-restart.timer
-    force: true
-    mode: '0644'
-  notify:
-    - systemd_reload
-    - restart_timer_enable
-  become: true
-
 - name: Add logrotate to compress and move old logs to subfolder called 'compressed_logs'
   ansible.builtin.template:
     src: templates/remote.logrotate
     dest: /etc/logrotate.d/remote
     mode: '0644'
     force: true
+  become: true
+
+- name: Remove old restart services
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: false
+  with_items:
+    - rsyslog-restart.timer
+    - rsyslog-restart.service
   become: true
 
 - name: Deploy server rsyslog.conf

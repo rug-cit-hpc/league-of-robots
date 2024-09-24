@@ -29,6 +29,8 @@ StandardOutput=null
 ; Increase the default a bit in order to allow many simultaneous
 ; files to be monitored, we might need a lot of fds.
 LimitNOFILE=16384
+; A maximum time for the service to run - this is important
+RuntimeMaxSec=1d
 
 [Install]
 WantedBy=multi-user.target
