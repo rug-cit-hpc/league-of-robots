@@ -62,14 +62,6 @@ all:
           iptables_allow_ldap_inbound: "{{ iptables_allow_ssh_inbound }}"
           perun_facility_name: "umcg-gcc"
           perun_service_whitelist: "ldap_lsaai"
-    logs:
-      hosts:
-        earl7:
-          azure_flavor: "Standard_DS1_v2"
-          host_networks:
-            - name: db_internal_management
-              security_group: "{{ stack_prefix }}_logservers"
-#              assign_floating_ip: true
 administration:
 cluster:
   children:
@@ -80,7 +72,6 @@ donbot_azure:
     openstack_api:
     jumphost:
     repo:
-    logs:
     cluster:
     ldap_server:
 ...

@@ -5,12 +5,13 @@
 # Jumphost: receive 22 and 443 from anywhere, block ICMP
 #
 - name: "Create security groups for machines in 'jumphost' inventory group."
-  when: "'jumphost' in inventory_groups_with_hosts_created_in_azure"
+  when: "'jumphost' in inventory_groups_with_hosts_created_in_azure or 
+        'logs' in inventory_groups_with_hosts_created_in_azure"
   block:
-    - name: "Create security group {{ stack_prefix }}_jumphosts."
+    - name: "Create security group {{ stack_prefix }}_public."
       azure.azcollection.azure_rm_securitygroup:
         resource_group: "{{ azure_resource_group }}"
-        name: "{{ stack_prefix }}_jumphosts"
+        name: "{{ stack_prefix }}_public"
         purge_rules: true
         rules:
           - name: SSH
@@ -65,54 +66,6 @@
             source_address_prefix: "{{ network_cidr }}"
             access: Allow
             priority: 203
-      vars:
-        network_name: "{{ item }}"
-        network_cidr: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='cidr') | first }}"
-      with_items: "{{ azure_networks
-                    | selectattr('type', 'equalto', 'management')
-                    | selectattr('external', 'equalto', false)
-                    | map(attribute='name')
-                    | intersect(network_names_of_all_hosts_created_in_azure)    
-                    | default([]) }}"
-#
-# Logs
-#
-- name: "Create security groups for machines in 'logs' inventory group."
-  when: "'logs' in inventory_groups_with_hosts_created_in_azure"
-  block:
-    - name: "Create security group {{ stack_prefix }}_logservers"
-      azure.azcollection.azure_rm_securitygroup:
-        resource_group: "{{ azure_resource_group }}"
-        name: "{{ stack_prefix }}_logservers"
-        purge_rules: true
-        rules:
-          - name: SSH
-            protocol: Tcp
-            destination_port_range: 22
-            source_address_prefix: "*"
-            direction: Inbound
-            access: Allow
-            priority: 101
-          - name: SSH_fallback
-            protocol: Tcp
-            destination_port_range: 443
-            source_address_prefix: "*"
-            direction: Inbound
-            access: Allow
-            priority: 102
-          - name: Rsyslog
-            protocol: Tcp
-            destination_port_range: 41514
-            source_address_prefix: "*"
-            direction: Inbound
-            access: Allow
-            priority: 103
-          - name: ICMP
-            protocol: Icmp
-            source_address_prefix: "{{ network_cidr }}"
-            direction: Inbound
-            access: Allow
-            priority: 104
       vars:
         network_name: "{{ item }}"
         network_cidr: "{{ azure_networks | selectattr('name', 'equalto', item) | map(attribute='cidr') | first }}"

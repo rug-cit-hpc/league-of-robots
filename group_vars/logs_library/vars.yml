@@ -17,10 +17,10 @@ stack_networks:
     mtu_size: '1450'
 # Azure
 azure_networks:
-  - name: "{{ stack_prefix }}_internal_management"
-    external: false
+  - name: "{{ stack_prefix }}_external"
     cidr: '10.10.1.0/24'
-    type: management
+    external: true
+    security_group: "{{ stack_prefix }}_public"
 azure_image:
   rocky9:
     offer: 'rockylinux-x86_64'

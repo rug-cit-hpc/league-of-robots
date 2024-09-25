@@ -13,3 +13,8 @@ Note about security groups of Azure
     - 2xx for network cidr limited port access
     - 3xx are for everything else: storage or vlans ports
 
+## Networks and subnets
+
+Deyployment will fail if security groups are not assigned on the
+ - subnetworks
+ - VMs network interfaces

@@ -117,3 +117,4 @@ The default `azure_location` is set to `westeurope`, which does not need to be c
 ## Extra information
 
 https://docs.ansible.com/ansible/4/scenario_guides/guide_azure.html
+
