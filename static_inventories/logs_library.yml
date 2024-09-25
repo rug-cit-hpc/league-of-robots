@@ -30,7 +30,7 @@ all:
           logs_class: 'diagnostics'
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
-              security_group: "{{ stack_prefix }}_jumphosts"
+              security_group: "{{ stack_prefix }}_logservers"
               assign_floating_ip: True
         # Merlin
         earl4:
