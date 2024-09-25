@@ -55,7 +55,7 @@ additional_etc_hosts:
   - group: betabarrel_cluster
     nodes:
       - name: betabarrel
-        network: vlan13
+        network: vlan16
   - group: copperfist_cluster
     nodes:
       - name: copperfist

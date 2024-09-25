@@ -38,7 +38,7 @@ all:
             - group: betabarrel_cluster
               nodes:
                 - name: betabarrel
-                  network: vlan13
+                  network: vlan16
             - group: copperfist_cluster
               nodes:
                 - name: copperfist
@@ -80,7 +80,7 @@ all:
             - "{{ wingedhelix_cluster.ip_addresses['wh_internal_management-vlan16-router']['vlan16'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb-porch']['bb_internal_management'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb_internal_management-vlan16-router']['vlan16'] }}"
-            - "{{ betabarrel_cluster.ip_addresses['betabarrel']['vlan13'] }}"
+            - "{{ betabarrel_cluster.ip_addresses['betabarrel']['vlan16'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf-porch']['cf_internal_management'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf_internal_management-external-router']['external'] }}"
             - "{{ copperfist_cluster.ip_addresses['copperfist']['vlan13'] }}"
@@ -97,7 +97,7 @@ all:
             - "{{ wingedhelix_cluster.ip_addresses['wh_internal_management-vlan16-router']['vlan16'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb-porch']['bb_internal_management'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb_internal_management-vlan16-router']['vlan16'] }}"
-            - "{{ betabarrel_cluster.ip_addresses['betabarrel']['vlan13'] }}"
+            - "{{ betabarrel_cluster.ip_addresses['betabarrel']['vlan16'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf-porch']['cf_internal_management'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf_internal_management-external-router']['external'] }}"
             - "{{ copperfist_cluster.ip_addresses['copperfist']['vlan13'] }}"
@@ -113,7 +113,7 @@ all:
             - "{{ wingedhelix_cluster.ip_addresses['wh_internal_management-vlan16-router']['vlan16'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb-porch']['bb_internal_management'] }}"
             - "{{ betabarrel_cluster.ip_addresses['bb_internal_management-vlan16-router']['vlan16'] }}"
-            - "{{ betabarrel_cluster.ip_addresses['betabarrel']['vlan13'] }}"
+            - "{{ betabarrel_cluster.ip_addresses['betabarrel']['vlan16'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf-porch']['cf_internal_management'] }}"
             - "{{ copperfist_cluster.ip_addresses['cf_internal_management-external-router']['external'] }}"
             - "{{ copperfist_cluster.ip_addresses['copperfist']['vlan13'] }}"
@@ -221,23 +221,6 @@ all:
                 - enp134s0f0.16  # VLAN16
               slurm_weight: 10
               local_yum_repository: true # enable local yum repository
-              additional_etc_hosts:
-                - group: docs_library
-                  nodes: 
-                    - name: docs_on_merlin
-                      network: vlan16
-                - group: betabarrel_cluster
-                  nodes:
-                    - name: bb-dragen
-                      network: vlan990
-                - group: betabarrel_cluster
-                  nodes:
-                    - name: betabarrel
-                      network: vlan990
-                - group: copperfist_cluster
-                  nodes:
-                    - name: copperfist
-                      network: vlan13
     chaperone:
       hosts:
         bb-chaperone:
