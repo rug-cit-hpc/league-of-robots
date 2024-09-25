@@ -1,4 +1,7 @@
 ---
+azure_resource_group: "unassigned"
+azure_location: "westeurope"
+
 openstack_api_timeout: 180
 stack_hosts_created_in_azure: "{{ hostvars
     | json_query('* | [?azure_flavor] | [].inventory_hostname')

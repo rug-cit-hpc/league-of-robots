@@ -15,6 +15,8 @@ stack_networks:
     type: management
     external: false
     mtu_size: '1450'
+# Azure
+azure_resource_group: "{{ stack_name }}"
 azure_networks:
   - name: "{{ stack_prefix }}_internal_management"
     external: false
@@ -26,7 +28,6 @@ azure_image:
     publisher: 'resf'
     sku: '9-base'
     version: 'latest'
-azure_resource_group: "{{ stack_name }}"
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.

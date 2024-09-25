@@ -1,4 +1,7 @@
 ---
+azure_resource_group: "unassigned"
+azure_location: "westeurope"
+
 openstack_api_timeout: 180
 #
 # network_names_of_all_hosts_created_in_openstack are the ones specified in the inventory for hosts,
