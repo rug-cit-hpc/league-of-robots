@@ -1,11 +1,5 @@
 ---
-# Notes about security groups of Azure
-#  - they work differently than Openstack
-#  - they can be stacked, but need to be correctly weighted in order to work
-#  - therefore I decided that I will use them in following structure
-#     - 1xx are for publicly exposed ports
-#     - 2xx for network cidr limited port access
-#     - 3xx are for everything else: storage or vlans ports
+# Notes about this security groups are in the ../README.md
 
 #
 # Jumphost: receive 22 and 443 from anywhere, block ICMP
