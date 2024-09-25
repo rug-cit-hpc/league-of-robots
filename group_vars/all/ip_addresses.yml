@@ -1,0 +1,271 @@
+ip_addresses:
+  #
+  # UMCG network ranges:
+  # 192.87.23.66-67
+  # 192.87.23.100-105
+  # 20.67.122.56
+  #
+  umcg:
+    net1:
+      address: '192.87.23.66'
+      netmask: '/31'
+      desc: 'UMCG firewalls / core routers'
+    net2:
+      address: '192.87.23.100'
+      netmask: '/30'
+      desc: 'UMCG firewalls / core routers'
+    net3:
+      address: '192.87.23.104'
+      netmask: '/31'
+      desc: 'UMCG firewalls / core routers'
+    net4:
+      address: '20.67.122.56'
+      netmask: '/32'
+      desc: 'UMCG firewalls / core routers'
+    internal1:
+      address: '172.25.0.1'
+      netmask: '/22'
+      desc: 'UMCG internal 3211 range'
+    basiswerkplek:
+      address: '10.96.128.1'
+      netmask: '/21'
+      desc: 'UMCG internal range of Basis Werkplek'
+    win10vdi:
+      address: '172.18.96.1'
+      netmask: '/20'
+      desc: 'UMCG internal range of Win10VDI machines'
+  #
+  # RUG network ranges.
+  #
+  rug:
+    bwp_net:
+      address: '129.125.249.0'
+      netmask: '/24'
+      desc: 'RUG BWP'
+    operator:
+      address: '129.125.50.41'
+      netmask: '/32'
+      desc: 'operator.service.rug.nl / monitoring'
+    f5:
+      address: '129.125.2.0'
+      netmask: '/24'
+      desc: 'RUG F5 load balancers.'
+  #
+  # RUG research cluster UIs.
+  #
+  peregrine:
+    public:
+      address: '129.125.60.96'
+      netmask: '/32'
+      fqdn: 'peregrine.hpc.rug.nl'
+  #
+  # Dedicated raw sequence data conversion servers.
+  #
+  gcc:
+    cloud_net:
+      address: '195.169.22.1'
+      netmask: '/23'
+      desc: 'Includes many molgenis[0-9]+.gcc.rug.nl VMs, but not all IPs in range belong to GCC cloud.'
+    tnt1:
+      address: '195.169.23.126'
+      netmask: '/32'
+      fqdn: 'molgenis96.gcc.rug.nl'
+      desc: 'Molgenis Track and Trace for analysis team.'
+    tnt2:
+      address: '195.169.23.206'
+      netmask: '/32'
+      fqdn: 'molgenis06.gcc.rug.nl'
+      desc: 'Molgenis Track and Trace for analysis team.'
+    molgenis_downloads:
+      address: '195.169.23.226'
+      netmask: '/32'
+      fqdn: 'molgenis26.gcc.rug.nl'
+      desc: 'Public downloads.'
+  #
+  # Other clusters / grid / DS machines.
+  #
+  surfsara:
+    grid_ui:
+      address: '145.100.5.194'
+      netmask: '/32'
+      fqdn: 'ui.grid.sara.nl'
+    umcg-resc1:
+      address: '145.38.219.24'
+      netmask: '/32'
+      fqdn: 'umcg-resc1.irods.surfsara.nl'
+  eriba:
+    ds:
+      address: '129.125.161.80'
+      netmask: '/32'
+      desc: 'SFTP server @ ERIBA'
+  lumc:
+    shark_ui:
+      address: '145.88.35.10'
+      netmask: '/32'
+      desc: 'Jumphost for LUMC Shark cluster.'
+  genomescan:
+    portal:
+      address: '145.88.209.231'
+      netmask: '/32'
+      desc: 'Genomescan data transfer server.'
+  #
+  # EBI & Sanger servers.
+  #
+  # Services are frequently moved to other machines and
+  # in addition most services are behind load balancers 
+  # resulting in frequently changing IP addresses: -> allow their entire subnets.
+  #   Services include:
+  #    * ftp.ensembl.org        (FTP)
+  #    * ftp.ega.ebi.ac.uk      (FTP)
+  #    * sra-ftps.ebi.ac.uk     (FTP)
+  #    * ensembldb.ensembl.org  (MySQL on ports 3306 & 5306)
+  #    * ensembldb.sanger.ac.uk (MySQL on ports 3306 & 5306)
+  #    * martdb.sanger.ac.uk    (MySQL on port 5316)
+  #    * martdb.ensembl.org     (MySQL on port 5316)
+  #    * fasp.ega.ebi.ac.uk     (Aspera)
+  #    * fasp.sra.ebi.ac.uk     (Aspera)
+  #
+  ebi:
+    net1:
+      address: '193.62.192.1'
+      netmask: '/24'
+      desc: 'EBI / Ensembl.'
+    net2:
+      address: '193.62.193.1'
+      netmask: '/24'
+      desc:  'EBI / Ensembl.'
+  sanger:
+    sftp:
+      address: '193.62.203.29'
+      netmask: '/32'
+      fqdn: 'sftpsrv.sanger.ac.uk'
+    globus:
+      address: '193.62.202.248'
+      netmask: '/32'
+      fqdn: 'globus.sanger.ac.uk'
+  #
+  # Broad Institute servers.
+  #
+  broad:
+    ftp:
+      address: '69.173.80.251'
+      netmask: '/32'
+      fqdn: 'ftp.broadinstitute.org'
+    aspera_portal:
+      address: '69.173.125.33'
+      netmask: '/32'
+      fqdn: 'dmz-asperashares.broadinstitute.org'
+    aspera_1:
+      address: '23.236.57.4'
+      netmask: '/32'
+      desc: 'Broad Institute Aspera server.'
+    aspera_2:
+      address: '69.173.124.97'
+      netmask: '/32'
+      desc: 'Broad Institute Aspera server.'
+    aspera_3:
+      address: '69.173.124.98'
+      netmask: '/32'
+      desc: 'Broad Institute Aspera server.'
+    aspera_4:
+      address: '130.211.143.166'
+      netmask: '/32'
+      desc: 'Broad Institute Aspera server.'
+    aspera_5:
+      address: '130.211.148.168'
+      netmask: '/32'
+      desc: 'Broad Institute Aspera server.'
+    aspera_6:
+      address: '130.211.174.182'
+      netmask: '/32'
+      desc: 'Broad Institute Aspera server.'
+    aspera_7:
+      address: '130.211.182.54'
+      netmask: '/32'
+      desc: 'Broad Institute Aspera server.'
+    aspera_8:
+      address: '130.211.186.135'
+      netmask: '/32'
+      desc: 'Broad Institute Aspera server.'
+    aspera_9:
+      address: '146.148.76.138'
+      netmask: '/32'
+      desc: 'Broad Institute Aspera server.'
+  #
+  # NCBI servers.
+  #
+  # Services are frequently moved to other machines and in addition most services are behind load balancers 
+  # resulting in frequently changing IP addresses: -> allow entire subnets.
+  #   Services include:
+  #    * gap-upload.ncbi.nlm.nih.gov    (FTP & Aspera)
+  #    * ftp-trace.ncbi.nlm.nih.gov     (FTP & Aspera)
+  #    * ftp-private.ncbi.nlm.nih.gov   (FTP & Aspera)
+  #    * ftp.ncbi.nlm.nih.gov           (FTP & Aspera)
+  #    * upload.ncbi.nlm.nih.gov        (FTP & Aspera)
+  #
+  ncbi:
+    net1:
+      address: '130.14.29.0'
+      netmask: '/24'
+      desc: '*.ncbi.nlm.nih.gov'
+    net2:
+      address: '130.14.250.0'
+      netmask: '/24'
+      desc: '*.ncbi.nlm.nih.gov'
+  #
+  # Centro Nacional de Analisis Genomico (CNAG), Barcelona, Catalonia, Spain.
+  #
+  cnag:
+    sftp:
+      address: '84.88.66.214'
+      netmask: '/32'
+      desc: 'ftp.cnag.cat, but name is misleading: server uses sftp.'
+  #
+  # Erasmus MC servers.
+  #
+  erasmus_mc:
+    net:
+      address: '156.83.1.0'
+      netmask: '/24'
+      desc: 'A.o. for data transfer using sftp/rsync.'
+  #
+  # Globus.
+  #
+  globus_org:
+    net:
+      address: '54.237.254.192'
+      netmask: '/29'
+      desc: '*.globusonline.org for data transfers with Globus ToolKit (GTK).'
+  google:
+    stun:
+      address: '74.125.143.127'
+      netmask: '/32'
+      desc: 'stun.l.google.com for connection to STUN server when setting up a session with another Globus Connect Personal endpoint.'
+  #
+  # GitHub hooks
+  #
+  github:
+    hooks1:
+      address: '192.30.252.0'
+      netmask: '/22'
+      desc: 'GitHub webhooks used to send HTTP POST payload to Jenkins'
+    hooks2:
+      address: '185.199.108.0'
+      netmask: '/22'
+      desc: 'GitHub webhooks used to send HTTP POST payload to Jenkins'
+    hooks3:
+      address: '140.82.112.0'
+      netmask: '/20'
+      desc: 'GitHub webhooks used to send HTTP POST payload to Jenkins'
+    hooks4:
+      address: '143.55.64.0'
+      netmask: '/20'
+      desc: 'GitHub webhooks used to send HTTP POST payload to Jenkins'
+  #
+  # LSAAI
+  #
+  lsaai:
+    perun:
+      address: '78.128.247.160'
+      netmask: '/24'
+      desc: 'LSAAI Perun server(s) managing our LSAAI LDAP server'
