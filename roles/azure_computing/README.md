@@ -61,10 +61,11 @@ Make sure you don't overwrite the values of openstack generated or manually gene
 
 ## Instances physical location
 
-The default `azure_location` is set to `westeurope` - and is defined in
+The default `azure_location` is set to `westeurope`, which does not need to be changed - ever. It is defined in
 
- - `group_vars/all/vars.yml` as well as in
- - `defaults/main.yml` of all three roles (`azure_computing`, `azure_general` and `azure_networking`)
+ - `.azure/config`,
+ - `group_vars/all/vars.yml`, as well as in
+ - `defaults/main.yml` of all three roles: `azure_general`, `azure_networking` and `azure_computing`
 
 ## Extra information
 
