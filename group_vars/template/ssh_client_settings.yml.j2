@@ -2,14 +2,14 @@
 ---
 ssh_client_jumphosts:
 {% for jumphost in groups['jumphost'] | default([]) %}
-  {% set network_id = all_ip_addresses[jumphost]
+  {% set network_id = ip_addresses[jumphost]
            | dict2items
            | json_query('[?value.fqdn].key')
            | first -%}
-  {% if all_ip_addresses[jumphost][network_id]['fqdn'] == 'NXDOMAIN' %}
-    {% set ssh_hostname = all_ip_addresses[jumphost][network_id]['address'] %}
+  {% if ip_addresses[jumphost][network_id]['fqdn'] == 'NXDOMAIN' %}
+    {% set ssh_hostname = ip_addresses[jumphost][network_id]['address'] %}
   {% else %}
-    {% set ssh_hostname = all_ip_addresses[jumphost][network_id]['fqdn'] %}
+    {% set ssh_hostname = ip_addresses[jumphost][network_id]['fqdn'] %}
   {% endif %}
   - alias: {{ jumphost }}
     hostname: {{ ssh_hostname }}
@@ -19,19 +19,19 @@ ssh_client_known_hosts: "\
   @cert-authority \
   {% for jumphost in groups['jumphost'] | default([]) %}
   {{ jumphost }}*,\
-    {% for network_id in all_ip_addresses[jumphost] %}
-      {% if all_ip_addresses[jumphost][network_id]['fqdn'] is defined and
-            all_ip_addresses[jumphost][network_id]['fqdn'] == 'NXDOMAIN' %}
-  {{ all_ip_addresses[jumphost][network_id]['address'] }},\
+    {% for network_id in ip_addresses[jumphost] %}
+      {% if ip_addresses[jumphost][network_id]['fqdn'] is defined and
+            ip_addresses[jumphost][network_id]['fqdn'] == 'NXDOMAIN' %}
+  {{ ip_addresses[jumphost][network_id]['address'] }},\
       {% endif %}
     {% endfor %}
   {% endfor %}
   {% for dthost in groups['data_transfer'] | default([]) %}
   *{{ dthost }}*,\
-    {% for network_id in all_ip_addresses[dthost] %}
-      {% if all_ip_addresses[dthost][network_id]['fqdn'] is defined and
-            all_ip_addresses[dthost][network_id]['fqdn'] == 'NXDOMAIN' %}
-  {{ all_ip_addresses[dthost][network_id]['address'] }},\
+    {% for network_id in ip_addresses[dthost] %}
+      {% if ip_addresses[dthost][network_id]['fqdn'] is defined and
+            ip_addresses[dthost][network_id]['fqdn'] == 'NXDOMAIN' %}
+  {{ ip_addresses[dthost][network_id]['address'] }},\
       {% endif %}
     {% endfor %}
   {% endfor %}
