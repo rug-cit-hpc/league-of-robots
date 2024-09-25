@@ -10,6 +10,7 @@
     - iptables
     - grub
     - locale
+    - regular_users
     - ssh  # client
     - update
     - role: yum_local
