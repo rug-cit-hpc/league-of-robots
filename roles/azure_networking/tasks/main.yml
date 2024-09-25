@@ -1,6 +1,3 @@
-#
-# Create vxlans, routers and security groups.
-#
 ---
 - name: Create security groups.
   ansible.builtin.include_tasks:
