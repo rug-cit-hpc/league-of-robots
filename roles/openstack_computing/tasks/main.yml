@@ -55,10 +55,10 @@
     api_server_info: "{{ api_server_info | combine({'servers': api_server_info['openstack_servers']}) }}"
   when: api_server_info['openstack_servers'] is defined
   run_once: true
-- name: "Add IP addresses to {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses_openstack.yml.new"
+- name: "Add IP addresses to {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
   ansible.builtin.template:
     src: "{{ playbook_dir }}/group_vars/template/ip_addresses_openstack.yml.j2"
-    dest: "{{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses_openstack.yml.new"
+    dest: "{{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new"
     mode: '0644'
   vars:
     relevant_servers_info: "{{ api_server_info.servers | selectattr('name', 'in', stack_hosts_created_in_openstack) | list }}"
@@ -75,13 +75,13 @@
          ***********************************************************************************************************
          IMPORTANT: Manual work!
                     Ansible created:
-                        {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses_openstack.yml.new
+                        {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml.new
                         {{ playbook_dir }}/group_vars/{{ stack_name }}/ssh_client_settings.yml.new
                     Please inspect these files carefully with:
-                        diff -y {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses_openstack.yml{.new,}
+                        diff -y {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
                         diff -y {{ playbook_dir }}/group_vars/{{ stack_name }}/ssh_client_settings.yml{.new,}
                     and if both are Ok execute:
-                        mv {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses_openstack.yml{.new,}
+                        mv {{ playbook_dir }}/group_vars/{{ stack_name }}/ip_addresses.yml{.new,}
                         mv {{ playbook_dir }}/group_vars/{{ stack_name }}/ssh_client_settings.yml{.new,}
          ***********************************************************************************************************
   run_once: true
