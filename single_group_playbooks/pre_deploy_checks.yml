@@ -162,7 +162,7 @@
       ansible.builtin.find:
         paths: "{{ playbook_dir }}/group_vars/"
         recurse: true
-        patterns: 'ip_addresses*.yml'
+        patterns: 'ip_addresses.yml'
       delegate_to: localhost
       connection: local
       register: ip_addresses_files

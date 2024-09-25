@@ -7,25 +7,38 @@ This is one of three Azure roles
  - `azure_networking` role defines and mnages the entire stack of network: networks, sub-networks and security groups within the individual Azure group
  - `azure_computing` role defines and manages the VMs, their storage, network interfaces, public IP and private IPs inside the invididual Azure group
 
-## Group variables
+## Defining variables
 
-THE most important variable is the `azure_flavor`. This one triggers the generation of VMs. Of course the group variables must also contain the `azure_image` and `azure_networks`.
+### Static inventory
 
-Define host in static inventory
+The most important variables are in `static_inventory/[stack_name].yml`
+ - `azure_flavor` - this one triggers the generation of VMs
+ - `host_networks` - besides the `azure_flavor` this variables connects the VM to correct azure network
 
+for example
+ 
 ```
-    jumphost:
       hosts:
-        testmachine:
+        earl6:
           azure_flavor: Standard_DS1_v2
           host_networks:
-            - name: logs-vnet
+            - name: "{{ stack_prefix }}_internal_management"
+              security_group: "{{ stack_prefix }}_logservers"
+              assign_floating_ip: true
 ```
+without these two variables the `azure.yml` playbook will fail.
 
-also define in the `group_vars/[stack_name]/vars.yml`
+### Group variables
+
+Following variables must be also defined in the `group_vars/[stack_name]/vars.yml`
+
+ - `azure_networks` - must match the `host_networks` name from the `static_inventory/[stack_name].yml`
+ - `azure_image` - most of the time we use the same image for longer time, so if you are not sure, it's best to copy paste from another group
+ - (not urgent) `azure_resource_group` is by default already assigned to "{{ stack_name }}", therefore there is no need to define it here, but it could be changed
+
+for example
 
 ```
-azure_resource_group: "{{ stack_name }}"
 azure_networks:
   - name: "{{ stack_prefix }}_internal_management"
     external: false
@@ -37,6 +50,7 @@ azure_image:
     publisher: 'resf'
     sku: '9-base'
     version: 'latest'
+azure_resource_group: "{{ stack_name }}"
 ```
 
 Where
@@ -45,8 +59,41 @@ Where
  - `azure_networks` defines one or more networks of the current azure environment (does not support MTUs)
  - `azure_image` is a bit tricky, since user must find (preferably via azure cli) all four fields of this variable
 
-After you have defined all the variables, you
-(make sure you have initialized `lor-init` and done `lor-config`, then simply run
+## Login to the Azure via CLI
+
+```
+    (logs) 13:02:44 league-of-robots [130]$ az login
+    A web browser has been opened at https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize. Please continue the login in the web browser. If no web browser is available or if the web browser fails to open, use device code flow with `az login --use-device-code`.
+```
+the browser opens where you need to login to the Azure, after which you can close the tab and return back to command line:
+
+```
+    ... (after closing browser) ...
+    Retrieving tenants and subscriptions for the selection...
+    The following tenants don't contain accessible subscriptions. Use `az login --allow-no-subscriptions` to have tenant level access.
+    4bdee30a-0c94-4865-bc52-1d9f894a4975 'Health-RI'
+    
+    [Tenant and subscription selection]
+    
+    No     Subscription name       Subscription ID                       Tenant
+    -----  ----------------------  ------------------------------------  --------
+    [1]    umcg-ccs-p              b2f52196-7d6e-4dc5-bc6e-6ee31c4c5c6b  UMCG
+    [2] *  umcg-medgen-diag-p-ext  9f879778-5dff-451f-8cac-7a693c389b13  UMCG
+    [3]    umcg-medgen-t           0913ca65-7232-4ae7-9538-113f112fe50e  UMCG
+    
+    The default is marked with an *; the default tenant is 'UMCG' and subscription is 'umcg-medgen-diag-p-ext' (9f879778-5dff-451f-8cac-7a693c389b13).
+    
+    Select a subscription and tenant (Type a number or Enter for no changes): 
+```
+you can simply press enter (if you wish to use the "public" Azure environment), as it is set as default by the 
+
+`.azure/azureProfile.json`.
+
+## Running playbooks
+
+Now that you have loged in, you can deploy virtual machines.
+
+After you have defined all the variables, you can (make sure you have initialized `lor-init` and done `lor-config`) simply run
 
 ```
     ansible-playbook azure.yml

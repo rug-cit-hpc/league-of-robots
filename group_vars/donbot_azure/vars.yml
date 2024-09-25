@@ -12,7 +12,6 @@ stack_networks:
     external: true
     mtu_size: '1450'
 # Azure
-azure_resource_group: "{{ stack_prefix }}_testing"
 azure_networks:
   - name: "{{ stack_prefix }}_internal_management"
     external: false
@@ -24,6 +23,7 @@ azure_image:
     publisher: 'resf'
     sku: '9-base'
     version: 'latest'
+azure_resource_group: "{{ stack_prefix }}"
 nameservers: [
   '8.8.4.4',  # Google DNS.
   '8.8.8.8',  # Google DNS.

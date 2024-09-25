@@ -1,10 +1,9 @@
 ---
-- name: "Find all ip_addresses*.yml files in {{ playbook_dir }}/group_vars/*."
+- name: "Find all ip_addresses.yml files in {{ playbook_dir }}/group_vars/*."
   ansible.builtin.find:
     paths: "{{ playbook_dir }}/group_vars/"
     recurse: true
-    patterns:
-      - 'ip_addresses_*.yml'
+    patterns: 'ip_addresses.yml'
   register: ip_addresses_files_found
   delegate_to: localhost
   connection: local
@@ -16,13 +15,6 @@
     name: "{{ item | dirname | basename }}"
   with_items: "{{ ip_addresses_files_found.files | map(attribute='path') | list }}"
   register: included_ip_addresses
-  delegate_to: localhost
-  connection: local
-  run_once: true
-
-- name: Combine ip addresses of manual, openstack and azure .yml files into one ip_addresses variable.
-  ansible.builtin.set_fact:
-    ip_addresses: "{{ included_ip_addresses.results | json_query('[].ansible_facts.logs_library') | combine }}"
   delegate_to: localhost
   connection: local
   run_once: true

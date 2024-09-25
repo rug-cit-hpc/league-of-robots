@@ -1,5 +1,5 @@
 ---
-azure_resource_group: "unassigned"
+azure_resource_group: "{{ stack_name }}"
 azure_location: "westeurope"
 
 openstack_api_timeout: 180

@@ -11,7 +11,7 @@ ip_addresses:
       fqdn: 'NXDOMAIN'
   earl2:
     logs_internal_management:
-      address: 10.0.0.6
+      address: 10.10.1.5
       netmask: /32
       fqdn: 'NXDOMAIN'
       publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
@@ -25,7 +25,7 @@ ip_addresses:
       netmask: /32
       publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
     logs_internal_management_public:
-      address: 13.95.19.210
+      address: 20.61.107.3
       netmask: /32
       fqdn: 'earl3-6b85.westeurope.cloudapp.azure.com'
   earl4:
@@ -48,7 +48,7 @@ ip_addresses:
       fqdn: 'NXDOMAIN'
   earl6:
     logs_internal_management:
-      address: 10.0.0.4
+      address: 10.10.1.6
       netmask: /32
       fqdn: 'NXDOMAIN'
       publicly_exposed: true  # This internal IP is linked to a public (floating) IP.

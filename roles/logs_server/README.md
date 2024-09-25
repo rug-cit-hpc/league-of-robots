@@ -99,7 +99,7 @@ The steps are:
   (edit the `group_vars/hyperchicken_cluster/vars.yml` and configure the lines)
   `logs_class: 'development'` or `logs_class: 'diagnostics'`
   Where the stacks logs servers values are already defined in the `static_inventory/logs_library.yml`
-  file, and in the `group_vars/logs_library/ip_addresses*.yml`
+  file, and in the `group_vars/logs_library/ip_addresses.yml`
 - initialize the apropriate client LOR stack environment and on them deploy the same `single_group_playbooks/logs.yml`
 - in order for jumphost jump to work (explained in VI.) the invididual stack have to have the logs servers added in the
   `additional_etc_hosts` in the file `group_vars/[stack]/vars.yml` and the `single_role_playbooks/static_hostname_lookup.yml`
