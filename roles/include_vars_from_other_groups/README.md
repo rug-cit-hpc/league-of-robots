@@ -2,12 +2,12 @@
 
 ## group_vars/[stack_name]/ip_addresses[manual|openstack|azure].yml
 
-The `ip_addresses_[manual|openstack|azure].yml` files are
- - `ip_addresses_manual.yml` is manually created for machines of the stack that are manually deployed - that is, they 
+The `ip_addresses.yml` files contain
+ - manually created IP addresses for machines of the stack that are manually deployed - that is, they 
    are neither deployed with OpenStack nor Azure APIs.
- - `ip_addresses_openstack.yml` is generated with a playbook that creates machines by talking to the OpenStack API
+ - IPs generated with a playbook that creates machines by talking to the OpenStack API
    and using the template from `group_vars/template/ip_addresses_openstack.yml.j2`
- - `ip_addresses_azure.yml` is likewise generated with a playbook that creates machines by talking to the Azure API
+ - likewise IPs generated with a playbook that creates machines by talking to the Azure API
    and using the template from `group_vars/template/ip_addresses_azure.yml.j2`
 
 The data structure in an `ip_addresses.yml` file is a 2 level deep nested dict.
