@@ -155,6 +155,15 @@
     force: true
   become: true
 
+- name: Remove old restart services
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: false
+  with_items:
+    - rsyslog-restart.timer
+    - rsyslog-restart.service
+  become: true
+
 - name: Deploy server rsyslog.conf
   ansible.builtin.template:
     src: templates/rsyslog.conf

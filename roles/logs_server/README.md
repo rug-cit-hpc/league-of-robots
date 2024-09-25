@@ -198,6 +198,6 @@ For example you want to add `earl5` for `research`
 7. Configure earl as you would configure any other server
     ```
         export AI_PROXY=tunnel
-        export JUMPHOST_USER=sandi
+        export JUMPHOST_USER=your_admin_account
         ansible-playbook -u cloud-user -l earl5 single_group_playbooks/logs.yml
     ```
