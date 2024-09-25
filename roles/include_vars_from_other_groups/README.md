@@ -45,7 +45,7 @@ ip_addresses:
 
 ## Data structures provided by this role
 
-The info from all `ip_addresses[manual|openstack|azure].yml` files (recursively) found in the group_vars is combined into 2 data structures,
+The info from all `ip_addresses.yml` files (recursively) found in the group_vars is combined into 2 data structures,
 which are available to other roles when a dependency in this role is defined in the role's `meta/main.yml` like this:
 
 ```
