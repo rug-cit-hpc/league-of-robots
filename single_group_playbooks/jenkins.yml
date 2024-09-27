@@ -18,6 +18,7 @@
     - remove
     - update
     - sshd
+    - basic_security
     - jenkins
     - configure_jenkins_projects
 ...
