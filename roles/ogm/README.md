@@ -25,7 +25,7 @@ find /home/ADMINIT/pg_dump/ -type f -mtime +4 -name '*.sql.gz' -exec rm -f {} \;
 $ chmod u+x psql_backup_and_clean.sh
 $ crontab -e
 11 1 * * * bash -c '~/psql_backup_and_clean.sh >> ~/psql_backup_and_clean.log'
-$ # make sure the ADMINIT is the wheel group and that it can execute sudo commands without password prompt
+$ # make sure the ADMINIT is in the wheel group and that it can execute sudo commands without password prompt
 $ # file /etc/sudoers has to contain
 $ # %wheel	ALL=(ALL)	NOPASSWD:ALL
 ```
