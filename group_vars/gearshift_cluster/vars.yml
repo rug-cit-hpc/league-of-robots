@@ -161,6 +161,7 @@ regular_groups:
   - 'umcg-msb'
   - 'umcg-muhas'
   - 'umcg-nawijn'
+  - 'umcg-neonatology'
   - 'umcg-pgx'
   - 'umcg-pmb'
   - 'umcg-pub'
@@ -261,6 +262,8 @@ regular_users:
     groups: ['umcg-muhas']
   - user: 'umcg-nawijn-dm'
     groups: ['umcg-nawijn']
+  - user: 'umcg-neonatology-dm'
+    groups: ['umcg-neonatology']
   - user: 'umcg-pgx-dm'
     groups: ['umcg-pgx']
   - user: 'umcg-pmb-dm'
@@ -378,6 +381,8 @@ sudoers:
     become: 'umcg-muhas-dm'
   - who: ['%umcg-nawijn-dms']
     become: 'umcg-nawijn-dm'
+  - who: ['%umcg-neonatology-dms']
+    become: 'umcg-neonatology-dm'
   - who: ['%umcg-pgx-dms']
     become: 'umcg-pgx-dm'
   - who: ['%umcg-pmb-dms']
@@ -497,6 +502,8 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-nawijn
         mode: '2750'
+      - name: umcg-neonatology
+        mode: '2750'
       - name: umcg-pgx
         mode: '2750'
       - name: umcg-pmb
@@ -564,6 +571,7 @@ lfs_mounts:
       - name: umcg-msb
       - name: umcg-muhas
       - name: umcg-nawijn
+      - name: umcg-neonatology
       - name: umcg-pgx
       - name: umcg-pmb
       - name: umcg-pub
@@ -621,6 +629,7 @@ lfs_mounts:
       - name: umcg-msb
       - name: umcg-muhas
       - name: umcg-nawijn
+      - name: umcg-neonatology
       - name: umcg-pgx
       - name: umcg-pmb
       - name: umcg-pub
@@ -654,7 +663,6 @@ lfs_mounts:
       - name: umcg-fg
       - name: umcg-franke-scrna
       - name: umcg-fu
-      - name: umcg-gaf
       - name: umcg-gap
       - name: umcg-gastrocol
       - name: umcg-gcc
@@ -675,6 +683,7 @@ lfs_mounts:
       - name: umcg-micompany
       - name: umcg-msb
       - name: umcg-nawijn
+      - name: umcg-neonatology
       - name: umcg-pgx
       - name: umcg-pmb
       - name: umcg-pub
