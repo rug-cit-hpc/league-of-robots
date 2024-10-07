@@ -59,7 +59,7 @@ additional_etc_hosts:
   - group: copperfist_cluster
     nodes:
       - name: copperfist
-        network: vlan13
+        network: vlan16
 #
 # Jumphosts from other stack-name infra groups.
 # We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
@@ -405,11 +405,16 @@ ogm_servers:
   - server: bas1.umcg.nl  # FQDN of OGM machine to backup.
     user: ADMINIT
     prm_location: /groups/umcg-ogm/prm67
-#    backup_commands:
-#      - label: "pg_dump: create"
-#        command: sudo -u postgres bash -c 'cd; pg_dump --no-owner --no-privileges IrysView_Dev | /usr/bin/gzip -f -6' > pg_dump/$(date +%Y%m%d-%H%M%S).sql.gz
-#      - label: "pg_dump: remove old"
-#        command: find /home/ADMINIT/pg_dump/ -type f -mtime +4 -name '*.sql.gz' -exec rm -f {} \;
+    backup_source_dirs:
+      - /home/bionano/access/web/Server/databaseFiles/molecules_files
+      - /var/log
+      - /home/bionano/access/web/Server/Log
+      - /home/bionano/access/web/Server/anchorFiles
+      - /home/ADMINIT/pg_dump
+    psql_dump_location: /home/ADMINIT/pg_dump
+  - server: bas3.umcg.nl  # FQDN of OGM machine to backup.
+    user: ADMINIT
+    prm_location: /groups/umcg-ogm/prm67
     backup_source_dirs:
       - /home/bionano/access/web/Server/databaseFiles/molecules_files
       - /var/log
@@ -505,7 +510,7 @@ pfs_mounts:
 lfs_mounts:
   - lfs: home
     pfs: umcgst12
-    rw_machines: "{{ groups['cluster'] }}"
+    rw_machines: "{{ groups['cluster'] | difference(groups['nfs_server']) }}"
   - lfs: tmp07
     pfs: umcgst04/slice1
     groups:

@@ -213,7 +213,6 @@ regular_groups:
   - 'umcg-fg'
   - 'umcg-franke-scrna'
   - 'umcg-fu'
-  - 'umcg-gaf'
   - 'umcg-gap'
   - 'umcg-gastrocol'
   - 'umcg-gcc'
@@ -234,6 +233,7 @@ regular_groups:
   - 'umcg-micompany'
   - 'umcg-msb'
   - 'umcg-nawijn'
+  - 'umcg-neonatology'
   - 'umcg-nephrology'
   - 'umcg-pmb'
   - 'umcg-pub'
@@ -277,10 +277,6 @@ regular_users:
     groups: ['umcg-franke-scrna']
   - user: 'umcg-fu-dm'
     groups: ['umcg-fu']
-  - user: 'umcg-gaf-ateambot'
-    groups: ['umcg-gaf']
-  - user: 'umcg-gaf-dm'
-    groups: ['umcg-gaf']
   - user: 'umcg-gap-ateambot'
     groups: ['umcg-gap']
   - user: 'umcg-gap-dm'
@@ -323,6 +319,8 @@ regular_users:
     groups: ['umcg-msb']
   - user: 'umcg-nawijn-dm'
     groups: ['umcg-nawijn']
+  - user: 'umcg-neonatology-dm'
+    groups: ['umcg-neonatology']
   - user: 'umcg-nephrology-dm'
     groups: ['umcg-nephrology']
   - user: 'umcg-pmb-dm'
@@ -374,18 +372,12 @@ sudoers:
     become: 'umcg-ejp-rd-dm'
   - who: ['%umcg-endocrinology-dms']
     become: 'umcg-endocrinology-dm'
-  - who: ['%umcg-gcc']
-    become: 'umcg-gcc-dm'
   - who: ['%umcg-fg-dms']
     become: 'umcg-fg-dm'
   - who: ['%umcg-franke-scrna-dms']
     become: 'umcg-franke-scrna-dm'
   - who: ['%umcg-fu-dms']
     become: 'umcg-fu-dm'
-  - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
-    become: 'umcg-gaf-ateambot'
-  - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
-    become: 'umcg-gaf-dm'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-gap-ateambot'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
@@ -428,6 +420,8 @@ sudoers:
     become: 'umcg-msb-dm'
   - who: ['%umcg-nawijn-dms']
     become: 'umcg-nawijn-dm'
+  - who: ['%umcg-neonatology-dms']
+    become: 'umcg-neonatology-dm'
   - who: ['%umcg-nephrology-dms']
     become: 'umcg-nephrology-dm'
   - who: ['%umcg-pmb-dms']
@@ -482,7 +476,6 @@ local_mount_subfolders:
           - umcg-ejp-rd
           - umcg-endocrinology
           - umcg-franke-scrna
-          - umcg-gaf
           - umcg-gap
           - umcg-gastrocol
           - umcg-gcc
@@ -499,6 +492,8 @@ local_mount_subfolders:
           - umcg-micompany
           - umcg-mmbimg
           - umcg-msb
+          - umcg-nawijn
+          - umcg-neonatology
           - umcg-nephrology
           - umcg-pmb
           - umcg-radicon
@@ -575,8 +570,6 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-fu
         mode: '2750'
-      - name: umcg-gaf
-        mode: '2750'
       - name: umcg-gap
         mode: '2750'
       - name: umcg-gastrocol
@@ -616,6 +609,8 @@ lfs_mounts:
       - name: umcg-msb
         mode: '2750'
       - name: umcg-nawijn
+        mode: '2750'
+      - name: umcg-neonatology
         mode: '2750'
       - name: umcg-nephrology
         mode: '2750'
@@ -666,7 +661,6 @@ lfs_mounts:
       - name: umcg-fg
       - name: umcg-franke-scrna
       - name: umcg-fu
-      - name: umcg-gaf
       - name: umcg-gap
       - name: umcg-gastrocol
       - name: umcg-gcc
@@ -687,6 +681,7 @@ lfs_mounts:
       - name: umcg-micompany
       - name: umcg-msb
       - name: umcg-nawijn
+      - name: umcg-neonatology
       - name: umcg-pmb
       - name: umcg-pub
       - name: umcg-radicon
@@ -718,7 +713,6 @@ lfs_mounts:
       - name: umcg-fg
       - name: umcg-franke-scrna
       - name: umcg-fu
-      - name: umcg-gaf
       - name: umcg-gap
       - name: umcg-gastrocol
       - name: umcg-gcc
@@ -739,6 +733,7 @@ lfs_mounts:
       - name: umcg-micompany
       - name: umcg-msb
       - name: umcg-nawijn
+      - name: umcg-neonatology
       - name: umcg-nephrology
       - name: umcg-pmb
       - name: umcg-pub
