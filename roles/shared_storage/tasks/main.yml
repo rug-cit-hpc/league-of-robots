@@ -208,7 +208,6 @@
   with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'home') | list }}"
   when:
     - inventory_hostname in item.rw_machines | default ([])
-    - not inventory_hostname in groups['nfs_server'] | default([])
   become: true
 
 - name: 'Mount "home" Logical File System (LFS) from shared storage read-only.'
@@ -222,7 +221,6 @@
   with_items: "{{ lfs_mounts | selectattr('lfs', 'search', 'home') | list }}"
   when:
     - inventory_hostname in item.ro_machines | default ([])
-    - not inventory_hostname in groups['nfs_server'] | default([])
   become: true
 
 - name: 'Create root /groups folder.'
