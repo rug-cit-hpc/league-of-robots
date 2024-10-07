@@ -60,8 +60,8 @@ all:
           slurm_local_disk: 0
           slurm_features: 'prm09,tmp09'
           slurm_ethernet_interfaces:
-            - eth0
-            - eth1
+            - enp3s0
+            - enp4s0
     compute_node:
       children:
         regular:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
@@ -80,11 +80,11 @@ all:
               slurm_real_memory: 63790
               slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
               slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 512 }}"
-              slurm_local_disk: 975
+              slurm_local_disk: 900
               slurm_features: 'tmp09'
               slurm_ethernet_interfaces:
-                - eth0
-                - eth1
+                - enp3s0
+                - enp4s0
 administration:
   children:
     sys_admin_interface:

@@ -1,5 +1,5 @@
 ---
-- name: Install fail2ban (RedHat).
+- name: Enable fail2ban.
   ansible.builtin.package:
     name: fail2ban
     state: present

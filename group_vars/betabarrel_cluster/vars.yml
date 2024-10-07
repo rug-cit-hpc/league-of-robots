@@ -50,15 +50,19 @@ motd: |
 additional_etc_hosts:
   - group: betabarrel_cluster
     nodes:
-      - name: bb-dragen
+      - name: betabarrel
         network: vlan990
   - group: betabarrel_cluster
     nodes:
-      - name: betabarrel
+      - name: bb-dragen
         network: vlan990
   - group: copperfist_cluster
     nodes:
       - name: copperfist
+        network: vlan990
+  - group: copperfist_cluster
+    nodes:
+      - name: cf-dragen
         network: vlan990
 #
 # Jumphosts from other stack-name infra groups.
@@ -114,7 +118,7 @@ totp:
     - "{{ all.ip_addresses['umcg']['net2']['address'] }}{{ all.ip_addresses['umcg']['net2']['netmask'] }}"
     - "{{ all.ip_addresses['umcg']['net3']['address'] }}{{ all.ip_addresses['umcg']['net3']['netmask'] }}"
     - "{{ all.ip_addresses['umcg']['net4']['address'] }}{{ all.ip_addresses['umcg']['net4']['netmask'] }}"
-    - "{{ copperfist_cluster.ip_addresses['copperfist']['vlan13']['address'] }}{{ copperfist_cluster.ip_addresses['copperfist']['vlan13']['netmask'] }}"
+    - "{{ copperfist_cluster.ip_addresses['copperfist']['vlan16']['address'] }}{{ copperfist_cluster.ip_addresses['copperfist']['vlan16']['netmask'] }}"
 cloud_image: CentOS 7
 cloud_user: centos
 availability_zone: nova

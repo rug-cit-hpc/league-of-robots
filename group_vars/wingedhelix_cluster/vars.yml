@@ -59,7 +59,7 @@ additional_etc_hosts:
   - group: copperfist_cluster
     nodes:
       - name: copperfist
-        network: vlan13
+        network: vlan16
 #
 # Jumphosts from other stack-name infra groups.
 # We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
