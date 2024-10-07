@@ -1,8 +1,75 @@
 # Azure networking
 
-[See compute readme](../azure_computing/README.md)
+## Intro
 
-## Security groups
+This is one of three Azure roles
+
+ - [azure_general](../azure_general/README.md) role creates Azure group which contains the network, VMs, network interfaces, security groups. This helps with an overview of used and available Azure resources
+ - [azure_networking](../azure_networking/README.md) role defines and mnages the entire stack of network: networks, sub-networks and security groups within the individual Azure group
+ - [azure_computing](../azure_computing/README.md) role defines and manages the VMs, their storage, network interfaces, public IP and private IPs inside the invididual Azure group
+
+
+## About internal network and public IP
+
+The network is created with internal IPs for each VMs of the networks.
+Then the public IP is assigned to those interface, together with security_groups.
+Note the cidr for each public network is defined for the internal IPs and not public IPs.
+
+## Security groups in general
+
+Explaining security groups on the case of Azure.
+
+The network `type` variable is needed for non-external networks, like `management`
+and (not yet written) `storage` network.
+
+When `azure.yml` playbook is deployed, it creates a
+ - security group(s)
+ - network and
+ - subnetwork
+
+When external: true
+
+`group_vars/vars`
+```
+azure_networks:
+  - name: "{{ stack_prefix }}_external"
+    cidr: '10.10.1.0/24'
+    external: true
+    security_group: "{{ stack_prefix }}_public"
+```
+
+`static_inventory/stack`
+
+```
+azure_flavor: "Standard_DS1_v2"
+host_networks:
+  - name: "{{ stack_prefix }}_external"
+    security_group: "{{ stack_prefix }}_external"
+    assign_floating_ip: true
+```
+
+## Different security groups
+
+ - For internal management networks, we use variables:
+
+    ```
+    azure_networks:
+       name: "{{ stack_prefix }}_internal_management"
+       security_group: "{{ stack_prefix }}_cluster"
+       type: "management"
+       cidr: 10.10.1.0/24
+    ```
+ - For Logservers security groups we must define network
+
+    ```
+    azure_networks:
+       name: "{{ stack_prefix }}_internal_management"
+       security_group: "{{ stack_prefix }}_cluster"
+       type: "management"
+       cidr: 10.10.1.0/24
+    ```
+
+## Security groups working together
 
 Note about security groups of Azure
  - they work differently than Openstack
@@ -18,3 +85,13 @@ Note about security groups of Azure
 Deyployment will fail if security groups are not assigned on the
  - subnetworks
  - VMs network interfaces
+
+## FQDN of machines
+
+Since machine CAN get more than 1 public IP, the FQDN of that IP is created in format
+
+`{{ stack_prefix }}-{{ inventory_hostname }}-{{ network.name | hash | first 4 letters }}.[ azure location public DNS ]`
+
+an example for logs_library earl2 for logs_external network
+
+`logs-earl2-6b85.westeurope.cloudapp.azure.com`

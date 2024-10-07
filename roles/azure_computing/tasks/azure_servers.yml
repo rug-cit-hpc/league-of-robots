@@ -22,17 +22,17 @@
         public_ip_address_name: "{{ inventory_hostname }}-{{ item.name }}_public_ip"
       {% endif %}
 
-- name: Create network interfaces for VM
+- name: Create network interface(s) for VM
   azure.azcollection.azure_rm_networkinterface:
     name: "{{ inventory_hostname }}-{{ item.name }}_nic"
-    location: "{{ azure_location }}"
-    resource_group: "{{ azure_resource_group }}"
     virtual_network: "{{ item.name }}"
     subnet_name: "{{ item.name }}_subnet"
     ip_configurations: "{{ vm_ip_configs | from_yaml }}"
     enable_accelerated_networking: True
     create_with_security_group: True
     security_group: "{{ item.security_group }}"
+    resource_group: "{{ azure_resource_group }}"
+    location: "{{ azure_location }}"
   with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
   vars:
     vm_ip_configs: |

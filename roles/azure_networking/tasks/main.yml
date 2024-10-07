@@ -2,7 +2,8 @@
 - name: Create security groups.
   ansible.builtin.include_tasks:
     file: security_groups.yml
-- name: Create networks.
+
+- name: Create networks and subnets.
   ansible.builtin.include_tasks:
     file: networks.yml
   vars:
