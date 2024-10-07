@@ -505,7 +505,7 @@ pfs_mounts:
 lfs_mounts:
   - lfs: home
     pfs: umcgst12
-    rw_machines: "{{ groups['cluster'] }}"
+    rw_machines: "{{ groups['cluster'] | difference(groups['nfs_server']) }}"
   - lfs: tmp07
     pfs: umcgst04/slice1
     groups:
