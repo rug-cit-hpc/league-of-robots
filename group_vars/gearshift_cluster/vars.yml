@@ -164,7 +164,6 @@ regular_groups:
   - 'umcg-neonatology'
   - 'umcg-pgx'
   - 'umcg-pmb'
-  - 'umcg-pub'
   - 'umcg-radicon'
   - 'umcg-rehabilitation'
   - 'umcg-reki'
@@ -268,8 +267,6 @@ regular_users:
     groups: ['umcg-pgx']
   - user: 'umcg-pmb-dm'
     groups: ['umcg-pmb']
-  - user: 'umcg-pub-dm'
-    groups: ['umcg-pub']
   - user: 'umcg-radicon-dm'
     groups: ['umcg-radicon']
   - user: 'umcg-rehabilitation-dm'
@@ -387,8 +384,6 @@ sudoers:
     become: 'umcg-pgx-dm'
   - who: ['%umcg-pmb-dms']
     become: 'umcg-pmb-dm'
-  - who: ['%umcg-pub-dms']
-    become: 'umcg-pub-dm'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-radicon-dm'
   - who: ['%umcg-rehabilitation-dms']
@@ -507,8 +502,6 @@ lfs_mounts:
       - name: umcg-pgx
         mode: '2750'
       - name: umcg-pmb
-      - name: umcg-pub
-        mode: '2750'
       - name: umcg-radicon
       - name: umcg-rehabilitation
       - name: umcg-reki
@@ -574,7 +567,6 @@ lfs_mounts:
       - name: umcg-neonatology
       - name: umcg-pgx
       - name: umcg-pmb
-      - name: umcg-pub
       - name: umcg-radicon
       - name: umcg-rehabilitation
       - name: umcg-reki
@@ -632,7 +624,6 @@ lfs_mounts:
       - name: umcg-neonatology
       - name: umcg-pgx
       - name: umcg-pmb
-      - name: umcg-pub
       - name: umcg-radicon
       - name: umcg-rehabilitation
       - name: umcg-reki
@@ -686,7 +677,6 @@ lfs_mounts:
       - name: umcg-neonatology
       - name: umcg-pgx
       - name: umcg-pmb
-      - name: umcg-pub
       - name: umcg-radicon
       - name: umcg-rehabilitation
       - name: umcg-reki

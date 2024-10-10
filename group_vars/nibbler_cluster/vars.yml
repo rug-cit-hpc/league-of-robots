@@ -236,12 +236,12 @@ regular_groups:
   - 'umcg-neonatology'
   - 'umcg-nephrology'
   - 'umcg-pmb'
-  - 'umcg-pub'
   - 'umcg-radicon'
   - 'umcg-rehabilitation'
   - 'umcg-reki'
   - 'umcg-solve-rd'
   - 'umcg-sommer'
+  - 'umcg-sysops'
   - 'umcg-tifn'
   - 'umcg-ukb'
   - 'umcg-ugli'
@@ -325,8 +325,6 @@ regular_users:
     groups: ['umcg-nephrology']
   - user: 'umcg-pmb-dm'
     groups: ['umcg-pmb']
-  - user: 'umcg-pub-dm'
-    groups: ['umcg-pub']
   - user: 'umcg-radicon-dm'
     groups: ['umcg-radicon']
   - user: 'umcg-rehabilitation-dm'
@@ -337,6 +335,8 @@ regular_users:
     groups: ['umcg-solve-rd']
   - user: 'umcg-sommer-dm'
     groups: ['umcg-sommer']
+  - user: 'umcg-sysops-dm'
+    groups: ['umcg-sysops']
   - user: 'umcg-tifn-dm'
     groups: ['umcg-tifn']
   - user: 'umcg-ukb-dm'
@@ -426,8 +426,6 @@ sudoers:
     become: 'umcg-nephrology-dm'
   - who: ['%umcg-pmb-dms']
     become: 'umcg-pmb-dm'
-  - who: ['%umcg-pub-dms']
-    become: 'umcg-pub-dm'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-radicon-dm'
   - who: ['%umcg-rehabilitation-dms']
@@ -438,6 +436,8 @@ sudoers:
     become: 'umcg-solve-rd-dm'
   - who: ['%umcg-sommer-dms']
     become: 'umcg-sommer-dm'
+  - who: ['%umcg-sysops-dms']
+    become: 'umcg-sysops-dm'
   - who: ['%umcg-tifn-dms']
     become: 'umcg-tifn-dm'
   - who: ['%umcg-ukb-dms']
@@ -616,8 +616,6 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-pmb
         mode: '2750'
-      - name: umcg-pub
-        mode: '2750'
       - name: umcg-radicon
         mode: '2750'
       - name: umcg-rehabilitation
@@ -627,6 +625,8 @@ lfs_mounts:
       - name: umcg-solve-rd
         mode: '2750'
       - name: umcg-sommer
+        mode: '2750'
+      - name: umcg-sysops
         mode: '2750'
       - name: umcg-tifn
         mode: '2750'
@@ -683,12 +683,12 @@ lfs_mounts:
       - name: umcg-nawijn
       - name: umcg-neonatology
       - name: umcg-pmb
-      - name: umcg-pub
       - name: umcg-radicon
       - name: umcg-rehabilitation
       - name: umcg-reki
       - name: umcg-solve-rd
       - name: umcg-sommer
+      - name: umcg-sysops
       - name: umcg-tifn
       - name: umcg-ukb
       - name: umcg-ugli
@@ -736,11 +736,11 @@ lfs_mounts:
       - name: umcg-neonatology
       - name: umcg-nephrology
       - name: umcg-pmb
-      - name: umcg-pub
       - name: umcg-radicon
       - name: umcg-rehabilitation
       - name: umcg-solve-rd
       - name: umcg-sommer
+      - name: umcg-sysops
       - name: umcg-tifn
       - name: umcg-ukb
       - name: umcg-ugli
