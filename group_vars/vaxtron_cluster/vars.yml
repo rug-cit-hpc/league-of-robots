@@ -205,7 +205,6 @@ regular_groups:
   - 'umcg-fg'
   - 'umcg-franke-scrna'
   - 'umcg-fu'
-  - 'umcg-gaf'
   - 'umcg-gap'
   - 'umcg-gastrocol'
   - 'umcg-gcc'
@@ -227,7 +226,6 @@ regular_groups:
   - 'umcg-msb'
   - 'umcg-nawijn'
   - 'umcg-pmb'
-  - 'umcg-pub'
   - 'umcg-radicon'
   - 'umcg-rehabilitation'
   - 'umcg-reki'
@@ -277,10 +275,6 @@ regular_users:
     groups: ['umcg-franke-scrna']
   - user: 'umcg-fu-dm'
     groups: ['umcg-fu']
-  - user: 'umcg-gaf-ateambot'
-    groups: ['umcg-gaf']
-  - user: 'umcg-gaf-dm'
-    groups: ['umcg-gaf']
   - user: 'umcg-gap-ateambot'
     groups: ['umcg-gap']
   - user: 'umcg-gap-dm'
@@ -325,8 +319,6 @@ regular_users:
     groups: ['umcg-nawijn']
   - user: 'umcg-pmb-dm'
     groups: ['umcg-pmb']
-  - user: 'umcg-pub-dm'
-    groups: ['umcg-pub']
   - user: 'umcg-radicon-dm'
     groups: ['umcg-radicon']
   - user: 'umcg-rehabilitation-dm'
@@ -391,10 +383,6 @@ sudoers:
   - who: ['%umcg-fu-dms']
     become: 'umcg-fu-dm'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
-    become: 'umcg-gaf-ateambot'
-  - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
-    become: 'umcg-gaf-dm'
-  - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-gap-ateambot'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-gap-dm'
@@ -438,8 +426,6 @@ sudoers:
     become: 'umcg-nawijn-dm'
   - who: ['%umcg-pmb-dms']
     become: 'umcg-pmb-dm'
-  - who: ['%umcg-pub-dms']
-    become: 'umcg-pub-dm'
   - who: ['umcg-gvdvries,umcg-kdelange,umcg-mbenjamins,umcg-mbijlsma,umcg-pneerincx,umcg-rkanninga']
     become: 'umcg-radicon-dm'
   - who: ['%umcg-rehabilitation-dms']
@@ -591,7 +577,6 @@ lfs_mounts:
       - name: umcg-fg
       - name: umcg-franke-scrna
       - name: umcg-fu
-      - name: umcg-gaf
       - name: umcg-gap
       - name: umcg-gastrocol
       - name: umcg-gcc
@@ -613,7 +598,6 @@ lfs_mounts:
       - name: umcg-msb
       - name: umcg-nawijn
       - name: umcg-pmb
-      - name: umcg-pub
       - name: umcg-radicon
       - name: umcg-rehabilitation
       - name: umcg-reki
@@ -646,7 +630,6 @@ lfs_mounts:
       - name: umcg-fg
       - name: umcg-franke-scrna
       - name: umcg-fu
-      - name: umcg-gaf
       - name: umcg-gap
       - name: umcg-gastrocol
       - name: umcg-gcc
@@ -668,7 +651,6 @@ lfs_mounts:
       - name: umcg-msb
       - name: umcg-nawijn
       - name: umcg-pmb
-      - name: umcg-pub
       - name: umcg-radicon
       - name: umcg-rehabilitation
       - name: umcg-reki
