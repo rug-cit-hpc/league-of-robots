@@ -448,10 +448,10 @@ yum_repos:
     - file: perun.repo
       id: perun
       name: 'Perun IdM Slave Scripts'
-      baseurl: 'https://homeproj.cesnet.cz/rpm/perunv3/stable/noarch/'
+      baseurl: 'https://repo.cerit-sc.cz/el-perun/noarch/'
       enabled: 1
       gpgcheck: 1
-      gpgkeysource: 'https://homeproj.cesnet.cz/rpm/perunv3/RPM-GPG-KEY-perunv3'
+      gpgkeysource: 'https://repo.cerit-sc.cz/repo.cerit-sc.cz.gpg.pub'
   oracle8:
     - file: oracle-linux-ol8.repo
       id: ol8_baseos_latest
