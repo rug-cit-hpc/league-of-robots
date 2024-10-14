@@ -93,7 +93,7 @@
       name: "{{ azure_image[os_distribution].sku }}"
       product: "{{ azure_image[os_distribution].offer }}"
       publisher: "{{ azure_image[os_distribution].publisher }}"
-    started: false
+    started: true
   vars:
     vm_nics: |
       {% for item in hostvars[inventory_hostname]['host_networks'] %}
