@@ -140,12 +140,6 @@
     purge_rules: true
     resource_group: "{{ azure_resource_group }}"
   when: "'logs' in inventory_groups_with_hosts_created_in_azure"
-#  when: "{{ azure_networks
-#                | selectattr('type', 'equalto', 'logservers')
-#                | map(attribute='name')
-#                | intersect(network_names_of_all_hosts_created_in_azure)
-#                | default([])
-#                | length > 0 }}"
 
 # TO-DO
 ## Data staging security groups.
