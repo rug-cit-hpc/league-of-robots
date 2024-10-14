@@ -50,10 +50,10 @@ ip_addresses:
       address: 10.10.1.4
       netmask: /32
       publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
-    logs_internal_management_public:
-      address: 98.71.174.164
+    logs_external_public:
+      address: 40.91.197.155
       netmask: /32
-      fqdn: 'logs-earl6-6b85.westeurope.cloudapp.azure.com'
+      fqdn: 'logs-earl6-ad5f.westeurope.cloudapp.azure.com'
   logs_internal_management-vlan16-router:
     logs_internal_management:
       address: 10.10.1.1

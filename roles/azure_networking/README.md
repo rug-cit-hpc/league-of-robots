@@ -59,15 +59,19 @@ host_networks:
        type: "management"
        cidr: 10.10.1.0/24
     ```
+
+   make sure you define correct CIDR.
+
  - For Logservers security groups we must define network
 
     ```
     azure_networks:
-       name: "{{ stack_prefix }}_internal_management"
-       security_group: "{{ stack_prefix }}_cluster"
-       type: "management"
-       cidr: 10.10.1.0/24
+       name: "{{ stack_prefix }}_external"
+       security_group: "{{ stack_prefix }}_logservers"
+       type: "logservers"
+        cidr: 10.10.1.0/24
     ```
+    Logserver are publicly available, so no CIDR needed.
 
 ## Security groups working together
 

@@ -8,28 +8,29 @@ all:
     logs:
       hosts:
         earl1:
+          logs_class: 'development'
           cloud_flavor: m1.small
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_logservers"
               assign_floating_ip: true
           local_volume_size_extra: 100
+        earl2:
           logs_class: 'development'
-#        earl2:
-#          azure_flavor: "Standard_DS1_v2"
-#          host_networks:
-#            - name: "{{ stack_prefix }}_external"
-#              security_group: "{{ stack_prefix }}_logservers"
-#              assign_floating_ip: true
-#          logs_class: 'development'
-#        earl3:
-#          azure_flavor: "Standard_DS1_v2"
-#          host_networks:
-#            - name: "{{ stack_prefix }}_external"
-#              security_group: "{{ stack_prefix }}_logservers"
-#              assign_floating_ip: True
-#          logs_class: 'diagnostics'
+          azure_flavor: "Standard_DS1_v2"
+          host_networks:
+            - name: "{{ stack_prefix }}_external"
+              security_group: "{{ stack_prefix }}_logservers"
+              assign_floating_ip: true
+        earl3:
+          logs_class: 'diagnostics'
+          azure_flavor: "Standard_DS1_v2"
+          host_networks:
+            - name: "{{ stack_prefix }}_external"
+              security_group: "{{ stack_prefix }}_logservers"
+              assign_floating_ip: true
         earl4:
+          logs_class: 'diagnostics'
           cloud_flavor: m1.small
           cloud_image: CentOS 7
           os_distribution: 'centos7'
@@ -38,7 +39,6 @@ all:
               security_group: "{{ stack_prefix }}_logservers"
               assign_floating_ip: true
           local_volume_size_extra: 100
-          logs_class: 'diagnostics'
         earl5:
           logs_class: 'research'
           cloud_flavor: m1.small
@@ -48,10 +48,11 @@ all:
               assign_floating_ip: true
           local_volume_size_extra: 100
         earl6:
+          logs_class: 'research'
           azure_flavor: "Standard_DS1_v2"
           host_networks:
-            - name: "{{ stack_prefix }}_internal_management"
-              security_group: "{{ stack_prefix }}_jumphosts"
+            - name: "{{ stack_prefix }}_external"
+              security_group: "{{ stack_prefix }}_logservers"
               assign_floating_ip: true
 logs_library:
   children:

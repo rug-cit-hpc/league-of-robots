@@ -17,8 +17,9 @@ stack_networks:
     mtu_size: '1450'
 # Azure
 azure_networks:
-  - name: "{{ stack_prefix }}_internal_management"
-    type: management
+  # types: management, logservers
+  - name: "{{ stack_prefix }}_external"
+    type: logservers
     cidr: '10.10.1.0/24'
 azure_image:
   rocky9:
