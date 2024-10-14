@@ -11,6 +11,14 @@ all:
           cloud_flavor: 2C-4GB
           host_networks:
             - name: vlan983
+        airlock9:
+          cloud_flavor: 2C-4GB
+          cloud_image: RockyLinux-9.3_xfs
+          os_distribution: 'rocky9'
+          cloud_flavor: 2C-4GB
+          ansible_host: airlock+airlock9
+          host_networks:
+            - name: vlan983
     repo:
       hosts:
         gs-repo:
