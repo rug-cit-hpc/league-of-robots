@@ -2,9 +2,9 @@
 - name: Populate service facts
   ansible.builtin.service_facts:
 
-- name: Check if the service is enabled or running
+- name: Check and make a list of MS services that are enabled or running
   ansible.builtin.set_fact:
-    active_services: "{{ active_services | default([]) + [item] }}"
+    ms_active_services: "{{ ms_active_services | default([]) + [item] }}"
   when:
     - item in ansible_facts.services
   loop:
@@ -22,7 +22,7 @@
     name: "{{ item }}"
     state: stopped
     enabled: false
-  with_items: "{{ active_services }}"
+  with_items: "{{ ms_active_services }}"
   become: true
 
 - name: Remove MS Azure packages
