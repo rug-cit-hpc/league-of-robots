@@ -1,4 +1,7 @@
 ---
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
 - name: Check if the service is enabled or running
   ansible.builtin.set_fact:
     active_services: "{{ active_services | default([]) + [item] }}"

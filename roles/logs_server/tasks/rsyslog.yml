@@ -155,10 +155,14 @@
     force: true
   become: true
 
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
 - name: Remove old restart services
   ansible.builtin.systemd_service:
     name: "{{ item }}"
     enabled: false
+  when: "item in ansible_facts.services"
   with_items:
     - rsyslog-restart.timer
     - rsyslog-restart.service
