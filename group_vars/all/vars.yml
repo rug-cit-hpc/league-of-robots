@@ -445,13 +445,15 @@ yum_repos:
       enabled: 1
       gpgcheck: 1
       gpgkeysource: 'https://rpms.adiscon.com/RPM-GPG-KEY-Adiscon'
+    #
+    # perun
+    #
     - file: perun.repo
       id: perun
       name: 'Perun IdM Slave Scripts'
       baseurl: 'https://repo.cerit-sc.cz/el-perun/noarch/'
       enabled: 1
-      gpgcheck: 1
-      gpgkeysource: 'https://repo.cerit-sc.cz/repo.cerit-sc.cz.gpg.pub'
+      gpgcheck: 0
   oracle8:
     - file: oracle-linux-ol8.repo
       id: ol8_baseos_latest
