@@ -161,6 +161,7 @@
 - name: Remove old restart services
   ansible.builtin.systemd_service:
     name: "{{ item }}"
+    state: stopped
     enabled: false
   when: "item in ansible_facts.services"
   with_items:

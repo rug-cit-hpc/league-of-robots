@@ -32,8 +32,6 @@ all:
         earl4:
           logs_class: 'diagnostics'
           cloud_flavor: m1.small
-          cloud_image: CentOS 7
-          os_distribution: 'centos7'
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_logservers"

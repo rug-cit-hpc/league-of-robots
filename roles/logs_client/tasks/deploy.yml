@@ -68,6 +68,23 @@
   become: true
   notify: client_restart_rsyslog
 
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Remove old restart services
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+    force: true
+  when: "item in ansible_facts.services"
+  with_items:
+    - rsyslog-restart.timer
+    - rsyslog-restart.service
+  become: true
+  notify:
+    - systemd_reload
+
 - name: Deploy custom rsyslog.service
   ansible.builtin.copy:
     src: files/rsyslog.service
@@ -77,19 +94,6 @@
   notify:
     - systemd_reload
     - rsyslog_enable
-  become: true
-
-- name: Populate service facts
-  ansible.builtin.service_facts:
-
-- name: Remove old restart services
-  ansible.builtin.systemd_service:
-    name: "{{ item }}"
-    enabled: false
-  when: "item in ansible_facts.services"
-  with_items:
-    - rsyslog-restart.timer
-    - rsyslog-restart.service
   become: true
 
 - name: Remove problematic /etc/rsyslog.d/listen.conf file
