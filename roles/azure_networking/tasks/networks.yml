@@ -13,7 +13,6 @@
     name: "{{ network_name }}_subnet"
     virtual_network: "{{ network_name }}"
     state: "present"
-    #security_group: "{{ network_security_group }}"
     security_group: "{{ stack_prefix }}_open"
     address_prefix: "{{ network_cidr }}"
     resource_group: "{{ azure_resource_group }}"

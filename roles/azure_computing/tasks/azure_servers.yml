@@ -9,7 +9,8 @@
       {% endif %}
       {% endfor %}
 
-- debug:
+- name: Print IPs for each VM
+  ansible.builtin.debug:
     msg: "{{ vm_ip_configs | from_yaml }}"
   with_items: "{{ hostvars[inventory_hostname]['host_networks'] }}"
   vars:
@@ -28,8 +29,8 @@
     virtual_network: "{{ item.name }}"
     subnet_name: "{{ item.name }}_subnet"
     ip_configurations: "{{ vm_ip_configs | from_yaml }}"
-    enable_accelerated_networking: True
-    create_with_security_group: True
+    enable_accelerated_networking: true
+    create_with_security_group: true
     security_group: "{{ item.security_group }}"
     resource_group: "{{ azure_resource_group }}"
     location: "{{ azure_location }}"
@@ -48,7 +49,7 @@
   register: nic
 
 - name: Assign FQDN to all the public IPs
-  azure_rm_publicipaddress:
+  azure.azcollection.azure_rm_publicipaddress:
     resource_group: "{{ azure_resource_group }}"
     name: "{{ inventory_hostname }}-{{ item.name }}_public_ip"
     allocation_method: static
@@ -65,7 +66,7 @@
     location: "{{ azure_location }}"
     vm_size: "{{ azure_flavor }}"
     admin_username: "{{ cloud_user }}"
-    ssh_password_enabled: False
+    ssh_password_enabled: false
     ssh_public_keys: "{{ public_keys | from_yaml }}"
     custom_data: |
       #jinja2: trim_blocks:True, lstrip_blocks:True

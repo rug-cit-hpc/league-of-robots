@@ -2,10 +2,10 @@
 # Additional notes about this security groups are in the ../README.md
 
 - name: inventory_groups_with_hosts_created_in_azure
-  debug:
+  ansible.builtin.debug:
     msg: "{{ inventory_groups_with_hosts_created_in_azure }}"
 - name: network_names_of_all_hosts_created_in_azure
-  debug:
+  ansible.builtin.debug:
     msg: "{{ network_names_of_all_hosts_created_in_azure }}"
 #
 # Open: the security group that allows all traffic - needed for subnets
@@ -95,7 +95,8 @@
 #
 # Logs: allow external connections
 #
-- debug:
+- name: Print logs network names
+  ansible.builtin.debug:
     msg: "network_name: {{ network_name }}"
   vars:
     network_name: "{{ item }}"
