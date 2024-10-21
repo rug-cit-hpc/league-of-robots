@@ -535,6 +535,8 @@ lfs_mounts:
         mode: '2750'
       - name: umcg-franke-scrna
         mode: '2750'
+      - name: umcg-gcc
+        mode: '2750'
       - name: umcg-gdio
         mode: '2750'
       - name: umcg-hlhs
