@@ -20,7 +20,7 @@ ip_addresses:
     {% endif %}
     {% endfor %}
     {% for public_ip_results in hostvars[each_hostname]['public_ips']['results'] %}
-    {% if public_ip_results['item']['name'] == each_network.name %}
+    {% if public_ip_results['item']['name'] == each_network.name and public_ip_results['publicipaddresses']|length > 0 %}
     {{ each_network.name }}_public:
       address: {{ public_ip_results['publicipaddresses'][0]['ip_address'] }}
       netmask: /32

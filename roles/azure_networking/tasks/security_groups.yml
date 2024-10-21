@@ -86,12 +86,12 @@
                 | map(attribute='name')
                 | intersect(network_names_of_all_hosts_created_in_azure)
                 | default([]) }}"
-  when: "{{ azure_networks
+  when: azure_networks
                 | selectattr('type', 'equalto', 'management')
                 | map(attribute='name')
                 | intersect(network_names_of_all_hosts_created_in_azure)
                 | default([])
-                | length > 0 }}"
+                | length > 0
 #
 # Logs: allow external connections
 #
