@@ -62,7 +62,6 @@ cluster:
 donbot_azure:
   children:
     openstack_api:
-    repo:
     cluster:
     ldap_server:
 ...
