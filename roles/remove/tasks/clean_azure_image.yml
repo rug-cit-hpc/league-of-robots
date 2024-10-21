@@ -37,7 +37,6 @@
 - name: Remove all the directories and clean al potentially claimed space
   ansible.builtin.file:
     path: "{{ item }}"
-    state: directory
     state: absent
   with_items:
     - /var/lib/waagent/
