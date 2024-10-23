@@ -1,5 +1,5 @@
 ---
-# Additional notes about this security groups are in the ../README.md
+# Additional notes about these security groups are in the ../README.md
 
 - name: inventory_groups_with_hosts_created_in_azure
   ansible.builtin.debug:
