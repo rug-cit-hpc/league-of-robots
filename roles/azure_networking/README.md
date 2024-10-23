@@ -4,16 +4,16 @@
 
 This is one of three Azure roles
 
- - [azure_general](../azure_general/README.md) role creates Azure group which contains the network, VMs, network interfaces, security groups. This helps with an overview of used and available Azure resources
- - [azure_networking](../azure_networking/README.md) role defines and mnages the entire stack of network: networks, sub-networks and security groups within the individual Azure group
- - [azure_computing](../azure_computing/README.md) role defines and manages the VMs, their storage, network interfaces, public IP and private IPs inside the invididual Azure group
+ - [azure_general](../azure_general/README.md) role creates Azure group which contains the network, VMs, network interfaces and security groups. This helps with an overview of used and available Azure resources.
+ - [azure_networking](../azure_networking/README.md) role defines and manages the entire network: networks, sub-networks and security groups within the individual Azure group.
+ - [azure_computing](../azure_computing/README.md) role defines and manages the VMs, their storage, network interfaces, public IPs and private IPs inside the individual Azure group.
 
 
 ## About internal network and public IP
 
-The network is created with internal IPs for each VMs of the networks.
-Then the public IP is assigned to those interface, together with security_groups.
-Note the cidr for each public network is defined for the internal IPs and not public IPs.
+The network is created with internal IPs for each VM in the network.
+Next, public IPs together with _security_groups_ are assigned to those interfaces.
+Note the _CIDR_ for each public network is defined for internal IPs and not for public IPs.
 
 ## Security groups in general
 
@@ -62,16 +62,16 @@ host_networks:
 
    make sure you define correct CIDR.
 
- - For Logservers security groups we must define network
+ - For `logservers` security groups we must define network
 
     ```
     azure_networks:
        name: "{{ stack_prefix }}_external"
        security_group: "{{ stack_prefix }}_logservers"
        type: "logservers"
-        cidr: 10.10.1.0/24
+       cidr: 10.10.1.0/24
     ```
-    Logserver are publicly available, so no CIDR needed.
+    Log servers are publicly available, so no CIDR needed.
 
 ## Security groups working together
 
@@ -79,7 +79,7 @@ Note about security groups of Azure
  - they work differently than Openstack
  - security groups can be combined, but they need to be correctly weighted in order to work
  - the weights with lower number have bigger priority
- - therefore decision was done that the following structure is used
+ - therefore the following structure is used
     - 1xx are for publicly exposed ports
     - 2xx for network cidr limited port access
     - 3xx are for everything else: storage or vlans ports
