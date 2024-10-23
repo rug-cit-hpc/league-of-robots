@@ -71,7 +71,7 @@ host_networks:
        type: "logservers"
        cidr: 10.10.1.0/24
     ```
-    Logserver are publicly available, so no CIDR needed.
+    Log servers are publicly available, so no CIDR needed.
 
 ## Security groups working together
 
