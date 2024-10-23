@@ -196,8 +196,8 @@ Therefore we set ```ANSIBLE_ROLES_PATH``` and ```ANSIBLE_COLLECTIONS_PATH``` to 
 Make sure you already executed `ansible-galaxy install ... ` (see previous step).
 
 ```bash
-  _azure_pip_requirements="$(find "${VIRTUAL_ENV}" -path "*/azure/azcollection/requirements.txt")"
   pip install azure-cli # if issues occur, try to version lock it to azure-cli==2.61.0 azure azcollection >= 2.6.0 works with it
+  _azure_pip_requirements="$(find "${VIRTUAL_ENV}" -path "*/azure/azcollection/requirements.txt")"
   pip install -r "${_azure_pip_requirements}"
 ```
 
