@@ -101,8 +101,6 @@
       - {{ inventory_hostname }}-{{ item.name }}_nic
       {% endfor %}
 
-# TODO   started: true
-
 - name: Mount the managed disk to VM
   azure.azcollection.azure_rm_manageddisk:
     name: "{{ inventory_hostname }}_managed_disk_{{ local_volume_size_extra }}g"
