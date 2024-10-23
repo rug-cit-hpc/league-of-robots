@@ -3,8 +3,6 @@
   hosts: all
   connection: local
   gather_facts: false
-  vars:
-    ansible_python_interpreter: python
   roles:
     - azure_general
 ...
