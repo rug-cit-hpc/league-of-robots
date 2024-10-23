@@ -62,7 +62,7 @@ host_networks:
 
    make sure you define correct CIDR.
 
- - For Logservers security groups we must define network
+ - For `logservers` security groups we must define network
 
     ```
     azure_networks:
