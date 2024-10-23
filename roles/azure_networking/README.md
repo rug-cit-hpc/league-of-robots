@@ -11,9 +11,9 @@ This is one of three Azure roles
 
 ## About internal network and public IP
 
-The network is created with internal IPs for each VMs of the networks.
-Then the public IP is assigned to those interface, together with security_groups.
-Note the cidr for each public network is defined for the internal IPs and not public IPs.
+The network is created with internal IPs for each VM in the network.
+Next, public IPs together with _security_groups_ are assigned to those interfaces.
+Note the _CIDR_ for each public network is defined for internal IPs and not for public IPs.
 
 ## Security groups in general
 
