@@ -56,7 +56,7 @@ azure_resource_group: "{{ stack_name }}"
 
 Where
 
- - `azure_resource_group` defines a Azure group
+ - `azure_resource_group` defines an Azure group
  - `azure_networks` defines one or more networks of the current azure environment (does not support MTUs)
  - `azure_image` is a bit tricky, since user must find (preferably via azure cli) all four fields of this variable
 
