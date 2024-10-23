@@ -69,7 +69,7 @@ host_networks:
        name: "{{ stack_prefix }}_external"
        security_group: "{{ stack_prefix }}_logservers"
        type: "logservers"
-        cidr: 10.10.1.0/24
+       cidr: 10.10.1.0/24
     ```
     Logserver are publicly available, so no CIDR needed.
 
