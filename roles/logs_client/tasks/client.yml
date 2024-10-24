@@ -110,6 +110,8 @@
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
   delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
   loop: "{{ logs_class_servers }}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: Copy client temporary template to rsyslog server
   ansible.builtin.template:
@@ -121,6 +123,8 @@
   when: not remote_client_key_status.stat.exists or verify_certificate_result.rc == 1
   delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
   loop: "{{ logs_class_servers }}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: Sign rsyslog client certificate on rsyslog server with rsyslog CA certificate
   ansible.builtin.command: >
@@ -138,6 +142,8 @@
   delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
   loop: "{{ logs_class_servers }}"
   notify: restart_server_rsyslog
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: Fetch rsyslog client certificates from rsyslog server
   ansible.builtin.fetch:
@@ -151,6 +157,8 @@
   delegate_to: "{{ groups['jumphost'] | first }}+{{ item }}"
   loop: "{{ logs_class_servers }}"
   notify: restart_server_rsyslog
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: Deploy rsyslog client certificate
   ansible.builtin.copy:

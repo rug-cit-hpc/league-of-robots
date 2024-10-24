@@ -648,15 +648,19 @@ logs_server_public_networks:
     - name: earl1
       network: vlan16
     - name: earl2
-      network: logs_external_network
+      network: logs_external_public
   diagnostics:
     - name: earl3
-      network: logs_external_network
+      network: logs_external_public
     - name: earl4
       network: vlan16
   research:
     - name: earl5
       network: vlan16
     - name: earl6
-      network: logs_external_network
+      network: logs_external_public
+#
+## Azure
+#
+azure_location: westeurope
 ...
