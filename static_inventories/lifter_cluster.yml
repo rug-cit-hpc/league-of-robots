@@ -7,7 +7,7 @@ all:
     jumphost:
       hosts:
         lt-portal:
-          cloud_flavor: umcg.v1.vm.1-2
+          cloud_flavor: gen.v2.vm-2-2
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_jumphosts"
@@ -20,7 +20,7 @@ all:
     repo:
       hosts:
         lt-repo:
-          cloud_flavor: umcg.v1.vm.1-2
+          cloud_flavor: gen.v2.vm-2-2
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_repo"
@@ -31,7 +31,7 @@ all:
     data_transfer:
       hosts:
         lt-transfer:
-          cloud_flavor: umcg.v1.vm.1-2
+          cloud_flavor: gen.v2.vm-2-2
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_ds"
@@ -64,7 +64,7 @@ all:
     sys_admin_interface:
       hosts:
         lt-sai:
-          cloud_flavor: umcg.v1.vm.4-8
+          cloud_flavor: mem.v2.vm-4-8
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
@@ -80,7 +80,7 @@ all:
     deploy_admin_interface:
       hosts:
         lt-dai:
-          cloud_flavor: umcg.v1.vm.4-8
+          cloud_flavor: mem.v2.vm-4-8
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
@@ -99,7 +99,7 @@ all:
     user_interface:
       hosts:
         lifter:
-          cloud_flavor: umcg.v1.vm.4-8
+          cloud_flavor: mem.v2.vm-4-8
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
@@ -194,7 +194,7 @@ all:
         cpu_vm:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             lt-node-c01:
-              cloud_flavor: umcg.v1.vm.4-8
+              cloud_flavor: mem.v2.vm-4-8
               host_networks:
                 - name: "{{ stack_prefix }}_internal_management"
                   security_group: "{{ stack_prefix }}_cluster"
@@ -217,7 +217,7 @@ all:
     chaperone:
       hosts:
         lt-chaperone:
-          cloud_flavor: umcg.v1.vm.1-2
+          cloud_flavor: gen.v2.vm-2-2
           host_networks:
             - name: "{{ stack_prefix }}_internal_management"
               security_group: "{{ stack_prefix }}_cluster"
