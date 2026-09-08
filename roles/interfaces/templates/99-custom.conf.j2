@@ -1,0 +1,24 @@
+#jinja2: trim_blocks:True, lstrip_blocks:True
+#
+# This file was deployed with the Ansible interfaces role from the league-of-robots repo.
+#
+
+[main]
+plugins=keyfile
+
+[keyfile]
+rename=true
+
+{% if disabled_network_interfaces is defined and disabled_network_interfaces | length > 0 %}
+{% set match_device_value = disabled_network_interfaces
+                            | selectattr('name', 'defined')
+                            | map(attribute='name')
+                            | map('regex_replace', '^(.*)$', 'interface-name:\\1')
+                            | join(';') %}
+#
+# List of unmanaged interfaces.
+#
+[device-multiple-devices-unmanaged]
+match-device={{ match_device_value }}
+managed=0
+{% endif %}
