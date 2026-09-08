@@ -135,7 +135,7 @@ ip_addresses:
       netmask: /32
   nb-node-c11:
     vlan1068:
-      address: 172.23.60.114
+      address: 172.23.60.67
       netmask: /32
     vlan1338:
       address: 172.23.69.109
