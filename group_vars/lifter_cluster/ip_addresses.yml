@@ -1,3 +1,32 @@
 ---
 ip_addresses:
+  lt-chaperone:
+    lt_internal_management:
+      address: 10.10.1.240
+      netmask: /32
+  lt-portal:
+    lt_internal_management:
+      address: 10.10.1.77
+      netmask: /32
+      publicly_exposed: true  # This internal IP is linked to a public (floating) IP.
+    external-v4:
+      address: 145.100.234.242
+      netmask: /32
+      fqdn: 'NXDOMAIN'
+  lt-repo:
+    lt_internal_management:
+      address: 10.10.1.166
+      netmask: /32
+  lt-transfer:
+    lt_internal_management:
+      address: 10.10.1.44
+      netmask: /32
+  lt_internal_management-external-v4-router:
+    lt_internal_management:
+      address: 10.10.1.1
+      netmask: /32
+    external-v4:
+      address: 145.100.235.13
+      netmask: /32
+      fqdn: 'NXDOMAIN'
 ...
