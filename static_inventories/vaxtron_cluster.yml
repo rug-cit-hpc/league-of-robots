@@ -215,6 +215,15 @@ all:
                     name: eno17095np0
                   lnet:
                     name: tcp15
+              disabled_network_interfaces:
+                - name: eno16495np0
+                - name: eno16505np1
+                - name: eno16705np1
+                - name: eno16895np0
+                - name: eno16905np1
+                - name: eno17105np1
+                - name: eno17295np0
+                - name: eno17305np1
               perc_devices: true
               local_mounts:
                 - mount_point: "{{ slurm_local_scratch_dir }}"
