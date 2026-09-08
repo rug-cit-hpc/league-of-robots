@@ -4,7 +4,6 @@ all:
     controller_api:
       hosts:
         localhost:
-          ansible_python_interpreter: /usr/bin/env python
     jumphost:
       hosts:
         reception:
@@ -121,9 +120,8 @@ all:
                   auto-route-metric: 80
           slurm_sockets: 4
           slurm_cores_per_socket: 1
-          slurm_real_memory: 7681
+          slurm_real_memory: 7680
           slurm_local_disk: 0
-          slurm_features: 'prm08,tmp08'
     compute_node:
       children:
         cpu_r630:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
@@ -170,10 +168,7 @@ all:
               slurm_sockets: 2
               slurm_cores_per_socket: 14
               slurm_real_memory: 257317
-              slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
-              slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 256 }}"
               slurm_local_disk: 3002000
-              slurm_features: 'tmp08'
         cpu_r6515:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             tl-node-b01:
@@ -215,10 +210,7 @@ all:
               slurm_sockets: 1
               slurm_cores_per_socket: 64
               slurm_real_memory: 514857
-              slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
-              slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 256 }}"
               slurm_local_disk: 3002000
-              slurm_features: 'tmp08'
         cpu_vm:  # Must be item from {{ slurm_partitions }} variable defined in group_vars/{{ stack_name }}/vars.yml
           hosts:
             tl-node-c01:
@@ -241,10 +233,7 @@ all:
               slurm_sockets: 4
               slurm_cores_per_socket: 1
               slurm_real_memory: 7680
-              slurm_max_cpus_per_node: "{{ slurm_sockets * slurm_cores_per_socket - 2 }}"
-              slurm_max_mem_per_node: "{{ slurm_real_memory - slurm_sockets * slurm_cores_per_socket * 256 }}"
               slurm_local_disk: 900
-              slurm_features: 'tmp08'
     chaperone:
       hosts:
         tl-chaperone:
@@ -253,6 +242,8 @@ all:
             - name: vlan1337
               security_group: "{{ stack_prefix }}_cluster"
               add_hostname_to_ip_address: true
+              nmstate_interface:
+                name: enp3s0
           #
           # Overrule regular users and groups compared to rest of Talos:
           #
@@ -283,8 +274,6 @@ all:
               groups: ['umcg-gst', "{{ functional_users_group }}"]
             - name: 'umcg-vipt-dm'
               groups: ['umcg-vipt', "{{ functional_users_group }}"]
-            - name: 'mbenjamins'
-              groups: ["{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst', 'umcg-vipt']
             - name: 'mbijlsma'
               groups: ["{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst', 'umcg-vipt']
             - name: 'bcharbon'
@@ -303,21 +292,15 @@ all:
               groups: ["{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst', 'umcg-vipt']
           sudoers:
             - who: ['%umcg-atd', '%umcg-gsad', '%umcg-gst']
-              become: 'umcg-molgenis'
+              become: ['umcg-molgenis']
             - who: ['%umcg-atd']
-              become: 'umcg-atd-dm'
-            - who: ['%umcg-atd']
-              become: 'umcg-atd-ateambot'
+              become: ['umcg-atd-dm', 'umcg-atd-ateambot']
             - who: ['%umcg-gsad']
-              become: 'umcg-gsad-ateambot'
-            - who: ['%umcg-gsad']
-              become: 'umcg-gsad-dm'
+              become: ['umcg-gsad-ateambot', 'umcg-gsad-dm']
             - who: ['%umcg-gst']
-              become: 'umcg-gst-ateambot'
-            - who: ['%umcg-gst']
-              become: 'umcg-gst-dm'
+              become: ['umcg-gst-ateambot', 'umcg-gst-dm']
             - who: ['%umcg-vipt']
-              become: 'umcg-vipt-dm'
+              become: ['umcg-vipt-dm']
           ssh_client_configs:
             - logs_library
           lfs_mounts: []  # Overrule the list of network shares; we use local storage instead.

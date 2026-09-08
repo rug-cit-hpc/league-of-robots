@@ -50,6 +50,7 @@
   ansible.builtin.set_fact:
     instance_nics: "{{ instance_nics | default([]) + [{'port-name': inventory_hostname + '-' + item}] }}"
   with_items: "{{ hostvars[inventory_hostname]['host_networks']
+                  | selectattr('attach_port_on_instance_launch', 'defined')
                   | selectattr('attach_port_on_instance_launch', 'true')
                   | map(attribute='name')
                   | list
@@ -57,6 +58,8 @@
                   | selectattr('attach_port_on_instance_launch', 'undefined')
                   | map(attribute='name')
                   | list }}"
+- name: Gather host's facts, like os_family etc
+  ansible.builtin.setup:
 - name: Create virtual servers.
   openstack.cloud.server:
     state: present

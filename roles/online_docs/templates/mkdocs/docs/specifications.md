@@ -14,7 +14,7 @@ Key ingredients of the High Performance Computing (HPC) environment of the {{ sl
  * Module system: [Lmod](https://github.com/TACC/Lmod) {{ lmod_version.stdout }}
  * Deployment of (Bioinformatics) software: [EasyBuild](https://github.com/easybuilders/easybuild)
 
-## Virtual Servers
+## Servers
 
  * Jumphosts: _{% for server in groups['jumphost'] %}{{ server}}{% if not loop.last %}, {% endif %}{% endfor %}_
  * User Interfaces (UIs): _{% for server in groups['user_interface'] %}{{ server }}{% if not loop.last %}, {% endif %}{% endfor %}_
@@ -46,12 +46,16 @@ In addition to LFS-ses for _home dirs_ and the centrally deployed _software_  an
 
 ## Resources available to Slurm jobs
 {% for partition in slurm_partitions %}
+  {% set partition_max_cpu_cores_per_node = groups[partition['name']] | map('extract', hostvars, 'slurm_max_cpu_cores_per_node') | first %}
+  {% set partition_max_mem_per_node       = groups[partition['name']] | map('extract', hostvars, 'slurm_max_mem_per_node') | first %}
+  {% set partition_local_disk_per_node    = groups[partition['name']] | map('extract', hostvars, 'slurm_local_disk') | first %}
+  {% set partition_node_features          = groups[partition['name']] | map('extract', hostvars, 'slurm_features') | first %}
 #### {{ partition.name }} partition
 | Resource            | Amount/value                             |
 |:------------------- | ----------------------------------------:|
-| Number of nodes     | {{ groups[partition.name]|list|length }} |
-| Cores/node          | {{ partition.max_cores_per_node }}       |
-| RAM/node \(MB\)     | {{ partition.max_mem_per_node }}         |
-| Storage/node \(MB\) | {{ partition.local_disk }}               |
-| Node features       | {{ partition.features }}                 |
+| Number of nodes     | {{ groups[partition['name']] | length }} |
+| Cores/node          | {{ partition_max_cpu_cores_per_node }}   |
+| RAM/node \(MB\)     | {{ partition_max_mem_per_node }}         |
+| Storage/node \(MB\) | {{ partition_local_disk_per_node  }} |
+| Node features       | {{ partition_node_features }}            |
 {% endfor %}

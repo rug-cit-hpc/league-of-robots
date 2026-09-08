@@ -13,6 +13,8 @@
     - jenkins
     - logs
     - repo
+    - repo_servers
+    - silo
   roles:
     - basic_security
 ...

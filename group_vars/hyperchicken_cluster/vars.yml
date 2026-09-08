@@ -4,44 +4,30 @@ stack_domain: 'hpc.rug.nl'
 stack_name: "{{ slurm_cluster_name }}_cluster"  # stack_name must match the name of the folder that contains this vars.yml file.
 stack_prefix: 'hc'
 stack_dtap_state: development
-slurm_version: '24.11.6-1.el9.umcg'
+slurm_version: '24.11.7-1.el9.umcg'
 slurm_partitions:
   - name: cpu_vm  # Must be in sync with group listed in Ansible inventory.
     default: yes
     nodes: "{{ stack_prefix }}-node-a01"  # Must be in sync with Ansible hostnames listed in inventory.
-    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['cpu_vm']|list|length }}{% else %}1{% endif %}"
-    max_cores_per_node: "{{ groups['cpu_vm'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
-    max_mem_per_node: "{{ groups['cpu_vm'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
-    local_disk: "{{ groups['cpu_vm'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
-    features: "{{ groups['cpu_vm'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
   - name: user_interface  # Must be in sync with group listed in Ansible inventory.
     default: no
     nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
-    max_nodes_per_job: 1
-    max_cores_per_node: 1
-    max_mem_per_node: 1024
-    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
-    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 repo_manager: 'pulp'
-os_distribution: 'rocky9'
-rocky_vault_minorversion: '.6'
+os_distribution: 'alma9'
+os_minorversion: '.8'
 figlet_font: 'lockergnome'
 motd: "To solve or not to solve, that's the question."
-additional_etc_hosts:
-  - group: docs_library
-    nodes:
-      - name: docs-on-bateleur
-        network: external
-  - group: donbot_azure
-    nodes:
-      - name: ladap
-        network: donbot_external_network
 #
 # Cluster classification (used by `logs` and `login` roles)
 #
 cluster_class: 'development'
+
+# Install auto-subgroup generate scripts
+# depending on having `ladap` in `ldap_domains`
+subgroup_directories_auto_is_enabled: true
+
 #
 # Ldap settings
 #
@@ -60,6 +46,25 @@ ldap_domains:
 #    user_member_of: memberOf
 #    group_member: member
 #    create_ldap: true
+  ladap:
+    # must be FQDN or certificate authentication with LDAP server fails
+    uri: ldaps://ladap.westeurope.cloudapp.azure.com
+    base: dc=donbot_azure,dc=local
+    # rfc2307bis for LADAP, because group members are stored in each group and
+    # not in the user profile
+    schema: rfc2307bis
+    min_id: 37800000
+    max_id: 37999999
+    user_object_class: posixAccount
+    user_name: mail
+    user_ssh_public_key: sshPublicKey
+    user_member_of: member
+    group_object_class: groupofnames
+    group_member: member
+    # Path of the home directory should not be depending on the username (as it
+    # can change). Instead we use %U to make it stable, unique (/home/[uid])
+    # and persistent across systems
+    override_homedir: '/home/%U'
   sram:
     uri: ldaps://sv-sram.id.rug.nl
     base: ou=sram-umcg,ou=users,o=id
@@ -84,21 +89,7 @@ ldap_domains:
     user_expiration_date: loginExpirationTime
     group_member: memberUid
     group_object_class: groupofnames
-#  ladap:
-#    uri: ldaps://ladap.westeurope.cloudapp.azure.com
-#    base: dc=donbot_azure,dc=local
-#    schema: rfc2307
-#    min_id: 37800000
-#    max_id: 37899999
-#    user_object_class: posixAccount
-#    #user_name: uid
-#    user_name: mail
-#    user_ssh_public_key: sshPublicKey
-#    user_member_of: groupMembership
-#    user_expiration_date: loginExpirationTime
-#    group_member: memberUid
-#    group_object_class: groupofnames
-cloud_image: Rocky-9.6
+cloud_image: AlmaLinux-9-GenericCloud-9.8-20260526
 availability_zone: nova
 enable_predictable_network_interface_names: true
 stack_networks:
@@ -123,10 +114,19 @@ nameservers: [
 local_admin_groups:
   - 'admin'
 local_admin_users:
+  - 'ger'
   - 'gerben'
+  - 'henkjan'
+  - 'kim'
   - 'marieke'
+  - 'max'
+  - 'morris'
   - 'pieter'
+  - 'robin'
   - 'sandi'
+  - 'steven'
+  - 'wim'
+  - 'wouter'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 functional_admin_group: 'umcg-funad'
@@ -144,33 +144,35 @@ regular_groups:
 regular_users:
   - name: "{{ envsync_user }}"
     groups: ["{{ envsync_group }}"]
-  - name: 'solve-rd-dm'
-    groups: ['solve-rd']
   - name: 'umcg-atd-dm'
     groups: ['umcg-atd']
   - name: 'umcg-gsad-dm'
     groups: ['umcg-gsad']
   - name: 'gvdvries'
-    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd']
   - name: 'mbijlsma'
-    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd']
   - name: 'mswertz'
-    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd']
   - name: 'pneerincx'
-    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd']
   - name: 'rkanninga'
-    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd']
   - name: 'scimerman'
-    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
-  - name: 'mbenjamins'
-    groups: ['users', "{{ envsync_group }}", 'umcg-atd', 'solve-rd']
+    groups: ['users', "{{ envsync_group }}", 'umcg-atd']
   - name: 'umcg-molgenis'
     groups: ['users', 'umcg-atd', 'umcg-gsad']
 sudoers:
+  - who: ['%L-erdera']
+    become: ['L-erdera-dm']
+  - who: ['%L-gcc']
+    become: ['L-gcc-dm']
+  - who: ['%umcg-atd', '%umcg-gsad', '%umcg-gst']
+    become: ['umcg-molgenis']
   - who: ['%umcg-atd']
-    become: 'umcg-atd-dm'
+    become: ['umcg-atd-dm']
   - who: ['%umcg-gsad']
-    become: 'umcg-gsad-dm'
+    become: ['umcg-gsad-dm']
 # Remote archive settings
 remote_archive:
   - name: arc01
@@ -204,12 +206,16 @@ lfs_mounts:
     groups:
       - name: umcg-atd
       - name: umcg-gsad
+      - name: L-erdera
+      - name: L-gcc
     rw_machines: "{{ groups['user_interface'] + groups['deploy_admin_interface'] + groups['compute_node'] }}"
   - lfs: prm09
     pfs: umcgst07
     groups:
       - name: umcg-atd
       - name: umcg-gsad
+      - name: L-erdera
+      - name: L-gcc
     rw_machines: "{{ groups['user_interface'] }}"
   - lfs: env09
     pfs: umcgst07

@@ -6,13 +6,13 @@ lfs_quota:
       umcg-atd: 1024
       umcg-biogen: 8192
       umcg-bios: 1024
+      umcg-blister: 1024
       umcg-dag3: 1024
       umcg-datateam: 1024
       umcg-erdera: 2048
       umcg-fg: 2048
-      umcg-franke-scrna: 21504
+      umcg-franke-scrna: 4096
       umcg-fu: 2048
-      umcg-gaf: 22528
       umcg-gap: 1024
       umcg-gastrocol: 5120
       umcg-gcc: 27648
@@ -25,6 +25,7 @@ lfs_quota:
       umcg-hematology: 5120
       umcg-hlhs: 3072
       umcg-immunogenetics: 10240
+      umcg-integralezorg: 1024
       umcg-lifelines: 28672
       umcg-lld: 15360
       umcg-llnext: 10240
@@ -40,16 +41,13 @@ lfs_quota:
       umcg-rehabilitation: 1024
       umcg-reki: 1024
       umcg-respire: 1024
-      umcg-solve-rd: 1024
       umcg-sommer: 2048
-      umcg-surg: 1024
       umcg-sysops: 1024
       umcg-tifn: 6144
       umcg-ugli: 2048
       umcg-verbeek: 1024
       umcg-vdakker: 1024
       umcg-weersma: 40960
-      umcg-wijmenga: 22528
   prm03:
     quota_pid_increment: 200000  # Value added to GID to create unique PID for a group on the PFS hosting this LFS.
     quota_limits:  # All values in GB.
@@ -60,9 +58,9 @@ lfs_quota:
       umcg-datateam: 1024
       umcg-endocrinology: 1024
       umcg-fg: 4096
-      umcg-franke-scrna: 27648
+      umcg-forcespe: 1024
+      umcg-franke-scrna: 20480
       umcg-fu: 2048
-      umcg-gaf: 15360
       umcg-gap: 1024
       umcg-gastrocol: 5120
       umcg-gcc: 1024
@@ -73,13 +71,14 @@ lfs_quota:
       umcg-grip: 2048
       umcg-gsad: 1024
       umcg-hematology: 5120
+      umcg-hgsvc: 1024
       umcg-hlhs: 3072
-      umcg-immunogenetics: 2048
+      umcg-immunogenetics: 4096
       umcg-impact: 3072
       umcg-intercept: 2048
       umcg-lifelines: 17408
       umcg-lld: 3072
-      umcg-llnext: 10240
+      umcg-llnext: 18432
       umcg-mic: 2048
       umcg-micompany: 512
       umcg-muhas: 1024
@@ -89,17 +88,21 @@ lfs_quota:
       umcg-pgx: 1024
       umcg-pmb: 5120
       umcg-radicon: 5120
-      umcg-solve-rd: 8192
       umcg-sysops: 1024
       umcg-tifn: 5120
       umcg-ucu: 1024
       umcg-ugli: 6144
       umcg-vdakker: 1024
       umcg-weersma: 8192
-      umcg-wijmenga: 3072
   prm08:
     quota_limits:  # All values in GB.
       umcg-atd: 512
+      umcg-gcc: 128
+      umcg-gsad: 512
+      umcg-sysops: 128
+  prm09:
+    quota_limits:  # All values in GB.
+      umcg-atd: 512  
       umcg-gcc: 128
       umcg-gsad: 512
       umcg-sysops: 128
@@ -114,10 +117,9 @@ lfs_quota:
       umcg-gdio: 1024
       umcg-grip: 1024
       umcg-hlhs: 1024
-      umcg-lifelines: 21504
-      umcg-solve-rd: 5120
+      umcg-lifelines: 41984
       umcg-sysops: 1024
-      umcg-ucu: 4096
+      umcg-ucu: 5120
   rsc04:
     quota_limits:  # All values in GB.
       umcg-atd: 1024
@@ -129,7 +131,6 @@ lfs_quota:
       umcg-grip: 1024
       umcg-hlhs: 1024
       umcg-lifelines: 40960
-      umcg-solve-rd: 5120
   rsc08:
     quota_limits:  # All values in GB.
       umcg-atd: 512
@@ -152,7 +153,6 @@ lfs_quota:
       umcg-fg: 10240
       umcg-franke-scrna: 20480
       umcg-fu: 2048
-      umcg-gaf: 2048
       umcg-gap: 1024
       umcg-gastrocol: 10240
       umcg-gcc: 9216
@@ -163,6 +163,7 @@ lfs_quota:
       umcg-grip: 1024
       umcg-gsad: 1024
       umcg-hematology: 3072
+      umcg-hgsvc: 2048
       umcg-hlhs: 1024
       umcg-immunogenetics: 2048
       umcg-impact: 1024
@@ -178,19 +179,17 @@ lfs_quota:
       umcg-muhas: 1024
       umcg-nawijn: 4096
       umcg-neonatology: 6144
-      umcg-nephrology: 1024
+      umcg-nephrology: 3072
       umcg-pgx: 1024
       umcg-pmb: 8192
       umcg-rad: 1024
       umcg-radicon: 1024
       umcg-rehabilitation: 1024
       umcg-reki: 1024
-      umcg-solve-rd: 1024
       umcg-sommer: 2048
-      umcg-surg: 1024
       umcg-sysops: 1024
       umcg-tifn: 2048
-      umcg-ucu: 2048
+      umcg-ucu: 3072
       umcg-ugli: 1024
       umcg-verbeek: 1024
       umcg-vdakker: 1024
@@ -203,12 +202,14 @@ lfs_quota:
       umcg-atd: 5120
       umcg-biogen: 63488
       umcg-bionic-mdd-gwama: 1024
-      umcg-bios: 1024
+      umcg-bios: 4096
+      umcg-blister: 1024
       umcg-dag3: 1024
       umcg-datateam: 1024
       umcg-endocrinology: 2048
       umcg-erdera: 11264
       umcg-fg: 10240
+      umcg-forcespe: 1024
       umcg-franke-scrna: 15360
       umcg-fu: 2048
       umcg-gap: 1024
@@ -224,6 +225,7 @@ lfs_quota:
       umcg-hlhs: 5120
       umcg-immunogenetics: 2048
       umcg-impact: 1024
+      umcg-integralezorg: 1024
       umcg-lifelines: 40960
       umcg-lld: 8192
       umcg-llnext: 2048
@@ -232,6 +234,7 @@ lfs_quota:
       umcg-nawijn: 4096
       umcg-neonatology: 3072
       umcg-nephrology: 1024
+      umcg-path-bioinformatica: 1024
       umcg-pgx: 1024
       umcg-pmb: 1024
       umcg-rehabilitation: 1024
@@ -248,6 +251,14 @@ lfs_quota:
       umcg-gcc: 128
       umcg-gsad: 512
       umcg-gst: 512
+      umcg-sysops: 128
+      umcg-vipt: 512
+  tmp09:
+    quota_limits:  # All values in GB.
+      umcg-atd: 512    
+      umcg-gcc: 128
+      umcg-gsad: 512  
+      umcg-gst: 512      
       umcg-sysops: 128
       umcg-vipt: 512
 ...

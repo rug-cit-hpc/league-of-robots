@@ -9,20 +9,10 @@ slurm_partitions:
   - name: regular_big_vm  # Must be in sync with group listed in Ansible inventory.
     default: yes
     nodes: "{{ stack_prefix }}-node-a01"  # Must be in sync with Ansible hostnames listed in inventory.
-    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular_big_vm']|list|length }}{% else %}1{% endif %}"
-    max_cores_per_node: "{{ groups['regular_big_vm'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
-    max_mem_per_node: "{{ groups['regular_big_vm'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
-    local_disk: "{{ groups['regular_big_vm'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
-    features: "{{ groups['regular_big_vm'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
   - name: user_interface  # Must be in sync with group listed in Ansible inventory.
     default: no
     nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
-    max_nodes_per_job: 1
-    max_cores_per_node: 1
-    max_mem_per_node: 1024
-    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
-    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 slurm_qos_limit_fractions:
   regular-medium:
@@ -43,37 +33,17 @@ slurm_qos_limit_fractions:
     user: 0.5
 repo_manager: 'pulp'
 os_distribution: 'rocky9'
+os_minorversion: '.4'
 figlet_font: 'ogre'
 motd: |
       =========================================================
           Welcome to {{ slurm_cluster_name | capitalize }}
       =========================================================
 additional_etc_hosts:
-  - group: docs_library
-    nodes:
-      - name: docs-on-bateleur
-        network: external
-  - group: betabarrel_cluster
-    nodes:
-      - name: betabarrel
-        network: vlan16
   - group: copperfist_cluster
     nodes:
       - name: copperfist
         network: vlan16
-#
-# Jumphosts from other stack-name infra groups.
-# We will restrict SSH login on port 22 to these jumphosts using OpenStack security rules.
-#
-external_jumphosts:
-  - group: betabarrel_cluster
-    hosts:
-      - hostname: bb-porch
-        network: vlan16
-  - group: copperfist_cluster
-    hosts:
-      - hostname: cf-porch
-        network: external
 #
 # Configure the SSH client on this stack for logins on other stacks listed in ssh_client_configs.
 #
@@ -190,13 +160,14 @@ local_admin_users:
   - 'pieter'
   - 'robin'
   - 'sandi'
+  - 'steven'
   - 'wim'
   - 'wouter'
 data_transfer_only_group: 'umcg-sftp-only'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 functional_admin_group: 'umcg-funad'
-functional_users_group: 'umcg-funus'  # For all functional accounts. Used in /etc/security/access.conf.
+functional_users_group: 'umcg-funus'  # For all functional accounts. Used in /etc/security/access.conf on chaperones.
 hpc_env_prefix: '/apps'
 regular_groups:
   # Note, for chaperone machines this is controlled in the static_inventories
@@ -270,63 +241,34 @@ regular_users:
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
 sudoers:
   - who: ['%umcg-atd']
-    become: 'umcg-atd-ateambot'
-  - who: ['%umcg-atd']
-    become: 'umcg-atd-dm'
-  - who: ['%umcg-gap,!charbonb,!hendriksend']
-    become: 'umcg-gap-ateambot'
-  - who: ['%umcg-gap,!charbonb,!hendriksend']
-    become: 'umcg-gap-dm'
-  - who: ['%umcg-gd,!charbonb,!hendriksend']
-    become: 'umcg-gd-ateambot'
-  - who: ['%umcg-gd,!charbonb,!hendriksend']
-    become: 'umcg-gd-dm'
+    become: ['umcg-atd-ateambot', 'umcg-atd-dm']
+  - who: ['%umcg-gap', '!charbonb', '!hendriksend']
+    become: ['umcg-gap-ateambot', 'umcg-gap-dm']
+  - who: ['%umcg-gd', '!charbonb', '!hendriksend']
+    become: ['umcg-gd-ateambot', 'umcg-gd-dm']
   - who: ['%umcg-genomescan']
-    become: 'umcg-genomescan-ateambot'
-  - who: ['%umcg-genomescan']
-    become: 'umcg-genomescan-dm'
-  - who: ['%umcg-gsad,!charbonb,!hendriksend']
-    become: 'umcg-gsad-ateambot'
-  - who: ['%umcg-gsad,!charbonb,!hendriksend']
-    become: 'umcg-gsad-dm'
+    become: ['umcg-genomescan-ateambot', 'umcg-genomescan-dm']
+  - who: ['%umcg-gsad', '!charbonb', '!hendriksend']
+    become: ['umcg-gsad-ateambot', 'umcg-gsad-dm']
   - who: ['%umcg-gst']
-    become: 'umcg-gst-ateambot'
-  - who: ['%umcg-gst']
-    become: 'umcg-gst-dm'
+    become: ['umcg-gst-ateambot', 'umcg-gst-dm']
   - who: ['%umcg-lab-dms']
-    become: 'umcg-lab-ateambot'
-  - who: ['%umcg-lab-dms']
-    become: 'umcg-lab-dm'
+    become: ['umcg-lab-ateambot', 'umcg-lab-dm']
   - who: ['%umcg-labgnkbh']
-    become: 'umcg-labgnkbh-ateambot'
-  - who: ['%umcg-labgnkbh']
-    become: 'umcg-labgnkbh-dm'
+    become: ['umcg-labgnkbh-ateambot', 'umcg-labgnkbh-dm']
   - who: ['%umcg-logstorpm']
-    become: 'umcg-logstoprm-dm'
+    become: ['umcg-logstoprm-dm']
   - who: ['%umcg-ogm']
-    become: 'umcg-ogm-dm'
+    become: ['umcg-ogm-dm']
   - who: ['%umcg-patho']
-    become: 'umcg-patho-ateambot'
-  - who: ['%umcg-patho']
-    become: 'umcg-patho-dm'
+    become: ['umcg-patho-ateambot', 'umcg-patho-dm']
   - who: ['%umcg-pgx']
-    become: 'umcg-pgx-ateambot'
-  - who: ['%umcg-pgx']
-    become: 'umcg-pgx-dm'
+    become: ['umcg-pgx-ateambot', 'umcg-pgx-dm']
   - who: ['%umcg-pr']
-    become: 'umcg-pr-ateambot'
-  - who: ['%umcg-pr']
-    become: 'umcg-pr-dm'
+    become: ['umcg-pr-ateambot', 'umcg-pr-dm']
   - who: ['%umcg-vipt']
-    become: 'umcg-vipt-dm'
+    become: ['umcg-vipt-dm']
 remote_users_in_local_groups:
-  - name: 'benjaminsm'
-    groups: [
-        "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
-        'umcg-gap', 'umcg-gd', 'umcg-genomescan',
-        'umcg-labgnkbh', 'umcg-logstoprm', 'umcg-ogm', 'umcg-patho',
-        'umcg-pgx', 'umcg-pr', 'umcg-vipt',
-    ]
   - name: 'bijlsmam'
     groups: [
         "{{ envsync_group }}", 'umcg-atd', 'umcg-gsad', 'umcg-gst',
@@ -425,24 +367,6 @@ ogm_servers:
       me=${trendanalysis_api_username}&password={{ ogm_api_password }}\" | grep -oP '\"to\
       ken\":\\s*\"\\K[^\"]+')\"'; userrole=3; userpk=24' https://${ogm_server}:3005/proje\
       ctbrowser/bnx/bnx_app/api/downloadQcMetricsCSV?period=90 > ${prm_location}/TrendAnalysis/${ogm_server}-$(date +%F)-${stack_prefix}.csv"
-
-#
-# Local storage variables.
-#
-local_mount_subfolders:
-  - mount_point: '/groups'
-    machines: "{{ groups['data_transfer'] }}"
-    folders:
-      - rel_paths:
-          - "{{ data_transfer_only_group }}"
-        mode: '2750'
-        owner: root
-        group: "{{ data_transfer_only_group }}"
-      - rel_paths:
-          - umcg-genomescan
-          - umcg-gst
-        mode: '2770'
-        owner: root
 #
 # Shared storage related variables
 #

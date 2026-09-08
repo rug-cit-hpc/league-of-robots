@@ -1,5 +1,4 @@
 ---
-admin_ranges: "129.125.249.0/24,172.23.40.1/24"
 ssh_host_signer_ca_keypair_dir: "ssh-host-ca"
 ssh_host_signer_ca_private_key: "{{ ssh_host_signer_ca_keypair_dir }}/{{ stack_name }}-ca"
 ssh_host_signer_key_types: '.*(rsa|ed25519).*'
@@ -15,13 +14,11 @@ ssh_host_signer_hostnames: "{{ inventory_hostname }}\
        | map(attribute='hostname') %}\
       ,{{ external_jumphost }}+{{ inventory_hostname }}\
     {% endfor %}"
-slurm_database_name: "{{ stack_prefix }}_slurm_accounting"
 ai_jumphost: "{{ lookup('env','AI_PROXY') }}"
 #
 # Local volume size (root partition) for all instances
 #
 local_volume_size_root: 33
-
 #
 # Public keys of all local admins.
 #
@@ -29,7 +26,6 @@ public_keys_of_local_admins: "{{ local_admin_users | map('extract', auth_users) 
     | rejectattr('pub_keys', 'none') | rejectattr('pub_keys', 'undefined') \
     | map(attribute='pub_keys') \
     | map('regex_findall', '^([^\\n]+)', 'multiline=True') | flatten }}"
-
 #
 # Local group specs.
 # Note:
@@ -68,6 +64,13 @@ auth_groups:
     gid: 20013
   umcg-funad:
     gid: 20014
+  #
+  # FUNctional USers group.
+  # Used for all functional accounts on chaperone machines:
+  #  * All functional accounts must be a member of this group.
+  #  * Group is added to /etc/security/access.conf maintained by central IT dept.
+  #  * Ensures (local) functional accounts can login and use cron.
+  #
   umcg-funus:
     gid: 20015
   umcg-labgnkbh:
@@ -104,7 +107,6 @@ data_transfer_only_group: sftp-only
 # Iptables additional configurations 
 #
 iptables_extras_dir: '/etc/iptables_extras.d/'
-
 #
 # Used in static_hostname_lookup, logs_client, logs_server and logs_toprm roles
 #
@@ -128,4 +130,24 @@ logs_server_public_networks:
 ## Azure
 #
 azure_location: westeurope
+#
+## Some hosts are needed globally
+#
+additional_etc_hosts_for_all_stacks:
+  - group: docs_library
+    nodes:
+      - name: docs-on-bateleur
+        network: external
+  - group: donbot_azure
+    nodes:
+      - name: ladap
+        network: donbot_external_network
+  - group: logs_library
+    nodes:
+      - name: repo-primary
+        network: logs_external_public
+  - group: logs_library
+    nodes:
+      - name: repo-secondary
+        network: vlan16
 ...

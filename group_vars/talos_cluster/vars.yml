@@ -9,45 +9,26 @@ slurm_partitions:
   - name: cpu_r630  # Must be in sync with group listed in Ansible inventory.
     default: yes
     nodes: "{{ stack_prefix }}-node-a01"  # Must be in sync with Ansible hostnames listed in inventory.
-    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['cpu_r630']|list|length }}{% else %}1{% endif %}"
-    max_cores_per_node: "{{ groups['cpu_r630'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
-    max_mem_per_node: "{{ groups['cpu_r630'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
-    local_disk: "{{ groups['cpu_r630'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
-    features: "{{ groups['cpu_r630'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.125G" DenyQos=ds-short,ds-medium,ds-long'
   - name: cpu_r6515  # Must be in sync with group listed in Ansible inventory.
     default: no
     nodes: "{{ stack_prefix }}-node-b01"  # Must be in sync with Ansible hostnames listed in inventory.
-    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['cpu_r6515']|list|length }}{% else %}1{% endif %}"
-    max_cores_per_node: "{{ groups['cpu_r6515'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
-    max_mem_per_node: "{{ groups['cpu_r6515'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
-    local_disk: "{{ groups['cpu_r6515'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
-    features: "{{ groups['cpu_r6515'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.125G" DenyQos=ds-short,ds-medium,ds-long'
   - name: cpu_vm  # Must be in sync with group listed in Ansible inventory.
     default: no
     nodes: "{{ stack_prefix }}-node-c01"  # Must be in sync with Ansible hostnames listed in inventory.
-    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['cpu_vm']|list|length }}{% else %}1{% endif %}"
-    max_cores_per_node: "{{ groups['cpu_vm'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
-    max_mem_per_node: "{{ groups['cpu_vm'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
-    local_disk: "{{ groups['cpu_vm'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
-    features: "{{ groups['cpu_vm'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.5G" DenyQos=ds-short,ds-medium,ds-long'
   - name: user_interface  # Must be in sync with group listed in Ansible inventory.
     default: no
     nodes: "{{ slurm_cluster_name }}"  # Must be in sync with Ansible hostnames listed in inventory.
-    max_nodes_per_job: 1
-    max_cores_per_node: 1
-    max_mem_per_node: 1024
-    local_disk: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
-    features: "{{ groups['user_interface'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=1.0G" AllowQos=ds-short,ds-medium,ds-long'
 #
 # Remote logging settings - for diagnostics servers
 #
 cluster_class: 'development'
 repo_manager: 'pulp'
-os_distribution: 'rocky9'
+os_distribution: 'alma9'
+os_minorversion: '.8'
 figlet_font: 'ogre'
 motd: |
       =========================================================================
@@ -85,6 +66,25 @@ ldap_domains:
     user_ssh_public_key: sshPublicKey
     user_member_of: groupMembership
     group_member: member
+  ladap:
+    # must be FQDN or certificate authentication with LDAP server fails
+    uri: ldaps://ladap.westeurope.cloudapp.azure.com
+    base: dc=donbot_azure,dc=local
+    # rfc2307bis for LADAP, because group members are stored in each group and
+    # not in the user profile
+    schema: rfc2307bis
+    min_id: 37800000
+    max_id: 37999999
+    user_object_class: posixAccount
+    user_name: mail
+    user_ssh_public_key: sshPublicKey
+    user_member_of: member
+    group_object_class: groupofnames
+    group_member: member
+    # Path of the home directory should not be depending on the username (as it
+    # can change). Instead we use %U to make it stable, unique (/home/[uid])
+    # and persistent across systems
+    override_homedir: '/home/%U'
   idvault:
     uri: ldaps://svrs.id.rug.nl
     base: ou=umcg,o=asds
@@ -99,6 +99,9 @@ ldap_domains:
     group_member: memberUid
     group_object_class: groupofnames
     # listserv_mailinglist: Be careful not to use a production mailinglist for testing!
+# Install auto-subgroup generate scripts
+# depending on having `ladap` in `ldap_domains`
+subgroup_directories_auto_is_enabled: true
 pam_weblogin:
   machines: "{{ groups['jumphost'] }}"
   excluded:
@@ -113,7 +116,7 @@ pam_weblogin:
   max_uid: "{{ ldap_domains['sram']['max_id'] }}"
   retries: 3
   cache_duration: 3600  # seconds
-cloud_image: Rocky-9.6
+cloud_image: AlmaLinux-9-GenericCloud-9.8-20260526
 availability_zone: nova
 enable_predictable_network_interface_names: true
 stack_networks:
@@ -156,13 +159,14 @@ local_admin_users:
   - 'pieter'
   - 'robin'
   - 'sandi'
+  - 'steven'
   - 'wim'
   - 'wouter'
 data_transfer_only_group: 'umcg-sftp-only'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 functional_admin_group: 'umcg-funad'
-functional_users_group: 'umcg-funus'  # For all functional accounts. Used in /etc/security/access.conf.
+functional_users_group: 'umcg-funus'  # For all functional accounts. Used in /etc/security/access.conf on chaperones.
 hpc_env_prefix: '/apps'
 sponsors:
   - name: umcg-research-it
@@ -227,26 +231,22 @@ regular_users:
   - name: 'umcg-vipt-dm'
     groups: ['umcg-vipt', "{{ functional_users_group }}"]
 sudoers:
+  - who: ['%L-gcc']
+    become: ['L-gcc-dm']
   - who: ['%umcg-atd', '%umcg-gsad', '%umcg-gst']
-    become: 'umcg-molgenis'
+    become: ['umcg-molgenis']
   - who: ['%umcg-atd']
-    become: 'umcg-atd-dm'
-  - who: ['%umcg-atd']
-    become: 'umcg-atd-ateambot'
+    become: ['umcg-atd-dm', 'umcg-atd-ateambot']
   - who: ['%umcg-gcc']
-    become: 'umcg-gcc-dm'
+    become: ['umcg-gcc-dm']
   - who: ['%umcg-gsad']
-    become: 'umcg-gsad-ateambot'
-  - who: ['%umcg-gsad']
-    become: 'umcg-gsad-dm'
+    become: ['umcg-gsad-ateambot', 'umcg-gsad-dm']
   - who: ['%umcg-gst']
-    become: 'umcg-gst-ateambot'
-  - who: ['%umcg-gst']
-    become: 'umcg-gst-dm'
+    become: ['umcg-gst-ateambot', 'umcg-gst-dm']
   - who: ['%umcg-sysops']
-    become: 'umcg-sysops-dm'
+    become: ['umcg-sysops-dm']
   - who: ['%umcg-vipt']
-    become: 'umcg-vipt-dm'
+    become: ['umcg-vipt-dm']
 #
 # Shared storage related variables
 #
@@ -271,6 +271,7 @@ lfs_mounts:
     pfs: umcgst04/slice5
     type: bind
     groups:
+      - name: L-gcc
       - name: umcg-atd
       - name: umcg-gcc
       - name: umcg-gsad
@@ -282,6 +283,7 @@ lfs_mounts:
     pfs: umcgst04/slice5
     type: bind
     groups:
+      - name: L-gcc
       - name: umcg-gcc
       - name: umcg-sysops
     ro_machines: "{{ groups['compute_node'] }}"

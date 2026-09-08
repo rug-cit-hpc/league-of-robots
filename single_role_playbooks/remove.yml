@@ -11,6 +11,8 @@
     - docs
     - irods
     - logs
+    - repo_servers
+    - silo
   roles:
     - remove
 ...

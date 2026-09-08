@@ -9,11 +9,6 @@ slurm_partitions:
   - name: regular  # Must be in sync with group listed in Ansible inventory.
     default: yes
     nodes: forkhead  # Must be in sync with Ansible hostnames listed in inventory.
-    max_nodes_per_job: "{% if slurm_allow_jobs_to_span_nodes is defined and slurm_allow_jobs_to_span_nodes is true %}{{ groups['regular']|list|length }}{% else %}1{% endif %}"
-    max_cores_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_cpus_per_node') | first }}"
-    max_mem_per_node: "{{ groups['regular'] | map('extract', hostvars, 'slurm_max_mem_per_node') | first }}"
-    local_disk: "{{ groups['regular'] | map('extract', hostvars, 'slurm_local_disk') | first | default(0, true) }}"
-    features: "{{ groups['regular'] | map('extract', hostvars, 'slurm_features') | first | default('none') }}"
     extra_options: 'TRESBillingWeights="CPU=1.0,Mem=0.25G"'
 repo_manager: 'none'
 os_distribution: 'centos7'
@@ -67,11 +62,6 @@ iptables_allow_ssh_outbound:
   - "{{ betabarrel_cluster.ip_addresses['bb-porch']['vlan16'] }}"
   - "{{ copperfist_cluster.ip_addresses['cf-porch']['external'] }}"
 main_backup_folder: '/mnt/pssd_backup/'
-local_backups: # list of folders for cron to make daily backup
-  - name: apps # don't modify after once deployed!
-    src_path: '/apps'
-    frequency:
-     - { name: 'daily', hour: '5', minute: '47', day: '*', weekday: '*', month: '*', keep: '60', disabled: 'false' }
 local_admin_groups:
   - 'admin'
   - 'docker'
@@ -90,7 +80,7 @@ data_transfer_only_group: 'umcg-sftp-only'
 envsync_user: 'umcg-envsync'
 envsync_group: 'umcg-depad'
 functional_admin_group: 'umcg-funad'
-functional_users_group: 'umcg-funus'  # For all functional accounts. Used in /etc/security/access.conf.
+functional_users_group: 'umcg-funus'  # For all functional accounts. Used in /etc/security/access.conf on chaperones.
 hpc_env_prefix: '/apps'
 regular_groups:
   - name: "{{ envsync_group }}"

@@ -44,10 +44,9 @@ We follow the [Python PEP8 naming conventions](https://www.python.org/dev/peps/p
 This repo currently contains code and configs for the following clusters:
 
  * Talos: Development cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
- * Gearshift: [UMCG](https://www.umcg.nl) Research IT production cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
+ * Hyperchicken: Development cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
+ * Vaxtron: [UMCG](https://www.umcg.nl) Research IT production cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
  * Nibbler: [UMCG](https://www.umcg.nl) Research IT production cluster hosted by the [Center for Information Technology (CIT) at the University of Groningen](https://www.rug.nl/society-business/centre-for-information-technology/).
- * Hyperchicken: Development cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
- * Fender: [Solve-RD](solve-rd.eu/) production cluster hosted by [The European Bioinformatics Institute (EMBL-EBI)](https://www.ebi.ac.uk/) in the [Embassy Cloud](https://www.embassycloud.org/).
 
 Deployment and functional administration of all clusters is a joined effort of the
 [Genomics Coordination Center (GCC)](http://wiki.gcc.rug.nl/)
@@ -97,10 +96,7 @@ Deploying a fully functional stack of virtual machines from scratch involves the
     * Off topic for this repo.
  2. Deploy OpenStack virtualization layer on physical machines to create an OpenStack cluster.
     * Off topic for this repo.
-    * For the _Shikra_ cloud, which hosts the _Talos_ and _Gearshift_ HPC clusters
-      we use the ansible playbooks from the [hpc-cloud](https://git.webhosting.rug.nl/HPC/hpc-cloud) repository
-      to create the OpenStack cluster.
-    * For other HPC clusters we use OpenStack clouds from other service providers _as is_.
+    * For our HPC clusters we use OpenStack clouds from other service providers _as is_.
  3. Create, start and configure virtual networks and machines on an OpenStack cluster.
     * This repo.
  4. Deploy bioinformatics software and reference datasets.
@@ -135,15 +131,11 @@ pip3 install wheel
 pip3 install setuptools  # No longer part of default Python >= 3.12.x, but we need it.
 pip3 install ruamel.yaml
 pip3 install netaddr
+pip3 install passlib
 #
 # Package dnspython is required for Ansible lookup plugin community.general.dig
 #
 pip3 install dnspython
-#
-# On macOS only to prevent this error:
-# crypt.crypt not supported on Mac OS X/Darwin, install passlib python module.
-#
-pip3 install passlib
 #
 # Optional: install Ansible and the Ansible linter with pip.
 # You may skip this step if you already installed Ansible by other means.
@@ -167,7 +159,8 @@ pip3 install mitogen
 
 ```bash
 pip3 install openstacksdk
-pip3 install openstackclient
+pip3 install openstackclient # for python <= 3.12
+pip3 install python-openstackclient # for python >= 3.13
 ```
 
 #### 2. Import the required roles and collections for the playbooks.
@@ -187,22 +180,37 @@ Therefore we set ```ANSIBLE_ROLES_PATH``` and ```ANSIBLE_COLLECTIONS_PATH``` to 
 
 **Make sure you already executed `ansible-galaxy install -r requirements.yml`** (see previous step), because it installs the `requirements.txt` file required by `pip` in this step.
 
-```bash
-pip install azure-cli # if issues occur, try to version lock it to azure-cli==2.61.0 azure azcollection >= 2.6.0 works with it
-# requirements.txt is provided from ansible-galaxy
-_azure_pip_requirements="$(find "${VIRTUAL_ENV}" -path "*/azure/azcollection/requirements.txt" 2>/dev/null)"
-pip install -r "${_azure_pip_requirements}"
-```
-
 See also Galaxy Ansible [Azure Azcollection > Documentation](https://galaxy.ansible.com/ui/repo/published/azure/azcollection/docs/)
-
-If there are issues, run (after ^) also
 
 ```bash
 pip install --upgrade pip   # needed to find newest packages
 ansible-galaxy collection install azure.azcollection --force   # forcefully reinstall collection
-pip install -r "${_azure_pip_requirements}"   # then install the rest of the dependencies
+pip install -r python.venv/ansible/ansible_collections/azure/azcollection/requirements.txt
+# now, due to the new bug the azure-cli and azcollection don't match the msal versions and therefore
+# `az login` fails. To prevent this, I use pipx to separately install `azure-cli` - which provides
+# functionality of `az login` without sharing and messing dependencies of rest of the azcollection
+pip install pipx
+pipx install azure-cli
+# If ^ fails then use this:
+# find "${VIRTUAL_ENV}" -path "*/azure/azcollection/requirements.txt" -exec pip install -r {} \;
 ```
+
+Legacy
+
+> ```bash
+> pip install azure-cli # if issues occur, try to version lock it to azure-cli==2.61.0 azure azcollection >= 2.6.0 works with it
+> # requirements.txt is provided from ansible-galaxy
+> _azure_pip_requirements="$(find "${VIRTUAL_ENV}" -path "*/azure/azcollection/requirements.txt" 2>/dev/null)"
+> pip install -r "${_azure_pip_requirements}"
+> ```
+>
+> If there are issues, run (after ^) also
+>
+> ```bash
+> pip install --upgrade pip   # needed to find newest packages
+> ansible-galaxy collection install azure.azcollection --force   # forcefully reinstall collection
+> pip install -r "${_azure_pip_requirements}"   # then install the rest of the dependencies
+> ```
 
 Login to the Azure via CLI
 

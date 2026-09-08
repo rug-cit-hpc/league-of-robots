@@ -2,6 +2,7 @@
 - name: Create security groups.
   ansible.builtin.include_tasks:
     file: security_groups.yml
+  run_once: true
 
 - name: Create networks and subnets.
   ansible.builtin.include_tasks:
@@ -11,4 +12,11 @@
             | selectattr('create', 'equalto', true) }}"
   loop_control:
     loop_var: network
+  run_once: true
+
+- name: Prepare internal and external network interfaces
+  ansible.builtin.include_tasks:
+    file: interfaces.yml
+  when:
+    - hostvars[inventory_hostname]['azure_flavor'] is defined
 ...
