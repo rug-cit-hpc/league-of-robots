@@ -333,6 +333,12 @@ all:
                       dhcp: false
                   lnet:
                     name: tcp20
+              disabled_network_interfaces:
+                - name: eno1
+                - name: eno2
+                - name: eno3
+                - name: eno4
+                - name: enp130s0f1
               perc_devices: true
               local_mounts:
                 - mount_point: "{{ slurm_local_scratch_dir }}"
