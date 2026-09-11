@@ -5,9 +5,20 @@
   when:
     - inventory_hostname in groups['sys_admin_interface']
 
-- name: Deploy hieararchical structure tools
+- name: Check if privilege escalation is possible
+  ansible.builtin.command: whoami
+  become: true
+  register: become_check
+  ignore_errors: true
+  changed_when: false
+  when:
+    - inventory_hostname in groups['user_interface']
+
+- name: Deploy hierarchical structure tools
   ansible.builtin.include_tasks:
     file: hierarchical_auto_ldap_structure.yml
   when:
     - inventory_hostname in groups['user_interface']
+    - become_check is defined
+    - become_check is succeeded
 ...
