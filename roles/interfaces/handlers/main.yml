@@ -24,7 +24,7 @@
   become: true
   listen: rebuild_grub_config_by_interfaces_role
 
-- name: Reboot to activate updated GRUB config.
+- name: Reboot to activate updated GRUB or updated NetworkManager config.
   ansible.builtin.reboot:
     msg: 'Reboot initiated by Ansible "interfaces" role from League of Robots playbook/repo.'
   become: true

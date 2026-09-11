@@ -46,6 +46,16 @@ nmcli connection show
 #
 nmcli device status
 #
+# Listing the "reason" for the "state" of all network devices;
+# E.g. this can be used to figure out why a device is "unmanged",
+# which can be for example due to
+#  * The device is unmanaged by user decision in NetworkManager.conf ('unmanaged' in a [device*] section)
+#  * The device is unmanaged by explicit user decision (e.g. 'nmcli device set ${DEV} managed no')
+#  * The device is unmanaged via udev rule.
+#  * ... see https://networkmanager.dev/docs/libnm/latest/libnm-nm-dbus-interface.html for complete reference.
+#
+nmcli -f GENERAL.DEVICE,GENERAL.STATE,GENERAL.REASON device show
+#
 # List the state of a network device using nmstate;
 # nmstate does not differentiate between connections and devices:
 # it always operates directly on a network device and
@@ -246,6 +256,29 @@ all:
                   dhcp: false
 ```
 
+To prevent NetworkManager from spamming the logs regarding interfaces it fails to configure and bring online,
+you can add unused network interfaces to a `disabled_network_interfaces` list.
+This role will append these interfaces to the list of _unmanaged_ network interfaces at the bottom of
+```
+/etc/NetworkManager/conf.d/99-custom.conf
+```
+**Important**: changing the list of _unmanaged_ interfaces will result in a reboot of the machine;
+simply restarting the NetworkManager service is not enough to clear the cache in `/run/NetworkManager/devices/`
+
+Configure which network interfaces NetworkManager should ignore per machine in `static_inventory/{{ stack_name }}.yml`:
+
+```yaml
+---
+all:
+  children:
+    [inventory_group]:
+      hosts:
+        [inventory_hostname]:
+          disabled_network_interfaces:
+            - name: eno1
+            - name: eno2
+```
+
 Example with subset of machines for the Talos test cluster:
 
 ```yaml
@@ -303,6 +336,9 @@ all:
                       base-iface: enp65s0np0
                     ipv4:
                       dhcp: false
+              disabled_network_interfaces:
+                - name: eno1
+                - name: eno2
 ```
 
 ### Commands for debugging and config files used.
